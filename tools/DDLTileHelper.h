@@ -55,7 +55,7 @@ public:
 
         // Draw the result of replaying the DDL (i.e., 'fImage') into the
         // final destination surface ('fDstSurface').
-        void compose(GrContext*);
+        void compose();
 
         void reset();
 
@@ -63,22 +63,13 @@ public:
 
         SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
 
-        static void CreateBackendTexture(GrContext*, TileData*);
-        static void DeleteBackendTexture(GrContext*, TileData*);
-
     private:
-        sk_sp<SkSurface> makeWrappedTileDest(GrContext* context);
-
         int                       fID = -1;
         sk_sp<SkSurface>          fDstSurface;       // the ultimate target for composition
-
-        GrBackendTexture          fBackendTexture;   // destination for this tile's content
         SkSurfaceCharacterization fCharacterization; // characterization for the tile's surface
         SkIRect                   fClip;             // in the device space of the 'fDstSurface'
 
-        // 'fTileSurface' wraps 'fBackendTexture' and must exist until after 'fDisplayList'
-        // has been flushed.
-        sk_sp<SkSurface>          fTileSurface;
+        sk_sp<SkImage>            fImage;            // the result of replaying the DDL
         sk_sp<SkPicture>          fReconstitutedPicture;
         SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
                                                      // reconstituted picture
@@ -114,14 +105,11 @@ public:
     // DDLs first - all on a single thread.
     void drawAllTilesDirectly(GrContext*);
 
-    void composeAllTiles(GrContext*);
+    void composeAllTiles();
 
     void resetAllTiles();
 
     int numTiles() const { return fNumDivisions * fNumDivisions; }
-
-    void createBackendTextures(SkTaskGroup*, GrContext*);
-    void deleteBackendTextures(SkTaskGroup*, GrContext*);
 
 private:
     int                fNumDivisions; // number of tiles along a side

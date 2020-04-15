@@ -72,11 +72,7 @@ private:
     public:
         // Upon being replayed - this field will be filled in (by the DrawingManager) with the
         // proxy backing the destination SkSurface. Note that, since there is no good place to
-        // clear it, it can become a dangling pointer. Additionally, since the renderTargetProxy
-        // doesn't get a ref here, the SkSurface that owns it must remain alive until the DDL
-        // is flushed.
-        // TODO: the drawing manager could ref the renderTargetProxy for the DDL and then add
-        // a renderingTask to unref it after the DDL's ops have been executed.
+        // clear it, it can become a dangling pointer.
         GrRenderTargetProxy* fReplayDest = nullptr;
 #endif
     };
