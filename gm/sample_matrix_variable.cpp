@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/effects/SkGradientShader.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
@@ -88,8 +89,9 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
                                                    SK_ARRAY_COUNT(colors),
                                                    SkTileMode::kRepeat);
         SkMatrix matrix;
+        SkSimpleMatrixProvider matrixProvider(matrix);
         GrColorInfo colorInfo;
-        GrFPArgs args(ctx, &matrix, kHigh_SkFilterQuality, &colorInfo);
+        GrFPArgs args(ctx, matrixProvider, kHigh_SkFilterQuality, &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
         gradientFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
         auto fp = std::unique_ptr<GrFragmentProcessor>(

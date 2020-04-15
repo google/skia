@@ -13,6 +13,7 @@
 #include "src/core/SkBlurPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStringUtils.h"
@@ -807,7 +808,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         sk_sp<SkVertices> vertices = builder.detach();
 
         paint.addCoverageFragmentProcessor(std::move(fp));
-        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix, std::move(vertices));
+        SkSimpleMatrixProvider matrixProvider(viewMatrix);
+        renderTargetContext->drawVertices(clip, std::move(paint), matrixProvider,
+                                          std::move(vertices));
     } else {
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {

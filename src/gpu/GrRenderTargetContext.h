@@ -41,7 +41,7 @@ class SkGlyphRunList;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
-class SkMarkedMatrixProvider;
+class SkMatrixProvider;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -140,7 +140,7 @@ public:
 
     ~GrRenderTargetContext() override;
 
-    virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
+    virtual void drawGlyphRunList(const GrClip&, const SkMatrixProvider&, const SkGlyphRunList&);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -421,11 +421,10 @@ public:
      */
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
-                      const SkMatrix& viewMatrix,
+                      const SkMatrixProvider& matrixProvider,
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr,
-                      const SkRuntimeEffect* effect = nullptr,
-                      const SkMarkedMatrixProvider* matrixProvider = nullptr);
+                      const SkRuntimeEffect* effect = nullptr);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

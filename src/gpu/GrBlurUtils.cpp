@@ -24,6 +24,7 @@
 #include "include/core/SkPaint.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/SkGr.h"
 
@@ -452,17 +453,19 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const SkPaint& paint,
-                                          const SkMatrix& viewMatrix,
+                                          const SkMatrixProvider& matrixProvider,
                                           const GrStyledShape& shape) {
     if (context->priv().abandoned()) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, renderTargetContext->colorInfo(), paint, viewMatrix, &grPaint)) {
+    if (!SkPaintToGrPaint(context, renderTargetContext->colorInfo(), paint, matrixProvider,
+                          &grPaint)) {
         return;
     }
 
+    const SkMatrix& viewMatrix(matrixProvider.localToDevice());
     SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint

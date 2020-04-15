@@ -209,9 +209,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     font.setEdging(SkFont::Edging::kAlias);
 
     const char* text = "a";
+    SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
 
-    std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(
-            context, textContext, rtc.get(), paint, font, SkMatrix::I(), text, 16, 16);
+    std::unique_ptr<GrDrawOp> op =
+            textContext->createOp_TestingOnly(context, textContext, rtc.get(), paint, font,
+                                              matrixProvider, text, 16, 16);
     bool hasMixedSampledCoverage = false;
     op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
 
