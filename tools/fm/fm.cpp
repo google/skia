@@ -215,7 +215,8 @@ static void init(Source* source, const skiatest::Test& test) {
             SkString msg;
 
             void reportFailed(const skiatest::Failure& failure) override {
-                msg = failure.toString();
+                msg += failure.toString();
+                msg += "\n";
             }
         } reporter;
 
