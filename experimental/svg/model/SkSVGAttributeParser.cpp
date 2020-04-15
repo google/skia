@@ -150,16 +150,41 @@ bool SkSVGAttributeParser::parseHexColorToken(SkColor* c) {
 }
 
 bool SkSVGAttributeParser::parseColorComponentToken(int32_t* c) {
-    fCurPos = SkParse::FindS32(fCurPos, c);
-    if (!fCurPos) {
+    const auto parseIntegral = [this](int32_t* c) -> bool {
+        const char* p = SkParse::FindS32(fCurPos, c);
+        if (!p || *p == '.') {
+            // No value parsed, or fractional value.
+            return false;
+        }
+
+        if (*p == '%') {
+            *c = SkScalarRoundToInt(*c * 255.0f / 100);
+            p++;
+        }
+
+        fCurPos = p;
+        return true;
+    };
+
+    const auto parseFractional = [this](int32_t* c) -> bool {
+        SkScalar s;
+        const char* p = SkParse::FindScalar(fCurPos, &s);
+        if (!p || *p != '%') {
+            // Floating point must be a percentage (CSS2 rgb-percent syntax).
+            return false;
+        }
+        p++;  // Skip '%'
+
+        *c = SkScalarRoundToInt(s * 255.0f / 100);
+        fCurPos = p;
+        return true;
+    };
+
+    if (!parseIntegral(c) && !parseFractional(c)) {
         return false;
     }
 
-    if (*fCurPos == '%') {
-        *c = SkScalarRoundToInt(*c * 255.0f / 100);
-        fCurPos++;
-    }
-
+    *c = SkTPin<int32_t>(*c, 0, 255);
     return true;
 }
 
@@ -181,13 +206,15 @@ bool SkSVGAttributeParser::parseRGBColorToken(SkColor* c) {
     }, c);
 }
 
+// https://www.w3.org/TR/SVG11/types.html#DataTypeColor
+// And https://www.w3.org/TR/CSS2/syndata.html#color-units for the alternative
+// forms supported by SVG (e.g. RGB percentages).
 bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
     SkColor c;
 
     // consume preceding whitespace
     this->parseWSToken();
 
-    // TODO: rgb(...)
     bool parsedValue = false;
     if (this->parseHexColorToken(&c)
         || this->parseNamedColorToken(&c)
