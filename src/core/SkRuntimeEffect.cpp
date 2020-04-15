@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
@@ -50,6 +51,25 @@ private:
     static SkSL::Compiler* gCompiler;
 };
 SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
+}
+
+// Accepts either "[a-zA-Z0-9_]+" or "normals([a-zA-Z0-9_]+)"
+static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
+    SkString s = marker;
+    if (s.startsWith("normals(") && s.endsWith(')')) {
+        *flags |= SkRuntimeEffect::Variable::kMarkerNormals_Flag;
+        s.set(marker.fChars + 8, marker.fLength - 9);
+    }
+    if (s.isEmpty()) {
+        return false;
+    }
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (!std::isalnum(s[i]) && s[i] != '_') {
+            return false;
+        }
+    }
+    *id = SkOpts::hash_fn(s.c_str(), s.size(), 0);
+    return true;
 }
 
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
@@ -200,6 +220,18 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                    type->displayName().c_str());
                                 }
                                 break;
+                        }
+
+                        const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
+                        if (marker.fLength) {
+                            // Rules that should be enforced by the IR generator:
+                            SkASSERT(v.fQualifier == Variable::Qualifier::kUniform);
+                            SkASSERT(v.fType == Variable::Type::kFloat4x4);
+                            v.fFlags |= Variable::kMarker_Flag;
+                            if (!parse_marker(marker, &v.fMarker, &v.fFlags)) {
+                                RETURN_FAILURE("Invalid 'marker' string: '%.*s'",
+                                               (int)marker.fLength, marker.fChars);
+                            }
                         }
 
                         if (v.fType != Variable::Type::kBool) {
@@ -738,7 +770,35 @@ public:
         if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
-        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs);
+        // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
+        sk_sp<SkData> inputs = fInputs;
+
+        for (const auto& v : fEffect->inputs()) {
+            if (v.hasMarker()) {
+                if (inputs == fInputs) {
+                    inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
+                }
+                SkASSERT(v.fType == SkRuntimeEffect::Variable::Type::kFloat4x4);
+                SkM44* localToMarker = SkTAddOffset<SkM44>(inputs->writable_data(), v.fOffset);
+                if (!args.fMatrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
+                    // We couldn't provide a matrix that was requested by the SkSL
+                    SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
+                    return nullptr;
+                }
+                if (v.hasNormalsMarker()) {
+                    // Normals need to be transformed by the inverse-transpose of the upper-left
+                    // 3x3 portion (scale + rotate) of the matrix.
+                    localToMarker->setRow(3, {0, 0, 0, 1});
+                    localToMarker->setCol(3, {0, 0, 0, 1});
+                    if (!localToMarker->invert(localToMarker)) {
+                        return nullptr;
+                    }
+                    *localToMarker = localToMarker->transpose();
+                }
+            }
+        }
+
+        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs));
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
             if (!childFP) {

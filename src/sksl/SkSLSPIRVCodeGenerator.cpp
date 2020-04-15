@@ -1823,7 +1823,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             SkASSERT(fProgram.fSettings.fRTHeightOffset >= 0);
             fields.emplace_back(Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1,
                                                  -1, -1, -1, -1, Layout::Format::kUnspecified,
-                                                 Layout::kUnspecified_Primitive, -1, -1, "",
+                                                 Layout::kUnspecified_Primitive, -1, -1, "", "",
                                                  Layout::kNo_Key, Layout::CType::kDefault), 0),
                                 SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
             StringFragment name("sksl_synthetic_uniforms");
@@ -1834,7 +1834,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             SkASSERT(binding != -1 && set != -1);
 
             Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
-                          Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
+                          Layout::kUnspecified_Primitive, -1, -1, "", "", Layout::kNo_Key,
                           Layout::CType::kDefault);
             Variable* intfVar = (Variable*) fSynthetics.takeOwnership(std::unique_ptr<Symbol>(
                                            new Variable(-1,

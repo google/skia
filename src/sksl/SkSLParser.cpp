@@ -85,6 +85,7 @@ void Parser::InitLayoutMap() {
     TOKEN(TRIANGLES_ADJACENCY,          "triangles_adjacency");
     TOKEN(MAX_VERTICES,                 "max_vertices");
     TOKEN(INVOCATIONS,                  "invocations");
+    TOKEN(MARKER,                       "marker");
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
     TOKEN(TRACKED,                      "tracked");
@@ -771,14 +772,15 @@ Layout Parser::layout() {
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
+    StringFragment marker;
     StringFragment when;
     Layout::Key key = Layout::kNo_Key;
     Layout::CType ctype = Layout::CType::kDefault;
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {
         if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
             return Layout(flags, location, offset, binding, index, set, builtin,
-                          inputAttachmentIndex, format, primitive, maxVertices, invocations, when,
-                          key, ctype);
+                          inputAttachmentIndex, format, primitive, maxVertices, invocations, marker,
+                          when, key, ctype);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -894,6 +896,9 @@ Layout Parser::layout() {
                     case LayoutToken::INVOCATIONS:
                         invocations = this->layoutInt();
                         break;
+                    case LayoutToken::MARKER:
+                        marker = this->layoutCode();
+                        break;
                     case LayoutToken::WHEN:
                         when = this->layoutCode();
                         break;
@@ -921,7 +926,7 @@ Layout Parser::layout() {
         }
     }
     return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  format, primitive, maxVertices, invocations, when, key, ctype);
+                  format, primitive, maxVertices, invocations, marker, when, key, ctype);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |

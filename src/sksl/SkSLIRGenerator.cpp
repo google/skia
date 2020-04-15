@@ -288,6 +288,17 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
     if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
+    if (modifiers.fLayout.fMarker.fLength) {
+        if (fKind != Program::kPipelineStage_Kind) {
+            fErrors.error(decls.fOffset, "'marker' is only permitted in runtime effects");
+        }
+        if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
+            fErrors.error(decls.fOffset, "'marker' is only permitted on 'uniform' variables");
+        }
+        if (*baseType != *fContext.fFloat4x4_Type) {
+            fErrors.error(decls.fOffset, "'marker' is only permitted on float4x4 variables");
+        }
+    }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         if (fKind != Program::kPipelineStage_Kind) {
             fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");

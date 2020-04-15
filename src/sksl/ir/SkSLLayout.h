@@ -189,7 +189,7 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, StringFragment when, Key key, CType ctype)
+           int invocations, StringFragment marker, StringFragment when, Key key, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -202,6 +202,7 @@ struct Layout {
     , fPrimitive(primitive)
     , fMaxVertices(maxVertices)
     , fInvocations(invocations)
+    , fMarker(marker)
     , fWhen(when)
     , fKey(key)
     , fCType(ctype) {}
@@ -377,6 +378,10 @@ struct Layout {
             result += separator + "invocations = " + to_string(fInvocations);
             separator = ", ";
         }
+        if (fMarker.fLength) {
+            result += separator + "marker = " + fMarker;
+            separator = ", ";
+        }
         if (fWhen.fLength) {
             result += separator + "when = " + fWhen;
             separator = ", ";
@@ -403,6 +408,7 @@ struct Layout {
                fPrimitive            == other.fPrimitive &&
                fMaxVertices          == other.fMaxVertices &&
                fInvocations          == other.fInvocations &&
+               fMarker               == other.fMarker &&
                fWhen                 == other.fWhen &&
                fKey                  == other.fKey &&
                fCType                == other.fCType;
@@ -428,6 +434,8 @@ struct Layout {
     Primitive fPrimitive;
     int fMaxVertices;
     int fInvocations;
+    // marker refers to matrices tagged on the SkCanvas with markCTM
+    StringFragment fMarker;
     StringFragment fWhen;
     Key fKey;
     CType fCType;
