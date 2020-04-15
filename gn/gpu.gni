@@ -757,6 +757,8 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DTypesPriv.cpp",
   "$_src/gpu/d3d/GrD3DUtil.cpp",
   "$_src/gpu/d3d/GrD3DUtil.h",
+  "$_src/gpu/d3d/GrD3DVaryingHandler.cpp",
+  "$_src/gpu/d3d/GrD3DVaryingHandler.h",
 ]
 
 skia_dawn_sources = [
