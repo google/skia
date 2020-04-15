@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "5770c529_60876f5d",
+        "filename": "src/core/SkMarkerStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:57:43Z",
+      "side": 1,
+      "message": "Just to hide the rest of Device from lower level code. I don\u0027t think any other class will implement this, but I figured people might get queasy if I started passing the entire device down.",
+      "parentUuid": "d35e8634_4d56c4ca",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 2
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c88de9f_33bb6c70",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 7
@@ -342,6 +366,30 @@
       "writtenOn": "2020-04-15T13:51:07Z",
       "side": 1,
       "message": "Can we put this in an anonymous namespace?",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a6e0936_d7f014fd",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:57:43Z",
+      "side": 1,
+      "message": "It\u0027s actually in one. (Almost this entire file is, in fact).",
+      "parentUuid": "af0948a1_eb08e3bb",
       "range": {
         "startLine": 62,
         "startChar": 6,
@@ -668,6 +716,30 @@
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95e1b442_46194c38",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:57:43Z",
+      "side": 1,
+      "message": "I added the operator!\u003d while making changes from his feedback, then forgot to update this usage.",
+      "parentUuid": "27804c93_82fe9669",
+      "range": {
+        "startLine": 772,
+        "startChar": 7,
+        "endLine": 772,
+        "endChar": 60
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
