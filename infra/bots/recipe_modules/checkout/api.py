@@ -73,6 +73,9 @@ if 'cipd_bin_packages' not in git:
     cfg_kwargs['CACHE_DIR'] = gclient_cache
 
     if checkout_flutter:
+      cmd = ['chmod', '-R' '777', checkout_root]
+      name = ' '.join([str(elem) for elem in cmd])
+      self.m.step(name, cmd=cmd, infra_step=True)
       # Delete the flutter cache to start from scratch every time.
       # See skbug.com/9994.
       self.m.run.rmtree(checkout_root)
