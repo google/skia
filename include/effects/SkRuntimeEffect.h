@@ -8,8 +8,10 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
+#include "include/core/SkData.h"
 #include "include/core/SkString.h"
 
+#include <algorithm>
 #include <vector>
 
 #if SK_SUPPORT_GPU
@@ -56,7 +58,9 @@ public:
         };
 
         enum Flags {
-            kArray_Flag = 0x1,
+            kArray_Flag         = 0x1,
+            kMarker_Flag        = 0x2,
+            kMarkerNormals_Flag = 0x4,
         };
 
         SkString  fName;
@@ -65,12 +69,15 @@ public:
         Type      fType;
         int       fCount;
         uint32_t  fFlags;
+        uint32_t  fMarker;
 
 #if SK_SUPPORT_GPU
         GrSLType fGPUType;
 #endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool hasMarker() const { return SkToBool(fFlags & kMarker_Flag); }
+        bool hasNormalsMarker() const { return SkToBool(fFlags & kMarkerNormals_Flag); }
         size_t sizeInBytes() const;
     };
 
@@ -138,6 +145,52 @@ public:
     static void RegisterFlattenables();
 
     ~SkRuntimeEffect();
+
+    // Simple utility to create an input data block for a particular effect. Usage:
+    //   sk_sp<SkRuntimeEffect> effect = ...;
+    //   SkRuntimeEffect::InputBuilder inputs(effect);
+    //   inputs["some_uniform_float"]  = 3.14f;
+    //   inputs["some_uniform_matrix"] = SkM44::Rotate(...);
+    //   ...
+    //   sk_sp<SkShader> shader = effect->makeShader(inputs.fData, ...);
+    struct InputBuilder {
+        InputBuilder(sk_sp<SkRuntimeEffect> effect)
+            : fEffect(std::move(effect))
+            , fData(SkData::MakeUninitialized(fEffect->inputSize())) {}
+
+        struct InputBuilderVar {
+            // Copy 'val' to this variable. No type conversion is performed - 'val' must be same
+            // size as expected by the effect. Information about the variable can be queried by
+            // looking at fVar. If the size is incorrect, no copy will be performed, and debug
+            // builds will abort. If this is the result of querying a missing variable, fVar will
+            // be nullptr, and assigning will also do nothing (and abort in debug builds).
+            template <typename T> InputBuilderVar& operator=(const T& val) {
+                if (!fVar) {
+                    SkDEBUGFAIL("Assigning to missing variable");
+                } else if (sizeof(val) != fVar->sizeInBytes()) {
+                    SkDEBUGFAIL("Incorrect value size");
+                } else {
+                    memcpy(SkTAddOffset<void>(fOwner->fData->writable_data(), fVar->fOffset), &val,
+                           sizeof(val));
+                }
+                return *this;
+            }
+
+            InputBuilder* fOwner;
+            const SkRuntimeEffect::Variable* fVar;  // nullptr if the variable was not found
+        };
+
+        InputBuilderVar operator[](const char* name) {
+            auto varIter = std::find_if(fEffect->inputs().begin(), fEffect->inputs().end(),
+                                        [name](const auto& v) { return v.fName.equals(name); });
+            const SkRuntimeEffect::Variable* varPtr =
+                    (varIter == fEffect->inputs().end()) ? nullptr : &(*varIter);
+            return { this, varPtr };
+        }
+
+        sk_sp<SkRuntimeEffect> fEffect;
+        sk_sp<SkData>          fData;
+    };
 
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
