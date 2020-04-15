@@ -182,6 +182,8 @@ namespace skvm {
         void vroundps(Ymm dst, Ymm x, Rounding);
 
         void vmovdqa(Ymm dst, YmmOperand x);
+        void vmovups(Ymm dst, YmmOperand x);
+        void vmovups(YmmOperand dst, Ymm x);
 
         void vcvtdq2ps (Ymm dst, YmmOperand x);
         void vcvttps2dq(Ymm dst, YmmOperand x);
@@ -208,16 +210,12 @@ namespace skvm {
         void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
-        void vmovups  (Ymm dst, int  imm);   // dst = *(sp + imm)
-        void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
-        void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
-        void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
+        void vpmovzxwd(Ymm dst, YmmOperand src);   // dst = src, 128-bit, uint16_t -> int
+        void vpmovzxbd(Ymm dst, YmmOperand src);   // dst = src,  64-bit, uint8_t  -> int
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
         void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
-        void vmovups(int  imm, Ymm src);     // *(sp + imm) = src
-        void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
         void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
         void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
@@ -333,11 +331,6 @@ namespace skvm {
 
         void op(                     int opcode, int opcode_ext, GP64 dst       , int imm);
         void op(int prefix, int map, int opcode, int opcode_ext,  Ymm dst, Ymm x, int imm);
-
-
-        // TODO: these should become ops taking Mem
-        void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
-        void stack_load_store(int prefix, int map, int opcode, Ymm ymm, int off);
 
         void jump(uint8_t condition, Label*);
         int disp32(Label*);

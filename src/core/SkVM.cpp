@@ -1859,6 +1859,8 @@ namespace skvm {
     }
 
     void Assembler::vmovdqa(Ymm dst, YmmOperand src) { this->op(0x66,0x0f,0x6f, dst,src); }
+    void Assembler::vmovups(Ymm dst, YmmOperand src) { this->op(   0,0x0f,0x10, dst,src); }
+    void Assembler::vmovups(YmmOperand dst, Ymm src) { this->op(   0,0x0f,0x11, src,dst); }
 
     void Assembler::vcvtdq2ps (Ymm dst, YmmOperand x) { this->op(   0,0x0f,0x5b, dst,x); }
     void Assembler::vcvttps2dq(Ymm dst, YmmOperand x) { this->op(0xf3,0x0f,0x5b, dst,x); }
@@ -1964,21 +1966,10 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr) {
-        VEX v = vex(0, ymm>>3, 0, ptr>>3,
-                    map, 0, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, ymm&7, ptr&7));
-    }
+    void Assembler::vpmovzxwd(Ymm dst, YmmOperand src) { this->op(0x66,0x380f,0x33, dst,src); }
+    void Assembler::vpmovzxbd(Ymm dst, YmmOperand src) { this->op(0x66,0x380f,0x31, dst,src); }
 
-    void Assembler::vmovups  (Ymm dst, GP64 src) { this->load_store(0   ,  0x0f,0x10, dst,src); }
-    void Assembler::vpmovzxwd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x33, dst,src); }
-    void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
-
-    void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
-    void Assembler::vmovups  (GP64 dst, Xmm src) {
-        // Same as vmovups(GP64,YMM) and load_store() except ymm? is 0.
+    void Assembler::vmovups(GP64 dst, Xmm src) {
         int prefix = 0,
             map    = 0x0f,
             opcode = 0x11;
@@ -1988,18 +1979,6 @@ namespace skvm {
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
-
-    void Assembler::stack_load_store(int prefix, int map, int opcode, Ymm ymm, int off) {
-        VEX v = vex(0, ymm>>3, 0, rsp>>3/*i.e. 0*/,
-                    map, 0, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(mod(off), ymm&7, rsp/*use SIB*/));
-        this->byte(sib(ONE, rsp/*no index*/, rsp));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
-    void Assembler::vmovups(Ymm dst, int off) { this->stack_load_store(0, 0x0f, 0x10, dst,off); }
-    void Assembler::vmovups(int off, Ymm src) { this->stack_load_store(0, 0x0f, 0x11, src,off); }
 
     void Assembler::vmovq(GP64 dst, Xmm src) {
         int prefix = 0x66,
@@ -3068,7 +3047,7 @@ namespace skvm {
                         avail ^= 1 << reg;
                         r[arg] = reg;
                     #if defined(__x86_64__)
-                        a->vmovups(r[arg], arg*K*4);
+                        a->vmovups(r[arg], A::Mem{A::rsp, arg*K*4});
                     #else
                         SkASSERT(false); // TODO
                     #endif
@@ -3185,26 +3164,26 @@ namespace skvm {
                                                 a->vmovups  (arg[immy], (A::Xmm)tmp()); }
                                                 break;
 
-                case Op::store32: if (scalar) { a->vmovd  (arg[immy], (A::Xmm)r[x]); }
-                                  else        { a->vmovups(arg[immy],         r[x]); }
+                case Op::store32: if (scalar) { a->vmovd  (       arg[immy] , (A::Xmm)r[x]); }
+                                  else        { a->vmovups(A::Mem{arg[immy]},         r[x]); }
                                                 break;
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
                                      a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
                                  } else {
-                                     a->vpmovzxbd(dst(), arg[immy]);
+                                     a->vpmovzxbd(dst(), A::Mem{arg[immy]});
                                  } break;
 
                 case Op::load16: if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
                                      a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
                                  } else {
-                                     a->vpmovzxwd(dst(), arg[immy]);
+                                     a->vpmovzxwd(dst(), A::Mem{arg[immy]});
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[immy]); }
-                                 else        { a->vmovups(        dst(), arg[immy]); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(),        arg[immy] ); }
+                                 else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
                                  break;
 
                 case Op::gather32:
@@ -3491,7 +3470,7 @@ namespace skvm {
             if (stack_only) {
                 if (dst_is_set) {
                 #if defined(__x86_64__)
-                    a->vmovups(id*K*4, r[id]);
+                    a->vmovups(A::Mem{A::rsp, id*K*4}, r[id]);
                 #else
                     SkASSERT(false);  // TODO
                 #endif
