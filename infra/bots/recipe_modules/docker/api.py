@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 
+import os
 import posixpath
 from recipe_engine import recipe_api
 
@@ -27,7 +28,7 @@ class DockerApi(recipe_api.RecipeApi):
   def mount_out(self):
     return MOUNT_OUT
 
-  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1):
+  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
@@ -62,14 +63,20 @@ class DockerApi(recipe_api.RecipeApi):
 
     # Run.
     cmd = [
-      'docker', 'run', '--shm-size=2gb', '--rm',
-      '--mount', 'type=bind,source=%s,target=%s' % (src_dir, MOUNT_SRC),
-      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, MOUNT_OUT),
+      'docker', 'run', '--shm-size=2gb', '--rm', '--user',
+      '%d:%d' % (os.getuid(), os.getgid()),
+      '--mount', 'type=bind,source=%s,target=%s' %
+                 (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
+      '--mount', 'type=bind,source=%s,target=%s' %
+                 (out_dir, out_dir if match_directory_structure else MOUNT_OUT),
     ]
     if docker_args:
       cmd.extend(docker_args)
-    script_rel = posixpath.relpath(str(script), str(self.m.path['start_dir']))
-    cmd.extend([docker_image, MOUNT_SRC + '/' + script_rel])
+    # This may only work for matched directory structure where src_dir ==
+    # self.m.path['start_dir'] but that's our only use case for now.
+    if not match_directory_structure:
+      script = MOUNT_SRC + '/' + posixpath.relpath(str(script), str(self.m.path['start_dir']))
+    cmd.extend([docker_image, script])
     if args:
       cmd.extend(args)
 
