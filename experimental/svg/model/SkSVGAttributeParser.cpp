@@ -56,6 +56,12 @@ inline bool SkSVGAttributeParser::parseWSToken() {
     return this->advanceWhile(is_ws);
 }
 
+inline bool SkSVGAttributeParser::parseCommaWspToken() {
+    // comma-wsp:
+    //     (wsp+ comma? wsp*) | (comma wsp*)
+    return this->parseWSToken() || this->parseExpectedStringToken(",");
+}
+
 inline bool SkSVGAttributeParser::parseExpectedStringToken(const char* expected) {
     const char* c = fCurPos;
 
@@ -435,6 +441,8 @@ bool SkSVGAttributeParser::parseTransform(SkSVGTransformType* t) {
 
         matrix.preConcat(m);
         parsed = true;
+
+        this->parseCommaWspToken();
     }
 
     this->parseWSToken();
@@ -581,14 +589,6 @@ bool SkSVGAttributeParser::parseStopColor(SkSVGStopColor* stopColor) {
 bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
     SkTDArray<SkPoint> pts;
 
-    // comma-wsp:
-    //     (wsp+ comma? wsp*) | (comma wsp*)
-    const auto parseCommaWsp = [this]() -> bool {
-        const bool wsp   = this->parseWSToken();
-        const bool comma = this->parseExpectedStringToken(",");
-        return wsp || comma;
-    };
-
     // Skip initial wsp.
     // list-of-points:
     //     wsp* coordinate-pairs? wsp*
@@ -600,7 +600,7 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
         // coordinate-pairs:
         //     coordinate-pair
         //     | coordinate-pair comma-wsp coordinate-pairs
-        if (parsedValue && !parseCommaWsp()) {
+        if (parsedValue && !this->parseCommaWspToken()) {
             break;
         }
 
@@ -613,7 +613,7 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
         // coordinate-pair:
         //     coordinate comma-wsp coordinate
         //     | coordinate negative-coordinate
-        if (!parseCommaWsp() && !this->parseEOSToken() && *fCurPos != '-') {
+        if (!this->parseCommaWspToken() && !this->parseEOSToken() && *fCurPos != '-') {
             break;
         }
 

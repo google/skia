@@ -43,6 +43,7 @@ private:
     bool parseWSToken();
     bool parseEOSToken();
     bool parseSepToken();
+    bool parseCommaWspToken();
     bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseHexToken(uint32_t*);
