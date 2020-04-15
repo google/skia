@@ -78,6 +78,7 @@ public:
             kOutput,
             kCoords,
             kUniform,
+            kLateUniform,
             kChildProcessor,
             kFunctionName
         };

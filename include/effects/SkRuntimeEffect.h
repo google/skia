@@ -20,6 +20,7 @@
 class GrShaderCaps;
 class SkColorFilter;
 class SkMatrix;
+class SkMatrixProvider;
 class SkShader;
 
 namespace SkSL {
@@ -56,7 +57,8 @@ public:
         };
 
         enum Flags {
-            kArray_Flag = 0x1,
+            kArray_Flag         = 0x1,
+            kMarkerNormals_Flag = 0x2,
         };
 
         SkString  fName;
@@ -65,12 +67,14 @@ public:
         Type      fType;
         int       fCount;
         uint32_t  fFlags;
+        uint32_t  fMarker;
 
 #if SK_SUPPORT_GPU
         GrSLType fGPUType;
 #endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool hasNormalsMarker() const { return SkToBool(fFlags & kMarkerNormals_Flag); }
         size_t sizeInBytes() const;
     };
 
@@ -114,10 +118,11 @@ public:
     // makeShader, provide an SkData of this size, containing values for all of those variables.
     size_t inputSize() const;
 
-    // Combined size of just the 'uniform' variables.
-    size_t uniformSize() const { return fUniformSize; }
+    // Similar, for late-bound inputs. This is informational, as the user never provides this data.
+    size_t lateInputSize() const;
 
-    ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInAndUniformVars); }
+    ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInputVars); }
+    ConstIterable<Variable> lateInputs() const { return ConstIterable<Variable>(fLateInputVars); }
     ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
     ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fVaryings); }
 
@@ -140,9 +145,13 @@ public:
     ~SkRuntimeEffect();
 
 private:
-    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
-                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
-                    std::vector<Varying>&& varyings, size_t uniformSize);
+    SkRuntimeEffect(SkString sksl,
+                    std::unique_ptr<SkSL::Program> baseProgram,
+                    std::vector<Variable>&& inputVars,
+                    std::vector<Variable>&& lateInputVars,
+                    std::vector<SkString>&& children,
+                    std::vector<Varying>&& varyings,
+                    size_t uniformSize);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
@@ -152,9 +161,17 @@ private:
     SkString fSkSL;
 
     std::unique_ptr<SkSL::Program> fBaseProgram;
-    std::vector<Variable> fInAndUniformVars;
+    std::vector<Variable> fInputVars;
+    std::vector<Variable> fLateInputVars;
     std::vector<SkString> fChildren;
     std::vector<Varying>  fVaryings;
+
+    friend class SkRuntimeColorFilter;
+    friend class SkRTShader;
+
+    // Returns a blob containing all of the late-bound uniforms. Returns an empty SkData if none
+    // are required, and nullptr if there is an error producing any requested uniform.
+    sk_sp<SkData> lateInputData(const SkMatrixProvider&) const;
 
     size_t fUniformSize;
 };

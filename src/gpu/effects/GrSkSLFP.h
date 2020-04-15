@@ -70,6 +70,7 @@ public:
                                           sk_sp<SkRuntimeEffect> effect,
                                           const char* name,
                                           sk_sp<SkData> inputs,
+                                          sk_sp<SkData> lateInputs = nullptr,
                                           const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
@@ -83,7 +84,7 @@ private:
 
     GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
              sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
-             const SkMatrix* matrix);
+             sk_sp<SkData> lateInputs, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -99,6 +100,7 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
     sk_sp<SkData>          fInputs;
+    sk_sp<SkData>          fLateInputs;
 
     GrCoordTransform fCoordTransform;
 
