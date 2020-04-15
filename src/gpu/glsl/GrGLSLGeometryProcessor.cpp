@@ -131,7 +131,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                 vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(), localCoordsStr.c_str());
             }
             fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
-            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix.c_str(), localCoordsStr, &fp });
+            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix, localCoordsStr, &fp });
         } else {
             SkASSERT(fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kVariable);
             if (fp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
@@ -151,12 +151,12 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                 uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
                 if (tr.fType == kFloat2_GrSLType) {
                     vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
+                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
                                     tr.fLocalCoords.c_str());
                 } else {
                     SkASSERT(tr.fType == kFloat3_GrSLType);
                     vb->codeAppendf("%s = %s * %s * %s", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
+                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
                                     tr.fName);
                 }
                 vb->codeAppend(";\n");

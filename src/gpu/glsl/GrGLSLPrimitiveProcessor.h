@@ -60,7 +60,7 @@ public:
         FPCoordTransformHandler& operator++();
 
         // 'args' are constructor params to GrShaderVar.
-        void specifyCoordsForCurrCoordTransform(/* FIXME name and doc this properly */const SkString& name, GrShaderVar transformVar,
+        void specifyCoordsForCurrCoordTransform(/* FIXME kill this*/const SkString name, GrShaderVar transformVar,
                                                 GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
             fTransformedCoordVars->push_back({transformVar, varyingVar});
