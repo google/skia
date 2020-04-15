@@ -98,11 +98,11 @@ public:
     void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
 
     void drawShape(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix,
-                   const GrShape&) override {
+                   const SkMatrixProvider*, const GrShape&) override {
         SkDebugf("Path glyph??");
     }
 
-    void makeGrPaint(GrMaskFormat, const SkPaint& skPaint, const SkMatrix&,
+    void makeGrPaint(GrMaskFormat, const SkPaint& skPaint, const SkMatrix&, const SkMatrixProvider*,
                      GrPaint* grPaint) override {
         grPaint->setColor4f(skPaint.getColor4f().premul());
     }
@@ -164,8 +164,9 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
                                     positions);
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
-        atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(), props,
-                                           glyphRunList);
+        const SkMatrixProvider* kNullMatrixProvider = nullptr;
+        atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(),
+                                           kNullMatrixProvider, props, glyphRunList);
     }
 }
 

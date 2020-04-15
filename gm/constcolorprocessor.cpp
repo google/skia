@@ -112,8 +112,10 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
+                    const SkMatrixProvider* kNullMatrixProvider = nullptr;
                     SkAssertResult(SkPaintToGrPaint(context, renderTargetContext->colorInfo(),
-                                                    skPaint, viewMatrix, &grPaint));
+                                                    skPaint, viewMatrix, kNullMatrixProvider,
+                                                    &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(kColors[procColor]);
