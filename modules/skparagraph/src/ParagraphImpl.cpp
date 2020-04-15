@@ -407,6 +407,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 size_t endPos,
                 SkVector offset,
                 SkVector advance,
+                SkScalar textWidth,
                 InternalLineMetrics metrics,
                 bool addEllipsis) {
                 // TODO: Take in account clipped edges
@@ -422,7 +423,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     }
                 }
 
-                fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
+                fLongestLine = std::max(fLongestLine, nearlyZero(textWidth) ? widthWithSpaces : textWidth);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
