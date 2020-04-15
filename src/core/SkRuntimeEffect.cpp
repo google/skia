@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
@@ -52,6 +53,25 @@ private:
 SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
 }
 
+// Accepts either "[a-zA-Z0-9_]+" or "normals([a-zA-Z0-9_]+)"
+static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
+    SkString s = marker;
+    if (s.startsWith("normals(") && s.endsWith(')')) {
+        *flags |= SkRuntimeEffect::Variable::kMarkerNormals_Flag;
+        s.set(marker.fChars + 8, marker.fLength - 9);
+    }
+    if (s.isEmpty()) {
+        return false;
+    }
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (!std::isalnum(s[i]) && s[i] != '_') {
+            return false;
+        }
+    }
+    *id = SkOpts::hash_fn(s.c_str(), s.size(), 0);
+    return true;
+}
+
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::SharedCompiler compiler;
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
@@ -66,8 +86,9 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
-    size_t offset = 0, uniformSize = 0;
-    std::vector<Variable> inAndUniformVars;
+    size_t offset = 0, lateOffset = 0, uniformSize = 0;
+    std::vector<Variable> inputVars;
+    std::vector<Variable> lateInputVars;
     std::vector<SkString> children;
     std::vector<Varying> varyings;
     const SkSL::Context& ctx(compiler->context());
@@ -202,12 +223,27 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                 break;
                         }
 
-                        if (v.fType != Variable::Type::kBool) {
-                            offset = SkAlign4(offset);
+                        const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
+                        if (marker.fLength) {
+                            // Rules that should be enforced by the IR generator:
+                            SkASSERT(v.fQualifier == Variable::Qualifier::kUniform);
+                            SkASSERT(v.fType == Variable::Type::kFloat4x4);
+                            if (!parse_marker(marker, &v.fMarker, &v.fFlags)) {
+                                RETURN_FAILURE("Invalid 'marker' string: '%.*s'",
+                                               (int)marker.fLength, marker.fChars);
+                            }
+
+                            v.fOffset = lateOffset;
+                            lateOffset += v.sizeInBytes();
+                            lateInputVars.push_back(v);
+                        } else {
+                            if (v.fType != Variable::Type::kBool) {
+                                offset = SkAlign4(offset);
+                            }
+                            v.fOffset = offset;
+                            offset += v.sizeInBytes();
+                            inputVars.push_back(v);
                         }
-                        v.fOffset = offset;
-                        offset += v.sizeInBytes();
-                        inAndUniformVars.push_back(v);
                     }
                 }
             }
@@ -218,7 +254,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
                                                       std::move(program),
-                                                      std::move(inAndUniformVars),
+                                                      std::move(inputVars),
+                                                      std::move(lateInputVars),
                                                       std::move(children),
                                                       std::move(varyings),
                                                       uniformSize));
@@ -246,14 +283,16 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
 
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
-                                 std::vector<Variable>&& inAndUniformVars,
+                                 std::vector<Variable>&& inputVars,
+                                 std::vector<Variable>&& lateInputVars,
                                  std::vector<SkString>&& children,
                                  std::vector<Varying>&& varyings,
                                  size_t uniformSize)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
-        , fInAndUniformVars(std::move(inAndUniformVars))
+        , fInputVars(std::move(inputVars))
+        , fLateInputVars(std::move(lateInputVars))
         , fChildren(std::move(children))
         , fVaryings(std::move(varyings))
         , fUniformSize(uniformSize) {
@@ -265,9 +304,39 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
 SkRuntimeEffect::~SkRuntimeEffect() = default;
 
 size_t SkRuntimeEffect::inputSize() const {
-    return fInAndUniformVars.empty() ? 0
-                                     : SkAlign4(fInAndUniformVars.back().fOffset +
-                                                fInAndUniformVars.back().sizeInBytes());
+    return fInputVars.empty()
+                   ? 0
+                   : SkAlign4(fInputVars.back().fOffset + fInputVars.back().sizeInBytes());
+}
+
+size_t SkRuntimeEffect::lateInputSize() const {
+    return fLateInputVars.empty()
+                   ? 0
+                   : SkAlign4(fLateInputVars.back().fOffset + fLateInputVars.back().sizeInBytes());
+}
+
+sk_sp<SkData> SkRuntimeEffect::lateInputData(const SkMatrixProvider& matrixProvider) const {
+    sk_sp<SkData> data = SkData::MakeUninitialized(this->lateInputSize());
+    for (const auto& v : fLateInputVars) {
+        SkASSERT(v.fType == SkRuntimeEffect::Variable::Type::kFloat4x4);
+        SkM44* localToMarker = SkTAddOffset<SkM44>(data->writable_data(), v.fOffset);
+        if (!matrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
+            // We couldn't provide a matrix that was requested by the SkSL
+            SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
+            return nullptr;
+        }
+        if (v.hasNormalsMarker()) {
+            // Normals need to be transformed by the inverse-transpose of the upper-left
+            // 3x3 portion (scale + rotate) of the matrix.
+            localToMarker->setRow(3, {0, 0, 0, 1});
+            localToMarker->setCol(3, {0, 0, 0, 1});
+            if (!localToMarker->invert(localToMarker)) {
+                return nullptr;
+            }
+            *localToMarker = localToMarker->transpose();
+        }
+    }
+    return data;
 }
 
 SkRuntimeEffect::SpecializeResult
@@ -275,7 +344,7 @@ SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
                             const void* inputs,
                             const SkSL::SharedCompiler& compiler) const {
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
-    for (const auto& v : fInAndUniformVars) {
+    for (const auto& v : fInputVars) {
         if (v.fQualifier != Variable::Qualifier::kIn) {
             continue;
         }
@@ -348,6 +417,10 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 
 SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) const {
     SkSL::SharedCompiler compiler;
+
+    if (!fLateInputVars.empty()) {
+        return ByteCodeResult{nullptr, "Late bound uniforms not yet supported on CPU."};
+    }
 
     auto [specialized, errorText] = this->specialize(*fBaseProgram, inputs, compiler);
     if (!specialized) {
@@ -649,7 +722,15 @@ public:
         if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
-        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs);
+
+        // Possibly create a second uniform blob, if we have late-bound inputs
+        sk_sp<SkData> lateInputs = fEffect->lateInputData(args.fMatrixProvider);
+        if (!lateInputs) {
+            return nullptr;
+        }
+
+        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs,
+                                 std::move(lateInputs));
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
             if (!childFP) {

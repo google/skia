@@ -49,7 +49,11 @@ public:
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kUniform:
                                 result += args.fUniformHandler->getUniformCStr(
-                                                                       fUniformHandles[arg.fIndex]);
+                                        fUniformHandles[arg.fIndex]);
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kLateUniform:
+                                result += args.fUniformHandler->getUniformCStr(
+                                        fUniformHandles[arg.fIndex + fLateUniformBase]);
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
                                 SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
@@ -77,16 +81,24 @@ public:
 
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
-        for (const auto& v : fp.fEffect->inputs()) {
-            if (v.fQualifier == SkRuntimeEffect::Variable::Qualifier::kUniform) {
-                auto handle = args.fUniformHandler->addUniformArray(&fp,
-                                                                    kFragment_GrShaderFlag,
-                                                                    v.fGPUType,
-                                                                    v.fName.c_str(),
-                                                                    v.isArray() ? v.fCount : 0);
-                fUniformHandles.push_back(handle);
+
+        for (bool late : { false, true }) {
+            if (late) {
+                fLateUniformBase = fUniformHandles.size();
+            }
+            auto inputs = late ? fp.fEffect->lateInputs() : fp.fEffect->inputs();
+            for (const auto& v : inputs) {
+                if (v.fQualifier == SkRuntimeEffect::Variable::Qualifier::kUniform) {
+                    auto handle = args.fUniformHandler->addUniformArray(&fp,
+                                                                        kFragment_GrShaderFlag,
+                                                                        v.fGPUType,
+                                                                        v.fName.c_str(),
+                                                                        v.isArray() ? v.fCount : 0);
+                    fUniformHandles.push_back(handle);
+                }
             }
         }
+
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkASSERT(args.fTransformedCoords.count() == 1);
         SkString coords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
@@ -120,38 +132,42 @@ public:
                    const GrFragmentProcessor& _proc) override {
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
-        const uint8_t* inputs = outer.fInputs->bytes();
-        for (const auto& v : outer.fEffect->inputs()) {
-            if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kUniform) {
-                continue;
-            }
+        for (bool late : {false, true}) {
+            auto inputVars = late ? outer.fEffect->lateInputs() : outer.fEffect->inputs();
+            const uint8_t* inputData = late ? outer.fLateInputs->bytes() : outer.fInputs->bytes();
 
-            const float* data = reinterpret_cast<const float*>(inputs + v.fOffset);
-            switch (v.fType) {
-                case SkRuntimeEffect::Variable::Type::kFloat:
-                    pdman.set1fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat2:
-                    pdman.set2fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat3:
-                    pdman.set3fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat4:
-                    pdman.set4fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat2x2:
-                    pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat3x3:
-                    pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                case SkRuntimeEffect::Variable::Type::kFloat4x4:
-                    pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.fCount, data);
-                    break;
-                default:
-                    SkDEBUGFAIL("Unsupported uniform type");
-                    break;
+            for (const auto& v : inputVars) {
+                if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kUniform) {
+                    continue;
+                }
+
+                const float* data = reinterpret_cast<const float*>(inputData + v.fOffset);
+                switch (v.fType) {
+                    case SkRuntimeEffect::Variable::Type::kFloat:
+                        pdman.set1fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat2:
+                        pdman.set2fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat3:
+                        pdman.set3fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat4:
+                        pdman.set4fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat2x2:
+                        pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat3x3:
+                        pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    case SkRuntimeEffect::Variable::Type::kFloat4x4:
+                        pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.fCount, data);
+                        break;
+                    default:
+                        SkDEBUGFAIL("Unsupported uniform type");
+                        break;
+                }
             }
         }
     }
@@ -160,26 +176,35 @@ public:
     SkSL::PipelineStageArgs fArgs;
     std::vector<UniformHandle> fUniformHandles;
     std::vector<SkString> fFunctionNames;
+    size_t fLateUniformBase;  // Index of first handle to a late-bound uniform
 };
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
-                                         const char* name, sk_sp<SkData> inputs) {
-    if (inputs->size() != effect->inputSize()) {
+std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context,
+                                         sk_sp<SkRuntimeEffect> effect,
+                                         const char* name,
+                                         sk_sp<SkData> inputs,
+                                         sk_sp<SkData> lateInputs) {
+    if (!lateInputs) {
+        lateInputs = SkData::MakeEmpty();
+    }
+    if (effect->inputSize() != inputs->size() || effect->lateInputSize() != lateInputs->size()) {
         return nullptr;
     }
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(
             context->priv().caps()->refShaderCaps(), context->priv().getShaderErrorHandler(),
-            std::move(effect), name, std::move(inputs)));
+            std::move(effect), name, std::move(inputs), std::move(lateInputs)));
 }
 
 GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
-                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs)
+                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
+                   sk_sp<SkData> lateInputs)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fShaderCaps(std::move(shaderCaps))
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
-        , fInputs(std::move(inputs)) {
+        , fInputs(std::move(inputs))
+        , fLateInputs(std::move(lateInputs)) {
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -189,7 +214,9 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
-        , fInputs(other.fInputs) {
+        , fInputs(other.fInputs)
+        , fLateInputs(other.fLateInputs) {
+    SkASSERT(other.numCoordTransforms() == 1);
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -239,7 +266,9 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
-    return fEffect->hash() == sk.fEffect->hash() && fInputs->equals(sk.fInputs.get());
+    return fEffect->hash() == sk.fEffect->hash() &&
+           fInputs->equals(sk.fInputs.get()) &&
+           fLateInputs->equals(sk.fLateInputs.get());
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {

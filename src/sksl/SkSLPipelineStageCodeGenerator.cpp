@@ -136,7 +136,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoords));
             break;
         default: {
-            auto varIndexByFlag = [this, &ref](uint32_t flag) {
+            auto varIndexByFlag = [this, &ref](uint32_t flag, bool withMarker = false) {
                 int index = 0;
                 bool found = false;
                 for (const auto& e : fProgram) {
@@ -151,7 +151,8 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                                 found = true;
                                 break;
                             }
-                            if (var.fModifiers.fFlags & flag) {
+                            if (var.fModifiers.fFlags & flag &&
+                                (var.fModifiers.fLayout.fMarker.fLength > 0) == withMarker) {
                                 ++index;
                             }
                         }
@@ -163,9 +164,11 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
 
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
+                bool isLate = ref.fVariable.fModifiers.fLayout.fMarker.fLength > 0;
                 fArgs->fFormatArgs.push_back(
-                        Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
-                                            varIndexByFlag(Modifiers::kUniform_Flag)));
+                        Compiler::FormatArg(isLate ? Compiler::FormatArg::Kind::kLateUniform
+                                                   : Compiler::FormatArg::Kind::kUniform,
+                                            varIndexByFlag(Modifiers::kUniform_Flag, isLate)));
             } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kVarying_Flag) {
                 this->write("_vtx_attr_");
                 this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
