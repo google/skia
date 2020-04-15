@@ -86,7 +86,8 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
                                                    SkTileMode::kRepeat);
         SkMatrix matrix;
         GrColorInfo colorInfo;
-        GrFPArgs args(ctx, &matrix, kHigh_SkFilterQuality, &colorInfo);
+        const SkMatrixProvider* kNullMatrixProvider = nullptr;
+        GrFPArgs args(ctx, &matrix, kNullMatrixProvider, kHigh_SkFilterQuality, &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixConstantEffect(std::move(gradientFP)));

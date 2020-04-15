@@ -33,6 +33,7 @@ class GrTextureProxy;
 class GrUniqueKey;
 class SkBitmap;
 class SkData;
+class SkMatrixProvider;
 class SkPaint;
 class SkPixelRef;
 class SkPixmap;
@@ -86,12 +87,14 @@ bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorInfo& dstColorInfo,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
+                      const SkMatrixProvider* matrixProvider,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrRecordingContext*,
                               const GrColorInfo& dstColorInfo,
                               const SkPaint& skPaint,
+                              const SkMatrixProvider* matrixProvider,
                               GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
@@ -100,6 +103,7 @@ bool SkPaintToGrPaintNoShader(GrRecordingContext*,
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const GrColorInfo& dstColorInfo,
                                    const SkPaint& skPaint,
+                                   const SkMatrixProvider* matrixProvider,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint);
 
@@ -109,6 +113,7 @@ bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
                                   const GrColorInfo& dstColorInfo,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
+                                  const SkMatrixProvider* matrixProvider,
                                   SkBlendMode primColorMode,
                                   GrPaint* grPaint);
 
@@ -119,9 +124,10 @@ bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                                const GrColorInfo& dstColorInfo,
                                                const SkPaint& skPaint,
+                                               const SkMatrixProvider* matrixProvider,
                                                GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, dstColorInfo, skPaint, SkMatrix::I(),
-                                        SkBlendMode::kDst, grPaint);
+                                        matrixProvider, SkBlendMode::kDst, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
@@ -130,6 +136,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
                                  const GrColorInfo& dstColorInfo,
                                  const SkPaint& skPaint,
                                  const SkMatrix& viewM,
+                                 const SkMatrixProvider* matrixProvider,
                                  std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint);

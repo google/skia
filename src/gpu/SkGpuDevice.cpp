@@ -261,7 +261,7 @@ void SkGpuDevice::drawPaint(const SkPaint& paint) {
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -293,7 +293,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
         GrStyle style(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                              this->localToDevice(), &grPaint)) {
+                              this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
             return;
         }
         SkPath path;
@@ -338,7 +338,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint, *viewMatrix,
-                          &grPaint)) {
+                          this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -363,13 +363,14 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         GrStyledShape shape(rect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                             this->clip(), paint, this->localToDevice(), shape);
+                                             this->clip(), paint, this->localToDevice(),
+                                             this->asMatrixProvider(), shape);
         return;
     }
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -424,7 +425,8 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         GrStyledShape shape(rrect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                             this->clip(), paint, this->localToDevice(), shape);
+                                             this->clip(), paint, this->localToDevice(),
+                                             this->asMatrixProvider(), shape);
         return;
     }
 
@@ -432,7 +434,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -457,7 +459,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                              this->localToDevice(), &grPaint)) {
+                              this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
             return;
         }
 
@@ -478,9 +480,9 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     GrStyledShape shape(path, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                         paint, this->localToDevice(), shape);
+                                         paint, this->localToDevice(), this->asMatrixProvider(),
+                                         shape);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -494,7 +496,7 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -514,7 +516,7 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -532,7 +534,7 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
     }
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                          this->localToDevice(), &grPaint)) {
+                          this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -588,7 +590,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), newPaint, m,
-                          &grPaint)) {
+                          this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -618,7 +620,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), paint,
-                              this->localToDevice(), &grPaint)) {
+                              this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
             return;
         }
         fRenderTargetContext->drawPath(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
@@ -630,7 +632,8 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     GrStyledShape shape(origSrcPath, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                         paint, this->localToDevice(), shape);
+                                         paint, this->localToDevice(), this->asMatrixProvider(),
+                                         shape);
 }
 
 void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint,
@@ -682,7 +685,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintReplaceShader(this->context(), fRenderTargetContext->colorInfo(),
-                                       tmpUnfiltered, std::move(fp), &grPaint)) {
+                                       tmpUnfiltered, this->asMatrixProvider(), std::move(fp),
+                                       &grPaint)) {
         return;
     }
 
@@ -898,7 +902,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     }
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), fRenderTargetContext->colorInfo(),
-                                            *paint, &grPaint)) {
+                                            *paint, this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
@@ -939,25 +943,27 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
 }
 
 static bool init_vertices_paint(GrContext* context, const GrColorInfo& colorInfo,
-                                const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
+                                const SkPaint& skPaint, const SkMatrix& matrix,
+                                const SkMatrixProvider* matrixProvider, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {
     if (hasTexs && skPaint.getShader()) {
         if (hasColors) {
             // When there are texs and colors the shader and colors are combined using bmode.
-            return SkPaintToGrPaintWithXfermode(context, colorInfo, skPaint, matrix, bmode,
-                                                grPaint);
+            return SkPaintToGrPaintWithXfermode(context, colorInfo, skPaint, matrix, matrixProvider,
+                                                bmode, grPaint);
         } else {
             // We have a shader, but no colors to blend it against.
-            return SkPaintToGrPaint(context, colorInfo, skPaint, matrix, grPaint);
+            return SkPaintToGrPaint(context, colorInfo, skPaint, matrix, matrixProvider, grPaint);
         }
     } else {
         if (hasColors) {
             // We have colors, but either have no shader or no texture coords (which implies that
             // we should ignore the shader).
-            return SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, grPaint);
+            return SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, matrixProvider,
+                                                      grPaint);
         } else {
             // No colors and no shaders. Just draw with the paint color.
-            return SkPaintToGrPaintNoShader(context, colorInfo, skPaint, grPaint);
+            return SkPaintToGrPaintNoShader(context, colorInfo, skPaint, matrixProvider, grPaint);
         }
     }
 }
@@ -978,12 +984,13 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     bool hasColors = info.hasColors();
     bool hasTexs = info.hasTexCoords() || info.hasCustomData();
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorInfo(), paint,
-                             this->localToDevice(), mode, hasTexs, hasColors, &grPaint)) {
+                             this->localToDevice(), this->asMatrixProvider(), mode, hasTexs,
+                             hasColors, &grPaint)) {
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)), nullptr,
-                                       effect, static_cast<const SkMarkedMatrixProvider*>(this));
+                                       effect, static_cast<const SkMatrixProvider*>(this));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1013,12 +1020,13 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     GrPaint grPaint;
     if (colors) {
         if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext->colorInfo(), p,
-                                          this->localToDevice(), (SkBlendMode)mode, &grPaint)) {
+                                          this->localToDevice(), this->asMatrixProvider(),
+                                          (SkBlendMode)mode, &grPaint)) {
             return;
         }
     } else {
         if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorInfo(), p,
-                              this->localToDevice(), &grPaint)) {
+                              this->localToDevice(), this->asMatrixProvider(), &grPaint)) {
             return;
         }
     }
@@ -1038,7 +1046,8 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
         return;
     }
 
-    fRenderTargetContext->drawGlyphRunList(this->clip(), this->localToDevice(), glyphRunList);
+    fRenderTargetContext->drawGlyphRunList(this->clip(), this->localToDevice(),
+                                           this->asMatrixProvider(), glyphRunList);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
