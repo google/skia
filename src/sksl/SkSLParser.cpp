@@ -88,6 +88,7 @@ void Parser::InitLayoutMap() {
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
     TOKEN(TRACKED,                      "tracked");
+    TOKEN(MARKER,                       "marker");
     TOKEN(CTYPE,                        "ctype");
     TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
     TOKEN(SKV4,                         "SkV4");
@@ -767,6 +768,7 @@ Layout Parser::layout() {
     int set = -1;
     int builtin = -1;
     int inputAttachmentIndex = -1;
+    int marker = -1;
     Layout::Format format = Layout::Format::kUnspecified;
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
@@ -777,8 +779,8 @@ Layout Parser::layout() {
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {
         if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
             return Layout(flags, location, offset, binding, index, set, builtin,
-                          inputAttachmentIndex, format, primitive, maxVertices, invocations, when,
-                          key, ctype);
+                          inputAttachmentIndex, marker, format, primitive, maxVertices, invocations,
+                          when, key, ctype);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -867,6 +869,9 @@ Layout Parser::layout() {
                     case LayoutToken::TRACKED:
                         flags |= Layout::kTracked_Flag;
                         break;
+                    case LayoutToken::MARKER:
+                        marker = this->layoutInt();
+                        break;
                     case LayoutToken::POINTS:
                         primitive = Layout::kPoints_Primitive;
                         break;
@@ -921,7 +926,7 @@ Layout Parser::layout() {
         }
     }
     return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  format, primitive, maxVertices, invocations, when, key, ctype);
+                  marker, format, primitive, maxVertices, invocations, when, key, ctype);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |

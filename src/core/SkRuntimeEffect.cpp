@@ -201,6 +201,14 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                 break;
                         }
 
+                        if (var.fModifiers.fLayout.fMarker >= 0) {
+                            // Rules that should be enforced by the IR generator:
+                            SkASSERT(v.fQualifier == Variable::Qualifier::kUniform);
+                            SkASSERT(v.fType == Variable::Type::kFloat4x4);
+                            v.fFlags |= Variable::kMarker_Flag;
+                            v.fMarker = var.fModifiers.fLayout.fMarker;
+                        }
+
                         if (v.fType != Variable::Type::kBool) {
                             offset = SkAlign4(offset);
                         }
@@ -648,7 +656,26 @@ public:
         if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
-        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs, &matrix);
+        // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
+        sk_sp<SkData> inputs = fInputs;
+
+        for (const auto& v : fEffect->inputs()) {
+            if (v.hasMarker()) {
+                if (inputs == fInputs) {
+                    inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
+                }
+                SkASSERT(v.fType == SkRuntimeEffect::Variable::Type::kFloat4x4);
+                SkM44* localToMarker = SkTAddOffset<SkM44>(inputs->writable_data(), v.fOffset);
+                if (!args.fMatrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
+                    // We couldn't provide a matrix that was requested by the SkSL
+                    SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
+                    return nullptr;
+                }
+            }
+        }
+
+        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs),
+                                 &matrix);
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
             if (!childFP) {

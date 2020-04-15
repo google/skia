@@ -379,7 +379,7 @@ public:
             in fragmentProcessor color_map;
             in fragmentProcessor normal_map;
 
-            uniform float4x4 localToWorld;
+            layout (marker=42) uniform float4x4 localToWorld;
             uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
@@ -434,8 +434,8 @@ public:
             SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
         } uni;
-        uni.fLocalToWorld = this->localToWorld(canvas);
-        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
+        // uni.fLocalToWorld is automatically populated, thanks to layout(marker)
+        uni.fLocalToWorldAdjInv = adj_inv(this->localToWorld(canvas));
         uni.fLightPos = fLight.computeWorldPos(fSphere);
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
