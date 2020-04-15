@@ -10,6 +10,7 @@
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.
@@ -20,32 +21,37 @@ class GrGaussianConvolutionFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Direction { kX, kY };
 
-    /**
-     * Convolve with a Gaussian kernel. Bounds limits the coords sampled by the effect along the
-     * axis indicated by Direction. The WrapMode is applied to the bounds interval. If bounds is
-     * nullptr then the full proxy width/height is used.
-     */
+    /// Convolve with a Gaussian kernel
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      SkAlphaType alphaType,
                                                      Direction dir,
                                                      int halfWidth,
                                                      float gaussianSigma,
-                                                     GrSamplerState::WrapMode,
-                                                     const int bounds[2],
-                                                     const GrCaps& caps);
+                                                     GrTextureDomain::Mode mode,
+                                                     int* bounds) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
+                std::move(view), alphaType, dir, halfWidth, gaussianSigma, mode, bounds));
+    }
 
     const float* kernel() const { return fKernel; }
 
+    const int* bounds() const { return fBounds; }
+    bool useBounds() const { return fMode != GrTextureDomain::kIgnore_Mode; }
     int radius() const { return fRadius; }
     int width() const { return 2 * fRadius + 1; }
     Direction direction() const { return fDirection; }
+
+    GrTextureDomain::Mode mode() const { return fMode; }
 
     const char* name() const override { return "GaussianConvolution"; }
 
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("dir: %s radius: %d", Direction::kX == fDirection ? "X" : "Y", fRadius);
+        str.appendf("dir: %s radius: %d bounds: [%d %d]",
+                    Direction::kX == fDirection ? "X" : "Y",
+                    fRadius,
+                    fBounds[0], fBounds[1]);
         return str;
     }
 #endif
@@ -65,10 +71,10 @@ public:
     static const int kMaxKernelWidth = 2 * kMaxKernelRadius + 1;
 
 private:
-    GrGaussianConvolutionFragmentProcessor(std::unique_ptr<GrFragmentProcessor>,
-                                           Direction,
-                                           int halfWidth,
-                                           float gaussianSigma);
+    /// Convolve with a Gaussian kernel
+    GrGaussianConvolutionFragmentProcessor(GrSurfaceProxyView, SkAlphaType alphaType, Direction,
+                                           int halfWidth, float gaussianSigma,
+                                           GrTextureDomain::Mode mode, int bounds[2]);
 
     explicit GrGaussianConvolutionFragmentProcessor(const GrGaussianConvolutionFragmentProcessor&);
 
@@ -78,16 +84,19 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform      fCoordTransform = {};
+    GrCoordTransform      fCoordTransform;
+    TextureSampler        fTextureSampler;
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
     float                 fKernel[kMaxKernelWidth];
+    int                   fBounds[2];
     int                   fRadius;
     Direction             fDirection;
+    GrTextureDomain::Mode fMode;
 
     typedef GrFragmentProcessor INHERITED;
 };
