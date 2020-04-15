@@ -330,8 +330,7 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         , fHWProgramID(0)
         , fTempSrcFBOID(0)
         , fTempDstFBOID(0)
-        , fStencilClearFBOID(0)
-        , fFinishCallbacks(this) {
+        , fStencilClearFBOID(0) {
     SkASSERT(fGLContext);
     GrGLClearErr(this->glInterface());
     fCaps = sk_ref_sp(fGLContext->caps());
@@ -402,7 +401,11 @@ GrGLGpu::~GrGLGpu() {
 
     fSamplerObjectCache.reset();
 
-    fFinishCallbacks.callAll(true);
+    while (!fFinishCallbacks.empty()) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteSync(fFinishCallbacks.front().fSync);
+        fFinishCallbacks.pop_front();
+    }
 }
 
 void GrGLGpu::disconnect(DisconnectType type) {
@@ -462,7 +465,14 @@ void GrGLGpu::disconnect(DisconnectType type) {
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
     }
-    fFinishCallbacks.callAll(DisconnectType::kCleanup == type);
+
+    while (!fFinishCallbacks.empty()) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        if (DisconnectType::kCleanup == type) {
+            this->deleteSync(fFinishCallbacks.front().fSync);
+        }
+        fFinishCallbacks.pop_front();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3776,7 +3786,16 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 
 void GrGLGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                               GrGpuFinishedContext finishedContext) {
-    fFinishCallbacks.add(finishedProc, finishedContext);
+    SkASSERT(finishedProc);
+    FinishCallback callback;
+    callback.fCallback = finishedProc;
+    callback.fContext = finishedContext;
+    if (this->caps()->fenceSyncSupport()) {
+        callback.fSync = (GrGLsync)this->insertFence();
+    } else {
+        callback.fSync = 0;
+    }
+    fFinishCallbacks.push_back(callback);
 }
 
 void GrGLGpu::flush(FlushType flushType) {
@@ -3789,11 +3808,20 @@ void GrGLGpu::flush(FlushType flushType) {
 bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         GL_CALL(Finish());
-        fFinishCallbacks.callAll(true);
+        // After a finish everything previously sent to GL is done.
+        for (const auto& cb : fFinishCallbacks) {
+            cb.fCallback(cb.fContext);
+            if (cb.fSync) {
+                this->deleteSync(cb.fSync);
+            } else {
+                SkASSERT(!this->caps()->fenceSyncSupport());
+            }
+        }
+        fFinishCallbacks.clear();
     } else {
         this->flush();
         // See if any previously inserted finish procs are good to go.
-        fFinishCallbacks.check();
+        this->checkFinishProcs();
     }
     return true;
 }
@@ -3845,8 +3873,8 @@ bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
     }
 }
 
-bool GrGLGpu::waitFence(GrFence fence) {
-    return this->waitSync((GrGLsync)fence, 0, false);
+bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) {
+    return this->waitSync((GrGLsync)fence, timeout, /* flush = */ true);
 }
 
 void GrGLGpu::deleteFence(GrFence fence) const {
@@ -3882,7 +3910,13 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrGLGpu::checkFinishProcs() {
-    fFinishCallbacks.check();
+    // Bail after the first unfinished sync since we expect they signal in the order inserted.
+    while (!fFinishCallbacks.empty() && this->waitSync(fFinishCallbacks.front().fSync,
+                                                       /* timeout = */ 0, /* flush  = */ false)) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteSync(fFinishCallbacks.front().fSync);
+        fFinishCallbacks.pop_front();
+    }
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {
