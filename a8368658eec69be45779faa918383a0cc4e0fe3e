@@ -744,6 +744,30 @@
     },
     {
       "key": {
+        "uuid": "e523fa4f_12483b79",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T14:15:55Z",
+      "side": 1,
+      "message": "It\u0027s worth noting the contents of our .clang-tidy:\n Checks: \u0027-*,bugprone-use-after-move,google-build-namespaces\u0027\n\nIt disables all but one check. I believe we added it just to check catch use after move bugs and then never explored widening the set of checks beyond that.",
+      "parentUuid": "14792e53_eeda4e02",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 205,
+        "endChar": 39
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "27804c93_82fe9669",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
