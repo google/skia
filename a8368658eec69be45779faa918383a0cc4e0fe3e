@@ -261,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "2ffd9dba_257ee43b",
+        "filename": "src/core/SkMarkerStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T14:01:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5770c529_60876f5d",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 2
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c88de9f_33bb6c70",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 7
@@ -399,6 +423,30 @@
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20f279e7_290f4c08",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T14:01:06Z",
+      "side": 1,
+      "message": "Ha, didn\u0027t look up far enough.",
+      "parentUuid": "5a6e0936_d7f014fd",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -731,6 +779,30 @@
       "side": 1,
       "message": "I added the operator!\u003d while making changes from his feedback, then forgot to update this usage.",
       "parentUuid": "27804c93_82fe9669",
+      "range": {
+        "startLine": 772,
+        "startChar": 7,
+        "endLine": 772,
+        "endChar": 60
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16a0c4e7_d001179e",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T14:01:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "95e1b442_46194c38",
       "range": {
         "startLine": 772,
         "startChar": 7,
