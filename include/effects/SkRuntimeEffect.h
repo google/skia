@@ -8,8 +8,10 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
+#include "include/core/SkData.h"
 #include "include/core/SkString.h"
 
+#include <algorithm>
 #include <vector>
 
 #if SK_SUPPORT_GPU
@@ -56,7 +58,9 @@ public:
         };
 
         enum Flags {
-            kArray_Flag = 0x1,
+            kArray_Flag         = 0x1,
+            kMarker_Flag        = 0x2,
+            kMarkerNormals_Flag = 0x4,
         };
 
         SkString  fName;
@@ -65,12 +69,15 @@ public:
         Type      fType;
         int       fCount;
         uint32_t  fFlags;
+        uint32_t  fMarker;
 
 #if SK_SUPPORT_GPU
         GrSLType fGPUType;
 #endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool hasMarker() const { return SkToBool(fFlags & kMarker_Flag); }
+        bool hasNormalsMarker() const { return SkToBool(fFlags & kMarkerNormals_Flag); }
         size_t sizeInBytes() const;
     };
 
@@ -138,6 +145,47 @@ public:
     static void RegisterFlattenables();
 
     ~SkRuntimeEffect();
+
+    // Simple utility to create an input data block for a particular effect. Usage:
+    //   sk_sp<SkRuntimeEffect> effect = ...;
+    //   SkRuntimeEffect::InputBuilder inputs(effect);
+    //   inputs["some_uniform_float"]  = 3.14f;
+    //   inputs["some_uniform_matrix"] = SkM44::Rotate(...);
+    //   ...
+    //   sk_sp<SkShader> shader = effect->makeShader(inputs.fData, ...);
+    struct InputBuilder {
+        InputBuilder(sk_sp<SkRuntimeEffect> effect)
+            : fEffect(std::move(effect))
+            , fData(SkData::MakeUninitialized(fEffect->inputSize())) {}
+
+        struct InputBuilderVar {
+            // Copy 'val' to this variable. No type conversion is performed - 'val' must be same
+            // size as expected by the effect. Information about the variable can be queried by
+            // looking at fVar. If the size is incorrect, no copy will be performed, and debug
+            // builds will abort.
+            template <typename T> InputBuilderVar& operator=(const T& val) {
+                if (sizeof(val) != fVar.sizeInBytes()) {
+                    SkDEBUGFAIL("Incorrect value size");
+                } else {
+                    memcpy(SkTAddOffset<void>(fOwner->fData->writable_data(), fVar.fOffset), &val,
+                           sizeof(val));
+                }
+                return *this;
+            }
+
+            InputBuilder* fOwner;
+            const SkRuntimeEffect::Variable& fVar;
+        };
+
+        InputBuilderVar operator[](const char* name) {
+            auto input = std::find_if(fEffect->inputs().begin(), fEffect->inputs().end(),
+                                      [name](const auto& v) { return v.fName.equals(name); });
+            return { this, *input };
+        }
+
+        sk_sp<SkRuntimeEffect> fEffect;
+        sk_sp<SkData>          fData;
+    };
 
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
