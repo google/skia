@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f911e0d_5794befc",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "This is the sort of comment I really don\u0027t like.  It\u0027s introducing a bunch of new terms\nlike tracing, trees, numbering as a verb, nodes, fan-out, and edges that are not mentioned\nanywhere in the code.  This only makes things harder to understand.  It\u0027s very important to\nalways use the same terms to describe the same things... if you want to use the terms node \nand edge and tree, they need to be present in the code, _and_ we need to exhaustively \ntranslate all the other code and all the other comments to your new vocabulary.",
+      "range": {
+        "startLine": 539,
+        "startChar": 5,
+        "endLine": 540,
+        "endChar": 47
+      },
+      "revId": "f95b26366f279561b0ee5861edad80c957ed2ff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

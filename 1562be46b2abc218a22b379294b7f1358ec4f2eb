@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb045f8c_9d79247c",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "I think this function is getting simple enough that you can read the meat of it and get\nwhat it\u0027s doing without these little what-stage-are-we-in comments, but I do think we could\nperhaps use one higher level comment about what our strategy is, something like\n\n// Impose a determininstic scheduling of Instructions based on data flow alone,\n// eliminating any influence from original program order.  We\u0027ll schedule back-to-front,\n// starting at the end of the program with Instructions that have side effects and \n// recursing through arguments to Instructions that issue earlier in the program.\n// We schedule each argument once all its users have been scheduled, which means it \n// issues just before its first use.  We arbitrarily schedule x, then y, then z, and so\n// issue z, then y, then x.",
+      "revId": "1562be46b2abc218a22b379294b7f1358ec4f2eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7b24684_e95e6665",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "This is a Val.",
+      "range": {
+        "startLine": 541,
+        "startChar": 8,
+        "endLine": 541,
+        "endChar": 11
+      },
+      "revId": "1562be46b2abc218a22b379294b7f1358ec4f2eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88f20616_fccb8c2d",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Maybe `next_to_schedule` or just `next`?  I think mentioning the term `issue` makes this a touch more confusing than it needs to be.",
+      "range": {
+        "startLine": 541,
+        "startChar": 12,
+        "endLine": 541,
+        "endChar": 17
+      },
+      "revId": "1562be46b2abc218a22b379294b7f1358ec4f2eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b138a984_d9f425d9",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Val?",
+      "range": {
+        "startLine": 555,
+        "startChar": 31,
+        "endLine": 555,
+        "endChar": 34
+      },
+      "revId": "1562be46b2abc218a22b379294b7f1358ec4f2eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

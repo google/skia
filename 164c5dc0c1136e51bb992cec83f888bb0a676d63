@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a47dafcb_545203a8",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Maybe start at program.size() and assign new_id[id] \u003d --issue instead?\n\nI find it\u0027s  hard to think about things that have +1 or -1 in them, but usually you get the gist right away if there\u0027s nothing to read but N,0,++,--, and comparisons.",
+      "range": {
+        "startLine": 542,
+        "startChar": 20,
+        "endLine": 542,
+        "endChar": 39
+      },
+      "revId": "164c5dc0c1136e51bb992cec83f888bb0a676d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0371cdd6_bd2faab8",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "If we\u0027re not const\u0026, maybe just Instruction?\n\nI really don\u0027t care so much which of `const Instruction\u0026`, `Instruction`, or `const Instruction` you use.  It\u0027s way way more important to me that you pick one and use it consistently, across the entire code base, changing all these optimization functions to use the identical convention all the way through.  Doing it mostly one way and then sometimes a different way makes it read like there\u0027s something else going on here.",
+      "range": {
+        "startLine": 545,
+        "startChar": 12,
+        "endLine": 545,
+        "endChar": 30
+      },
+      "revId": "164c5dc0c1136e51bb992cec83f888bb0a676d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bcc27a2_e95f6160",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Val!  This is not a good spot for auto.  the type is not already mentioned nearby, and it\u0027s short enough to type, and doesn\u0027t get in the way when reading.",
+      "range": {
+        "startLine": 546,
+        "startChar": 17,
+        "endLine": 546,
+        "endChar": 21
+      },
+      "revId": "164c5dc0c1136e51bb992cec83f888bb0a676d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dac68475_3be5cec2",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Now that we\u0027re only mentioning it once, maybe clearer as just\n\n   if (--uses[arg] \u003d\u003d 0) {\n       recurse(arg, recurse);\n   }",
+      "range": {
+        "startLine": 548,
+        "startChar": 19,
+        "endLine": 549,
+        "endChar": 49
+      },
+      "revId": "164c5dc0c1136e51bb992cec83f888bb0a676d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e3c8db_728e27e9",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-15T15:24:01Z",
+      "side": 1,
+      "message": "Now that we\u0027re not actually calculating any numbers or explicitly identifying any trees,\nlet\u0027s see if we can find a less meaning-laden name for this function?  Could be just `reorder`?",
+      "range": {
+        "startLine": 558,
+        "startChar": 16,
+        "endLine": 558,
+        "endChar": 27
+      },
+      "revId": "164c5dc0c1136e51bb992cec83f888bb0a676d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
