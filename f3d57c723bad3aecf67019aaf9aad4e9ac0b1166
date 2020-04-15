@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db396246_329675c9",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T17:42:40Z",
+      "side": 1,
+      "message": "I this really part of this change? If so, is the first line potentially affected as well?",
+      "range": {
+        "startLine": 657,
+        "startChar": 8,
+        "endLine": 657,
+        "endChar": 50
+      },
+      "revId": "f3d57c723bad3aecf67019aaf9aad4e9ac0b1166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b8a77b5_9e4148d5",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T17:42:40Z",
+      "side": 1,
+      "message": "\u0027if (rectHeightStyle \u003d\u003d RectHeightStyle:: kTight)\u0027 ? Should this if ladder be a switch on rectHeightStyle instead?",
+      "range": {
+        "startLine": 711,
+        "startChar": 22,
+        "endLine": 711,
+        "endChar": 24
+      },
+      "revId": "f3d57c723bad3aecf67019aaf9aad4e9ac0b1166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
