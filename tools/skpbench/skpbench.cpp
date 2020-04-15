@@ -258,6 +258,8 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     DDLTileHelper tiles(surface, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
 
+    tiles.createBackendTextures(nullptr, context);
+
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
     SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
@@ -283,7 +285,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
-        tiles.composeAllTiles();
+        tiles.composeAllTiles(context);
     }
 
     tiles.resetAllTiles();
@@ -293,6 +295,11 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     context->flush(flushInfo);
+
+    promiseImageHelper.deleteAllFromGPU(nullptr, context);
+
+    tiles.deleteBackendTextures(nullptr, context);
+
 }
 
 static void run_benchmark(GrContext* context, SkSurface* surface, SkpProducer* skpp,
