@@ -64,7 +64,7 @@ class DockerApi(recipe_api.RecipeApi):
     cmd = [
       'docker', 'run', '--shm-size=2gb', '--rm',
       '--mount', 'type=bind,source=%s,target=%s' % (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
-      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, out_dir if match_directory_structure else MOUNT_OUT),
+    #  '--mount', 'type=bind,source=%s,target=%s' % (out_dir, out_dir if match_directory_structure else MOUNT_OUT),
     ]
     if docker_args:
       cmd.extend(docker_args)
