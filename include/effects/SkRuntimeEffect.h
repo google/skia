@@ -8,8 +8,10 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
+#include "include/core/SkData.h"
 #include "include/core/SkString.h"
 
+#include <algorithm>
 #include <vector>
 
 #if SK_SUPPORT_GPU
@@ -56,7 +58,9 @@ public:
         };
 
         enum Flags {
-            kArray_Flag = 0x1,
+            kArray_Flag         = 0x1,
+            kMarker_Flag        = 0x2,
+            kMarkerNormals_Flag = 0x4,
         };
 
         SkString  fName;
@@ -65,12 +69,15 @@ public:
         Type      fType;
         int       fCount;
         uint32_t  fFlags;
+        uint32_t  fMarker;
 
 #if SK_SUPPORT_GPU
         GrSLType fGPUType;
 #endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool hasMarker() const { return SkToBool(fFlags & kMarker_Flag); }
+        bool hasNormalsMarker() const { return SkToBool(fFlags & kMarkerNormals_Flag); }
         size_t sizeInBytes() const;
     };
 
@@ -138,6 +145,87 @@ public:
     static void RegisterFlattenables();
 
     ~SkRuntimeEffect();
+
+    // Simple utility to create an input data block for a particular effect. Usage:
+    //   sk_sp<SkRuntimeEffect> effect = ...;
+    //   SkRuntimeEffect::Builder builder(effect);
+    //   builder.input("some_uniform_float")  = 3.14f;
+    //   builder.input("some_uniform_matrix") = SkM44::Rotate(...);
+    //   builder.child("some_child_effect")   = mySkImage->makeShader(...);
+    //   ...
+    //   sk_sp<SkShader> shader = builder.makeShader(nullptr, false);
+    //
+    // Note that Builder is built entirely on the public API of SkRuntimeEffect, so can be used
+    // as-is or serve as inspiration for other interfaces or binding techniques.
+    struct Builder {
+        Builder(sk_sp<SkRuntimeEffect> effect)
+            : fEffect(std::move(effect))
+            , fInputs(SkData::MakeUninitialized(fEffect->inputSize()))
+            , fChildren(fEffect->children().count()) {}
+
+        struct BuilderVar {
+            // Copy 'val' to this variable. No type conversion is performed - 'val' must be same
+            // size as expected by the effect. Information about the variable can be queried by
+            // looking at fVar. If the size is incorrect, no copy will be performed, and debug
+            // builds will abort. If this is the result of querying a missing variable, fVar will
+            // be nullptr, and assigning will also do nothing (and abort in debug builds).
+            template <typename T> BuilderVar& operator=(const T& val) {
+                if (!fVar) {
+                    SkDEBUGFAIL("Assigning to missing variable");
+                } else if (sizeof(val) != fVar->sizeInBytes()) {
+                    SkDEBUGFAIL("Incorrect value size");
+                } else {
+                    memcpy(SkTAddOffset<void>(fOwner->fInputs->writable_data(), fVar->fOffset),
+                           &val, sizeof(val));
+                }
+                return *this;
+            }
+
+            Builder* fOwner;
+            const SkRuntimeEffect::Variable* fVar;  // nullptr if the variable was not found
+        };
+
+        BuilderVar input(const char* name) {
+            auto iter = std::find_if(fEffect->inputs().begin(), fEffect->inputs().end(),
+                                     [name](const auto& v) { return v.fName.equals(name); });
+            if (iter != fEffect->inputs().end()) {
+                return { this, &(*iter) };
+            }
+            return { this, nullptr };
+        }
+
+        struct BuilderChild {
+            BuilderChild& operator=(const sk_sp<SkShader>& val) {
+                if (fIndex < 0) {
+                    SkDEBUGFAIL("Assigning to missing child");
+                } else {
+                    fOwner->fChildren[fIndex] = val;
+                }
+                return *this;
+            }
+
+            Builder* fOwner;
+            int      fIndex;  // -1 if the child was not found
+        };
+
+        BuilderChild child(const char* name) {
+            auto iter = std::find_if(fEffect->children().begin(), fEffect->children().end(),
+                                     [name](const SkString& s) { return s.equals(name); });
+            if (iter != fEffect->children().end()) {
+                return { this, static_cast<int>(iter - fEffect->children().begin()) };
+            }
+            return { this, -1 };
+        }
+
+        sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque) {
+            return fEffect->makeShader(fInputs, fChildren.data(), fChildren.size(), localMatrix,
+                                       isOpaque);
+        }
+
+        sk_sp<SkRuntimeEffect>       fEffect;
+        sk_sp<SkData>                fInputs;
+        std::vector<sk_sp<SkShader>> fChildren;
+    };
 
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
