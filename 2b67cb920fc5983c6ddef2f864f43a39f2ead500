@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78dfb7da_20df21eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-15T15:00:15Z",
+      "side": 1,
+      "message": "My intention is to implement it as part of this CL. If it gets too big, then I\u0027ll split it up.",
+      "parentUuid": "442c98d8_d688554f",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 33
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94daf305_d057b47a",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-15T14:51:23Z",
       "side": 1,
       "message": "I think we also want to call submitResourceBarriers in here",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68922f08_774f08e8",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-15T15:00:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "94daf305_d057b47a",
       "range": {
         "startLine": 24,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cd47400d_81f570c3",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-15T15:00:15Z",
+      "side": 1,
+      "message": "I agree -- I originally put it in submit, but moved it when I looked at Vulkan. reset() makes more sense.",
+      "parentUuid": "089be588_5a5e4f7a",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15de3e94_c9f4e844",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2020-04-15T14:51:23Z",
       "side": 1,
       "message": "I\u0027m a little confused about why we have this replacing here. Feels like if we get into a situation where we transitioned an a state then tried to transition the same subresource to a different state without doing any work then that should be a bug. We really should only be putting in barriers before we do work.\n\nIn Vulkan there is a little weirdness when we are uploading mip levels so at different times different subresources are in different layouts. But again that shouldn\u0027t be the same subresource.",
+      "range": {
+        "startLine": 84,
+        "startChar": 5,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389b7a9a_f35480f6",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-15T15:00:15Z",
+      "side": 1,
+      "message": "I\u0027ll change it to an assert.",
+      "parentUuid": "15de3e94_c9f4e844",
       "range": {
         "startLine": 84,
         "startChar": 5,
