@@ -64,7 +64,7 @@ static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
 class MarkedMatrices {
 public:
     // For each MarkerID required by 'info', fetch the value of that matrix from 'matrixProvider'
-    void gather(const SkVerticesPriv& info, const SkMarkedMatrixProvider* matrixProvider) {
+    void gather(const SkVerticesPriv& info, const SkMatrixProvider* matrixProvider) {
         for (int i = 0; i < info.attributeCount(); ++i) {
             if (SkCanvas::MarkerID id = info.attributes()[i].fMarkerID) {
                 if (std::none_of(fMatrices.begin(), fMatrices.end(),
@@ -449,7 +449,7 @@ public:
 
     DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
                    GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix,
-                   const SkRuntimeEffect*, const SkMarkedMatrixProvider* matrixProvider);
+                   const SkRuntimeEffect*, const SkMatrixProvider* matrixProvider);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -547,7 +547,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
                                GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                                const SkMatrix& viewMatrix, const SkRuntimeEffect* effect,
-                               const SkMarkedMatrixProvider* matrixProvider)
+                               const SkMatrixProvider* matrixProvider)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
         , fPrimitiveType(primitiveType)
@@ -857,7 +857,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType,
                                                  const SkRuntimeEffect* effect,
-                                                 const SkMarkedMatrixProvider* matrixProvider) {
+                                                 const SkMatrixProvider* matrixProvider) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType

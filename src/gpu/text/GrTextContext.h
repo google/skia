@@ -45,8 +45,12 @@ public:
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
-    void drawGlyphRunList(GrRecordingContext*, GrTextTarget*, const GrClip&,
-                          const SkMatrix& drawMatrix, const SkSurfaceProps&,
+    void drawGlyphRunList(GrRecordingContext*,
+                          GrTextTarget*,
+                          const GrClip&,
+                          const SkMatrix& drawMatrix,
+                          const SkMatrixProvider*,
+                          const SkSurfaceProps&,
                           const SkGlyphRunList&) const;
 
 #if GR_TEST_UTILS
@@ -55,6 +59,7 @@ public:
                                                    GrRenderTargetContext*,
                                                    const SkPaint&, const SkFont&,
                                                    const SkMatrix& drawMatrix,
+                                                   const SkMatrixProvider* matrixProvider,
                                                    const char* text,
                                                    int x,
                                                    int y);
