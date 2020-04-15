@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6effdfcf_08184af0",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T19:37:43Z",
+      "side": 1,
+      "message": "and",
+      "range": {
+        "startLine": 336,
+        "startChar": 49,
+        "endLine": 336,
+        "endChar": 51
+      },
+      "revId": "3374f2cee2de7ec482c342b3d5aab76c13a067c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88fb97b9_5abaee1e",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T19:37:43Z",
+      "side": 1,
+      "message": "add",
+      "range": {
+        "startLine": 353,
+        "startChar": 50,
+        "endLine": 353,
+        "endChar": 53
+      },
+      "revId": "3374f2cee2de7ec482c342b3d5aab76c13a067c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
