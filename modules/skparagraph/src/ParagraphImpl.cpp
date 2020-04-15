@@ -654,6 +654,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
+        auto lastLine = (&line == &fLines.back());
         if (intersect.empty() && lineText.start != text.start) {
             continue;
         }
@@ -676,37 +677,53 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 SkRect clip = context.clip;
                 clip.offset(context0.fTextShift - context.fTextShift, 0);
 
-                if (rectHeightStyle == RectHeightStyle::kMax) {
-                    // TODO: Change it once flutter rolls into google3
-                    //  (probably will break things if changed before)
-                    clip.fBottom = line.height();
-                    clip.fTop = line.sizes().delta();
-
-                } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingTop) {
-                    if (&line != &fLines.front()) {
-                        clip.fTop -= line.sizes().runTop(context.run);
-                    }
-                    clip.fBottom -= line.sizes().runTop(context.run);
-                } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingMiddle) {
-                    if (&line != &fLines.front()) {
-                        clip.fTop -= line.sizes().runTop(context.run) / 2;
-                    }
-                    if (&line == &fLines.back()) {
+                switch (rectHeightStyle) {
+                    case RectHeightStyle::kMax:
+                        // TODO: Change it once flutter rolls into google3
+                        //  (probably will break things if changed before)
+                        clip.fBottom = line.height();
+                        clip.fTop = line.sizes().delta();
+                        break;
+                    case RectHeightStyle::kIncludeLineSpacingTop:
+                        if (&line != &fLines.front()) {
+                            clip.fTop -= line.sizes().runTop(context.run);
+                        }
                         clip.fBottom -= line.sizes().runTop(context.run);
-                    } else {
-                        clip.fBottom -= line.sizes().runTop(context.run) / 2;
+                    break;
+                    case RectHeightStyle::kIncludeLineSpacingMiddle:
+                        if (&line != &fLines.front()) {
+                            clip.fTop -= line.sizes().runTop(context.run) / 2;
+                        }
+                        if (&line == &fLines.back()) {
+                            clip.fBottom -= line.sizes().runTop(context.run);
+                        } else {
+                            clip.fBottom -= line.sizes().runTop(context.run) / 2;
+                        }
+                    break;
+                    case RectHeightStyle::kIncludeLineSpacingBottom:
+                        if (&line == &fLines.back()) {
+                            clip.fBottom -= line.sizes().runTop(context.run);
+                        }
+                    break;
+                    case RectHeightStyle::kStrut: {
+                        auto strutStyle = this->paragraphStyle().getStrutStyle();
+                        if (strutStyle.getStrutEnabled()
+                            && strutStyle.getFontSize() > 0) {
+                            auto top = line.baseline();
+                            clip.fTop = top + fStrutMetrics.ascent();
+                            clip.fBottom = top + fStrutMetrics.descent();
+                        }
                     }
-                } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingBottom) {
-                    if (&line == &fLines.back()) {
-                        clip.fBottom -= line.sizes().runTop(context.run);
-                    }
-                } else if (rectHeightStyle == RectHeightStyle::kStrut) {
-                    auto strutStyle = this->paragraphStyle().getStrutStyle();
-                    if (strutStyle.getStrutEnabled() && strutStyle.getFontSize() > 0) {
-                        auto top = line.baseline();
-                        clip.fTop = top + fStrutMetrics.ascent();
-                        clip.fBottom = top + fStrutMetrics.descent();
-                    }
+                    break;
+                    case RectHeightStyle::kTight:
+                        if (run->fHeightMultiplier > 0) {
+                            // This is a special case when we do not need to take in account this height multiplier
+                            clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
+                        }
+                    break;
+                    default:
+                        SkASSERT(false);
+                    break;
                 }
 
                 // Separate trailing spaces and move them in the default order of the paragraph
@@ -792,7 +809,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             return true;
         });
 
-        if (rectWidthStyle == RectWidthStyle::kMax) {
+        if (rectWidthStyle == RectWidthStyle::kMax && !lastLine) {
             // Align the very left/right box horizontally
             auto lineStart = line.offset().fX;
             auto lineEnd = line.offset().fX + line.width();
