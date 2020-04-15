@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "159080c8_6efc74a2",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "This was a fix for a bug I noticed while adding the other GM.\n\nDetails: This GM (and the one below) are testing related (new) features of SkVertices. In Viewer, we always draw the GM to the Window, so you typically can see everything. The sizing here determines the size of the images we generate when running the GMs for gold. I had accidentally made that too small, so one column of test cases was cropped out of the images (even though I had visually verified the results in Viewer when I originally made this GM).",
+      "parentUuid": "95f69221_a3408f60",
+      "range": {
+        "startLine": 422,
+        "startChar": 46,
+        "endLine": 422,
+        "endChar": 49
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a54fd070_2522f0e5",
         "filename": "gm/vertices.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "168a1e1e_0c72b152",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Added some named constants to clarify how we\u0027re building the cone/circle here. This CL is adding/changing the functionality related to that constructor, and this GM is testing it. That comment applies to the world at large (at least until I stop iterating on how it works 😉).",
+      "parentUuid": "a54fd070_2522f0e5",
+      "range": {
+        "startLine": 523,
+        "startChar": 69,
+        "endLine": 523,
+        "endChar": 75
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "6c7c1b91_b8e7ceb6",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "817d87d8_1b198936",
+      "range": {
+        "startLine": 526,
+        "startChar": 20,
+        "endLine": 526,
+        "endChar": 31
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0df94cf8_d7d28287",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 7
@@ -115,6 +187,30 @@
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baafdbbc_9d93b2e7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1965,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Done. (After re-reading this snippet, the explicit typename definitely helps readability, given the complexity of the initializing expression).",
+      "parentUuid": "0df94cf8_d7d28287",
+      "range": {
+        "startLine": 1965,
+        "startChar": 18,
+        "endLine": 1965,
+        "endChar": 22
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "81d1be0c_55fda0d3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Just for clarity. I wanted to make it clear that we weren\u0027t allowing unfettered access to the SkGpuDevice (which would probably raise red flags).",
+      "parentUuid": "9c88de9f_33bb6c70",
+      "range": {
+        "startLine": 986,
+        "startChar": 47,
+        "endLine": 986,
+        "endChar": 89
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5c10217_9731cfa4",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -175,6 +295,30 @@
       "writtenOn": "2020-04-14T21:46:00Z",
       "side": 1,
       "message": "Documentation comment seems really thin to me, maybe just because I\u0027m new to a lot of these concepts. My thoughts:\n- \"ID\" should be \"MarkerID\" for clarity.\n- What\u0027s \"snapped-off\" mean in this context? This term doesn\u0027t mean anything to me.\n- How does the \"gather\" mechanism work? Feels like this should be explained; it\u0027s different from a typical container in interesting ways that aren\u0027t explained.",
+      "range": {
+        "startLine": 61,
+        "startChar": 3,
+        "endLine": 61,
+        "endChar": 73
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ad16d1d_bf71f999",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Rewrote this comment to better explain what this is doing.",
+      "parentUuid": "a5c10217_9731cfa4",
       "range": {
         "startLine": 61,
         "startChar": 3,
@@ -257,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "9b481b09_fd3d898e",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "std::none_of is much better (Thanks! I didn\u0027t know about that one.)\n\nToday, the maximum number of custom attributes is 8, so the number of MarkerIDs can never be more than that. And it\u0027s almost always going to be 0 or 1. Given those constraints, I figured a hash table was overkill. I added a comment explaining the rationale.",
+      "parentUuid": "482f40fc_9f07d635",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 69,
+        "endChar": 42
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1579f89c_bfe560cf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -315,6 +483,30 @@
     },
     {
       "key": {
+        "uuid": "c1b48873_9bd99cdb",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "As it stands today, it shouldn\u0027t ever happen - by the time we\u0027re using this, we\u0027ve validated that all the matrices we need were available (and thus inserted in gather). If not, something has gone wrong (in either gather() or SkCanvas where we drop the draw call if any marker IDs used by the vertices haven\u0027t been set).",
+      "parentUuid": "39c22775_e0fbc975",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b5fffd8_9bf01cf5",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -335,6 +527,30 @@
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21868fef_31e47059",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b5fffd8_9bf01cf5",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 93
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -361,6 +577,30 @@
     },
     {
       "key": {
+        "uuid": "ff970a51_fea848ac",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "039c08fb_4fd43be0",
+      "range": {
+        "startLine": 194,
+        "startChar": 20,
+        "endLine": 194,
+        "endChar": 77
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "869e6237_ce0a403d",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -372,6 +612,30 @@
       "writtenOn": "2020-04-14T21:46:00Z",
       "side": 1,
       "message": "Consider labeling otherwise-vague arguments.\n    /*owner\u003d*/nullptr\n\n(Does Skia use ClangTidy? ClangTidy can enforce that these labels are correct. See go/argument-comment for info.)",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 205,
+        "endChar": 39
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14792e53_eeda4e02",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-15T13:52:07Z",
+      "side": 1,
+      "message": "We do have a .clang-tidy checked in, and a bot that runs it. I think that most people don\u0027t run it locally. As for the comments on arguments - that would be a discussion for the wider team - it\u0027s definitely not been part of our style.",
+      "parentUuid": "869e6237_ce0a403d",
       "range": {
         "startLine": 205,
         "startChar": 32,
