@@ -1196,10 +1196,10 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vbroadcastss(A::ymm0,  A::rdi,   0);
-        a.vbroadcastss(A::ymm13, A::r14,   7);
-        a.vbroadcastss(A::ymm8,  A::rdx, -12);
-        a.vbroadcastss(A::ymm8,  A::rdx, 400);
+        a.vbroadcastss(A::ymm0,  A::Mem{A::rdi,   0});
+        a.vbroadcastss(A::ymm13, A::Mem{A::r14,   7});
+        a.vbroadcastss(A::ymm8,  A::Mem{A::rdx, -12});
+        a.vbroadcastss(A::ymm8,  A::Mem{A::rdx, 400});
 
         a.vbroadcastss(A::ymm8,  A::xmm0);
         a.vbroadcastss(A::ymm0,  A::xmm13);
@@ -1243,12 +1243,12 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovups(A::ymm5, A::Mem{A::rsi});
         a.vmovups(A::Mem{A::rsi}, A::ymm5);
 
-        a.vmovups(A::rsi, A::xmm5);
+        a.vmovups(A::Mem{A::rsi}, A::xmm5);
 
         a.vpmovzxwd(A::ymm4, A::Mem{A::rsi});
         a.vpmovzxbd(A::ymm4, A::Mem{A::rsi});
 
-        a.vmovq(A::rdx, A::xmm15);
+        a.vmovq(A::Mem{A::rdx}, A::xmm15);
     },{
         /*    VEX    */  /*Op*/  /*  ModRM  */
         0xc5,     0xfc,   0x10,  0b00'101'110,
@@ -1293,25 +1293,25 @@ DEF_TEST(SkVM_Assembler, r) {
         a.movzwl(A::r8,  A::rsi, 12);
         a.movzwl(A::r8,  A::rsi, 400);
 
+        a.vmovd(A::Mem{A::rax}, A::xmm0);
+        a.vmovd(A::Mem{A::rax}, A::xmm8);
+        a.vmovd(A::Mem{A::r8 }, A::xmm0);
+
+        a.vmovd(A::xmm0, A::Mem{A::rax});
+        a.vmovd(A::xmm8, A::Mem{A::rax});
+        a.vmovd(A::xmm0, A::Mem{A::r8 });
+
+        a.vmovd(A::xmm0 , A::Mem{A::rax, 0, A::rcx, A::FOUR});
+        a.vmovd(A::xmm15, A::Mem{A::rax, 0, A::r8,  A::TWO });
+        a.vmovd(A::xmm0 , A::Mem{A::r8 , 0, A::rcx});
+
         a.vmovd(A::rax, A::xmm0);
         a.vmovd(A::rax, A::xmm8);
-        a.vmovd(A::r8,  A::xmm0);
+        a.vmovd(A::r8 ,  A::xmm0);
 
         a.vmovd(A::xmm0, A::rax);
         a.vmovd(A::xmm8, A::rax);
-        a.vmovd(A::xmm0, A::r8);
-
-        a.vmovd(A::xmm0 , A::FOUR, A::rcx, A::rax);
-        a.vmovd(A::xmm15, A::TWO,  A::r8,  A::rax);
-        a.vmovd(A::xmm0 , A::ONE,  A::rcx, A::r8);
-
-        a.vmovd_direct(A::rax, A::xmm0);
-        a.vmovd_direct(A::rax, A::xmm8);
-        a.vmovd_direct(A::r8,  A::xmm0);
-
-        a.vmovd_direct(A::xmm0, A::rax);
-        a.vmovd_direct(A::xmm8, A::rax);
-        a.vmovd_direct(A::xmm0, A::r8);
+        a.vmovd(A::xmm0, A::r8 );
 
         a.movb(A::rdx, A::rax);
         a.movb(A::rdx, A::r8);
@@ -1355,17 +1355,17 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vpinsrw(A::xmm1, A::xmm8, A::rsi, 4);
-        a.vpinsrw(A::xmm8, A::xmm1, A::r8, 12);
+        a.vpinsrw(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrw $4, (%rsi), %xmm8, %xmm1
+        a.vpinsrw(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinrsw $12, (%r8), %xmm1, %xmm8
 
-        a.vpinsrb(A::xmm1, A::xmm8, A::rsi, 4);
-        a.vpinsrb(A::xmm8, A::xmm1, A::r8, 12);
+        a.vpinsrb(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrb $4, (%rsi), %xmm8, %xmm1
+        a.vpinsrb(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinsrb $4, (%rsi), %xmm8, %xmm1
 
-        a.vpextrw(A::rsi, A::xmm8, 7);
-        a.vpextrw(A::r8,  A::xmm1, 15);
+        a.vpextrw(A::Mem{A::rsi}, A::xmm8, 7);
+        a.vpextrw(A::Mem{A::r8 }, A::xmm1, 15);
 
-        a.vpextrb(A::rsi, A::xmm8, 7);
-        a.vpextrb(A::r8,  A::xmm1, 15);
+        a.vpextrb(A::Mem{A::rsi}, A::xmm8, 7);
+        a.vpextrb(A::Mem{A::r8 }, A::xmm1, 15);
     },{
         0xc5,0xb9,      0xc4, 0x0e,  4,
         0xc4,0x41,0x71, 0xc4, 0x00, 12,

@@ -1769,103 +1769,91 @@ namespace skvm {
         this->bytes(&off, imm_bytes(mod(off)));
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
-        VEX v = vex(W, dst>>3, 0, y>>3,
-                    map, x, 1/*ymm, not xmm*/, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
-    }
+    void Assembler::vpaddd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
+    void Assembler::vpmulld(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
-    void Assembler::vpaddd (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
-    void Assembler::vpsubd (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
-    void Assembler::vpmulld(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x40, dst,x,y); }
+    void Assembler::vpsubw (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
+    void Assembler::vpmullw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
 
-    void Assembler::vpsubw (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
-    void Assembler::vpmullw(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
+    void Assembler::vpand (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
+    void Assembler::vpor  (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
+    void Assembler::vpxor (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpandn(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
 
-    void Assembler::vpand (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
-    void Assembler::vpor  (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
-    void Assembler::vpxor (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xef, dst,x,y); }
-    void Assembler::vpandn(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
+    void Assembler::vaddps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x58, dst,x,y); }
+    void Assembler::vsubps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x5c, dst,x,y); }
+    void Assembler::vmulps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x59, dst,x,y); }
+    void Assembler::vdivps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x5e, dst,x,y); }
+    void Assembler::vminps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x5d, dst,x,y); }
+    void Assembler::vmaxps(Ymm dst, Ymm x, Operand y) { this->op(0,0x0f,0x5f, dst,x,y); }
 
-    void Assembler::vaddps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x58, dst,x,y); }
-    void Assembler::vsubps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5c, dst,x,y); }
-    void Assembler::vmulps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x59, dst,x,y); }
-    void Assembler::vdivps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5e, dst,x,y); }
-    void Assembler::vminps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5d, dst,x,y); }
-    void Assembler::vmaxps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5f, dst,x,y); }
+    void Assembler::vfmadd132ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x98, dst,x,y); }
+    void Assembler::vfmadd213ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
+    void Assembler::vfmadd231ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xb8, dst,x,y); }
 
-    void Assembler::vfmadd132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x98, d,x,y); }
-    void Assembler::vfmadd213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xa8, d,x,y); }
-    void Assembler::vfmadd231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xb8, d,x,y); }
+    void Assembler::vfmsub132ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x9a, dst,x,y); }
+    void Assembler::vfmsub213ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xaa, dst,x,y); }
+    void Assembler::vfmsub231ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xba, dst,x,y); }
 
-    void Assembler::vfmsub132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x9a, d,x,y); }
-    void Assembler::vfmsub213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xaa, d,x,y); }
-    void Assembler::vfmsub231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xba, d,x,y); }
+    void Assembler::vfnmadd132ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x9c, dst,x,y); }
+    void Assembler::vfnmadd213ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xac, dst,x,y); }
+    void Assembler::vfnmadd231ps(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0xbc, dst,x,y); }
 
-    void Assembler::vfnmadd132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x9c, d,x,y); }
-    void Assembler::vfnmadd213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xac, d,x,y); }
-    void Assembler::vfnmadd231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xbc, d,x,y); }
+    void Assembler::vpackusdw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
+    void Assembler::vpackuswb(Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
 
-    void Assembler::vpackusdw(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
-    void Assembler::vpackuswb(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
+    void Assembler::vpcmpeqd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
+    void Assembler::vpcmpgtd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
-    void Assembler::vpcmpeqd(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
-    void Assembler::vpcmpgtd(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
-
-    void Assembler::vcmpps(Ymm dst, Ymm x, YmmOperand y, int imm) {
+    void Assembler::vcmpps(Ymm dst, Ymm x, Operand y, int imm) {
         this->op(0,0x0f,0xc2, dst,x,y);
         this->byte(imm);
     }
 
-    void Assembler::vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z) {
-        int prefix = 0x66,
-            map    = 0x3a0f,
-            opcode = 0x4c;
-        VEX v = vex(0, dst>>3, 0, y>>3,
-                    map, x, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
+    void Assembler::vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z) {
+        this->op(0x66,0x3a0f,0x4c, dst,x,y);
         this->byte(z << 4);
     }
 
-    // dst = x op /opcode_ext imm
-    void Assembler::op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm) {
-        // This is a little weird, but if we pass the opcode_ext as if it were the dst register,
-        // the dst register as if x, and the x register as if y, all the bits end up where we want.
-        this->op(prefix, map, opcode, (Ymm)opcode_ext,dst,x);
+    // Shift instructions encode their opcode extension as "dst", dst as x, and x as y.
+    void Assembler::vpslld(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x72,(Ymm)6, dst,x);
+        this->byte(imm);
+    }
+    void Assembler::vpsrld(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x72,(Ymm)2, dst,x);
+        this->byte(imm);
+    }
+    void Assembler::vpsrad(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x72,(Ymm)4, dst,x);
+        this->byte(imm);
+    }
+    void Assembler::vpsrlw(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x71,(Ymm)2, dst,x);
         this->byte(imm);
     }
 
-    void Assembler::vpslld(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,6, dst,x,imm); }
-    void Assembler::vpsrld(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,2, dst,x,imm); }
-    void Assembler::vpsrad(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x72,4, dst,x,imm); }
-
-    void Assembler::vpsrlw(Ymm dst, Ymm x, int imm) { this->op(0x66,0x0f,0x71,2, dst,x,imm); }
-
-
-    void Assembler::vpermq(Ymm dst, Ymm x, int imm) {
+    void Assembler::vpermq(Ymm dst, Operand x, int imm) {
         // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
-        bool W = true;
-        this->op(0x66,0x3a0f,0x00, dst,x,W);
+        this->op(0x66,0x3a0f,0x00, dst,x,W1);
         this->byte(imm);
     }
 
-    void Assembler::vroundps(Ymm dst, Ymm x, Rounding imm) {
+    void Assembler::vroundps(Ymm dst, Operand x, Rounding imm) {
         this->op(0x66,0x3a0f,0x08, dst,x);
         this->byte(imm);
     }
 
-    void Assembler::vmovdqa(Ymm dst, YmmOperand src) { this->op(0x66,0x0f,0x6f, dst,src); }
-    void Assembler::vmovups(Ymm dst, YmmOperand src) { this->op(   0,0x0f,0x10, dst,src); }
-    void Assembler::vmovups(YmmOperand dst, Ymm src) { this->op(   0,0x0f,0x11, src,dst); }
+    void Assembler::vmovdqa(Ymm dst, Operand src) { this->op(0x66,0x0f,0x6f, dst,src); }
+    void Assembler::vmovups(Ymm dst, Operand src) { this->op(   0,0x0f,0x10, dst,src); }
+    void Assembler::vmovups(Operand dst, Ymm src) { this->op(   0,0x0f,0x11, src,dst); }
+    void Assembler::vmovups(Operand dst, Xmm src) { this->op(   0,0x0f,0x11, src,dst); }
 
-    void Assembler::vcvtdq2ps (Ymm dst, YmmOperand x) { this->op(   0,0x0f,0x5b, dst,x); }
-    void Assembler::vcvttps2dq(Ymm dst, YmmOperand x) { this->op(0xf3,0x0f,0x5b, dst,x); }
-    void Assembler::vcvtps2dq (Ymm dst, YmmOperand x) { this->op(0x66,0x0f,0x5b, dst,x); }
-    void Assembler::vsqrtps   (Ymm dst, YmmOperand x) { this->op(   0,0x0f,0x51, dst,x); }
+    void Assembler::vcvtdq2ps (Ymm dst, Operand x) { this->op(   0,0x0f,0x5b, dst,x); }
+    void Assembler::vcvttps2dq(Ymm dst, Operand x) { this->op(0xf3,0x0f,0x5b, dst,x); }
+    void Assembler::vcvtps2dq (Ymm dst, Operand x) { this->op(0x66,0x0f,0x5b, dst,x); }
+    void Assembler::vsqrtps   (Ymm dst, Operand x) { this->op(   0,0x0f,0x51, dst,x); }
 
     Assembler::Label Assembler::here() {
         return { (int)this->size(), Label::NotYetSet, {} };
@@ -1889,62 +1877,54 @@ namespace skvm {
         return l->offset - (here().offset + 4);
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l, bool W) {
-        // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
-        const int rip = rbp;
-
-        VEX v = vex(W, dst>>3, 0, rip>>3,
-                    map, x, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
-        this->word(this->disp32(l));
-    }
-
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Mem m, bool W) {
-        // Passing rsp as the rm argument to mod_rm() signals an SIB byte follows;
-        // without an SIB byte, that's where the base register would usually go.
-        // This means we have to use an SIB byte if we want to use rsp as a base register.
-        const bool need_SIB = m.base  == rsp
-                           || m.index != rsp;
-
-        VEX v = vex(W, dst>>3, m.index>>3, m.base>>3,
-                    map, x, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(mod(m.disp), dst&7, (need_SIB ? rsp : m.base)&7));
-        if (need_SIB) {
-            this->byte(sib(m.scale, m.index&7, m.base&7));
-        }
-        this->bytes(&m.disp, imm_bytes(mod(m.disp)));
-    }
-
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOperand y, bool W) {
+    void Assembler::op(int prefix, int map, int opcode, int dst, int x, Operand y, W w, L l) {
         switch (y.kind) {
-            case YmmOperand::YMM:   return this->op(prefix,map,opcode, dst,x,y.ymm  ,W);
-            case YmmOperand::MEM:   return this->op(prefix,map,opcode, dst,x,y.mem  ,W);
-            case YmmOperand::LABEL: return this->op(prefix,map,opcode, dst,x,y.label,W);
+            case Operand::REG: {
+                VEX v = vex(w, dst>>3, 0, y.reg>>3,
+                            map, x, l, prefix);
+                this->bytes(v.bytes, v.len);
+                this->byte(opcode);
+                this->byte(mod_rm(Mod::Direct, dst&7, y.reg&7));
+            } return;
+
+            case Operand::MEM: {
+                // Passing rsp as the rm argument to mod_rm() signals an SIB byte follows;
+                // without an SIB byte, that's where the base register would usually go.
+                // This means we have to use an SIB byte if we want to use rsp as a base register.
+                const Mem& m = y.mem;
+                const bool need_SIB = m.base  == rsp
+                                   || m.index != rsp;
+
+                VEX v = vex(w, dst>>3, m.index>>3, m.base>>3,
+                            map, x, l, prefix);
+                this->bytes(v.bytes, v.len);
+                this->byte(opcode);
+                this->byte(mod_rm(mod(m.disp), dst&7, (need_SIB ? rsp : m.base)&7));
+                if (need_SIB) {
+                    this->byte(sib(m.scale, m.index&7, m.base&7));
+                }
+                this->bytes(&m.disp, imm_bytes(mod(m.disp)));
+            } return;
+
+            case Operand::LABEL: {
+                // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
+                const int rip = rbp;
+
+                VEX v = vex(w, dst>>3, 0, rip>>3,
+                            map, x, l, prefix);
+                this->bytes(v.bytes, v.len);
+                this->byte(opcode);
+                this->byte(mod_rm(Mod::Indirect, dst&7, rip&7));
+                this->word(this->disp32(y.label));
+            } return;
         }
     }
 
-    void Assembler::vpshufb(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x00, dst,x,y); }
+    void Assembler::vpshufb(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x00, dst,x,y); }
 
-    void Assembler::vptest(Ymm x, YmmOperand y) { this->op(0x66, 0x380f, 0x17, x,y); }
+    void Assembler::vptest(Ymm x, Operand y) { this->op(0x66, 0x380f, 0x17, x,y); }
 
-    void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
-    void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }
-    void Assembler::vbroadcastss(Ymm dst, GP64 ptr, int off) {
-        int prefix = 0x66,
-               map = 0x380f,
-            opcode = 0x18;
-        VEX v = vex(0, dst>>3, 0, ptr>>3,
-                    map, 0, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-
-        this->byte(mod_rm(mod(off), dst&7, ptr&7));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
+    void Assembler::vbroadcastss(Ymm dst, Operand y) { this->op(0x66,0x380f,0x18, dst,y); }
 
     void Assembler::jump(uint8_t condition, Label* l) {
         // These conditional jumps can be either 2 bytes (short) or 6 bytes (near):
@@ -1966,86 +1946,13 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::vpmovzxwd(Ymm dst, YmmOperand src) { this->op(0x66,0x380f,0x33, dst,src); }
-    void Assembler::vpmovzxbd(Ymm dst, YmmOperand src) { this->op(0x66,0x380f,0x31, dst,src); }
+    void Assembler::vpmovzxwd(Ymm dst, Operand src) { this->op(0x66,0x380f,0x33, dst,src); }
+    void Assembler::vpmovzxbd(Ymm dst, Operand src) { this->op(0x66,0x380f,0x31, dst,src); }
 
-    void Assembler::vmovups(GP64 dst, Xmm src) {
-        int prefix = 0,
-            map    = 0x0f,
-            opcode = 0x11;
-        VEX v = vex(0, src>>3, 0, dst>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
-    }
+    void Assembler::vmovq(Operand dst, Xmm src) { this->op(0x66,0x0f,0xd6, src,dst); }
 
-    void Assembler::vmovq(GP64 dst, Xmm src) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0xd6;
-        VEX v = vex(0, src>>3, 0, dst>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
-    }
-
-    void Assembler::vmovd(GP64 dst, Xmm src) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0x7e;
-        VEX v = vex(0, src>>3, 0, dst>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
-    }
-
-    void Assembler::vmovd_direct(GP64 dst, Xmm src) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0x7e;
-        VEX v = vex(0, src>>3, 0, dst>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, src&7, dst&7));
-    }
-
-    void Assembler::vmovd(Xmm dst, GP64 src) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0x6e;
-        VEX v = vex(0, dst>>3, 0, src>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
-    }
-
-    void Assembler::vmovd(Xmm dst, Scale scale, GP64 index, GP64 base) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0x6e;
-        VEX v = vex(0, dst>>3, index>>3, base>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, rsp/*use SIB*/));
-        this->byte(sib(scale, index&7, base&7));
-    }
-
-    void Assembler::vmovd_direct(Xmm dst, GP64 src) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0x6e;
-        VEX v = vex(0, dst>>3, 0, src>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, dst&7, src&7));
-    }
+    void Assembler::vmovd(Operand dst, Xmm src) { this->op(0x66,0x0f,0x7e, src,dst); }
+    void Assembler::vmovd(Xmm dst, Operand src) { this->op(0x66,0x0f,0x6e, dst,src); }
 
     void Assembler::movzbl(GP64 dst, GP64 src, int off) {
         if ((dst>>3) || (src>>3)) {
@@ -2075,52 +1982,21 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
-    void Assembler::vpinsrw(Xmm dst, Xmm src, GP64 ptr, int imm) {
-        int prefix = 0x66,
-            map    = 0x0f,
-            opcode = 0xc4;
-        VEX v = vex(0, dst>>3, 0, ptr>>3,
-                    map, src, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, ptr&7));
+    void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
+        this->op(0x66,0x0f,0xc4, dst,src,y);
+        this->byte(imm);
+    }
+    void Assembler::vpinsrb(Xmm dst, Xmm src, Operand y, int imm) {
+        this->op(0x66,0x3a0f,0x20, dst,src,y);
         this->byte(imm);
     }
 
-    void Assembler::vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm) {
-        int prefix = 0x66,
-            map    = 0x3a0f,
-            opcode = 0x20;
-        VEX v = vex(0, dst>>3, 0, ptr>>3,
-                    map, src, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, ptr&7));
+    void Assembler::vpextrw(Operand dst, Xmm src, int imm) {
+        this->op(0x66,0x3a0f,0x15, src,dst);
         this->byte(imm);
     }
-
-    void Assembler::vpextrw(GP64 ptr, Xmm src, int imm) {
-        int prefix = 0x66,
-            map    = 0x3a0f,
-            opcode = 0x15;
-
-        VEX v = vex(0, src>>3, 0, ptr>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, src&7, ptr&7));
-        this->byte(imm);
-    }
-    void Assembler::vpextrb(GP64 ptr, Xmm src, int imm) {
-        int prefix = 0x66,
-            map    = 0x3a0f,
-            opcode = 0x14;
-
-        VEX v = vex(0, src>>3, 0, ptr>>3,
-                    map, 0, /*ymm?*/0, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, src&7, ptr&7));
+    void Assembler::vpextrb(Operand dst, Xmm src, int imm) {
+        this->op(0x66,0x3a0f,0x14, src,dst);
         this->byte(imm);
     }
 
@@ -3151,38 +3027,38 @@ namespace skvm {
                     a->label(&all_true);
                 } break;
 
-                case Op::store8: if (scalar) { a->vpextrb  (arg[immy], (A::Xmm)r[x], 0); }
+                case Op::store8: if (scalar) { a->vpextrb  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                a->vpermq   (tmp(), tmp(), 0xd8);
                                                a->vpackuswb(tmp(), tmp(), tmp());
-                                               a->vmovq    (arg[immy], (A::Xmm)tmp()); }
+                                               a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
                                                break;
 
-                case Op::store16: if (scalar) { a->vpextrw  (arg[immy], (A::Xmm)r[x], 0); }
+                case Op::store16: if (scalar) { a->vpextrw  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
                                   else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                 a->vpermq   (tmp(), tmp(), 0xd8);
-                                                a->vmovups  (arg[immy], (A::Xmm)tmp()); }
+                                                a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
                                                 break;
 
-                case Op::store32: if (scalar) { a->vmovd  (       arg[immy] , (A::Xmm)r[x]); }
+                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r[x]); }
                                   else        { a->vmovups(A::Mem{arg[immy]},         r[x]); }
                                                 break;
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
+                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
                                  } else {
                                      a->vpmovzxbd(dst(), A::Mem{arg[immy]});
                                  } break;
 
                 case Op::load16: if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
+                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
                                  } else {
                                      a->vpmovzxwd(dst(), A::Mem{arg[immy]});
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(),        arg[immy] ); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), A::Mem{arg[immy]}); }
                                  else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
                                  break;
 
@@ -3194,10 +3070,10 @@ namespace skvm {
                     a->movq(base, arg[immy], immz);
 
                     // Grab our index from lane 0 of the index argument.
-                    a->vmovd_direct(index, (A::Xmm)r[x]);
+                    a->vmovd(index, (A::Xmm)r[x]);
 
                     // dst = *(base + 4*index)
-                    a->vmovd((A::Xmm)dst(), A::FOUR, index, base);
+                    a->vmovd((A::Xmm)dst(), A::Mem{base, 0, index, A::FOUR});
                 } else {
                     // We may not let any of dst(), index, or mask use the same register,
                     // so we must allocate registers manually and very carefully.
@@ -3234,20 +3110,20 @@ namespace skvm {
                 break;
 
                 case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
-                                   a->vmovd_direct((A::Xmm)dst(), scratch);
-                                   a->vbroadcastss(dst(), (A::Xmm)dst());
+                                   a->vmovd((A::Xmm)dst(), scratch);
+                                   a->vbroadcastss(dst(), dst());
                                    break;
 
                 case Op::uniform16: a->movzwl(scratch, arg[immy], immz);
-                                    a->vmovd_direct((A::Xmm)dst(), scratch);
-                                    a->vbroadcastss(dst(), (A::Xmm)dst());
+                                    a->vmovd((A::Xmm)dst(), scratch);
+                                    a->vbroadcastss(dst(), dst());
                                     break;
 
-                case Op::uniform32: a->vbroadcastss(dst(), arg[immy], immz);
+                case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immy], immz});
                                     break;
 
-                case Op::index: a->vmovd_direct((A::Xmm)tmp(), N);
-                                a->vbroadcastss(tmp(), (A::Xmm)tmp());
+                case Op::index: a->vmovd((A::Xmm)tmp(), N);
+                                a->vbroadcastss(tmp(), tmp());
                                 a->vpsubd(dst(), tmp(), &iota.label);
                                 break;
 
