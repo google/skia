@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 
+import os
 import posixpath
 from recipe_engine import recipe_api
 
@@ -62,7 +63,8 @@ class DockerApi(recipe_api.RecipeApi):
 
     # Run.
     cmd = [
-      'docker', 'run', '--shm-size=2gb', '--rm',
+      'docker', 'run', '--shm-size=2gb', '--rm', '--user',
+      '%d:%d' % (os.getuid(), os.getgid()),
       '--mount', 'type=bind,source=%s,target=%s' %
                  (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
       '--mount', 'type=bind,source=%s,target=%s' %
@@ -70,11 +72,8 @@ class DockerApi(recipe_api.RecipeApi):
     ]
     if docker_args:
       cmd.extend(docker_args)
-      script = None
-      if match_directory_structure:
-        script = str(script)
-      else:
-        script = MOUNT_SRC + '/' + posixpath.relpath(str(script), str(self.m.path['start_dir']))
+    if not match_directory_structure:
+      script = MOUNT_SRC + '/' + posixpath.relpath(str(script), str(self.m.path['start_dir']))
     cmd.extend([docker_image, script])
     if args:
       cmd.extend(args)
