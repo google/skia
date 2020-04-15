@@ -348,8 +348,8 @@ bool SkSVGAttributeParser::parseTranslateToken(SkMatrix* matrix) {
             return false;
         }
 
-        if (!(this->parseSepToken() && this->parseScalarToken(&ty))) {
-            ty = tx;
+        if (!this->parseSepToken() || !this->parseScalarToken(&ty)) {
+            ty = 0.0;
         }
 
         m->setTranslate(tx, ty);
