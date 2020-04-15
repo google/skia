@@ -42,6 +42,9 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaces()) {
                     break;
                 }
+                if (further->run()->isPlaceholder()) {
+                  continue;
+                }
                 nextWordLength += further->width();
             }
             if (nextWordLength > maxWidth) {
@@ -119,17 +122,20 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
 
 SkScalar TextWrapper::getClustersTrimmedWidth() {
     // Move the end of the line to the left
-    SkScalar width = fClusters.width();
-    auto cluster = fClusters.endCluster();
-    for (; cluster > fClusters.startCluster() && cluster->isWhitespaces(); --cluster) {
-        width -= cluster->width();
-    }
-    if (cluster >= fClusters.startCluster()) {
-        if (cluster->isWhitespaces()) {
-            width -= cluster->width();
-        } else {
-            width -= (cluster->width() - cluster->trimmedWidth(cluster->endPos()));
+    SkScalar width = 0;
+    bool trailingSpaces = true;
+    for (auto cluster = fClusters.endCluster(); cluster >= fClusters.startCluster(); --cluster) {
+        if (cluster->run()->isPlaceholder()) {
+            continue;
         }
+        if (trailingSpaces) {
+            if (!cluster->isWhitespaces()) {
+                width += cluster->trimmedWidth(cluster->endPos());
+                trailingSpaces = false;
+            }
+            continue;
+        }
+        width += cluster->width();
     }
     return width;
 }
@@ -308,7 +314,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 lastWordLength = 0;
             } else {
                 softLineMaxIntrinsicWidth += cluster->width();
-                lastWordLength += cluster->width();
+                if (!cluster->run()->isPlaceholder()) {
+                    lastWordLength += cluster->width();
+                }
             }
             ++cluster;
         }
