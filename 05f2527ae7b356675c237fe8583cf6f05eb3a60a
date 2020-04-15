@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "c8ca7c91_091a0264",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Done. (I was going to copy the style from GrGpu.h or GrDawingManager.h, but they don\u0027t have one... 😊). I\u0027ve documented the individual calls more descriptively.",
+      "parentUuid": "a3f697d8_f2e6cc32",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b672c6f_05fdd18e",
         "filename": "src/gpu/GrFinishCallbacks.h",
         "patchSetId": 6
@@ -94,6 +118,54 @@
     },
     {
       "key": {
+        "uuid": "227283a3_6ef2fbc4",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "It was originally callFinishCallbacks, but that seemed a little redundant at the call site:\n\nfFinishCallbacks.callFinishCallbacks();\n\nI\u0027ve made it callAll(). Seems inconsistent to call them procs in some cases and callbacks in others.",
+      "parentUuid": "f473eb9b_ece999c9",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 13
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc5b4380_2dae34b4",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Yes, GrGLGpu::disconnect() does, when type is kAbandon.",
+      "parentUuid": "9b672c6f_05fdd18e",
+      "range": {
+        "startLine": 22,
+        "startChar": 14,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "096a3cb6_604a30af",
         "filename": "src/gpu/GrFinishCallbacks.h",
         "patchSetId": 6
@@ -114,6 +186,30 @@
       "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa68b54f_13758399",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "096a3cb6_604a30af",
+      "range": {
+        "startLine": 24,
+        "startChar": 9,
+        "endLine": 24,
+        "endChar": 14
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "60498a36_8dfd546e",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db0b20a9_39cdeffb",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 1
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "adc33254_df79a136",
         "filename": "src/gpu/GrFinishCallbacks.h",
         "patchSetId": 6
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "6b425fc7_90ea6fe3",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adc33254_df79a136",
+      "range": {
+        "startLine": 34,
+        "startChar": 30,
+        "endLine": 34,
+        "endChar": 37
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65c5cf7c_c8a5368c",
         "filename": "src/gpu/GrGpu.h",
         "patchSetId": 6
@@ -183,6 +327,30 @@
       "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "573879fd_c461d22f",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-15T16:58:52Z",
+      "side": 1,
+      "message": "Done.\n\nI didn\u0027t realize that GrFinishCallbacks::check() was the only caller.\n\nI wonder if we should rename waitFence() -\u003e checkFence(), since it always passes a timeout of zero now, and (I assume) never actually waits.",
+      "parentUuid": "65c5cf7c_c8a5368c",
+      "range": {
+        "startLine": 372,
+        "startChar": 36,
+        "endLine": 372,
+        "endChar": 79
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
