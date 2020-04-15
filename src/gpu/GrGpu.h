@@ -369,7 +369,7 @@ public:
     virtual void submit(GrOpsRenderPass*) = 0;
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
-    virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
+    virtual bool waitFence(GrFence) = 0;
     virtual void deleteFence(GrFence) const = 0;
 
     virtual std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(

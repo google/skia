@@ -89,6 +89,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrDynamicAtlas.cpp",
   "$_src/gpu/GrDynamicAtlas.h",
   "$_src/gpu/GrEagerVertexAllocator.h",
+  "$_src/gpu/GrFinishCallbacks.cpp",
+  "$_src/gpu/GrFinishCallbacks.h",
   "$_src/gpu/GrFixedClip.cpp",
   "$_src/gpu/GrFixedClip.h",
   "$_src/gpu/GrFragmentProcessor.cpp",
