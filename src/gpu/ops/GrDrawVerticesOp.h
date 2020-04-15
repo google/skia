@@ -15,7 +15,7 @@ class GrColorSpaceXform;
 class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
-class SkMarkedMatrixProvider;
+class SkMatrixProvider;
 class SkRuntimeEffect;
 
 namespace GrDrawVerticesOp {
@@ -35,7 +35,7 @@ namespace GrDrawVerticesOp {
                                    sk_sp<GrColorSpaceXform>,
                                    GrPrimitiveType* overridePrimType,
                                    const SkRuntimeEffect*,
-                                   const SkMarkedMatrixProvider* matrixProvider);
+                                   const SkMatrixProvider* matrixProvider);
 
 };
 

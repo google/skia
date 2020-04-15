@@ -148,7 +148,7 @@ protected:
         GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
         SkMatrix view = canvas->getTotalMatrix();
         GrPaint grPaint;
-        SkPaintToGrPaint(context, rtc->colorInfo(), paint, view, &grPaint);
+        SkPaintToGrPaint(context, rtc->colorInfo(), paint, view, nullptr, &grPaint);
         rtc->drawQuadSet(GrNoClip(), std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
     }
 

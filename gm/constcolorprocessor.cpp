@@ -113,7 +113,7 @@ protected:
                         skPaint.setColor(kPaintColors[paintType]);
                     }
                     SkAssertResult(SkPaintToGrPaint(context, renderTargetContext->colorInfo(),
-                                                    skPaint, viewMatrix, &grPaint));
+                                                    skPaint, viewMatrix, nullptr, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(kColors[procColor]);

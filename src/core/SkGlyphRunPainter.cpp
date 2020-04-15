@@ -271,10 +271,13 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
     return filteredColor.premul();
 }
 
-void GrTextContext::drawGlyphRunList(
-        GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
-        const SkMatrix& drawMatrix, const SkSurfaceProps& props,
-        const SkGlyphRunList& glyphRunList) const {
+void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
+                                     GrTextTarget* target,
+                                     const GrClip& clip,
+                                     const SkMatrix& drawMatrix,
+                                     const SkMatrixProvider* matrixProvider,
+                                     const SkSurfaceProps& props,
+                                     const SkGlyphRunList& glyphRunList) const {
     auto contextPriv = context->priv();
     // If we have been abandoned, then don't draw
     if (contextPriv.abandoned()) {
@@ -354,7 +357,8 @@ void GrTextContext::drawGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
-    cachedBlob->flush(target, props, blobPaint, drawingColor, clip, drawMatrix, drawOrigin);
+    cachedBlob->flush(target, props, blobPaint, drawingColor, clip, drawMatrix, matrixProvider,
+                      drawOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -368,6 +372,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                                                               const SkPaint& skPaint,
                                                               const SkFont& font,
                                                               const SkMatrix& drawMatrix,
+                                                              const SkMatrixProvider* mtxProvider,
                                                               const char* text,
                                                               int x,
                                                               int y) {
@@ -398,8 +403,8 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    return blob->test_makeOp(textLen, drawMatrix, drawOrigin, skPaint, filteredColor, surfaceProps,
-                             rtc->textTarget());
+    return blob->test_makeOp(textLen, drawMatrix, mtxProvider, drawOrigin, skPaint, filteredColor,
+                             surfaceProps, rtc->textTarget());
 }
 
 #endif  // GR_TEST_UTILS
