@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "442c98d8_d688554f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T14:51:23Z",
+      "side": 1,
+      "message": "Maybe name this implement d3d command buffer copy calls since writepixels is not implemented?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 33
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94daf305_d057b47a",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T14:51:23Z",
+      "side": 1,
+      "message": "I think we also want to call submitResourceBarriers in here",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "089be588_5a5e4f7a",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T14:51:23Z",
+      "side": 1,
+      "message": "I see that vulkan does this as well but it seems weird to say there is no work when we are just closing it. Wouldn\u0027t it make more sense to reset this when we reset the command buffer? Can you think of reason why we do it here?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15de3e94_c9f4e844",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T14:51:23Z",
+      "side": 1,
+      "message": "I\u0027m a little confused about why we have this replacing here. Feels like if we get into a situation where we transitioned an a state then tried to transition the same subresource to a different state without doing any work then that should be a bug. We really should only be putting in barriers before we do work.\n\nIn Vulkan there is a little weirdness when we are uploading mip levels so at different times different subresources are in different layouts. But again that shouldn\u0027t be the same subresource.",
+      "range": {
+        "startLine": 84,
+        "startChar": 5,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "2b67cb920fc5983c6ddef2f864f43a39f2ead500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
