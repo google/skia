@@ -72,8 +72,6 @@ class DockerApi(recipe_api.RecipeApi):
     ]
     if docker_args:
       cmd.extend(docker_args)
-    # This may only work for matched directory structure where src_dir ==
-    # self.m.path['start_dir'] but that's our only use case for now.
     if not match_directory_structure:
       script = MOUNT_SRC + '/' + posixpath.relpath(str(script), str(self.m.path['start_dir']))
     cmd.extend([docker_image, script])
