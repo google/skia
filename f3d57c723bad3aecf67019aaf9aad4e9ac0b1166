@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "92f301c8_b90c74ee",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-15T19:16:35Z",
+      "side": 1,
+      "message": "It\u0027s really not. Just another problem that I didn\u0027t report separately: the last line width should add the alignment box on the left/right to adjust to the max width.\nNothing in the doc suggest that but newly added tests use it. It does make some sense, I guess...",
+      "parentUuid": "db396246_329675c9",
+      "range": {
+        "startLine": 657,
+        "startChar": 8,
+        "endLine": 657,
+        "endChar": 50
+      },
+      "revId": "f3d57c723bad3aecf67019aaf9aad4e9ac0b1166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b8a77b5_9e4148d5",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "f3d57c723bad3aecf67019aaf9aad4e9ac0b1166",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa3a719_788d9daa",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-15T19:16:35Z",
+      "side": 1,
+      "message": "It was a 2-branch if at first and I didn\u0027t notice when it become the entire enum switch...\nI will fix it.",
+      "parentUuid": "7b8a77b5_9e4148d5",
+      "range": {
+        "startLine": 711,
+        "startChar": 22,
+        "endLine": 711,
+        "endChar": 24
+      },
+      "revId": "f3d57c723bad3aecf67019aaf9aad4e9ac0b1166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
