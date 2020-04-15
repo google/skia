@@ -61,7 +61,6 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = half4(0, 0, 0, 0);", args.fOutputColor);
 
     fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), inc);
-    fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     static constexpr const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
@@ -70,8 +69,8 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         kernelIndex.printf("%s[%d]", kernel, i/4);
         kernelIndex.append(kVecSuffix[i & 0x3]);
 
-        fragBuilder->codeAppend("coordSampled = coord;");
-        auto sample = this->invokeChild(0, args, "coordSampled");
+        fragBuilder->codeAppendf("coord = floor(coord) + float2(0.5);");
+        auto sample = this->invokeChild(0, args, "coord");
         fragBuilder->codeAppendf("%s += %s", args.fOutputColor, sample.c_str());
         fragBuilder->codeAppendf(" * %s;", kernelIndex.c_str());
         fragBuilder->codeAppendf("coord += %s;", inc);
