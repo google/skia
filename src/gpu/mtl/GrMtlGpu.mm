@@ -1436,7 +1436,7 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         writer->appendU64("registryID", fDevice.registryID);
     }
-#ifdef SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         switch (fDevice.location) {
             case MTLDeviceLocationBuiltIn:
@@ -1459,15 +1459,19 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         writer->appendU64("maxTransferRate", fDevice.maxTransferRate);
     }
 #endif  // SK_BUILD_FOR_MAC
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 10.15, iOS 13.0, *)) {
         writer->appendBool("hasUnifiedMemory", fDevice.hasUnifiedMemory);
     }
+#endif
 #ifdef SK_BUILD_FOR_MAC
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         writer->appendU64("peerGroupID", fDevice.peerGroupID);
         writer->appendU32("peerCount", fDevice.peerCount);
         writer->appendU32("peerIndex", fDevice.peerIndex);
     }
+#endif
     if (@available(macOS 10.12, *)) {
         writer->appendU64("recommendedMaxWorkingSetSize", fDevice.recommendedMaxWorkingSetSize);
     }
@@ -1497,12 +1501,14 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
                            fDevice.isDepth24Stencil8PixelFormatSupported);
 
     }
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         writer->appendBool("areBarycentricCoordsSupported",
                            fDevice.areBarycentricCoordsSupported);
         writer->appendBool("supportsShaderBarycentricCoordinates",
                            fDevice.supportsShaderBarycentricCoordinates);
     }
+#endif
 #endif  // SK_BUILD_FOR_MAC
     if (@available(macOS 10.14, iOS 12.0, *)) {
         writer->appendU64("maxBufferLength", fDevice.maxBufferLength);
