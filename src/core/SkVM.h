@@ -89,36 +89,19 @@ namespace skvm {
             Scale scale = ONE;
         };
 
-        // Instructions on GP64 registers can generally take an immediate,
-        // another GP64 register, or a memory address (possibly ip-relative).
-        struct GP64Operand {
+        struct Operand {
             union {
-                int    imm;
-                GP64   reg;
+                int    reg;
                 Mem    mem;
                 Label* label;
             };
-            enum { IMM, REG, MEM, LABEL } kind;
+            enum { REG, MEM, LABEL } kind;
 
-            GP64Operand(int    i) : imm  (i), kind(IMM  ) {}
-            GP64Operand(GP64   r) : reg  (r), kind(REG  ) {}
-            GP64Operand(Mem    m) : mem  (m), kind(MEM  ) {}
-            GP64Operand(Label* l) : label(l), kind(LABEL) {}
-        };
-
-        // Instructions on Ymm registers can generally take
-        // another Ymm register or a memory address (possibly ip-relative).
-        struct YmmOperand {
-            union {
-                Ymm    ymm;
-                Mem    mem;
-                Label* label;
-            };
-            enum { YMM, MEM, LABEL } kind;
-
-            YmmOperand(Ymm    y) : ymm  (y), kind(YMM  ) {}
-            YmmOperand(Mem    m) : mem  (m), kind(MEM  ) {}
-            YmmOperand(Label* l) : label(l), kind(LABEL) {}
+            Operand(GP64   r) : reg  (r), kind(REG  ) {}
+            Operand(Xmm    r) : reg  (r), kind(REG  ) {}
+            Operand(Ymm    r) : reg  (r), kind(REG  ) {}
+            Operand(Mem    m) : mem  (m), kind(MEM  ) {}
+            Operand(Label* l) : label(l), kind(LABEL) {}
         };
 
         void add(GP64, int imm);
@@ -126,71 +109,72 @@ namespace skvm {
 
         void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
 
-        void vpand (Ymm dst, Ymm x, YmmOperand y);
-        void vpandn(Ymm dst, Ymm x, YmmOperand y);
-        void vpor  (Ymm dst, Ymm x, YmmOperand y);
-        void vpxor (Ymm dst, Ymm x, YmmOperand y);
+        void vpand (Ymm dst, Ymm x, Operand y);
+        void vpandn(Ymm dst, Ymm x, Operand y);
+        void vpor  (Ymm dst, Ymm x, Operand y);
+        void vpxor (Ymm dst, Ymm x, Operand y);
 
-        void vpaddd (Ymm dst, Ymm x, YmmOperand y);
-        void vpsubd (Ymm dst, Ymm x, YmmOperand y);
-        void vpmulld(Ymm dst, Ymm x, YmmOperand y);
+        void vpaddd (Ymm dst, Ymm x, Operand y);
+        void vpsubd (Ymm dst, Ymm x, Operand y);
+        void vpmulld(Ymm dst, Ymm x, Operand y);
 
-        void vpsubw (Ymm dst, Ymm x, YmmOperand y);
-        void vpmullw(Ymm dst, Ymm x, YmmOperand y);
+        void vpsubw (Ymm dst, Ymm x, Operand y);
+        void vpmullw(Ymm dst, Ymm x, Operand y);
 
-        void vaddps(Ymm dst, Ymm x, YmmOperand y);
-        void vsubps(Ymm dst, Ymm x, YmmOperand y);
-        void vmulps(Ymm dst, Ymm x, YmmOperand y);
-        void vdivps(Ymm dst, Ymm x, YmmOperand y);
-        void vminps(Ymm dst, Ymm x, YmmOperand y);
-        void vmaxps(Ymm dst, Ymm x, YmmOperand y);
+        void vaddps(Ymm dst, Ymm x, Operand y);
+        void vsubps(Ymm dst, Ymm x, Operand y);
+        void vmulps(Ymm dst, Ymm x, Operand y);
+        void vdivps(Ymm dst, Ymm x, Operand y);
+        void vminps(Ymm dst, Ymm x, Operand y);
+        void vmaxps(Ymm dst, Ymm x, Operand y);
 
-        void vsqrtps(Ymm dst, YmmOperand x);
+        void vsqrtps(Ymm dst, Operand x);
 
-        void vfmadd132ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfmadd213ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfmadd231ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmadd132ps(Ymm dst, Ymm x, Operand y);
+        void vfmadd213ps(Ymm dst, Ymm x, Operand y);
+        void vfmadd231ps(Ymm dst, Ymm x, Operand y);
 
-        void vfmsub132ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfmsub213ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfmsub231ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmsub132ps(Ymm dst, Ymm x, Operand y);
+        void vfmsub213ps(Ymm dst, Ymm x, Operand y);
+        void vfmsub231ps(Ymm dst, Ymm x, Operand y);
 
-        void vfnmadd132ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfnmadd213ps(Ymm dst, Ymm x, YmmOperand y);
-        void vfnmadd231ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfnmadd132ps(Ymm dst, Ymm x, Operand y);
+        void vfnmadd213ps(Ymm dst, Ymm x, Operand y);
+        void vfnmadd231ps(Ymm dst, Ymm x, Operand y);
 
-        void vpackusdw(Ymm dst, Ymm x, YmmOperand y);
-        void vpackuswb(Ymm dst, Ymm x, YmmOperand y);
+        void vpackusdw(Ymm dst, Ymm x, Operand y);
+        void vpackuswb(Ymm dst, Ymm x, Operand y);
 
-        void vpcmpeqd(Ymm dst, Ymm x, YmmOperand y);
-        void vpcmpgtd(Ymm dst, Ymm x, YmmOperand y);
+        void vpcmpeqd(Ymm dst, Ymm x, Operand y);
+        void vpcmpgtd(Ymm dst, Ymm x, Operand y);
 
-        void vcmpps   (Ymm dst, Ymm x, YmmOperand y, int imm);
-        void vcmpeqps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,0); }
-        void vcmpltps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,1); }
-        void vcmpleps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,2); }
-        void vcmpneqps(Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,4); }
+        void vcmpps   (Ymm dst, Ymm x, Operand y, int imm);
+        void vcmpeqps (Ymm dst, Ymm x, Operand y) { this->vcmpps(dst,x,y,0); }
+        void vcmpltps (Ymm dst, Ymm x, Operand y) { this->vcmpps(dst,x,y,1); }
+        void vcmpleps (Ymm dst, Ymm x, Operand y) { this->vcmpps(dst,x,y,2); }
+        void vcmpneqps(Ymm dst, Ymm x, Operand y) { this->vcmpps(dst,x,y,4); }
 
+        // Sadly, the x parameter cannot be a general Operand for these shifts.
         void vpslld(Ymm dst, Ymm x, int imm);
         void vpsrld(Ymm dst, Ymm x, int imm);
         void vpsrad(Ymm dst, Ymm x, int imm);
         void vpsrlw(Ymm dst, Ymm x, int imm);
 
-        void vpermq(Ymm dst, Ymm x, int imm);
+        void vpermq(Ymm dst, Operand x, int imm);
 
         enum Rounding { NEAREST, FLOOR, CEIL, TRUNC };
-        void vroundps(Ymm dst, Ymm x, Rounding);
+        void vroundps(Ymm dst, Operand x, Rounding);
 
-        void vmovdqa(Ymm dst, YmmOperand x);
-        void vmovups(Ymm dst, YmmOperand x);
-        void vmovups(YmmOperand dst, Ymm x);
+        void vmovdqa(Ymm dst, Operand x);
+        void vmovups(Ymm dst, Operand x);
+        void vmovups(Operand dst, Ymm x);
+        void vmovups(Operand dst, Xmm x);
 
-        void vcvtdq2ps (Ymm dst, YmmOperand x);
-        void vcvttps2dq(Ymm dst, YmmOperand x);
-        void vcvtps2dq (Ymm dst, YmmOperand x);
+        void vcvtdq2ps (Ymm dst, Operand x);
+        void vcvttps2dq(Ymm dst, Operand x);
+        void vcvtps2dq (Ymm dst, Operand x);
 
-        // TODO: which if any can be YmmOperand?
-        void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
+        void vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z);
 
         Label here();
         void label(Label*);
@@ -202,36 +186,28 @@ namespace skvm {
         void jc (Label*);
         void cmp(GP64, int imm);
 
-        void vpshufb(Ymm dst, Ymm x, YmmOperand y);
+        void vpshufb(Ymm dst, Ymm x, Operand y);
 
-        void vptest(Ymm x, YmmOperand y);
+        void vptest(Ymm x, Operand y);
 
-        void vbroadcastss(Ymm dst, Label*);
-        void vbroadcastss(Ymm dst, Xmm src);
-        void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
+        void vbroadcastss(Ymm dst, Operand y);
 
-        void vpmovzxwd(Ymm dst, YmmOperand src);   // dst = src, 128-bit, uint16_t -> int
-        void vpmovzxbd(Ymm dst, YmmOperand src);   // dst = src,  64-bit, uint8_t  -> int
-        void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
+        void vpmovzxwd(Ymm dst, Operand src);   // dst = src, 128-bit, uint16_t -> int
+        void vpmovzxbd(Ymm dst, Operand src);   // dst = src,  64-bit, uint8_t  -> int
 
-        void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
-
-        void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
-        void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
-        void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
+        void vmovq(Operand dst, Xmm src);  // dst = src,  64-bit
+        void vmovd(Operand dst, Xmm src);  // dst = src,  32-bit
+        void vmovd(Xmm dst, Operand src);  // dst = src,  32-bit
 
         void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t  -> int
         void movzwl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint16_t -> int
         void movb  (GP64 ptr, GP64 src);           // *ptr = src, 8-bit
 
-        void vmovd_direct(GP64 dst, Xmm src);  // dst = src, 32-bit
-        void vmovd_direct(Xmm dst, GP64 src);  // dst = src, 32-bit
+        void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
+        void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
-        void vpinsrw(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr, 16-bit
-        void vpinsrb(Xmm dst, Xmm src, GP64 ptr, int imm);  // dst = src; dst[imm] = *ptr,  8-bit
-
-        void vpextrw(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           , 16-bit
-        void vpextrb(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           ,  8-bit
+        void vpextrw(Operand dst, Xmm src, int imm);         // dst = src[imm]           , 16-bit
+        void vpextrb(Operand dst, Xmm src, int imm);         // dst = src[imm]           ,  8-bit
 
         // if (mask & 0x8000'0000) {
         //     dst = base[scale*ix];
@@ -320,17 +296,17 @@ namespace skvm {
         size_t   fSize;
 
         // x86-64
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOperand y, bool W=false);
-        void op(int prefix, int map, int opcode, Ymm dst,        YmmOperand x, bool W=false) {
-            this->op(prefix,map,opcode, dst,(Ymm)0,x, W);
-        }
+        enum W { W0, W1 };      // Are the lanes 64-bit (W1) or default (W0)?  Intel Vol 2A 2.3.5.5
+        enum L { L128, L256 };  // Is this a 128- or 256-bit operation?        Intel Vol 2A 2.3.6.2
 
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm   , bool W=false);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Mem   , bool W=false);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label*, bool W=false);
+        void op(int prefix, int map, int opcode, int dst, int x, Operand y, W,L);
 
-        void op(                     int opcode, int opcode_ext, GP64 dst       , int imm);
-        void op(int prefix, int map, int opcode, int opcode_ext,  Ymm dst, Ymm x, int imm);
+        void op(int p, int m, int o, Ymm d, Ymm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L256); }
+        void op(int p, int m, int o, Ymm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L256); }
+        void op(int p, int m, int o, Xmm d, Xmm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L128); }
+        void op(int p, int m, int o, Xmm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L128); }
+
+        void op(int opcode, int opcode_ext, GP64 d, int imm);
 
         void jump(uint8_t condition, Label*);
         int disp32(Label*);
