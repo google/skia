@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f1668029_22911471",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-15T18:52:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "618f9baf_fd844bb6",
+      "range": {
+        "startLine": 311,
+        "startChar": 16,
+        "endLine": 311,
+        "endChar": 51
+      },
+      "revId": "14d236b378be068dfc6cce910dfd8fb6e8a1cf5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "564ee1f7_a9cc9056",
         "filename": "modules/skparagraph/src/TextWrapper.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "14d236b378be068dfc6cce910dfd8fb6e8a1cf5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a32f340f_436be8be",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-15T18:52:45Z",
+      "side": 1,
+      "message": "OK. You are right, although I don\u0027t like very much the direction it\u0027s going...\nAnyway, logically continuing what you started: a placeholder serves as the end of the previous word and also as a separate word on its own.\nI tried to do my best to drag it through all the line breaking.\nAssuming, of course, that flutter considers a placeholder as a word breaker.",
+      "parentUuid": "564ee1f7_a9cc9056",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 17
+      },
+      "revId": "14d236b378be068dfc6cce910dfd8fb6e8a1cf5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
