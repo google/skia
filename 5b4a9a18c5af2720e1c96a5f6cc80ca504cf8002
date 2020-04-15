@@ -22,6 +22,30 @@
       "revId": "5b4a9a18c5af2720e1c96a5f6cc80ca504cf8002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8c69349_cecd17d9",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-15T13:29:46Z",
+      "side": 1,
+      "message": "I\u0027ve added skbug.com/10142 (Backend texture creation failing on Linux bots) and added it to this comment and the following one.",
+      "parentUuid": "e6df5ceb_6c1a2e3b",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 93
+      },
+      "revId": "5b4a9a18c5af2720e1c96a5f6cc80ca504cf8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
