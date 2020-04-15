@@ -71,6 +71,7 @@ public:
         WHEN,
         KEY,
         TRACKED,
+        MARKER,
         CTYPE,
         SKPMCOLOR4F,
         SKV4,

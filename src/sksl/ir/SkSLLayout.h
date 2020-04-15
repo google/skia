@@ -188,8 +188,8 @@ struct Layout {
     }
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
-           int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, StringFragment when, Key key, CType ctype)
+           int inputAttachmentIndex, int marker, Format format, Primitive primitive,
+           int maxVertices, int invocations, StringFragment when, Key key, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -198,6 +198,7 @@ struct Layout {
     , fSet(set)
     , fBuiltin(builtin)
     , fInputAttachmentIndex(inputAttachmentIndex)
+    , fMarker(marker)
     , fFormat(format)
     , fPrimitive(primitive)
     , fMaxVertices(maxVertices)
@@ -215,6 +216,7 @@ struct Layout {
     , fSet(-1)
     , fBuiltin(-1)
     , fInputAttachmentIndex(-1)
+    , fMarker(-1)
     , fFormat(Format::kUnspecified)
     , fPrimitive(kUnspecified_Primitive)
     , fMaxVertices(-1)
@@ -251,6 +253,10 @@ struct Layout {
         }
         if (fInputAttachmentIndex >= 0) {
             result += separator + "input_attachment_index = " + to_string(fInputAttachmentIndex);
+            separator = ", ";
+        }
+        if (fMarker >= 0) {
+            result += separator + "marker = " + to_string(fMarker);
             separator = ", ";
         }
         if (Format::kUnspecified != fFormat) {
@@ -399,6 +405,7 @@ struct Layout {
                fSet                  == other.fSet &&
                fBuiltin              == other.fBuiltin &&
                fInputAttachmentIndex == other.fInputAttachmentIndex &&
+               fMarker               == other.fMarker &&
                fFormat               == other.fFormat &&
                fPrimitive            == other.fPrimitive &&
                fMaxVertices          == other.fMaxVertices &&
@@ -421,6 +428,8 @@ struct Layout {
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
     int fInputAttachmentIndex;
+    // marker refers to matrices tagged on the SkCanvas with markCTM
+    int fMarker;
     Format fFormat;
     Primitive fPrimitive;
     int fMaxVertices;

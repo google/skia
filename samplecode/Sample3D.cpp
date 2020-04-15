@@ -379,7 +379,7 @@ public:
             in fragmentProcessor color_map;
             in fragmentProcessor normal_map;
 
-            uniform float4x4 localToWorld;
+            layout (marker=42) uniform float4x4 localToWorld;
             uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
@@ -437,6 +437,7 @@ public:
         uni.fLocalToWorld = this->localToWorld(canvas);
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
+        uni.fLocalToWorld.setTranslate(1200, 1200, 0);
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
