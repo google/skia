@@ -19,12 +19,14 @@ public:
 
     void setMarker(uint32_t id, const SkM44& mx, void* boundary);
     bool findMarker(uint32_t id, SkM44* mx) const;
+    bool findInverseMarker(uint32_t id, SkM44* mxInv) const;
     void restore(void* boundary);
 
 private:
     struct Rec {
         void*       fBoundary;
         SkM44       fMatrix;
+        SkM44       fInvMatrix;
         uint32_t    fID;
     };
     std::vector<Rec> fStack;
