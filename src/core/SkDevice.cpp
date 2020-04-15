@@ -91,11 +91,11 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) con
 }
 
 bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
-    SkM44 markerToGlobal;
-    if (fMarkerStack && fMarkerStack->findMarker(id, &markerToGlobal)) {
+    // The marker stack stores CTM snapshots, which are "marker to global" matrices.
+    // We ask for the (cached) inverse, which is a "global to marker" matrix.
+    SkM44 globalToMarker;
+    if (fMarkerStack && fMarkerStack->findMarkerInverse(id, &globalToMarker)) {
         if (localToMarker) {
-            SkM44 globalToMarker;
-            SkAssertResult(markerToGlobal.invert(&globalToMarker));
             *localToMarker = globalToMarker * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
         }
         return true;
