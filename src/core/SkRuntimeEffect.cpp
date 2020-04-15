@@ -30,6 +30,8 @@
 #include "src/gpu/effects/generated/GrMatrixEffect.h"
 #endif
 
+#include <algorithm>
+
 namespace SkSL {
 class SharedCompiler {
 public:
@@ -296,6 +298,18 @@ size_t SkRuntimeEffect::inputSize() const {
     return fInAndUniformVars.empty() ? 0
                                      : SkAlign4(fInAndUniformVars.back().fOffset +
                                                 fInAndUniformVars.back().sizeInBytes());
+}
+
+const SkRuntimeEffect::Variable* SkRuntimeEffect::findInput(const char* name) const {
+    auto iter = std::find_if(fInAndUniformVars.begin(), fInAndUniformVars.end(),
+                             [name](const Variable& v) { return v.fName.equals(name); });
+    return iter == fInAndUniformVars.end() ? nullptr : &(*iter);
+}
+
+int SkRuntimeEffect::findChild(const char* name) const {
+    auto iter = std::find_if(fChildren.begin(), fChildren.end(),
+                             [name](const SkString& s) { return s.equals(name); });
+    return iter == fChildren.end() ? -1 : static_cast<int>(iter - fChildren.begin());
 }
 
 SkRuntimeEffect::SpecializeResult
@@ -1081,4 +1095,25 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs) {
 void SkRuntimeEffect::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
     SK_REGISTER_FLATTENABLE(SkRTShader);
+}
+
+SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
+    : fEffect(std::move(effect))
+    , fInputs(SkData::MakeUninitialized(fEffect->inputSize()))
+    , fChildren(fEffect->children().count()) {}
+
+SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
+
+sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
+    return fEffect->makeShader(fInputs, fChildren.data(), fChildren.size(), localMatrix, isOpaque);
+}
+
+SkRuntimeShaderBuilder::BuilderChild&
+SkRuntimeShaderBuilder::BuilderChild::operator=(const sk_sp<SkShader>& val) {
+    if (fIndex < 0) {
+        SkDEBUGFAIL("Assigning to missing child");
+    } else {
+        fOwner->fChildren[fIndex] = val;
+    }
+    return *this;
 }

@@ -10,6 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrContext.h"
+#include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -67,33 +68,16 @@ public:
             return;
         }
 
-        fEffect = std::move(effect);
-        fInputs = SkData::MakeUninitialized(fEffect->inputSize());
+        fBuilder.init(std::move(effect));
     }
 
-    struct InputVar {
-        template <typename T> InputVar& operator=(const T& val) {
-            SkASSERT(sizeof(T) == fVar.sizeInBytes());
-            memcpy(SkTAddOffset<void>(fOwner->fInputs->writable_data(), fVar.fOffset), &val,
-                   sizeof(T));
-            return *this;
-        }
-        TestEffect* fOwner;
-        const SkRuntimeEffect::Variable& fVar;
-    };
-
-    InputVar operator[](const char* name) {
-        auto input = std::find_if(fEffect->inputs().begin(), fEffect->inputs().end(),
-                                  [name](const auto& v) { return v.fName.equals(name); });
-        SkASSERT(input != fEffect->inputs().end());
-        return {this, *input};
+    SkRuntimeShaderBuilder::BuilderInput operator[](const char* name) {
+        return fBuilder->input(name);
     }
 
     void test(skiatest::Reporter* r, sk_sp<SkSurface> surface,
               uint32_t TL, uint32_t TR, uint32_t BL, uint32_t BR) {
-        if (!fEffect) { return; }
-
-        auto shader = fEffect->makeShader(fInputs, nullptr, 0, nullptr, false);
+        auto shader = fBuilder->makeShader(nullptr, false);
         if (!shader) {
             REPORT_FAILURE(r, "shader", SkString("Effect didn't produce a shader"));
             return;
@@ -119,7 +103,7 @@ public:
                                           "Got     : [ %08x %08x %08x %08x ]\n"
                                           "SkSL:\n%s\n",
                                           TL, TR, BL, BR, actual[0], actual[1], actual[2],
-                                          actual[3], fEffect->source().c_str()));
+                                          actual[3], fBuilder->fEffect->source().c_str()));
         }
     }
 
@@ -128,8 +112,7 @@ public:
     }
 
 private:
-    sk_sp<SkRuntimeEffect> fEffect;
-    sk_sp<SkData> fInputs;
+    SkTLazy<SkRuntimeShaderBuilder> fBuilder;
 };
 
 static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context) {
