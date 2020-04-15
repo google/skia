@@ -10,6 +10,8 @@
 #include "include/core/SkPoint3.h"
 #include "tests/Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_MATRIX44
+
 static bool nearly_equal_double(double a, double b) {
     const double tolerance = 1e-7;
     double diff = a - b;
@@ -1112,3 +1114,5 @@ DEF_TEST(M44_rotate, reporter) {
         REPORTER_ASSERT(reporter, mz == -r.expectedZ);
     }
 }
+
+#endif
