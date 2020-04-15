@@ -654,6 +654,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
+        auto lastLine = (&line == &fLines.back());
         if (intersect.empty() && lineText.start != text.start) {
             continue;
         }
@@ -706,6 +707,11 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         auto top = line.baseline();
                         clip.fTop = top + fStrutMetrics.ascent();
                         clip.fBottom = top + fStrutMetrics.descent();
+                    }
+                } else {
+                    if (run->fHeightMultiplier > 0) {
+                        // This is a special case when we do not need to take in account this height multiplier
+                        clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
                     }
                 }
 
@@ -792,7 +798,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             return true;
         });
 
-        if (rectWidthStyle == RectWidthStyle::kMax) {
+        if (rectWidthStyle == RectWidthStyle::kMax && !lastLine) {
             // Align the very left/right box horizontally
             auto lineStart = line.offset().fX;
             auto lineEnd = line.offset().fX + line.width();
