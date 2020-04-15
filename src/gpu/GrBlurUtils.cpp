@@ -453,13 +453,15 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           const GrClip& clip,
                                           const SkPaint& paint,
                                           const SkMatrix& viewMatrix,
+                                          const SkMatrixProvider* matrixProvider,
                                           const GrShape& shape) {
     if (context->priv().abandoned()) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, renderTargetContext->colorInfo(), paint, viewMatrix, &grPaint)) {
+    if (!SkPaintToGrPaint(context, renderTargetContext->colorInfo(), paint, viewMatrix,
+                          matrixProvider, &grPaint)) {
         return;
     }
 
