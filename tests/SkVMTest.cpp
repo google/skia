@@ -1240,13 +1240,13 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vmovups(A::ymm5, A::rsi);
-        a.vmovups(A::rsi, A::ymm5);
+        a.vmovups(A::ymm5, A::Mem{A::rsi});
+        a.vmovups(A::Mem{A::rsi}, A::ymm5);
 
         a.vmovups(A::rsi, A::xmm5);
 
-        a.vpmovzxwd(A::ymm4, A::rsi);
-        a.vpmovzxbd(A::ymm4, A::rsi);
+        a.vpmovzxwd(A::ymm4, A::Mem{A::rsi});
+        a.vpmovzxbd(A::ymm4, A::Mem{A::rsi});
 
         a.vmovq(A::rdx, A::xmm15);
     },{
@@ -1263,13 +1263,13 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vmovups(A::ymm5,   0);
-        a.vmovups(A::ymm5,  64);
-        a.vmovups(A::ymm5, 128);
+        a.vmovups(A::ymm5, A::Mem{A::rsp,  0});
+        a.vmovups(A::ymm5, A::Mem{A::rsp, 64});
+        a.vmovups(A::ymm5, A::Mem{A::rsp,128});
 
-        a.vmovups(  0, A::ymm5);
-        a.vmovups( 64, A::ymm5);
-        a.vmovups(128, A::ymm5);
+        a.vmovups(A::Mem{A::rsp,  0}, A::ymm5);
+        a.vmovups(A::Mem{A::rsp, 64}, A::ymm5);
+        a.vmovups(A::Mem{A::rsp,128}, A::ymm5);
     },{
         0xc5,0xfc,0x10,0x2c,0x24,
         0xc5,0xfc,0x10,0x6c,0x24,0x40,
