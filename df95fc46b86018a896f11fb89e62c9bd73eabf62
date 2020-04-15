@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a68724b_4c9ee4eb",
+        "filename": "src/gpu/GrFinishCallbacks.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T17:21:31Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "df95fc46b86018a896f11fb89e62c9bd73eabf62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ff22e2_b952df59",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T17:21:31Z",
+      "side": 1,
+      "message": "Micro nit. I think we\u0027re suppose to use the format \"Copyright 2020 Google LLC\" now for new files",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "df95fc46b86018a896f11fb89e62c9bd73eabf62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b3cba4f_7d223fe0",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T17:21:31Z",
+      "side": 1,
+      "message": "\"on the GPU\" or \"GPU work\"?",
+      "range": {
+        "startLine": 43,
+        "startChar": 24,
+        "endLine": 43,
+        "endChar": 28
+      },
+      "revId": "df95fc46b86018a896f11fb89e62c9bd73eabf62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -375,6 +375,30 @@
       "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f71ab21_a0a756de",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-15T17:21:31Z",
+      "side": 1,
+      "message": "Yeah I was thinking a similar thing about the renaming since we aren\u0027t ever actually doing any waiting here. If you want to do the rename in this change feel free, or we can just do it later on separately.",
+      "parentUuid": "573879fd_c461d22f",
+      "range": {
+        "startLine": 372,
+        "startChar": 36,
+        "endLine": 372,
+        "endChar": 79
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
