@@ -238,14 +238,14 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
 static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            const GrColorInfo& dstColorInfo,
                                            const SkPaint& skPaint,
-                                           const SkMatrix& viewM,
+                                           const SkMatrixProvider& matrixProvider,
                                            std::unique_ptr<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
 
-    GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &dstColorInfo);
+    GrFPArgs fpArgs(context, matrixProvider, skPaint.getFilterQuality(), &dstColorInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -391,9 +391,12 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     return true;
 }
 
-bool SkPaintToGrPaint(GrRecordingContext* context, const GrColorInfo& dstColorInfo,
-                      const SkPaint& skPaint, const SkMatrix& viewM, GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, viewM, nullptr, nullptr,
+bool SkPaintToGrPaint(GrRecordingContext* context,
+                      const GrColorInfo& dstColorInfo,
+                      const SkPaint& skPaint,
+                      const SkMatrixProvider& matrixProvider,
+                      GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, nullptr, nullptr,
                                    grPaint);
 }
 
@@ -401,12 +404,13 @@ bool SkPaintToGrPaint(GrRecordingContext* context, const GrColorInfo& dstColorIn
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
                                    const SkPaint& skPaint,
+                                   const SkMatrixProvider& matrixProvider,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
     }
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, SkMatrix::I(), &shaderFP,
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
                                    nullptr, grPaint);
 }
 
@@ -414,10 +418,11 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
 bool SkPaintToGrPaintNoShader(GrRecordingContext* context,
                               const GrColorInfo& dstColorInfo,
                               const SkPaint& skPaint,
+                              const SkMatrixProvider& matrixProvider,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, SkMatrix::I(), &nullShaderFP,
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &nullShaderFP,
                                    nullptr, grPaint);
 }
 
@@ -426,17 +431,17 @@ be setup as a vertex attribute using the specified SkBlendMode. */
 bool SkPaintToGrPaintWithXfermode(GrRecordingContext* context,
                                   const GrColorInfo& dstColorInfo,
                                   const SkPaint& skPaint,
-                                  const SkMatrix& viewM,
+                                  const SkMatrixProvider& matrixProvider,
                                   SkBlendMode primColorMode,
                                   GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, viewM, nullptr, &primColorMode,
-                                   grPaint);
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, nullptr,
+                                   &primColorMode, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
                                  const GrColorInfo& dstColorInfo,
                                  const SkPaint& paint,
-                                 const SkMatrix& viewM,
+                                 const SkMatrixProvider& matrixProvider,
                                  std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint) {
@@ -444,7 +449,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
-                    GrFPArgs(context, &viewM, paint.getFilterQuality(), &dstColorInfo));
+                    GrFPArgs(context, matrixProvider, paint.getFilterQuality(), &dstColorInfo));
             if (!shaderFP) {
                 return false;
             }
@@ -461,8 +466,8 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
         }
     }
 
-    return SkPaintToGrPaintReplaceShader(context, dstColorInfo, paint, std::move(shaderFP),
-                                         grPaint);
+    return SkPaintToGrPaintReplaceShader(context, dstColorInfo, paint, matrixProvider,
+                                         std::move(shaderFP), grPaint);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

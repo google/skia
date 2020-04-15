@@ -24,6 +24,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -81,8 +82,9 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
             if (rtc) {
                 // Use non-public API to leverage general GrPaint capabilities
                 SkMatrix view = canvas->getTotalMatrix();
+                SkSimpleMatrixProvider matrixProvider(view);
                 GrPaint grPaint;
-                SkPaintToGrPaint(context, rtc->colorInfo(), paint, view, &grPaint);
+                SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
                 rtc->fillRectWithEdgeAA(GrNoClip(), std::move(grPaint), GrAA::kYes,
                                         static_cast<GrQuadAAFlags>(aa), view, tile);
             } else {

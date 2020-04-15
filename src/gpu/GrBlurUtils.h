@@ -19,6 +19,7 @@ class GrRenderTargetContext;
 class GrStyledShape;
 class GrStyle;
 struct SkIRect;
+class SkMatrixProvider;
 class SkMaskFilter;
 class SkMatrix;
 class SkPaint;
@@ -37,7 +38,7 @@ namespace GrBlurUtils {
                                  GrRenderTargetContext*,
                                  const GrClip&,
                                  const SkPaint&,
-                                 const SkMatrix& viewMatrix,
+                                 const SkMatrixProvider&,
                                  const GrStyledShape&);
 
     /**

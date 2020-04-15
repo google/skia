@@ -12,7 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkBlendModePriv.h"
@@ -33,6 +32,8 @@ class GrTextureProxy;
 class GrUniqueKey;
 class SkBitmap;
 class SkData;
+class SkMatrix;
+class SkMatrixProvider;
 class SkPaint;
 class SkPixelRef;
 class SkPixmap;
@@ -85,13 +86,14 @@ static constexpr GrSamplerState::WrapMode SkTileModeToWrapMode(SkTileMode tileMo
 bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorInfo& dstColorInfo,
                       const SkPaint& skPaint,
-                      const SkMatrix& viewM,
+                      const SkMatrixProvider& matrixProvider,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrRecordingContext*,
                               const GrColorInfo& dstColorInfo,
                               const SkPaint& skPaint,
+                              const SkMatrixProvider& matrixProvider,
                               GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
@@ -100,6 +102,7 @@ bool SkPaintToGrPaintNoShader(GrRecordingContext*,
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const GrColorInfo& dstColorInfo,
                                    const SkPaint& skPaint,
+                                   const SkMatrixProvider& matrixProvider,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint);
 
@@ -108,7 +111,7 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
 bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
                                   const GrColorInfo& dstColorInfo,
                                   const SkPaint& skPaint,
-                                  const SkMatrix& viewM,
+                                  const SkMatrixProvider& matrixProvider,
                                   SkBlendMode primColorMode,
                                   GrPaint* grPaint);
 
@@ -119,8 +122,9 @@ bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                                const GrColorInfo& dstColorInfo,
                                                const SkPaint& skPaint,
+                                               const SkMatrixProvider& matrixProvider,
                                                GrPaint* grPaint) {
-    return SkPaintToGrPaintWithXfermode(context, dstColorInfo, skPaint, SkMatrix::I(),
+    return SkPaintToGrPaintWithXfermode(context, dstColorInfo, skPaint, matrixProvider,
                                         SkBlendMode::kDst, grPaint);
 }
 
@@ -129,7 +133,7 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
 bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
                                  const GrColorInfo& dstColorInfo,
                                  const SkPaint& skPaint,
-                                 const SkMatrix& viewM,
+                                 const SkMatrixProvider& matrixProvider,
                                  std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint);

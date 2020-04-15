@@ -11,6 +11,7 @@
 #include "src/codec/SkMasks.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
@@ -483,10 +484,13 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     return false;
 }
 
-void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
-                       const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
-                       const SkMatrix& drawMatrix, SkPoint drawOrigin) {
-
+void GrTextBlob::flush(GrTextTarget* target,
+                       const SkSurfaceProps& props,
+                       const SkPaint& paint,
+                       const SkPMColor4f& filteredColor,
+                       const GrClip& clip,
+                       const SkMatrixProvider& matrixProvider,
+                       SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
         if (subRun->drawAsPaths()) {
             SkPaint runPaint{paint};
@@ -502,8 +506,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
 
             for (const auto& pathGlyph : subRun->fPaths) {
-                SkMatrix ctm{drawMatrix};
-                ctm.preTranslate(drawOrigin.x(), drawOrigin.y());
+                SkMatrix preMatrix = SkMatrix::MakeTrans(drawOrigin);
                 SkMatrix pathMatrix = SkMatrix::MakeScale(
                         subRun->fStrikeSpec.strikeToSourceRatio());
                 pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
@@ -513,7 +516,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 const SkPath* path = &pathGlyph.fPath;
                 if (!scalePath) {
                     // Scale can be applied to CTM -- no effects.
-                    ctm.preConcat(pathMatrix);
+                    preMatrix.preConcat(pathMatrix);
                 } else {
                     // Scale the outline into source space.
 
@@ -527,7 +530,8 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
                 // TODO: we are losing the mutability of the path here
                 GrStyledShape shape(*path, paint);
-                target->drawShape(clip, runPaint, ctm, shape);
+                SkPreConcatMatrixProvider preConcatMatrixProvider(matrixProvider, preMatrix);
+                target->drawShape(clip, runPaint, preConcatMatrixProvider, shape);
             }
         } else {
             int glyphCount = subRun->fGlyphs.count();
@@ -549,8 +553,8 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
                 SkRect subRunBounds;
-                this->computeSubRunBounds(
-                        &subRunBounds, *subRun, drawMatrix, drawOrigin, false);
+                this->computeSubRunBounds(&subRunBounds, *subRun, matrixProvider.localToDevice(),
+                                          drawOrigin, false);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {
@@ -563,8 +567,8 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             }
 
             if (submitOp) {
-                auto op = this->makeOp(*subRun, glyphCount, drawMatrix, drawOrigin,
-                                       clipRect, paint, filteredColor, props, target);
+                auto op = this->makeOp(*subRun, glyphCount, matrixProvider, drawOrigin, clipRect,
+                                       paint, filteredColor, props, target);
                 if (op) {
                     if (skipClip) {
                         target->addDrawOp(GrNoClip(), std::move(op));
@@ -612,14 +616,17 @@ void GrTextBlob::computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
-std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
-        int glyphCount, const SkMatrix& drawMatrix,
-        SkPoint drawOrigin, const SkPaint& paint, const SkPMColor4f& filteredColor,
-        const SkSurfaceProps& props, GrTextTarget* target) {
+std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(int glyphCount,
+                                                  const SkMatrixProvider& matrixProvider,
+                                                  SkPoint drawOrigin,
+                                                  const SkPaint& paint,
+                                                  const SkPMColor4f& filteredColor,
+                                                  const SkSurfaceProps& props,
+                                                  GrTextTarget* target) {
     SubRun* info = fFirstSubRun;
     SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(*info, glyphCount, drawMatrix, drawOrigin, emptyRect,
-                        paint, filteredColor, props, target);
+    return this->makeOp(*info, glyphCount, matrixProvider, drawOrigin, emptyRect, paint,
+                        filteredColor, props, target);
 }
 
 bool GrTextBlob::hasW(GrTextBlob::SubRunType type) const {
@@ -725,14 +732,19 @@ void GrTextBlob::insertSubRun(SubRun* subRun) {
     }
 }
 
-std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
-        SubRun& info, int glyphCount, const SkMatrix& drawMatrix, SkPoint drawOrigin,
-        const SkIRect& clipRect, const SkPaint& paint, const SkPMColor4f& filteredColor,
-        const SkSurfaceProps& props, GrTextTarget* target) {
+std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
+                                                  int glyphCount,
+                                                  const SkMatrixProvider& matrixProvider,
+                                                  SkPoint drawOrigin,
+                                                  const SkIRect& clipRect,
+                                                  const SkPaint& paint,
+                                                  const SkPMColor4f& filteredColor,
+                                                  const SkSurfaceProps& props,
+                                                  GrTextTarget* target) {
     GrMaskFormat format = info.maskFormat();
 
     GrPaint grPaint;
-    target->makeGrPaint(info.maskFormat(), paint, drawMatrix, &grPaint);
+    target->makeGrPaint(info.maskFormat(), paint, matrixProvider, &grPaint);
     std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
@@ -745,7 +757,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
                                        info.needsTransform());
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
-    geometry.fDrawMatrix = drawMatrix;
+    geometry.fDrawMatrix = matrixProvider.localToDevice();
     geometry.fClipRect = clipRect;
     geometry.fBlob = SkRef(this);
     geometry.fSubRunPtr = &info;

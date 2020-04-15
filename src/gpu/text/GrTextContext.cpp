@@ -255,7 +255,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     auto rtc = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
 
-    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
 
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
@@ -277,8 +277,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
-    return gTextContext->createOp_TestingOnly(context, gTextContext.get(), rtc.get(),
-                                              skPaint, font, viewMatrix, text, xInt, yInt);
+    return gTextContext->createOp_TestingOnly(context, gTextContext.get(), rtc.get(), skPaint, font,
+                                              matrixProvider, text, xInt, yInt);
 }
 
 #endif

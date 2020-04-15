@@ -36,7 +36,7 @@ public:
      * which is public or made accessible via 'friend'.
      */
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs...);
+    static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs&&...);
 
     // Here we allow callers to specify a subset of the GrPipeline::InputFlags upon creation.
     enum class InputFlags : uint8_t {
@@ -194,7 +194,7 @@ protected:
 template <typename Op, typename... OpArgs>
 std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
                                                                   GrPaint&& paint,
-                                                                  OpArgs... opArgs) {
+                                                                  OpArgs&&... opArgs) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     MakeArgs makeArgs;

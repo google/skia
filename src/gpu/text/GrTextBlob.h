@@ -29,6 +29,7 @@ class GrGlyph;
 class GrStrikeCache;
 class GrTextContext;
 
+class SkMatrixProvider;
 class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
@@ -128,9 +129,13 @@ public:
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void flush(GrTextTarget*, const SkSurfaceProps& props,
-               const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
-               const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    void flush(GrTextTarget*,
+               const SkSurfaceProps& props,
+               const SkPaint& paint,
+               const SkPMColor4f& filteredColor,
+               const GrClip& clip,
+               const SkMatrixProvider& matrixProvider,
+               SkPoint drawOrigin);
 
     void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
                              const SkMatrix& drawMatrix, SkPoint drawOrigin,
@@ -164,9 +169,12 @@ public:
     size_t size() const;
 
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, const SkMatrix& drawMatrix,
-                                          SkPoint drawOrigin, const SkPaint& paint,
-                                          const SkPMColor4f& filteredColor, const SkSurfaceProps&,
+    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount,
+                                          const SkMatrixProvider& matrixProvider,
+                                          SkPoint drawOrigin,
+                                          const SkPaint& paint,
+                                          const SkPMColor4f& filteredColor,
+                                          const SkSurfaceProps&,
                                           GrTextTarget*);
 
     bool hasW(SubRunType type) const;
@@ -214,10 +222,15 @@ private:
 
     void insertSubRun(SubRun* subRun);
 
-    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun& info, int glyphCount, const SkMatrix& drawMatrix,
-                                          SkPoint drawOrigin, const SkIRect& clipRect,
-                                          const SkPaint& paint, const SkPMColor4f& filteredColor,
-                                          const SkSurfaceProps&, GrTextTarget*);
+    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun& info,
+                                          int glyphCount,
+                                          const SkMatrixProvider& matrixProvider,
+                                          SkPoint drawOrigin,
+                                          const SkIRect& clipRect,
+                                          const SkPaint& paint,
+                                          const SkPMColor4f& filteredColor,
+                                          const SkSurfaceProps&,
+                                          GrTextTarget*);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
