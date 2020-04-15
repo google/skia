@@ -87,12 +87,11 @@ private:
         void setBackendTexture(const GrBackendTexture& backendTexture);
 
         void destroyBackendTexture() {
-            SkASSERT(fPromiseImageTexture && fPromiseImageTexture->unique());
+            SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
             fPromiseImageTexture = nullptr;
         }
 
         sk_sp<SkPromiseImageTexture> fulfill() {
-            SkASSERT(fPromiseImageTexture);
             SkASSERT(fUnreleasedFulfills >= 0);
             ++fUnreleasedFulfills;
             ++fTotalFulfills;
