@@ -165,11 +165,6 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
     AutoStageAdvance adv(this);
     this->nameExpression(&output, "output");
 
-    // Enclose custom code in a block to avoid namespace conflicts
-    SkString openBrace;
-    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
-    fFS.codeAppend(openBrace.c_str());
-
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
     SkSTArray<4, SamplerHandle> texSamplers;
@@ -193,19 +188,19 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            this->uniformHandler(),
                                            this->shaderCaps(),
                                            fp,
-                                           output.c_str(),
-                                           input.c_str(),
+                                           "_output",
+                                           "_input",
                                            coords,
                                            textureSamplers);
 
-    fragProc->emitCode(args);
+    auto name = fFS.writeProcessorFunction(fragProc, args);
+    fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
     glslFragmentProcessors->emplace_back(fragProc);
 
-    fFS.codeAppend("}");
     return output;
 }
 
