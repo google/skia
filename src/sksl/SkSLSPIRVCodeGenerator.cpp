@@ -1828,17 +1828,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                 SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
             StringFragment name("sksl_synthetic_uniforms");
             Type intfStruct(-1, name, fields);
-            int binding;
-            int set;
-#ifdef SK_VULKAN
-            const GrVkCaps* vkCaps = fProgram.fSettings.fVkCaps;
-            SkASSERT(vkCaps);
-            binding = vkCaps->getFragmentUniformBinding();
-            set = vkCaps->getFragmentUniformSet();
-#else
-            binding = 0;
-            set = 0;
-#endif
+
+            int binding = fProgram.fSettings.fRTHeightBinding;
+            int set = fProgram.fSettings.fRTHeightBinding;
+            SkASSERT(binding != -1 && set != -1);
+
             Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
                           Layout::CType::kDefault);

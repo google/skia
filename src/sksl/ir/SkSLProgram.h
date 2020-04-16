@@ -88,9 +88,6 @@ struct Program {
         const StandaloneShaderCaps* fCaps = &standaloneCaps;
 #else
         const GrShaderCaps* fCaps = nullptr;
-#ifdef SK_VULKAN
-        const GrVkCaps* fVkCaps = nullptr;
-#endif
 #endif
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
@@ -107,6 +104,11 @@ struct Program {
         // if the program needs to create an RTHeight uniform, this is its offset in the uniform
         // buffer
         int fRTHeightOffset = -1;
+        // if the program needs to create an RTHeight uniform and is creating spriv, this is the
+        // binding and set number of the uniform buffer.
+        int fRTHeightBinding = -1;
+        int fRTHeightSet = -1;
+
         std::unordered_map<String, Value> fArgs;
     };
 

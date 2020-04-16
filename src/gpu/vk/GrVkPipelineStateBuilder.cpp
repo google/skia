@@ -199,7 +199,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fVkCaps = &this->gpu()->vkCaps();
+    settings.fRTHeightBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
+    settings.fRTHeightSet = this->gpu()->vkCaps().getFragmentUniformSet();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
