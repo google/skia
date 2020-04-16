@@ -119,7 +119,7 @@ struct SkV4 {
  *      +Y goes down
  *      +Z goes into the screen (away from the viewer)
  */
-class SkM44 {
+class SK_API SkM44 {
 public:
     SkM44(const SkM44& src) = default;
     SkM44& operator=(const SkM44& src) = default;
