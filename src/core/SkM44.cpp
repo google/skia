@@ -118,43 +118,6 @@ SkV4 SkM44::map(float x, float y, float z, float w) const {
     precision along the way. This relies on the compiler automatically
     promoting our SkScalar values to double (if needed).
  */
-double SkM44::determinant() const {
-    double a00 = fMat[0];
-    double a01 = fMat[1];
-    double a02 = fMat[2];
-    double a03 = fMat[3];
-    double a10 = fMat[4];
-    double a11 = fMat[5];
-    double a12 = fMat[6];
-    double a13 = fMat[7];
-    double a20 = fMat[8];
-    double a21 = fMat[9];
-    double a22 = fMat[10];
-    double a23 = fMat[11];
-    double a30 = fMat[12];
-    double a31 = fMat[13];
-    double a32 = fMat[14];
-    double a33 = fMat[15];
-
-    double b00 = a00 * a11 - a01 * a10;
-    double b01 = a00 * a12 - a02 * a10;
-    double b02 = a00 * a13 - a03 * a10;
-    double b03 = a01 * a12 - a02 * a11;
-    double b04 = a01 * a13 - a03 * a11;
-    double b05 = a02 * a13 - a03 * a12;
-    double b06 = a20 * a31 - a21 * a30;
-    double b07 = a20 * a32 - a22 * a30;
-    double b08 = a20 * a33 - a23 * a30;
-    double b09 = a21 * a32 - a22 * a31;
-    double b10 = a21 * a33 - a23 * a31;
-    double b11 = a22 * a33 - a23 * a32;
-
-    // Calculate the determinant
-    return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 bool SkM44::invert(SkM44* inverse) const {
     double a00 = fMat[0];
     double a01 = fMat[1];
@@ -190,12 +153,9 @@ bool SkM44::invert(SkM44* inverse) const {
     double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
     double invdet = sk_ieee_double_divide(1.0, det);
-    // If det is zero, we want to return false. However, we also want to return false
-    // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-    // handled by checking that 1/det is finite.
-    if (!SkScalarIsFinite(SkScalar(invdet))) {
-        return false;
-    }
+    // If det is zero, we want to return false. However, we also want to return false if 1/det
+    // overflows to infinity (i.e. det is denormalized). All of this is subsumed by our final check
+    // at the bottom (that all 16 scalar matrix entries are finite).
 
     b00 *= invdet;
     b01 *= invdet;
