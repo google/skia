@@ -126,3 +126,45 @@ private:
 
 DEF_GM(return new ImageBlurRepeatModeGM;)
 }
+
+// See skbug.com/10145 for more context, but if the blur doesn't have its own crop rect and
+// the canvas is not clipped, repeat can behave strangely (before fixes, this meant:
+//  1. The filtered results became semi-transparent when they should have remained opaque.
+//  2. The filtered results clip to 3xSigma, which makes sense for the decal tile mode, but not
+//     the others.
+//  3. The repeat filter interacts non-intuitively when an expanded clip rect intersects the draw
+//     geometry (it repeats across the edges of the intersection instead of repeating across the
+//     draw and then clipping)).
+DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
+    // To show translucency
+    SkBitmap checkerboard = ToolUtils::create_checkerboard_bitmap(256, 128, SK_ColorLTGRAY,
+                                                                  SK_ColorGRAY, 8);
+    canvas->drawBitmap(checkerboard, 0, 0);
+
+    // Make an image with one red and one blue band
+    SkBitmap bmp;
+    bmp.allocN32Pixels(100, 20);
+    bmp.eraseArea(SkIRect::MakeWH(100, 10), SK_ColorRED);
+    bmp.eraseArea(SkIRect::MakeXYWH(0, 10, 100, 10), SK_ColorBLUE);
+
+    auto img = SkImage::MakeFromBitmap(bmp);
+    auto filter = SkImageFilters::Blur(0, 10, SkTileMode::kRepeat, nullptr);
+    SkPaint paint;
+    paint.setImageFilter(std::move(filter));
+
+    // Draw the blurred image once
+    canvas->translate(0, 50);
+    canvas->drawImage(img, 0, 0, &paint);
+
+    // Draw the blurred image with a clip positioned such that the draw would be excluded except
+    // that the image filter causes it to intersect with the clip. Ideally should look like the
+    // left image, but clipped to the debug-black rectangle (Narrator: it does not look like that).
+    canvas->translate(110, 0);
+    canvas->clipRect(SkRect::MakeXYWH(0, -30, 100, 10));
+    canvas->drawImage(img, 0, 0, &paint);
+
+    // Visualize the clip
+    SkPaint line;
+    line.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(SkRect::MakeXYWH(0, -30, 99, 9), line);
+}
