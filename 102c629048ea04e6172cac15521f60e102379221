@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ea67863_c815a796",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3050,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-16T14:55:42Z",
+      "side": 1,
+      "message": "This is really nice.",
+      "revId": "102c629048ea04e6172cac15521f60e102379221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ac0a5f_43adcf0f",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3606,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-16T14:55:42Z",
+      "side": 1,
+      "message": "This whole idea might be best as its own JITMode, e.g. \"Heuristic\", slotted after Register and before Stack.  I couldn\u0027t guess where it should go with respect to RegisterNoHoist... maybe this ought to replace it?",
+      "range": {
+        "startLine": 3606,
+        "startChar": 8,
+        "endLine": 3606,
+        "endChar": 15
+      },
+      "revId": "102c629048ea04e6172cac15521f60e102379221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
