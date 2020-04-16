@@ -380,8 +380,6 @@ private:
      */
     SkScalar fMat[16];
 
-    double determinant() const;
-
     friend class SkMatrixPriv;
 };
 
