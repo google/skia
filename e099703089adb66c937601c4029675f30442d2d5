@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "caefb09a_1ea38dc2",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T15:27:41Z",
+      "side": 1,
+      "message": "I don\u0027t think you really need a coord transform here.\n\nThe matrix you get back at 155 is always preMatrix.\n\nBelow you can just test if view.origin() is kBottomLeft to know whether to flip y. Similarly,\nyou can test view.proxy()-\u003ebackendFormat().textureType() !\u003d GrTextureType::kRectangle to know if you need to normalize.\n\nIt may duplicate a small amount of logic in the short term to do it this way, but this change is putting us very close to getting rid of proxies/flips/norms from coord transforms entirely.",
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c96702b_ac8d67c1",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T15:27:41Z",
+      "side": 1,
+      "message": "Can this really not happen?",
+      "range": {
+        "startLine": 325,
+        "startChar": 16,
+        "endLine": 325,
+        "endChar": 52
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3395242_edef4b6a",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T15:27:41Z",
+      "side": 1,
+      "message": "I think instead of asserting above we can just add to this conditional. Also, the onSetData() could just use the type of the uniform to decide whether to push 2 or 4 values.",
+      "range": {
+        "startLine": 392,
+        "startChar": 10,
+        "endLine": 393,
+        "endChar": 74
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef23a445_d79ef2cd",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T15:27:41Z",
+      "side": 1,
+      "message": "Do we really need to store this separately or can we just look at the proxy in the TextureSampler. If not, I\u0027d suggest naming it something related to laziness because we sometimes do runtime normalization when this is false.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 31
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
