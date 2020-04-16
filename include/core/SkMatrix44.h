@@ -11,8 +11,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-#ifdef SK_SUPPORT_LEGACY_MATRIX44
-
 #include <atomic>
 #include <cstring>
 
@@ -391,5 +389,4 @@ private:
     friend class SkM44;
 };
 
-#endif
 #endif
