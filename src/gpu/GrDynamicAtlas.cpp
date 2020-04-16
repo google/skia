@@ -46,10 +46,8 @@ private:
 };
 
 sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
-        LazyInstantiateAtlasCallback&& callback,
-        GrColorType colorType,
-        InternalMultisample internalMultisample,
-        const GrCaps& caps,
+        const LazyInstantiateAtlasCallback& callback, GrColorType colorType,
+        InternalMultisample internalMultisample, const GrCaps& caps,
         GrSurfaceProxy::UseAllocator useAllocator) {
     GrBackendFormat format = caps.getDefaultBackendFormat(colorType, GrRenderable::kYes);
 
@@ -58,8 +56,12 @@ sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
         sampleCount = caps.internalMultisampleCount(format);
     }
 
+    auto instantiate = [cb = std::move(callback), format, sampleCount](GrResourceProvider* rp) {
+        return cb(rp, format, sampleCount);
+    };
+
     sk_sp<GrTextureProxy> proxy =
-            GrProxyProvider::MakeFullyLazyProxy(std::move(callback), format, GrRenderable::kYes,
+            GrProxyProvider::MakeFullyLazyProxy(std::move(instantiate), format, GrRenderable::kYes,
                                                 sampleCount, GrProtected::kNo, caps, useAllocator);
 
     return proxy;
@@ -83,11 +85,12 @@ void GrDynamicAtlas::reset(SkISize initialSize, const GrCaps& caps) {
     fTopNode = nullptr;
     fDrawBounds.setEmpty();
     fTextureProxy = MakeLazyAtlasProxy(
-            [this](GrResourceProvider* resourceProvider, const LazyAtlasDesc& desc) {
+            [this](GrResourceProvider* resourceProvider, const GrBackendFormat& format,
+                   int sampleCount) {
                 if (!fBackingTexture) {
                     fBackingTexture = resourceProvider->createTexture(
-                            {fWidth, fHeight}, desc.fFormat, desc.fRenderable, desc.fSampleCnt,
-                            desc.fMipMapped, desc.fBudgeted, desc.fProtected);
+                            {fWidth, fHeight}, format, GrRenderable::kYes, sampleCount,
+                            GrMipMapped::kNo, SkBudgeted::kYes, GrProtected::kNo);
                 }
                 return GrSurfaceProxy::LazyCallbackResult(fBackingTexture);
             },

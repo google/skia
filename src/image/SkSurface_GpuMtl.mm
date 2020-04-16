@@ -50,22 +50,23 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-            [layer, drawable](GrResourceProvider* resourceProvider,
-                              const GrSurfaceProxy::LazySurfaceDesc& desc) {
+            [layer, drawable, sampleCnt](GrResourceProvider* resourceProvider) {
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
                 id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
+
+                SkISize dims = {(int)metalLayer.drawableSize.width,
+                                (int)metalLayer.drawableSize.height};
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (metalLayer.framebufferOnly) {
-                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(mtlGpu, dims, sampleCnt,
+                                                                         currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
-                            GrWrapCacheable::kNo);
+                            mtlGpu, dims, sampleCnt, currentDrawable.texture, GrWrapCacheable::kNo);
                 }
-                if (surface && desc.fSampleCnt > 1) {
+                if (surface && sampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
 
@@ -121,22 +122,22 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-            [view](GrResourceProvider* resourceProvider,
-                   const GrSurfaceProxy::LazySurfaceDesc& desc) {
+            [view, sampleCnt](GrResourceProvider* resourceProvider) {
                 MTKView* mtkView = (__bridge MTKView*)view;
                 id<CAMetalDrawable> currentDrawable = [mtkView currentDrawable];
+
+                SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (mtkView.framebufferOnly) {
-                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(mtlGpu, dims, sampleCnt,
+                                                                         currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
-                            GrWrapCacheable::kNo);
+                            mtlGpu, dims, sampleCnt, currentDrawable.texture, GrWrapCacheable::kNo);
                 }
-                if (surface && desc.fSampleCnt > 1) {
+                if (surface && sampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
 

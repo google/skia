@@ -94,7 +94,6 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
-        struct Attr  { const char* label; int v; };
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -144,11 +143,6 @@ namespace skvm {
         static void write(SkWStream* o, Hex h) {
             o->writeHexAsText(h.bits);
         }
-        [[maybe_unused]] static void write(SkWStream* o, Attr a) {
-            write(o, a.label);
-            write(o, " ");
-            o->writeDecAsText(a.v);
-        }
 
         template <typename T, typename... Ts>
         static void write(SkWStream* o, T first, Ts... rest) {
@@ -197,94 +191,6 @@ namespace skvm {
         o->writeText("}\n");
     }
 
-    template <typename I, typename... Fs>
-    static void write_one_instruction(Val id, const I& inst, SkWStream* o, Fs... fs) {
-        Op  op = inst.op;
-        Val  x = inst.x,
-             y = inst.y,
-             z = inst.z;
-        int immy = inst.immy,
-            immz = inst.immz;
-        switch (op) {
-            case Op::assert_true: write(o, op, V{x}, V{y}, fs(id)...); break;
-
-            case Op::store8:  write(o, op, Arg{immy}, V{x}, fs(id)...); break;
-            case Op::store16: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
-            case Op::store32: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
-
-            case Op::index: write(o, V{id}, "=", op, fs(id)...); break;
-
-            case Op::load8:  write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load16: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load32: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-
-            case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
-            case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
-            case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
-
-            case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-            case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-            case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-
-            case Op::splat:  write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
-
-            case Op::add_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::sub_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::mul_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::div_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::min_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-
-
-            case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-
-            case Op::add_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::sub_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::mul_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::min_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::max_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-
-            case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::gte_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-
-
-            case Op::add_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-
-            case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-
-            case Op:: eq_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-
-            case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-
-            case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
-            case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
-            case Op::bit_xor_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
-
-            case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
-
-            case Op::floor:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::to_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::trunc:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::round:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-        }
-
-        write(o, "\n");
-    }
-
     void Builder::dump(SkWStream* o) const {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
@@ -296,22 +202,94 @@ namespace skvm {
         o->writeText("):\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
             const OptimizedInstruction& inst = optimized[id];
+            Op  op = inst.op;
+            Val  x = inst.x,
+                 y = inst.y,
+                 z = inst.z;
+            int immy = inst.immy,
+                immz = inst.immz;
             write(o, !inst.can_hoist    ? "  " :
                       inst.used_in_loop ? "↑ " :
                                           "↟ ");
-            write_one_instruction(id, inst, o);
-        }
-    }
+            switch (op) {
+                case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-    template <typename... Fs>
-    void dump_instructions(const std::vector<Instruction>& instructions, SkWStream* o, Fs... fs)  {
-        SkDebugfStream debug;
-        if (o == nullptr) {
-            o = &debug;
-        }
-        write(o, Attr{"Instruction count:", (int)instructions.size()});
-        for (Val id = 0; id < (Val)instructions.size(); id++) {
-            write_one_instruction(id, instructions[id], o, std::forward<Fs>(fs)...);
+                case Op::store8:  write(o, op, Arg{immy}, V{x}); break;
+                case Op::store16: write(o, op, Arg{immy}, V{x}); break;
+                case Op::store32: write(o, op, Arg{immy}, V{x}); break;
+
+                case Op::index: write(o, V{id}, "=", op); break;
+
+                case Op::load8:  write(o, V{id}, "=", op, Arg{immy}); break;
+                case Op::load16: write(o, V{id}, "=", op, Arg{immy}); break;
+                case Op::load32: write(o, V{id}, "=", op, Arg{immy}); break;
+
+                case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+                case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+                case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+
+                case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+                case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+                case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+
+                case Op::splat:  write(o, V{id}, "=", op, Splat{immy}); break;
+
+
+                case Op::add_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::sub_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::mul_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::div_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::min_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+                case Op::fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+                case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+
+
+                case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}); break;
+
+                case Op::add_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
+                case Op::sub_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
+                case Op::mul_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
+                case Op::min_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
+                case Op::max_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
+
+                case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op::gte_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+
+
+                case Op::add_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+
+                case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+                case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+                case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+
+                case Op:: eq_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+                case Op:: gt_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+
+                case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+
+                case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
+                case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
+                case Op::bit_xor_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
+
+                case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+                case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}); break;
+
+                case Op::floor:  write(o, V{id}, "=", op, V{x}); break;
+                case Op::to_f32: write(o, V{id}, "=", op, V{x}); break;
+                case Op::trunc:  write(o, V{id}, "=", op, V{x}); break;
+                case Op::round:  write(o, V{id}, "=", op, V{x}); break;
+            }
+
+            write(o, "\n");
         }
     }
 
@@ -523,42 +501,97 @@ namespace skvm {
         return program;
     }
 
-    // Impose a deterministic scheduling of Instructions based on data flow alone,
-    // eliminating any influence from original program order.  We'll schedule back-to-front,
-    // starting at the end of the program with Instructions that have side effects and
-    // recursing through arguments to Instructions that issue earlier in the program.
-    // We schedule each argument once all its users have been scheduled, which means it
-    // issues just before its first use.  We arbitrarily schedule x, then y, then z, and so
-    // issue z, then y, then x.
     std::vector<Instruction> schedule(std::vector<Instruction> program) {
+        Usage usage{program};
 
         std::vector<int> uses(program.size());
-        for (const Instruction& inst : program) {
-            for (Val arg : {inst.x, inst.y, inst.z}) {
-                if (arg != NA) { uses[arg]++; }
-            }
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            uses[id] = (int)usage[id].size();
         }
 
-        std::vector<Val> new_id(program.size(), NA);
-        Val next = (Val)program.size();
-        auto reorder = [&](Val id, auto& recurse) -> void {
-            new_id[id] = --next;
-            const Instruction& inst = program[id];
+        auto pressure_change = [&](Val id) -> int {
+            Instruction inst = program[id];
+
+            // If this Instruction is not a sink, its result needs a register.
+            int change = has_side_effect(inst.op) ? 0 : 1;
+
+            // If this is the final user of an argument, the argument's register becomes free.
             for (Val arg : {inst.x, inst.y, inst.z}) {
-                if (arg != NA && --uses[arg] == 0) {
-                    recurse(arg, recurse);
-                }
+                if (arg != NA && uses[arg] == 1) { change -= 1; }
             }
+            return change;
         };
 
+        auto compare = [&](Val lhs, Val rhs) {
+            SkASSERT(lhs != rhs);
+            int lhs_change = pressure_change(lhs);
+            int rhs_change = pressure_change(rhs);
+
+            // This comparison operator orders instructions from least (likely negative) register
+            // pressure to most register pressure,  breaking ties arbitrarily using original
+            // program order comparing the instruction index itself.
+            //
+            // We'll use this operator with std::{make,push,pop}_heap() to maintain a max heap
+            // frontier of instructions that are ready to schedule.  We iterate backwards through
+            // the program, scheduling later instruction slots before earlier ones, and that means
+            // an instruction becomes ready to schedule once all instructions using its result have
+            // been scheduled (in later slots).
+            //
+            // All together that means we'll be issuing the instructions that hurt register pressure
+            // as late as possible, and issuing the instructions that help register pressure as soon
+            // as possible.
+            //
+            // This heuristic of greedily issuing the instruction that most immediately decreases
+            // register pressure approximates a more expensive search to find a schedule that
+            // minimizes the high-water maximum register pressure, the number of registers we'll
+            // need to run this program.
+            //
+            // The tie-breaker heuristic was found through experimentation.
+            return lhs_change < rhs_change || (lhs_change == rhs_change && lhs > rhs);
+        };
+
+        auto ready_to_schedule = [&](Val id) { return uses[id] == 0; };
+
+        std::vector<Val> frontier;
         for (Val id = 0; id < (Val)program.size(); id++) {
-            if (has_side_effect(program[id].op)) {
-                reorder(id, reorder);
+            Instruction inst = program[id];
+            if (has_side_effect(inst.op)) {
+                frontier.push_back(id);
+            }
+            // Having eliminated dead code, the only Instructions that should start
+            // with no users remaining to schedule are those with side effects.
+            SkASSERT(has_side_effect(inst.op) == (uses[id] == 0));
+        }
+        std::make_heap(frontier.begin(), frontier.end(), compare);
+
+        // Figure out our new Instruction schedule.
+        std::vector<Val> new_id(program.size(), NA);
+        for (Val n = (Val)program.size(); n --> 0;) {
+            SkASSERT(!frontier.empty());
+            std::pop_heap(frontier.begin(), frontier.end(), compare);
+            Val id = frontier.back();
+            frontier.pop_back();
+
+            SkASSERT(ready_to_schedule(id));
+
+            Instruction inst = program[id];
+            new_id[id] = n;
+
+            for (Val arg : {inst.x, inst.y, inst.z}) {
+                if (arg != NA) {
+                    uses[arg]--;
+                    if (ready_to_schedule(arg)) {
+                        frontier.push_back(arg);
+                        std::push_heap(frontier.begin(), frontier.end(), compare);
+                    }
+                }
             }
         }
+        SkASSERT(frontier.empty());
 
         // Remap each Instruction's arguments to their new IDs.
-        for (Instruction& inst : program) {
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            Instruction& inst = program[id];
             for (Val* arg : {&inst.x, &inst.y, &inst.z}) {
                 if (*arg != NA) {
                     *arg = new_id[*arg];
@@ -575,7 +608,6 @@ namespace skvm {
                 std::swap( new_id[id],  new_id[new_id[id]]);
             }
         }
-
         return program;
     }
 
@@ -1777,44 +1809,44 @@ namespace skvm {
         this->byte(mod_rm(Mod::Direct, dst&7, y&7));
     }
 
-    void Assembler::vpaddd (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
-    void Assembler::vpsubd (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
-    void Assembler::vpmulld(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x40, dst,x,y); }
+    void Assembler::vpaddd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
+    void Assembler::vpmulld(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
-    void Assembler::vpsubw (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
-    void Assembler::vpmullw(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
+    void Assembler::vpsubw (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
+    void Assembler::vpmullw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
 
-    void Assembler::vpand (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
-    void Assembler::vpor  (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
-    void Assembler::vpxor (Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xef, dst,x,y); }
-    void Assembler::vpandn(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
+    void Assembler::vpand (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
+    void Assembler::vpor  (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
+    void Assembler::vpxor (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpandn(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
 
-    void Assembler::vaddps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x58, dst,x,y); }
-    void Assembler::vsubps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5c, dst,x,y); }
-    void Assembler::vmulps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x59, dst,x,y); }
-    void Assembler::vdivps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5e, dst,x,y); }
-    void Assembler::vminps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5d, dst,x,y); }
-    void Assembler::vmaxps(Ymm dst, Ymm x, YmmOperand y) { this->op(0,0x0f,0x5f, dst,x,y); }
+    void Assembler::vaddps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x58, dst,x,y); }
+    void Assembler::vsubps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5c, dst,x,y); }
+    void Assembler::vmulps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x59, dst,x,y); }
+    void Assembler::vdivps(Ymm dst, Ymm x, Ymm        y) { this->op(0,0x0f,0x5e, dst,x,y); }
+    void Assembler::vminps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5d, dst,x,y); }
+    void Assembler::vmaxps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5f, dst,x,y); }
 
-    void Assembler::vfmadd132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x98, d,x,y); }
-    void Assembler::vfmadd213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xa8, d,x,y); }
-    void Assembler::vfmadd231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xb8, d,x,y); }
+    void Assembler::vfmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x98, dst,x,y); }
+    void Assembler::vfmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
+    void Assembler::vfmadd231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xb8, dst,x,y); }
 
-    void Assembler::vfmsub132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x9a, d,x,y); }
-    void Assembler::vfmsub213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xaa, d,x,y); }
-    void Assembler::vfmsub231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xba, d,x,y); }
+    void Assembler::vfmsub132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x9a, dst,x,y); }
+    void Assembler::vfmsub213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xaa, dst,x,y); }
+    void Assembler::vfmsub231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xba, dst,x,y); }
 
-    void Assembler::vfnmadd132ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x9c, d,x,y); }
-    void Assembler::vfnmadd213ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xac, d,x,y); }
-    void Assembler::vfnmadd231ps(Ymm d, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0xbc, d,x,y); }
+    void Assembler::vfnmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x9c, dst,x,y); }
+    void Assembler::vfnmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xac, dst,x,y); }
+    void Assembler::vfnmadd231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xbc, dst,x,y); }
 
-    void Assembler::vpackusdw(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
-    void Assembler::vpackuswb(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
+    void Assembler::vpackusdw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
+    void Assembler::vpackuswb(Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
 
-    void Assembler::vpcmpeqd(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
-    void Assembler::vpcmpgtd(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
+    void Assembler::vpcmpeqd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x76, dst,x,y); }
+    void Assembler::vpcmpgtd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
-    void Assembler::vcmpps(Ymm dst, Ymm x, YmmOperand y, int imm) {
+    void Assembler::vcmpps(Ymm dst, Ymm x, Ymm y, int imm) {
         this->op(0,0x0f,0xc2, dst,x,y);
         this->byte(imm);
     }
@@ -1853,17 +1885,17 @@ namespace skvm {
         this->byte(imm);
     }
 
-    void Assembler::vroundps(Ymm dst, Ymm x, Rounding imm) {
+    void Assembler::vroundps(Ymm dst, Ymm x, int imm) {
         this->op(0x66,0x3a0f,0x08, dst,x);
         this->byte(imm);
     }
 
-    void Assembler::vmovdqa(Ymm dst, YmmOperand src) { this->op(0x66,0x0f,0x6f, dst,src); }
+    void Assembler::vmovdqa(Ymm dst, Ymm src) { this->op(0x66,0x0f,0x6f, dst,src); }
 
-    void Assembler::vcvtdq2ps (Ymm dst, YmmOperand x) { this->op(   0,0x0f,0x5b, dst,x); }
-    void Assembler::vcvttps2dq(Ymm dst, YmmOperand x) { this->op(0xf3,0x0f,0x5b, dst,x); }
-    void Assembler::vcvtps2dq (Ymm dst, YmmOperand x) { this->op(0x66,0x0f,0x5b, dst,x); }
-    void Assembler::vsqrtps   (Ymm dst, YmmOperand x) { this->op(   0,0x0f,0x51, dst,x); }
+    void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(   0,0x0f,0x5b, dst,x); }
+    void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
+    void Assembler::vcvtps2dq (Ymm dst, Ymm x) { this->op(0x66,0x0f,0x5b, dst,x); }
+    void Assembler::vsqrtps   (Ymm dst, Ymm x) { this->op(   0,0x0f,0x51, dst,x); }
 
     Assembler::Label Assembler::here() {
         return { (int)this->size(), Label::NotYetSet, {} };
@@ -1887,11 +1919,11 @@ namespace skvm {
         return l->offset - (here().offset + 4);
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l, bool W) {
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l) {
         // IP-relative addressing uses Mod::Indirect with the R/M encoded as-if rbp or r13.
         const int rip = rbp;
 
-        VEX v = vex(W, dst>>3, 0, rip>>3,
+        VEX v = vex(0, dst>>3, 0, rip>>3,
                     map, x, /*ymm?*/1, prefix);
         this->bytes(v.bytes, v.len);
         this->byte(opcode);
@@ -1899,35 +1931,13 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Mem m, bool W) {
-        // Passing rsp as the rm argument to mod_rm() signals an SIB byte follows;
-        // without an SIB byte, that's where the base register would usually go.
-        // This means we have to use an SIB byte if we want to use rsp as a base register.
-        const bool need_SIB = m.base  == rsp
-                           || m.index != rsp;
-
-        VEX v = vex(W, dst>>3, m.index>>3, m.base>>3,
-                    map, x, /*ymm?*/1, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(mod(m.disp), dst&7, (need_SIB ? rsp : m.base)&7));
-        if (need_SIB) {
-            this->byte(sib(m.scale, m.index&7, m.base&7));
-        }
-        this->bytes(&m.disp, imm_bytes(mod(m.disp)));
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel y) {
+        y.label ? this->op(prefix,map,opcode,dst,x, y.label)
+                : this->op(prefix,map,opcode,dst,x, y.ymm  );
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOperand y, bool W) {
-        switch (y.kind) {
-            case YmmOperand::YMM:   return this->op(prefix,map,opcode, dst,x,y.ymm  ,W);
-            case YmmOperand::MEM:   return this->op(prefix,map,opcode, dst,x,y.mem  ,W);
-            case YmmOperand::LABEL: return this->op(prefix,map,opcode, dst,x,y.label,W);
-        }
-    }
-
-    void Assembler::vpshufb(Ymm dst, Ymm x, YmmOperand y) { this->op(0x66,0x380f,0x00, dst,x,y); }
-
-    void Assembler::vptest(Ymm x, YmmOperand y) { this->op(0x66, 0x380f, 0x17, x,y); }
+    void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
+    void Assembler::vptest(Ymm dst, Label* l) { this->op(0x66, 0x380f, 0x17, dst, (Ymm)0, l); }
 
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
     void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }

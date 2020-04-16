@@ -27,6 +27,7 @@ public:
     bool hasIndices() const { return SkToBool(fVertices->fIndices); }
 
     bool hasUsage(SkVertices::Attribute::Usage) const;
+    bool usesLocalToWorldMatrix() const;
 
     int vertexCount() const { return fVertices->fVertexCount; }
     int indexCount() const { return fVertices->fIndexCount; }

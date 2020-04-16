@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 
+import os
 import posixpath
 from recipe_engine import recipe_api
 
@@ -31,15 +32,6 @@ class DockerApi(recipe_api.RecipeApi):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
-      step_stdout = self.m.python.inline(
-          name='Get uid and gid',
-          program='''import os
-print '%d:%d' % (os.getuid(), os.getgid())
-''',
-          stdout=self.m.raw_io.output(),
-          step_test_data=(
-              lambda: self.m.raw_io.test_api.stream_output('13:17'))).stdout
-      uid_gid_pair = step_stdout.rstrip() if step_stdout else ''
       # Make sure out_dir exists, otherwise mounting will fail.
       # (Note that the docker --mount option, unlike the --volume option, does
       # not create this dir as root if it doesn't exist.)
@@ -71,7 +63,8 @@ print '%d:%d' % (os.getuid(), os.getgid())
 
     # Run.
     cmd = [
-      'docker', 'run', '--shm-size=2gb', '--rm', '--user', uid_gid_pair,
+      'docker', 'run', '--shm-size=2gb', '--rm', '--user',
+      '%d:%d' % (os.getuid(), os.getgid()),
       '--mount', 'type=bind,source=%s,target=%s' %
                  (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
       '--mount', 'type=bind,source=%s,target=%s' %

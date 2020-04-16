@@ -161,8 +161,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     // be deleted before we actually execute the lambda.
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper = fRefHelper, releaseProcHelper, backendTexture = fBackendTexture](
-                    GrResourceProvider* resourceProvider,
-                    const GrSurfaceProxy::LazySurfaceDesc&) -> GrSurfaceProxy::LazyCallbackResult {
+                    GrResourceProvider* resourceProvider) -> GrSurfaceProxy::LazyCallbackResult {
                 if (refHelper->fSemaphore) {
                     resourceProvider->priv().gpu()->waitSemaphore(refHelper->fSemaphore.get());
                 }

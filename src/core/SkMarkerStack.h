@@ -19,23 +19,15 @@ public:
 
     void setMarker(uint32_t id, const SkM44& mx, void* boundary);
     bool findMarker(uint32_t id, SkM44* mx) const;
-    bool findMarkerInverse(uint32_t id, SkM44* mx) const;
     void restore(void* boundary);
 
 private:
     struct Rec {
         void*       fBoundary;
         SkM44       fMatrix;
-        SkM44       fMatrixInverse;
         uint32_t    fID;
     };
     std::vector<Rec> fStack;
-};
-
-class SkMarkedMatrixProvider {
-public:
-    virtual ~SkMarkedMatrixProvider() {}
-    virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
 };
 
 #endif

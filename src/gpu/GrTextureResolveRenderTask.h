@@ -35,8 +35,7 @@ private:
     bool onExecute(GrOpFlushState*) override;
 
 #ifdef SK_DEBUG
-    const char* name() const final { return "TextureResolve"; }
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
 #endif
 
     struct Resolve {

@@ -8,10 +8,10 @@
 #ifndef GrGLGpu_DEFINED
 #define GrGLGpu_DEFINED
 
+#include <list>
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
-#include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -163,7 +163,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
-    bool waitFence(GrFence) override;
+    bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
@@ -609,16 +609,6 @@ private:
         return &fHWBufferState[typeAsUInt];
     }
 
-    enum class FlushType {
-        kIfRequired,
-        kForce,
-    };
-
-    // This calls glFlush if it is required for previous operations or kForce is passed.
-    void flush(FlushType flushType = FlushType::kIfRequired);
-
-    void setNeedsFlush() { fNeedsGLFlush = true; }
-
     struct {
         GrBlendEquation fEquation;
         GrBlendCoeff    fSrcCoeff;
@@ -707,12 +697,13 @@ private:
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
     std::unique_ptr<GrGLOpsRenderPass> fCachedOpsRenderPass;
-    GrFinishCallbacks fFinishCallbacks;
 
-    // If we've called a command that requires us to call glFlush than this will be set to true
-    // since we defer calling flush until submit time. When we call submitToGpu if this is true then
-    // we call glFlush and reset this to false.
-    bool fNeedsGLFlush = false;
+    struct FinishCallback {
+        GrGpuFinishedProc fCallback;
+        GrGpuFinishedContext fContext;
+        GrGLsync fSync;
+    };
+    std::list<FinishCallback> fFinishCallbacks;
 
     SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
 

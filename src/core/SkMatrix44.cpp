@@ -9,8 +9,6 @@
 #include <type_traits>
 #include <utility>
 
-#ifdef SK_SUPPORT_LEGACY_MATRIX44
-
 // Copying SkMatrix44 byte-wise is performance-critical to Blink. This class is
 // contained in several Transform classes, which are copied multiple times
 // during the rendering life cycle. See crbug.com/938563 for reference.
@@ -999,5 +997,3 @@ SkMatrix44::operator SkMatrix() const {
 
     return dst;
 }
-
-#endif

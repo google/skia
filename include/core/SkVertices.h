@@ -74,23 +74,22 @@ public:
             // Colors are always assumed to be in RGBA order, and are automatically premultiplied.
             kColor,
 
-            // Local vector, transformed via marker (2 or 3 channels)
+            // Local vector, transformed to world (2 or 3 channels)
             kVector,
 
-            // Normal vector (or any other bivector), transformed via marker (2 or 3 channels)
+            // Normal vector (or any other bivector), transformed to world (2 or 3 channels)
             kNormalVector,
 
-            // Local position, transformed via marker (2 or 3 channels)
+            // Local position, transformed to world (2 or 3 channels)
             kPosition,
         };
 
-        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, uint32_t id = 0)
+        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw)
             : fType(t)
-            , fUsage(u)
-            , fMarkerID(id) {}
+            , fUsage(u) {}
 
         bool operator==(const Attribute& that) const {
-            return fType == that.fType && fUsage == that.fUsage && fMarkerID == that.fMarkerID;
+            return fType == that.fType && fUsage == that.fUsage;
         }
         bool operator!=(const Attribute& that) const { return !(*this == that); }
 
@@ -103,7 +102,6 @@ public:
 
         Type fType;
         Usage fUsage;
-        uint32_t fMarkerID;
     };
 
     enum BuilderFlags {

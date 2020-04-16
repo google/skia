@@ -272,8 +272,7 @@ bool GrRenderTask::isInstantiated() const {
 void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
     GrSurfaceProxy* proxy = fTargetView.proxy();
-    SkDebugf("%s - renderTaskID: %d - proxyID: %d - surfaceID: %d\n",
-             this->name(), fUniqueID,
+    SkDebugf("renderTaskID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
              proxy ? proxy->uniqueID().asUInt() : -1,
              proxy && proxy->peekSurface()
                      ? proxy->peekSurface()->uniqueID().asUInt()

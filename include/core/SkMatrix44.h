@@ -11,15 +11,9 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-#ifdef SK_SUPPORT_LEGACY_MATRIX44
-
 #include <atomic>
 #include <cstring>
 
-// This entire file is DEPRECATED, and will be removed at some point.
-// SkCanvas has full support for 4x4 matrices using SkM44
-
-// DEPRECATED
 struct SkVector4 {
     SkScalar fData[4];
 
@@ -59,7 +53,11 @@ struct SkVector4 {
     }
 };
 
-// DEPRECATED
+/** \class SkMatrix44
+
+    The SkMatrix44 class holds a 4x4 matrix.
+
+*/
 class SK_API SkMatrix44 {
 public:
 
@@ -391,5 +389,4 @@ private:
     friend class SkM44;
 };
 
-#endif
 #endif

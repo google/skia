@@ -68,15 +68,13 @@ public:
                 : GrCCPathProcessor::CoverageMode::kLiteral;
     }
 
-    static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(LazyInstantiateAtlasCallback&& callback,
-                                                    CoverageType coverageType,
-                                                    const GrCaps& caps,
+
+    static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(const LazyInstantiateAtlasCallback& callback,
+                                                    CoverageType coverageType, const GrCaps& caps,
                                                     GrSurfaceProxy::UseAllocator useAllocator) {
-        return GrDynamicAtlas::MakeLazyAtlasProxy(std::move(callback),
-                                                  CoverageTypeToColorType(coverageType),
+        return GrDynamicAtlas::MakeLazyAtlasProxy(callback, CoverageTypeToColorType(coverageType),
                                                   CoverageTypeHasInternalMultisample(coverageType),
-                                                  caps,
-                                                  useAllocator);
+                                                  caps, useAllocator);
     }
 
     GrCCAtlas(CoverageType, const Specs&, const GrCaps&);
