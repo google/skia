@@ -30,7 +30,6 @@
     #include "include/effects/SkRuntimeEffect.h"
     #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
-    #include "src/core/SkColorFilterPriv.h"
     #include "src/core/SkColorFilter_Matrix.h"
     #include "src/core/SkRecordedDrawable.h"
     #include "src/effects/SkDashImpl.h"
@@ -77,7 +76,6 @@
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
-        SkColorFilterPriv::RegisterLegacyOverdraw();
         SkTableColorFilter::RegisterFlattenables();
 
         // Shader & color filter.
