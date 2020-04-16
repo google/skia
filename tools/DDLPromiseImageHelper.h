@@ -84,6 +84,9 @@ private:
 
         const GrBackendFormat& backendFormat() const { return fBackendFormat; }
 
+        void setMipMapped(GrMipMapped mipMapped) { fMipMapped = mipMapped; }
+        GrMipMapped mipMapped() const { return fMipMapped; }
+
         void setBackendTexture(const GrBackendTexture& backendTexture);
 
         void destroyBackendTexture() {
@@ -124,6 +127,7 @@ private:
         int                          fTotalReleases = 0;
         int                          fUnreleasedFulfills = 0;
         int                          fDoneCnt = 0;
+        GrMipMapped                  fMipMapped = GrMipMapped::kNo;
 
         typedef SkRefCnt INHERITED;
     };
@@ -181,6 +185,10 @@ private:
             return fCallbackContexts[index];
         }
 
+        const GrMipMapped mipMapped(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
+            return fCallbackContexts[index]->mipMapped();
+        }
         const GrBackendFormat& backendFormat(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->backendFormat();
