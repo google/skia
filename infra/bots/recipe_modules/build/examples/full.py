@@ -26,6 +26,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-arm-Release-Flutter_Android_Docker',
   'Build-Debian10-GCC-loongson3a-Release-Docker',
   'Build-Debian10-GCC-x86-Debug-Docker',
   'Build-Debian10-GCC-x86_64-Debug-Docker',

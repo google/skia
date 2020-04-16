@@ -4,19 +4,36 @@
 
 from . import util
 
+IMAGES = {
+    # Used to build Flutter_Android in Debian9, since the underlying build
+    # scripts require jdk8.
+    'Debian9': (
+        'gcr.io/skia-public/debian9@sha256:'
+        'f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569'),
+}
+
 def compile_fn(api, checkout_root, out_dir):
   flutter_dir   = checkout_root.join('src')
   configuration = api.vars.builder_cfg.get('configuration').lower()
+  os_name = api.vars.builder_cfg.get('os', '')
   extra_tokens = api.vars.extra_tokens
+  builder_name = api.vars.builder_name
+
+  # Setup GN args.
+  gn_args = ['--runtime-mode=%s' % configuration,]
+  if 'Android' in extra_tokens:
+    gn_args.append('--android')
+
+  if os_name == 'Debian9' and 'Docker' in builder_name:
+    script = api.build.resource('docker-flutter-compile.sh')
+    image_hash = IMAGES[os_name]
+    api.docker.run('Run build script in Docker', image_hash,
+                   api.path['start_dir'], out_dir, script,
+                   [api.path['start_dir'], flutter_dir, out_dir] + gn_args,
+                   match_directory_structure=True)
+    return
 
   with api.context(cwd=flutter_dir):
-    # Setup GN args.
-    gn_args = [
-        '--runtime-mode=%s' % configuration,
-    ]
-    if 'Android' in extra_tokens:
-      gn_args.append('--android')
-
     # Delete out_dir so that we start from a clean slate. See skbug/6310.
     api.run.rmtree(out_dir)
 
