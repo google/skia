@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "079a2a93_031601c6",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1822,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T14:21:14Z",
+      "side": 1,
+      "message": "This reversal compensates for the fact that the imageIncrement uniform was using -1/height for kTopLeft and 1/height for kBototmLeft rather than the expected reverse.",
+      "range": {
+        "startLine": 1822,
+        "startChar": 4,
+        "endLine": 1822,
+        "endChar": 38
+      },
+      "revId": "6be83820607f88ba468e20aceaea1b45a9665254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
