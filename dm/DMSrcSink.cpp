@@ -1671,7 +1671,17 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     recordingTaskGroup->wait();
 
     // This should be the only explicit flush for the entire DDL draw
-    gpuTaskGroup->add([gpuThreadCtx]() { gpuThreadCtx->flush(); });
+    gpuTaskGroup->add([gpuThreadCtx]() {
+                                           // We need to ensure all the GPU work is finished so
+                                           // the following 'deleteAllFromGPU' call will work
+                                           // on Vulkan.
+                                           // TODO: switch over to using the promiseImage callbacks
+                                           // to free the backendTextures. This is complicated a
+                                           // bit by which thread possesses the direct context.
+                                           GrFlushInfo flushInfoSyncCpu;
+                                           flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+                                           gpuThreadCtx->flush(flushInfoSyncCpu);
+                                       });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
