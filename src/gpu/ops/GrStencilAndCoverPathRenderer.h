@@ -25,7 +25,7 @@ public:
 
 
 private:
-    StencilSupport onGetStencilSupport(const GrShape&) const override {
+    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
         return GrPathRenderer::kStencilOnly_StencilSupport;
     }
 

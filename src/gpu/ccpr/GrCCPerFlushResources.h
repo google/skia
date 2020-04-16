@@ -20,7 +20,7 @@ class GrCCPathCache;
 class GrCCPathCacheEntry;
 class GrOctoBounds;
 class GrOnFlushResourceProvider;
-class GrShape;
+class GrStyledShape;
 
 /**
  * This struct counts values that help us preallocate buffers for rendered path geometry.
@@ -88,7 +88,7 @@ public:
     // strokeDevWidth must be 0 for fills, 1 for hairlines, or the stroke width in device-space
     // pixels for non-hairline strokes (implicitly requiring a rigid-body transform).
     GrCCAtlas* renderShapeInAtlas(
-            const SkIRect& clipIBounds, const SkMatrix&, const GrShape&, float strokeDevWidth,
+            const SkIRect& clipIBounds, const SkMatrix&, const GrStyledShape&, float strokeDevWidth,
             GrOctoBounds*, SkIRect* devIBounds, SkIVector* devToAtlasOffset);
     const GrCCAtlas* renderDeviceSpacePathInAtlas(
             const SkIRect& clipIBounds, const SkPath& devPath, const SkIRect& devPathIBounds,

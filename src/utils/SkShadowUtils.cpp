@@ -31,7 +31,7 @@
 #include <new>
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrBlurredEdgeFragmentProcessor.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #endif
 
 /**
@@ -393,7 +393,7 @@ private:
     const SkPath* fPath;
     const SkMatrix* fViewMatrix;
 #if SK_SUPPORT_GPU
-    GrShape fShapeForKey;
+    GrStyledShape fShapeForKey;
 #endif
 };
 
