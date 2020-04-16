@@ -38,8 +38,9 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
+	DEFAULT_OS_DEBIAN    = "Debian-10.3"
+	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
+	COMPILE_TASK_NAME_OS_LINUX  = "Debian10"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
@@ -177,8 +178,8 @@ var (
 	// BUILD_STATS_NO_UPLOAD indicates which BuildStats tasks should not
 	// have their results uploaded.
 	BUILD_STATS_NO_UPLOAD = []string{
-		"BuildStats-Debian9-Clang-x86_64-Release",
-		"BuildStats-Debian9-Clang-x86_64-Release-Vulkan",
+		"BuildStats-Debian10-Clang-x86_64-Release",
+		"BuildStats-Debian10-Clang-x86_64-Release-Vulkan",
 	}
 )
 
@@ -486,10 +487,10 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if strings.Contains(task_os, "ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if task_os == "iOS" {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -500,7 +501,7 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			// version to compile as to test.
 			ec = append(ec, "Docker")
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if strings.Contains(task_os, "Mac") {
 			task_os = "Mac"
 		}
@@ -561,6 +562,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
 			"Debian9":  DEFAULT_OS_DEBIAN,
+			"Debian10": DEFAULT_OS_LINUX_GCE,
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
 			"Mac10.14": "Mac-10.14.3",
@@ -754,7 +756,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_DEBIAN {
+		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if strings.Contains(parts["extra_config"], "PathKit") || strings.Contains(parts["extra_config"], "CanvasKit") || strings.Contains(parts["extra_config"], "CMake") {
 				return b.dockerGceDimensions()
 			}
