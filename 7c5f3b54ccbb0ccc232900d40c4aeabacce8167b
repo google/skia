@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "627e3be0_e537dd0b",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 40
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:47:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80127e34_c06abfe3",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 59
+      },
+      "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e995e273_381de0f0",
         "filename": "infra/bots/recipe_modules/build/__init__.py",
         "patchSetId": 40
@@ -45,6 +69,30 @@
       "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b818e229_7486f508",
+        "filename": "infra/bots/recipe_modules/build/__init__.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:47:10Z",
+      "side": 1,
+      "message": "Removed, vestigial from messing with path hell.",
+      "parentUuid": "e995e273_381de0f0",
+      "range": {
+        "startLine": 6,
+        "startChar": 3,
+        "endLine": 6,
+        "endChar": 11
+      },
+      "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "58f0b496_e623dbd7",
+        "filename": "infra/bots/recipe_modules/build/flutter.py",
+        "patchSetId": 40
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:47:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e15f4f1f_d894d083",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 25,
+        "endChar": 3
+      },
+      "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8006518_b4a5cc26",
         "filename": "infra/bots/recipe_modules/build/resources/docker-flutter-compile.sh",
         "patchSetId": 40
@@ -91,6 +163,30 @@
       "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eff0cb70_edb27852",
+        "filename": "infra/bots/recipe_modules/build/resources/docker-flutter-compile.sh",
+        "patchSetId": 40
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:47:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8006518_b4a5cc26",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "7c5f3b54ccbb0ccc232900d40c4aeabacce8167b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
