@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe44e0af_a03ebb29",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T14:11:11Z",
+      "side": 1,
+      "message": "Both before and after this change this is only used to create an translation matrix, meaning only the top left point of the rect is used. I wasn\u0027t sure whether to convert to a SkVector or whether dispEffect should be made with MakeSubset like colorEffect.",
+      "range": {
+        "startLine": 466,
+        "startChar": 82,
+        "endLine": 466,
+        "endChar": 93
+      },
+      "revId": "1219a6e335abf091db98adb9196d8f3b32ca6dba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
