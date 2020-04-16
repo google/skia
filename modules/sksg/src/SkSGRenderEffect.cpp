@@ -164,6 +164,9 @@ SkRect ImageFilter::onRevalidate(InvalidationController*, const SkMatrix&) {
     return SkRect::MakeEmpty();
 }
 
+ExternalImageFilter:: ExternalImageFilter() = default;
+ExternalImageFilter::~ExternalImageFilter() = default;
+
 sk_sp<DropShadowImageFilter> DropShadowImageFilter::Make(sk_sp<ImageFilter> input) {
     return sk_sp<DropShadowImageFilter>(new DropShadowImageFilter(std::move(input)));
 }
