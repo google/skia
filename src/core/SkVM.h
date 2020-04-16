@@ -104,11 +104,6 @@ namespace skvm {
             Operand(Label* l) : label(l), kind(LABEL) {}
         };
 
-        void add(GP64, int imm);
-        void sub(GP64, int imm);
-
-        void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
-
         void vpand (Ymm dst, Ymm x, Operand y);
         void vpandn(Ymm dst, Ymm x, Operand y);
         void vpor  (Ymm dst, Ymm x, Operand y);
@@ -176,16 +171,6 @@ namespace skvm {
 
         void vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z);
 
-        Label here();
-        void label(Label*);
-
-        void jmp(Label*);
-        void je (Label*);
-        void jne(Label*);
-        void jl (Label*);
-        void jc (Label*);
-        void cmp(GP64, int imm);
-
         void vpshufb(Ymm dst, Ymm x, Operand y);
 
         void vptest(Ymm x, Operand y);
@@ -199,10 +184,6 @@ namespace skvm {
         void vmovd(Operand dst, Xmm src);  // dst = src,  32-bit
         void vmovd(Xmm dst, Operand src);  // dst = src,  32-bit
 
-        void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t  -> int
-        void movzwl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint16_t -> int
-        void movb  (GP64 ptr, GP64 src);           // *ptr = src, 8-bit
-
         void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
         void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
@@ -214,6 +195,44 @@ namespace skvm {
         // }
         // mask = 0;
         void vgatherdps(Ymm dst, Scale scale, Ymm ix, GP64 base, Ymm mask);
+
+
+        Label here();
+        void label(Label*);
+
+        void jmp(Label*);
+        void je (Label*);
+        void jne(Label*);
+        void jl (Label*);
+        void jc (Label*);
+
+        void add (Operand dst, int imm);
+        void sub (Operand dst, int imm);
+        void cmp (Operand dst, int imm);
+        void mov (Operand dst, int imm);
+        void movb(Operand dst, int imm);
+
+        void add (Operand dst, GP64 x);
+        void sub (Operand dst, GP64 x);
+        void cmp (Operand dst, GP64 x);
+        void mov (Operand dst, GP64 x);
+        void movb(Operand dst, GP64 x);
+
+        void add (GP64 dst, Operand x);
+        void sub (GP64 dst, Operand x);
+        void cmp (GP64 dst, Operand x);
+        void mov (GP64 dst, Operand x);
+        void movb(GP64 dst, Operand x);
+
+        // Disambiguators... choice is arbitrary (but generates different code!).
+        void add (GP64 dst, GP64 x) { this->add (Operand(dst), x); }
+        void sub (GP64 dst, GP64 x) { this->sub (Operand(dst), x); }
+        void cmp (GP64 dst, GP64 x) { this->cmp (Operand(dst), x); }
+        void mov (GP64 dst, GP64 x) { this->mov (Operand(dst), x); }
+        void movb(GP64 dst, GP64 x) { this->movb(Operand(dst), x); }
+
+        void movzbq(GP64 dst, Operand x);  // dst = x, uint8_t  -> int
+        void movzwq(GP64 dst, Operand x);  // dst = x, uint16_t -> int
 
         // aarch64
 
@@ -299,14 +318,16 @@ namespace skvm {
         enum W { W0, W1 };      // Are the lanes 64-bit (W1) or default (W0)?  Intel Vol 2A 2.3.5.5
         enum L { L128, L256 };  // Is this a 128- or 256-bit operation?        Intel Vol 2A 2.3.6.2
 
+        // Helpers for vector instructions.
         void op(int prefix, int map, int opcode, int dst, int x, Operand y, W,L);
-
         void op(int p, int m, int o, Ymm d, Ymm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L256); }
         void op(int p, int m, int o, Ymm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L256); }
         void op(int p, int m, int o, Xmm d, Xmm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L128); }
         void op(int p, int m, int o, Xmm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L128); }
 
-        void op(int opcode, int opcode_ext, GP64 d, int imm);
+        // Helpers for GP64 instructions.
+        void op(int opcode, Operand dst, GP64 x);
+        void op(int opcode, int opcode_ext, Operand dst, int imm);
 
         void jump(uint8_t condition, Label*);
         int disp32(Label*);
