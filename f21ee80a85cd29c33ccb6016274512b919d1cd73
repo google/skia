@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b93bf853_8a13a67d",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-16T19:49:42Z",
+      "side": 1,
+      "message": "nice -- clearly a different motivation (efficiency) than the warning on invert (unchanged param), but I like.",
+      "range": {
+        "startLine": 326,
+        "startChar": 10,
+        "endLine": 326,
+        "endChar": 31
+      },
+      "revId": "f21ee80a85cd29c33ccb6016274512b919d1cd73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
