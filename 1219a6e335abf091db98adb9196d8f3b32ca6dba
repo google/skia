@@ -22,6 +22,53 @@
       "revId": "1219a6e335abf091db98adb9196d8f3b32ca6dba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f58765ff_97789397",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-16T14:51:25Z",
+      "side": 1,
+      "message": "I think for now this is fine. When image filter implementations make better use of the proxy and layer coordinate space utilities, this can be made cleaner.",
+      "parentUuid": "fe44e0af_a03ebb29",
+      "range": {
+        "startLine": 466,
+        "startChar": 82,
+        "endLine": 466,
+        "endChar": 93
+      },
+      "revId": "1219a6e335abf091db98adb9196d8f3b32ca6dba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec0a7046_ef85f075",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-16T14:51:25Z",
+      "side": 1,
+      "message": "Big improvement on readability compared to the left side here!",
+      "range": {
+        "startLine": 605,
+        "startChar": 4,
+        "endLine": 617,
+        "endChar": 75
+      },
+      "revId": "1219a6e335abf091db98adb9196d8f3b32ca6dba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
