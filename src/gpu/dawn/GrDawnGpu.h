@@ -12,6 +12,7 @@
 
 #include "dawn/webgpu_cpp.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
@@ -201,6 +202,8 @@ private:
 
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
     std::unordered_map<GrSamplerState, wgpu::Sampler, SamplerHash> fSamplers;
+
+    GrFinishCallbacks         fFinishCallbacks;
 
     typedef GrGpu INHERITED;
 };
