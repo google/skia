@@ -31,14 +31,12 @@ bool GrDawnFormatIsRenderable(wgpu::TextureFormat format) {
 bool GrColorTypeToDawnFormat(GrColorType ct, wgpu::TextureFormat* format) {
     switch (ct) {
         case GrColorType::kRGBA_8888:
-        case GrColorType::kABGR_4444:
-        case GrColorType::kBGR_565:
-        case GrColorType::kGray_8:
             *format = wgpu::TextureFormat::RGBA8Unorm;
             return true;
         case GrColorType::kBGRA_8888:
             *format = wgpu::TextureFormat::BGRA8Unorm;
             return true;
+        case GrColorType::kGray_8:
         case GrColorType::kAlpha_8:
             *format = wgpu::TextureFormat::R8Unorm;
             return true;
