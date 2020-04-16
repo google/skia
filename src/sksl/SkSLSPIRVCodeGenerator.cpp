@@ -1830,15 +1830,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Type intfStruct(-1, name, fields);
             int binding;
             int set;
-#ifdef SK_VULKAN
-            const GrVkCaps* vkCaps = fProgram.fSettings.fVkCaps;
-            SkASSERT(vkCaps);
-            binding = vkCaps->getFragmentUniformBinding();
-            set = vkCaps->getFragmentUniformSet();
-#else
-            binding = 0;
-            set = 0;
-#endif
+            binding = fProgram.fSettings.fRTHeightBinding;
+            set = fProgram.fSettings.fRTHeightBinding;
+
             Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
                           Layout::CType::kDefault);
