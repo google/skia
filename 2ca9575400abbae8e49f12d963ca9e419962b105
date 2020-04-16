@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80b2494e_c5101c00",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1685,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-16T18:37:19Z",
+      "side": 1,
+      "message": "This change is required bc, with the other change which frees the backend textures, Vulkan was \nemitting a \"some stuff is getting freed while it is still in use\" error.",
+      "range": {
+        "startLine": 1677,
+        "startChar": 0,
+        "endLine": 1685,
+        "endChar": 81
+      },
+      "revId": "2ca9575400abbae8e49f12d963ca9e419962b105",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9ca1759_036566f9",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-16T18:37:19Z",
+      "side": 1,
+      "message": "This change is required bc Vulkan was emitting a \"some stuff ain\u0027t getting freed\" error.\n\nNulling out the \u0027fPromiseImageTexture\u0027 prevents the PromiseImageCallbackContext dtor from deleting the backend texture. Additionally, the SkPromiseImageTexture dtor itself doesn\u0027t delete the backend texture.\n\nI believe the intent was that the PromiseImageCallbackContext\u0027s dtor would act as a backup if\ndestroyBackendTexture were never called.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "2ca9575400abbae8e49f12d963ca9e419962b105",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
