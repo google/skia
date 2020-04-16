@@ -27,7 +27,7 @@ static bool has_coord_transforms(const GrPaint& paint) {
 
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
         GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
-        const GrShape& shape, GrPaint&& paint) {
+        const GrStyledShape& shape, GrPaint&& paint) {
     SkRect conservativeDevBounds;
     m.mapRect(&conservativeDevBounds, shape.bounds());
 
@@ -49,10 +49,10 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
         croppedDevPath.transform(m, &croppedDevPath);
 
         SkIRect cropBox = clipIBounds;
-        GrShape croppedDevShape;
+        GrStyledShape croppedDevShape;
         if (stroke.isFillStyle()) {
             GrCoverageCountingPathRenderer::CropPath(croppedDevPath, cropBox, &croppedDevPath);
-            croppedDevShape = GrShape(croppedDevPath);
+            croppedDevShape = GrStyledShape(croppedDevPath);
             conservativeDevBounds = croppedDevShape.bounds();
         } else {
             int r = SkScalarCeilToInt(conservativeInflationRadius);
@@ -60,7 +60,7 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
             GrCoverageCountingPathRenderer::CropPath(croppedDevPath, cropBox, &croppedDevPath);
             SkStrokeRec devStroke = stroke;
             devStroke.setStrokeStyle(strokeDevWidth);
-            croppedDevShape = GrShape(croppedDevPath, GrStyle(devStroke, nullptr));
+            croppedDevShape = GrStyledShape(croppedDevPath, GrStyle(devStroke, nullptr));
             conservativeDevBounds = croppedDevPath.getBounds();
             conservativeDevBounds.outset(conservativeInflationRadius, conservativeInflationRadius);
         }
@@ -76,7 +76,7 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
 
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
         GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
-        const GrShape& shape, float strokeDevWidth, const SkRect& conservativeDevBounds,
+        const GrStyledShape& shape, float strokeDevWidth, const SkRect& conservativeDevBounds,
         GrPaint&& paint) {
     // The path itself should have been cropped if larger than kPathCropThreshold. If it had a
     // stroke, that would have further inflated its draw bounds.
@@ -97,8 +97,8 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
                                            maskDevIBounds, conservativeDevBounds, std::move(paint));
 }
 
-GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
-                                 const SkIRect& shapeConservativeIBounds,
+GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrStyledShape& shape,
+                                 float strokeDevWidth, const SkIRect& shapeConservativeIBounds,
                                  const SkIRect& maskDevIBounds, const SkRect& conservativeDevBounds,
                                  GrPaint&& paint)
         : GrDrawOp(ClassID())
@@ -127,7 +127,7 @@ GrCCDrawPathsOp::~GrCCDrawPathsOp() {
     }
 }
 
-GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
+GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrStyledShape& shape,
                                         float strokeDevWidth,
                                         const SkIRect& shapeConservativeIBounds,
                                         const SkIRect& maskDevIBounds, const SkPMColor4f& color)
@@ -182,7 +182,7 @@ GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
         // How transparent does a 1px stroke have to be in order to appear as thin as the real one?
         float coverage = fStrokeDevWidth;
 
-        fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
+        fShape = GrStyledShape(path, GrStyle(hairlineStroke, nullptr));
         fStrokeDevWidth = 1;
 
         // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.

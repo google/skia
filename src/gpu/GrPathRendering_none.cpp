@@ -53,4 +53,4 @@ std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext*,
                                             const GrScissorState&,
                                             sk_sp<const GrPath>) { return nullptr; }
 
-void GrPath::ComputeKey(const GrShape&, GrUniqueKey*, bool*) {}
+void GrPath::ComputeKey(const GrStyledShape&, GrUniqueKey*, bool*) {}

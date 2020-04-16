@@ -41,7 +41,7 @@
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/text/GrTextTarget.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkReadPixelsRec.h"
@@ -360,7 +360,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
 
     // A couple reasons we might need to call drawPath.
     if (paint.getMaskFilter() || paint.getPathEffect()) {
-        GrShape shape(rect, style);
+        GrStyledShape shape(rect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                              this->clip(), paint, this->localToDevice(), shape);
@@ -421,7 +421,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
     if (mf || style.pathEffect()) {
         // A path effect will presumably transform this rrect into something else.
-        GrShape shape(rrect, style);
+        GrStyledShape shape(rrect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                              this->clip(), paint, this->localToDevice(), shape);
@@ -474,8 +474,8 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     path.setFillType(SkPathFillType::kEvenOdd);
 
     // TODO: We are losing the possible mutability of the path here but this should probably be
-    // fixed by upgrading GrShape to handle DRRects.
-    GrShape shape(path, paint);
+    // fixed by upgrading GrStyledShape to handle DRRects.
+    GrStyledShape shape(path, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                          paint, this->localToDevice(), shape);
@@ -627,7 +627,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     }
 
     // TODO: losing possible mutability of 'origSrcPath' here
-    GrShape shape(origSrcPath, paint);
+    GrStyledShape shape(origSrcPath, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                          paint, this->localToDevice(), shape);
@@ -1153,4 +1153,3 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
                     GrStyle::SimpleFill(), &kDrawToStencil);
     return true;
 }
-

@@ -11,7 +11,7 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCCSTLList.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 class GrCCAtlas;
@@ -30,7 +30,7 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
     static std::unique_ptr<GrCCDrawPathsOp> Make(GrRecordingContext*, const SkIRect& clipIBounds,
-                                                 const SkMatrix&, const GrShape&, GrPaint&&);
+                                                 const SkMatrix&, const GrStyledShape&, GrPaint&&);
     ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawPathsOp"; }
@@ -80,12 +80,12 @@ private:
 
     static std::unique_ptr<GrCCDrawPathsOp> InternalMake(GrRecordingContext*,
                                                          const SkIRect& clipIBounds,
-                                                         const SkMatrix&, const GrShape&,
+                                                         const SkMatrix&, const GrStyledShape&,
                                                          float strokeDevWidth,
                                                          const SkRect& conservativeDevBounds,
                                                          GrPaint&&);
 
-    GrCCDrawPathsOp(const SkMatrix&, const GrShape&, float strokeDevWidth,
+    GrCCDrawPathsOp(const SkMatrix&, const GrStyledShape&, float strokeDevWidth,
                     const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
                     const SkRect& conservativeDevBounds, GrPaint&&);
 
@@ -96,7 +96,7 @@ private:
 
     class SingleDraw {
     public:
-        SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
+        SingleDraw(const SkMatrix&, const GrStyledShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
                    const SkPMColor4f&);
 
@@ -113,7 +113,7 @@ private:
         bool shouldCachePathMask(int maxRenderTargetSize) const;
 
         SkMatrix fMatrix;
-        GrShape fShape;
+        GrStyledShape fShape;
         float fStrokeDevWidth;
         const SkIRect fShapeConservativeIBounds;
         SkIRect fMaskDevIBounds;

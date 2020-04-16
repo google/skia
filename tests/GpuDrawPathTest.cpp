@@ -18,7 +18,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrPath.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>
@@ -136,25 +136,25 @@ DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
         GrUniqueKey key1, key2;
         // We expect these small paths to be keyed based on their data.
         bool isVolatile;
-        GrPath::ComputeKey(GrShape(path1, GrStyle::SimpleFill()), &key1, &isVolatile);
+        GrPath::ComputeKey(GrStyledShape(path1, GrStyle::SimpleFill()), &key1, &isVolatile);
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key1.isValid());
-        GrPath::ComputeKey(GrShape(path2, GrStyle::SimpleFill()), &key2, &isVolatile);
+        GrPath::ComputeKey(GrStyledShape(path2, GrStyle::SimpleFill()), &key2, &isVolatile);
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key1.isValid());
         REPORTER_ASSERT(reporter, key1 != key2);
         {
             GrUniqueKey tempKey;
             path1.setIsVolatile(true);
-            GrPath::ComputeKey(GrShape(path1, style), &key1, &isVolatile);
+            GrPath::ComputeKey(GrStyledShape(path1, style), &key1, &isVolatile);
             REPORTER_ASSERT(reporter, isVolatile);
             REPORTER_ASSERT(reporter, !tempKey.isValid());
         }
 
-        // Ensure that recreating the GrShape doesn't change the key.
+        // Ensure that recreating the GrStyledShape doesn't change the key.
         {
             GrUniqueKey tempKey;
-            GrPath::ComputeKey(GrShape(path2, GrStyle::SimpleFill()), &tempKey, &isVolatile);
+            GrPath::ComputeKey(GrStyledShape(path2, GrStyle::SimpleFill()), &tempKey, &isVolatile);
             REPORTER_ASSERT(reporter, key2 == tempKey);
         }
 
@@ -169,10 +169,10 @@ DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
 
         GrUniqueKey key3, key4;
         // These aren't marked volatile and so should have keys
-        GrPath::ComputeKey(GrShape(path3, style), &key3, &isVolatile);
+        GrPath::ComputeKey(GrStyledShape(path3, style), &key3, &isVolatile);
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key3.isValid());
-        GrPath::ComputeKey(GrShape(path4, style), &key4, &isVolatile);
+        GrPath::ComputeKey(GrStyledShape(path4, style), &key4, &isVolatile);
         REPORTER_ASSERT(reporter, !isVolatile);
         REPORTER_ASSERT(reporter, key4.isValid());
         REPORTER_ASSERT(reporter, key3 != key4);
@@ -180,7 +180,7 @@ DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
         {
             GrUniqueKey tempKey;
             path3.setIsVolatile(true);
-            GrPath::ComputeKey(GrShape(path3, style), &key1, &isVolatile);
+            GrPath::ComputeKey(GrStyledShape(path3, style), &key1, &isVolatile);
             REPORTER_ASSERT(reporter, isVolatile);
             REPORTER_ASSERT(reporter, !tempKey.isValid());
         }

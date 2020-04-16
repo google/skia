@@ -23,7 +23,7 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 
 namespace {
@@ -485,17 +485,17 @@ static void draw_texture_producer(GrContext* context,
                                     canUseTextureCoordsAsLocalCoords ? &src : nullptr);
         }
     } else {
-        // Must draw the mask filter as a GrShape. For now, this loses the per-edge AA information
-        // since it always draws with AA, but that is should not be noticeable since the mask filter
-        // is probably a blur.
-        GrShape shape;
+        // Must draw the mask filter as a GrStyledShape. For now, this loses the per-edge AA
+        // information since it always draws with AA, but that should not be noticeable since the
+        // mask filter is probably a blur.
+        GrStyledShape shape;
         if (dstClip) {
             // Represent it as an SkPath formed from the dstClip
             SkPath path;
             path.addPoly(dstClip, 4, true);
-            shape = GrShape(path);
+            shape = GrStyledShape(path);
         } else {
-            shape = GrShape(dst);
+            shape = GrStyledShape(dst);
         }
 
         GrBlurUtils::drawShapeWithMaskFilter(

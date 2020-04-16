@@ -6,7 +6,7 @@
  */
 
 #include "src/gpu/GrPath.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 
 static inline void write_style_key(uint32_t* key, const GrStyle& style)  {
     // Pass 1 for the scale since the GPU will apply the style not GrStyle::applyToPath().
@@ -14,7 +14,7 @@ static inline void write_style_key(uint32_t* key, const GrStyle& style)  {
 }
 
 
-void GrPath::ComputeKey(const GrShape& shape, GrUniqueKey* key, bool* outIsVolatile) {
+void GrPath::ComputeKey(const GrStyledShape& shape, GrUniqueKey* key, bool* outIsVolatile) {
     int geoCnt = shape.unstyledKeySize();
     int styleCnt = GrStyle::KeySize(shape.style(), GrStyle::Apply::kPathEffectAndStrokeRec);
     // This should only fail for an arbitrary path effect, and we should not have gotten

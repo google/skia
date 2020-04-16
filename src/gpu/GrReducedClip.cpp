@@ -24,7 +24,7 @@
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 
 /**
  * There are plenty of optimizations that could be added here. Maybe flips could be folded into
@@ -861,7 +861,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
                 clipPath.toggleInverseFillType();
             }
 
-            GrShape shape(clipPath, GrStyle::SimpleFill());
+            GrStyledShape shape(clipPath, GrStyle::SimpleFill());
             GrPathRenderer::CanDrawPathArgs canDrawArgs;
             canDrawArgs.fCaps = context->priv().caps();
             canDrawArgs.fProxy = renderTargetContext->asRenderTargetProxy();
@@ -906,7 +906,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
                                     GrAA(doStencilMSAA), element->getDeviceSpaceRect());
             } else {
                 if (!clipPath.isEmpty()) {
-                    GrShape shape(clipPath, GrStyle::SimpleFill());
+                    GrStyledShape shape(clipPath, GrStyle::SimpleFill());
                     if (canRenderDirectToStencil) {
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Get());
@@ -945,7 +945,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
                     stencil_device_rect(renderTargetContext, stencilClip, *pass,
                                         GrAA(doStencilMSAA), element->getDeviceSpaceRect());
                 } else {
-                    GrShape shape(clipPath, GrStyle::SimpleFill());
+                    GrStyledShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
                     paint.setXPFactory(GrDisableColorXPFactory::Get());
                     GrPathRenderer::DrawPathArgs args{context,

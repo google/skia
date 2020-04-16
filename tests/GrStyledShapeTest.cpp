@@ -12,31 +12,31 @@
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
 #include <initializer_list>
 #include <functional>
 #include <utility>
 
-uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
+uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
         return lp->getGenerationID();
     }
     return SkPath().getGenerationID();
 }
 
-bool GrShape::testingOnly_isPath() const {
+bool GrStyledShape::testingOnly_isPath() const {
     return Type::kPath == fType;
 }
 
-bool GrShape::testingOnly_isNonVolatilePath() const {
+bool GrStyledShape::testingOnly_isNonVolatilePath() const {
     return Type::kPath == fType && !fPathData.fPath.isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
 
-static bool make_key(Key* key, const GrShape& shape) {
+static bool make_key(Key* key, const GrStyledShape& shape) {
     int size = shape.unstyledKeySize();
     if (size <= 0) {
         key->reset(0);
@@ -95,7 +95,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     return true;
 }
 
-static bool can_interchange_winding_and_even_odd_fill(const GrShape& shape) {
+static bool can_interchange_winding_and_even_odd_fill(const GrStyledShape& shape) {
     SkPath path;
     shape.asPath(&path);
     if (shape.style().hasNonDashPathEffect()) {
@@ -107,14 +107,14 @@ static bool can_interchange_winding_and_even_odd_fill(const GrShape& shape) {
            (shape.style().isSimpleFill() && path.isConvex());
 }
 
-static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrShape& b,
+static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, const GrStyledShape& b,
                               const Key& keyA, const Key& keyB) {
-    // GrShape only respects the input winding direction and start point for rrect shapes
-    // when there is a path effect. Thus, if there are two GrShapes representing the same rrect
-    // but one has a path effect in its style and the other doesn't then asPath() and the unstyled
-    // key will differ. GrShape will have canonicalized the direction and start point for the shape
-    // without the path effect. If *both* have path effects then they should have both preserved
-    // the direction and starting point.
+    // GrStyledShape only respects the input winding direction and start point for rrect shapes
+    // when there is a path effect. Thus, if there are two GrStyledShapes representing the same
+    // rrect but one has a path effect in its style and the other doesn't then asPath() and the
+    // unstyled key will differ. GrStyledShape will have canonicalized the direction and start point
+    // for the shape without the path effect. If *both* have path effects then they should have both
+    // preserved the direction and starting point.
 
     // The asRRect() output params are all initialized just to silence compiler warnings about
     // uninitialized variables.
@@ -128,7 +128,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     bool aHasPE = a.style().hasPathEffect();
     bool bHasPE = b.style().hasPathEffect();
     bool allowSameRRectButDiffStartAndDir = (aIsRRect && bIsRRect) && (aHasPE != bHasPE);
-    // GrShape will close paths with simple fill style.
+    // GrStyledShape will close paths with simple fill style.
     bool allowedClosednessDiff = (a.style().isSimpleFill() != b.style().isSimpleFill());
     SkPath pathA, pathB;
     a.asPath(&pathA);
@@ -138,8 +138,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     // non-inverse fill type  (or vice versa).
     bool ignoreInversenessDifference = false;
     if (pathA.isInverseFillType() != pathB.isInverseFillType()) {
-        const GrShape* s1 = pathA.isInverseFillType() ? &a : &b;
-        const GrShape* s2 = pathA.isInverseFillType() ? &b : &a;
+        const GrStyledShape* s1 = pathA.isInverseFillType() ? &a : &b;
+        const GrStyledShape* s2 = pathA.isInverseFillType() ? &b : &a;
         bool canDropInverse1 = s1->style().isDashed();
         bool canDropInverse2 = s2->style().isDashed();
         ignoreInversenessDifference = (canDropInverse1 != canDropInverse2);
@@ -178,8 +178,9 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
             REPORTER_ASSERT(r, keyA != keyB);
         }
         if (allowedClosednessDiff) {
-            // GrShape will close paths with simple fill style. Make the non-filled path closed
-            // so that the comparision will succeed. Make sure both are closed before comparing.
+            // GrStyledShape will close paths with simple fill style. Make the non-filled path
+            // closed so that the comparision will succeed. Make sure both are closed before
+            // comparing.
             pA.close();
             pB.close();
         }
@@ -226,8 +227,9 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     REPORTER_ASSERT(r, ignoreInversenessDifference || a.inverseFilled() == b.inverseFilled());
 }
 
-static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, const GrShape& pe,
-                                    const GrShape& peStroke, const GrShape& full) {
+static void check_original_path_ids(skiatest::Reporter* r, const GrStyledShape& base,
+                                    const GrStyledShape& pe, const GrStyledShape& peStroke,
+                                    const GrStyledShape& full) {
     bool baseIsNonVolatilePath = base.testingOnly_isNonVolatilePath();
     bool peIsPath = pe.testingOnly_isPath();
     bool peStrokeIsPath = peStroke.testingOnly_isPath();
@@ -275,20 +277,23 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
     }
 }
 
-void test_inversions(skiatest::Reporter* r, const GrShape& shape, const Key& shapeKey) {
-    GrShape preserve = GrShape::MakeFilled(shape, GrShape::FillInversion::kPreserve);
+void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Key& shapeKey) {
+    GrStyledShape preserve = GrStyledShape::MakeFilled(
+            shape, GrStyledShape::FillInversion::kPreserve);
     Key preserveKey;
     make_key(&preserveKey, preserve);
 
-    GrShape flip = GrShape::MakeFilled(shape, GrShape::FillInversion::kFlip);
+    GrStyledShape flip = GrStyledShape::MakeFilled(shape, GrStyledShape::FillInversion::kFlip);
     Key flipKey;
     make_key(&flipKey, flip);
 
-    GrShape inverted = GrShape::MakeFilled(shape, GrShape::FillInversion::kForceInverted);
+    GrStyledShape inverted = GrStyledShape::MakeFilled(
+            shape, GrStyledShape::FillInversion::kForceInverted);
     Key invertedKey;
     make_key(&invertedKey, inverted);
 
-    GrShape noninverted = GrShape::MakeFilled(shape, GrShape::FillInversion::kForceNoninverted);
+    GrStyledShape noninverted = GrStyledShape::MakeFilled(
+            shape, GrStyledShape::FillInversion::kForceNoninverted);
     Key noninvertedKey;
     make_key(&noninvertedKey, noninverted);
 
@@ -306,7 +311,7 @@ void test_inversions(skiatest::Reporter* r, const GrShape& shape, const Key& sha
         check_equivalence(r, flip, inverted, flipKey, invertedKey);
     }
 
-    GrShape doubleFlip = GrShape::MakeFilled(flip, GrShape::FillInversion::kFlip);
+    GrStyledShape doubleFlip = GrStyledShape::MakeFilled(flip, GrStyledShape::FillInversion::kFlip);
     Key doubleFlipKey;
     make_key(&doubleFlipKey, doubleFlip);
     // It can be the case that the double flip has no key but preserve does. This happens when the
@@ -319,23 +324,23 @@ void test_inversions(skiatest::Reporter* r, const GrShape& shape, const Key& sha
 
 namespace {
 /**
- * Geo is a factory for creating a GrShape from another representation. It also answers some
- * questions about expected behavior for GrShape given the inputs.
+ * Geo is a factory for creating a GrStyledShape from another representation. It also answers some
+ * questions about expected behavior for GrStyledShape given the inputs.
  */
 class Geo {
 public:
     virtual ~Geo() {}
-    virtual GrShape makeShape(const SkPaint&) const = 0;
+    virtual GrStyledShape makeShape(const SkPaint&) const = 0;
     virtual SkPath path() const = 0;
     // These functions allow tests to check for special cases where style gets
-    // applied by GrShape in its constructor (without calling GrShape::applyStyle).
-    // These unfortunately rely on knowing details of GrShape's implementation.
+    // applied by GrStyledShape in its constructor (without calling GrStyledShape::applyStyle).
+    // These unfortunately rely on knowing details of GrStyledShape's implementation.
     // These predicates are factored out here to avoid littering the rest of the
-    // test code with GrShape implementation details.
+    // test code with GrStyledShape implementation details.
     virtual bool fillChangesGeom() const { return false; }
     virtual bool strokeIsConvertedToFill() const { return false; }
     virtual bool strokeAndFillIsConvertedToFill(const SkPaint&) const { return false; }
-    // Is this something we expect GrShape to recognize as something simpler than a path.
+    // Is this something we expect GrStyledShape to recognize as something simpler than a path.
     virtual bool isNonPath(const SkPaint& paint) const { return true; }
 };
 
@@ -349,8 +354,8 @@ public:
         return path;
     }
 
-    GrShape makeShape(const SkPaint& paint) const override {
-        return GrShape(fRect, paint);
+    GrStyledShape makeShape(const SkPaint& paint) const override {
+        return GrStyledShape(fRect, paint);
     }
 
     bool strokeAndFillIsConvertedToFill(const SkPaint& paint) const override {
@@ -368,8 +373,8 @@ class RRectGeo : public Geo {
 public:
     RRectGeo(const SkRRect& rrect) : fRRect(rrect) {}
 
-    GrShape makeShape(const SkPaint& paint) const override {
-        return GrShape(fRRect, paint);
+    GrStyledShape makeShape(const SkPaint& paint) const override {
+        return GrStyledShape(fRRect, paint);
     }
 
     SkPath path() const override {
@@ -404,11 +409,12 @@ public:
         return path;
     }
 
-    GrShape makeShape(const SkPaint& paint) const override {
-        return GrShape::MakeArc(fOval, fStartAngle, fSweepAngle, fUseCenter, GrStyle(paint));
+    GrStyledShape makeShape(const SkPaint& paint) const override {
+        return GrStyledShape::MakeArc(fOval, fStartAngle, fSweepAngle, fUseCenter, GrStyle(paint));
     }
 
-    // GrShape specializes when created from arc params but it doesn't recognize arcs from SkPath.
+    // GrStyledShape specializes when created from arc params but it doesn't recognize arcs from
+    // SkPath.
     bool isNonPath(const SkPaint& paint) const override { return false; }
 
 private:
@@ -434,8 +440,8 @@ public:
         }
     }
 
-    GrShape makeShape(const SkPaint& paint) const override {
-        return GrShape(fPath, paint);
+    GrStyledShape makeShape(const SkPaint& paint) const override {
+        return GrStyledShape(fPath, paint);
     }
 
     SkPath path() const override { return fPath; }
@@ -517,17 +523,18 @@ class TestCase {
 public:
     TestCase(const Geo& geo, const SkPaint& paint, skiatest::Reporter* r,
              SkScalar scale = SK_Scalar1)
-            : fBase(new GrShape(geo.makeShape(paint))) {
+            : fBase(new GrStyledShape(geo.makeShape(paint))) {
         this->init(r, scale);
     }
 
     template <typename... ShapeArgs>
-    TestCase(skiatest::Reporter* r, ShapeArgs... shapeArgs) : fBase(new GrShape(shapeArgs...)) {
+    TestCase(skiatest::Reporter* r, ShapeArgs... shapeArgs)
+            : fBase(new GrStyledShape(shapeArgs...)) {
         this->init(r, SK_Scalar1);
     }
 
-    TestCase(const GrShape& shape, skiatest::Reporter* r, SkScalar scale = SK_Scalar1)
-            : fBase(new GrShape(shape)) {
+    TestCase(const GrStyledShape& shape, skiatest::Reporter* r, SkScalar scale = SK_Scalar1)
+            : fBase(new GrStyledShape(shape)) {
         this->init(r, scale);
     }
 
@@ -548,9 +555,9 @@ public:
 
     void compare(skiatest::Reporter*, const TestCase& that, ComparisonExpecation) const;
 
-    const GrShape& baseShape() const { return *fBase; }
-    const GrShape& appliedPathEffectShape() const { return *fAppliedPE; }
-    const GrShape& appliedFullStyleShape() const { return *fAppliedFull; }
+    const GrStyledShape& baseShape() const { return *fBase; }
+    const GrStyledShape& appliedPathEffectShape() const { return *fAppliedPE; }
+    const GrStyledShape& appliedFullStyleShape() const { return *fAppliedFull; }
 
     // The returned array's count will be 0 if the key shape has no key.
     const Key& baseKey() const { return fBaseKey; }
@@ -559,7 +566,8 @@ public:
     const Key& appliedPathEffectThenStrokeKey() const { return fAppliedPEThenStrokeKey; }
 
 private:
-    static void CheckBounds(skiatest::Reporter* r, const GrShape& shape, const SkRect& bounds) {
+    static void CheckBounds(skiatest::Reporter* r, const GrStyledShape& shape,
+                            const SkRect& bounds) {
         SkPath path;
         shape.asPath(&path);
         // If the bounds are empty, the path ought to be as well.
@@ -577,9 +585,9 @@ private:
     }
 
     void init(skiatest::Reporter* r, SkScalar scale) {
-        fAppliedPE.reset(new GrShape);
-        fAppliedPEThenStroke.reset(new GrShape);
-        fAppliedFull.reset(new GrShape);
+        fAppliedPE.reset(new GrStyledShape);
+        fAppliedPEThenStroke.reset(new GrStyledShape);
+        fAppliedFull.reset(new GrStyledShape);
 
         *fAppliedPE = fBase->applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
         *fAppliedPEThenStroke =
@@ -634,7 +642,7 @@ private:
         styledBounds = fAppliedPE->styledBounds();
         CheckBounds(r, *fAppliedFull, styledBounds);
 
-        // Check that the same path is produced when style is applied by GrShape and GrStyle.
+        // Check that the same path is produced when style is applied by GrStyledShape and GrStyle.
         SkPath preStyle;
         SkPath postPathEffect;
         SkPath postAllStyle;
@@ -643,9 +651,10 @@ private:
         SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
         if (fBase->style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
                                                  scale)) {
-            // run postPathEffect through GrShape to get any geometry reductions that would have
-            // occurred to fAppliedPE.
-            GrShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr)).asPath(&postPathEffect);
+            // run postPathEffect through GrStyledShape to get any geometry reductions that would
+            // have occurred to fAppliedPE.
+            GrStyledShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr))
+                    .asPath(&postPathEffect);
 
             SkPath testPath;
             fAppliedPE->asPath(&testPath);
@@ -657,15 +666,15 @@ private:
             SkPath testPath;
             fAppliedFull->asPath(&testPath);
             if (fBase->style().hasPathEffect()) {
-                // Because GrShape always does two-stage application when there is a path effect
-                // there may be a reduction/canonicalization step between the path effect and
+                // Because GrStyledShape always does two-stage application when there is a path
+                // effect there may be a reduction/canonicalization step between the path effect and
                 // strokerec not reflected in postAllStyle since it applied both the path effect
                 // and strokerec without analyzing the intermediate path.
                 REPORTER_ASSERT(r, paths_fill_same(postAllStyle, testPath));
             } else {
-                // Make sure that postAllStyle sees any reductions/canonicalizations that GrShape
-                // would apply.
-                GrShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
+                // Make sure that postAllStyle sees any reductions/canonicalizations that
+                // GrStyledShape would apply.
+                GrStyledShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
                 REPORTER_ASSERT(r, testPath == postAllStyle);
             }
 
@@ -680,10 +689,10 @@ private:
         test_inversions(r, *fAppliedFull, fAppliedFullKey);
     }
 
-    std::unique_ptr<GrShape> fBase;
-    std::unique_ptr<GrShape> fAppliedPE;
-    std::unique_ptr<GrShape> fAppliedPEThenStroke;
-    std::unique_ptr<GrShape> fAppliedFull;
+    std::unique_ptr<GrStyledShape> fBase;
+    std::unique_ptr<GrStyledShape> fAppliedPE;
+    std::unique_ptr<GrStyledShape> fAppliedPEThenStroke;
+    std::unique_ptr<GrStyledShape> fAppliedFull;
 
     Key fBaseKey;
     Key fAppliedPEKey;
@@ -775,7 +784,7 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fPEHasValidKey = false;
     expectations.fStrokeApplies = false;
     fillCase.testExpectations(reporter, expectations);
-    // Test that another GrShape instance built from the same primitive is the same.
+    // Test that another GrStyledShape instance built from the same primitive is the same.
     make_TestCase(geo, fill, reporter)
         ->compare(reporter, fillCase, TestCase::kAllSame_ComparisonExpecation);
 
@@ -1017,7 +1026,7 @@ static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
     SkPaint hairline;
     hairline.setStrokeWidth(0);
     hairline.setStyle(SkPaint::kStroke_Style);
-    GrShape shape = geo.makeShape(hairline);
+    GrStyledShape shape = geo.makeShape(hairline);
     // The cap should only affect shapes that may be open.
     bool affectsStroke = !shape.knownToBeClosed();
     // Dashing adds ends that need caps.
@@ -1031,7 +1040,7 @@ static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
         affectsDashAndStroke);
 };
 
-static bool shape_known_not_to_have_joins(const GrShape& shape) {
+static bool shape_known_not_to_have_joins(const GrStyledShape& shape) {
     return shape.asLine(nullptr, nullptr) || shape.isEmpty();
 }
 
@@ -1039,10 +1048,10 @@ static void test_stroke_join(skiatest::Reporter* reporter, const Geo& geo) {
     SkPaint hairline;
     hairline.setStrokeWidth(0);
     hairline.setStyle(SkPaint::kStroke_Style);
-    GrShape shape = geo.makeShape(hairline);
-    // GrShape recognizes certain types don't have joins and will prevent the join type from
+    GrStyledShape shape = geo.makeShape(hairline);
+    // GrStyledShape recognizes certain types don't have joins and will prevent the join type from
     // affecting the style key.
-    // Dashing doesn't add additional joins. However, GrShape currently loses track of this
+    // Dashing doesn't add additional joins. However, GrStyledShape currently loses track of this
     // after applying the dash.
     bool affectsStroke = !shape_known_not_to_have_joins(shape);
     test_stroke_param_impl<SkPaint::Join>(
@@ -1067,7 +1076,7 @@ static void test_miter_limit(skiatest::Reporter* reporter, const Geo& geo) {
     SkPaint hairline;
     hairline.setStrokeWidth(0);
     hairline.setStyle(SkPaint::kStroke_Style);
-    GrShape shape = geo.makeShape(hairline);
+    GrStyledShape shape = geo.makeShape(hairline);
     bool mayHaveJoins = !shape_known_not_to_have_joins(shape);
 
     // The miter limit should affect stroked and dashed-stroked cases when the join type is
@@ -1186,7 +1195,7 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
     TestCase geoPEStrokeCase(geo, peStroke, reporter);
 
     // Check whether constructing the filled case would cause the base shape to have a different
-    // geometry (because of a geometric transformation upon initial GrShape construction).
+    // geometry (because of a geometric transformation upon initial GrStyledShape construction).
     if (geo.fillChangesGeom()) {
         fillGeoCase.compare(reporter, geoPECase, TestCase::kAllDifferent_ComparisonExpecation);
         fillGeoCase.compare(reporter, geoPEStrokeCase,
@@ -1308,8 +1317,8 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
     peCase.appliedFullStyleShape().asPath(&c);
     if (geo.isNonPath(pe)) {
         // RRect types can have a change in start index or direction after the PE is applied. This
-        // is because once the PE is applied, GrShape may canonicalize the dir and index since it
-        // is not germane to the styling any longer.
+        // is because once the PE is applied, GrStyledShape may canonicalize the dir and index since
+        // it is not germane to the styling any longer.
         // Instead we just check that the paths would fill the same both before and after styling.
         REPORTER_ASSERT(reporter, paths_fill_same(a, b));
         REPORTER_ASSERT(reporter, paths_fill_same(a, c));
@@ -1385,13 +1394,13 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
     };
 
     SkPath emptyPath;
-    GrShape emptyShape(emptyPath);
+    GrStyledShape emptyShape(emptyPath);
     Key emptyKey;
     make_key(&emptyKey, emptyShape);
     REPORTER_ASSERT(reporter, emptyShape.isEmpty());
 
     emptyPath.toggleInverseFillType();
-    GrShape invertedEmptyShape(emptyPath);
+    GrStyledShape invertedEmptyShape(emptyPath);
     Key invertedEmptyKey;
     make_key(&invertedEmptyKey, invertedEmptyShape);
     REPORTER_ASSERT(reporter, invertedEmptyShape.isEmpty());
@@ -1480,11 +1489,11 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
 
     // In general the path effect failure can cause some of the TestCase::compare() tests to fail
     // for at least two reasons: 1) We will initially treat the shape as unkeyable because of the
-    // path effect, but then when the path effect fails we can key it. 2) GrShape will change its
-    // mind about whether a unclosed rect is actually rect. The path effect initially bars us from
-    // closing it but after the effect fails we can (for the fill+pe case). This causes different
-    // routes through GrShape to have equivalent but different representations of the path (closed
-    // or not) but that fill the same.
+    // path effect, but then when the path effect fails we can key it. 2) GrStyledShape will change
+    // its mind about whether a unclosed rect is actually rect. The path effect initially bars us
+    // from closing it but after the effect fails we can (for the fill+pe case). This causes
+    // different routes through GrStyledShape to have equivalent but different representations of
+    // the path (closed or not) but that fill the same.
     SkPath a;
     SkPath b;
     fillCase.appliedPathEffectShape().asPath(&a);
@@ -1504,7 +1513,7 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 }
 
-DEF_TEST(GrShape_empty_shape, reporter) {
+DEF_TEST(GrStyledShape_empty_shape, reporter) {
     SkPath emptyPath;
     SkPath invertedEmptyPath;
     invertedEmptyPath.toggleInverseFillType();
@@ -1658,7 +1667,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     };
     static const SkPathDirection kSecondDirection = static_cast<SkPathDirection>(1);
     const int cnt = index(true, kSecondDirection, 7, static_cast<Style>(kStyleCnt - 1), true) + 1;
-    SkAutoTArray<GrShape> shapes(cnt);
+    SkAutoTArray<GrStyledShape> shapes(cnt);
     for (bool inverted : {false, true}) {
         for (SkPathDirection dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (unsigned start = 0; start < 8; ++start) {
@@ -1666,7 +1675,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                     for (bool dash : {false, true}) {
                         sk_sp<SkPathEffect> pe = dash ? dashEffect : nullptr;
                         shapes[index(inverted, dir, start, style, dash)] =
-                                GrShape(rrect, dir, start, SkToBool(inverted),
+                                GrStyledShape(rrect, dir, start, SkToBool(inverted),
                                         GrStyle(strokeRecs[style], std::move(pe)));
                     }
                 }
@@ -1678,42 +1687,43 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     // rest.
     static constexpr SkPathDirection kExamplesDir = SkPathDirection::kCW;
     static constexpr unsigned kExamplesStart = 0;
-    const GrShape& exampleFillCase = shapes[index(false, kExamplesDir, kExamplesStart, kFill,
+    const GrStyledShape& exampleFillCase = shapes[index(false, kExamplesDir, kExamplesStart, kFill,
                                                   false)];
     Key exampleFillCaseKey;
     make_key(&exampleFillCaseKey, exampleFillCase);
 
-    const GrShape& exampleStrokeAndFillCase = shapes[index(false, kExamplesDir, kExamplesStart,
-                                                           kStrokeAndFill, false)];
+    const GrStyledShape& exampleStrokeAndFillCase = shapes[index(false, kExamplesDir,
+                                                           kExamplesStart, kStrokeAndFill, false)];
     Key exampleStrokeAndFillCaseKey;
     make_key(&exampleStrokeAndFillCaseKey, exampleStrokeAndFillCase);
 
-    const GrShape& exampleInvFillCase = shapes[index(true, kExamplesDir, kExamplesStart, kFill,
-                                                     false)];
+    const GrStyledShape& exampleInvFillCase = shapes[index(true, kExamplesDir,
+                                                     kExamplesStart, kFill, false)];
     Key exampleInvFillCaseKey;
     make_key(&exampleInvFillCaseKey, exampleInvFillCase);
 
-    const GrShape& exampleInvStrokeAndFillCase = shapes[index(true, kExamplesDir, kExamplesStart,
-                                                              kStrokeAndFill, false)];
+    const GrStyledShape& exampleInvStrokeAndFillCase = shapes[index(true, kExamplesDir,
+                                                              kExamplesStart, kStrokeAndFill,
+                                                              false)];
     Key exampleInvStrokeAndFillCaseKey;
     make_key(&exampleInvStrokeAndFillCaseKey, exampleInvStrokeAndFillCase);
 
-    const GrShape& exampleStrokeCase = shapes[index(false, kExamplesDir, kExamplesStart, kStroke,
-                                                    false)];
+    const GrStyledShape& exampleStrokeCase = shapes[index(false, kExamplesDir, kExamplesStart,
+                                                    kStroke, false)];
     Key exampleStrokeCaseKey;
     make_key(&exampleStrokeCaseKey, exampleStrokeCase);
 
-    const GrShape& exampleInvStrokeCase = shapes[index(true, kExamplesDir, kExamplesStart, kStroke,
-                                                       false)];
+    const GrStyledShape& exampleInvStrokeCase = shapes[index(true, kExamplesDir, kExamplesStart,
+                                                       kStroke, false)];
     Key exampleInvStrokeCaseKey;
     make_key(&exampleInvStrokeCaseKey, exampleInvStrokeCase);
 
-    const GrShape& exampleHairlineCase = shapes[index(false, kExamplesDir, kExamplesStart,
+    const GrStyledShape& exampleHairlineCase = shapes[index(false, kExamplesDir, kExamplesStart,
                                                       kHairline, false)];
     Key exampleHairlineCaseKey;
     make_key(&exampleHairlineCaseKey, exampleHairlineCase);
 
-    const GrShape& exampleInvHairlineCase = shapes[index(true, kExamplesDir, kExamplesStart,
+    const GrStyledShape& exampleInvHairlineCase = shapes[index(true, kExamplesDir, kExamplesStart,
                                                          kHairline, false)];
     Key exampleInvHairlineCaseKey;
     make_key(&exampleInvHairlineCaseKey, exampleInvHairlineCase);
@@ -1794,11 +1804,12 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
         for (SkPathDirection dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (unsigned start = 0; start < 8; ++start) {
                 for (bool dash : {false, true}) {
-                    const GrShape& fillCase = shapes[index(inverted, dir, start, kFill, dash)];
+                    const GrStyledShape& fillCase = shapes[index(inverted, dir, start, kFill,
+                                                           dash)];
                     Key fillCaseKey;
                     make_key(&fillCaseKey, fillCase);
 
-                    const GrShape& strokeAndFillCase = shapes[index(inverted, dir, start,
+                    const GrStyledShape& strokeAndFillCase = shapes[index(inverted, dir, start,
                                                                     kStrokeAndFill, dash)];
                     Key strokeAndFillCaseKey;
                     make_key(&strokeAndFillCaseKey, strokeAndFillCase);
@@ -1815,9 +1826,10 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                     a.compare(r, b, TestCase::kAllSame_ComparisonExpecation);
                     c.compare(r, d, TestCase::kAllSame_ComparisonExpecation);
 
-                    const GrShape& strokeCase = shapes[index(inverted, dir, start, kStroke, dash)];
-                    const GrShape& hairlineCase = shapes[index(inverted, dir, start, kHairline,
-                                                               dash)];
+                    const GrStyledShape& strokeCase = shapes[index(inverted, dir, start, kStroke,
+                                                             dash)];
+                    const GrStyledShape& hairlineCase = shapes[index(inverted, dir, start,
+                                                               kHairline, dash)];
 
                     TestCase e(strokeCase, r);
                     TestCase g(hairlineCase, r);
@@ -1867,7 +1879,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     }
 }
 
-DEF_TEST(GrShape_lines, r) {
+DEF_TEST(GrStyledShape_lines, r) {
     static constexpr SkPoint kA { 1,  1};
     static constexpr SkPoint kB { 5, -9};
     static constexpr SkPoint kC {-3, 17};
@@ -1935,7 +1947,7 @@ DEF_TEST(GrShape_lines, r) {
     strokeAB.compare(r, hairlineAB, TestCase::kSameUpToStroke_ComparisonExpecation);
 
     // One of dashAB or dashBA should have the same line as strokeAB. It depends upon how
-    // GrShape canonicalizes line endpoints (when it can, i.e. when not dashed).
+    // GrStyledShape canonicalizes line endpoints (when it can, i.e. when not dashed).
     bool canonicalizeAsAB;
     SkPoint canonicalPts[2] {kA, kB};
     // Init these to suppress warnings.
@@ -1983,7 +1995,7 @@ DEF_TEST(GrShape_lines, r) {
 
 }
 
-DEF_TEST(GrShape_stroked_lines, r) {
+DEF_TEST(GrStyledShape_stroked_lines, r) {
     static constexpr SkScalar kIntervals1[] = {1.f, 0.f};
     auto dash1 = SkDashPathEffect::Make(kIntervals1, SK_ARRAY_COUNT(kIntervals1), 0.f);
     REPORTER_ASSERT(r, dash1);
@@ -2060,7 +2072,7 @@ DEF_TEST(GrShape_stroked_lines, r) {
     }
 }
 
-DEF_TEST(GrShape_short_path_keys, r) {
+DEF_TEST(GrStyledShape_short_path_keys, r) {
     SkPaint paints[4];
     paints[1].setStyle(SkPaint::kStroke_Style);
     paints[1].setStrokeWidth(5.f);
@@ -2076,8 +2088,8 @@ DEF_TEST(GrShape_short_path_keys, r) {
         volatileA.setIsVolatile(true);
         volatileB.setIsVolatile(true);
         for (const SkPaint& paint : paints) {
-            REPORTER_ASSERT(r, !GrShape(volatileA, paint).hasUnstyledKey());
-            REPORTER_ASSERT(r, !GrShape(volatileB, paint).hasUnstyledKey());
+            REPORTER_ASSERT(r, !GrStyledShape(volatileA, paint).hasUnstyledKey());
+            REPORTER_ASSERT(r, !GrStyledShape(volatileB, paint).hasUnstyledKey());
             for (PathGeo::Invert invert : {PathGeo::Invert::kNo, PathGeo::Invert::kYes}) {
                 TestCase caseA(PathGeo(pathA, invert), paint, r);
                 TestCase caseB(PathGeo(pathB, invert), paint, r);
@@ -2124,7 +2136,7 @@ DEF_TEST(GrShape_short_path_keys, r) {
     compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
 }
 
-DEF_TEST(GrShape, reporter) {
+DEF_TEST(GrStyledShape, reporter) {
     SkTArray<std::unique_ptr<Geo>> geos;
     SkTArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
 
@@ -2262,7 +2274,7 @@ DEF_TEST(GrShape, reporter) {
     test_volatile_path(reporter, PathGeo(SkPath(), PathGeo::Invert::kNo));
 }
 
-DEF_TEST(GrShape_arcs, reporter) {
+DEF_TEST(GrStyledShape_arcs, reporter) {
     SkStrokeRec roundStroke(SkStrokeRec::kFill_InitStyle);
     roundStroke.setStrokeStyle(2.f);
     roundStroke.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kRound_Join, 1.f);
@@ -2286,7 +2298,8 @@ DEF_TEST(GrShape_arcs, reporter) {
 
     for (const auto& style : styles) {
         // An empty rect never draws anything according to SkCanvas::drawArc() docs.
-        TestCase emptyArc(GrShape::MakeArc(SkRect::MakeEmpty(), 0, 90.f, false, style), reporter);
+        TestCase emptyArc(GrStyledShape::MakeArc(SkRect::MakeEmpty(), 0, 90.f, false, style),
+                                                 reporter);
         TestCase emptyPath(reporter, SkPath(), style);
         emptyArc.compare(reporter, emptyPath, TestCase::kAllSame_ComparisonExpecation);
 
@@ -2294,14 +2307,15 @@ DEF_TEST(GrShape_arcs, reporter) {
         static constexpr SkRect kOval2{50, 0, 100, 50};
         // Test that swapping starting and ending angle doesn't change the shape unless the arc
         // has a path effect. Also test that different ovals produce different shapes.
-        TestCase arc1CW(GrShape::MakeArc(kOval1, 0, 90.f, false, style), reporter);
-        TestCase arc1CCW(GrShape::MakeArc(kOval1, 90.f, -90.f, false, style), reporter);
+        TestCase arc1CW(GrStyledShape::MakeArc(kOval1, 0, 90.f, false, style), reporter);
+        TestCase arc1CCW(GrStyledShape::MakeArc(kOval1, 90.f, -90.f, false, style), reporter);
 
-        TestCase arc1CWWithCenter(GrShape::MakeArc(kOval1, 0, 90.f, true, style), reporter);
-        TestCase arc1CCWWithCenter(GrShape::MakeArc(kOval1, 90.f, -90.f, true, style), reporter);
+        TestCase arc1CWWithCenter(GrStyledShape::MakeArc(kOval1, 0, 90.f, true, style), reporter);
+        TestCase arc1CCWWithCenter(GrStyledShape::MakeArc(kOval1, 90.f, -90.f, true, style),
+                                   reporter);
 
-        TestCase arc2CW(GrShape::MakeArc(kOval2, 0, 90.f, false, style), reporter);
-        TestCase arc2CWWithCenter(GrShape::MakeArc(kOval2, 0, 90.f, true, style), reporter);
+        TestCase arc2CW(GrStyledShape::MakeArc(kOval2, 0, 90.f, false, style), reporter);
+        TestCase arc2CWWithCenter(GrStyledShape::MakeArc(kOval2, 0, 90.f, true, style), reporter);
 
         auto reversedExepectations = style.hasPathEffect()
                                              ? TestCase::kAllDifferent_ComparisonExpecation
@@ -2314,14 +2328,14 @@ DEF_TEST(GrShape_arcs, reporter) {
                                  TestCase::kAllDifferent_ComparisonExpecation);
 
         // Test that two arcs that start at the same angle but specified differently are equivalent.
-        TestCase arc3A(GrShape::MakeArc(kOval1, 224.f, 73.f, false, style), reporter);
-        TestCase arc3B(GrShape::MakeArc(kOval1, 224.f - 360.f, 73.f, false, style), reporter);
+        TestCase arc3A(GrStyledShape::MakeArc(kOval1, 224.f, 73.f, false, style), reporter);
+        TestCase arc3B(GrStyledShape::MakeArc(kOval1, 224.f - 360.f, 73.f, false, style), reporter);
         arc3A.compare(reporter, arc3B, TestCase::kAllDifferent_ComparisonExpecation);
 
         // Test that an arc that traverses the entire oval (and then some) is equivalent to the
         // oval itself unless there is a path effect.
-        TestCase ovalArc(GrShape::MakeArc(kOval1, 150.f, -790.f, false, style), reporter);
-        TestCase oval(GrShape(SkRRect::MakeOval(kOval1)), reporter);
+        TestCase ovalArc(GrStyledShape::MakeArc(kOval1, 150.f, -790.f, false, style), reporter);
+        TestCase oval(GrStyledShape(SkRRect::MakeOval(kOval1)), reporter);
         auto ovalExpectations = style.hasPathEffect() ? TestCase::kAllDifferent_ComparisonExpecation
                                                       : TestCase::kAllSame_ComparisonExpecation;
         if (style.strokeRec().getWidth() >= 0 && style.strokeRec().getCap() != SkPaint::kButt_Cap) {
@@ -2331,7 +2345,8 @@ DEF_TEST(GrShape_arcs, reporter) {
 
         // If the the arc starts/ends at the center then it is then equivalent to the oval only for
         // simple fills.
-        TestCase ovalArcWithCenter(GrShape::MakeArc(kOval1, 304.f, 1225.f, true, style), reporter);
+        TestCase ovalArcWithCenter(GrStyledShape::MakeArc(kOval1, 304.f, 1225.f, true, style),
+                                   reporter);
         ovalExpectations = style.isSimpleFill() ? TestCase::kAllSame_ComparisonExpecation
                                                 : TestCase::kAllDifferent_ComparisonExpecation;
         ovalArcWithCenter.compare(reporter, oval, ovalExpectations);
