@@ -142,6 +142,7 @@ tests_sources = [
   "$_tests/LRUCacheTest.cpp",
   "$_tests/LayerDrawLooperTest.cpp",
   "$_tests/LazyProxyTest.cpp",
+  "$_tests/M44Test.cpp",
   "$_tests/MD5Test.cpp",
   "$_tests/MallocPixelRefTest.cpp",
   "$_tests/MaskCacheTest.cpp",
