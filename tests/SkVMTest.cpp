@@ -1069,6 +1069,23 @@ DEF_TEST(SkVM_Assembler, r) {
 
         a.add(A::rsi, 128);     // Requires 4 byte immediate.
         a.sub(A::r8 , 1000000);
+
+        a.add(A::Mem{A::rsi}, 7);                       // addq $7, (%rsi)
+        a.add(A::Mem{A::rsi, 12}, 7);                   // addq $7, 12(%rsi)
+        a.add(A::Mem{A::rsp, 12}, 7);                   // addq $7, 12(%rsp)
+        a.add(A::Mem{A::rsp, 12, A::rax, A::FOUR}, 7);  // addq $7, 12(%rsp,%rax,4)
+        a.add(A::Mem{A::r11, 12, A::r8 , A::TWO }, 7);  // addq $7, 12(%r11,%r8,2)
+        a.add(A::Mem{A::r11, 12, A::rax}         , 7);  // addq $7, 12(%r11,%rax)
+        a.add(A::Mem{A::rax, 12, A::r11}         , 7);  // addq $7, 12(%rax,%r11)
+
+        a.sub(A::Mem{A::rax, 12, A::r11}         , 7);  // subq $7, 12(%rax,%r11)
+
+        a.add(       A::rax     , A::rcx);              // addq %rcx, %rax
+        a.add(A::Mem{A::rax}    , A::rcx);              // addq %rcx, (%rax)
+        a.add(A::Mem{A::rax, 12}, A::rcx);              // addq %rcx, 12(%rax)
+        a.add(A::rcx, A::Mem{A::rax, 12});              // addq 12(%rax), %rcx
+
+        a.sub(A::rcx, A::Mem{A::rax, 12});              // subq 12(%rax), %rcx
     },{
         0x48, 0x83, 0b11'000'000, 0x08,
         0x48, 0x83, 0b11'101'000, 0x20,
@@ -1081,6 +1098,22 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0x48, 0x81, 0b11'000'110, 0x80, 0x00, 0x00, 0x00,
         0x49, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
+
+        0x48,0x83,0x06,0x07,
+        0x48,0x83,0x46,0x0c,0x07,
+        0x48,0x83,0x44,0x24,0x0c,0x07,
+        0x48,0x83,0x44,0x84,0x0c,0x07,
+        0x4b,0x83,0x44,0x43,0x0c,0x07,
+        0x49,0x83,0x44,0x03,0x0c,0x07,
+        0x4a,0x83,0x44,0x18,0x0c,0x07,
+
+        0x4a,0x83,0x6c,0x18,0x0c,0x07,
+
+        0x48,0x01,0xc8,
+        0x48,0x01,0x08,
+        0x48,0x01,0x48,0x0c,
+        0x48,0x03,0x48,0x0c,
+        0x48,0x2b,0x48,0x0c,
     });
 
 
@@ -1223,7 +1256,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.jl (&l);
         a.jc (&l);
 
-        a.cmp(A::rdx, 0);
+        a.cmp(A::rdx, (int)0);
         a.cmp(A::rax, 12);
         a.cmp(A::r14, 2000000000);
     },{
