@@ -119,7 +119,8 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fCmdBuffer(nullptr)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
-        , fDisconnected(false) {
+        , fDisconnected(false)
+        , fFinishCallbacks(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
 }
@@ -189,23 +190,13 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
 
 void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    SkASSERT(this->caps()->fenceSyncSupport());
-    FinishCallback callback;
-    callback.fCallback = finishedProc;
-    callback.fContext = finishedContext;
-    callback.fFence = this->insertFence();
-    fFinishCallbacks.push_back(callback);
+    fFinishCallbacks.add(finishedProc, finishedContext);
 }
 
 bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu) {
         this->submitCommandBuffer(kForce_SyncQueue);
-        for (const auto& cb : fFinishCallbacks) {
-            cb.fCallback(cb.fContext);
-            this->deleteFence(cb.fFence);
-        }
-        fFinishCallbacks.clear();
+        fFinishCallbacks.callAll(true);
     } else {
         this->submitCommandBuffer(kSkip_SyncQueue);
     }
@@ -213,13 +204,7 @@ bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
 }
 
 void GrMtlGpu::checkFinishProcs() {
-    // Bail after the first unfinished sync since we expect they signal in the order inserted.
-    while (!fFinishCallbacks.empty() && this->waitFence(fFinishCallbacks.front().fFence,
-                                                       /* timeout = */ 0)) {
-        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
-        this->deleteFence(fFinishCallbacks.front().fFence);
-        fFinishCallbacks.pop_front();
-    }
+    fFinishCallbacks.check();
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
@@ -1324,11 +1309,11 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
     return (GrFence) cfFence;
 }
 
-bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrMtlGpu::waitFence(GrFence fence) {
     const void* cfFence = (const void*) fence;
     dispatch_semaphore_t semaphore = (__bridge dispatch_semaphore_t)cfFence;
 
-    long result = dispatch_semaphore_wait(semaphore, timeout);
+    long result = dispatch_semaphore_wait(semaphore, 0);
 
     return !result;
 }
