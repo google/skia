@@ -323,7 +323,7 @@ public:
      */
     bool SK_WARN_UNUSED_RESULT invert(SkM44* inverse) const;
 
-    SkM44 transpose() const;
+    SkM44 SK_WARN_UNUSED_RESULT transpose() const;
 
     void dump() const;
 
@@ -379,8 +379,6 @@ private:
      *  3  7 11  15        0 0 0 1
      */
     SkScalar fMat[16];
-
-    double determinant() const;
 
     friend class SkMatrixPriv;
 };
