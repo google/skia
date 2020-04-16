@@ -88,6 +88,10 @@ private:
 
         void destroyBackendTexture() {
             SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
+
+            if (fPromiseImageTexture) {
+                fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
+            }
             fPromiseImageTexture = nullptr;
         }
 
