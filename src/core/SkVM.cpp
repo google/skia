@@ -25,6 +25,7 @@
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
+
     #include <llvm/IR/Verifier.h>
     #include <llvm/Support/TargetSelect.h>
 
@@ -289,7 +290,7 @@ namespace skvm {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        std::vector<OptimizedInstruction> optimized = this->optimize();
+        std::vector<OptimizedInstruction> optimized = this->optimize(true);
         o->writeDecAsText(optimized.size());
         o->writeText(" values (originally ");
         o->writeDecAsText(fProgram.size());
@@ -2970,6 +2971,16 @@ namespace skvm {
         }
         const int K = 8;
         const bool stack_only = mode == JITMode::Stack;
+        std::vector<int> uses;
+        if (stack_only) {
+            uses.resize(instructions.size());
+            for (const OptimizedInstruction& inst : instructions) {
+                for (Val arg : {inst.x, inst.y, inst.z}) {
+                    if (arg != NA) { uses[arg]++; }
+                }
+            }
+        }
+
         A::GP64 N        = A::rdi,
                 scratch  = A::rax,
                 scratch2 = A::r11,
@@ -3009,9 +3020,6 @@ namespace skvm {
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
         auto emit = [&](Val id, bool scalar) {
-            if (stack_only) {
-                SkASSERT(avail == all_regs);
-            }
 
             const OptimizedInstruction& inst = instructions[id];
             Op op = inst.op;
@@ -3038,6 +3046,10 @@ namespace skvm {
 
             bool ok = true;   // Set to false if we need to assign a register and none's available.
 
+            auto on_stack = [&](Val arg) {
+                return uses[arg] > 1 || (hoisted(arg) && instructions[arg].used_in_loop);
+            };
+
             if (stack_only) {
                 // Move each unique argument into a temporary register.
                 auto load_from_stack = [&](Val arg) {
@@ -3057,9 +3069,10 @@ namespace skvm {
                         ok = false;
                     }
                 };
-                if (x != NA                    ) { load_from_stack(x); }
-                if (y != NA && y != x          ) { load_from_stack(y); }
-                if (z != NA && z != x && z != y) { load_from_stack(z); }
+
+                if (x != NA && on_stack(x)                    ) { load_from_stack(x); }
+                if (y != NA && y != x && on_stack(y)          ) { load_from_stack(y); }
+                if (z != NA && z != x && z != y && on_stack(z)) { load_from_stack(z); }
             }
 
             // First lock in how to choose tmp if we need to based on the registers
@@ -3467,20 +3480,19 @@ namespace skvm {
             }
 
             if (stack_only) {
-                if (dst_is_set) {
+                if (has_side_effect(instructions[id].op) || on_stack(id)) {
                 #if defined(__x86_64__)
-                    a->vmovups(id*K*4, r[id]);
+                    if (!has_side_effect(instructions[id].op)) {
+                        a->vmovups(id * K * 4, r[id]);
+                    }
                 #else
                     SkASSERT(false);  // TODO
                 #endif
                     avail |= 1 << r[id];
                 }
-                for (Val arg : {x,y,z}) {
-                    if (arg != NA) {
-                        avail |= 1 << r[arg];
-                    }
-                }
-                SkASSERT(avail == all_regs);
+                if (x != NA && on_stack(x)                    ) { avail |= 1 << r[x]; }
+                if (y != NA && y != x && on_stack(y)          ) { avail |= 1 << r[y]; }
+                if (z != NA && z != x && z != y && on_stack(z)) { avail |= 1 << r[z]; }
             }
 
             // Calls to tmp() or dst() might have flipped this false from its default true state.
@@ -3593,7 +3605,7 @@ namespace skvm {
         // then again without if that fails (lower register pressure).
         JITMode mode = JITMode::Register;
         bool ok = false;
-        for (JITMode m : {JITMode::Register, JITMode::RegisterNoHoist, JITMode::Stack}) {
+        for (JITMode m : {/*JITMode::Register, JITMode::RegisterNoHoist,*/ JITMode::Stack}) {
             if (this->jit(instructions, m, &a)) {
                 ok = true;
                 mode = m;
