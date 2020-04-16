@@ -1741,9 +1741,28 @@ namespace skvm {
     }
     void Assembler::ret() { this->byte(0xc3); }
 
-    // Common instruction building for 64-bit opcodes with an immediate argument.
-    void Assembler::op(int opcode, int opcode_ext, GP64 dst, int imm) {
-        opcode |= 0b0000'0001;   // low bit set for 64-bit operands
+    void Assembler::op(int opcode, Operand dst, GP64 x) {
+        if (dst.kind == Operand::REG) {
+            this->byte(rex(W1,x>>3,0,dst.reg>>3));
+            this->bytes(&opcode, SkTFitsIn<uint8_t>(opcode) ? 1 : 2);
+            this->byte(mod_rm(Mod::Direct, x, dst.reg&7));
+        } else {
+            SkASSERT(dst.kind == Operand::MEM);
+            const Mem& m = dst.mem;
+            const bool need_SIB = m.base  == rsp
+                               || m.index != rsp;
+
+            this->byte(rex(W1,x>>3,m.index>>3,m.base>>3));
+            this->bytes(&opcode, SkTFitsIn<uint8_t>(opcode) ? 1 : 2);
+            this->byte(mod_rm(mod(m.disp), x&7, (need_SIB ? rsp : m.base)&7));
+            if (need_SIB) {
+                this->byte(sib(m.scale, m.index&7, m.base&7));
+            }
+            this->bytes(&m.disp, imm_bytes(mod(m.disp)));
+        }
+    }
+
+    void Assembler::op(int opcode, int opcode_ext, Operand dst, int imm) {
         opcode |= 0b1000'0000;   // top bit set for instructions with any immediate
 
         int imm_bytes = 4;
@@ -1752,22 +1771,39 @@ namespace skvm {
             opcode |= 0b0000'0010;  // second bit set for 8-bit immediate, else 32-bit.
         }
 
-        this->byte(rex(1,0,0,dst>>3));
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
+        this->op(opcode, dst, (GP64)opcode_ext);
         this->bytes(&imm, imm_bytes);
     }
 
-    void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
-    void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
-    void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
+    void Assembler::add(Operand dst, int imm) { this->op(0x01,0b000, dst,imm); }
+    void Assembler::sub(Operand dst, int imm) { this->op(0x01,0b101, dst,imm); }
+    void Assembler::cmp(Operand dst, int imm) { this->op(0x01,0b111, dst,imm); }
 
-    void Assembler::movq(GP64 dst, GP64 src, int off) {
-        this->byte(rex(1,dst>>3,0,src>>3));
-        this->byte(0x8b);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
+    // These don't work quite like the other instructions with immediates:
+    // these immediates are always fixed size at 4 bytes or 1 byte.
+    void Assembler::mov(Operand dst, int imm) {
+        this->op(0xC7,dst,(GP64)0b000);
+        this->word(imm);
     }
+    void Assembler::movb(Operand dst, int imm) {
+        this->op(0xC6,dst,(GP64)0b000);
+        this->byte(imm);
+    }
+
+    void Assembler::add (Operand dst, GP64 x) { this->op(0x01, dst,x); }
+    void Assembler::sub (Operand dst, GP64 x) { this->op(0x29, dst,x); }
+    void Assembler::cmp (Operand dst, GP64 x) { this->op(0x39, dst,x); }
+    void Assembler::mov (Operand dst, GP64 x) { this->op(0x89, dst,x); }
+    void Assembler::movb(Operand dst, GP64 x) { this->op(0x88, dst,x); }
+
+    void Assembler::add (GP64 dst, Operand x) { this->op(0x03, x,dst); }
+    void Assembler::sub (GP64 dst, Operand x) { this->op(0x2B, x,dst); }
+    void Assembler::cmp (GP64 dst, Operand x) { this->op(0x3B, x,dst); }
+    void Assembler::mov (GP64 dst, Operand x) { this->op(0x8B, x,dst); }
+    void Assembler::movb(GP64 dst, Operand x) { this->op(0x8A, x,dst); }
+
+    void Assembler::movzbq(GP64 dst, Operand x) { this->op(0xB60F, x,dst); }
+    void Assembler::movzwq(GP64 dst, Operand x) { this->op(0xB70F, x,dst); }
 
     void Assembler::vpaddd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
     void Assembler::vpsubd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
@@ -1953,34 +1989,6 @@ namespace skvm {
 
     void Assembler::vmovd(Operand dst, Xmm src) { this->op(0x66,0x0f,0x7e, src,dst); }
     void Assembler::vmovd(Xmm dst, Operand src) { this->op(0x66,0x0f,0x6e, dst,src); }
-
-    void Assembler::movzbl(GP64 dst, GP64 src, int off) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,dst>>3,0,src>>3));
-        }
-        this->byte(0x0f);
-        this->byte(0xb6);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
-    void Assembler::movzwl(GP64 dst, GP64 src, int off) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,dst>>3,0,src>>3));
-        }
-        this->byte(0x0f);
-        this->byte(0xb7);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
-
-
-    void Assembler::movb(GP64 dst, GP64 src) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,src>>3,0,dst>>3));
-        }
-        this->byte(0x88);
-        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
-    }
 
     void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x0f,0xc4, dst,src,y);
@@ -3067,7 +3075,7 @@ namespace skvm {
                     auto base  = scratch,
                          index = scratch2;
                     // Our gather base pointer is immz bytes off of uniform immy.
-                    a->movq(base, arg[immy], immz);
+                    a->mov(base, A::Mem{arg[immy], immz});
 
                     // Grab our index from lane 0 of the index argument.
                     a->vmovd(index, (A::Xmm)r[x]);
@@ -3103,18 +3111,18 @@ namespace skvm {
 
                     // Our gather base pointer is immz bytes off of uniform immy.
                     auto base = scratch;
-                    a->movq(base, arg[immy], immz);
+                    a->mov(base, A::Mem{arg[immy], immz});
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
                     a->vgatherdps(dst(), A::FOUR, index, base, mask);
                 }
                 break;
 
-                case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
+                case Op::uniform8: a->movzbq(scratch, A::Mem{arg[immy], immz});
                                    a->vmovd((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), dst());
                                    break;
 
-                case Op::uniform16: a->movzwl(scratch, arg[immy], immz);
+                case Op::uniform16: a->movzwq(scratch, A::Mem{arg[immy], immz});
                                     a->vmovd((A::Xmm)dst(), scratch);
                                     a->vbroadcastss(dst(), dst());
                                     break;
