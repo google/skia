@@ -2655,11 +2655,11 @@ GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
     return (GrFence)fence;
 }
 
-bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrVkGpu::waitFence(GrFence fence) {
     SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
 
     VkResult result;
-    VK_CALL_RET(result, WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, timeout));
+    VK_CALL_RET(result, WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, 0));
     return (VK_SUCCESS == result);
 }
 
