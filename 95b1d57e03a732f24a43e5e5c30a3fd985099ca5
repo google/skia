@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d23d20a_cabd8ccb",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-16T18:00:11Z",
+      "side": 1,
+      "message": "static?",
+      "revId": "95b1d57e03a732f24a43e5e5c30a3fd985099ca5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
