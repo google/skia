@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b96b8e8_7fac9a73",
+        "filename": "infra/bots/recipe_modules/docker/api.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:23:38Z",
+      "side": 1,
+      "message": "Talked offline, it shouldn\u0027t ever be, and if so we\u0027ll find out pretty clearly when the docker command below blows up.",
+      "parentUuid": "715d1c8c_e85fbe46",
+      "range": {
+        "startLine": 42,
+        "startChar": 57,
+        "endLine": 42,
+        "endChar": 64
+      },
+      "revId": "e7a339d0e313565035f2e578853c87e79d993027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71995e8d_10464bc5",
         "filename": "infra/bots/recipe_modules/docker/api.py",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "e7a339d0e313565035f2e578853c87e79d993027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cc7a324_75b2b32d",
+        "filename": "infra/bots/recipe_modules/docker/api.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-16T15:23:38Z",
+      "side": 1,
+      "message": "Changed the comment and commented on the function, practically that wouldn\u0027t help, since src_dir would still has to be an ancestor of self.m.path[\u0027start_dir\u0027], or else it won\u0027t be in the container.\n\nThe relpath here is effectively removing self.m.path[\u0027start_dir\u0027] so it can be replaced with \u0027/SRC\u0027. As an example:\nself.m.path[\u0027start_dir\u0027]  \u003d\u003d  \u0027/mnt/pd0/s/w/ir\u0027\nsrc_dir \u003d\u003d \u0027/mnt/pd0/s/w/ir\u0027\nscript \u003d\u003d\u0027/mnt/pd0/s/w/ir/recipe_bundle/path/to/script.sh\u0027\n\nposixpath.relpath(str(script), str(self.m.path[\u0027start_dir\u0027])) \u003d\u003d \u0027recipe_bundle/path/to/script.sh\u0027\n\nFWIW we could replace this with a string replace of s/\u003csrc_dir\u003e/MOUNT_SRC for the same effect.\n\n\nI looked, all existing docker jobs I checked inconsistently pass in either start_dir or checkout_root, but when they pass in checkout_root it\u0027s always equal to start_dir. \nhttps://logs.chromium.org/logs/skia/4b9c48c152998e11/+/steps/Run_build_script_in_Docker/0/logs/execution_details/0 also, it\u0027s obvious by our current expectations, where bogus paths lead to impossible script locations: https://cs.corp.google.com/skia/skia/infra/bots/recipe_modules/build/examples/full.expected/Build-Debian10-GCC-x86-Debug-Docker.json?rcl\u003d4508eb992ba883be3c2a4a636d12f1403a9c8226\u0026l\u003d71\n\nI think the better way to do this would be to always copy the script as-is to a known location in the container and that is what we always execute, but thats beyond the scope of this change.",
+      "parentUuid": "71995e8d_10464bc5",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 68
+      },
+      "revId": "e7a339d0e313565035f2e578853c87e79d993027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
