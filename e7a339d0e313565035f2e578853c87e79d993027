@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "715d1c8c_e85fbe46",
+        "filename": "infra/bots/recipe_modules/docker/api.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-16T13:58:29Z",
+      "side": 1,
+      "message": "Is it okay for this to be empty?  Seems like we should error out in this case.",
+      "range": {
+        "startLine": 42,
+        "startChar": 57,
+        "endLine": 42,
+        "endChar": 64
+      },
+      "revId": "e7a339d0e313565035f2e578853c87e79d993027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71995e8d_10464bc5",
+        "filename": "infra/bots/recipe_modules/docker/api.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-16T13:58:29Z",
+      "side": 1,
+      "message": "Could we fix this by replacing str(self.m.path[\u0027start_dir\u0027]) with str(src_dir) below?",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 68
+      },
+      "revId": "e7a339d0e313565035f2e578853c87e79d993027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
