@@ -37,6 +37,35 @@
 
 static const int kMaxRenderPipelineEntries = 1024;
 
+namespace {
+
+class Fence {
+public:
+    Fence(const wgpu::Device& device, const wgpu::Fence& fence)
+      : fDevice(device), fFence(fence), fCalled(false) {
+        fFence.OnCompletion(0, callback, this);
+    }
+
+    static void callback(WGPUFenceCompletionStatus status, void* userData) {
+        Fence* fence = static_cast<Fence*>(userData);
+        fence->fCalled = true;
+    }
+
+    bool check() {
+        fDevice.Tick();
+        return fCalled;
+    }
+
+    wgpu::Fence fence() { return fFence; }
+
+private:
+    wgpu::Device            fDevice;
+    wgpu::Fence             fFence;
+    bool                    fCalled;
+};
+
+}
+
 static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
     switch (filter) {
         case GrSamplerState::Filter::kNearest:
@@ -84,7 +113,8 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(device.CreateQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
-        , fRenderPipelineCache(kMaxRenderPipelineEntries) {
+        , fRenderPipelineCache(kMaxRenderPipelineEntries)
+        , fFinishCallbacks(this) {
     fCaps.reset(new GrDawnCaps(options));
 }
 
@@ -444,11 +474,25 @@ void GrDawnGpu::flush() {
 
 void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                 GrGpuFinishedContext finishedContext) {
-    // TODO: implement
+    fFinishCallbacks.add(finishedProc, finishedContext);
+}
+
+static void callback(WGPUFenceCompletionStatus status, void* userData) {
+    *static_cast<bool*>(userData) = true;
 }
 
 bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
     this->flush();
+    if (syncCpu) {
+        wgpu::FenceDescriptor desc;
+        wgpu::Fence fence = fQueue.CreateFence(&desc);
+        bool called = false;
+        fence.OnCompletion(0, callback, &called);
+        while (!called) {
+            fDevice.Tick();
+        }
+        fFinishCallbacks.callAll(true);
+    }
     return true;
 }
 
@@ -554,17 +598,17 @@ void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
-    SkASSERT(!"unimplemented");
-    return GrFence();
+    wgpu::FenceDescriptor desc;
+    wgpu::Fence fence = fQueue.CreateFence(&desc);
+    return reinterpret_cast<GrFence>(new Fence(fDevice, fence));
 }
 
 bool GrDawnGpu::waitFence(GrFence fence) {
-    SkASSERT(!"unimplemented");
-    return false;
+    return reinterpret_cast<Fence*>(fence)->check();
 }
 
 void GrDawnGpu::deleteFence(GrFence fence) const {
-    SkASSERT(!"unimplemented");
+    delete reinterpret_cast<Fence*>(fence);
 }
 
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
@@ -589,7 +633,7 @@ void GrDawnGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrDawnGpu::checkFinishProcs() {
-    SkASSERT(!"unimplemented");
+    fFinishCallbacks.check();
 }
 
 std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
