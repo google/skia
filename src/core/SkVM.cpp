@@ -1741,8 +1741,7 @@ namespace skvm {
     }
     void Assembler::ret() { this->byte(0xc3); }
 
-    // Common instruction building for 64-bit opcodes with an immediate argument.
-    void Assembler::op(int opcode, int opcode_ext, GP64 dst, int imm) {
+    void Assembler::op(int opcode, int opcode_ext, Operand dst, int imm) {
         opcode |= 0b0000'0001;   // low bit set for 64-bit operands
         opcode |= 0b1000'0000;   // top bit set for instructions with any immediate
 
@@ -1752,15 +1751,30 @@ namespace skvm {
             opcode |= 0b0000'0010;  // second bit set for 8-bit immediate, else 32-bit.
         }
 
-        this->byte(rex(1,0,0,dst>>3));
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
+        if (dst.kind == Operand::REG) {
+            this->byte(rex(W1,0,0,dst.reg>>3));
+            this->byte(opcode);
+            this->byte(mod_rm(Mod::Direct, opcode_ext, dst.reg&7));
+        } else {
+            SkASSERT(dst.kind == Operand::MEM);
+            const Mem& m = dst.mem;
+            const bool need_SIB = m.base  == rsp
+                               || m.index != rsp;
+
+            this->byte(rex(W1,0,m.index>>3,m.base>>3));
+            this->byte(opcode);
+            this->byte(mod_rm(mod(m.disp), 0, (need_SIB ? rsp : m.base)&7));
+            if (need_SIB) {
+                this->byte(sib(m.scale, m.index&7, m.base&7));
+            }
+            this->bytes(&m.disp, skvm::imm_bytes(mod(m.disp)));
+        }
         this->bytes(&imm, imm_bytes);
     }
 
-    void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
-    void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
-    void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
+    void Assembler::add(Operand dst, int imm) { this->op(0,0b000, dst,imm); }
+    void Assembler::sub(Operand dst, int imm) { this->op(0,0b101, dst,imm); }
+    void Assembler::cmp(Operand reg, int imm) { this->op(0,0b111, reg,imm); }
 
     void Assembler::movq(GP64 dst, GP64 src, int off) {
         this->byte(rex(1,dst>>3,0,src>>3));

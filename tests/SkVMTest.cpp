@@ -1069,6 +1069,14 @@ DEF_TEST(SkVM_Assembler, r) {
 
         a.add(A::rsi, 128);     // Requires 4 byte immediate.
         a.sub(A::r8 , 1000000);
+
+        a.add(A::Mem{A::rsi}, 7);                       // addq $7, (%rsi)
+        a.add(A::Mem{A::rsi, 12}, 7);                   // addq $7, 12(%rsi)
+        a.add(A::Mem{A::rsp, 12}, 7);                   // addq $7, 12(%rsp)
+        a.add(A::Mem{A::rsp, 12, A::rax, A::FOUR}, 7);  // addq $7, 12(%rsp,%rax,4)
+        a.add(A::Mem{A::r11, 12, A::r8 , A::TWO }, 7);  // addq $7, 12(%r11,%r8,2)
+        a.add(A::Mem{A::r11, 12, A::rax}         , 7);  // addq $7, 12(%r11,%rax)
+        a.add(A::Mem{A::rax, 12, A::r11}         , 7);  // addq $7, 12(%rax,%r11)
     },{
         0x48, 0x83, 0b11'000'000, 0x08,
         0x48, 0x83, 0b11'101'000, 0x20,
@@ -1081,6 +1089,14 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0x48, 0x81, 0b11'000'110, 0x80, 0x00, 0x00, 0x00,
         0x49, 0x81, 0b11'101'000, 0x40, 0x42, 0x0f, 0x00,
+
+        0x48,0x83,0x06,0x07,
+        0x48,0x83,0x46,0x0c,0x07,
+        0x48,0x83,0x44,0x24,0x0c,0x07,
+        0x48,0x83,0x44,0x84,0x0c,0x07,
+        0x4b,0x83,0x44,0x43,0x0c,0x07,
+        0x49,0x83,0x44,0x03,0x0c,0x07,
+        0x4a,0x83,0x44,0x18,0x0c,0x07,
     });
 
 
