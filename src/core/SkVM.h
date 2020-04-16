@@ -851,6 +851,7 @@ namespace skvm {
             Stack,
         };
         bool jit(const std::vector<OptimizedInstruction>&, JITMode, Assembler*) const;
+        bool jitStack(const std::vector<OptimizedInstruction>&, Assembler*) const;
 
         void waitForLLVM() const;
 
