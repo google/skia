@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a523476e_4f424321",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-16T16:08:09Z",
+      "side": 1,
+      "message": "Should we add references? Intel Vol 2A 2-8",
+      "range": {
+        "startLine": 299,
+        "startChar": 17,
+        "endLine": 299,
+        "endChar": 24
+      },
+      "revId": "7d6c9c8be8dc336fae3459d30ef3bf7746728dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ebee8cd_0cb24919",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-16T16:08:09Z",
+      "side": 1,
+      "message": "L128, L256 I think would be better.  Intel Vol 2A 2-14",
+      "range": {
+        "startLine": 300,
+        "startChar": 17,
+        "endLine": 300,
+        "endChar": 23
+      },
+      "revId": "7d6c9c8be8dc336fae3459d30ef3bf7746728dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
