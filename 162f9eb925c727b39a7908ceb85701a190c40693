@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e51aa96_7c8def22",
+        "filename": "gm/imageblurrepeatmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T14:23:27Z",
+      "side": 1,
+      "message": "Funny somehow you reached into my computer and got my local hacks to show just the repro in this GM.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 60
+      },
+      "revId": "162f9eb925c727b39a7908ceb85701a190c40693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ada8fd3_a8cbfae6",
+        "filename": "gm/imageblurrepeatmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-16T14:23:27Z",
+      "side": 1,
+      "message": ":)",
+      "range": {
+        "startLine": 161,
+        "startChar": 61,
+        "endLine": 161,
+        "endChar": 98
+      },
+      "revId": "162f9eb925c727b39a7908ceb85701a190c40693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
