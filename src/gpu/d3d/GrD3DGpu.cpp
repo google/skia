@@ -9,7 +9,10 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
@@ -102,6 +105,11 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
 void GrD3DGpu::submitDirectCommandList() {
     SkASSERT(fCurrentDirectCommandList);
 
+    if (!fCurrentDirectCommandList->hasWork()) {
+        return;
+    }
+
+    fCurrentDirectCommandList->close();
     fCurrentDirectCommandList->submit(fQueue.get());
 
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
@@ -226,6 +234,138 @@ static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     if (!info.fResource.get()) {
         return false;
     }
+    return true;
+}
+
+bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+                            size_t rowBytes) {
+    return true;
+}
+
+bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                             GrColorType surfaceColorType, GrColorType srcColorType,
+                             const GrMipLevel texels[], int mipLevelCount,
+                             bool prepForTexSampling) {
+    GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(surface->asTexture());
+    if (!d3dTex) {
+        return false;
+    }
+
+    // Make sure we have at least the base level
+    if (!mipLevelCount || !texels[0].fPixels) {
+        return false;
+    }
+
+    SkASSERT(!GrDxgiFormatIsCompressed(d3dTex->dxgiFormat()));
+    bool success = false;
+
+    // Need to change the resource state to COPY_DEST in order to upload to it
+    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    SkASSERT(mipLevelCount <= d3dTex->texturePriv().maxMipMapLevel() + 1);
+    success = this->uploadToTexture(d3dTex, left, top, width, height, srcColorType, texels,
+                                    mipLevelCount);
+
+    if (prepForTexSampling) {
+        d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+
+    this->testingOnly_endCapture();
+
+    return success;
+}
+
+bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
+                               GrColorType colorType, const GrMipLevel* texels, int mipLevelCount) {
+    SkASSERT(this->caps()->isFormatTexturable(tex->backendFormat()));
+    // The assumption is either that we have no mipmaps, or that our rect is the entire texture
+    SkASSERT(1 == mipLevelCount ||
+             (0 == left && 0 == top && width == tex->width() && height == tex->height()));
+
+    // We assume that if the texture has mip levels, we either upload to all the levels or just the
+    // first.
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
+
+    if (width == 0 || height == 0) {
+        return false;
+    }
+
+    SkASSERT(this->d3dCaps().surfaceSupportsWritePixels(tex));
+    SkASSERT(this->d3dCaps().areColorTypeAndFormatCompatible(colorType, tex->backendFormat()));
+
+    ID3D12Resource* d3dResource = tex->d3dResource();
+    SkASSERT(d3dResource);
+    D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
+    // Either upload only the first miplevel or all miplevels
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (int)desc.MipLevels);
+
+    if (1 == mipLevelCount && !texels[0].fPixels) {
+        return true;   // no data to upload
+    }
+
+    for (int i = 0; i < mipLevelCount; ++i) {
+        // We do not allow any gaps in the mip data
+        if (!texels[i].fPixels) {
+            return false;
+        }
+    }
+
+    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    SkAutoTMalloc<UINT> numRows(mipLevelCount);
+    SkAutoTMalloc<UINT64> rowBytes(mipLevelCount);
+    UINT64 combinedBufferSize;
+    // We reset the width and height in the description to match our subrectangle size
+    // so we don't end up allocating more space than we need.
+    desc.Width = width;
+    desc.Height = height;
+    fDevice->GetCopyableFootprints(&desc, 0, mipLevelCount, 0, placedFootprints.get(),
+                                   numRows.get(), rowBytes.get(), &combinedBufferSize);
+    SkASSERT(combinedBufferSize);
+
+    // TODO: do this until we have slices of buttery buffers
+    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
+                                                           GrGpuBufferType::kXferCpuToGpu,
+                                                           kDynamic_GrAccessPattern);
+    if (!transferBuffer) {
+        return false;
+    }
+    char* bufferData = (char*)transferBuffer->map();
+
+    int currentWidth = width;
+    int currentHeight = height;
+    int layerHeight = tex->height();
+
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        if (texels[currentMipLevel].fPixels) {
+            SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
+
+            const size_t trimRowBytes = rowBytes[currentMipLevel];
+            const size_t srcRowBytes = texels[currentMipLevel].fRowBytes;
+
+            char* dst = bufferData + placedFootprints[currentMipLevel].Offset;
+
+            // copy data into the buffer, skipping any trailing bytes
+
+            const char* src = (const char*)texels[currentMipLevel].fPixels;
+            SkASSERT(currentHeight == (int)numRows[currentMipLevel]);
+            SkRectMemcpy(dst, trimRowBytes, src, srcRowBytes, trimRowBytes, currentHeight);
+        }
+        currentWidth = std::max(1, currentWidth / 2);
+        currentHeight = std::max(1, currentHeight / 2);
+        layerHeight = currentHeight;
+    }
+
+    transferBuffer->unmap();
+
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
+    fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, tex, mipLevelCount,
+                                                   placedFootprints.get(), left, top);
+
+    if (mipLevelCount < (int)desc.MipLevels) {
+        tex->texturePriv().markMipMapsDirty();
+    }
+
     return true;
 }
 
@@ -627,4 +767,22 @@ void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 void GrD3DGpu::testingOnly_flushGpuAndSync() {
     // TODO
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrD3DGpu::addResourceBarriers(const GrManagedResource* resource,
+                                   int numBarriers,
+                                   D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const {
+    SkASSERT(fCurrentDirectCommandList);
+    SkASSERT(resource);
+
+    fCurrentDirectCommandList->resourceBarrier(resource, numBarriers, barriers);
+}
+
+bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
+    // TODO: implement sync and return value
+    this->submitDirectCommandList();
+    return true;
+}
+
 #endif
