@@ -84,7 +84,6 @@ samples_sources = [
   "$_samplecode/SampleTessellatedWedge.cpp",
   "$_samplecode/SampleTextBox.cpp",
   "$_samplecode/SampleTextEffects.cpp",
-  "$_samplecode/SampleTextureDomain.cpp",
   "$_samplecode/SampleTextureUpload.cpp",
   "$_samplecode/SampleThinAA.cpp",
   "$_samplecode/SampleUnpremul.cpp",

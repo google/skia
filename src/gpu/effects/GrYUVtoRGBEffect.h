@@ -16,10 +16,6 @@
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    // The domain supported by this effect is more limited than the general GrTextureDomain due
-    // to the multi-planar, varying resolution images that it has to sample. If 'domain' is provided
-    // it is the Y plane's domain. This will automatically inset for bilinear filtering, and only
-    // the clamp wrap mode is supported.
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView views[],
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,

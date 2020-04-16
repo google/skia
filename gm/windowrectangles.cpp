@@ -40,7 +40,6 @@
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
-#include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "tools/ToolUtils.h"
 
