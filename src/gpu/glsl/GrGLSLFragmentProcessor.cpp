@@ -53,8 +53,6 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
 
     // Emit the child's helper function if this is the first time we've seen a call
     if (fFunctionNames[childIndex].size() == 0) {
-        fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
-
         TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
         TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
@@ -68,8 +66,6 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
                            textureSamplers);
         fFunctionNames[childIndex] =
                 fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
-
-        fragBuilder->onAfterChildProcEmitCode();
     }
 
     // Produce a string containing the call to the helper function
@@ -94,8 +90,6 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
 
     // Emit the child's helper function if this is the first time we've seen a call
     if (fFunctionNames[childIndex].size() == 0) {
-        fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
-
         TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
         TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
@@ -109,8 +103,6 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
                            textureSamplers);
         fFunctionNames[childIndex] =
                 fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
-
-        fragBuilder->onAfterChildProcEmitCode();
     }
 
     // Produce a string containing the call to the helper function
