@@ -21,6 +21,8 @@ static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString
     settings.fCaps = gpu->caps()->shaderCaps();
     settings.fFlipY = flipY;
     settings.fRTHeightOffset = rtHeightOffset;
+    settings.fRTHeightBinding = 0;
+    settings.fRTHeightSet = 0;
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
         kind,
         shaderString,
