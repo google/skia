@@ -624,7 +624,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skia:5438
-		blacklist("_ test _ GrShape")
+		blacklist("_ test _ GrStyledShape")
 	}
 
 	if internalHardwareLabel == "5" {

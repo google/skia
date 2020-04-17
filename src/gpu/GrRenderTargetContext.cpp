@@ -52,7 +52,7 @@
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrClearStencilClipOp.h"
@@ -86,7 +86,7 @@ public:
     }
 
     void drawShape(const GrClip& clip, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, const GrShape& shape) override {
+                  const SkMatrix& viewMatrix, const GrStyledShape& shape) override {
         GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
@@ -877,7 +877,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         if ((!rect.width() || !rect.height()) &&
             SkStrokeRec::kHairline_Style != stroke.getStyle()) {
             SkScalar r = stroke.getWidth() / 2;
-            // TODO: Move these stroke->fill fallbacks to GrShape?
+            // TODO: Move these stroke->fill fallbacks to GrStyledShape?
             switch (stroke.getJoin()) {
                 case SkPaint::kMiter_Join:
                     this->drawRect(
@@ -919,7 +919,8 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
     }
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(rect, *style));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
+                                     GrStyledShape(rect, *style));
 }
 
 void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa,
@@ -1188,7 +1189,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(*clip, std::move(paint), aa, viewMatrix,
-                                     GrShape(rrect, style));
+                                     GrStyledShape(rrect, style));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1510,7 +1511,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     path.addRRect(inner);
     path.addRRect(outer);
     path.setFillType(SkPathFillType::kEvenOdd);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(path));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1609,7 +1610,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
-            GrShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
+            GrStyledShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,
@@ -1648,7 +1649,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     }
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
-            GrShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
+            GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
 }
 
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
@@ -2227,7 +2228,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPath", fContext);
 
-    GrShape shape(path, style);
+    GrStyledShape shape(path, style);
 
     this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
 }
@@ -2236,7 +2237,7 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
                                       GrPaint&& paint,
                                       GrAA aa,
                                       const SkMatrix& viewMatrix,
-                                      const GrShape& shape) {
+                                      const GrStyledShape& shape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -2323,7 +2324,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     clip.getConservativeBounds(fRenderTargetContext->width(), fRenderTargetContext->height(),
                                &clipConservativeBounds, nullptr);
 
-    GrShape shape(path, GrStyle::SimpleFill());
+    GrStyledShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->caps();
     canDrawArgs.fProxy = fRenderTargetContext->asRenderTargetProxy();
@@ -2375,7 +2376,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                        GrPaint&& paint,
                                                        GrAA aa,
                                                        const SkMatrix& viewMatrix,
-                                                       const GrShape& originalShape) {
+                                                       const GrStyledShape& originalShape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
@@ -2387,7 +2388,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
-    GrShape tempShape;
+    GrStyledShape tempShape;
     GrAAType aaType = this->chooseAAType(aa);
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;

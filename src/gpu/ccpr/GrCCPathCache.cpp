@@ -126,13 +126,13 @@ public:
     static constexpr int kStrokeCapJoinIdx = 2;
     static constexpr int kShapeUnstyledKeyIdx = 3;
 
-    WriteKeyHelper(const GrShape& shape) : fShapeUnstyledKeyCount(shape.unstyledKeySize()) {}
+    WriteKeyHelper(const GrStyledShape& shape) : fShapeUnstyledKeyCount(shape.unstyledKeySize()) {}
 
     // Returns the total number of uint32_t's to allocate for the key.
     int allocCountU32() const { return kShapeUnstyledKeyIdx + fShapeUnstyledKeyCount; }
 
     // Writes the key data to out[].
-    void write(const GrShape& shape, uint32_t* out) {
+    void write(const GrStyledShape& shape, uint32_t* out) {
         // Stroke key.
         // We don't use GrStyle::WriteKey() because it does not account for hairlines.
         // http://skbug.com/8273
@@ -161,7 +161,7 @@ private:
 }
 
 GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
-        GrOnFlushResourceProvider* onFlushRP, const GrShape& shape,
+        GrOnFlushResourceProvider* onFlushRP, const GrStyledShape& shape,
         const SkIRect& clippedDrawBounds, const SkMatrix& viewMatrix, SkIVector* maskShift) {
     if (!shape.hasUnstyledKey()) {
         return OnFlushEntryRef();
