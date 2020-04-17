@@ -181,6 +181,12 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 case kANGLE_D3D9_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2,
                                                  glShareContext).release();
+                    // Chrome will only run on D3D9 with NVIDIA for 2012 and earlier drivers.
+                    // (<= 269.73). We get shader link failures when testing on recent drivers
+                    // using this backend.
+                    if (glCtx && GrGLGetVendor(glCtx->gl()) == kNVIDIA_GrGLVendor) {
+                        return ContextInfo();
+                    }
                     break;
                 case kANGLE_D3D11_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2,
