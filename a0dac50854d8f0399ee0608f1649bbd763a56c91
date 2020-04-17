@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9818bf2c_fd477736",
+        "filename": "modules/skottie/src/effects/ShadowStyles.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-17T18:46:46Z",
+      "side": 1,
+      "message": "This color matrix causes the transparent black to map to opaque, which triggers the filter DAG to think it can\u0027t compute fast bounds. But since Xfermode doesn\u0027t have any blend-specific logic in its implementation, it doesn\u0027t ignore its input\u0027s state for kDstIn.",
+      "range": {
+        "startLine": 76,
+        "startChar": 26,
+        "endLine": 79,
+        "endChar": 39
+      },
+      "revId": "a0dac50854d8f0399ee0608f1649bbd763a56c91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
