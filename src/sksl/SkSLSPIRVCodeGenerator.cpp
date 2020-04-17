@@ -2079,14 +2079,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     // handling in SPIR-V
     if (this->getActualType(leftType) != this->getActualType(rightType)) {
         if (leftType.kind() == Type::kVector_Kind && rightType.isNumber()) {
-            if (op == Token::SLASH) {
+            if (op == Token::Kind::TK_SLASH) {
                 SpvId one = this->writeExpression(*create_literal_1(fContext, rightType), out);
                 SpvId inverse = this->nextId();
                 this->writeInstruction(SpvOpFDiv, this->getType(rightType), inverse, one, rhs, out);
                 rhs = inverse;
-                op = Token::STAR;
+                op = Token::Kind::TK_STAR;
             }
-            if (op == Token::STAR) {
+            if (op == Token::Kind::TK_STAR) {
                 SpvId result = this->nextId();
                 this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
                                        result, lhs, rhs, out);
@@ -2104,7 +2104,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             rhs = vec;
             operandType = &leftType;
         } else if (rightType.kind() == Type::kVector_Kind && leftType.isNumber()) {
-            if (op == Token::STAR) {
+            if (op == Token::Kind::TK_STAR) {
                 SpvId result = this->nextId();
                 this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
                                        result, rhs, lhs, out);
@@ -2155,7 +2155,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         SkASSERT(*operandType == this->getActualType(rightType));
     }
     switch (op) {
-        case Token::EQEQ: {
+        case Token::Kind::TK_EQEQ: {
             if (operandType->kind() == Type::kMatrix_Kind) {
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdEqual,
                                                    SpvOpIEqual, SpvOpAll, SpvOpLogicalAnd, out);
@@ -2174,7 +2174,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                                SpvOpIEqual, SpvOpLogicalEqual, out),
                                     *operandType, SpvOpAll, out);
         }
-        case Token::NEQ:
+        case Token::Kind::TK_NEQ:
             if (operandType->kind() == Type::kMatrix_Kind) {
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdNotEqual,
                                                    SpvOpINotEqual, SpvOpAny, SpvOpLogicalOr, out);
@@ -2193,26 +2193,26 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                                SpvOpINotEqual, SpvOpLogicalNotEqual,
                                                                out),
                                     *operandType, SpvOpAny, out);
-        case Token::GT:
+        case Token::Kind::TK_GT:
             SkASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThan, SpvOpSGreaterThan,
                                               SpvOpUGreaterThan, SpvOpUndef, out);
-        case Token::LT:
+        case Token::Kind::TK_LT:
             SkASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdLessThan,
                                               SpvOpSLessThan, SpvOpULessThan, SpvOpUndef, out);
-        case Token::GTEQ:
+        case Token::Kind::TK_GTEQ:
             SkASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThanEqual, SpvOpSGreaterThanEqual,
                                               SpvOpUGreaterThanEqual, SpvOpUndef, out);
-        case Token::LTEQ:
+        case Token::Kind::TK_LTEQ:
             SkASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdLessThanEqual, SpvOpSLessThanEqual,
                                               SpvOpULessThanEqual, SpvOpUndef, out);
-        case Token::PLUS:
+        case Token::Kind::TK_PLUS:
             if (leftType.kind() == Type::kMatrix_Kind &&
                 rightType.kind() == Type::kMatrix_Kind) {
                 SkASSERT(leftType == rightType);
@@ -2221,7 +2221,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                               SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
-        case Token::MINUS:
+        case Token::Kind::TK_MINUS:
             if (leftType.kind() == Type::kMatrix_Kind &&
                 rightType.kind() == Type::kMatrix_Kind) {
                 SkASSERT(leftType == rightType);
@@ -2230,7 +2230,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFSub,
                                               SpvOpISub, SpvOpISub, SpvOpUndef, out);
-        case Token::STAR:
+        case Token::Kind::TK_STAR:
             if (leftType.kind() == Type::kMatrix_Kind &&
                 rightType.kind() == Type::kMatrix_Kind) {
                 // matrix multiply
@@ -2241,30 +2241,30 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMul,
                                               SpvOpIMul, SpvOpIMul, SpvOpUndef, out);
-        case Token::SLASH:
+        case Token::Kind::TK_SLASH:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                               SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
-        case Token::PERCENT:
+        case Token::Kind::TK_PERCENT:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMod,
                                               SpvOpSMod, SpvOpUMod, SpvOpUndef, out);
-        case Token::SHL:
+        case Token::Kind::TK_SHL:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpShiftLeftLogical, SpvOpShiftLeftLogical,
                                               SpvOpUndef, out);
-        case Token::SHR:
+        case Token::Kind::TK_SHR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpShiftRightArithmetic, SpvOpShiftRightLogical,
                                               SpvOpUndef, out);
-        case Token::BITWISEAND:
+        case Token::Kind::TK_BITWISEAND:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseAnd, SpvOpBitwiseAnd, SpvOpUndef, out);
-        case Token::BITWISEOR:
+        case Token::Kind::TK_BITWISEOR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseOr, SpvOpBitwiseOr, SpvOpUndef, out);
-        case Token::BITWISEXOR:
+        case Token::Kind::TK_BITWISEXOR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
-        case Token::COMMA:
+        case Token::Kind::TK_COMMA:
             return rhs;
         default:
             SkASSERT(false);
@@ -2275,14 +2275,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
-        case Token::EQ: {
+        case Token::Kind::TK_EQ: {
             SpvId rhs = this->writeExpression(*b.fRight, out);
             this->getLValue(*b.fLeft, out)->store(rhs, out);
             return rhs;
         }
-        case Token::LOGICALAND:
+        case Token::Kind::TK_LOGICALAND:
             return this->writeLogicalAnd(b, out);
-        case Token::LOGICALOR:
+        case Token::Kind::TK_LOGICALOR:
             return this->writeLogicalOr(b, out);
         default:
             break;
@@ -2307,7 +2307,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 }
 
 SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStream& out) {
-    SkASSERT(a.fOperator == Token::LOGICALAND);
+    SkASSERT(a.fOperator == Token::Kind::TK_LOGICALAND);
     BoolLiteral falseLiteral(fContext, -1, false);
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
     SpvId lhs = this->writeExpression(*a.fLeft, out);
@@ -2328,7 +2328,7 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
 }
 
 SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream& out) {
-    SkASSERT(o.fOperator == Token::LOGICALOR);
+    SkASSERT(o.fOperator == Token::Kind::TK_LOGICALOR);
     BoolLiteral trueLiteral(fContext, -1, true);
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
     SpvId lhs = this->writeExpression(*o.fLeft, out);
@@ -2383,7 +2383,7 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 }
 
 SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, OutputStream& out) {
-    if (p.fOperator == Token::MINUS) {
+    if (p.fOperator == Token::Kind::TK_MINUS) {
         SpvId result = this->nextId();
         SpvId typeId = this->getType(p.fType);
         SpvId expr = this->writeExpression(*p.fOperand, out);
@@ -2400,9 +2400,9 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         return result;
     }
     switch (p.fOperator) {
-        case Token::PLUS:
+        case Token::Kind::TK_PLUS:
             return this->writeExpression(*p.fOperand, out);
-        case Token::PLUSPLUS: {
+        case Token::Kind::TK_PLUSPLUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
             SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
             SpvId result = this->writeBinaryOperation(p.fType, p.fType, lv->load(out), one,
@@ -2411,7 +2411,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             lv->store(result, out);
             return result;
         }
-        case Token::MINUSMINUS: {
+        case Token::Kind::TK_MINUSMINUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
             SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
             SpvId result = this->writeBinaryOperation(p.fType, p.fType, lv->load(out), one,
@@ -2420,14 +2420,14 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             lv->store(result, out);
             return result;
         }
-        case Token::LOGICALNOT: {
+        case Token::Kind::TK_LOGICALNOT: {
             SkASSERT(p.fOperand->fType == *fContext.fBool_Type);
             SpvId result = this->nextId();
             this->writeInstruction(SpvOpLogicalNot, this->getType(p.fOperand->fType), result,
                                    this->writeExpression(*p.fOperand, out), out);
             return result;
         }
-        case Token::BITWISENOT: {
+        case Token::Kind::TK_BITWISENOT: {
             SpvId result = this->nextId();
             this->writeInstruction(SpvOpNot, this->getType(p.fOperand->fType), result,
                                    this->writeExpression(*p.fOperand, out), out);
@@ -2446,13 +2446,13 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
     SpvId result = lv->load(out);
     SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
     switch (p.fOperator) {
-        case Token::PLUSPLUS: {
+        case Token::Kind::TK_PLUSPLUS: {
             SpvId temp = this->writeBinaryOperation(p.fType, p.fType, result, one, SpvOpFAdd,
                                                     SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
             lv->store(temp, out);
             return result;
         }
-        case Token::MINUSMINUS: {
+        case Token::Kind::TK_MINUSMINUS: {
             SpvId temp = this->writeBinaryOperation(p.fType, p.fType, result, one, SpvOpFSub,
                                                     SpvOpISub, SpvOpISub, SpvOpUndef, out);
             lv->store(temp, out);

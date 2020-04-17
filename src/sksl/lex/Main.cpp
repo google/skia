@@ -42,15 +42,14 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << "namespace SkSL {\n";
     out << "\n";
     out << "struct " << token << " {\n";
-    out << "    enum Kind {\n";
+    out << "    enum class Kind {\n";
     for (const std::string& t : tokens) {
-        out << "        #undef " << t << "\n";
-        out << "        " << t << ",\n";
+        out << "        TK_" << t << ",\n";
     }
     out << "    };\n";
     out << "\n";
     out << "    " << token << "()\n";
-    out << "    : fKind(Kind::INVALID)\n";
+    out << "    : fKind(Kind::TK_INVALID)\n";
     out << "    , fOffset(-1)\n";
     out << "    , fLength(-1) {}\n";
     out << "\n";
@@ -142,13 +141,14 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "    // a bit.\n";
     out << "    int32_t startOffset = fOffset;\n";
     out << "    if (startOffset == fLength) {\n";
-    out << "        return " << token << "(" << token << "::END_OF_FILE, startOffset, 0);\n";
+    out << "        return " << token << "(" << token << "::Kind::TK_END_OF_FILE, startOffset,"
+           "0);\n";
     out << "    }\n";
     out << "    int16_t state = 1;\n";
     out << "    for (;;) {\n";
     out << "        if (fOffset >= fLength) {\n";
     out << "            if (accepts[state] == -1) {\n";
-    out << "                return Token(Token::END_OF_FILE, startOffset, 0);\n";
+    out << "                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);\n";
     out << "            }\n";
     out << "            break;\n";
     out << "        }\n";
