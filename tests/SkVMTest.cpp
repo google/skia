@@ -36,10 +36,10 @@ template <typename Fn>
 static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
 #if defined(SKVM_LLVM)
     SkASSERT(program.hasJIT());
-#elif defined(SKVM_JIT) && defined(SK_CPU_X86)  // soon!
-    // SkASSERT(program.hasJIT());
+#elif defined(SKVM_JIT) && defined(SK_CPU_X86)
+    SkASSERT(program.hasJIT() == SkCpu::Supports(SkCpu::HSW));
 #elif defined(SKVM_JIT)                         // eventually!
-    // SkASSERT(program.hasJIT());
+    //SkASSERT(program.hasJIT());
 #else
     SkASSERT(!program.hasJIT());
 #endif
@@ -436,6 +436,55 @@ DEF_TEST(SkVM_gathers, r) {
         REPORTER_ASSERT(r, buf32[i] == 34 && buf16[i] ==  0 && buf8[i] ==  0); i++;
         REPORTER_ASSERT(r, buf32[i] == 56 && buf16[i] == 34 && buf8[i] ==  0); i++;
         REPORTER_ASSERT(r, buf32[i] == 78 && buf16[i] ==  0 && buf8[i] ==  0); i++;
+    });
+}
+
+DEF_TEST(SkVM_gathers2, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg uniforms = b.uniform(),
+                  buf32    = b.varying<int>(),
+                  buf16    = b.varying<uint16_t>(),
+                  buf8     = b.varying<uint8_t>();
+
+        skvm::I32 x = b.load32(buf32);
+
+        b.store32(buf32, b.gather32(uniforms,0, x));
+        b.store16(buf16, b.gather16(uniforms,0, x));
+        b.store8 (buf8 , b.gather8 (uniforms,0, x));
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        uint8_t img[256];
+        for (int i = 0; i < 256; i++) {
+            img[i] = i;
+        }
+
+        int      buf32[64];
+        uint16_t buf16[64];
+        uint8_t  buf8 [64];
+
+        for (int i = 0; i < 64; i++) {
+            buf32[i] = (i*47)&63;
+            buf16[i] = 0;
+            buf8 [i] = 0;
+        }
+
+        struct Uniforms {
+            const uint8_t* img;
+        } uniforms{img};
+
+        program.eval(64, &uniforms, buf32, buf16, buf8);
+
+        for (int i = 0; i < 64; i++) {
+            REPORTER_ASSERT(r, buf8[i] == ((i*47)&63));  // 0,47,30,13,60,...
+        }
+
+        REPORTER_ASSERT(r, buf16[ 0] == 0x0100);
+        REPORTER_ASSERT(r, buf16[63] == 0x2322);
+
+        REPORTER_ASSERT(r, buf32[ 0] == 0x03020100);
+        REPORTER_ASSERT(r, buf32[63] == 0x47464544);
     });
 }
 
@@ -1418,6 +1467,12 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpinsrb(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrb $4, (%rsi), %xmm8, %xmm1
         a.vpinsrb(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinsrb $4, (%rsi), %xmm8, %xmm1
 
+        a.vextracti128(A::xmm1, A::ymm8, 1);  // vextracti128 $1, %ymm8, %xmm1
+        a.vextracti128(A::xmm8, A::ymm1, 0);  // vextracti128 $0, %ymm1, %xmm8
+
+        a.vpextrd(A::Mem{A::rsi}, A::xmm8, 3);  // vpextrd  $3, %xmm8, (%rsi)
+        a.vpextrd(A::Mem{A::r8 }, A::xmm1, 2);  // vpextrd  $2, %xmm1, (%r8)
+
         a.vpextrw(A::Mem{A::rsi}, A::xmm8, 7);
         a.vpextrw(A::Mem{A::r8 }, A::xmm1, 15);
 
@@ -1429,6 +1484,12 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0xc4,0xe3,0x39, 0x20, 0x0e,  4,
         0xc4,0x43,0x71, 0x20, 0x00, 12,
+
+        0xc4,0x63,0x7d,0x39,0xc1, 1,
+        0xc4,0xc3,0x7d,0x39,0xc8, 0,
+
+        0xc4,0x63,0x79,0x16,0x06, 3,
+        0xc4,0xc3,0x79,0x16,0x08, 2,
 
         0xc4,0x63,0x79, 0x15, 0x06,  7,
         0xc4,0xc3,0x79, 0x15, 0x08, 15,
