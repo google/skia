@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4ae3b4c_115c9529",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T14:29:05Z",
+      "side": 1,
+      "message": "does it make sense for this logic to be in the command buffer classes submit and then it returns if it submited something? I\u0027m on the fence about which i like better, that or your current approach so just wanted to throw it out there.",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 112,
+        "endChar": 39
+      },
+      "revId": "438f82e4ecccbcb0a955cf1dbb19226496c70fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "649f11cc_8a76b12b",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T14:29:05Z",
+      "side": 1,
+      "message": "this seems to be something uploadToTexture should be doing? And only doing if it is actually going to do an upload (i.e. don\u0027t do it in the return early cases).",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 67
+      },
+      "revId": "438f82e4ecccbcb0a955cf1dbb19226496c70fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
