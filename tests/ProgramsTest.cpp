@@ -104,7 +104,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new BlockInputFragmentProcessor(std::move(fp)));
     }
 
-    const char* name() const override { return "Block Input"; }
+    const char* name() const override { return "Block_Input"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
