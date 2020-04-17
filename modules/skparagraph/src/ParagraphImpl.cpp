@@ -853,20 +853,25 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
   if (fText.isEmpty()) {
        return boxes;
   }
+  if (fPlaceholders.size() == 1) {
+       // We always have one fake placeholder
+       return boxes;
+  }
   for (auto& line : fLines) {
       line.iterateThroughVisualRuns(
               true,
               [&boxes, &line](const Run* run, SkScalar runOffset, TextRange textRange,
                               SkScalar* width) {
-                  auto context =
-                          line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
+                  auto context = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
                   *width = context.clip.width();
-                  if (run->placeholderStyle() == nullptr) {
+
+                  if (textRange.width() == 0) {
                       return true;
                   }
-                  if (run->textRange().width() == 0) {
+                  if (!run->isPlaceholder()) {
                       return true;
                   }
+
                   SkRect clip = context.clip;
                   clip.offset(line.offset());
 
@@ -879,7 +884,17 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
                   return true;
               });
   }
-
+  /*
+  SkDebugf("getRectsForPlaceholders('%s'): %d\n", fText.c_str(), boxes.size());
+  for (auto& r : boxes) {
+      r.rect.fLeft = littleRound(r.rect.fLeft);
+      r.rect.fRight = littleRound(r.rect.fRight);
+      r.rect.fTop = littleRound(r.rect.fTop);
+      r.rect.fBottom = littleRound(r.rect.fBottom);
+      SkDebugf("[%f:%f * %f:%f] %s\n", r.rect.fLeft, r.rect.fRight, r.rect.fTop, r.rect.fBottom,
+               (r.direction == TextDirection::kLtr ? "left" : "right"));
+  }
+  */
   return boxes;
 }
 
