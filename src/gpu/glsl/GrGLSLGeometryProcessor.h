@@ -97,7 +97,7 @@ private:
     struct TransformInfo {
         const char* fName;
         GrSLType fType;
-        SkString fMatrix;
+        const char* fMatrix;
         SkString fLocalCoords;
         const GrFragmentProcessor* fFP;
     };

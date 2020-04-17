@@ -64,6 +64,7 @@ public:
         for (int i = 0; *transformHandler; ++*transformHandler, ++i) {
             auto [coordTransform, fp] = transformHandler->get();
 
+            SkString matrix;
             GrShaderVar fragmentVar;
             GrShaderVar transformVar;
             if (fp.isSampledWithExplicitCoords()) {
@@ -88,6 +89,7 @@ public:
                                                        &name)
                                           .toIndex();
                     transformVar = uniformHandler->getUniformVariable(uni.fHandle);
+                    matrix = name;
                 }
             } else {
                 SkString strVaryingName;
@@ -102,9 +104,10 @@ public:
                                 .toIndex();
 #endif
                 fVaryingTransform.back().fType = varyingType;
+                matrix = matrix_to_sksl(coordTransform.matrix());
                 fragmentVar = {SkString(v.fsIn()), varyingType};
             }
-            transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
+            transformHandler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fragmentVar);
         }
     }
 

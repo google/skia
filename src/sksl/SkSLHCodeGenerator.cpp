@@ -287,28 +287,6 @@ void HCodeGenerator::writeConstructor() {
                 this->writef("            %s->setSampledWithExplicitCoords();",
                              String(param->fName).c_str());
             }
-            SampleMatrix matrix = fSectionAndParameterHelper.getMatrix(*param);
-            switch (matrix.fKind) {
-                case SampleMatrix::Kind::kVariable:
-                    this->writef("            %s->setSampleMatrix(this, "
-                                                            "SkSL::SampleMatrix::Kind::kVariable);",
-                                 String(param->fName).c_str());
-                    break;
-                case SampleMatrix::Kind::kConstantOrUniform:
-                    this->writef("            %s->setSampleMatrix(SkSL::SampleMatrix("
-                                 "SkSL::SampleMatrix::Kind::kConstantOrUniform, this, \"%s\"));",
-                                 String(param->fName).c_str(),
-                                 matrix.fExpression.c_str());
-                    break;
-                case SampleMatrix::Kind::kMixed:
-                    this->writef("            %s->setSampleMatrix(SkSL::SampleMatrix("
-                                 "SkSL::SampleMatrix::Kind::kMixed, this, \"%s\"));",
-                                 String(param->fName).c_str(),
-                                 matrix.fExpression.c_str());
-                    break;
-                case SampleMatrix::Kind::kNone:
-                    break;
-            }
             this->writef("            this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
             if (param->fType.kind() == Type::kNullable_Kind) {

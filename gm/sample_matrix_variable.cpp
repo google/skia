@@ -19,11 +19,8 @@ class SampleMatrixVariableEffect : public GrFragmentProcessor {
 public:
     static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 2;
 
-    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child, float xOffset,
-                               float yOffset)
-        : INHERITED(CLASS_ID, kNone_OptimizationFlags)
-        , fXOffset(xOffset)
-        , fYOffset(yOffset) {
+    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child)
+        : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
         child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
         this->registerChildProcessor(std::move(child));
     }
@@ -44,25 +41,15 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    float fXOffset;
-    float fYOffset;
-
     typedef GrFragmentProcessor INHERITED;
-
-    friend class GLSLSampleMatrixVariableEffect;
 };
 
 class GLSLSampleMatrixVariableEffect : public GrGLSLFragmentProcessor {
     void emitCode(EmitArgs& args) override {
-        auto& smve = args.fFp.cast<SampleMatrixVariableEffect>();
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString sample1 = this->invokeChildWithMatrix(0, args, "float3x3(1)");
-        SkString sample2 = this->invokeChildWithMatrix(0, args,
-                                                       SkStringPrintf("float3x3(1, -1, 0, 1, 0, 0, "
-                                                                      "%g, %g, 1)",
-                                                                      smve.fXOffset,
-                                                                      smve.fYOffset).c_str());
+        SkString sample2 = this->invokeChildWithMatrix(0, args, "float3x3(1, -1, 0, 1, 0, 0, "
+                                                                "-0.5, 1, 1)");
         fragBuilder->codeAppendf("%s = (%s + %s) / 2;\n", args.fOutputColor, sample1.c_str(),
                                  sample2.c_str());
     }
@@ -83,7 +70,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
                 GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
         imgFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
         auto fp = std::unique_ptr<GrFragmentProcessor>(
-                new SampleMatrixVariableEffect(std::move(imgFP), -128, 256));
+                new SampleMatrixVariableEffect(std::move(imgFP)));
 
         GrPaint paint;
         paint.addCoverageFragmentProcessor(std::move(fp));
@@ -106,7 +93,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
         gradientFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
         auto fp = std::unique_ptr<GrFragmentProcessor>(
-                new SampleMatrixVariableEffect(std::move(gradientFP), -0.5, 1));
+                new SampleMatrixVariableEffect(std::move(gradientFP)));
         paint.addCoverageFragmentProcessor(std::move(fp));
         rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
