@@ -90,6 +90,30 @@
     },
     {
       "key": {
+        "uuid": "1192fa6a_6f2ac5be",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-17T14:37:05Z",
+      "side": 1,
+      "message": "Agreed, would add the intrinsics first.",
+      "parentUuid": "b1d4756a_e8b16571",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad54afbd_2d5030a9",
         "filename": "src/effects/SkLumaColorFilter.cpp",
         "patchSetId": 3
