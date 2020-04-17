@@ -32,7 +32,7 @@ class GrFixedClip;
 class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
-class GrStyledShape;
+class GrShape;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
@@ -407,7 +407,7 @@ public:
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
-                   const GrStyledShape&);
+                   const GrShape&);
 
 
     /**
@@ -671,7 +671,7 @@ private:
                           const SkRect* domain = nullptr);
 
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrStyledShape&);
+                                    const GrShape&);
 
     void addOp(std::unique_ptr<GrOp>);
 

@@ -28,7 +28,7 @@
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 typedef SkClipStack::Element Element;
 typedef GrReducedClip::InitialState InitialState;
@@ -131,7 +131,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
                 needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
                              : GrPathRendererChain::DrawType::kColor;
 
-        GrStyledShape shape(path, GrStyle::SimpleFill());
+        GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fCaps = context->priv().caps();
         canDrawArgs.fProxy = renderTargetContext->asRenderTargetProxy();
@@ -450,7 +450,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
             SkPath clipPath;
             element->asDeviceSpacePath(&clipPath);
             clipPath.toggleInverseFillType();
-            GrStyledShape shape(clipPath, GrStyle::SimpleFill());
+            GrShape shape(clipPath, GrStyle::SimpleFill());
             helper.drawShape(shape, translate, SkRegion::kReplace_Op, aa, 0x00);
             continue;
         }
@@ -462,7 +462,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
         } else {
             SkPath path;
             element->asDeviceSpacePath(&path);
-            GrStyledShape shape(path, GrStyle::SimpleFill());
+            GrShape shape(path, GrStyle::SimpleFill());
             helper.drawShape(shape, translate, (SkRegion::Op)op, aa, 0xFF);
         }
     }

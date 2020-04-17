@@ -14,15 +14,15 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 class GrCCPathCacheEntry;
-class GrStyledShape;
+class GrShape;
 
 /**
- * This class implements an LRU cache that maps from GrStyledShape to GrCCPathCacheEntry objects.
- * Shapes are only given one entry in the cache, so any time they are accessed with a different
- * matrix, the old entry gets evicted.
+ * This class implements an LRU cache that maps from GrShape to GrCCPathCacheEntry objects. Shapes
+ * are only given one entry in the cache, so any time they are accessed with a different matrix, the
+ * old entry gets evicted.
  */
 class GrCCPathCache {
 public:
@@ -67,8 +67,8 @@ public:
         const uint32_t fPathCacheUniqueID;
         int fDataSizeInBytes;
         SkDEBUGCODE(const int fDataReserveCountU32);
-        // The GrStyledShape's unstyled key is stored as a variable-length footer to this class.
-        // GetKey provides access to it.
+        // The GrShape's unstyled key is stored as a variable-length footer to this class. GetKey
+        // provides access to it.
     };
 
     // Stores the components of a transformation that affect a path mask (i.e. everything but
@@ -109,7 +109,7 @@ public:
     //
     // NOTE: Shapes are only given one entry, so any time they are accessed with a new
     // transformation, the old entry gets evicted.
-    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrStyledShape&,
+    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrShape&,
                          const SkIRect& clippedDrawBounds, const SkMatrix& viewMatrix,
                          SkIVector* maskShift);
 
@@ -137,7 +137,7 @@ private:
         }
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrStyledShape&);
+        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrShape&);
         HashNode(HashNode&& node)
                 : fPathCache(node.fPathCache), fEntry(std::move(node.fEntry)) {
             SkASSERT(!node.fEntry);
@@ -341,7 +341,7 @@ public:
 
 
 inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, sk_sp<Key> key,
-                                         const MaskTransform& m, const GrStyledShape& shape)
+                                         const MaskTransform& m, const GrShape& shape)
         : fPathCache(pathCache)
         , fEntry(new GrCCPathCacheEntry(key, m)) {
     SkASSERT(shape.hasUnstyledKey());

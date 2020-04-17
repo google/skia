@@ -18,7 +18,7 @@
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include <algorithm>
 
 using CoverageType = GrCCAtlas::CoverageType;
@@ -363,9 +363,8 @@ static bool transform_path_pts(
 }
 
 GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
-        const SkIRect& clipIBounds, const SkMatrix& m, const GrStyledShape& shape,
-        float strokeDevWidth, GrOctoBounds* octoBounds, SkIRect* devIBounds,
-        SkIVector* devToAtlasOffset) {
+        const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
+        GrOctoBounds* octoBounds, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
 

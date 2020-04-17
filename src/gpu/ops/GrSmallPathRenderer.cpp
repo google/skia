@@ -50,8 +50,8 @@ class ShapeDataKey {
 public:
     ShapeDataKey() {}
     ShapeDataKey(const ShapeDataKey& that) { *this = that; }
-    ShapeDataKey(const GrStyledShape& shape, uint32_t dim) { this->set(shape, dim); }
-    ShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
+    ShapeDataKey(const GrShape& shape, uint32_t dim) { this->set(shape, dim); }
+    ShapeDataKey(const GrShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
 
     ShapeDataKey& operator=(const ShapeDataKey& that) {
         fKey.reset(that.fKey.count());
@@ -60,7 +60,7 @@ public:
     }
 
     // for SDF paths
-    void set(const GrStyledShape& shape, uint32_t dim) {
+    void set(const GrShape& shape, uint32_t dim) {
         // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
         // relevant styling information.
         SkASSERT(shape.style().isSimpleFill());
@@ -72,7 +72,7 @@ public:
     }
 
     // for bitmap paths
-    void set(const GrStyledShape& shape, const SkMatrix& ctm) {
+    void set(const GrShape& shape, const SkMatrix& ctm) {
         // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
         // relevant styling information.
         SkASSERT(shape.style().isSimpleFill());
@@ -108,7 +108,7 @@ public:
     const uint32_t* data() const { return fKey.get(); }
 
 private:
-    // The key is composed of the GrStyledShape's key, and either the dimensions of the DF
+    // The key is composed of the GrShape's key, and either the dimensions of the DF
     // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
     // the matrix for the path with only fractional translation.
     SkAutoSTArray<24, uint32_t> fKey;
@@ -228,7 +228,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
-                                          const GrStyledShape& shape,
+                                          const GrShape& shape,
                                           const SkMatrix& viewMatrix,
                                           GrDrawOpAtlas* atlas,
                                           ShapeCache* shapeCache,
@@ -240,7 +240,7 @@ public:
                                                   stencilSettings);
     }
 
-    SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrStyledShape& shape,
+    SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrShape& shape,
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
@@ -539,7 +539,7 @@ private:
     }
 
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrStyledShape& shape,
+                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
 
         const SkRect& bounds = shape.bounds();
@@ -644,7 +644,7 @@ private:
     }
 
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrStyledShape& shape,
+                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
@@ -840,9 +840,9 @@ private:
     bool fUsesDistanceField;
 
     struct Entry {
-        SkPMColor4f   fColor;
-        GrStyledShape fShape;
-        SkMatrix      fViewMatrix;
+        SkPMColor4f fColor;
+        GrShape     fShape;
+        SkMatrix    fViewMatrix;
     };
 
     SkSTArray<1, Entry> fShapes;
@@ -933,7 +933,7 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
 std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
                                                         GrRecordingContext* context,
                                                         GrPaint&& paint,
-                                                        const GrStyledShape& shape,
+                                                        const GrShape& shape,
                                                         const SkMatrix& viewMatrix,
                                                         GrDrawOpAtlas* atlas,
                                                         ShapeCache* shapeCache,
@@ -970,7 +970,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     bool gammaCorrect = random->nextBool();
 
     // This path renderer only allows fill styles.
-    GrStyledShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
+    GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
     return GrSmallPathRenderer::createOp_TestingOnly(
                                          context,
                                          std::move(paint), shape, viewMatrix,

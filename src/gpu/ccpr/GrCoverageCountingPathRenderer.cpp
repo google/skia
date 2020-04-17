@@ -80,7 +80,7 @@ GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
-    const GrStyledShape& shape = *args.fShape;
+    const GrShape& shape = *args.fShape;
     // We use "kCoverage", or analytic AA, no mater what the coverage type of our atlas: Even if the
     // atlas is multisampled, that resolves into analytic coverage before we draw the path to the
     // main canvas.

@@ -28,7 +28,7 @@ public:
 
     static bool GetShapeAndClipBounds(GrRenderTargetContext*,
                                       const GrClip& clip,
-                                      const GrStyledShape& shape,
+                                      const GrShape& shape,
                                       const SkMatrix& matrix,
                                       SkIRect* unclippedDevShapeBounds,
                                       SkIRect* clippedDevShapeBounds,
@@ -62,7 +62,7 @@ private:
                                           const SkIPoint& textureOriginInDeviceSpace,
                                           const SkIRect& deviceSpaceRectToDraw);
 
-    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
+    StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 
