@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6240dc93_8db83e10",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T16:59:00Z",
+      "side": 1,
+      "message": "Makes sense. Btw, I\u0027m sort of guessing as to what you had in mind with the GrD3DCommandList class here as it doesn\u0027t quite match up with GrVkCommandBuffer.",
+      "parentUuid": "f4ae3b4c_115c9529",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 112,
+        "endChar": 39
+      },
+      "revId": "438f82e4ecccbcb0a955cf1dbb19226496c70fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "649f11cc_8a76b12b",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-17T14:29:05Z",
       "side": 1,
       "message": "this seems to be something uploadToTexture should be doing? And only doing if it is actually going to do an upload (i.e. don\u0027t do it in the return early cases).",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 67
+      },
+      "revId": "438f82e4ecccbcb0a955cf1dbb19226496c70fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a40771a9_60c58939",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T16:59:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "649f11cc_8a76b12b",
       "range": {
         "startLine": 262,
         "startChar": 0,
