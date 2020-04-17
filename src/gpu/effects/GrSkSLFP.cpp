@@ -269,12 +269,11 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 extern const char* SKSL_ARITHMETIC_SRC;
 extern const char* SKSL_DITHER_SRC;
-extern const char* SKSL_OVERDRAW_SRC;
 
 using Value = SkSL::Program::Settings::Value;
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
-    int type = d->fRandom->nextULessThan(3);
+    int type = d->fRandom->nextULessThan(2);
     switch (type) {
         case 0: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
@@ -291,16 +290,6 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                                          SkData::MakeWithCopy(&inputs, sizeof(inputs)));
             result->addChild(GrConstColorProcessor::Make(
                     SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
-            return std::unique_ptr<GrFragmentProcessor>(result.release());
-        }
-        case 2: {
-            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
-            SkColor4f inputs[6];
-            for (int i = 0; i < 6; ++i) {
-                inputs[i] = SkColor4f::FromBytes_RGBA(d->fRandom->nextU());
-            }
-            auto result = GrSkSLFP::Make(d->context(), effect, "Overdraw",
-                                         SkData::MakeWithCopy(&inputs, sizeof(inputs)));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
     }
