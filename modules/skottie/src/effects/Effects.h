@@ -73,6 +73,8 @@ private:
 
     sk_sp<sksg::RenderNode> attachDropShadowStyle(const skjson::ObjectValue&,
                                                   sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachInnerShadowStyle(const skjson::ObjectValue&,
+                                                   sk_sp<sksg::RenderNode>) const;
 
     EffectBuilderT findBuilder(const skjson::ObjectValue&) const;
 
