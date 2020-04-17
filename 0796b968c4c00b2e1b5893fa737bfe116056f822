@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1840f815_d1809b6a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-17T15:23:02Z",
+      "side": 1,
+      "message": "can we not just use fp below where we\u0027re using result? Or rename fp to result if you prefer that name? Or is fp std::unique_ptr\u003cGrSkSLFP\u003e and that causes problem?",
+      "range": {
+        "startLine": 661,
+        "startChar": 8,
+        "endLine": 661,
+        "endChar": 68
+      },
+      "revId": "0796b968c4c00b2e1b5893fa737bfe116056f822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
