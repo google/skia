@@ -142,6 +142,20 @@ private:
                 , fOriginalUniqueID(originalUniqueID)
                 , fImageInfo(ii) {
         }
+        PromiseImageInfo(PromiseImageInfo&& other)
+                : fIndex(other.fIndex)
+                , fOriginalUniqueID(other.fOriginalUniqueID)
+                , fImageInfo(other.fImageInfo)
+                , fMipLevels(std::move(other.fMipLevels))
+                , fNumMipLevels(other.fNumMipLevels)
+                , fYUVData(std::move(other.fYUVData))
+                , fYUVColorSpace(other.fYUVColorSpace) {
+            memcpy(fYUVAIndices, other.fYUVAIndices, sizeof(fYUVAIndices));
+            for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+                fYUVPlanes[i] = other.fYUVPlanes[i];
+                fCallbackContexts[i] = std::move(other.fCallbackContexts[i]);
+            }
+        }
         ~PromiseImageInfo() {}
 
         int index() const { return fIndex; }
@@ -167,9 +181,13 @@ private:
             SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
             return fYUVPlanes[index];
         }
-        const SkBitmap& normalBitmap() const {
+        const SkPixmap* normalMipLevels() const {
             SkASSERT(!this->isYUV());
-            return fBitmap;
+            return fMipLevels.get();
+        }
+        int numMipLevels() const {
+            SkASSERT(!this->isYUV());
+            return fNumMipLevels;
         }
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
@@ -185,6 +203,12 @@ private:
             return fCallbackContexts[index];
         }
 
+        const GrMipMapped mipMapped(int index) const {
+            if (this->isYUV()) {
+                return GrMipMapped::kNo;
+            }
+            return this->numMipLevels() > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+        }
         const GrBackendFormat& backendFormat(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->backendFormat();
@@ -194,7 +218,10 @@ private:
             return fCallbackContexts[index]->promiseImageTexture();
         }
 
-        void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
+        void setMipLevels(std::unique_ptr<SkPixmap[]> mipLevels, int numMipLevels) {
+            fMipLevels = std::move(mipLevels);
+            fNumMipLevels = numMipLevels;
+        }
 
         void setYUVData(sk_sp<SkCachedData> yuvData,
                         SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
@@ -215,8 +242,9 @@ private:
 
         const SkImageInfo                  fImageInfo;            // info for the overarching image
 
-        // CPU-side cache of a normal SkImage's contents
-        SkBitmap                           fBitmap;
+        // CPU-side cache of a normal SkImage's mipmap levels
+        std::unique_ptr<SkPixmap[]>        fMipLevels;
+        int                                fNumMipLevels = 0;
 
         // CPU-side cache of a YUV SkImage's contents
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image

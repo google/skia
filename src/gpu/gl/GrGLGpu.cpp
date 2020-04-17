@@ -1001,6 +1001,8 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
             restoreGLRowLength = true;
         }
 
+        SkDebugf("%d %d\n", currentWidth, currentHeight);
+
         GL_CALL(TexSubImage2D(target, currentMipLevel, left, top, currentWidth, currentHeight,
                               externalFormat, externalType, texels[currentMipLevel].fPixels));
     }

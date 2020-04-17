@@ -105,27 +105,8 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
             return;
         }
 
-        const SkBitmap& bm = info->normalBitmap();
-
-        // Given how the DDL testing harness works (i.e., only modifying the SkImages w/in an
-        // SKP) we don't know if a given SkImage will require mipmapping. To work around this
-        // we just create all the backend textures as mipmapped.
-        sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm.pixmap(), nullptr));
-        if (!mipmaps) {
-            return;
-        }
-
-        const int mipLevelCount = mipmaps->countLevels() + 1;
-        std::unique_ptr<SkPixmap[]> pixmaps(new SkPixmap[mipLevelCount]);
-
-        pixmaps[0] = bm.pixmap();
-        for (int i = 1; i < mipLevelCount; ++i) {
-            SkMipMap::Level generatedMipLevel;
-            mipmaps->getLevel(i - 1, &generatedMipLevel);
-            pixmaps[i] = generatedMipLevel.fPixmap;
-        }
-
-        GrBackendTexture backendTex = context->createBackendTexture(pixmaps.get(), mipLevelCount,
+        GrBackendTexture backendTex = context->createBackendTexture(info->normalMipLevels(),
+                                                                    info->numMipLevels(),
                                                                     GrRenderable::kNo,
                                                                     GrProtected::kNo);
         SkASSERT(backendTex.isValid());
@@ -183,15 +164,16 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
                 info.setCallbackContext(j, std::move(callbackContext));
             }
         } else {
-            const SkBitmap& bm = info.normalBitmap();
+            const SkPixmap* mipLevels = info.normalMipLevels();
+            SkASSERT(info.numMipLevels());
 
             // TODO: explicitly mark the PromiseImageInfo as too big and check in uploadAllToGPU
-            if (maxDimension < std::max(bm.width(), bm.height())) {
+            if (maxDimension < std::max(mipLevels[0].width(), mipLevels[0].height())) {
                 // This won't fit on the GPU. Fallback to a raster-backed image per tile.
                 continue;
             }
 
-            GrBackendFormat backendFormat = context->defaultBackendFormat(bm.pixmap().colorType(),
+            GrBackendFormat backendFormat = context->defaultBackendFormat(mipLevels[0].colorType(),
                                                                           GrRenderable::kNo);
             if (!caps->isFormatTexturable(backendFormat)) {
                 continue;
@@ -272,8 +254,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
     // If there is no callback context that means 'createCallbackContexts' determined the
     // texture wouldn't fit on the GPU. Create a separate bitmap-backed image for each thread.
     if (!curImage.isYUV() && !curImage.callbackContext(0)) {
-        SkASSERT(curImage.normalBitmap().isImmutable());
-        return SkImage::MakeFromBitmap(curImage.normalBitmap());
+        const SkPixmap* mipLevels = curImage.normalMipLevels();
+        return SkImage::MakeFromRaster(mipLevels[0], nullptr, nullptr);
     }
 
     SkASSERT(curImage.index() == *indexPtr);
@@ -334,7 +316,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 backendFormat,
                 curImage.overallWidth(),
                 curImage.overallHeight(),
-                GrMipMapped::kYes,
+                curImage.mipMapped(0),
                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                 curImage.overallColorType(),
                 curImage.overallAlphaType(),
@@ -429,7 +411,32 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         }
 
         tmp.setImmutable();
-        newImageInfo.setNormalBitmap(tmp);
+
+        bool skipMips = 4096 < std::max(tmp.width(), tmp.height());
+
+//        bool skipMips = tmp.width() > 5000 && tmp.height() > 5000;
+
+        // Given how the DDL testing harness works (i.e., only modifying the SkImages w/in an
+        // SKP) we don't know if a given SkImage will require mipmapping. To work around this
+        // we just create all the backend textures as mipmapped.
+        sk_sp<SkMipMap> mipmaps(skipMips ? nullptr : SkMipMap::Build(tmp.pixmap(), nullptr));
+        if (!mipmaps) {
+            std::unique_ptr<SkPixmap[]> pixmaps(new SkPixmap[1]);
+            pixmaps[0] = tmp.pixmap();
+            newImageInfo.setMipLevels(std::move(pixmaps), 1);
+        } else {
+            const int mipLevelCount = mipmaps->countLevels() + 1;
+            std::unique_ptr<SkPixmap[]> pixmaps(new SkPixmap[mipLevelCount]);
+
+            pixmaps[0] = tmp.pixmap();
+            for (int i = 1; i < mipLevelCount; ++i) {
+                SkMipMap::Level generatedMipLevel;
+                mipmaps->getLevel(i - 1, &generatedMipLevel);
+                pixmaps[i] = generatedMipLevel.fPixmap;
+            }
+
+            newImageInfo.setMipLevels(std::move(pixmaps), mipLevelCount);
+        }
     }
     // In either case newImageInfo's PromiseImageCallbackContext is filled in by uploadAllToGPU
 
