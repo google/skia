@@ -1665,6 +1665,14 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.sub(A::sp, A::sp, 32);
+        a.add(A::sp, A::sp, 32);
+    },{
+         0xff,0x83,0x00,0xd1,
+         0xff,0x83,0x00,0x91,
+    });
+
+    test_asm(r, [&](A& a) {
         a.brk(0);
         a.brk(65535);
 
