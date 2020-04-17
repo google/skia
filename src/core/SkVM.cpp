@@ -2825,7 +2825,8 @@ namespace skvm {
                       const JITMode mode,
                       Assembler* a) const {
         using A = Assembler;
-        const bool try_hoisting = mode != JITMode::RegisterNoHoist;
+        const bool try_hoisting = mode != JITMode::RegisterNoHoist,
+                   stack_only   = mode == JITMode::Stack;
 
         auto debug_dump = [&] {
         #if 0
@@ -2842,7 +2843,6 @@ namespace skvm {
             return false;
         }
         const int K = 8;
-        const bool stack_only = mode == JITMode::Stack;
         A::GP64 N        = A::rdi,
                 scratch  = A::rax,
                 scratch2 = A::r11,
@@ -2855,7 +2855,6 @@ namespace skvm {
 
     #elif defined(__aarch64__)
         const int K = 4;
-        const bool stack_only = false;  // TODO
         A::X N       = A::x0,
              scratch = A::x8,
              arg[]   = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
@@ -2873,6 +2872,13 @@ namespace skvm {
         auto hoisted = [&](Val id) { return try_hoisting && instructions[id].can_hoist; };
 
         std::vector<Reg> r(instructions.size());
+    #if defined(__x86_64__)
+        auto load_from_stack = [&](Val id) { a->vmovups(r[id], A::Mem{A::rsp, id*K*4}); };
+        auto  store_to_stack = [&](Val id) { a->vmovups(A::Mem{A::rsp, id*K*4}, r[id]); };
+    #elif defined(__aarch64__)
+        auto load_from_stack = [&](Val id) { a->ldrq(r[id], A::sp, id); };
+        auto  store_to_stack = [&](Val id) { a->strq(r[id], A::sp, id); };
+    #endif
 
         struct LabelAndReg {
             A::Label label;
@@ -2913,16 +2919,12 @@ namespace skvm {
 
             if (stack_only) {
                 // Move each unique argument into a temporary register.
-                auto load_from_stack = [&](Val arg) {
+                auto assign_temporary_register = [&](Val arg) {
                     if (int found = __builtin_ffs(avail)) {
                         Reg reg = (Reg)(found - 1);
                         avail ^= 1 << reg;
                         r[arg] = reg;
-                    #if defined(__x86_64__)
-                        a->vmovups(r[arg], A::Mem{A::rsp, arg*K*4});
-                    #else
-                        SkASSERT(false); // TODO
-                    #endif
+                        load_from_stack(arg);
                     } else {
                         if (debug_dump()) {
                             SkDebugf("\nCould not find temporary register for %d\n", arg);
@@ -2930,9 +2932,9 @@ namespace skvm {
                         ok = false;
                     }
                 };
-                if (x != NA                    ) { load_from_stack(x); }
-                if (y != NA && y != x          ) { load_from_stack(y); }
-                if (z != NA && z != x && z != y) { load_from_stack(z); }
+                if (x != NA                    ) { assign_temporary_register(x); }
+                if (y != NA && y != x          ) { assign_temporary_register(y); }
+                if (z != NA && z != x && z != y) { assign_temporary_register(z); }
             }
 
             // First lock in how to choose tmp if we need to based on the registers
@@ -3341,11 +3343,7 @@ namespace skvm {
 
             if (stack_only) {
                 if (dst_is_set) {
-                #if defined(__x86_64__)
-                    a->vmovups(A::Mem{A::rsp, id*K*4}, r[id]);
-                #else
-                    SkASSERT(false);  // TODO
-                #endif
+                    store_to_stack(id);
                     avail |= 1 << r[id];
                 }
                 for (Val arg : {x,y,z}) {
