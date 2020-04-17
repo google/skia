@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8ec97f6_da8707df",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T19:55:35Z",
+      "side": 1,
+      "message": "this seems like it should be an assert failure. Like our logic is wrong if this is the case.",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15e9ea7e_42314642",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T19:55:35Z",
+      "side": 1,
+      "message": "IMO the only \"valid\" time to get a return of kFailure here is if the driver itself reports an error when we try to submit. In that case it is typically unrecoverable. All other failures generally mean we messed up.",
+      "range": {
+        "startLine": 102,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 54
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "694a6825_2aa4f5db",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T19:55:35Z",
+      "side": 1,
+      "message": "even if there was no work we must sync the CPU if requested. Often the client may have flushed everything and then later wants to make sure skia is done with everything. So they just flush with the sync flag even with no work.",
+      "range": {
+        "startLine": 104,
+        "startChar": 15,
+        "endLine": 104,
+        "endChar": 70
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfe0753b_caa22ea7",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T19:55:35Z",
+      "side": 1,
+      "message": "ohhh nice catch",
+      "range": {
+        "startLine": 28,
+        "startChar": 15,
+        "endLine": 28,
+        "endChar": 17
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
