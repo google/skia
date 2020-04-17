@@ -29,7 +29,7 @@ namespace GrQuadPerEdgeAA {
     using Saturate = GrTextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
-    enum class Domain : bool { kNo = false, kYes = true };
+    enum class Subset : bool { kNo = false, kYes = true };
     enum class ColorType { kNone, kByte, kFloat, kLast = kFloat };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
@@ -64,7 +64,8 @@ namespace GrQuadPerEdgeAA {
                 , fRequiresGeometryDomain(false) {}
 
         VertexSpec(GrQuad::Type deviceQuadType, ColorType colorType, GrQuad::Type localQuadType,
-                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha,
+                   bool hasLocalCoords,
+                   Subset domain, GrAAType aa, bool coverageAsAlpha,
                    IndexBufferOption indexBufferOption)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
