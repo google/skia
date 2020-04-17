@@ -829,7 +829,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
                                              SkBlendMode blendMode,
                                              GrAA aa,
                                              DrawQuad* quad,
-                                             const SkRect* domain) {
+                                             const SkRect* subset) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -851,12 +851,12 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
-        // Use the provided domain, although hypothetically we could detect that the cropped local
-        // quad is sufficiently inside the domain and the constraint could be dropped.
+        // Use the provided subset, although hypothetically we could detect that the cropped local
+        // quad is sufficiently inside the subset and the constraint could be dropped.
         this->addDrawOp(finalClip,
                         GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
                                           std::move(textureXform), filter, color, saturate,
-                                          blendMode, aaType, quad, domain));
+                                          blendMode, aaType, quad, subset));
     }
 }
 

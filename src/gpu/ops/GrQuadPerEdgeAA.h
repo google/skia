@@ -29,7 +29,7 @@ namespace GrQuadPerEdgeAA {
     using Saturate = GrTextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
-    enum class Domain : bool { kNo = false, kYes = true };
+    enum class Subset : bool { kNo = false, kYes = true };
     enum class ColorType { kNone, kByte, kFloat, kLast = kFloat };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
@@ -47,7 +47,7 @@ namespace GrQuadPerEdgeAA {
     ColorType MinColorType(SkPMColor4f);
 
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
-    // order (when enabled) is device position, color, local position, domain, aa edge equations.
+    // order (when enabled) is device position, color, local position, subset, aa edge equations.
     // This order matches the constructor argument order of VertexSpec and is the order that
     // GPAttributes maintains. If hasLocalCoords is false, then the local quad type can be ignored.
     struct VertexSpec {
@@ -58,23 +58,24 @@ namespace GrQuadPerEdgeAA {
                 , fIndexBufferOption(0)  // kPictureFramed
                 , fHasLocalCoords(false)
                 , fColorType(0)          // kNone
-                , fHasDomain(false)
+                , fHasSubset(false)
                 , fUsesCoverageAA(false)
                 , fCompatibleWithCoverageAsAlpha(false)
-                , fRequiresGeometryDomain(false) {}
+                , fRequiresGeometrySubset(false) {}
 
         VertexSpec(GrQuad::Type deviceQuadType, ColorType colorType, GrQuad::Type localQuadType,
-                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha,
+                   bool hasLocalCoords,
+                   Subset subset, GrAAType aa, bool coverageAsAlpha,
                    IndexBufferOption indexBufferOption)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
                 , fIndexBufferOption(static_cast<unsigned>(indexBufferOption))
                 , fHasLocalCoords(hasLocalCoords)
                 , fColorType(static_cast<unsigned>(colorType))
-                , fHasDomain(static_cast<unsigned>(domain))
+                , fHasSubset(static_cast<unsigned>(subset))
                 , fUsesCoverageAA(aa == GrAAType::kCoverage)
                 , fCompatibleWithCoverageAsAlpha(coverageAsAlpha)
-                , fRequiresGeometryDomain(aa == GrAAType::kCoverage &&
+                , fRequiresGeometrySubset(aa == GrAAType::kCoverage &&
                                           deviceQuadType > GrQuad::Type::kRectilinear) { }
 
         GrQuad::Type deviceQuadType() const { return static_cast<GrQuad::Type>(fDeviceQuadType); }
@@ -85,10 +86,10 @@ namespace GrQuadPerEdgeAA {
         bool hasLocalCoords() const { return fHasLocalCoords; }
         ColorType colorType() const { return static_cast<ColorType>(fColorType); }
         bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
-        bool hasDomain() const { return fHasDomain; }
+        bool hasSubset() const { return fHasSubset; }
         bool usesCoverageAA() const { return fUsesCoverageAA; }
         bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
-        bool requiresGeometryDomain() const { return fRequiresGeometryDomain; }
+        bool requiresGeometrySubset() const { return fRequiresGeometrySubset; }
         // Will always be 2 or 3
         int deviceDimensionality() const;
         // Will always be 0 if hasLocalCoords is false, otherwise will be 2 or 3
@@ -122,12 +123,12 @@ namespace GrQuadPerEdgeAA {
         unsigned fIndexBufferOption: 2;
         unsigned fHasLocalCoords: 1;
         unsigned fColorType : 2;
-        unsigned fHasDomain: 1;
+        unsigned fHasSubset : 1;
         unsigned fUsesCoverageAA: 1;
         unsigned fCompatibleWithCoverageAsAlpha: 1;
-        // The geometry domain serves to clip off pixels touched by quads with sharp corners that
+        // The geometry subset serves to clip off pixels touched by quads with sharp corners that
         // would otherwise exceed the miter limit for the AA-outset geometry.
-        unsigned fRequiresGeometryDomain: 1;
+        unsigned fRequiresGeometrySubset : 1;
     };
 
     // A Tessellator is responsible for processing a series of device+local GrQuads into a VBO,
@@ -143,7 +144,7 @@ namespace GrQuadPerEdgeAA {
         // damage the provided GrQuads (as this is intended to work with GrQuadBuffer::Iter).
         // 'localQuad' can be null if the VertexSpec does not use local coords.
         void append(GrQuad* deviceQuad, GrQuad* localQuad,
-                    const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags);
+                    const SkPMColor4f& color, const SkRect& uvSubset, GrQuadAAFlags aaFlags);
 
         SkDEBUGCODE(char* vertices() const { return (char*) fVertexWriter.fPtr; })
 
@@ -155,7 +156,7 @@ namespace GrQuadPerEdgeAA {
         typedef void (*WriteQuadProc)(GrVertexWriter* vertices, const VertexSpec& spec,
                                       const GrQuad* deviceQuad, const GrQuad* localQuad,
                                       const float coverage[4], const SkPMColor4f& color,
-                                      const SkRect& geomDomain, const SkRect& texDomain);
+                                      const SkRect& geomSubset, const SkRect& texSubset);
         static WriteQuadProc GetWriteQuadProc(const VertexSpec& spec);
 
         GrQuadUtils::TessellationHelper fAAHelper;
