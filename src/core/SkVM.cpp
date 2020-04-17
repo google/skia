@@ -1999,6 +1999,14 @@ namespace skvm {
         this->byte(imm);
     }
 
+    void Assembler::vextracti128(Operand dst, Ymm src, int imm) {
+        this->op(0x66,0x3a0f,0x39, src,dst);
+        this->byte(imm);
+    }
+    void Assembler::vpextrd(Operand dst, Xmm src, int imm) {
+        this->op(0x66,0x3a0f,0x16, src,dst);
+        this->byte(imm);
+    }
     void Assembler::vpextrw(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x15, src,dst);
         this->byte(imm);
@@ -3010,12 +3018,6 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
-                default:
-                    if (debug_dump()) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;  // TODO: many new ops
-
             #if defined(__x86_64__)
                 case Op::assert_true: {
                     a->vptest (r[x], &constants[0xffffffff].label);
@@ -3060,10 +3062,59 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
                                  break;
 
+                // TODO: can't use tmp() in gather8/gather16 like this unless tmp() != dst()
+
+                case Op::gather8: {
+                    SkASSERT(dst() != tmp());
+                    A::GP64 base = scratch,
+                           index = scratch2;
+                    // Our gather base pointer is immz bytes off of uniform immy.
+                    a->mov(base, A::Mem{arg[immy], immz});
+
+                    // We can only extract from and insert into the low 128 bits of a register.
+                    // For insertions are fine, but we'll need to shuffle down the high 128 bits
+                    // to extract indices from.  Copy them into tmp() to make that easy.
+                    a->vmovdqa(tmp(), r[x]);
+                  //a->vpxor(dst(), dst(), dst());   // TODO: good idea for perf?
+                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                        if (i == 4) {
+                            // Pull down the high 128-bits into the low 128, hence i%4 in vpextrd.
+                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
+                        }
+                        // Grab our index from lane i of the index argument.
+                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
+                        // Load and insert each 8-bit value into its own slot.
+                        a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{base,0,index,A::ONE}, i);
+                    }
+                    // Expand 8->32 bit.
+                    a->vpmovzxbd(dst(), dst());
+                } break;
+
+                case Op::gather16: {
+                    SkASSERT(dst() != tmp());
+                    // Identical to gather8 except at A) and B).
+                    A::GP64 base = scratch,
+                           index = scratch2;
+                    a->mov(base, A::Mem{arg[immy], immz});
+
+                    a->vmovdqa(tmp(), r[x]);
+                  //a->vpxor(dst(), dst(), dst());   // TODO: good idea for perf?
+                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                        if (i == 4) {
+                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
+                        }
+                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
+                        // A) Load and insert a 16-bit value.
+                        a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{base,0,index,A::TWO}, i);
+                    }
+                    // B) Expand 16->32 bit.
+                    a->vpmovzxwd(dst(), dst());
+                } break;
+
                 case Op::gather32:
                 if (scalar) {
-                    auto base  = scratch,
-                         index = scratch2;
+                    A::GP64 base = scratch,
+                           index = scratch2;
                     // Our gather base pointer is immz bytes off of uniform immy.
                     a->mov(base, A::Mem{arg[immy], immz});
 
@@ -3100,7 +3151,7 @@ namespace skvm {
                     }
 
                     // Our gather base pointer is immz bytes off of uniform immy.
-                    auto base = scratch;
+                    A::GP64 base = scratch;
                     a->mov(base, A::Mem{arg[immy], immz});
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
                     a->vgatherdps(dst(), A::FOUR, index, base, mask);
@@ -3207,6 +3258,12 @@ namespace skvm {
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
             #elif defined(__aarch64__)
+                default:
+                    if (debug_dump()) {
+                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    }
+                    return false;  // TODO: many new ops
+
                 case Op::assert_true: {
                     a->uminv4s(tmp(), r[x]);   // uminv acts like an all() across the vector.
                     a->fmovs(scratch, tmp());
