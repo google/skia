@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9f90b62_57c1e668",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-17T16:29:09Z",
+      "side": 1,
+      "message": "This is necessary because the bots have dm return a failure code if any of the --config values don\u0027t succeed.",
+      "range": {
+        "startLine": 314,
+        "startChar": 0,
+        "endLine": 317,
+        "endChar": 4
+      },
+      "revId": "64b76b60ba6ad5224d8296e9b3d9bf2e138ec567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
