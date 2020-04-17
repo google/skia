@@ -408,7 +408,7 @@ private:
         // Fixed vertex spec for extracting the picture frame geometry
         static const GrQuadPerEdgeAA::VertexSpec kSpec =
             {GrQuad::Type::kGeneral, GrQuadPerEdgeAA::ColorType::kNone,
-             GrQuad::Type::kAxisAligned, false, GrQuadPerEdgeAA::Domain::kNo,
+             GrQuad::Type::kAxisAligned, false, GrQuadPerEdgeAA::Subset::kNo,
              GrAAType::kCoverage, false, GrQuadPerEdgeAA::IndexBufferOption::kPictureFramed};
         static const GrQuad kIgnored(SkRect::MakeEmpty());
 
