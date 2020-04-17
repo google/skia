@@ -69,7 +69,8 @@ public:
     static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
                                           sk_sp<SkRuntimeEffect> effect,
                                           const char* name,
-                                          sk_sp<SkData> inputs);
+                                          sk_sp<SkData> inputs,
+                                          const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
 
@@ -81,7 +82,8 @@ private:
     using ShaderErrorHandler = GrContextOptions::ShaderErrorHandler;
 
     GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
-             sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs);
+             sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
+             const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
