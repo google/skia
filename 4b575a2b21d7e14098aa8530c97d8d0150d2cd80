@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a2deaea2_b9a7f0fb",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-17T20:30:32Z",
+      "side": 1,
+      "message": "oh i read this as if (!this-\u003eisClosed()). Like just querying if we remembered to close. This looks good then.",
+      "parentUuid": "917daaf7_7a65e78c",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15e9ea7e_42314642",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 2
