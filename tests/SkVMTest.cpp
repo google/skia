@@ -37,7 +37,7 @@ static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
 #if defined(SKVM_LLVM)
     SkASSERT(program.hasJIT());
 #elif defined(SKVM_JIT) && defined(SK_CPU_X86)  // soon!
-    // SkASSERT(program.hasJIT());
+    SkASSERT(program.hasJIT());
 #elif defined(SKVM_JIT)                         // eventually!
     // SkASSERT(program.hasJIT());
 #else
@@ -1418,6 +1418,12 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpinsrb(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrb $4, (%rsi), %xmm8, %xmm1
         a.vpinsrb(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinsrb $4, (%rsi), %xmm8, %xmm1
 
+        a.vextracti128(A::xmm1, A::ymm8, 1);  // vextracti128 $1, %ymm8, %xmm1
+        a.vextracti128(A::xmm8, A::ymm1, 0);  // vextracti128 $0, %ymm1, %xmm8
+
+        a.vpextrd(A::Mem{A::rsi}, A::xmm8, 3);  // vpextrd  $3, %xmm8, (%rsi)
+        a.vpextrd(A::Mem{A::r8 }, A::xmm1, 2);  // vpextrd  $2, %xmm1, (%r8)
+
         a.vpextrw(A::Mem{A::rsi}, A::xmm8, 7);
         a.vpextrw(A::Mem{A::r8 }, A::xmm1, 15);
 
@@ -1429,6 +1435,12 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0xc4,0xe3,0x39, 0x20, 0x0e,  4,
         0xc4,0x43,0x71, 0x20, 0x00, 12,
+
+        0xc4,0x63,0x7d,0x39,0xc1, 1,
+        0xc4,0xc3,0x7d,0x39,0xc8, 0,
+
+        0xc4,0x63,0x79,0x16,0x06, 3,
+        0xc4,0xc3,0x79,0x16,0x08, 2,
 
         0xc4,0x63,0x79, 0x15, 0x06,  7,
         0xc4,0xc3,0x79, 0x15, 0x08, 15,
