@@ -512,7 +512,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     c.fArguments.size() == 2 &&
                     c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
                     const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
-                    if (p.fOperator == Token::MINUS) {
+                    if (p.fOperator == Token::Kind::TK_MINUS) {
                         this->write("atan(");
                         this->writeExpression(*c.fArguments[0], kSequence_Precedence);
                         this->write(", -1.0 * ");
@@ -1048,40 +1048,40 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
     switch (op) {
-        case Token::STAR:         // fall through
-        case Token::SLASH:        // fall through
-        case Token::PERCENT:      return GLSLCodeGenerator::kMultiplicative_Precedence;
-        case Token::PLUS:         // fall through
-        case Token::MINUS:        return GLSLCodeGenerator::kAdditive_Precedence;
-        case Token::SHL:          // fall through
-        case Token::SHR:          return GLSLCodeGenerator::kShift_Precedence;
-        case Token::LT:           // fall through
-        case Token::GT:           // fall through
-        case Token::LTEQ:         // fall through
-        case Token::GTEQ:         return GLSLCodeGenerator::kRelational_Precedence;
-        case Token::EQEQ:         // fall through
-        case Token::NEQ:          return GLSLCodeGenerator::kEquality_Precedence;
-        case Token::BITWISEAND:   return GLSLCodeGenerator::kBitwiseAnd_Precedence;
-        case Token::BITWISEXOR:   return GLSLCodeGenerator::kBitwiseXor_Precedence;
-        case Token::BITWISEOR:    return GLSLCodeGenerator::kBitwiseOr_Precedence;
-        case Token::LOGICALAND:   return GLSLCodeGenerator::kLogicalAnd_Precedence;
-        case Token::LOGICALXOR:   return GLSLCodeGenerator::kLogicalXor_Precedence;
-        case Token::LOGICALOR:    return GLSLCodeGenerator::kLogicalOr_Precedence;
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::LOGICALANDEQ: // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEOREQ:  return GLSLCodeGenerator::kAssignment_Precedence;
-        case Token::COMMA:        return GLSLCodeGenerator::kSequence_Precedence;
+        case Token::Kind::TK_STAR:         // fall through
+        case Token::Kind::TK_SLASH:        // fall through
+        case Token::Kind::TK_PERCENT:      return GLSLCodeGenerator::kMultiplicative_Precedence;
+        case Token::Kind::TK_PLUS:         // fall through
+        case Token::Kind::TK_MINUS:        return GLSLCodeGenerator::kAdditive_Precedence;
+        case Token::Kind::TK_SHL:          // fall through
+        case Token::Kind::TK_SHR:          return GLSLCodeGenerator::kShift_Precedence;
+        case Token::Kind::TK_LT:           // fall through
+        case Token::Kind::TK_GT:           // fall through
+        case Token::Kind::TK_LTEQ:         // fall through
+        case Token::Kind::TK_GTEQ:         return GLSLCodeGenerator::kRelational_Precedence;
+        case Token::Kind::TK_EQEQ:         // fall through
+        case Token::Kind::TK_NEQ:          return GLSLCodeGenerator::kEquality_Precedence;
+        case Token::Kind::TK_BITWISEAND:   return GLSLCodeGenerator::kBitwiseAnd_Precedence;
+        case Token::Kind::TK_BITWISEXOR:   return GLSLCodeGenerator::kBitwiseXor_Precedence;
+        case Token::Kind::TK_BITWISEOR:    return GLSLCodeGenerator::kBitwiseOr_Precedence;
+        case Token::Kind::TK_LOGICALAND:   return GLSLCodeGenerator::kLogicalAnd_Precedence;
+        case Token::Kind::TK_LOGICALXOR:   return GLSLCodeGenerator::kLogicalXor_Precedence;
+        case Token::Kind::TK_LOGICALOR:    return GLSLCodeGenerator::kLogicalOr_Precedence;
+        case Token::Kind::TK_EQ:           // fall through
+        case Token::Kind::TK_PLUSEQ:       // fall through
+        case Token::Kind::TK_MINUSEQ:      // fall through
+        case Token::Kind::TK_STAREQ:       // fall through
+        case Token::Kind::TK_SLASHEQ:      // fall through
+        case Token::Kind::TK_PERCENTEQ:    // fall through
+        case Token::Kind::TK_SHLEQ:        // fall through
+        case Token::Kind::TK_SHREQ:        // fall through
+        case Token::Kind::TK_LOGICALANDEQ: // fall through
+        case Token::Kind::TK_LOGICALXOREQ: // fall through
+        case Token::Kind::TK_LOGICALOREQ:  // fall through
+        case Token::Kind::TK_BITWISEANDEQ: // fall through
+        case Token::Kind::TK_BITWISEXOREQ: // fall through
+        case Token::Kind::TK_BITWISEOREQ:  return GLSLCodeGenerator::kAssignment_Precedence;
+        case Token::Kind::TK_COMMA:        return GLSLCodeGenerator::kSequence_Precedence;
         default: ABORT("unsupported binary operator");
     }
 }
@@ -1089,7 +1089,8 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
-            (b.fOperator == Token::LOGICALAND || b.fOperator == Token::LOGICALOR)) {
+            (b.fOperator == Token::Kind::TK_LOGICALAND ||
+             b.fOperator == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
@@ -1131,14 +1132,14 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // a || b  =>   a ? true : b
     this->writeExpression(*b.fLeft, kTernary_Precedence);
     this->write(" ? ");
-    if (b.fOperator == Token::LOGICALAND) {
+    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
         this->writeExpression(*b.fRight, kTernary_Precedence);
     } else {
         BoolLiteral boolTrue(fContext, -1, true);
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
-    if (b.fOperator == Token::LOGICALAND) {
+    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
         BoolLiteral boolFalse(fContext, -1, false);
         this->writeBoolLiteral(boolFalse);
     } else {
@@ -1548,7 +1549,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.fTest) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    -1, f.fTest->clone(), Token::LOGICALAND,
+                    -1, f.fTest->clone(), Token::Kind::TK_LOGICALAND,
                     std::unique_ptr<BoolLiteral>(new BoolLiteral(fContext, -1,
                                                                  true)),
                     *fContext.fBool_Type));

@@ -1041,13 +1041,13 @@ Token Lexer::next() {
     // a bit.
     int32_t startOffset = fOffset;
     if (startOffset == fLength) {
-        return Token(Token::END_OF_FILE, startOffset, 0);
+        return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     int16_t state = 1;
     for (;;) {
         if (fOffset >= fLength) {
             if (accepts[state] == -1) {
-                return Token(Token::END_OF_FILE, startOffset, 0);
+                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
         }

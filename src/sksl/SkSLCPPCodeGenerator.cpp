@@ -67,7 +67,7 @@ String CPPCodeGenerator::getTypeName(const Type& type) {
 
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
-    if (b.fOperator == Token::PERCENT) {
+    if (b.fOperator == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
         Precedence precedence = GetBinaryPrecedence(b.fOperator);
         if (precedence >= parentPrecedence) {
@@ -94,10 +94,10 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("%s");
         const char* op;
         switch (b.fOperator) {
-            case Token::EQEQ:
+            case Token::Kind::TK_EQEQ:
                 op = "<";
                 break;
-            case Token::NEQ:
+            case Token::Kind::TK_NEQ:
                 op = ">=";
                 break;
             default:
