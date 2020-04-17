@@ -150,6 +150,27 @@ private:
 };
 
 /**
+ * Wrapper for externally-managed SkImageFilters.
+ */
+class ExternalImageFilter final : public ImageFilter {
+public:
+    ~ExternalImageFilter() override;
+
+    static sk_sp<ExternalImageFilter> Make() {
+        return sk_sp<ExternalImageFilter>(new ExternalImageFilter());
+    }
+
+    SG_ATTRIBUTE(ImageFilter, sk_sp<SkImageFilter>, fImageFilter)
+
+private:
+    ExternalImageFilter();
+
+    sk_sp<SkImageFilter> onRevalidateFilter() override { return fImageFilter; }
+
+    sk_sp<SkImageFilter> fImageFilter;
+};
+
+/**
  * SkDropShadowImageFilter node.
  */
 class DropShadowImageFilter final : public ImageFilter {
