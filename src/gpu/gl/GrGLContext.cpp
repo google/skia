@@ -43,8 +43,8 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
     args.fRenderer = GrGLGetRendererFromStrings(renderer, interface->fExtensions);
 
-    GrGLGetANGLEInfoFromString(renderer, &args.fANGLEBackend, &args.fANGLEVendor,
-                               &args.fANGLERenderer);
+    std::tie(args.fANGLEBackend, args.fANGLEVendor, args.fANGLERenderer) =
+            GrGLGetANGLEInfoFromString(renderer);
 
     /*
      * Qualcomm drivers for the 3xx series have a horrendous bug with some drivers. Though they
