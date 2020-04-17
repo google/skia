@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "917daaf7_7a65e78c",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T20:08:57Z",
+      "side": 1,
+      "message": "Close can fail if we\u0027re out of memory, too, which could be the client\u0027s fault.",
+      "parentUuid": "e8ec97f6_da8707df",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15e9ea7e_42314642",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-17T19:55:35Z",
       "side": 1,
       "message": "IMO the only \"valid\" time to get a return of kFailure here is if the driver itself reports an error when we try to submit. In that case it is typically unrecoverable. All other failures generally mean we messed up.",
+      "range": {
+        "startLine": 102,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 54
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf5222a6_e8e9c970",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T20:08:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "15e9ea7e_42314642",
       "range": {
         "startLine": 102,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4b6bb427_0c91c09e",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T20:08:57Z",
+      "side": 1,
+      "message": "Good catch, missed that.",
+      "parentUuid": "694a6825_2aa4f5db",
+      "range": {
+        "startLine": 104,
+        "startChar": 15,
+        "endLine": 104,
+        "endChar": 70
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bfe0753b_caa22ea7",
         "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a65a018a_e2f421fe",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-17T20:08:57Z",
+      "side": 1,
+      "message": "Yeah, it was mysteriously crashing when it tried to recycle command lists :-)",
+      "parentUuid": "bfe0753b_caa22ea7",
+      "range": {
+        "startLine": 28,
+        "startChar": 15,
+        "endLine": 28,
+        "endChar": 17
+      },
+      "revId": "4b575a2b21d7e14098aa8530c97d8d0150d2cd80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
