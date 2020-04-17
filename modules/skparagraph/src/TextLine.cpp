@@ -694,11 +694,24 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         bool limitToClusters) const {
     ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
 
-    if (run->placeholderStyle() != nullptr || run->fEllipsis) {
+    if (run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
         SkASSERT(textRange == run->textRange());
         result.fTextShift = runOffsetInLine;
-        result.clip = SkRect::MakeXYWH(runOffsetInLine, sizes().runTop(run), run->advance().fX, run->calculateHeight());
+        result.clip = SkRect::MakeXYWH(runOffsetInLine,
+                                       sizes().runTop(run),
+                                       run->advance().fX,
+                                       run->calculateHeight());
+        return result;
+    } else if (run->isPlaceholder()) {
+        if (SkScalarIsFinite(run->fFontMetrics.fAscent)) {
+          result.clip = SkRect::MakeXYWH(runOffsetInLine,
+                                         sizes().runTop(run),
+                                         run->advance().fX,
+                                         run->calculateHeight());
+        } else {
+            result.clip = SkRect::MakeXYWH(runOffsetInLine, run->fFontMetrics.fAscent, run->advance().fX, 0);
+        }
         return result;
     }
 

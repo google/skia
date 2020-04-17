@@ -49,8 +49,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 }
 
                 if (cluster->width() > maxWidth) {
-                    // Placeholder is longer than the line
-                    fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
+                    // Placeholder is longer than the line; it does not count in fMinIntrinsicWidth
                     fClusters.extend(cluster);
                     fTooLongCluster = true;
                     fTooLongWord = true;
@@ -67,9 +66,15 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                     break;
                 }
                 if (further->run()->isPlaceholder()) {
-                  continue;
+                  // Placeholder ends the word
+                  break;
                 }
-                nextWordLength += further->width();
+                if (maxWidth == 0) {
+                    // This is a tricky flutter case: layout(width:0) places 1 cluster on each line
+                    nextWordLength = std::max(nextWordLength, further->width());
+                } else {
+                    nextWordLength += further->width();
+                }
             }
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
@@ -98,8 +103,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 fWords.extend(fClusters);
             }
 
-            // It also creates a separate word
-            fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
+            // It also creates a separate word; it does not count in fMinIntrinsicWidth
             fWords.extend(cluster);
             continue;
         }
@@ -352,9 +356,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 lastWordLength = 0;
             } else if (cluster->run()->isPlaceholder()) {
                 // Placeholder ends the previous word and creates a separate one
+                // it does not count in fMinIntrinsicWidth
                 softLineMaxIntrinsicWidth += cluster->width();
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
-                fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
                 lastWordLength = 0;
             } else {
                 // Nothing out of ordinary - just add this cluster to the word and to the line
