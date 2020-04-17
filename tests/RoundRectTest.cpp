@@ -7,7 +7,9 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkRRectPriv.h"
 #include "tests/Test.h"
 
 static void test_tricky_radii(skiatest::Reporter* reporter) {
@@ -1012,6 +1014,94 @@ static void test_read(skiatest::Reporter* reporter) {
     test_read_rrect(reporter, rrect, false);
 }
 
+static void test_inner_bounds(skiatest::Reporter* reporter) {
+    // Because InnerBounds() insets the computed bounds slightly to correct for numerical inaccuracy
+    // when finding the maximum inscribed point on a curve, we use a larger epsilon for comparing
+    // expected areas.
+    static constexpr SkScalar kEpsilon = 0.005f;
+
+    // Test that an empty rrect reports empty inner bounds
+    REPORTER_ASSERT(reporter, SkRRectPriv::InnerBounds(SkRRect::MakeEmpty()).isEmpty());
+    // Test that a rect rrect reports itself as the inner bounds
+    SkRect r = SkRect::MakeLTRB(0, 1, 2, 3);
+    REPORTER_ASSERT(reporter, SkRRectPriv::InnerBounds(SkRRect::MakeRect(r)) == r);
+    // Test that a circle rrect has an inner bounds area equal to 2*radius^2
+    float radius = 5.f;
+    SkRect inner = SkRRectPriv::InnerBounds(SkRRect::MakeOval(SkRect::MakeWH(2.f * radius,
+                                                                             2.f * radius)));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(inner.width() * inner.height(),
+                                                  2.f * radius * radius, kEpsilon));
+
+    float width = 20.f;
+    float height = 25.f;
+    r = SkRect::MakeWH(width, height);
+    // Test that a rrect with circular corners has an area equal to:
+    float expectedArea =
+            (2.f * radius * radius) +                      // area in the 4 circular corners
+            (width-2.f*radius) * (height-2.f*radius) +     // inner area excluding corners and edges
+            SK_ScalarSqrt2 * radius * (width-2.f*radius) + // two horiz. rects between corners
+            SK_ScalarSqrt2 * radius * (height-2.f*radius); // two vert. rects between corners
+
+    inner = SkRRectPriv::InnerBounds(SkRRect::MakeRectXY(r, radius, radius));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(inner.width() * inner.height(),
+                                                  expectedArea, kEpsilon));
+
+    // Test that a rrect with a small y radius but large x radius selects the horizontal interior
+    SkRRect rr = SkRRect::MakeRectXY(r, 2.f * radius, 0.1f * radius);
+    REPORTER_ASSERT(reporter, SkRRectPriv::InnerBounds(rr) ==
+                              SkRect::MakeLTRB(0.f, 0.1f * radius, width, height - 0.1f * radius));
+    // And vice versa with large y and small x radii
+    rr = SkRRect::MakeRectXY(r, 0.1f * radius, 2.f * radius);
+    REPORTER_ASSERT(reporter, SkRRectPriv::InnerBounds(rr) ==
+                              SkRect::MakeLTRB(0.1f * radius, 0.f, width - 0.1f * radius, height));
+
+    // Test a variety of complex round rects produce a non-empty rect that is at least contained,
+    // and larger than the inner area avoiding all corners.
+    SkRandom rng;
+    for (int i = 0; i < 1000; ++i) {
+        float maxRadiusX = rng.nextRangeF(0.f, 40.f);
+        float maxRadiusY = rng.nextRangeF(0.f, 40.f);
+
+        float innerWidth = rng.nextRangeF(0.f, 40.f);
+        float innerHeight = rng.nextRangeF(0.f, 40.f);
+
+        SkVector radii[4] = {{rng.nextRangeF(0.f, maxRadiusX), rng.nextRangeF(0.f, maxRadiusY)},
+                             {rng.nextRangeF(0.f, maxRadiusX), rng.nextRangeF(0.f, maxRadiusY)},
+                             {rng.nextRangeF(0.f, maxRadiusX), rng.nextRangeF(0.f, maxRadiusY)},
+                             {rng.nextRangeF(0.f, maxRadiusX), rng.nextRangeF(0.f, maxRadiusY)}};
+
+        float maxLeft   = std::max(radii[0].fX, radii[3].fX);
+        float maxTop    = std::max(radii[0].fY, radii[1].fY);
+        float maxRight  = std::max(radii[1].fX, radii[2].fX);
+        float maxBottom = std::max(radii[2].fY, radii[3].fY);
+
+        SkRect outer = SkRect::MakeWH(maxLeft + maxRight + innerWidth,
+                                      maxTop + maxBottom + innerHeight);
+        rr.setRectRadii(outer, radii);
+
+        SkRect maxInner = SkRRectPriv::InnerBounds(rr);
+        // Test upper limit on the size of 'maxInner'
+        REPORTER_ASSERT(reporter, outer.contains(maxInner));
+        REPORTER_ASSERT(reporter, rr.contains(maxInner));
+
+        // Test lower limit on the size of 'maxInner'
+        SkRect inner = SkRect::MakeXYWH(maxLeft, maxTop, innerWidth, innerHeight);
+        inner.inset(kEpsilon, kEpsilon);
+
+        if (inner.isSorted()) {
+            REPORTER_ASSERT(reporter, maxInner.contains(inner));
+        } else {
+            // Flipped from the inset, just test two points of inner
+            float midX = maxLeft + 0.5f * innerWidth;
+            float midY = maxTop + 0.5f * innerHeight;
+            REPORTER_ASSERT(reporter, maxInner.contains(midX, maxTop));
+            REPORTER_ASSERT(reporter, maxInner.contains(midX, maxTop + innerHeight));
+            REPORTER_ASSERT(reporter, maxInner.contains(maxLeft, midY));
+            REPORTER_ASSERT(reporter, maxInner.contains(maxLeft + innerWidth, midY));
+        }
+    }
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -1026,4 +1116,5 @@ DEF_TEST(RoundRect, reporter) {
     test_empty_crbug_458524(reporter);
     test_empty(reporter);
     test_read(reporter);
+    test_inner_bounds(reporter);
 }
