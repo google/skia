@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "8114cfaa_7bc50282",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-17T14:33:40Z",
+      "side": 1,
+      "message": "Happy to extend, but I\u0027d like to do that work in a separate CL, in case this one get\u0027s reverted (layout low-bits, etc.)",
+      "parentUuid": "94c611d1_b096f7d8",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad54afbd_2d5030a9",
         "filename": "src/effects/SkLumaColorFilter.cpp",
         "patchSetId": 3
