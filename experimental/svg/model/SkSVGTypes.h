@@ -60,6 +60,33 @@ private:
     Unit     fUnit;
 };
 
+class SkSVGColor {
+public:
+    enum class Type {
+        kColor,
+        kInherit,
+    };
+
+    SkSVGColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+
+    SkSVGColor(const SkSVGColor&)            = default;
+    SkSVGColor& operator=(const SkSVGColor&) = default;
+
+    bool operator==(const SkSVGColor& other) const {
+        return fType == other.fType && fColor == other.fColor;
+    }
+    bool operator!=(const SkSVGColor& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+
+private:
+    Type           fType;
+    SkSVGColorType fColor;
+};
+
 class SkSVGPaint {
 public:
     enum class Type {

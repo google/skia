@@ -82,7 +82,7 @@ SkColor SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
             color = stopColor.color();
             break;
         case SkSVGStopColor::Type::kCurrentColor:
-            color = *ctx.presentationContext().fInherited.fColor;
+            color = ctx.presentationContext().fInherited.fColor->color();
             break;
         case SkSVGStopColor::Type::kICCColor:
             SkDebugf("unimplemented 'icccolor' stop-color type\n");

@@ -85,7 +85,7 @@ struct SkSVGPresentationAttributes {
 
     SkTLazy<SkSVGVisibility> fVisibility;
 
-    SkTLazy<SkSVGColorType>  fColor;
+    SkTLazy<SkSVGColor>      fColor;
 
     // TODO(tdenniston): add SkSVGStopColor
 

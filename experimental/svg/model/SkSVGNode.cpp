@@ -79,9 +79,8 @@ void SkSVGNode::setClipRule(const SkSVGFillRule& clipRule) {
     SetInheritedByDefault(fPresentationAttributes.fClipRule, clipRule);
 }
 
-void SkSVGNode::setColor(const SkSVGColorType& color) {
-    // TODO: Color should be inherited by default
-    fPresentationAttributes.fColor.set(color);
+void SkSVGNode::setColor(const SkSVGColor& color) {
+    SetInheritedByDefault(fPresentationAttributes.fColor, color);
 }
 
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {

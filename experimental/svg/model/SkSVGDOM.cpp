@@ -56,7 +56,7 @@ bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, SkSVGColorValue(color));
+    node->setAttribute(attr, SkSVGColorValue(SkSVGColor(color)));
     return true;
 }
 
