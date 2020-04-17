@@ -25,6 +25,6 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirec
 
 void GrD3DResourceProvider::recycleDirectCommandList(
         std::unique_ptr<GrD3DDirectCommandList> commandList) {
-    commandList.reset();
+    commandList->reset();
     fAvailableDirectCommandLists.push_back(std::move(commandList));
 }

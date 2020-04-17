@@ -7,7 +7,9 @@
 
 #include "src/gpu/d3d/GrD3DCommandList.h"
 
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                    gr_cp<ID3D12GraphicsCommandList> commandList)
@@ -15,17 +17,28 @@ GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
     , fAllocator(std::move(allocator)) {
 }
 
-void GrD3DCommandList::close() {
+bool GrD3DCommandList::close() {
     SkASSERT(fIsActive);
-    SkDEBUGCODE(HRESULT hr = ) fCommandList->Close();
-    SkASSERT(SUCCEEDED(hr));
+    this->submitResourceBarriers();
+    HRESULT hr = fCommandList->Close();
     SkDEBUGCODE(fIsActive = false;)
+    return SUCCEEDED(hr);
 }
 
-void GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
+GrD3DCommandList::SubmitResult GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
+    SkASSERT(fIsActive);
+    if (!this->hasWork()) {
+        return SubmitResult::kNoWork;
+    }
+
+    if (!this->close()) {
+        return SubmitResult::kFailure;
+    }
     SkASSERT(!fIsActive);
     ID3D12CommandList* ppCommandLists[] = { fCommandList.get() };
     queue->ExecuteCommandLists(1, ppCommandLists);
+
+    return SubmitResult::kSuccess;
 }
 
 void GrD3DCommandList::reset() {
@@ -36,6 +49,7 @@ void GrD3DCommandList::reset() {
     SkASSERT(SUCCEEDED(hr));
 
     SkDEBUGCODE(fIsActive = true;)
+    fHasWork = false;
 }
 
 void GrD3DCommandList::releaseResources() {
@@ -60,6 +74,44 @@ void GrD3DCommandList::releaseResources() {
         fTrackedResources.rewind();
         fTrackedRecycledResources.rewind();
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// GraphicsCommandList commands
+////////////////////////////////////////////////////////////////////////////////
+
+void GrD3DCommandList::resourceBarrier(const GrManagedResource* resource,
+                                       int numBarriers,
+                                       D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
+    SkASSERT(fIsActive);
+    SkASSERT(barriers);
+    for (int i = 0; i < numBarriers; ++i) {
+        // D3D will apply barriers in order so we can just add onto the end
+        D3D12_RESOURCE_BARRIER& newBarrier = fResourceBarriers.push_back();
+        newBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        newBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        newBarrier.Transition = barriers[i];
+    }
+
+    fHasWork = true;
+    if (resource) {
+        this->addResource(resource);
+    }
+}
+
+void GrD3DCommandList::submitResourceBarriers() {
+    SkASSERT(fIsActive);
+
+    if (fResourceBarriers.count()) {
+        fCommandList->ResourceBarrier(fResourceBarriers.count(), fResourceBarriers.begin());
+        fResourceBarriers.reset();
+    }
+    SkASSERT(!fResourceBarriers.count());
+}
+
+void GrD3DCommandList::addingWork() {
+    this->submitResourceBarriers();
+    fHasWork = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

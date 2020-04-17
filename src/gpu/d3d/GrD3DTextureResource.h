@@ -27,7 +27,6 @@ public:
     GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state)
             : fInfo(info)
             , fState(std::move(state))
-            , fStateExplicitlySet(true)
             , fResource(new Resource(fInfo.fResource)) {
         // gr_cp will implicitly ref the ID3D12Resource for us, so we don't need to worry about
         // whether it's borrowed or not
@@ -60,10 +59,9 @@ public:
 
     // This simply updates our tracking of the resourceState and does not actually do any gpu work.
     // Externally, primarily used for implicit changes in resourceState due to certain GPU commands.
-    void updateResourceState(D3D12_RESOURCE_STATES newState, bool explicitlySet) {
+    void updateResourceState(D3D12_RESOURCE_STATES newState) {
         SkASSERT(fResource);
         fState->setResourceState(newState);
-        fStateExplicitlySet = explicitlySet;
     }
 
     static bool InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
@@ -77,7 +75,6 @@ protected:
 
     GrD3DTextureResourceInfo fInfo;
     sk_sp<GrD3DResourceState> fState;
-    bool fStateExplicitlySet;
 
 private:
     class Resource : public GrTextureResource {
