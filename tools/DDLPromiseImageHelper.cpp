@@ -112,6 +112,13 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
         // we just create all the backend textures as mipmapped.
         sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm.pixmap(), nullptr));
         if (!mipmaps) {
+            GrBackendTexture backendTex = context->createBackendTexture(bm.pixmap(),
+                                                                        GrRenderable::kNo,
+                                                                        GrProtected::kNo);
+            SkASSERT(backendTex.isValid());
+
+            callbackContext->setMipMapped(GrMipMapped::kNo);
+            callbackContext->setBackendTexture(backendTex);
             return;
         }
 
@@ -130,6 +137,7 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
                                                                     GrProtected::kNo);
         SkASSERT(backendTex.isValid());
 
+        callbackContext->setMipMapped(GrMipMapped::kYes);
         callbackContext->setBackendTexture(backendTex);
     }
 }
@@ -334,7 +342,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 backendFormat,
                 curImage.overallWidth(),
                 curImage.overallHeight(),
-                GrMipMapped::kYes,
+                curImage.mipMapped(0),
                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                 curImage.overallColorType(),
                 curImage.overallAlphaType(),
