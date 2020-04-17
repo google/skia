@@ -9,7 +9,10 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
@@ -61,15 +64,7 @@ void GrD3DGpu::destroyResources() {
     }
 
     // We need to make sure everything has finished on the queue.
-    if (fFence->GetCompletedValue() < fCurrentFenceValue) {
-        HANDLE fenceEvent;
-        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        SkASSERT(fenceEvent);
-        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent);
-        SkASSERT(SUCCEEDED(hr));
-        WaitForSingleObject(fenceEvent, INFINITE);
-        CloseHandle(fenceEvent);
-    }
+    this->waitForQueueCompletion();
 
     SkDEBUGCODE(uint64_t fenceValue = fFence->GetCompletedValue();)
 
@@ -99,16 +94,28 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-void GrD3DGpu::submitDirectCommandList() {
+bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
-    fCurrentDirectCommandList->submit(fQueue.get());
+    GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
+    if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
+        return false;
+    } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
+        if (sync == SyncQueue::kForce) {
+            this->waitForQueueCompletion();
+        }
+        return true;
+    }
 
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
             std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
 
     SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), fCurrentFenceValue);
     SkASSERT(SUCCEEDED(hr));
+
+    if (sync == SyncQueue::kForce) {
+        this->waitForQueueCompletion();
+    }
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
 
@@ -118,6 +125,7 @@ void GrD3DGpu::submitDirectCommandList() {
     this->checkForFinishedCommandLists();
 
     SkASSERT(fCurrentDirectCommandList);
+    return true;
 }
 
 void GrD3DGpu::checkForFinishedCommandLists() {
@@ -137,6 +145,18 @@ void GrD3DGpu::checkForFinishedCommandLists() {
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingCommandList();
         fOutstandingCommandLists.pop_front();
+    }
+}
+
+void GrD3DGpu::waitForQueueCompletion() {
+    if (fFence->GetCompletedValue() < fCurrentFenceValue) {
+        HANDLE fenceEvent;
+        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        SkASSERT(fenceEvent);
+        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent);
+        SkASSERT(SUCCEEDED(hr));
+        WaitForSingleObject(fenceEvent, INFINITE);
+        CloseHandle(fenceEvent);
     }
 }
 
@@ -625,6 +645,26 @@ void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 }
 
 void GrD3DGpu::testingOnly_flushGpuAndSync() {
-    // TODO
+    SkAssertResult(this->submitDirectCommandList(SyncQueue::kForce));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrD3DGpu::addResourceBarriers(const GrManagedResource* resource,
+                                   int numBarriers,
+                                   D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const {
+    SkASSERT(fCurrentDirectCommandList);
+    SkASSERT(resource);
+
+    fCurrentDirectCommandList->resourceBarrier(resource, numBarriers, barriers);
+}
+
+bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
+    if (syncCpu) {
+        return this->submitDirectCommandList(SyncQueue::kForce);
+    } else {
+        return this->submitDirectCommandList(SyncQueue::kSkip);
+    }
+}
+
 #endif

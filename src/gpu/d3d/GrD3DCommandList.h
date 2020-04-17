@@ -15,14 +15,30 @@
 #include <memory>
 
 class GrD3DGpu;
+class GrD3DBuffer;
+class GrD3DTextureResource;
 
 class GrD3DCommandList {
 public:
-    void close();
+    enum class SubmitResult {
+        kNoWork,
+        kSuccess,
+        kFailure,
+    };
+    SubmitResult submit(ID3D12CommandQueue* queue);
 
-    void submit(ID3D12CommandQueue* queue);
-
+    bool close();
     void reset();
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GraphicsCommandList commands
+    ////////////////////////////////////////////////////////////////////////////
+
+    // For the moment we only support Transition barriers
+    // All barriers should reference subresources of managedResource
+    void resourceBarrier(const GrManagedResource* managedResource,
+                         int numBarriers,
+                         D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -43,9 +59,15 @@ public:
 
     void releaseResources();
 
+    bool hasWork() const { return fHasWork; }
+
 protected:
     GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                      gr_cp<ID3D12GraphicsCommandList> commandList);
+
+    void addingWork();
+
+    void submitResourceBarriers();
 
     gr_cp<ID3D12GraphicsCommandList> fCommandList;
 
@@ -54,6 +76,7 @@ protected:
 
     // When we create a command list it starts in an active recording state
     SkDEBUGCODE(bool fIsActive = true;)
+    bool fHasWork = false;
 
 private:
     gr_cp<ID3D12CommandAllocator> fAllocator;
@@ -65,6 +88,8 @@ private:
     // resource arrays.
     static const int kNumRewindResetsBeforeFullReset = 8;
     int              fNumResets = 0;
+
+    SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {

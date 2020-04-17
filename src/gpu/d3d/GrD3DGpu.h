@@ -61,6 +61,10 @@ public:
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
+    void addResourceBarriers(const GrManagedResource* resource,
+                             int numBarriers,
+                             D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) const override {}
@@ -85,6 +89,11 @@ public:
     void checkFinishProcs() override {}
 
 private:
+    enum class SyncQueue {
+        kForce,
+        kSkip
+    };
+
     GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
 
     void destroyResources();
@@ -167,9 +176,7 @@ private:
         finishedProc(finishedContext);
     }
 
-    bool onSubmitToGpu(bool syncCpu) override {
-        return true;
-    }
+    bool onSubmitToGpu(bool syncCpu) override;
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
@@ -183,9 +190,10 @@ private:
                                                       GrProtected,
                                                       const BackendTextureData*) override;
 
-    void submitDirectCommandList();
+    bool submitDirectCommandList(SyncQueue sync);
 
     void checkForFinishedCommandLists();
+    void waitForQueueCompletion();
 
     bool createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                 SkISize dimensions,
