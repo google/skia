@@ -32,7 +32,7 @@
 #include "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrRRectBlurEffect.h"
 #include "src/gpu/effects/generated/GrRectBlurEffect.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -49,7 +49,7 @@ public:
                     SkIPoint* margin) const override;
 
 #if SK_SUPPORT_GPU
-    bool canFilterMaskGPU(const GrStyledShape& shape,
+    bool canFilterMaskGPU(const GrShape& shape,
                           const SkIRect& devSpaceShapeBounds,
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
@@ -59,7 +59,7 @@ public:
                              GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
-                             const GrStyledShape& shape) const override;
+                             const GrShape& shape) const override;
     GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
                                      GrSurfaceProxyView srcView,
                                      GrColorType srcColorType,
@@ -723,7 +723,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
                                                GrPaint&& paint,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
-                                               const GrStyledShape& shape) const {
+                                               const GrShape& shape) const {
     SkASSERT(renderTargetContext);
 
     if (fBlurStyle != kNormal_SkBlurStyle) {
@@ -826,7 +826,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
     return true;
 }
 
-bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrStyledShape& shape,
+bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
                                             const SkIRect& devSpaceShapeBounds,
                                             const SkIRect& clipBounds,
                                             const SkMatrix& ctm,

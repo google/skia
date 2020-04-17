@@ -16,7 +16,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 
-class GrStyledShape;
+class GrShape;
 class GrRecordingContext;
 class GrTextureProxy;
 
@@ -49,8 +49,7 @@ public:
     void drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void drawShape(const GrStyledShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA,
-                   uint8_t alpha);
+    void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
     GrSurfaceProxyView toTextureView(GrRecordingContext*, SkBackingFit fit);
 

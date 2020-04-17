@@ -324,7 +324,7 @@ SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
 
-bool SkMaskFilterBase::canFilterMaskGPU(const GrStyledShape& shape,
+bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
                                         const SkIRect& devSpaceShapeBounds,
                                         const SkIRect& clipBounds,
                                         const SkMatrix& ctm,
@@ -337,7 +337,7 @@ bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
                                            GrPaint&&,
                                            const GrClip&,
                                            const SkMatrix& viewMatrix,
-                                           const GrStyledShape&) const {
+                                           const GrShape&) const {
     return false;
 }
 

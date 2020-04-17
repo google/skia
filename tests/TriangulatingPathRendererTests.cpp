@@ -14,7 +14,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -717,7 +717,7 @@ static void test_path(GrContext* ctx,
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
-    GrStyledShape shape(path, style);
+    GrShape shape(path, style);
     GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,

@@ -12,7 +12,7 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/geometry/GrRect.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 #include "src/core/SkOpts.h"
 #include "src/core/SkTDynamicHash.h"
@@ -56,7 +56,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                           GrPaint&&,
-                                                          const GrStyledShape&,
+                                                          const GrShape&,
                                                           const SkMatrix& viewMatrix,
                                                           GrDrawOpAtlas* atlas,
                                                           ShapeCache*,
@@ -68,7 +68,7 @@ public:
 private:
     class SmallPathOp;
 
-    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
+    StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 

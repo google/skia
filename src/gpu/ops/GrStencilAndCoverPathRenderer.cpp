@@ -14,7 +14,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrDrawPathOp.h"
 #include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
 #include "src/gpu/ops/GrStencilPathOp.h"
@@ -49,7 +49,7 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     return CanDrawPath::kYes;
 }
 
-static sk_sp<GrPath> get_gr_path(GrResourceProvider* resourceProvider, const GrStyledShape& shape) {
+static sk_sp<GrPath> get_gr_path(GrResourceProvider* resourceProvider, const GrShape& shape) {
     GrUniqueKey key;
     bool isVolatile;
     GrPath::ComputeKey(shape, &key, &isVolatile);

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrShape.h"
 
 #include "include/private/SkIDChangeListener.h"
 
 #include <utility>
 
-GrStyledShape& GrStyledShape::operator=(const GrStyledShape& that) {
+GrShape& GrShape::operator=(const GrShape& that) {
     fStyle = that.fStyle;
     this->changeType(that.fType, Type::kPath == that.fType ? &that.path() : nullptr);
     switch (fType) {
@@ -43,41 +43,41 @@ GrStyledShape& GrStyledShape::operator=(const GrStyledShape& that) {
     return *this;
 }
 
-static bool flip_inversion(bool originalIsInverted, GrStyledShape::FillInversion inversion) {
+static bool flip_inversion(bool originalIsInverted, GrShape::FillInversion inversion) {
     switch (inversion) {
-        case GrStyledShape::FillInversion::kPreserve:
+        case GrShape::FillInversion::kPreserve:
             return false;
-        case GrStyledShape::FillInversion::kFlip:
+        case GrShape::FillInversion::kFlip:
             return true;
-        case GrStyledShape::FillInversion::kForceInverted:
+        case GrShape::FillInversion::kForceInverted:
             return !originalIsInverted;
-        case GrStyledShape::FillInversion::kForceNoninverted:
+        case GrShape::FillInversion::kForceNoninverted:
             return originalIsInverted;
     }
     return false;
 }
 
-static bool is_inverted(bool originalIsInverted, GrStyledShape::FillInversion inversion) {
+static bool is_inverted(bool originalIsInverted, GrShape::FillInversion inversion) {
     switch (inversion) {
-        case GrStyledShape::FillInversion::kPreserve:
+        case GrShape::FillInversion::kPreserve:
             return originalIsInverted;
-        case GrStyledShape::FillInversion::kFlip:
+        case GrShape::FillInversion::kFlip:
             return !originalIsInverted;
-        case GrStyledShape::FillInversion::kForceInverted:
+        case GrShape::FillInversion::kForceInverted:
             return true;
-        case GrStyledShape::FillInversion::kForceNoninverted:
+        case GrShape::FillInversion::kForceNoninverted:
             return false;
     }
     return false;
 }
 
-GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInversion inversion) {
+GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
     if (original.style().isSimpleFill() && !flip_inversion(original.inverseFilled(), inversion)) {
         // By returning the original rather than falling through we can preserve any inherited style
         // key. Otherwise, we wipe it out below since the style change invalidates it.
         return original;
     }
-    GrStyledShape result;
+    GrShape result;
     if (original.fInheritedPathForListeners.isValid()) {
         result.fInheritedPathForListeners.set(*original.fInheritedPathForListeners.get());
     }
@@ -130,7 +130,7 @@ GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInver
     return result;
 }
 
-SkRect GrStyledShape::bounds() const {
+SkRect GrShape::bounds() const {
     // Bounds where left == bottom or top == right can indicate a line or point shape. We return
     // inverted bounds for a truly empty shape.
     static constexpr SkRect kInverted = SkRect::MakeLTRB(1, 1, -1, -1);
@@ -168,7 +168,7 @@ SkRect GrStyledShape::bounds() const {
     SK_ABORT("Unknown shape type");
 }
 
-SkRect GrStyledShape::styledBounds() const {
+SkRect GrShape::styledBounds() const {
     if (this->isEmpty() && !fStyle.hasNonDashPathEffect()) {
         return SkRect::MakeEmpty();
     }
@@ -181,7 +181,7 @@ SkRect GrStyledShape::styledBounds() const {
 // If the path is small enough to be keyed from its data this returns key length, otherwise -1.
 static int path_key_from_data_size(const SkPath& path) {
     const int verbCnt = path.countVerbs();
-    if (verbCnt > GrStyledShape::kMaxKeyFromDataVerbCnt) {
+    if (verbCnt > GrShape::kMaxKeyFromDataVerbCnt) {
         return -1;
     }
     const int pointCnt = path.countPoints();
@@ -201,7 +201,7 @@ static void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     const int verbCnt = path.countVerbs();
     const int pointCnt = path.countPoints();
     const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
-    SkASSERT(verbCnt <= GrStyledShape::kMaxKeyFromDataVerbCnt);
+    SkASSERT(verbCnt <= GrShape::kMaxKeyFromDataVerbCnt);
     SkASSERT(pointCnt && verbCnt);
     *key++ = (uint32_t)path.getFillType();
     *key++ = verbCnt;
@@ -221,7 +221,7 @@ static void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     SkASSERT(key - origKey == path_key_from_data_size(path));
 }
 
-int GrStyledShape::unstyledKeySize() const {
+int GrShape::unstyledKeySize() const {
     if (fInheritedKey.count()) {
         return fInheritedKey.count();
     }
@@ -258,7 +258,7 @@ int GrStyledShape::unstyledKeySize() const {
     SK_ABORT("Should never get here.");
 }
 
-void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
+void GrShape::writeUnstyledKey(uint32_t* key) const {
     SkASSERT(this->unstyledKeySize());
     SkDEBUGCODE(uint32_t* origKey = key;)
     if (fInheritedKey.count()) {
@@ -307,8 +307,7 @@ void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
     SkASSERT(key - origKey == this->unstyledKeySize());
 }
 
-void GrStyledShape::setInheritedKey(const GrStyledShape &parent, GrStyle::Apply apply,
-                                    SkScalar scale) {
+void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkScalar scale) {
     SkASSERT(!fInheritedKey.count());
     // If the output shape turns out to be simple, then we will just use its geometric key
     if (Type::kPath == fType) {
@@ -357,7 +356,7 @@ void GrStyledShape::setInheritedKey(const GrStyledShape &parent, GrStyle::Apply 
     }
 }
 
-const SkPath* GrStyledShape::originalPathForListeners() const {
+const SkPath* GrShape::originalPathForListeners() const {
     if (fInheritedPathForListeners.isValid()) {
         return fInheritedPathForListeners.get();
     } else if (Type::kPath == fType && !fPathData.fPath.isVolatile()) {
@@ -366,16 +365,15 @@ const SkPath* GrStyledShape::originalPathForListeners() const {
     return nullptr;
 }
 
-void GrStyledShape::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) const {
+void GrShape::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) const {
     if (const auto* lp = this->originalPathForListeners()) {
         SkPathPriv::AddGenIDChangeListener(*lp, std::move(listener));
     }
 }
 
-GrStyledShape GrStyledShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
-                                     SkScalar sweepAngleDegrees, bool useCenter,
-                                     const GrStyle& style) {
-    GrStyledShape result;
+GrShape GrShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees, SkScalar sweepAngleDegrees,
+                         bool useCenter, const GrStyle& style) {
+    GrShape result;
     result.changeType(Type::kArc);
     result.fArcData.fOval = oval;
     result.fArcData.fStartAngleDegrees = startAngleDegrees;
@@ -387,7 +385,7 @@ GrStyledShape GrStyledShape::MakeArc(const SkRect& oval, SkScalar startAngleDegr
     return result;
 }
 
-GrStyledShape::GrStyledShape(const GrStyledShape& that) : fStyle(that.fStyle) {
+GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
     const SkPath* thatPath = Type::kPath == that.fType ? &that.fPathData.fPath : nullptr;
     this->initType(that.fType, thatPath);
     switch (fType) {
@@ -416,7 +414,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& that) : fStyle(that.fStyle) {
     }
 }
 
-GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, SkScalar scale) {
+GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
     // TODO: Add some quantization of scale for better cache performance here or leave that up
     // to caller?
     // TODO: For certain shapes and stroke params we could ignore the scale. (e.g. miter or bevel
@@ -430,8 +428,8 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
 
     SkPathEffect* pe = parent.fStyle.pathEffect();
     SkTLazy<SkPath> tmpPath;
-    const GrStyledShape* parentForKey = &parent;
-    SkTLazy<GrStyledShape> tmpParent;
+    const GrShape* parentForKey = &parent;
+    SkTLazy<GrShape> tmpParent;
     this->initType(Type::kPath);
     fPathData.fGenID = 0;
     if (pe) {
@@ -508,7 +506,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
     this->setInheritedKey(*parentForKey, apply, scale);
 }
 
-void GrStyledShape::attemptToSimplifyPath() {
+void GrShape::attemptToSimplifyPath() {
     SkRect rect;
     SkRRect rrect;
     SkPathDirection rrectDir;
@@ -603,7 +601,7 @@ void GrStyledShape::attemptToSimplifyPath() {
     }
 }
 
-void GrStyledShape::attemptToSimplifyRRect() {
+void GrShape::attemptToSimplifyRRect() {
     SkASSERT(Type::kRRect == fType);
     SkASSERT(!fInheritedKey.count());
     if (fRRectData.fRRect.isEmpty()) {
@@ -643,7 +641,7 @@ void GrStyledShape::attemptToSimplifyRRect() {
     }
 }
 
-void GrStyledShape::attemptToSimplifyLine() {
+void GrShape::attemptToSimplifyLine() {
     SkASSERT(Type::kLine == fType);
     SkASSERT(!fInheritedKey.count());
     if (fStyle.isDashed()) {
@@ -683,7 +681,7 @@ void GrStyledShape::attemptToSimplifyLine() {
     }
 }
 
-void GrStyledShape::attemptToSimplifyArc() {
+void GrShape::attemptToSimplifyArc() {
     SkASSERT(fType == Type::kArc);
     SkASSERT(!fArcData.fInverted);
     if (fArcData.fOval.isEmpty() || !fArcData.fSweepAngleDegrees) {
@@ -723,7 +721,7 @@ void GrStyledShape::attemptToSimplifyArc() {
     // could as well if the stroke fills the center.
 }
 
-bool GrStyledShape::attemptToSimplifyStrokedLineToRRect() {
+bool GrShape::attemptToSimplifyStrokedLineToRRect() {
     SkASSERT(Type::kLine == fType);
     SkASSERT(fStyle.strokeRec().getStyle() == SkStrokeRec::kStroke_Style);
 
