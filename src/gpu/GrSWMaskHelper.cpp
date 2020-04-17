@@ -14,7 +14,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -53,7 +53,7 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegi
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkRegion::Op op,
+void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matrix, SkRegion::Op op,
                                GrAA aa, uint8_t alpha) {
     SkPaint paint;
     paint.setPathEffect(shape.style().refPathEffect());

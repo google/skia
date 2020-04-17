@@ -23,7 +23,7 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTriangulator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
@@ -170,7 +170,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
-                                          const GrShape& shape,
+                                          const GrStyledShape& shape,
                                           const SkMatrix& viewMatrix,
                                           SkIRect devClipBounds,
                                           GrAAType aaType,
@@ -202,7 +202,7 @@ public:
 
     TriangulatingPathOp(Helper::MakeArgs helperArgs,
                         const SkPMColor4f& color,
-                        const GrShape& shape,
+                        const GrStyledShape& shape,
                         const SkMatrix& viewMatrix,
                         const SkIRect& devClipBounds,
                         GrAAType aaType,
@@ -401,7 +401,7 @@ private:
 
     Helper         fHelper;
     SkPMColor4f    fColor;
-    GrShape        fShape;
+    GrStyledShape  fShape;
     SkMatrix       fViewMatrix;
     SkIRect        fDevClipBounds;
     bool           fAntiAlias;
@@ -447,7 +447,7 @@ GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     do {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
-    GrShape shape(path, style);
+    GrStyledShape shape(path, style);
     return TriangulatingPathOp::Make(context, std::move(paint), shape, viewMatrix, devClipBounds,
                                      aaType, GrGetRandomStencil(random, context));
 }

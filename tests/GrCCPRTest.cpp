@@ -25,7 +25,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "tools/ToolUtils.h"
 
 #include <cmath>
@@ -98,16 +98,16 @@ public:
         GrNoClip noClip;
         SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
 
-        GrShape shape;
+        GrStyledShape shape;
         if (!fDoStroke) {
-            shape = GrShape(path);
+            shape = GrStyledShape(path);
         } else {
             // Use hairlines for now, since they are the only stroke type that doesn't require a
             // rigid-body transform. The CCPR stroke code makes no distinction between hairlines
             // and regular strokes other than how it decides the device-space stroke width.
             SkStrokeRec stroke(SkStrokeRec::kHairline_InitStyle);
             stroke.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kMiter_Join, 4);
-            shape = GrShape(path, GrStyle(stroke, nullptr));
+            shape = GrStyledShape(path, GrStyle(stroke, nullptr));
         }
 
         fCCPR->testingOnly_drawPathDirectly({
@@ -356,8 +356,8 @@ protected:
 
         SkRandom rand;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPaths); ++i) {
-            int numPts = rand.nextRangeU(GrShape::kMaxKeyFromDataVerbCnt + 1,
-                                         GrShape::kMaxKeyFromDataVerbCnt * 2);
+            int numPts = rand.nextRangeU(GrStyledShape::kMaxKeyFromDataVerbCnt + 1,
+                                         GrStyledShape::kMaxKeyFromDataVerbCnt * 2);
             int step;
             do {
                 step = primes[rand.nextU() % SK_ARRAY_COUNT(primes)];

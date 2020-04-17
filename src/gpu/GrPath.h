@@ -14,7 +14,7 @@
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrStyle.h"
 
-class GrShape;
+class GrStyledShape;
 
 class GrPath : public GrGpuResource {
 public:
@@ -32,7 +32,7 @@ public:
     {
     }
 
-    static void ComputeKey(const GrShape&, GrUniqueKey* key, bool* outIsVolatile);
+    static void ComputeKey(const GrStyledShape&, GrUniqueKey* key, bool* outIsVolatile);
 
     const SkRect& getBounds() const { return fBounds; }
 

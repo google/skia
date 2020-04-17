@@ -15,7 +15,7 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
@@ -508,7 +508,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                         subRun->fStrikeSpec.strikeToSourceRatio());
                 pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
 
-                // TmpPath must be in the same scope as GrShape shape below.
+                // TmpPath must be in the same scope as GrStyledShape shape below.
                 SkTLazy<SkPath> tmpPath;
                 const SkPath* path = &pathGlyph.fPath;
                 if (!scalePath) {
@@ -526,7 +526,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 }
 
                 // TODO: we are losing the mutability of the path here
-                GrShape shape(*path, paint);
+                GrStyledShape shape(*path, paint);
                 target->drawShape(clip, runPaint, ctm, shape);
             }
         } else {
