@@ -1830,7 +1830,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Type intfStruct(-1, name, fields);
 
             int binding = fProgram.fSettings.fRTHeightBinding;
-            int set = fProgram.fSettings.fRTHeightBinding;
+            int set = fProgram.fSettings.fRTHeightSet;
             SkASSERT(binding != -1 && set != -1);
 
             Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
