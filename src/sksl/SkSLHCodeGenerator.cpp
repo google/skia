@@ -331,9 +331,9 @@ String HCodeGenerator::GetHeader(const Program& program, ErrorReporter& errors) 
     for (;;) {
         Token header = parser.nextRawToken();
         switch (header.fKind) {
-            case Token::WHITESPACE:
+            case Token::Kind::TK_WHITESPACE:
                 break;
-            case Token::BLOCK_COMMENT:
+            case Token::Kind::TK_BLOCK_COMMENT:
                 return String(program.fSource->c_str() + header.fOffset, header.fLength);
             default:
                 return "";

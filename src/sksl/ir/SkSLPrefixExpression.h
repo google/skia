@@ -26,12 +26,12 @@ struct PrefixExpression : public Expression {
     , fOperator(op) {}
 
     bool isConstant() const override {
-        return fOperator == Token::MINUS && fOperand->isConstant();
+        return fOperator == Token::Kind::TK_MINUS && fOperand->isConstant();
     }
 
     bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && (fOperator == Token::PLUSPLUS ||
-                                                   fOperator == Token::MINUSMINUS)) {
+        if (property == Property::kSideEffects && (fOperator == Token::Kind::TK_PLUSPLUS ||
+                                                   fOperator == Token::Kind::TK_MINUSMINUS)) {
             return true;
         }
         return fOperand->hasProperty(property);
@@ -50,17 +50,17 @@ struct PrefixExpression : public Expression {
     }
 
     SKSL_FLOAT getFVecComponent(int index) const override {
-        SkASSERT(fOperator == Token::Kind::MINUS);
+        SkASSERT(fOperator == Token::Kind::TK_MINUS);
         return -fOperand->getFVecComponent(index);
     }
 
     SKSL_INT getIVecComponent(int index) const override {
-        SkASSERT(fOperator == Token::Kind::MINUS);
+        SkASSERT(fOperator == Token::Kind::TK_MINUS);
         return -fOperand->getIVecComponent(index);
     }
 
     SKSL_FLOAT getMatComponent(int col, int row) const override {
-        SkASSERT(fOperator == Token::Kind::MINUS);
+        SkASSERT(fOperator == Token::Kind::TK_MINUS);
         return -fOperand->getMatComponent(col, row);
     }
 
