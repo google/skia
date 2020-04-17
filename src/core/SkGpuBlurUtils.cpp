@@ -300,7 +300,14 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
         GrPaint paint;
         std::unique_ptr<GrFragmentProcessor> fp;
         if (i == 1) {
-            GrSamplerState::WrapMode wrapMode = SkTileModeToWrapMode(mode);
+            GrSamplerState::WrapMode wrapMode;
+            if (mode == SkTileMode::kClamp) {
+                wrapMode = GrSamplerState::WrapMode::kClamp;
+            } else {
+                // GrTextureEffect does not support WrapMode::k[Mirror]Repeat with
+                // GrSamplerState::Filter::kBilerp. So we use kClampToBorder.
+                wrapMode = GrSamplerState::WrapMode::kClampToBorder;
+            }
             const auto& caps = *context->priv().caps();
             GrSamplerState sampler(wrapMode, GrSamplerState::Filter::kBilerp);
             fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
