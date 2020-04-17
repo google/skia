@@ -1665,10 +1665,24 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.sub(A::sp, A::sp, 32);
-        a.add(A::sp, A::sp, 32);
+        a.sub (A::sp, A::sp, 32);  // sub   sp, sp, #32
+        a.strq(A::v0, A::sp, 1);   // str   q0, [sp, #16]
+        a.strq(A::v1, A::sp);      // str   q1, [sp]
+        a.strs(A::v0, A::sp, 6);   // str   s0, [sp, #24]
+        a.strb(A::v0, A::sp, 47);  // str   b0, [sp, #47]
+        a.ldrb(A::v9, A::sp, 42);  // ldr   b9, [sp, #42]
+        a.ldrs(A::v7, A::sp, 10);  // ldr   s7, [sp, #40]
+        a.ldrq(A::v5, A::sp, 128); // ldr   q5, [sp, #2048]
+        a.add (A::sp, A::sp, 32);  // add   sp, sp, #32
     },{
          0xff,0x83,0x00,0xd1,
+         0xe0,0x07,0x80,0x3d,
+         0xe1,0x03,0x80,0x3d,
+         0xe0,0x1b,0x00,0xbd,
+         0xe0,0xbf,0x00,0x3d,
+         0xe9,0xab,0x40,0x3d,
+         0xe7,0x2b,0x40,0xbd,
+         0xe5,0x03,0xc2,0x3d,
          0xff,0x83,0x00,0x91,
     });
 
