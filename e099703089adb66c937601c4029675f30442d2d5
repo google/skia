@@ -247,6 +247,30 @@
       "revId": "e099703089adb66c937601c4029675f30442d2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53ef1d37_2952842c",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-17T17:07:52Z",
+      "side": 1,
+      "message": "I didn\u0027t either! I wish I had, or I wouldn\u0027t have wasted hours yesterday trying to figure out why it wasn\u0027t working :-).",
+      "parentUuid": "1540d8f3_fb63e791",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 31
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
