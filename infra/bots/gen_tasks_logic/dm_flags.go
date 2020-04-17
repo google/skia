@@ -282,15 +282,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"commandbuffer"}
 		}
 
-		// ANGLE bot *only* runs the angle configs
+		// Dawn bot *only* runs the dawn config
 		if b.extraConfig("Dawn") {
 			configs = []string{"dawn"}
 		}
 
-		// Dawn bot *only* runs the dawn config
+		// ANGLE bot *only* runs the angle configs
 		if b.extraConfig("ANGLE") {
 			configs = []string{"angle_d3d11_es2",
-				"angle_d3d9_es2",
 				"angle_gl_es2",
 				"angle_d3d11_es3"}
 			if sampleCount > 0 {
@@ -311,6 +310,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
 				}
+			}
+			if !b.matchGpu("GTX", "Quadro", "GT610") {
+				// See skia:10149
+				configs = append(configs, "angle_d3d9_es2")
 			}
 			if b.model("NUC5i7RYH") {
 				// skbug.com/7376
