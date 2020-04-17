@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed6f5f82_25c32e83",
+        "filename": "include/effects/SkLumaColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-17T14:29:15Z",
+      "side": 1,
+      "message": "This seems like it might be actively used on both CPU and GPU, and might change layout tests.\nIs that what you\u0027re looking to explore here?  Who uses this effect?",
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94c611d1_b096f7d8",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-17T14:29:15Z",
+      "side": 1,
+      "message": "Let\u0027s do this simultaneously?  No reason to get ahead of ourselves.  Want to give it a try?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad54afbd_2d5030a9",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-17T14:29:15Z",
+      "side": 1,
+      "message": "So, what\u0027s the error?",
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e0b6e7b_1deca741",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-17T14:29:15Z",
+      "side": 1,
+      "message": "I think this comment will confuse us in the future.  Maybe something like\n\n// RegisterLegacyLuma() deserializes pre-SkRuntimeEffect SkLumaColorFilters.  Converted April 2020.",
+      "revId": "2a34fc65069e283f9df3334fb011f71466feace5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
