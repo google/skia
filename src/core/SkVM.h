@@ -23,6 +23,18 @@ class SkWStream;
     #define SKVM_LLVM
 #endif
 
+// JIT code isn't MSAN-instrumented, so we won't see when it uses
+// uninitialized memory, and we'll not see the writes it makes as properly
+// initializing memory.  Instead force the interpreter, which should let
+// MSAN see everything our programs do properly.
+//
+// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
+#if defined(__has_feature)
+    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
+        #undef SKVM_JIT
+    #endif
+#endif
+
 namespace skvm {
 
     bool fma_supported();
@@ -187,8 +199,10 @@ namespace skvm {
         void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
         void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
-        void vpextrw(Operand dst, Xmm src, int imm);         // dst = src[imm]           , 16-bit
-        void vpextrb(Operand dst, Xmm src, int imm);         // dst = src[imm]           ,  8-bit
+        void vextracti128(Operand dst, Ymm src, int imm);    // dst = src[imm], 128-bit
+        void vpextrd     (Operand dst, Xmm src, int imm);    // dst = src[imm],  32-bit
+        void vpextrw     (Operand dst, Xmm src, int imm);    // dst = src[imm],  16-bit
+        void vpextrb     (Operand dst, Xmm src, int imm);    // dst = src[imm],   8-bit
 
         // if (mask & 0x8000'0000) {
         //     dst = base[scale*ix];
