@@ -22,6 +22,53 @@
       "revId": "0796b968c4c00b2e1b5893fa737bfe116056f822",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6aede296_23c46235",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-17T16:34:05Z",
+      "side": 1,
+      "message": "Yeah, that factory returns the derived type, so the re-assignment won\u0027t work.",
+      "parentUuid": "1840f815_d1809b6a",
+      "range": {
+        "startLine": 661,
+        "startChar": 8,
+        "endLine": 661,
+        "endChar": 68
+      },
+      "revId": "0796b968c4c00b2e1b5893fa737bfe116056f822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5525f68_73492d69",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-17T16:34:05Z",
+      "side": 1,
+      "message": "Minor perf note: I\u0027d switch this to \u0027*\u0027 and upload 1/w 1/h on line 674.",
+      "range": {
+        "startLine": 317,
+        "startChar": 71,
+        "endLine": 317,
+        "endChar": 72
+      },
+      "revId": "0796b968c4c00b2e1b5893fa737bfe116056f822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
