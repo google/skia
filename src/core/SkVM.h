@@ -187,8 +187,10 @@ namespace skvm {
         void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
         void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
-        void vpextrw(Operand dst, Xmm src, int imm);         // dst = src[imm]           , 16-bit
-        void vpextrb(Operand dst, Xmm src, int imm);         // dst = src[imm]           ,  8-bit
+        void vextracti128(Operand dst, Ymm src, int imm);    // dst = src[imm], 128-bit
+        void vpextrd     (Operand dst, Xmm src, int imm);    // dst = src[imm],  32-bit
+        void vpextrw     (Operand dst, Xmm src, int imm);    // dst = src[imm],  16-bit
+        void vpextrb     (Operand dst, Xmm src, int imm);    // dst = src[imm],   8-bit
 
         // if (mask & 0x8000'0000) {
         //     dst = base[scale*ix];
