@@ -24,13 +24,13 @@
     #include "include/effects/SkGradientShader.h"
     #include "include/effects/SkHighContrastFilter.h"
     #include "include/effects/SkLayerDrawLooper.h"
-    #include "include/effects/SkLumaColorFilter.h"
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
     #include "include/effects/SkRuntimeEffect.h"
     #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
     #include "src/core/SkColorFilter_Matrix.h"
+    #include "src/core/SkColorFilterPriv.h"
     #include "src/core/SkRecordedDrawable.h"
     #include "src/effects/SkDashImpl.h"
     #include "src/effects/SkEmbossMaskFilter.h"
@@ -73,7 +73,7 @@
 
         // Color filters.
         SkColorFilter_Matrix::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
+        SkColorFilterPriv::RegisterLegacyLuma();
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();

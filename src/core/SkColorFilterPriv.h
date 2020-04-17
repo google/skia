@@ -13,6 +13,8 @@
 class SkColorFilterPriv {
 public:
     static sk_sp<SkColorFilter> MakeGaussian();
+
+    static void RegisterLegacyLuma();
 };
 
 #endif
