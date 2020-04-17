@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e7bccc8c_f242db88",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-17T14:46:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "caefb09a_1ea38dc2",
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c96702b_ac8d67c1",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "8b179607_a4ce733b",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-17T14:46:10Z",
+      "side": 1,
+      "message": "I don\u0027t think so. This would only happen for a fully lazy proxy which is being drawn with non-default ShaderMode, and AFAIK we only use fully lazy proxies for internal stuff like atlases where we don\u0027t need non-default ShaderModes. I could easily be wrong here, but none of our tests are exercising that path.",
+      "parentUuid": "8c96702b_ac8d67c1",
+      "range": {
+        "startLine": 325,
+        "startChar": 16,
+        "endLine": 325,
+        "endChar": 52
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3395242_edef4b6a",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 3
@@ -53,6 +95,30 @@
       "writtenOn": "2020-04-16T15:27:41Z",
       "side": 1,
       "message": "I think instead of asserting above we can just add to this conditional. Also, the onSetData() could just use the type of the uniform to decide whether to push 2 or 4 values.",
+      "range": {
+        "startLine": 392,
+        "startChar": 10,
+        "endLine": 393,
+        "endChar": 74
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5961b01b_210f2aa7",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-17T14:46:10Z",
+      "side": 1,
+      "message": "I feel like I\u0027d need to find a case where this was problematic to be sure of the changes; are there any cases where the assert above would trip?",
+      "parentUuid": "b3395242_edef4b6a",
       "range": {
         "startLine": 392,
         "startChar": 10,
@@ -85,6 +151,30 @@
       "revId": "e099703089adb66c937601c4029675f30442d2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5378826_7d7e7627",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-17T14:46:10Z",
+      "side": 1,
+      "message": "I think we need to store this, because the FullyLazy flag is cleared by the time I need to check it. I\u0027ve renamed it.",
+      "parentUuid": "ef23a445_d79ef2cd",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 31
+      },
+      "revId": "e099703089adb66c937601c4029675f30442d2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
