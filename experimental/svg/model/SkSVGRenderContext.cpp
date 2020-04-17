@@ -274,6 +274,22 @@ void commitToPaint<SkSVGAttribute::kColor>(const SkSVGPresentationAttributes&,
     // Not part of the SkPaint state; applied via 'currentColor' color value
 }
 
+// Commit attribute changes to the paint cache if they are set to 'currentColor'.
+template <SkSVGAttribute>
+void applyCurrentColorPaint(const SkSVGPresentationAttributes&,
+                            const SkSVGRenderContext&,
+                            SkSVGPresentationContext*) {}
+
+template <>
+void applyCurrentColorPaint<SkSVGAttribute::kFill>(const SkSVGPresentationAttributes& attrs,
+                                                   const SkSVGRenderContext& ctx,
+                                                   SkSVGPresentationContext* pctx) {
+    const auto& fill = attrs.fFill.isValid() ? attrs.fFill : pctx->fInherited.fFill;
+    if (fill->type() == SkSVGPaint::Type::kCurrentColor) {
+        applySvgPaint(ctx, *fill, &pctx->fFillPaint);
+    }
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -346,7 +362,14 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
             commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *this,    \
                                                      fPresentationContext.writable());  \
         }                                                                               \
+        /* Even if the value did not directly change, indirect paint changes are        \
+           possible via currentColor. */                                                \
+        applyCurrentColorPaint<SkSVGAttribute::k ## ATTR>(                              \
+            attrs, *this, fPresentationContext.writable());                             \
     } while (false)
+
+    // Color applied first as it may be referenced by other attributes via 'currentColor'.
+    ApplyLazyInheritedAttribute(Color);
 
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
@@ -361,7 +384,6 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
     ApplyLazyInheritedAttribute(Visibility);
-    ApplyLazyInheritedAttribute(Color);
 
 #undef ApplyLazyInheritedAttribute
 
