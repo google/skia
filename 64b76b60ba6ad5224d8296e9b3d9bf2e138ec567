@@ -22,6 +22,30 @@
       "revId": "64b76b60ba6ad5224d8296e9b3d9bf2e138ec567",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33aba63a_63e817aa",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-17T16:36:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f9f90b62_57c1e668",
+      "range": {
+        "startLine": 314,
+        "startChar": 0,
+        "endLine": 317,
+        "endChar": 4
+      },
+      "revId": "64b76b60ba6ad5224d8296e9b3d9bf2e138ec567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
