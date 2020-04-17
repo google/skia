@@ -18,8 +18,11 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
 
+#include "src/core/SkMipMap.h"
+
 class GrContext;
 class SkImage;
+class SkMipMap;
 class SkPicture;
 struct SkYUVAIndex;
 
@@ -142,7 +145,8 @@ private:
                 , fOriginalUniqueID(originalUniqueID)
                 , fImageInfo(ii) {
         }
-        ~PromiseImageInfo() {}
+        PromiseImageInfo(PromiseImageInfo&& other);
+        ~PromiseImageInfo();
 
         int index() const { return fIndex; }
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
@@ -167,10 +171,10 @@ private:
             SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
             return fYUVPlanes[index];
         }
-        const SkBitmap& normalBitmap() const {
-            SkASSERT(!this->isYUV());
-            return fBitmap;
-        }
+
+        const SkPixmap& baseLevel() const { return fBaseLevel.pixmap(); }
+        const std::unique_ptr<SkPixmap[]> normalMipLevels() const;
+        int numMipLevels() const;
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
@@ -185,6 +189,12 @@ private:
             return fCallbackContexts[index];
         }
 
+        const GrMipMapped mipMapped(int index) const {
+            if (this->isYUV()) {
+                return GrMipMapped::kNo;
+            }
+            return this->numMipLevels() > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+        }
         const GrBackendFormat& backendFormat(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->backendFormat();
@@ -194,7 +204,7 @@ private:
             return fCallbackContexts[index]->promiseImageTexture();
         }
 
-        void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
+        void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipMap> mipLevels);
 
         void setYUVData(sk_sp<SkCachedData> yuvData,
                         SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
@@ -215,8 +225,9 @@ private:
 
         const SkImageInfo                  fImageInfo;            // info for the overarching image
 
-        // CPU-side cache of a normal SkImage's contents
-        SkBitmap                           fBitmap;
+        // CPU-side cache of a normal SkImage's mipmap levels
+        SkBitmap                           fBaseLevel;
+        std::unique_ptr<SkMipMap>          fMipLevels1;
 
         // CPU-side cache of a YUV SkImage's contents
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
