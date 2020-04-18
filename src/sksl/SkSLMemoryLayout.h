@@ -82,10 +82,14 @@ public:
                 return this->roundUpIfNeeded(base);
             }
             case Type::kArray_Kind: {
-                int align = this->alignment(type.componentType());
-                int stride = this->size(type.componentType()) + align - 1;
-                stride -= stride % align;
-                return this->roundUpIfNeeded(stride);
+                int stride = this->size(type.componentType());
+                if (stride > 0) {
+                    int align = this->alignment(type.componentType());
+                    stride += align - 1;
+                    stride -= stride % align;
+                    stride = this->roundUpIfNeeded(stride);
+                }
+                return stride;
             }
             default:
                 ABORT("type does not have a stride");
