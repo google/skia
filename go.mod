@@ -21,17 +21,17 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	go.chromium.org/luci v0.0.0-20200417013352-a0ea2a381d44 // indirect
-	go.skia.org/infra v0.0.0-20200416193016-e8c062647ce4
+	go.chromium.org/luci v0.0.0-20200417231654-5db2675be061 // indirect
+	go.skia.org/infra v0.0.0-20200417192817-9674a1d16a82
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
-	golang.org/x/tools v0.0.0-20200416214402-fc959738d646 // indirect
+	golang.org/x/tools v0.0.0-20200417140056-c07e33ef3290 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.21.0
-	google.golang.org/genproto v0.0.0-20200416231807-8751e049a2a0 // indirect
+	google.golang.org/genproto v0.0.0-20200417142217-fb6d0575620b // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
