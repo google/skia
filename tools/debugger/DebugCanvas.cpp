@@ -322,12 +322,7 @@ void DebugCanvas::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
     this->addDrawCommand(new ClipShaderCommand(std::move(cs), op));
 }
 
-#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
-void DebugCanvas::didConcat44(const SkScalar m[16])
-#else
-void DebugCanvas::didConcat44(const SkM44& m)
-#endif
-{
+void DebugCanvas::didConcat44(const SkM44& m) {
     // TODO
     this->INHERITED::didConcat44(m);
 }
