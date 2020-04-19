@@ -48,6 +48,10 @@ size_t sk_pixmap_get_row_bytes(const sk_pixmap_t* cpixmap) {
     return AsPixmap(cpixmap)->rowBytes();
 }
 
+void* sk_pixmap_get_writable_addr(const sk_pixmap_t* cpixmap) {
+    return AsPixmap(cpixmap)->writable_addr();
+}
+
 const void* sk_pixmap_get_pixels(const sk_pixmap_t* cpixmap) {
     return AsPixmap(cpixmap)->addr();
 }

@@ -21,6 +21,7 @@ SK_C_API void sk_pixmap_reset(sk_pixmap_t* cpixmap);
 SK_C_API void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes);
 SK_C_API void sk_pixmap_get_info(const sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo);
 SK_C_API size_t sk_pixmap_get_row_bytes(const sk_pixmap_t* cpixmap);
+SK_C_API void* sk_pixmap_get_writable_addr(const sk_pixmap_t* cpixmap);
 SK_C_API const void* sk_pixmap_get_pixels(const sk_pixmap_t* cpixmap);
 SK_C_API const void* sk_pixmap_get_pixels_with_xy(const sk_pixmap_t* cpixmap, int x, int y);
 SK_C_API sk_color_t sk_pixmap_get_pixel_color(const sk_pixmap_t* cpixmap, int x, int y);
