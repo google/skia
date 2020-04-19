@@ -21,7 +21,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	go.chromium.org/luci v0.0.0-20200417231654-5db2675be061 // indirect
+	go.chromium.org/luci v0.0.0-20200418063746-526e5c25d500 // indirect
 	go.skia.org/infra v0.0.0-20200417192817-9674a1d16a82
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
