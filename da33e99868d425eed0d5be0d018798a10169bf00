@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d516882d_fb5168cd",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-19T00:20:16Z",
+      "side": 1,
+      "message": "We also need kStroke, right?",
+      "range": {
+        "startLine": 284,
+        "startChar": 44,
+        "endLine": 284,
+        "endChar": 49
+      },
+      "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9c5765a_11b7e969",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-19T00:20:16Z",
+      "side": 1,
+      "message": "This gets called after committing local attributes to fInherited, I think it\u0027s safe to just use pctx-\u003efInherited.fFill unconditionally.",
+      "range": {
+        "startLine": 287,
+        "startChar": 23,
+        "endLine": 287,
+        "endChar": 58
+      },
+      "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f207f58_4ffc71ab",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-19T00:20:16Z",
+      "side": 1,
+      "message": "I\u0027m a bit concerned that if we trigger based on this condition, we end up re-applying for all descendants and create local pctx copies unnecessarily.  E.g.:\n\n  \u003cg id\u003d\"g1\" fill\u003d\"currentColor\"\u003e\n    \u003cg id\u003d\"g2\" color\u003d\"blue\"\u003e\n      \u003cg id\u003d\"g3\"\u003e\n         \u003cg id\u003d\"g4\u003e\n           ...\n         \u003c/g\u003e\n      \u003c/g\u003e\n    \u003c/g\u003e\n  \u003c/g\u003e\n\nWe seem to trigger for everything below/including g1, when in reality nothing changes below g2.  I wonder if it would be sufficient to force an update only when we have a local color (g2 above)?  See next comment.",
+      "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b609ae4b_55e6dbf1",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-19T00:20:16Z",
+      "side": 1,
+      "message": "Do you think something like this would also work?\n\n   ApplyLazyInheritedAttribute(*);\n\n   if (attrs.fColor.isValid()) {\n     // local color attribute -\u003e update all currentColor dependents\n     if (fPresentationContext-\u003efInherited.fFill-\u003etype() \u003d\u003d SkSVGPaint::Type::kCurrentColor) {\n       applySVGPaint(...)\n     }\n     ...\n   }",
+      "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
