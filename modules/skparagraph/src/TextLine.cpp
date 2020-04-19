@@ -1,8 +1,8 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/src/TextLine.h"
 #include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skshaper/include/SkICUInterface.h"
 
 #include "include/core/SkMaskFilter.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -97,7 +97,7 @@ TextLine::TextLine(ParagraphImpl* master,
     }
 
     // Get the logical order
-    std::vector<UBiDiLevel> runLevels;
+    std::vector<SkBidiIterator::Level> runLevels;
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fMaster->run(runIndex);
         runLevels.emplace_back(run.fBidiLevel);
@@ -105,7 +105,7 @@ TextLine::TextLine(ParagraphImpl* master,
     }
 
     std::vector<int32_t> logicalOrder(numRuns);
-    ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
+    SkBidiIterator::ReorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
 
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {

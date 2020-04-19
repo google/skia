@@ -10,8 +10,8 @@ _include = get_path_info("include", "abspath")
 skia_shaper_public = [ "$_include/SkShaper.h" ]
 
 skia_shaper_primitive_sources = [
+  "$_src/SkICUInterface_icu.cpp",
   "$_src/SkShaper.cpp",
   "$_src/SkShaper_coretext.cpp",
-  "$_src/SkShaper_primitive.cpp",
 ]
 skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]

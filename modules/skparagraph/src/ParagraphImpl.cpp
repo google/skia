@@ -7,6 +7,7 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextWrapper.h"
+#include "modules/skshaper/include/SkICUInterface.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 #include <unicode/ustring.h>
@@ -20,7 +21,7 @@ namespace textlayout {
 namespace {
 
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
-using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
+//using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
@@ -1219,38 +1220,26 @@ bool ParagraphImpl::calculateBidiRegions(SkTArray<BidiRegion>* regions) {
     // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
     size_t utf8Bytes = fText.size();
     const char* utf8 = fText.c_str();
-    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                            ? UBIDI_LTR
-                            : UBIDI_RTL;
+    SkBidiIterator::Direction dir = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                                    ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
     if (!SkTFitsIn<int32_t>(utf8Bytes)) {
         SkDEBUGF("Bidi error: text too long");
         return false;
     }
 
     // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    UErrorCode status = U_ZERO_ERROR;
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
+    int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Bytes);
+    if (utf16Units < 0) {
+        SkDEBUGF("Invalid utf8 input");
         return false;
     }
+    std::unique_ptr<uint16_t[]> utf16(new uint16_t[utf16Units]);
+    SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Bytes);
+    SkASSERT(dstLen == utf16Units);
 
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-    SkASSERT(bidi);
-
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
+    auto bidi = SkBidiIterator::MakeICU(utf16.get(), utf16Units, dir);
+    if (!bidi) {
+        SkDEBUGF("Bidi failure\n");
         return false;
     }
 
@@ -1258,12 +1247,12 @@ bool ParagraphImpl::calculateBidiRegions(SkTArray<BidiRegion>* regions) {
     const char* start8 = utf8;
     const char* end8 = utf8 + utf8Bytes;
     TextRange textRange(0, 0);
-    UBiDiLevel currentLevel = 0;
+    SkBidiIterator::Level currentLevel = 0;
 
     int32_t pos16 = 0;
-    int32_t end16 = ubidi_getLength(bidi.get());
+    int32_t end16 = bidi->getLength();
     while (pos16 < end16) {
-        auto level = ubidi_getLevelAt(bidi.get(), pos16);
+        auto level = bidi->getLevelAt(pos16);
         if (pos16 == 0) {
             currentLevel = level;
         } else if (level != currentLevel) {
