@@ -1102,6 +1102,79 @@ static void test_inner_bounds(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_conservative_intersection(skiatest::Reporter* reporter) {
+    // Helpers to make test specification easier
+    auto rrect = [](const SkRect& r) { return SkRRect::MakeRect(r); };
+    auto rrect_xy = [](const SkRect& r, float x, float y) { return SkRRect::MakeRectXY(r, x, y); };
+    auto rrect_rad = [](const SkRect& r, const SkVector& tl, const SkVector& tr,
+                        const SkVector& br, const SkVector& bl) {
+        SkRRect rrect;
+        SkVector radii[4] = {tl, tr, br, bl};
+        rrect.setRectRadii(r, radii);
+        return rrect;
+    };
+
+    struct Expectation {
+        SkRRect fA;
+        SkRRect fB;
+        SkRRect fExpected = SkRRect::MakeEmpty(); // Empty means intersection failed
+    };
+
+    Expectation tests[] = {
+        // * Successful intersection operations *
+        // A intersects B on its straight edges, forming a rectangle
+        {rrect_xy({0.f, 4.f, 16.f, 8.f}, 2.f, 2.f), rrect_xy({4.f, 0.f, 8.f, 16.f}, 2.f, 2.f),
+                rrect({4.f, 4.f, 8.f, 8.f})},
+        // A intersects B on one vertical edge, preserving two A corners
+        {rrect_xy({0.f, 4.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({2.f, 0.f, 16.f, 16.f}, 2.f, 2.f),
+                rrect_rad({2.f, 4.f, 8.f, 8.f}, {0.f, 0.f}, {2.f, 2.f}, {2.f, 2.f}, {0.f, 0.f})},
+        {rrect_xy({8.f, 4.f, 16.f, 8.f}, 2.f, 2.f), rrect_xy({0.f, 0.f, 12.f, 16.f}, 2.f, 2.f),
+                rrect_rad({8.f, 4.f, 12.f, 8.f}, {2.f, 2.f}, {0.f, 0.f}, {0.f, 0.f}, {2.f, 2.f})},
+        // A intersects B on one horizontal edge
+        {rrect_xy({4.f, 0.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({0.f, 4.f, 16.f, 12.f}, 2.f, 2.f),
+                rrect_rad({4.f, 4.f, 8.f, 8.f}, {0.f, 0.f}, {0.f, 0.f}, {2.f, 2.f}, {2.f, 2.f})},
+        {rrect_xy({4.f, 8.f, 8.f, 16.f}, 2.f, 2.f), rrect_xy({0.f, 4.f, 16.f, 12.f}, 2.f, 2.f),
+                rrect_rad({4.f, 8.f, 8.f, 12.f}, {2.f, 2.f}, {2.f, 2.f}, {0.f, 0.f}, {0.f, 0.f})},
+        // A intersects B on a corner, preserving one A corner and one B corner
+        {rrect_xy({0.f, 0.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({4.f, 4.f, 12.f, 12.f}, 3.f, 3.f),
+                rrect_rad({4.f, 4.f, 8.f, 8.f}, {3.f, 3.f}, {0.f, 0.f}, {2.f, 2.f}, {0.f, 0.f})},
+        {rrect_xy({0.f, 8.f, 8.f, 16.f}, 2.f, 2.f), rrect_xy({4.f, 4.f, 12.f, 12.f}, 3.f, 3.f),
+                rrect_rad({4.f, 8.f, 8.f, 12.f}, {0.f, 0.f}, {2.f, 2.f}, {0.f, 0.f}, {3.f, 3.f})},
+        {rrect_xy({8.f, 8.f, 16.f, 16.f}, 2.f, 2.f), rrect_xy({4.f, 4.f, 12.f, 12.f}, 3.f, 3.f),
+                rrect_rad({8.f, 8.f, 12.f, 12.f}, {2.f, 2.f}, {0.f, 0.f}, {3.f, 3.f}, {0.f, 0.f})},
+        {rrect_xy({8.f, 0.f, 16.f, 8.f}, 2.f, 2.f), rrect_xy({4.f, 4.f, 12.f, 12.f}, 3.f, 3.f),
+                rrect_rad({8.f, 4.f, 12.f, 8.f}, {0.f, 0.f}, {3.f, 3.f}, {0.f, 0.f}, {2.f, 2.f})},
+        // A is contained in B, resulting in A
+        {rrect_xy({4.f, 4.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({0.f, 0.f, 12.f, 12.f}, 3.f, 3.f),
+                rrect_xy({4.f, 4.f, 8.f, 8.f}, 2.f, 2.f)},
+
+        // * Failed intersection operations *
+        // A and B's bounds do not intersect
+        {rrect_xy({0.f, 0.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({12.f, 12.f, 16.f, 16.f}, 1.f, 1.f)},
+        // A and B's bounds intersect, but corner curves do not -> no intersection
+        {rrect_xy({0.f, 0.f, 8.f, 8.f}, 2.f, 2.f), rrect_xy({7.f, 7.f, 15.f, 15.f}, 2.f, 2.f)},
+        // A is empty -> no intersection
+        {SkRRect::MakeEmpty(), rrect_xy({0.f, 0.f, 8.f, 8.f}, 2.f, 2.f)},
+        // A is contained in B, but is too close to the corner curves for the conservative
+        // approximations to construct a valid round rect intersection.
+        {rrect_xy({0.3f, 0.3f, 10.3f, 10.3f}, 2.f, 2.f), rrect_xy({0.f, 0.f, 12.f, 12.f}, 3.f, 3.f)},
+        // A intersects a straight edge, but not far enough for B to contain A's corners
+        {rrect_xy({0.f, 4.f, 8.f, 4.f}, 2.f, 2.f), rrect_xy({3.f, 0.f, 12.f, 16.f}, 3.f, 3.f)},
+        // A intersects a straight edge and part of B's corner
+        {rrect_xy({0.f, 4.f, 8.f, 4.f}, 2.f, 2.f), rrect_xy({0.f, 3.f, 12.f, 16.f}, 3.f, 3.f)},
+        // A intersects B on a corner, but the corner curves intersect each other
+        {rrect_xy({0.f, 0.f, 8.f, 8.f}, 3.f, 3.f), rrect_xy({6.f, 6.f, 16.f, 16.f}, 3.f, 3.f)}
+    };
+
+    for (const Expectation& e : tests) {
+        SkRRect aIntB = SkRRectPriv::ConservativeIntersect(e.fA, e.fB);
+        REPORTER_ASSERT(reporter, aIntB == e.fExpected);
+        // Intersection should be commutative
+        SkRRect bIntA = SkRRectPriv::ConservativeIntersect(e.fB, e.fA);
+        REPORTER_ASSERT(reporter, bIntA == e.fExpected);
+    }
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -1117,4 +1190,5 @@ DEF_TEST(RoundRect, reporter) {
     test_empty(reporter);
     test_read(reporter);
     test_inner_bounds(reporter);
+    test_conservative_intersection(reporter);
 }

@@ -45,6 +45,13 @@ public:
     // not be the global maximum, but will be non-empty, touch at least one edge and be contained
     // in the round rect.
     static SkRect InnerBounds(const SkRRect& rr);
+
+    // Attempt to compute the intersection of two round rects. The intersection is not necessarily
+    // a round rect. This returns intersections only when the shape is representable as a new
+    // round rect (or rect). Empty is returned if 'a' and 'b' do not intersect or if the
+    // intersection is to complicated. This is conservative, it may not always detect that an
+    // intersection could be represented as a round rect.
+    static SkRRect ConservativeIntersect(const SkRRect& a, const SkRRect& b);
 };
 
 #endif
