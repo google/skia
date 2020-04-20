@@ -20,6 +20,9 @@ struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
+#if GR_TEST_UTILS
+struct IDXGraphicsAnalysis;
+#endif
 
 class GrD3DGpu : public GrGpu {
 public:
@@ -50,6 +53,9 @@ public:
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override;
+
+    void testingOnly_startCapture() override;
+    void testingOnly_endCapture() override;
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
@@ -226,6 +232,10 @@ private:
     SkDeque fOutstandingCommandLists;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
+
+#if GR_TEST_UTILS
+    IDXGraphicsAnalysis* fGraphicsAnalysis;
+#endif
 
     typedef GrGpu INHERITED;
 };
