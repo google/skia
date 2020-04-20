@@ -118,3 +118,42 @@ private:
 DEF_GM( return new PathOpsInverseGM; )
 
 }
+
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkParsePath.h"
+
+DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
+    const char* svgStr[] = {
+        "M474.889 27.0952C474.889 27.1002 474.888 27.1018 474.889 27.1004L479.872 27.5019C479.883 27.3656 479.889 27.2299 479.889 27.0952L474.889 27.0952L474.889 27.0952Z",
+        "M474.94 26.9405C474.93 26.9482 474.917 26.9576 474.901 26.9683L477.689 31.1186C477.789 31.0512 477.888 30.9804 477.985 30.9059L474.94 26.9405L474.94 26.9405Z"
+    };
+
+    SkPath path[2], resultPath;
+    SkOpBuilder builder;
+
+    for (int i = 0; i < 2; i++)
+    {
+        SkParsePath::FromSVGString(svgStr[i], &path[i]);
+        builder.add(path[i], kUnion_SkPathOp);
+    }
+
+    builder.resolve(&resultPath);
+
+    auto r = path[0].getBounds();
+    canvas->translate(30, 30);
+    canvas->scale(200 / r.width(), 200 / r.width());
+    canvas->translate(-r.fLeft, -r.fTop);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(0);
+
+    canvas->drawPath(path[0], paint);
+    canvas->drawPath(path[1], paint);
+
+    // The blue draw should (nearly) overdraw all of the red (except where the two paths intersect)
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawPath(resultPath, paint);
+}
