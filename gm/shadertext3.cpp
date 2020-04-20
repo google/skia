@@ -80,12 +80,12 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-
+        printf("########## SHADERTEXT3 START\n");
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
         bmpPaint.setFilterQuality(kLow_SkFilterQuality);
         bmpPaint.setAlphaf(0.5f);
-        canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
+//        canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
         SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kPointSize));
         SkPaint outlinePaint;
@@ -130,9 +130,13 @@ protected:
                     canvas->translate(0, 0.75f * kPointSize);
                     canvas->save();
                 }
+                break;
             }
+            break;
         }
         canvas->restore();
+        canvas->flush();
+        printf("########## SHADERTEXT3 FINISH\n");
     }
 
 private:

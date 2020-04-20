@@ -330,7 +330,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 }
                 flag = flag->next();
             }
-            if (!matchedFlag) {
+/*            if (!matchedFlag) {
 #if defined(SK_BUILD_FOR_MAC)
                 if (SkStrStartsWith(argv[i], "NSDocumentRevisions") ||
                     SkStrStartsWith(argv[i], "-NSDocumentRevisions")) {
@@ -339,7 +339,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 #endif
                     SkDebugf("Got unknown flag '%s'. Exiting.\n", argv[i]);
                 exit(-1);
-            }
+            }*/
         }
     }
     // Since all of the flags have been set, release the memory used by each

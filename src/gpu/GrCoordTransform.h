@@ -75,6 +75,7 @@ public:
     const SkMatrix& matrix() const { return fMatrix; }
     const GrSurfaceProxy* proxy() const { return fProxy; }
     bool normalize() const {
+        SkASSERT(!fProxy);
         return fProxy && fProxy->backendFormat().textureType() != GrTextureType::kRectangle;
     }
     bool reverseY() const { return fProxy && fOrigin == kBottomLeft_GrSurfaceOrigin; }
