@@ -2878,9 +2878,10 @@ sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const
                                           &kCFTypeDictionaryValueCallBacks));
         CFDictionaryAddValue(attributes.get(),
                              kCTFontVariationAttribute, ctVariation.dict.get());
-        SkUniqueCFRef<CTFontDescriptorRef> varDesc(
+        SkUniqueCFRef<CTFontDescriptorRef> desc(
                 CTFontDescriptorCreateWithAttributes(attributes.get()));
-        ctVariant.reset(CTFontCreateCopyWithAttributes(fFontRef.get(), 0, nullptr, varDesc.get()));
+        CGFloat size = CTFontGetSize(fFontRef.get());
+        ctVariant.reset(CTFontCreateCopyWithAttributes(fFontRef.get(), size, nullptr, desc.get()));
     } else {
         ctVariant.reset((CTFontRef)CFRetain(fFontRef.get()));
     }
