@@ -109,6 +109,32 @@ void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(!fResourceBarriers.count());
 }
 
+void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                                           GrD3DTextureResource* dstTexture,
+                                           uint32_t subresourceCount,
+                                           D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
+                                           int left, int top) {
+    SkASSERT(fIsActive);
+    SkASSERT(subresourceCount == 1 || (left == 0 && top == 0));
+
+    this->addingWork();
+    this->addResource(srcBuffer->resource());
+    this->addResource(dstTexture->resource());
+    for (uint32_t subresource = 0; subresource < subresourceCount; ++subresource) {
+        D3D12_TEXTURE_COPY_LOCATION src = {};
+        src.pResource = srcBuffer->d3dResource();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        src.PlacedFootprint = bufferFootprints[subresource];
+
+        D3D12_TEXTURE_COPY_LOCATION dst = {};
+        dst.pResource = dstTexture->d3dResource();
+        dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        dst.SubresourceIndex = subresource;
+
+        fCommandList->CopyTextureRegion(&dst, left, top, 0, &src, nullptr);
+    }
+}
+
 void GrD3DCommandList::addingWork() {
     this->submitResourceBarriers();
     fHasWork = true;

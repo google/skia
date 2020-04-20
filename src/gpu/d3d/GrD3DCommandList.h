@@ -40,6 +40,12 @@ public:
                          int numBarriers,
                          D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
+    void copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                             GrD3DTextureResource* dstTexture,
+                             uint32_t subresourceCount,
+                             D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
+                             int left, int top);
+
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
     void addResource(const GrManagedResource* resource) {
