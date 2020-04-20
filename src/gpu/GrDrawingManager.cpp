@@ -699,7 +699,8 @@ void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) 
 }
 
 sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
-                                              bool managedOpsTask) {
+                                              bool managedOpsTask,
+                                              GrOpsTaskClosedObserver* closedObserver) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
@@ -708,6 +709,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
 
     sk_sp<GrOpsTask> opsTask(new GrOpsTask(fContext->priv().arenas(),
                                            std::move(surfaceView),
+                                           closedObserver,
                                            fContext->priv().auditTrail()));
     SkASSERT(proxy->getLastRenderTask() == opsTask.get());
 

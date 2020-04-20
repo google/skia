@@ -33,14 +33,21 @@ class GrClearOp;
 class GrGpuBuffer;
 class GrRenderTargetProxy;
 
+class GrOpsTaskClosedObserver {
+public:
+    virtual ~GrOpsTaskClosedObserver() = 0;
+    virtual void wasClosed(const GrOpsTask& task)  = 0;
+};
+
 class GrOpsTask : public GrRenderTask {
 private:
     using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
+
     // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(GrRecordingContext::Arenas, GrSurfaceProxyView, GrOpsTaskClosedObserver*, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -284,6 +291,7 @@ private:
     // DDL case, the Arenas must have been detached from the original recording context and moved
     // into the owning DDL.
     GrRecordingContext::Arenas fArenas;
+    GrOpsTaskClosedObserver*   fClosedObserver;
     GrAuditTrail*              fAuditTrail;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
