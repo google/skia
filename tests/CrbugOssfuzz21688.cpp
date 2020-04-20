@@ -14,14 +14,17 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-DEF_TEST(crbug_ossfuzz_21688, r) {
-    // Tests that an array of zero-sized interface blocks can be compiled without crashing.
+DEF_TEST(crbug_ossfuzz_21688_interfaceblock, reporter) {
+    // Tests that arrays of zero-sized interface blocks are disallowed.
     SkSL::Compiler compiler;
     SkSL::String output;
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
-    std::unique_ptr<SkSL::Program> program =
-        compiler.convertProgram(SkSL::Program::kFragment_Kind, "testBlock {} x[2];", settings);
-    compiler.toSPIRV(*program, &output);
+    const char* const kProgramText = "testBlock {} x[2];";
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
+                                                                     kProgramText, settings);
+    REPORTER_ASSERT(reporter, program == nullptr);
+    REPORTER_ASSERT(reporter, compiler.errorText().find("interface block 'testBlock' must "
+                                                        "contain at least one member") != -1);
 }
