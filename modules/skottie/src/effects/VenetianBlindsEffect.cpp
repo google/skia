@@ -112,8 +112,9 @@ private:
 
         // Gradient value at fp0/fp1, fp2/fp3.
         // Note: g01 > 0 iff fp0-fp1 is collapsed and g23 < 1 iff fp2-fp3 is collapsed
-        const auto g01 = std::max(0.0f, 0.5f * (1 + (0 - t) / df)),
-                   g23 = std::min(1.0f, 0.5f * (1 + (1 - t) / df));
+        const auto g01 = std::max(0.0f, 0.5f * (1 + sk_ieee_float_divide(0 - t, df))),
+                   g23 = std::min(1.0f, 0.5f * (1 + sk_ieee_float_divide(1 - t, df)));
+        SkASSERT(0 <= g01 && g01 <= g23 && g23 <= 1);
 
         const SkColor c01 = SkColorSetA(SK_ColorWHITE, SkScalarRoundToInt(g01 * 0xff)),
                       c23 = SkColorSetA(SK_ColorWHITE, SkScalarRoundToInt(g23 * 0xff)),
