@@ -2876,12 +2876,8 @@ namespace skvm {
         auto  store_to_stack = [&](Val id) { a->strq(r[id], A::sp, id); };
     #endif
 
-        struct LabelAndReg {
-            A::Label label;
-            Reg      reg;
-        };
-        SkTHashMap<int, LabelAndReg> constants;    // All constants share the same pool.
-        LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
+        SkTHashMap<int, A::Label> constants;    // All constants share the same pool.
+        A::Label                  iota;         // Exists _only_ to vary per-lane.
 
         auto emit = [&](Val id, bool scalar) {
             if (stack_only) {
@@ -3008,7 +3004,7 @@ namespace skvm {
             switch (op) {
             #if defined(__x86_64__)
                 case Op::assert_true: {
-                    a->vptest (r[x], &constants[0xffffffff].label);
+                    a->vptest (r[x], &constants[0xffffffff]);
                     A::Label all_true;
                     a->jc(&all_true);
                     a->int3();
@@ -3178,10 +3174,10 @@ namespace skvm {
 
                 case Op::index: a->vmovd((A::Xmm)tmp(), N);
                                 a->vbroadcastss(tmp(), tmp());
-                                a->vpsubd(dst(), tmp(), &iota.label);
+                                a->vpsubd(dst(), tmp(), &iota);
                                 break;
 
-                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy].label); }
+                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy]); }
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
@@ -3221,11 +3217,11 @@ namespace skvm {
 
                 case Op::sqrt_f32: a->vsqrtps(dst(), r[x]); break;
 
-                case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy].label); break;
-                case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy].label); break;
-                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy].label); break;
-                case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy].label); break;
-                case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy].label); break;
+                case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy]); break;
+                case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy]); break;
+                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy]); break;
+                case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy]); break;
+                case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy]); break;
 
                 case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
@@ -3237,9 +3233,9 @@ namespace skvm {
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // Notice, y then x.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
-                case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy].label); break;
-                case Op::bit_or_imm : a->vpor  (dst(), r[x], &constants[immy].label); break;
-                case Op::bit_xor_imm: a->vpxor (dst(), r[x], &constants[immy].label); break;
+                case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy]); break;
+                case Op::bit_or_imm : a->vpor  (dst(), r[x], &constants[immy]); break;
+                case Op::bit_xor_imm: a->vpxor (dst(), r[x], &constants[immy]); break;
 
                 case Op::shl_i32: a->vpslld(dst(), r[x], immy); break;
                 case Op::shr_i32: a->vpsrld(dst(), r[x], immy); break;
@@ -3299,7 +3295,7 @@ namespace skvm {
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
 
-                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy].label); }
+                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy]); }
                                 else      { a->eor16b(dst(), dst(), dst()); }
                                 break;
                                 // TODO: If we hoist these, pack 4 values in each register
@@ -3501,17 +3497,17 @@ namespace skvm {
         // byte patterns on ARM or 32-byte patterns on x86, we only need to
         // align to 4 bytes, the element size and alignment requirement.
 
-        constants.foreach([&](int imm, LabelAndReg* entry) {
+        constants.foreach([&](int imm, A::Label* label) {
             a->align(4);
-            a->label(&entry->label);
+            a->label(label);
             for (int i = 0; i < K; i++) {
                 a->word(imm);
             }
         });
 
-        if (!iota.label.references.empty()) {
+        if (!iota.references.empty()) {
             a->align(4);
-            a->label(&iota.label);
+            a->label(&iota);
             for (int i = 0; i < K; i++) {
                 a->word(i);
             }
