@@ -10,6 +10,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkExchange.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
@@ -36,6 +37,10 @@ static const int kMaxOpChainDistance = 10;
 ////////////////////////////////////////////////////////////////////////////////
 
 using DstProxyView = GrXferProcessor::DstProxyView;
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrOpsTaskClosedObserver::~GrOpsTaskClosedObserver() = default;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -358,6 +363,7 @@ GrOpsTask::GrOpsTask(GrRecordingContext::Arenas arenas,
                      GrAuditTrail* auditTrail)
         : GrRenderTask(std::move(view))
         , fArenas(arenas)
+        , fClosedObserver(nullptr)
         , fAuditTrail(auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
@@ -874,6 +880,12 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
 GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
         const GrCaps& caps, SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
+    SkScopeExit triggerObserver([&] {
+        if (fClosedObserver) {
+            fClosedObserver->wasClosed(*this);
+            fClosedObserver = nullptr;
+        }
+    });
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
         SkRect clippedContentBounds = proxy->getBoundsRect();
