@@ -294,7 +294,7 @@ bool SkOpEdgeBuilder::walk() {
                             return false;
                         }
                         split->fVerb = SkReduceOrder::Cubic(split->fPts, split->fReduced);
-                        SkPoint* curve = SkPath::kCubic_Verb == verb
+                        SkPoint* curve = SkPath::kCubic_Verb == split->fVerb
                                 ? split->fPts : split->fReduced;
                         split->fCanAdd = can_add_curve(split->fVerb, curve);
                     }
