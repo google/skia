@@ -1096,7 +1096,9 @@ ASTNode::ID Parser::type() {
     return result;
 }
 
-/* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
+/* IDENTIFIER LBRACE
+     varDeclaration+
+   RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? SEMICOLON */
 ASTNode::ID Parser::interfaceBlock(Modifiers mods) {
     Token name;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
@@ -1119,6 +1121,11 @@ ASTNode::ID Parser::interfaceBlock(Modifiers mods) {
         }
         getNode(result).addChild(decl);
         ++id.fDeclarationCount;
+    }
+    if (id.fDeclarationCount == 0) {
+        this->error(name, "interface block '" + this->text(name) +
+                          "' must contain at least one member");
+        return ASTNode::ID::Invalid();
     }
     this->nextToken();
     std::vector<ASTNode> sizes;
