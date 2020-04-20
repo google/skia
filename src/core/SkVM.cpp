@@ -1999,14 +1999,6 @@ namespace skvm {
         this->byte(imm);
     }
 
-    void Assembler::vextracti128(Operand dst, Ymm src, int imm) {
-        this->op(0x66,0x3a0f,0x39, src,dst);
-        this->byte(imm);
-    }
-    void Assembler::vpextrd(Operand dst, Xmm src, int imm) {
-        this->op(0x66,0x3a0f,0x16, src,dst);
-        this->byte(imm);
-    }
     void Assembler::vpextrw(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x15, src,dst);
         this->byte(imm);
@@ -3018,6 +3010,12 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
+                default:
+                    if (debug_dump()) {
+                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    }
+                    return false;  // TODO: many new ops
+
             #if defined(__x86_64__)
                 case Op::assert_true: {
                     a->vptest (r[x], &constants[0xffffffff].label);
@@ -3062,76 +3060,10 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
                                  break;
 
-                case Op::gather8: {
-                    A::GP64 base = scratch,
-                           index = scratch2;
-
-                    // As usual, the gather base pointer is immz bytes off of uniform immy.
-                    a->mov(base, A::Mem{arg[immy], immz});
-
-                    // We'll need two distinct temporary vector registers:
-                    //   - tmp() to hold our indices;
-                    //   - accum to hold our partial gathered result.
-                    a->vmovdqa(tmp(), r[x]);
-
-                    // accum can be any register, even dst(), as long as it's not the same as tmp().
-                    A::Xmm accum;
-                    if (dst() != tmp()) {
-                        accum = (A::Xmm)dst();
-                    } else if (int found = __builtin_ffs(avail & ~(1<<tmp()))) {
-                        accum = (A::Xmm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
-                    SkASSERT((A::Xmm)tmp() != accum);
-
-                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
-                        if (i == 4) {
-                            // vpextrd can only pluck indices out from an Xmm register,
-                            // so we manually swap over to the top when we're halfway through.
-                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
-                        }
-                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
-                        a->vpinsrb(accum, accum, A::Mem{base,0,index,A::ONE}, i);
-                    }
-                    a->vpmovzxbd(dst(), accum);
-                } break;
-
-                case Op::gather16: {
-                    // Just as gather8 except vpinsrb->vpinsrw, ONE->TWO, and vpmovzxbd->vpmovzxwd.
-                    A::GP64 base = scratch,
-                           index = scratch2;
-
-                    a->mov(base, A::Mem{arg[immy], immz});
-
-                    a->vmovdqa(tmp(), r[x]);
-
-                    A::Xmm accum;
-                    if (dst() != tmp()) {
-                        accum = (A::Xmm)dst();
-                    } else if (int found = __builtin_ffs(avail & ~(1<<tmp()))) {
-                        accum = (A::Xmm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
-                    SkASSERT((A::Xmm)tmp() != accum);
-
-                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
-                        if (i == 4) {
-                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
-                        }
-                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
-                        a->vpinsrw(accum, accum, A::Mem{base,0,index,A::TWO}, i);
-                    }
-                    a->vpmovzxwd(dst(), accum);
-                } break;
-
                 case Op::gather32:
                 if (scalar) {
-                    A::GP64 base = scratch,
-                           index = scratch2;
+                    auto base  = scratch,
+                         index = scratch2;
                     // Our gather base pointer is immz bytes off of uniform immy.
                     a->mov(base, A::Mem{arg[immy], immz});
 
@@ -3168,7 +3100,7 @@ namespace skvm {
                     }
 
                     // Our gather base pointer is immz bytes off of uniform immy.
-                    A::GP64 base = scratch;
+                    auto base = scratch;
                     a->mov(base, A::Mem{arg[immy], immz});
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
                     a->vgatherdps(dst(), A::FOUR, index, base, mask);
@@ -3275,12 +3207,6 @@ namespace skvm {
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
             #elif defined(__aarch64__)
-                default:
-                    if (debug_dump()) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;  // TODO: many new ops
-
                 case Op::assert_true: {
                     a->uminv4s(tmp(), r[x]);   // uminv acts like an all() across the vector.
                     a->fmovs(scratch, tmp());
