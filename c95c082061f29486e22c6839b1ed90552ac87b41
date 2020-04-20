@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b352e6e_2f3434e9",
+        "filename": "src/core/SkRRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-20T14:23:15Z",
+      "side": 1,
+      "message": "too",
+      "range": {
+        "startLine": 52,
+        "startChar": 23,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "c95c082061f29486e22c6839b1ed90552ac87b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
