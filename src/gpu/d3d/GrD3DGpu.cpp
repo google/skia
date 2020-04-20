@@ -21,6 +21,10 @@
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
+#if GR_TEST_UTILS
+#include <DXProgrammableCapture.h>
+#endif
+
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrContext* context) {
     return sk_sp<GrGpu>(new GrD3DGpu(context, contextOptions, backendContext));
@@ -51,6 +55,13 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
     SkDEBUGCODE(HRESULT hr = ) fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
                                                     IID_PPV_ARGS(&fFence));
     SkASSERT(SUCCEEDED(hr));
+
+#if GR_TEST_UTILS
+    HRESULT getAnalysis = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&fGraphicsAnalysis));
+    if (FAILED(getAnalysis)) {
+        fGraphicsAnalysis = nullptr;
+    }
+#endif
 }
 
 GrD3DGpu::~GrD3DGpu() {
@@ -648,6 +659,19 @@ void GrD3DGpu::testingOnly_flushGpuAndSync() {
     SkAssertResult(this->submitDirectCommandList(SyncQueue::kForce));
 }
 
+void GrD3DGpu::testingOnly_startCapture() {
+    if (fGraphicsAnalysis) {
+        fGraphicsAnalysis->BeginCapture();
+    }
+}
+
+void GrD3DGpu::testingOnly_endCapture() {
+    if (fGraphicsAnalysis) {
+        fGraphicsAnalysis->EndCapture();
+    }
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrD3DGpu::addResourceBarriers(const GrManagedResource* resource,
@@ -666,5 +690,3 @@ bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
         return this->submitDirectCommandList(SyncQueue::kSkip);
     }
 }
-
-#endif
