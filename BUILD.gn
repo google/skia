@@ -1561,10 +1561,8 @@ if (skia_enable_tools) {
       sources += gl_tests_sources
     }
     if (!skia_enable_fontmgr_android) {
-      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     if (!(skia_use_freetype && skia_use_fontconfig)) {
-      sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
