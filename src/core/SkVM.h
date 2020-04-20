@@ -859,15 +859,7 @@ namespace skvm {
         void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
         void setupLLVM       (const std::vector<OptimizedInstruction>&, const char* debug_name);
 
-        enum class JITMode {
-            // Fastest but most fragile strategy: values in registers, loop-invariant work hoisted.
-            Register,
-            // Usually next best: values in registers, loop-invariant work not hoisted.
-            RegisterNoHoist,
-            // Backup plan: values on the stack, loop-invariant work hoisted.
-            Stack,
-        };
-        bool jit(const std::vector<OptimizedInstruction>&, JITMode, Assembler*) const;
+        bool jit(const std::vector<OptimizedInstruction>&, Assembler*) const;
 
         void waitForLLVM() const;
 
