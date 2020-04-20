@@ -127,6 +127,7 @@ private:
 
     void applyOpacity(SkScalar opacity, uint32_t flags);
     void applyClip(const SkSVGClip&);
+    void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 
     const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;

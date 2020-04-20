@@ -363,6 +363,11 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(Visibility);
     ApplyLazyInheritedAttribute(Color);
 
+    // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
+    if (attrs.fColor.isValid()) {
+        updatePaintsWithCurrentColor(attrs);
+    }
+
 #undef ApplyLazyInheritedAttribute
 
     // Uninherited attributes.  Only apply to the current context.
@@ -438,6 +443,22 @@ void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
 
     fCanvas->clipPath(clipPath, true);
     fClipPath.set(clipPath);
+}
+
+void SkSVGRenderContext::updatePaintsWithCurrentColor(const SkSVGPresentationAttributes& attrs) {
+    // Of the attributes that can use currentColor:
+    //   https://www.w3.org/TR/SVG11/color.html#ColorProperty
+    // Only fill and stroke require paint updates. The others are resolved at render time.
+
+    if (fPresentationContext->fInherited.fFill->type() == SkSVGPaint::Type::kCurrentColor) {
+        applySvgPaint(*this, *fPresentationContext->fInherited.fFill,
+                      &fPresentationContext.writable()->fFillPaint);
+    }
+
+    if (fPresentationContext->fInherited.fStroke->type() == SkSVGPaint::Type::kCurrentColor) {
+        applySvgPaint(*this, *fPresentationContext->fInherited.fStroke,
+                      &fPresentationContext.writable()->fStrokePaint);
+    }
 }
 
 const SkPaint* SkSVGRenderContext::fillPaint() const {
