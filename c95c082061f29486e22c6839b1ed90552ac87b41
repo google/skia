@@ -22,6 +22,30 @@
       "revId": "c95c082061f29486e22c6839b1ed90552ac87b41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da4bd003_f6b23de8",
+        "filename": "src/core/SkRRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-20T20:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b352e6e_2f3434e9",
+      "range": {
+        "startLine": 52,
+        "startChar": 23,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "c95c082061f29486e22c6839b1ed90552ac87b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
