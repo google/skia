@@ -79,6 +79,24 @@
       "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe7aa0b8_d92fe68f",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-04-20T13:25:02Z",
+      "side": 1,
+      "message": "This makes a lot of sense, thanks Florin! Will update.",
+      "parentUuid": "b609ae4b_55e6dbf1",
+      "revId": "da33e99868d425eed0d5be0d018798a10169bf00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
