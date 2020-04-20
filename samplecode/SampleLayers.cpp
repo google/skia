@@ -16,7 +16,6 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/utils/SkCamera.h"
 #include "include/utils/SkInterpolator.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
