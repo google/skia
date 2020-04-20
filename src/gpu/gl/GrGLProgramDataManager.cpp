@@ -269,6 +269,10 @@ template<int N> struct set_uniform_matrix;
 template<int N> inline void GrGLProgramDataManager::setMatrices(UniformHandle u,
                                                                 int arrayCount,
                                                                 const float matrices[]) const {
+    printf("matrix %d:\n", u.toIndex());
+    for (int i = 0; i < 9; ++i) {
+        printf("    %g\n", i);
+    }
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
              uni.fType == kHalf2x2_GrSLType + (N - 2));
