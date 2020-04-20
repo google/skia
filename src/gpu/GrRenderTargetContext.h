@@ -57,7 +57,7 @@ class SkVertices;
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrRenderTargetContext : public GrSurfaceContext {
+class GrRenderTargetContext : public GrSurfaceContext, public GrOpsTaskClosedObserver {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
@@ -579,6 +579,8 @@ public:
     const GrRenderTargetContextPriv priv() const;
 
     GrTextTarget* textTarget() { return fTextTarget.get(); }
+
+    void wasClosed(const GrOpsTask& task) override;
 
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
