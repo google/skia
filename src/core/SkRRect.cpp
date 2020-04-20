@@ -751,3 +751,97 @@ SkRect SkRRectPriv::InnerBounds(const SkRRect& rr) {
     SkASSERT(rr.contains(innerBounds));
     return innerBounds;
 }
+
+SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
+    // Returns the coordinate of the rect matching the corner enum.
+    auto getCorner = [](const SkRect& r, SkRRect::Corner corner) -> SkPoint {
+        switch(corner) {
+            case SkRRect::kUpperLeft_Corner:  return {r.fLeft, r.fTop};
+            case SkRRect::kUpperRight_Corner: return {r.fRight, r.fTop};
+            case SkRRect::kLowerLeft_Corner:  return {r.fLeft, r.fBottom};
+            case SkRRect::kLowerRight_Corner: return {r.fRight, r.fBottom};
+            default: SkUNREACHABLE;
+        }
+    };
+    // Returns true if shape A's extreme point is contained within shape B's extreme point, relative
+    // to the 'corner' location. If the two shapes' corners have the same ellipse radii, this
+    // is sufficient for A's ellipse arc to be contained by B's ellipse arc.
+    auto insideCorner = [](SkRRect::Corner corner, const SkPoint& a, const SkPoint& b) {
+        switch(corner) {
+            case SkRRect::kUpperLeft_Corner:  return a.fX >= b.fX && a.fY >= b.fY;
+            case SkRRect::kUpperRight_Corner: return a.fX <= b.fX && a.fY >= b.fY;
+            case SkRRect::kLowerRight_Corner: return a.fX <= b.fX && a.fY <= b.fY;
+            case SkRRect::kLowerLeft_Corner:  return a.fX >= b.fX && a.fY <= b.fY;
+            default:  SkUNREACHABLE;
+        }
+    };
+
+    auto getIntersectionRadii = [&](const SkRect& r, SkRRect::Corner corner, SkVector* radii) {
+        SkPoint test = getCorner(r, corner);
+        SkPoint aCorner = getCorner(a.rect(), corner);
+        SkPoint bCorner = getCorner(b.rect(), corner);
+
+        if (test == aCorner) {
+            // Test that A's ellipse is contained by B. This is a non-trivial function to evaluate
+            // so we resrict it to when the corners have the same radii. If not, we use the more
+            // conservative test that the extreme point of A's bounding box is contained in B.
+            *radii = a.radii(corner);
+            if (*radii == b.radii(corner)) {
+                return insideCorner(corner, aCorner, bCorner); // A inside B
+            } else {
+                return b.checkCornerContainment(aCorner.fX, aCorner.fY);
+            }
+        } else if (test == bCorner) {
+            // Mirror of the above
+            *radii = b.radii(corner);
+            if (*radii == a.radii(corner)) {
+                return insideCorner(corner, bCorner, aCorner); // B inside A
+            } else {
+                return a.checkCornerContainment(bCorner.fX, bCorner.fY);
+            }
+        } else {
+            // This is a corner formed by two straight edges of A and B, so confirm that it is
+            // contained in both (if not, then the intersection can't be a round rect).
+            *radii = {0.f, 0.f};
+            return a.checkCornerContainment(test.fX, test.fY) &&
+                   b.checkCornerContainment(test.fX, test.fY);
+        }
+    };
+
+    SkRect edges;
+    if (!edges.intersect(a.rect(), b.rect())) {
+        // Definitely no intersection
+        return SkRRect::MakeEmpty();
+    }
+
+    const SkRRect::Corner corners[] = {
+        SkRRect::kUpperLeft_Corner,
+        SkRRect::kUpperRight_Corner,
+        SkRRect::kLowerRight_Corner,
+        SkRRect::kLowerLeft_Corner
+    };
+    // By definition, edges is contained in the bounds of 'a' and 'b', but now we need to consider
+    // the corners. If the bound's corner point is in both rrects, the corner radii will be 0s.
+    // If the bound's corner point matches a's edges and is inside 'b', we use a's radii.
+    // Same for b's radii. If any corner fails these conditions, we reject the intersection as an
+    // rrect. If after determining radii for all 4 corners, they would overlap, we also reject the
+    // intersection shape.
+    SkVector radii[4];
+    for (auto c : corners) {
+        if (!getIntersectionRadii(edges, c, &radii[c])) {
+            return SkRRect::MakeEmpty(); // Resulting intersection is not a rrect
+        }
+    }
+
+    // Check for radius overlap along the four edges, since the earlier evaluation was only a
+     // one-sided corner check.
+    if (!SkRRect::AreRectAndRadiiValid(edges, radii)) {
+        return SkRRect::MakeEmpty();
+    }
+
+    // The intersection is an rrect of the given radii. Potentially all 4 corners could have
+    // been simplified to (0,0) radii, making the intersection a rectangle.
+    SkRRect intersection;
+    intersection.setRectRadii(edges, radii);
+    return intersection;
+}

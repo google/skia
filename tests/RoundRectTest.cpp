@@ -7,6 +7,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -1102,6 +1103,144 @@ static void test_inner_bounds(skiatest::Reporter* reporter) {
     }
 }
 
+namespace {
+    // Helper to test expected intersection, relying on the fact that all round rect intersections
+    // will have their bounds equal to the intersection of the bounds of the input round rects, and
+    // their corner radii will be a one of A's, B's, or rectangular.
+    enum CornerChoice : uint8_t {
+        kA, kB, kRect
+    };
+
+    static void verify_success(skiatest::Reporter* reporter, const SkRRect& a, const SkRRect& b,
+                               CornerChoice tl, CornerChoice tr, CornerChoice br, CornerChoice bl) {
+        static const SkRRect kRect = SkRRect::MakeEmpty(); // has (0,0) for all corners
+
+        // Compute expected round rect intersection given bounds of A and B, and the specified
+        // corner choices for the 4 corners.
+        SkRect expectedBounds;
+        SkAssertResult(expectedBounds.intersect(a.rect(), b.rect()));
+
+        SkVector radii[4] = {
+            (tl == kA ? a : (tl == kB ? b : kRect)).radii(SkRRect::kUpperLeft_Corner),
+            (tr == kA ? a : (tr == kB ? b : kRect)).radii(SkRRect::kUpperRight_Corner),
+            (br == kA ? a : (br == kB ? b : kRect)).radii(SkRRect::kLowerRight_Corner),
+            (bl == kA ? a : (bl == kB ? b : kRect)).radii(SkRRect::kLowerLeft_Corner)
+        };
+        SkRRect expected;
+        expected.setRectRadii(expectedBounds, radii);
+
+        SkRRect actual = SkRRectPriv::ConservativeIntersect(a, b);
+        // Intersections are commutative so ba and ab should be the same
+        REPORTER_ASSERT(reporter, actual == SkRRectPriv::ConservativeIntersect(b, a));
+
+        // Intersection of the result with either A or B should remain the intersection
+        REPORTER_ASSERT(reporter, actual == SkRRectPriv::ConservativeIntersect(actual, a));
+        REPORTER_ASSERT(reporter, actual == SkRRectPriv::ConservativeIntersect(actual, b));
+
+        // Bounds of intersection round rect should equal intersection of bounds of a and b
+        REPORTER_ASSERT(reporter, actual.rect() == expectedBounds);
+
+        // Use PathOps to confirm that the explicit round rect is correct.
+        SkPath aPath, bPath, expectedPath;
+        aPath.addRRect(a);
+        bPath.addRRect(b);
+        SkAssertResult(Op(aPath, bPath, kIntersect_SkPathOp, &expectedPath));
+
+        // The isRRect() heuristics in SkPath are based on having called addRRect(), so a path from
+        // path ops that is a rounded rectangle will return false. However, if test XOR expected is
+        // empty, then we know that the shapes were the same.
+        SkPath testPath;
+        testPath.addRRect(actual);
+
+        SkPath empty;
+        SkAssertResult(Op(testPath, expectedPath, kXOR_SkPathOp, &empty));
+        REPORTER_ASSERT(reporter, empty.isEmpty());
+    }
+
+    static void verify_failure(skiatest::Reporter* reporter, const SkRRect& a, const SkRRect& b) {
+        SkRRect intersection = SkRRectPriv::ConservativeIntersect(a, b);
+        // Expected the intersection to fail (no intersection or complex intersection is not
+        // disambiguated).
+        REPORTER_ASSERT(reporter, intersection.isEmpty());
+        REPORTER_ASSERT(reporter, SkRRectPriv::ConservativeIntersect(b, a).isEmpty());
+    }
+} // anonymous
+
+static void test_conservative_intersection(skiatest::Reporter* reporter) {
+    // Helper to inline making an inset round rect
+    auto make_inset = [](const SkRRect& r, float dx, float dy) {
+        SkRRect i = r;
+        i.inset(dx, dy);
+        return i;
+    };
+
+    // A is a wide, short round rect
+    SkRRect a = SkRRect::MakeRectXY({0.f, 4.f, 16.f, 12.f}, 2.f, 2.f);
+    // B is a narrow, tall round rect
+    SkRRect b = SkRRect::MakeRectXY({4.f, 0.f, 12.f, 16.f}, 3.f, 3.f);
+    // NOTE: As positioned by default, A and B intersect as the rectangle {4, 4, 12, 12}.
+    // There is a 2 px buffer between the corner curves of A and the vertical edges of B, and
+    // a 1 px buffer between the corner curves of B and the horizontal edges of A. Since the shapes
+    // form a symmetric rounded cross, we can easily test edge and corner combinations by simply
+    // flipping signs and/or swapping x and y offsets.
+
+    // Successful intersection operations:
+    //  - for clarity these are formed by moving A around to intersect with B in different ways.
+    //  - the expected bounds of the round rect intersection is calculated automatically
+    //    in check_success, so all we have to specify are the expected corner radii
+
+    // A and B intersect as a rectangle
+    verify_success(reporter, a, b, kRect, kRect, kRect, kRect);
+    // Move A to intersect B on a vertical edge, preserving two corners of A inside B
+    verify_success(reporter, a.makeOffset(6.f, 0.f), b, kA, kRect, kRect, kA);
+    verify_success(reporter, a.makeOffset(-6.f, 0.f), b, kRect, kA, kA, kRect);
+    // Move B to intersect A on a horizontal edge, preserving two corners of B inside A
+    verify_success(reporter, a, b.makeOffset(0.f, 6.f), kB, kB, kRect, kRect);
+    verify_success(reporter, a, b.makeOffset(0.f, -6.f), kRect, kRect, kB, kB);
+    // Move A to intersect B on a corner, preserving one corner of A and one of B
+    verify_success(reporter, a.makeOffset(-7.f, -8.f), b, kB, kRect, kA, kRect); // TL of B
+    verify_success(reporter, a.makeOffset(7.f, -8.f), b, kRect, kB, kRect, kA);  // TR of B
+    verify_success(reporter, a.makeOffset(7.f, 8.f), b, kA, kRect, kB, kRect);   // BR of B
+    verify_success(reporter, a.makeOffset(-7.f, 8.f), b, kRect, kA, kRect, kB);  // BL of B
+    // An inset is contained inside the original (note that SkRRect::inset modifies radii too) so
+    // is returned unmodified when intersected.
+    verify_success(reporter, a, make_inset(a, 1.f, 1.f), kB, kB, kB, kB);
+    verify_success(reporter, make_inset(b, 2.f, 2.f), b, kA, kA, kA, kA);
+
+    // Failed intersection operations:
+
+    // A and B's bounds do not intersect
+    verify_failure(reporter, a.makeOffset(32.f, 0.f), b);
+    // A and B's bounds intersect, but corner curves do not -> no intersection
+    verify_failure(reporter, a.makeOffset(11.5f, -11.5f), b);
+    // A is empty -> no intersection
+    verify_failure(reporter, SkRRect::MakeEmpty(), b);
+    // A is contained in B, but is too close to the corner curves for the conservative
+    // approximations to construct a valid round rect intersection.
+    verify_failure(reporter, make_inset(b, 0.3f, 0.3f), b);
+    // A intersects a straight edge, but not far enough for B to contain A's corners
+    verify_failure(reporter, a.makeOffset(2.5f, 0.f), b);
+    verify_failure(reporter, a.makeOffset(-2.5f, 0.f), b);
+    // And vice versa for B into A
+    verify_failure(reporter, a, b.makeOffset(0.f, 1.5f));
+    verify_failure(reporter, a, b.makeOffset(0.f, -1.5f));
+    // A intersects a straight edge and part of B's corner
+    verify_failure(reporter, a.makeOffset(5.f, -2.f), b);
+    verify_failure(reporter, a.makeOffset(-5.f, -2.f), b);
+    verify_failure(reporter, a.makeOffset(5.f, 2.f), b);
+    verify_failure(reporter, a.makeOffset(-5.f, 2.f), b);
+    // And vice versa
+    verify_failure(reporter, a, b.makeOffset(3.f, -5.f));
+    verify_failure(reporter, a, b.makeOffset(-3.f, -5.f));
+    verify_failure(reporter, a, b.makeOffset(3.f, 5.f));
+    verify_failure(reporter, a, b.makeOffset(-3.f, 5.f));
+    // A intersects B on a corner, but the corner curves overlap each other
+    verify_failure(reporter, a.makeOffset(8.f, 10.f), b);
+    verify_failure(reporter, a.makeOffset(-8.f, 10.f), b);
+    verify_failure(reporter, a.makeOffset(8.f, -10.f), b);
+    verify_failure(reporter, a.makeOffset(-8.f, -10.f), b);
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -1117,4 +1256,5 @@ DEF_TEST(RoundRect, reporter) {
     test_empty(reporter);
     test_read(reporter);
     test_inner_bounds(reporter);
+    test_conservative_intersection(reporter);
 }
