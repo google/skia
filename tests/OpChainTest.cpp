@@ -218,6 +218,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           &tracker);
                 GrOpsTask opsTask(context->priv().arenas(),
                                   GrSurfaceProxyView(proxy, kOrigin, writeSwizzle),
+                                  nullptr,
                                   context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
