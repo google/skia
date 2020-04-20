@@ -39,6 +39,10 @@ using DstProxyView = GrXferProcessor::DstProxyView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+GrOpsTaskClosedObserver::~GrOpsTaskClosedObserver() = default;
+
+////////////////////////////////////////////////////////////////////////////////
+
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +362,7 @@ GrOpsTask::GrOpsTask(GrRecordingContext::Arenas arenas,
                      GrAuditTrail* auditTrail)
         : GrRenderTask(std::move(view))
         , fArenas(arenas)
+        , fClosedObserver(nullptr)
         , fAuditTrail(auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
@@ -877,6 +882,10 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
         SkRect clippedContentBounds = proxy->getBoundsRect();
+        if (fClosedObserver) {
+            fClosedObserver->wasClosed(*this);
+            fClosedObserver = nullptr;
+        }
         // TODO: If we can fix up GLPrograms test to always intersect the fTargetView proxy bounds
         // then we can simply assert here that the bounds intersect.
         if (clippedContentBounds.intersect(fTotalBounds)) {
