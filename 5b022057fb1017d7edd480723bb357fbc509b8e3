@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f384463_1edfcf29",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-21T20:39:50Z",
+      "side": 1,
+      "message": "Yeah - we use fIsScaleTranslate to accelerate quick_reject, which seems like it could create bugs, given the current implementation?",
+      "revId": "5b022057fb1017d7edd480723bb357fbc509b8e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4e597af_8ea5b06d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1619,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-21T20:39:50Z",
+      "side": 1,
+      "message": "This seems like a potential bug, too - as we\u0027re only checking the 3x3. But then again - why are we checking the matrix here!? Just to avoid the logic of testing the shape-type if we know the matrix is going to be complex anyway?",
+      "revId": "5b022057fb1017d7edd480723bb357fbc509b8e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
