@@ -22,6 +22,30 @@
       "revId": "ab21939d5c972a8806ce44e76587f86804d01536",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "291397d4_d0b6ea32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-21T16:53:28Z",
+      "side": 1,
+      "message": "I would try android::skia, so that when used in Android it\u0027s used as skia::Foo and when used outside android, \"android\" is there in the name.",
+      "parentUuid": "bdda568e_71697cac",
+      "range": {
+        "startLine": 7,
+        "startChar": 5,
+        "endLine": 7,
+        "endChar": 26
+      },
+      "revId": "ab21939d5c972a8806ce44e76587f86804d01536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
