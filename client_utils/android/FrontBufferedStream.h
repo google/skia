@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFrontBufferedStream_DEFINED
-#define SkFrontBufferedStream_DEFINED
+#ifndef FrontBufferedStream_DEFINED
+#define FrontBufferedStream_DEFINED
 
 #include "include/core/SkStream.h"
 
+namespace android {
+namespace skia {
 /**
  *  Specialized stream that buffers the first X bytes of a stream,
  *  where X is passed in by the user. Note that unlike some buffered
@@ -19,15 +21,15 @@
  *  X bytes (inclusive), and the wrapped stream is not necessarily
  *  able to rewind at all.
  */
-class SK_API SkFrontBufferedStream {
+class SK_API FrontBufferedStream {
 public:
     /**
      *  Creates a new stream that wraps and buffers an SkStream.
      *  @param stream SkStream to buffer. If stream is NULL, NULL is
      *      returned. When this call succeeds (i.e. returns non NULL),
-     *      SkFrontBufferedStream is expected to be the only owner of
+     *      FrontBufferedStream is expected to be the only owner of
      *      stream, so it should no be longer used directly.
-     *      SkFrontBufferedStream will delete stream upon deletion.
+     *      FrontBufferedStream will delete stream upon deletion.
      *  @param minBufferSize Minimum size of buffer required.
      *  @return An SkStream that can buffer at least minBufferSize, or
      *      NULL on failure. The caller is required to delete when finished with
@@ -36,4 +38,6 @@ public:
     static std::unique_ptr<SkStreamRewindable> Make(std::unique_ptr<SkStream> stream,
                                                     size_t minBufferSize);
 };
-#endif  // SkFrontBufferedStream_DEFINED
+} // namespace skia
+} // namespace android
+#endif  // FrontBufferedStream_DEFINED
