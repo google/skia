@@ -398,9 +398,6 @@ void GrRenderTargetContext::onValidate() const {
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
-    if (fOpsTask) {
-        fOpsTask->setClosedObserver(nullptr);
-    }
 }
 
 inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
@@ -426,7 +423,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpsTask) {
+    if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask =
                 this->drawingManager()->newOpsTask(this->writeSurfaceView(), fManagedOpsTask);
         if (fOpsTask && fNumStencilSamples > 0) {
@@ -437,10 +434,9 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
             // values?
             newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
         }
-        newOpsTask->setClosedObserver(this);
         fOpsTask = std::move(newOpsTask);
     }
-    SkASSERT(!fOpsTask->isClosed());
+
     return fOpsTask.get();
 }
 
@@ -2657,9 +2653,4 @@ bool GrRenderTargetContext::blitTexture(GrSurfaceProxyView view, const SkIRect& 
                              clippedSrcRect.height()),
             SkRect::Make(clippedSrcRect));
     return true;
-}
-
-void GrRenderTargetContext::wasClosed(const GrOpsTask& task) {
-    SkASSERT(&task == fOpsTask.get());
-    fOpsTask.reset();
 }
