@@ -22,6 +22,30 @@
       "revId": "d37746690d93b67b425b7072968e7fdbda84f3fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3a97569_ac2d0b1e",
+        "filename": "src/core/SkMatrixPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-21T20:30:31Z",
+      "side": 1,
+      "message": "I don\u0027t think we can assert that. This is just copy-pasted from the SkCanvasMatrix version, but when its used, it\u0027s being called directly on the top matrix from the rec stack in SkCanvas, so that could be anything. I can clarify the comment more?",
+      "parentUuid": "2ee4c956_0c9b0888",
+      "range": {
+        "startLine": 165,
+        "startChar": 22,
+        "endLine": 165,
+        "endChar": 35
+      },
+      "revId": "d37746690d93b67b425b7072968e7fdbda84f3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
