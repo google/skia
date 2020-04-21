@@ -22,6 +22,30 @@
       "revId": "453768ec0c9a378512753e24819cd9c2781576e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e30e3f0_240a9054",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-21T20:19:00Z",
+      "side": 1,
+      "message": "I started using \"subset\u0027 because domain seemed confusing when I was working on GrTextureEffect. Whether it referred to a true domain or range in the mathematical sense depends on what part of the pipeline you\u0027re thinking about. From the GrTextureEffect\u0027s perspective it seemed like the rectangle was more of a range (the input coords are unbounded and the output is limited to the \"subset\"). From the perspective of the actual call to sample the texture in the shader it is a domain, in that it is the set of legal texture coords. I settled on \"subset\" because its vaguer and doesn\u0027t specifically mean the input or output set of a function.",
+      "parentUuid": "1e6ae7be_7a33beaf",
+      "range": {
+        "startLine": 92,
+        "startChar": 13,
+        "endLine": 92,
+        "endChar": 77
+      },
+      "revId": "453768ec0c9a378512753e24819cd9c2781576e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
