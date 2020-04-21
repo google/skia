@@ -37,42 +37,42 @@ Samples
   <figure>
     <canvas id=cube width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/f03ffe333483db27fb045d0f3f508db3"
+      <a href="https://particles.skia.org/5515ab65a31eab1ce5840a714d322643"
          target=_blank rel=noopener>Cuboid</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/84a757d92c424b3d378b55481a4b2394"
+      <a href="https://particles.skia.org/eb484bdbac5952c0184a7f1d25773746"
          target=_blank rel=noopener>Confetti</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=curves width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/63b1970cc212740e5a44870691c49307"
+      <a href="https://particles.skia.org/632d713dacfa01d8905ffee98bc46acc"
          target=_blank rel=noopener>Curves</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=fireworks width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/b986ed92759cd66a36a3d589e6130931"
+      <a href="https://particles.skia.org/4d2befa962190e14575075d5676b98bf"
          target=_blank rel=noopener>Fireworks</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=raincloud width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/030d1403bbe69f7c4506d6f688e53487"
+      <a href="https://particles.skia.org/47f49494cb9bdfef2691369428c6d672"
          target=_blank rel=noopener>Raincloud</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=text width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/7c13116e4b61c18b828bfc281903efe8"
+      <a href="https://particles.skia.org/9c18c154a286e7c5d64192c9d6661ce0"
          target=_blank rel=noopener>Text</a>
     </figcaption>
   </figure>
@@ -158,19 +158,19 @@ const confetti ={
       "  colors[1] = float3(1, 0.9, 0.2);",
       "  colors[2] = float3(0.44, 0.73, 0.24);",
       "  colors[3] = float3(0.38, 0.54, 0.95);",
-      "  int idx = int(rand * 4);",
+      "  int idx = int(rand(p.seed) * 4);",
       "  p.color.rgb = colors[idx];",
       "",
       "  p.lifetime = (1 - effect.age) * effect.lifetime;",
-      "  p.scale = mix(0.6, 1, rand);",
+      "  p.scale = mix(0.6, 1, rand(p.seed));",
       "}",
       "",
       "void update(inout Particle p) {",
       "  p.color.a = 1 - p.age;",
       "",
-      "  float a = radians(rand * 360);",
+      "  float a = radians(rand(p.seed) * 360);",
       "  float invAge = 1 - p.age;",
-      "  p.vel = float2(cos(a), sin(a)) * mix(250, 550, rand) * invAge * invAge;",
+      "  p.vel = float2(cos(a), sin(a)) * mix(250, 550, rand(p.seed)) * invAge * invAge;",
       "}",
       ""
    ],
@@ -223,8 +223,8 @@ const cube = {
     "}",
     "",
     "void update(inout Particle p) {",
-    "  float3 pos = float3(rand, rand, rand);",
-    "  if (rand < 0.33) {",
+    "  float3 pos = float3(rand(p.seed), rand(p.seed), rand(p.seed));",
+    "  if (rand(p.seed) < 0.33) {",
     "    if (pos.x > 0.5) {",
     "      pos.x = 1;",
     "      p.color.rgb = float3(1, 0.2, 0.2);",
@@ -232,7 +232,7 @@ const cube = {
     "      pos.x = 0;",
     "      p.color.rgb = float3(0.2, 1, 1);",
     "    }",
-    "  } else if (rand < 0.5) {",
+    "  } else if (rand(p.seed) < 0.5) {",
     "    if (pos.y > 0.5) {",
     "      pos.y = 1;",
     "      p.color.rgb = float3(0.2, 0.2, 1);",
@@ -287,16 +287,16 @@ const curves = {
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 3 + rand;",
+      "  p.lifetime = 3 + rand(p.seed);",
       "  p.vel.y = -50;",
       "}",
       "",
       "void update(inout Particle p) {",
       "  float w = mix(15, 3, p.age);",
-      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand);",
-      "  if (rand < 0.5) { p.pos.x = -p.pos.x; }",
+      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));",
+      "  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }",
       "",
-      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand)) / 255;",
+      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;",
       "}",
       ""
    ],
@@ -313,11 +313,11 @@ const fireworks = {
       "void effectSpawn(inout Effect effect) {",
       "  effect.lifetime = 2;",
       "  effect.rate = 120;",
-      "  float a = radians(mix(-20, 20, rand) - 90);",
-      "  float s = mix(200, 220, rand);",
+      "  float a = radians(mix(-20, 20, rand(effect.seed)) - 90);",
+      "  float s = mix(200, 220, rand(effect.seed));",
       "  effect.vel.x = cos(a) * s;",
       "  effect.vel.y = sin(a) * s;",
-      "  effect.color.rgb = float3(rand, rand, rand);",
+      "  effect.color.rgb = float3(rand(effect.seed), rand(effect.seed), rand(effect.seed));",
       "  effect.pos.x = 0;",
       "  effect.pos.y = 0;",
       "}",
@@ -334,8 +334,8 @@ const fireworks = {
    "Code": [
       "void spawn(inout Particle p) {",
       "  p.lifetime = 0.5;",
-      "  float a = radians(rand * 360);",
-      "  float s = mix(5, 10, rand);",
+      "  float a = radians(rand(p.seed) * 360);",
+      "  float s = mix(5, 10, rand(p.seed));",
       "  p.vel.x = cos(a) * s;",
       "  p.vel.y = sin(a) * s;",
       "}",
@@ -363,9 +363,9 @@ const fireworks = {
          ],
          "Code": [
             "void spawn(inout Particle p) {",
-            "  p.lifetime = 2 + rand * 0.5;",
-            "  float a = radians(rand * 360);",
-            "  float s = mix(90, 100, rand);",
+            "  p.lifetime = 2 + rand(p.seed) * 0.5;",
+            "  float a = radians(rand(p.seed) * 360);",
+            "  float s = mix(90, 100, rand(p.seed));",
             "  p.vel.x = cos(a) * s;",
             "  p.vel.y = sin(a) * s;",
             "}",
@@ -400,7 +400,7 @@ const raincloud = {
    "Code": [
       "void spawn(inout Particle p) {",
       "  p.lifetime = 4;",
-      "  p.pos.x = mix(-50, 50, rand);",
+      "  p.pos.x = mix(-50, 50, rand(p.seed));",
       "  p.vel.y = 50;",
       "}",
       "",
@@ -439,20 +439,20 @@ const raincloud = {
             ""
          ],
          "Code": [
-            "float2 circle() {",
+            "float2 circle(inout uint seed) {",
             "  float2 xy;",
             "  do {",
-            "    xy.x = 2 * rand - 1;",
-            "    xy.y = 2 * rand - 1;",
+            "    xy.x = 2 * rand(seed) - 1;",
+            "    xy.y = 2 * rand(seed) - 1;",
             "  } while (dot(xy, xy) > 1);",
             "  return xy;",
             "}",
             "",
             "void spawn(inout Particle p) {",
             "  p.lifetime = 2.5;",
-            "  p.pos = circle() * float2(50, 10);",
-            "  p.vel.x = mix(-10, 10, rand);",
-            "  p.vel.y = mix(-10, 10, rand);",
+            "  p.pos = circle(p.seed) * float2(50, 10);",
+            "  p.vel.x = mix(-10, 10, rand(p.seed));",
+            "  p.vel.y = mix(-10, 10, rand(p.seed));",
             "}",
             "",
             "void update(inout Particle p) {",
@@ -479,8 +479,8 @@ const raincloud = {
          ],
          "Code": [
             "void spawn(inout Particle p) {",
-            "  p.lifetime = rand;",
-            "  float a = radians(mix(-80, 80, rand) - 90);",
+            "  p.lifetime = rand(p.seed);",
+            "  float a = radians(mix(-80, 80, rand(p.seed)) - 90);",
             "  p.vel.x = cos(a) * 20;",
             "  p.vel.y = sin(a) * 20;",
             "}",
@@ -509,12 +509,12 @@ const text = {
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = mix(1, 3, rand);",
-      "  float a = radians(mix(250, 290, rand));",
-      "  float s = mix(10, 30, rand);",
+      "  p.lifetime = mix(1, 3, rand(p.seed));",
+      "  float a = radians(mix(250, 290, rand(p.seed)));",
+      "  float s = mix(10, 30, rand(p.seed));",
       "  p.vel.x = cos(a) * s;",
       "  p.vel.y = sin(a) * s;",
-      "  p.pos = text(rand).xy;",
+      "  p.pos = text(rand(p.seed)).xy;",
       "}",
       "",
       "void update(inout Particle p) {",
@@ -585,10 +585,10 @@ const trail = {
    "EffectCode": "",
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 2 + rand;",
-      "  float a = radians(rand * 360);",
-      "  p.vel = float2(cos(a), sin(a)) * mix(5, 15, rand);",
-      "  p.scale = mix(0.25, 0.75, rand);",
+      "  p.lifetime = 2 + rand(p.seed);",
+      "  float a = radians(rand(p.seed) * 360);",
+      "  p.vel = float2(cos(a), sin(a)) * mix(5, 15, rand(p.seed));",
+      "  p.scale = mix(0.25, 0.75, rand(p.seed));",
       "}",
       "",
       "void update(inout Particle p) {",
