@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdda568e_71697cac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-04-21T16:37:54Z",
+      "side": 1,
+      "message": "I\u0027ve left the name as Sk- for now. But it probably shouldn\u0027t be? Maybe it should have a namespace? I wouldn\u0027t use \"android\", bc Android uses that internally. Maybe \"skandroid\"? (Is that too weird?)",
+      "range": {
+        "startLine": 7,
+        "startChar": 5,
+        "endLine": 7,
+        "endChar": 26
+      },
+      "revId": "ab21939d5c972a8806ce44e76587f86804d01536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
