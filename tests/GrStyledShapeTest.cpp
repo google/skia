@@ -27,11 +27,11 @@ uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
 }
 
 bool GrStyledShape::testingOnly_isPath() const {
-    return Type::kPath == fType;
+    return fShape.isPath();
 }
 
 bool GrStyledShape::testingOnly_isNonVolatilePath() const {
-    return Type::kPath == fType && !fPathData.fPath.isVolatile();
+    return fShape.isPath() && !fShape.path().isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
@@ -173,6 +173,9 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
                                                   : SkPathFillType::kEvenOdd);
         }
         if (!ignoreInversenessDifference && !ignoreWindingVsEvenOdd) {
+            if (keyA != keyB) {
+                SkDebugf("more bloody debugging\n");
+            }
             REPORTER_ASSERT(r, keyA == keyB);
         } else {
             REPORTER_ASSERT(r, keyA != keyB);
@@ -194,6 +197,11 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
         }
     }
     REPORTER_ASSERT(r, a.isEmpty() == b.isEmpty());
+
+    if (!allowedClosednessDiff && a.knownToBeClosed() != b.knownToBeClosed()) {
+        SkDebugf("Debugging\n");
+    }
+
     REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeClosed() == b.knownToBeClosed());
     // closedness can affect convexity.
     REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeConvex() == b.knownToBeConvex());
@@ -625,6 +633,11 @@ private:
         SkPath path;
         fBase->asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fBase->isEmpty());
+
+        if (path.getSegmentMasks() != fBase->segmentMask()) {
+            SkDebugf("debugging\n");
+        }
+
         REPORTER_ASSERT(r, path.getSegmentMasks() == fBase->segmentMask());
         fAppliedPE->asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE->isEmpty());
@@ -731,6 +744,9 @@ void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
     SkPath a, b;
     switch (expectation) {
         case kAllDifferent_ComparisonExpecation:
+            if (fBaseKey == that.fBaseKey) {
+                SkDebugf("debugging!\n");
+            }
             REPORTER_ASSERT(r, fBaseKey != that.fBaseKey);
             REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
