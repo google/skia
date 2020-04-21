@@ -46,6 +46,53 @@
       "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69c9451a_392334ca",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-21T12:04:35Z",
+      "side": 1,
+      "message": "Oh!  I just noticed... does vpshufb now let you select bytes from anywhere?  It\u0027s no longer restricted like the ymm version was to select only bytes from each 128 bits?",
+      "range": {
+        "startLine": 22,
+        "startChar": 32,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7009d9e_4cf36df8",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-21T12:04:35Z",
+      "side": 1,
+      "message": "Hmm.  That\u0027s very awkward!\n\nI guess we\u0027ll have to do\n\n  const uint8_t mask[64] \u003d { _,3,_3, _,7,_,7, ... };\n  ...\n  __m512i srcA_x2 \u003d _mm512_shuffle_epi8(src, __mm512_loadu_si512(mask));\n\n?",
+      "parentUuid": "7aa3f441_60d7bf32",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 31
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
