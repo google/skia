@@ -18,6 +18,9 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/text/GrTextContext.h"
 
+// Enabling this will print out which path renderers are being chosen
+#define GR_PATH_RENDERER_SPEW 0
+
 class GrCoverageCountingPathRenderer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
