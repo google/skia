@@ -902,6 +902,12 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
         }
     }
 
+#if GR_PATH_RENDERER_SPEW
+    if (pr) {
+        SkDebugf("getPathRenderer: %s\n", pr->name());
+    }
+#endif
+
     return pr;
 }
 
