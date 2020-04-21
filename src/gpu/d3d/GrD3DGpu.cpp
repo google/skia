@@ -20,6 +20,7 @@
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #if GR_TEST_UTILS
 #include <DXProgrammableCapture.h>
@@ -43,7 +44,8 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
 
         , fQueue(backendContext.fQueue)
         , fResourceProvider(this)
-        , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt) {
+        , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt)
+        , fCompiler(new SkSL::Compiler()) {
     fCaps.reset(new GrD3DCaps(contextOptions,
                               backendContext.fAdapter.get(),
                               backendContext.fDevice.get()));
