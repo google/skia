@@ -2837,7 +2837,7 @@ namespace skvm {
                    stack_only   = mode == JITMode::Stack;
 
         auto debug_dump = [&] {
-        #if 0
+        #if 1
             SkDebugfStream stream;
             this->dump(&stream);
             return true;
@@ -3007,6 +3007,50 @@ namespace skvm {
                 }
                 return r[id];
             };
+
+            Reg Rdst = (Reg)-1,
+                  Rx = x != NA ? r[x] : (Reg)0,
+                  Ry = y != NA ? r[y] : (Reg)0,
+                  Rz = z != NA ? r[z] : (Reg)0;
+
+            auto set_Rdst = [&](Reg reg) {
+                SkASSERT(avail & (1<<reg));
+                avail ^= (1<<reg);
+                Rdst = reg;
+                r[id] = reg;
+            };
+
+            auto new_Rdst = [&]() {
+                if (int found = __builtin_ffs(avail)) {
+                    set_Rdst((Reg)(found-1));
+                } else {
+                    // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                    if (debug_dump()) {
+                        SkDebugf("\nCould not find a register to hold value %d\n", id);
+                    }
+                    ok = false;
+                }
+            };
+
+            switch (op) {
+                case Op::add_f32:
+                case Op::sub_f32:
+                case Op::mul_f32:
+                case Op::div_f32:
+                case Op::min_f32:
+                case Op::max_f32:
+                // ...
+                    new_Rdst();
+                    break;
+                case Op::fma_f32:
+                    if      (avail & (1<<Rx)) { set_Rdst(Rx); }
+                    else if (avail & (1<<Ry)) { set_Rdst(Ry); }
+                    else if (avail & (1<<Rz)) { set_Rdst(Rz); }
+                    else { new_Rdst(); }
+                    break;
+                default:
+                    break;
+            }
 
             // Because we use the same logic to pick an arbitrary dst and to pick tmp,
             // and we know that tmp will never overlap any of the inputs, `dst() == tmp()`
@@ -3197,21 +3241,20 @@ namespace skvm {
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
-                case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
-                case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
-                case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
-                case Op::min_f32: a->vminps(dst(), r[y], r[x]); break;  // Order matters,
-                case Op::max_f32: a->vmaxps(dst(), r[y], r[x]); break;  // see test SkVM_min_max.
+                case Op::add_f32: a->vaddps(Rdst, Rx, Ry); break;
+                case Op::sub_f32: a->vsubps(Rdst, Rx, Ry); break;
+                case Op::mul_f32: a->vmulps(Rdst, Rx, Ry); break;
+                case Op::div_f32: a->vdivps(Rdst, Rx, Ry); break;
+                case Op::min_f32: a->vminps(Rdst, Ry, Rx); break;  // Order matters,
+                case Op::max_f32: a->vmaxps(Rdst, Ry, Rx); break;  // see test SkVM_min_max.
 
                 case Op::fma_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfmadd132ps(dst(),r[z], r[y]); }
-                                                                 break;
+                    if      (Rdst == Rx) { a->vfmadd132ps(Rx, Rz, Ry); }
+                    else if (Rdst == Ry) { a->vfmadd213ps(Ry, Rx, Rz); }
+                    else if (Rdst == Rz) { a->vfmadd231ps(Rz, Rx, Ry); }
+                    else                 { a->vmovdqa    (Rdst,Rx);
+                                           a->vfmadd132ps(Rdst,Rz,Ry); }
+                                           break;
 
                 case Op::fms_f32:
                     if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmsub132ps(r[x], r[z], r[y]); }
@@ -3416,7 +3459,7 @@ namespace skvm {
             }
 
             if (stack_only) {
-                if (dst_is_set) {
+                if (dst_is_set || Rdst != (Reg)-1) {
                     store_to_stack(id);
                     avail |= 1 << r[id];
                 }
