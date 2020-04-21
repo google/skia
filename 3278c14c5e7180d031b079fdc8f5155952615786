@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8124ad84_5c7046c8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-21T14:57:48Z",
+      "side": 1,
+      "message": "Placeholders and rounding\n\nPlaceholders do not contribute to minWidth.\n\nFlutter seems to have precision issues, attempt to compensate.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "3278c14c5e7180d031b079fdc8f5155952615786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "101f7830_a2bed090",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-21T14:57:48Z",
+      "side": 1,
+      "message": "So SkScalar is currently float which has 24 bits of useful precision. This code is reducing it to about 16 to 17, for a loss of 7-8 bits. Is that what\u0027s really happening? I\u0027m trying to imagine what\u0027s going on on their side to result in that.",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 5
+      },
+      "revId": "3278c14c5e7180d031b079fdc8f5155952615786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
