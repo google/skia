@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "297818f0_20ee90ec",
+        "filename": "src/core/SkExecutor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-21T19:55:11Z",
+      "side": 1,
+      "message": "Let\u0027s thread the AllowBorrowing bit through as a normal bool param?\nWe only templatize on WorkList because it changes the data structure.",
+      "revId": "6e511d9882452c66883f9101867c0c1ed9ae547f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
