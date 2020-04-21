@@ -46,6 +46,30 @@
       "revId": "453768ec0c9a378512753e24819cd9c2781576e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9ce7148_695d4cfc",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-21T21:40:59Z",
+      "side": 1,
+      "message": "I am okay with that; I am okay with the vagueness given these exist between two parts of the pipeline.",
+      "parentUuid": "1e30e3f0_240a9054",
+      "range": {
+        "startLine": 92,
+        "startChar": 13,
+        "endLine": 92,
+        "endChar": 77
+      },
+      "revId": "453768ec0c9a378512753e24819cd9c2781576e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
