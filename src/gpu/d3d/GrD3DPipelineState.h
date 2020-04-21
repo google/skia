@@ -8,17 +8,19 @@
 #ifndef GrD3DPipelineState_DEFINED
 #define GrD3DPipelineState_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include <memory>
 
 class GrD3DGpu;
+class GrD3DRootSignature;
 class GrProgramInfo;
 
 class GrD3DPipelineState {
 public:
     static std::unique_ptr<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
-                                                    gr_cp<ID3D12RootSignature> rootSig,
+                                                    sk_sp<GrD3DRootSignature> rootSig,
                                                     gr_cp<ID3DBlob> vertexShader,
                                                     gr_cp<ID3DBlob> geometryShader,
                                                     gr_cp<ID3DBlob> pixelShader,
