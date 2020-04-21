@@ -69,7 +69,7 @@ static inline std::function<void(void)> pop(SkTArray<std::function<void(void)>>*
 }
 
 // An SkThreadPool is an executor that runs work on a fixed pool of OS threads.
-template <typename WorkList>
+template <typename WorkList, bool AllowBorrowing>
 class SkThreadPool final : public SkExecutor {
 public:
     explicit SkThreadPool(int threads) {
@@ -100,9 +100,11 @@ public:
     }
 
     virtual void borrow() override {
-        // If there is work waiting, do it.
-        if (fWorkAvailable.try_wait()) {
-            SkAssertResult(this->do_work());
+        if (AllowBorrowing) {
+            // If there is work waiting, do it.
+            if (fWorkAvailable.try_wait()) {
+                SkAssertResult(this->do_work());
+            }
         }
     }
 
@@ -142,9 +144,14 @@ private:
 
 std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {
     using WorkList = std::deque<std::function<void(void)>>;
-    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList, true>>(threads > 0 ? threads : num_cores());
 }
 std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads) {
     using WorkList = SkTArray<std::function<void(void)>>;
-    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList, true>>(threads > 0 ? threads : num_cores());
 }
+std::unique_ptr<SkExecutor> SkExecutor::MakeNonBorrowingFIFOThreadPool(int threads) {
+    using WorkList = std::deque<std::function<void(void)>>;
+    return std::make_unique<SkThreadPool<WorkList, false>>(threads > 0 ? threads : num_cores());
+}
+
