@@ -2825,7 +2825,7 @@ namespace skvm {
                    stack_only   = mode == JITMode::Stack;
 
         auto debug_dump = [&] {
-        #if 0
+        #if 1
             SkDebugfStream stream;
             this->dump(&stream);
             return true;
@@ -2992,6 +2992,106 @@ namespace skvm {
                 return r[id];
             };
 
+            Reg Rdst = (Reg)-1,
+                  Rx = x != NA ? r[x] : (Reg)0,
+                  Ry = y != NA ? r[y] : (Reg)0,
+                  Rz = z != NA ? r[z] : (Reg)0,
+                  Rtmp = (Reg)-1,
+                  Rtmp2 = (Reg)-1;
+
+            auto set_Rdst = [&](Reg reg) {
+                SkASSERT(avail & (1<<reg));
+                avail ^= (1<<reg);
+                Rdst = reg;
+                r[id] = reg;
+            };
+
+            auto new_Rdst = [&]() {
+                if (int found = __builtin_ffs(avail)) {
+                    set_Rdst((Reg)(found-1));
+                } else {
+                    // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                    if (debug_dump()) {
+                        SkDebugf("\nCould not find a register to hold value %d\n", id);
+                    }
+                    ok = false;
+                }
+            };
+
+            switch (op) {
+                case Op::gather8:
+                case Op::gather16:
+                    Rtmp = tmp();
+                    new_Rdst();
+                    if (Rdst != Rtmp) {
+                        Rtmp2 = Rdst;
+                    } else {
+                        if (int found = __builtin_ffs(avail & ~(1<<Rtmp))) {
+                            Rtmp2 = (Reg)(found-1);
+                        } else {
+                            // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                            if (debug_dump()) {
+                                SkDebugf("\nCould not find a register to hold value %d\n", id);
+                            }
+                            ok = false;
+                        }
+                    }
+                    break;
+                case Op::gather32:
+                    if (scalar) {
+                        new_Rdst();
+                    } else {
+                        uint32_t can_only_be = avail & ~(1u<<Rx);
+                        if (int found = __builtin_ffs(can_only_be)) {
+                            set_Rdst((Reg)(found-1));
+                            can_only_be &= ~(1u<<Rdst);
+                        } else {
+                            // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                            if (debug_dump()) {
+                                SkDebugf("\nCould not find a register to hold value %d\n", id);
+                            }
+                            ok = false;
+                        }
+                        if (int found = __builtin_ffs(can_only_be)) {
+                            Rtmp = (Reg)(found-1);
+                        } else {
+                            // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                            if (debug_dump()) {
+                                SkDebugf("\nCould not find a register to hold value %d\n", id);
+                            }
+                            ok = false;
+                        }
+                        if (ok) {
+                            SkASSERT(Rdst != Rx);
+                            SkASSERT(Rdst != Rtmp);
+                            SkASSERT(Rtmp != Rx);
+                        }
+                    }
+                    break;
+
+                case Op::fma_f32:
+                case Op::fms_f32:
+                case Op::fnma_f32:
+                    if      (avail & (1<<Rx)) { set_Rdst(Rx); }
+                    else if (avail & (1<<Ry)) { set_Rdst(Ry); }
+                    else if (avail & (1<<Rz)) { set_Rdst(Rz); }
+                    else { new_Rdst(); }
+                    break;
+                case Op::store8:
+                case Op::store16:
+                    if (!scalar) {
+                        Rtmp = tmp();
+                    }
+                    break;
+                case Op::index:
+                case Op::pack:
+                    Rtmp = tmp();
+                    [[fallthrough]];
+                default:
+                    new_Rdst();
+                    break;
+            }
+
             // Because we use the same logic to pick an arbitrary dst and to pick tmp,
             // and we know that tmp will never overlap any of the inputs, `dst() == tmp()`
             // is a simple idiom to check that the destination does not overlap any of the inputs.
@@ -3012,38 +3112,38 @@ namespace skvm {
                 } break;
 
                 case Op::store8: if (scalar) { a->vpextrb  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
-                                 else        { a->vpackusdw(tmp(), r[x], r[x]);
-                                               a->vpermq   (tmp(), tmp(), 0xd8);
-                                               a->vpackuswb(tmp(), tmp(), tmp());
-                                               a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
+                                 else        { a->vpackusdw(Rtmp, Rx, Rx);
+                                               a->vpermq   (Rtmp, Rtmp, 0xd8);
+                                               a->vpackuswb(Rtmp, Rtmp, Rtmp);
+                                               a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)Rtmp); }
                                                break;
 
-                case Op::store16: if (scalar) { a->vpextrw  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
-                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
-                                                a->vpermq   (tmp(), tmp(), 0xd8);
-                                                a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
+                case Op::store16: if (scalar) { a->vpextrw  (A::Mem{arg[immy]}, (A::Xmm)Rx, 0); }
+                                  else        { a->vpackusdw(Rtmp, Rx, Rx);
+                                                a->vpermq   (Rtmp, Rtmp, 0xd8);
+                                                a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)Rtmp); }
                                                 break;
 
-                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r[x]); }
-                                  else        { a->vmovups(A::Mem{arg[immy]},         r[x]); }
+                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)Rx); }
+                                  else        { a->vmovups(A::Mem{arg[immy]},         Rx); }
                                                 break;
 
                 case Op::load8:  if (scalar) {
-                                     a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
+                                     a->vpxor  (Rdst, Rdst, Rdst);
+                                     a->vpinsrb((A::Xmm)Rdst, (A::Xmm)Rdst, A::Mem{arg[immy]}, 0);
                                  } else {
-                                     a->vpmovzxbd(dst(), A::Mem{arg[immy]});
+                                     a->vpmovzxbd(Rdst, A::Mem{arg[immy]});
                                  } break;
 
                 case Op::load16: if (scalar) {
-                                     a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
+                                     a->vpxor  (Rdst, Rdst, Rdst);
+                                     a->vpinsrw((A::Xmm)Rdst, (A::Xmm)Rdst, A::Mem{arg[immy]}, 0);
                                  } else {
-                                     a->vpmovzxwd(dst(), A::Mem{arg[immy]});
+                                     a->vpmovzxwd(Rdst, A::Mem{arg[immy]});
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), A::Mem{arg[immy]}); }
-                                 else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)Rdst, A::Mem{arg[immy]}); }
+                                 else        { a->vmovups(        Rdst, A::Mem{arg[immy]}); }
                                  break;
 
                 case Op::gather8: {
@@ -3054,32 +3154,22 @@ namespace skvm {
                     a->mov(base, A::Mem{arg[immy], immz});
 
                     // We'll need two distinct temporary vector registers:
-                    //   - tmp() to hold our indices;
-                    //   - accum to hold our partial gathered result.
-                    a->vmovdqa(tmp(), r[x]);
+                    //   - Rtmp to hold our indices;
+                    //   - Rtmp2 to hold our partial gathered result.
+                    a->vmovdqa(Rtmp, r[x]);
 
-                    // accum can be any register, even dst(), as long as it's not the same as tmp().
-                    A::Xmm accum;
-                    if (dst() != tmp()) {
-                        accum = (A::Xmm)dst();
-                    } else if (int found = __builtin_ffs(avail & ~(1<<tmp()))) {
-                        accum = (A::Xmm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
-                    SkASSERT((A::Xmm)tmp() != accum);
+                    SkASSERT(Rtmp != Rtmp2);
 
                     for (int i = 0; i < (scalar ? 1 : 8); i++) {
                         if (i == 4) {
                             // vpextrd can only pluck indices out from an Xmm register,
                             // so we manually swap over to the top when we're halfway through.
-                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
+                            a->vextracti128((A::Xmm)Rtmp, Rtmp, 1);
                         }
-                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
-                        a->vpinsrb(accum, accum, A::Mem{base,0,index,A::ONE}, i);
+                        a->vpextrd(index, (A::Xmm)Rtmp, i%4);
+                        a->vpinsrb((A::Xmm)Rtmp2, (A::Xmm)Rtmp2, A::Mem{base,0,index,A::ONE}, i);
                     }
-                    a->vpmovzxbd(dst(), accum);
+                    a->vpmovzxbd(Rdst, Rtmp2);
                 } break;
 
                 case Op::gather16: {
@@ -3089,27 +3179,18 @@ namespace skvm {
 
                     a->mov(base, A::Mem{arg[immy], immz});
 
-                    a->vmovdqa(tmp(), r[x]);
+                    a->vmovdqa(Rtmp, Rx);
 
-                    A::Xmm accum;
-                    if (dst() != tmp()) {
-                        accum = (A::Xmm)dst();
-                    } else if (int found = __builtin_ffs(avail & ~(1<<tmp()))) {
-                        accum = (A::Xmm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
-                    SkASSERT((A::Xmm)tmp() != accum);
+                    SkASSERT(Rtmp != Rtmp2);
 
                     for (int i = 0; i < (scalar ? 1 : 8); i++) {
                         if (i == 4) {
-                            a->vextracti128((A::Xmm)tmp(), tmp(), 1);
+                            a->vextracti128((A::Xmm)Rtmp, Rtmp, 1);
                         }
-                        a->vpextrd(index, (A::Xmm)tmp(), i%4);
-                        a->vpinsrw(accum, accum, A::Mem{base,0,index,A::TWO}, i);
+                        a->vpextrd(index, (A::Xmm)Rtmp, i%4);
+                        a->vpinsrw((A::Xmm)Rtmp2, (A::Xmm)Rtmp2, A::Mem{base,0,index,A::TWO}, i);
                     }
-                    a->vpmovzxwd(dst(), accum);
+                    a->vpmovzxwd(Rdst, Rtmp2);
                 } break;
 
                 case Op::gather32:
@@ -3120,143 +3201,122 @@ namespace skvm {
                     a->mov(base, A::Mem{arg[immy], immz});
 
                     // Grab our index from lane 0 of the index argument.
-                    a->vmovd(index, (A::Xmm)r[x]);
+                    a->vmovd(index, (A::Xmm)Rx);
 
                     // dst = *(base + 4*index)
-                    a->vmovd((A::Xmm)dst(), A::Mem{base, 0, index, A::FOUR});
+                    a->vmovd((A::Xmm)Rdst, A::Mem{base, 0, index, A::FOUR});
                 } else {
+                    if (!ok) break;
                     // We may not let any of dst(), index, or mask use the same register,
                     // so we must allocate registers manually and very carefully.
 
                     // index is argument x and has already been maybe_recycle_register()'d,
                     // so we explicitly ignore its availability during this op.
-                    A::Ymm index = r[x];
-                    uint32_t avail_during_gather = avail & ~(1<<index);
-
-                    // Choose dst() to not overlap with index.
-                    if (int found = __builtin_ffs(avail_during_gather)) {
-                        set_dst((A::Ymm)(found-1));
-                        avail_during_gather ^= (1<<dst());
-                    } else {
-                        ok = false;
-                        break;
-                    }
-
-                    // Choose (temporary) mask to not overlap with dst() or index.
-                    A::Ymm mask;
-                    if (int found = __builtin_ffs(avail_during_gather)) {
-                        mask = (A::Ymm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
+                    A::Ymm index = Rx;
 
                     // Our gather base pointer is immz bytes off of uniform immy.
                     A::GP64 base = scratch;
                     a->mov(base, A::Mem{arg[immy], immz});
-                    a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
-                    a->vgatherdps(dst(), A::FOUR, index, base, mask);
+                    a->vpcmpeqd(Rtmp, Rtmp, Rtmp);   // (All lanes enabled.)
+                    a->vgatherdps(Rdst, A::FOUR, index, base, Rtmp);
                 }
                 break;
 
                 case Op::uniform8: a->movzbq(scratch, A::Mem{arg[immy], immz});
-                                   a->vmovd((A::Xmm)dst(), scratch);
-                                   a->vbroadcastss(dst(), dst());
+                                   a->vmovd((A::Xmm)Rdst, scratch);
+                                   a->vbroadcastss(Rdst, Rdst);
                                    break;
 
                 case Op::uniform16: a->movzwq(scratch, A::Mem{arg[immy], immz});
-                                    a->vmovd((A::Xmm)dst(), scratch);
-                                    a->vbroadcastss(dst(), dst());
+                                    a->vmovd((A::Xmm)Rdst, scratch);
+                                    a->vbroadcastss(Rdst, Rdst);
                                     break;
 
-                case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immy], immz});
+                case Op::uniform32: a->vbroadcastss(Rdst, A::Mem{arg[immy], immz});
                                     break;
 
-                case Op::index: a->vmovd((A::Xmm)tmp(), N);
-                                a->vbroadcastss(tmp(), tmp());
-                                a->vpsubd(dst(), tmp(), &iota);
+                case Op::index: a->vmovd((A::Xmm)Rtmp, N);
+                                a->vbroadcastss(Rtmp, Rtmp);
+                                a->vpsubd(Rdst, Rtmp, &iota);
                                 break;
 
-                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy]); }
-                                else      { a->vpxor(dst(), dst(), dst()); }
+                case Op::splat: if (immy) { a->vbroadcastss(Rdst, &constants[immy]); }
+                                else      { a->vpxor(Rdst, Rdst, Rdst); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
-                case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
-                case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
-                case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
-                case Op::min_f32: a->vminps(dst(), r[y], r[x]); break;  // Order matters,
-                case Op::max_f32: a->vmaxps(dst(), r[y], r[x]); break;  // see test SkVM_min_max.
+                case Op::add_f32: a->vaddps(Rdst, Rx, Ry); break;
+                case Op::sub_f32: a->vsubps(Rdst, Rx, Ry); break;
+                case Op::mul_f32: a->vmulps(Rdst, Rx, Ry); break;
+                case Op::div_f32: a->vdivps(Rdst, Rx, Ry); break;
+                case Op::min_f32: a->vminps(Rdst, Ry, Rx); break;  // Order matters,
+                case Op::max_f32: a->vmaxps(Rdst, Ry, Rx); break;  // see test SkVM_min_max.
 
                 case Op::fma_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfmadd132ps(dst(),r[z], r[y]); }
-                                                                 break;
+                    if      (Rdst == Rx) { a->vfmadd132ps(Rx, Rz, Ry); }
+                    else if (Rdst == Ry) { a->vfmadd213ps(Ry, Rx, Rz); }
+                    else if (Rdst == Rz) { a->vfmadd231ps(Rz, Rx, Ry); }
+                    else                 { a->vmovdqa    (Rdst, Rx);
+                                           a->vfmadd132ps(Rdst,Rz,Ry); }
+                    break;
 
                 case Op::fms_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmsub132ps(r[x], r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmsub213ps(r[y], r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmsub231ps(r[z], r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfmsub132ps(dst(),r[z], r[y]); }
-                                                                 break;
+                    if      (Rdst == Rx) { a->vfmsub132ps(Rx, Rz, Ry); }
+                    else if (Rdst == Ry) { a->vfmsub213ps(Ry, Rx, Rz); }
+                    else if (Rdst == Rz) { a->vfmsub231ps(Rz, Rx, Ry); }
+                    else                 { a->vmovdqa    (Rdst, Rx);
+                                           a->vfmsub132ps(Rdst,Rz,Ry); }
+                    break;
 
                 case Op::fnma_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfnmadd132ps(r[x],r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfnmadd213ps(r[y],r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfnmadd231ps(r[z],r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfnmadd132ps(dst(),r[z],r[y]); }
-                                                                 break;
+                    if      (Rdst == Rx) { a->vfnmadd132ps(Rx, Rz, Ry); }
+                    else if (Rdst == Ry) { a->vfnmadd213ps(Ry, Rx, Rz); }
+                    else if (Rdst == Rz) { a->vfnmadd231ps(Rz, Rx, Ry); }
+                    else                 { a->vmovdqa     (Rdst, Rx);
+                                           a->vfnmadd132ps(Rdst,Rz,Ry); }
+                    break;
 
-                case Op::sqrt_f32: a->vsqrtps(dst(), r[x]); break;
+                case Op::sqrt_f32: a->vsqrtps(Rdst, Rx); break;
 
-                case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy]); break;
-                case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy]); break;
-                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy]); break;
-                case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy]); break;
-                case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy]); break;
+                case Op::add_f32_imm: a->vaddps(Rdst, Rx, &constants[immy]); break;
+                case Op::sub_f32_imm: a->vsubps(Rdst, Rx, &constants[immy]); break;
+                case Op::mul_f32_imm: a->vmulps(Rdst, Rx, &constants[immy]); break;
+                case Op::min_f32_imm: a->vminps(Rdst, Rx, &constants[immy]); break;
+                case Op::max_f32_imm: a->vmaxps(Rdst, Rx, &constants[immy]); break;
 
-                case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
-                case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
-                case Op::mul_i32: a->vpmulld(dst(), r[x], r[y]); break;
+                case Op::add_i32: a->vpaddd (Rdst, Rx, Ry); break;
+                case Op::sub_i32: a->vpsubd (Rdst, Rx, Ry); break;
+                case Op::mul_i32: a->vpmulld(Rdst, Rx, Ry); break;
 
-                case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
-                case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
-                case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
-                case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // Notice, y then x.
-                case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
+                case Op::bit_and  : a->vpand (Rdst, Rx, Ry); break;
+                case Op::bit_or   : a->vpor  (Rdst, Rx, Ry); break;
+                case Op::bit_xor  : a->vpxor (Rdst, Rx, Ry); break;
+                case Op::bit_clear: a->vpandn(Rdst, Ry, Rx); break;  // Notice, y then x.
+                case Op::select   : a->vpblendvb(Rdst, Rz, Ry, Rx); break;
 
-                case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy]); break;
-                case Op::bit_or_imm : a->vpor  (dst(), r[x], &constants[immy]); break;
-                case Op::bit_xor_imm: a->vpxor (dst(), r[x], &constants[immy]); break;
+                case Op::bit_and_imm: a->vpand (Rdst, Rx, &constants[immy]); break;
+                case Op::bit_or_imm : a->vpor  (Rdst, Rx, &constants[immy]); break;
+                case Op::bit_xor_imm: a->vpxor (Rdst, Rx, &constants[immy]); break;
 
-                case Op::shl_i32: a->vpslld(dst(), r[x], immy); break;
-                case Op::shr_i32: a->vpsrld(dst(), r[x], immy); break;
-                case Op::sra_i32: a->vpsrad(dst(), r[x], immy); break;
+                case Op::shl_i32: a->vpslld(Rdst, Rx, immy); break;
+                case Op::shr_i32: a->vpsrld(Rdst, Rx, immy); break;
+                case Op::sra_i32: a->vpsrad(Rdst, Rx, immy); break;
 
-                case Op::eq_i32: a->vpcmpeqd(dst(), r[x], r[y]); break;
-                case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
+                case Op::eq_i32: a->vpcmpeqd(Rdst, Rx, Ry); break;
+                case Op::gt_i32: a->vpcmpgtd(Rdst, Rx, Ry); break;
 
-                case Op:: eq_f32: a->vcmpeqps (dst(), r[x], r[y]); break;
-                case Op::neq_f32: a->vcmpneqps(dst(), r[x], r[y]); break;
-                case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
-                case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
+                case Op:: eq_f32: a->vcmpeqps (Rdst, Rx, Ry); break;
+                case Op::neq_f32: a->vcmpneqps(Rdst, Rx, Ry); break;
+                case Op:: gt_f32: a->vcmpltps (Rdst, Ry, Rx); break;
+                case Op::gte_f32: a->vcmpleps (Rdst, Ry, Rx); break;
 
-                case Op::pack: a->vpslld(tmp(),  r[y], immz);
-                               a->vpor  (dst(), tmp(), r[x]);
+                case Op::pack: a->vpslld(Rtmp,  Ry, immz);
+                               a->vpor  (Rdst, Rtmp, Rx);
                                break;
 
-                case Op::floor : a->vroundps  (dst(), r[x], Assembler::FLOOR); break;
-                case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
-                case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
-                case Op::round : a->vcvtps2dq (dst(), r[x]); break;
+                case Op::floor : a->vroundps  (Rdst, Rx, Assembler::FLOOR); break;
+                case Op::to_f32: a->vcvtdq2ps (Rdst, Rx); break;
+                case Op::trunc : a->vcvttps2dq(Rdst, Rx); break;
+                case Op::round : a->vcvtps2dq (Rdst, Rx); break;
 
             #elif defined(__aarch64__)
                 default:
@@ -3400,7 +3460,7 @@ namespace skvm {
             }
 
             if (stack_only) {
-                if (dst_is_set) {
+                if (dst_is_set || Rdst != (Reg)-1) {
                     store_to_stack(id);
                     avail |= 1 << r[id];
                 }
