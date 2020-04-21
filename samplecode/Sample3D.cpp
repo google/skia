@@ -83,27 +83,23 @@ protected:
     SkV3    fUp  { 0, 1, 0 };
 
     enum {
-        kCameraID = 42,
+        kWorldID = 42,
     };
 
 public:
-    void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
+    void concatCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
         SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
               perspective = Sk3Perspective(fNear, fFar, fAngle),
               viewport = SkM44::Translate(area.centerX(), area.centerY(), 0) *
                          SkM44::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
 
-        // want "world" to be in our big coordinates (e.g. area), so apply this inverse
-        // as part of our "camera".
-        canvas->save();
         canvas->concat(viewport * perspective * camera * inv(viewport));
-        canvas->markCTM(kCameraID);
     }
 
     SkM44 localToWorld(SkCanvas* canvas) {
-        SkM44 camera;
-        SkAssertResult(canvas->findMarkedCTM(kCameraID, &camera));
-        return inv(camera) * canvas->getLocalToDevice();
+        SkM44 worldToDevice;
+        SkAssertResult(canvas->findMarkedCTM(kWorldID, &worldToDevice));
+        return inv(worldToDevice) * canvas->getLocalToDevice();
     }
 };
 
@@ -241,9 +237,6 @@ class SampleCubeBase : public Sample3DView {
         DY = 300
     };
 
-    SkM44 fWorldToClick,
-          fClickToWorld;
-
     SkM44 fRotation;        // part of model
 
     RotateAnimator fRotateAnimator;
@@ -275,24 +268,15 @@ public:
 
     virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
 
-    void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
-        auto l2d = canvas->getLocalToDevice();
-        fWorldToClick = inv(clickM) * l2d;
-        fClickToWorld = inv(fWorldToClick);
-    }
-
     void onDrawContent(SkCanvas* canvas) override {
         if (!canvas->getGrContext() && !(fFlags & kCanRunOnCPU)) {
             return;
         }
-        SkM44 clickM = canvas->getLocalToDevice();
 
         canvas->save();
         canvas->translate(DX, DY);
 
-        this->saveCamera(canvas, {0, 0, 400, 400}, 200);
-
-        this->setClickToWorld(canvas, clickM);
+        this->concatCamera(canvas, {0, 0, 400, 400}, 200);
 
         for (bool drawFront : {false, true}) {
             int index = 0;
@@ -302,13 +286,17 @@ public:
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
                 SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
-                canvas->concat(trans * m * inv(trans));
+                canvas->concat(trans);
+
+                // "World" space - content is centered at the origin, in device scale (+-200)
+                canvas->markCTM(kWorldID);
+
+                canvas->concat(m * inv(trans));
                 this->drawContent(canvas, f.fColor, index++, drawFront);
             }
         }
 
-        canvas->restore();  // camera
-        canvas->restore();  // center the content in the window
+        canvas->restore();  // camera & center the content in the window
 
         if (fFlags & kShowLightDome){
             fLight.draw(canvas);
@@ -343,11 +331,6 @@ public:
         return nullptr;
     }
     bool onClick(Click* click) override {
-#if 0
-        auto L = fWorldToClick * fLight.fPos;
-        SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
-        fLight.update(c.fX, c.fY);
-#endif
         if (click->fMeta.hasS32("type", 0)) {
             fLight.fLoc = fSphere.pinLoc({click->fCurr.fX, click->fCurr.fY});
             return true;
