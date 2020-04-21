@@ -161,6 +161,14 @@ public:
     }
 
     static const SkScalar* M44ColMajor(const SkM44& m) { return m.fMat; }
+
+    // This is legacy functionality that only checks the 3x3 portion
+    static bool M44IsScaleTranslate(const SkM44& m) {
+        return m.rc(1,0) == 0 && m.rc(3,0) == 0 &&
+               m.rc(0,1) == 0 && m.rc(3,1) == 0 &&
+               m.rc(3,3) == 1;
+
+    }
 };
 
 #endif
