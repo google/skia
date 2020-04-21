@@ -601,3 +601,147 @@ public:
     }
 };
 DEF_SAMPLE( return new SampleSkottieCube; )
+
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkSurface.h"
+
+static std::tuple<sk_sp<SkImage>, sk_sp<SkImage>> make_masks(const SkPath& path) {
+    constexpr int margin = 2;
+    SkIRect r = path.getBounds().roundOut();
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(r.width()  + margin,
+                                                          r.height() + margin));
+    auto canvas = surf->getCanvas();
+    canvas->translate(margin/2.0f - r.left(), margin/2.0f - r.top());
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+    auto mask = surf->makeImageSnapshot();
+
+    canvas->clear(0);
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 12));
+    canvas->drawPath(path, paint);
+
+    return {mask, surf->makeImageSnapshot()};
+}
+
+class SampleEmboss : public Sample {
+    SkPath fPath;
+    sk_sp<SkRuntimeEffect>  fEffect;
+    sk_sp<SkShader>         fMaskSh, fBlurSh;
+    SkRect                  fRect;
+    SkV3                    fLightPos = {20, 15, 500};
+
+public:
+    SampleEmboss() {}
+
+    SkString name() override { return SkString("emboss"); }
+
+    void onOnceBeforeDraw() override {
+        fPath.addOval({20, 20, 400, 300});
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(38);
+        paint.getFillPath(fPath, &fPath);
+
+        auto [mask, blur] = make_masks(fPath);
+        fMaskSh = mask->makeShader();
+        fBlurSh = blur->makeShader();
+        fRect   = SkRect::Make({1, 1, mask->width()-1, mask->height()-1});
+
+        const char code[] = R"(
+            in fragmentProcessor in_mask;
+            in fragmentProcessor in_blur;
+
+            uniform float3   lightPos;
+            uniform half4    lightColor;
+            uniform half     specularScale;
+
+            float3 normal_from_blur(float2 p) {
+                // top row
+                half a00 = sample(in_blur, float2(p.x-1, p.y-1)).a;
+                half a10 = sample(in_blur, float2(p.x  , p.y-1)).a;
+                half a20 = sample(in_blur, float2(p.x+1, p.y-1)).a;
+
+                // middle sides
+                half a01 = sample(in_blur, float2(p.x-1, p.y  )).a;
+                half a21 = sample(in_blur, float2(p.x+1, p.y  )).a;
+
+                // bottom row
+                half a02 = sample(in_blur, float2(p.x-1, p.y+1)).a;
+                half a12 = sample(in_blur, float2(p.x  , p.y+1)).a;
+                half a22 = sample(in_blur, float2(p.x+1, p.y+1)).a;
+
+                float dx = a20+a21+a21+a22 -a00-a01-a01-a02;
+                float dy = a02+a12+a12+a22 -a00-a10-a10-a20;
+                return normalize(float3(-dx, -dy, 1));
+            }
+
+            void main(float2 p, inout half4 color) {
+                float3 norm = normal_from_blur(p);
+                float3 light_dir = normalize(lightPos - float3(p.x, p.y, 0));
+
+                float dp = dot(norm, light_dir);
+                float scale = saturate(dp);
+                float spec = dp * dp * dp * dp;
+                spec = spec * spec;
+                spec = spec * spec;
+                spec = spec * spec;
+
+                color = lightColor * half4(float4(scale, scale, scale, 1))
+                      + half4(specularScale, specularScale, specularScale, 0) * half(spec);
+
+                // final 'clip' to the original coverage
+                color *= sample(in_mask, p);
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        auto draw = [&](sk_sp<SkShader> sh, float x, float y) {
+            SkPaint paint;
+            paint.setShader(sh);
+            canvas->save();
+            canvas->translate(x, y);
+            canvas->drawRect(fRect, paint);
+            canvas->restore();
+        };
+
+        struct {
+            SkV3 lightPos;
+            SkV4 lightColor;
+            float specScale;
+        } uni;
+        uni.lightPos = fLightPos;
+        uni.lightColor = {1, 0, 0, 1};
+        uni.specScale = 0.75f;
+        auto data = SkData::MakeWithCopy(&uni, sizeof(uni));
+
+        sk_sp<SkShader> children[] = { fMaskSh, fBlurSh };
+
+        draw(fMaskSh,             0, 0);
+        draw(fBlurSh, fRect.width(), 0);
+        draw(fEffect->makeShader(data, children, 2, nullptr, true),
+             fRect.width(), fRect.height());
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        return new Click();
+    }
+
+    bool onClick(Click* click) override {
+        fLightPos.x = click->fCurr.fX - fRect.width();
+        fLightPos.y = click->fCurr.fY - fRect.height();
+        return true;
+    }
+
+    bool onAnimate(double nanos) override {
+        return false;
+    }
+};
+DEF_SAMPLE( return new SampleEmboss; )
