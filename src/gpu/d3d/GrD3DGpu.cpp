@@ -291,14 +291,17 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     // Set up dst location and create transfer buffer
     D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-    UINT transferNumRows;
-    UINT64 transferRowBytes;
     UINT64 transferTotalBytes;
     const UINT64 baseOffset = 0;
     D3D12_RESOURCE_DESC desc = srcLocation.pResource->GetDesc();
     fDevice->GetCopyableFootprints(&desc, 0, 1, baseOffset, &dstLocation.PlacedFootprint,
-                                   &transferNumRows, &transferRowBytes, &transferTotalBytes);
+                                   nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
+    size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
+    if (this->d3dCaps().bytesPerPixel(d3dTex->dxgiFormat()) != bpp) {
+        return false;
+    }
+    size_t tightRowBytes = bpp * width;
 
     // TODO: implement some way of reusing buffers instead of making a new one every time.
     sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
@@ -317,7 +320,7 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     const void* mappedMemory = transferBuffer->map();
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, dstLocation.PlacedFootprint.Footprint.RowPitch,
-                 transferRowBytes, transferNumRows);
+                 tightRowBytes, height);
 
     transferBuffer->unmap();
 
@@ -391,15 +394,14 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     }
 
     SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
-    SkAutoTMalloc<UINT> numRows(mipLevelCount);
-    SkAutoTMalloc<UINT64> rowBytes(mipLevelCount);
     UINT64 combinedBufferSize;
     // We reset the width and height in the description to match our subrectangle size
     // so we don't end up allocating more space than we need.
     desc.Width = width;
     desc.Height = height;
     fDevice->GetCopyableFootprints(&desc, 0, mipLevelCount, 0, placedFootprints.get(),
-                                   numRows.get(), rowBytes.get(), &combinedBufferSize);
+                                   nullptr, nullptr, &combinedBufferSize);
+    size_t bpp = GrColorTypeBytesPerPixel(colorType);
     SkASSERT(combinedBufferSize);
 
     // TODO: do this until we have slices of buttery buffers
@@ -419,15 +421,13 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
         if (texels[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
 
-            const size_t trimRowBytes = rowBytes[currentMipLevel];
+            const size_t trimRowBytes = currentWidth * bpp;
             const size_t srcRowBytes = texels[currentMipLevel].fRowBytes;
 
             char* dst = bufferData + placedFootprints[currentMipLevel].Offset;
 
             // copy data into the buffer, skipping any trailing bytes
-
             const char* src = (const char*)texels[currentMipLevel].fPixels;
-            SkASSERT(currentHeight == (int)numRows[currentMipLevel]);
             SkRectMemcpy(dst, placedFootprints[currentMipLevel].Footprint.RowPitch,
                          src, srcRowBytes, trimRowBytes, currentHeight);
         }
