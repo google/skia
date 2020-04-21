@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a68555db_4bbc5e08",
+        "filename": "client_utils/android/FrontBufferedStream.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-04-21T18:01:05Z",
+      "side": 1,
+      "message": "Derek, I think I don\u0027t need these anymore, since Skia is built as a static library with HWUI? Should I go ahead and remove them?",
+      "range": {
+        "startLine": 24,
+        "startChar": 6,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "c4db8ab233a26b6be2a75af594874ce72bb2b009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
