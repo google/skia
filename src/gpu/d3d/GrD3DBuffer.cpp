@@ -56,7 +56,7 @@ sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t s
     bufferDesc.Format = DXGI_FORMAT_UNKNOWN;
     bufferDesc.SampleDesc.Count = 1;
     bufferDesc.SampleDesc.Quality = 0; // Doesn't apply to buffers
-    bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;  // use driver-selected swizzle
+    bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     bufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
     ID3D12Resource* resource;
@@ -182,13 +182,14 @@ void GrD3DBuffer::internalMap(size_t size) {
         D3D12_RANGE range;
         range.Begin = 0;
         range.End = size;
-        fMappedResource->fD3DResource->Map(0, &range, &fMapPtr);
+        fMappedResource->fD3DResource.get()->Map(0, &range, &fMapPtr);
     } else {
         fMappedResource = fResource;
         D3D12_RANGE range;
         range.Begin = 0;
         range.End = size;
-        fMappedResource->fD3DResource->Map(0, &range, &fMapPtr);
+        HRESULT result = this->d3dResource()->Map(0, &range, &fMapPtr);
+        SkASSERT(SUCCEEDED(result));
     }
 
     VALIDATE();
@@ -214,7 +215,7 @@ void GrD3DBuffer::internalUnmap(size_t size) {
         D3D12_RANGE range;
         range.Begin = 0;
         range.End = size;
-        fMappedResource->fD3DResource->Unmap(0, &range);
+        fMappedResource->fD3DResource.get()->Unmap(0, &range);
         // TODO
         // let the D3DGpu make this decision?
         //if (size == this->size()) {
@@ -227,8 +228,9 @@ void GrD3DBuffer::internalUnmap(size_t size) {
     } else {
         D3D12_RANGE range;
         range.Begin = 0;
-        range.End = size;
-        fMappedResource->fD3DResource->Unmap(0, &range);
+        // For READBACK heaps, unmap requires an empty range
+        range.End = fResourceState == D3D12_RESOURCE_STATE_COPY_DEST ? 0 : size;
+        this->d3dResource()->Unmap(0, &range);
     }
 
     fMappedResource.reset(nullptr);
