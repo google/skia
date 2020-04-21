@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7784d1a8_4a8cfd55",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-21T04:44:06Z",
+      "side": 1,
+      "message": "Looks like the GCC we\u0027re using doesn\u0027t have _mm512_set_epi8().  Maybe give _mm512_setr_epi8() a try?  I find those _setr_ versions a little easier to read anyway.",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 31
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
