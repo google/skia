@@ -7,7 +7,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/private/SkTemplates.h"
-#include "include/utils/SkFrontBufferedStream.h"
+#include "SkFrontBufferedStream.h"
 
 class FrontBufferedStream : public SkStreamRewindable {
 public:
