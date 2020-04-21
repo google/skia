@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "client_utils/android/SkFrontBufferedStream.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "src/core/SkAutoMalloc.h"
 #include "tests/Test.h"
 
@@ -293,3 +294,4 @@ DEF_TEST(ShortFrontBufferedStream, reporter) {
     // won't read past the end of the stream.
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
 }
+#endif // SK_ENABLE_ANDROID_UTILS
