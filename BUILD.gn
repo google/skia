@@ -218,6 +218,22 @@ opts("hsw") {
   }
 }
 
+opts("skx") {
+  enabled = is_x86
+  sources = skia_opts.skx_sources
+  if (is_win) {
+    cflags = [ "/arch:AVX512" ]
+  } else {
+    cflags = [
+      "-mavx512f",
+      "-mavx512cd",
+      "-mavx512bw",
+      "-mavx512dq",
+      "-mavx512vl",
+    ]
+  }
+}
+
 # Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
   visibility = [ ":*" ]
@@ -879,6 +895,7 @@ component("skia") {
     ":raw",
     ":sksl_interpreter",
     ":skvm_jit",
+    ":skx",
     ":sse2",
     ":sse41",
     ":sse42",
@@ -1066,6 +1083,7 @@ static_library("pathkit") {
     ":crc32",
     ":hsw",
     ":none",
+    ":skx",
     ":sse2",
     ":sse41",
     ":sse42",

@@ -85,6 +85,8 @@ SKIA_OPTS_AVX = "AVX"
 
 SKIA_OPTS_HSW = "HSW"
 
+SKIA_OPTS_SKX = "SKX"
+
 # Arm
 SKIA_OPTS_NEON = "NEON"
 
@@ -117,6 +119,10 @@ def opts_srcs(opts):
         return native.glob([
             "src/opts/*_hsw.cpp",
         ])
+    elif opts == SKIA_OPTS_SKX:
+        return native.glob([
+            "src/opts/*_skx.cpp",
+        ])
     elif opts == SKIA_OPTS_NEON:
         return native.glob([
             "src/opts/*_neon.cpp",
@@ -141,6 +147,8 @@ def opts_cflags(opts):
         return ["-mavx"]
     elif opts == SKIA_OPTS_HSW:
         return ["-mavx2", "-mf16c", "-mfma"]
+    elif opts == SKIA_OPTS_SKX:
+        return ["-mavx512", "-mavx512cd", "-mavx512bw", "-mavx512dq", "-mavx512vl"]
     elif opts == SKIA_OPTS_NEON:
         return ["-mfpu=neon"]
     elif opts == SKIA_OPTS_CRC32:
@@ -200,6 +208,7 @@ def skia_opts_deps(cpu):
             ":opts_sse42",
             ":opts_avx",
             ":opts_hsw",
+            ":opts_skx",
         ]
 
     return res
