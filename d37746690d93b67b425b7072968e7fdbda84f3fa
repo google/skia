@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ee4c956_0c9b0888",
+        "filename": "src/core/SkMatrixPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-21T20:27:39Z",
+      "side": 1,
+      "message": "not (completely) clear: does this assume the 4x4 is only 3x3 (i.e. no Z)? Can it assert that?",
+      "range": {
+        "startLine": 165,
+        "startChar": 22,
+        "endLine": 165,
+        "endChar": 35
+      },
+      "revId": "d37746690d93b67b425b7072968e7fdbda84f3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
