@@ -1011,7 +1011,7 @@ public:
     void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias);
 
     /** Replaces clip with the intersection or difference of clip and path.
-        Resulting clip is aliased; pixels are fully contained by the clip.
+        Resulting clip is aliased; pixe ls are fully contained by the clip.
         SkPath::FillType determines if path
         describes the area inside or outside its contours; and if path contour overlaps
         itself or another path contour, whether the overlaps form part of the area.
