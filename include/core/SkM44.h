@@ -354,17 +354,12 @@ public:
                                  fMat[3], fMat[7], fMat[15]);
     }
 
-    SkM44(const SkMatrix& src)
+    explicit SkM44(const SkMatrix& src)
     : SkM44(src[SkMatrix::kMScaleX], src[SkMatrix::kMSkewX],  0, src[SkMatrix::kMTransX],
             src[SkMatrix::kMSkewY],  src[SkMatrix::kMScaleY], 0, src[SkMatrix::kMTransY],
             0,                       0,                       1, 0,
             src[SkMatrix::kMPersp0], src[SkMatrix::kMPersp1], 0, src[SkMatrix::kMPersp2])
     {}
-
-    SkM44& operator=(const SkMatrix& src) {
-        *this = SkM44(src);
-        return *this;
-    }
 
     SkM44& preTranslate(SkScalar x, SkScalar y);
     SkM44& preScale(SkScalar x, SkScalar y);
