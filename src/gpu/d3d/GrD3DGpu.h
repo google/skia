@@ -145,16 +145,12 @@ private:
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
-                      size_t rowBytes) override {
-        return true;
-    }
+                      size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                        GrColorType surfaceColorType, GrColorType srcColorType,
                        const GrMipLevel texels[], int mipLevelCount,
-                       bool prepForTexSampling) override {
-        return true;
-    }
+                       bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                             GrColorType surfaceColorType, GrColorType bufferColorType,
@@ -200,6 +196,9 @@ private:
 
     void checkForFinishedCommandLists();
     void waitForQueueCompletion();
+
+    bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
+                         GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);
 
     bool createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                 SkISize dimensions,
