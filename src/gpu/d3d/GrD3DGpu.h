@@ -21,6 +21,10 @@ class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
 
+namespace SkSL {
+    class Compiler;
+}
+
 class GrD3DGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(const GrD3DBackendContext& backendContext, const GrContextOptions&,
@@ -83,6 +87,10 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override {}
+
+    SkSL::Compiler* shaderCompiler() const {
+        return fCompiler.get();
+    }
 
 private:
     GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
@@ -218,6 +226,8 @@ private:
     SkDeque fOutstandingCommandLists;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
+
+    std::unique_ptr<SkSL::Compiler> fCompiler;
 
     typedef GrGpu INHERITED;
 };

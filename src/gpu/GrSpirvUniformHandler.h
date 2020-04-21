@@ -68,7 +68,9 @@ private:
     uint32_t fCurrentUBOOffset = 0;
     uint32_t fRTHeightOffset = 0;
 
+    friend class GrD3DPipelineStateBuilder;
     friend class GrDawnProgramBuilder;
+
     typedef GrGLSLUniformHandler INHERITED;
 };
 

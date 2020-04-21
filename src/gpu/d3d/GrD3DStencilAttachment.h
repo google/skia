@@ -16,7 +16,7 @@
 class GrD3DGpu;
 
 
-class GrD3DStencilAttachment : public GrStencilAttachment, GrD3DTextureResource {
+class GrD3DStencilAttachment : public GrStencilAttachment, public GrD3DTextureResource {
 public:
     struct Format {
         DXGI_FORMAT fInternalFormat;

@@ -44,6 +44,8 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
+    DXGI_FORMAT stencilDxgiFormat() const;
+
 protected:
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
