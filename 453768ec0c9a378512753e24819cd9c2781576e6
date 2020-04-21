@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e6ae7be_7a33beaf",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-21T20:13:17Z",
+      "side": 1,
+      "message": "I am not sure this is the same thing as the texture subset. But maybe it is; this is really the device-space coordinate range, but conversely that can be thought of as the fragment processor frag coord domain. Do we consider the texture subset to be the range of the local coordinates (pre passing in to sample)? Or is it the domain of the sample function?\n\nMaybe \u0027subset\u0027 is just an all around better term for these somewhat ambiguous clamp rects.",
+      "range": {
+        "startLine": 92,
+        "startChar": 13,
+        "endLine": 92,
+        "endChar": 77
+      },
+      "revId": "453768ec0c9a378512753e24819cd9c2781576e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
