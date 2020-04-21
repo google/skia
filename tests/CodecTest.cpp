@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "client_utils/android/SkFrontBufferedStream.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
@@ -32,7 +33,6 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/third_party/skcms/skcms.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkAutoMalloc.h"

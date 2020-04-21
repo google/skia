@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "client_utils/android/SkFrontBufferedStream.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkOSFile.h"

@@ -269,6 +269,14 @@ template("optional") {
   }
 }
 
+optional("android_utils") {
+  enabled = skia_enable_android_utils
+
+  sources = [
+    "client_utils/android/SkFrontBufferedStream.cpp",
+  ]
+}
+
 optional("fontmgr_android") {
   enabled = skia_enable_fontmgr_android
 
@@ -1760,6 +1768,7 @@ if (skia_enable_tools) {
         "dm/DMSrcSink.cpp",
       ]
       deps = [
+        ":android_utils",
         ":common_flags_aa",
         ":common_flags_config",
         ":common_flags_gpu",
