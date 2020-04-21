@@ -22,6 +22,30 @@
       "revId": "7b51eefd38bed4ec0fc4548a79acf20f7dab453c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d7c1130_00d7ada1",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-21T20:29:57Z",
+      "side": 1,
+      "message": "In a way that both are separators between words. Placeholder is a weird construct anyway and it\u0027s not clear how to treat it in text formatting. Whitespace is the closest to reasonable.",
+      "parentUuid": "758a95d7_113434a9",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 35
+      },
+      "revId": "7b51eefd38bed4ec0fc4548a79acf20f7dab453c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
