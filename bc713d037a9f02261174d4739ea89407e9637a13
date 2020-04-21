@@ -22,6 +22,30 @@
       "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa3f441_60d7bf32",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10573
+      },
+      "writtenOn": "2020-04-21T07:07:04Z",
+      "side": 1,
+      "message": "I intended to use the _setr_ for both aligning with previous AVX2 implementation and readability, but unfortunately I didn\u0027t find _mm512_setr_epi8() intrinsic for AVX512, so I used _mm512_set_epi8() instead.",
+      "parentUuid": "7784d1a8_4a8cfd55",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 31
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
