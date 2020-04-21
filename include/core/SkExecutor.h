@@ -20,6 +20,8 @@ public:
     static std::unique_ptr<SkExecutor> MakeFIFOThreadPool(int threads = 0);
     static std::unique_ptr<SkExecutor> MakeLIFOThreadPool(int threads = 0);
 
+    static std::unique_ptr<SkExecutor> MakeNonBorrowingFIFOThreadPool(int threads = 0);
+
     // There is always a default SkExecutor available by calling SkExecutor::GetDefault().
     static SkExecutor& GetDefault();
     static void SetDefault(SkExecutor*);  // Does not take ownership.  Not thread safe.
