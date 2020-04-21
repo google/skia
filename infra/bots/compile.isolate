@@ -15,6 +15,8 @@
       '../../build/fuchsia',
       '../../build_overrides',
       '../../buildtools',
+      '../../client_utils/android/SkFrontBufferedStream.cpp',
+      '../../client_utils/android/SkFrontBufferedStream.h',
       '../../dm',
       '../../docs/examples',
       '../../example',

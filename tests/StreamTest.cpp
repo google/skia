@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "client_utils/android/SkFrontBufferedStream.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkOSFile.h"
@@ -231,6 +231,7 @@ static void test_fully_peekable_stream(skiatest::Reporter* r, SkStream* stream, 
     }
 }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
 static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
                                                const SkStream& original,
                                                size_t bufferSize) {
@@ -283,6 +284,7 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
         REPORTER_ASSERT(r, bufferedStream->rewind());
     }
 }
+#endif
 
 // This test uses file system operations that don't work out of the
 // box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
@@ -323,10 +325,12 @@ DEF_TEST(StreamPeek, reporter) {
         REPORTER_ASSERT(reporter, fileStream.peek(storage.get(), i) == 0);
     }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
     // Now test some FrontBufferedStreams
     for (size_t i = 1; i < memStream.getLength(); i++) {
         test_peeking_front_buffered_stream(reporter, memStream, i);
     }
+#endif
 }
 #endif
 
