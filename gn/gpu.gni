@@ -190,6 +190,10 @@ skia_gpu_sources = [
   "$_src/gpu/GrSimpleMesh.h",
   "$_src/gpu/GrSoftwarePathRenderer.cpp",
   "$_src/gpu/GrSoftwarePathRenderer.h",
+  "$_src/gpu/GrSpirvUniformHandler.cpp",
+  "$_src/gpu/GrSpirvUniformHandler.h",
+  "$_src/gpu/GrSpirvVaryingHandler.cpp",
+  "$_src/gpu/GrSpirvVaryingHandler.h",
   "$_src/gpu/GrStagingBuffer.cpp",
   "$_src/gpu/GrStagingBuffer.h",
   "$_src/gpu/GrStencilAttachment.cpp",
@@ -787,12 +791,8 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnTexture.h",
   "$_src/gpu/dawn/GrDawnTextureRenderTarget.cpp",
   "$_src/gpu/dawn/GrDawnTextureRenderTarget.h",
-  "$_src/gpu/dawn/GrDawnUniformHandler.cpp",
-  "$_src/gpu/dawn/GrDawnUniformHandler.h",
   "$_src/gpu/dawn/GrDawnUtil.cpp",
   "$_src/gpu/dawn/GrDawnUtil.h",
-  "$_src/gpu/dawn/GrDawnVaryingHandler.cpp",
-  "$_src/gpu/dawn/GrDawnVaryingHandler.h",
 ]
 
 skia_metal_sources = [

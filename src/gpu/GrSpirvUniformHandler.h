@@ -5,27 +5,33 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDawnUniformHandler_DEFINED
-#define GrDawnUniformHandler_DEFINED
+#ifndef GrSpirvUniformHandler_DEFINED
+#define GrSpirvUniformHandler_DEFINED
 
 #include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-class GrDawnGpu;
-
-class GrDawnUniformHandler : public GrGLSLUniformHandler {
+/*
+ * This class can be used for basic spir-v uniform handling. It will make a single uniform buffer
+ * for all the uniforms and will be placed in the first set and binding. Textures and samplers are
+ * placed in the second set and kept as separate objects. They are interleaved as sampler texture
+ * pairs with each object in the next binding slot.
+ */
+class GrSpirvUniformHandler : public GrGLSLUniformHandler {
 public:
     static const int kUniformsPerBlock = 8;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override;
     const char* getUniformCStr(UniformHandle u) const override;
 
-    struct DawnUniformInfo : public UniformInfo {
+    struct SpirvUniformInfo : public UniformInfo {
         int fUBOOffset;
     };
-    typedef GrTAllocator<DawnUniformInfo> UniformInfoArray;
+    typedef GrTAllocator<SpirvUniformInfo> UniformInfoArray;
     enum {
         kUniformBinding = 0,
+        kUniformDescriptorSet = 0,
+        kSamplerTextureDescriptorSet = 1,
     };
     uint32_t getRTHeightOffset() const;
 
@@ -38,7 +44,7 @@ public:
     }
 
 private:
-    explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
+    explicit GrSpirvUniformHandler(GrGLSLProgramBuilder* program);
 
     SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                              const char* name, const GrShaderCaps*) override;

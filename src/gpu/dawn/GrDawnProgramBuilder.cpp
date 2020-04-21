@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/GrSpirvUniformHandler.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
@@ -314,7 +315,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                &vertInputs);
     auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind, flipY,
                                                &fragInputs);
-    GrDawnUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
+    GrSpirvUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
     sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
     result->fGeometryProcessor = std::move(builder.fGeometryProcessor);
@@ -323,7 +324,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fFragmentProcessorCnt = builder.fFragmentProcessorCnt;
     std::vector<wgpu::BindGroupLayoutBinding> uniformLayoutBindings;
     if (0 != uniformBufferSize) {
-        uniformLayoutBindings.push_back({ GrDawnUniformHandler::kUniformBinding,
+        uniformLayoutBindings.push_back({ GrSpirvUniformHandler::kUniformBinding,
                                           wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
                                           wgpu::BindingType::UniformBuffer});
     }
@@ -509,7 +510,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     uint32_t uniformBufferSize = fDataManager.uniformBufferSize();
     if (0 != uniformBufferSize) {
         slice = gpu->allocateUniformRingBufferSlice(uniformBufferSize);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kUniformBinding,
+        bindings.push_back(make_bind_group_binding(GrSpirvUniformHandler::kUniformBinding,
                                                    slice.fBuffer, slice.fOffset,
                                                    uniformBufferSize));
     }
