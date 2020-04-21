@@ -70,7 +70,9 @@
 #include "tests/TestUtils.h"
 
 #include <cmath>
+#include <deque>
 #include <functional>
+#include <thread>
 
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
@@ -1606,10 +1608,67 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     return compare_bitmaps(reference, *dst);
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+// The GPU thread has privileged access to the GPU and, thus, doesn't support borrowing.
+// Additionally, we only ever want a deque for the GPU thread.
+class GPUThread final : public SkExecutor {
+public:
+    GPUThread() : fThread(Loop, this) { }
+
+    ~GPUThread() override {
+        // Signal the thread that it's time to shut down.
+        this->add(nullptr);
+        fThread.join();
+    }
+
+    virtual void add(std::function<void(void)> work) override {
+        // Add some work to our pile of work to do.
+        {
+            SkAutoMutexExclusive lock(fWorkLock);
+            fWork.emplace_back(std::move(work));
+        }
+        // Wake up the thread
+        fWorkAvailable.signal(1);
+    }
+
+private:
+    // This method should be called only when fWorkAvailable indicates there's work to do.
+    bool do_work() {
+        std::function<void(void)> work;
+        {
+            SkAutoMutexExclusive lock(fWorkLock);
+            SkASSERT(!fWork.empty());
+            work = std::move(fWork.front());
+            fWork.pop_front();
+        }
+
+        if (!work) {
+            return false;  // This is the signal to shut down.
+        }
+
+        work();
+        return true;
+    }
+
+    static void Loop(void* ctx) {
+        auto pool = (GPUThread*)ctx;
+        do {
+            pool->fWorkAvailable.wait();
+        } while (pool->do_work());
+    }
+
+    std::thread                           fThread;
+    std::deque<std::function<void(void)>> fWork;
+    SkMutex                               fWorkLock;
+    SkSemaphore                           fWorkAvailable;
+};
+
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
     , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
+    , fGPUThread(std::make_unique<GPUThread>()) {
+//    , fGPUThread(SkExecutor::MakeNonBorrowingFIFOThreadPool(1)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
