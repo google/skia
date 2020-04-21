@@ -48,12 +48,17 @@ void GrD3DCommandList::reset() {
     SkDEBUGCODE(hr = ) fCommandList->Reset(fAllocator.get(), nullptr);
     SkASSERT(SUCCEEDED(hr));
 
+    this->releaseResources();
+
     SkDEBUGCODE(fIsActive = true;)
     fHasWork = false;
 }
 
 void GrD3DCommandList::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (fTrackedResources.count() == 0 && fTrackedRecycledResources.count() == 0) {
+        return;
+    }
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
@@ -107,6 +112,46 @@ void GrD3DCommandList::submitResourceBarriers() {
         fResourceBarriers.reset();
     }
     SkASSERT(!fResourceBarriers.count());
+}
+
+void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                                           GrD3DTextureResource* dstTexture,
+                                           uint32_t subresourceCount,
+                                           D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
+                                           int left, int top) {
+    SkASSERT(fIsActive);
+    SkASSERT(subresourceCount == 1 || (left == 0 && top == 0));
+
+    this->addingWork();
+    this->addResource(srcBuffer->resource());
+    this->addResource(dstTexture->resource());
+    for (uint32_t subresource = 0; subresource < subresourceCount; ++subresource) {
+        D3D12_TEXTURE_COPY_LOCATION src = {};
+        src.pResource = srcBuffer->d3dResource();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        src.PlacedFootprint = bufferFootprints[subresource];
+
+        D3D12_TEXTURE_COPY_LOCATION dst = {};
+        dst.pResource = dstTexture->d3dResource();
+        dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        dst.SubresourceIndex = subresource;
+
+        fCommandList->CopyTextureRegion(&dst, left, top, 0, &src, nullptr);
+    }
+}
+
+void GrD3DCommandList::copyTextureRegion(const GrManagedResource* dst,
+                                         const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
+                                         UINT dstX, UINT dstY,
+                                         const GrManagedResource* src,
+                                         const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
+                                         const D3D12_BOX* srcBox) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(dst);
+    this->addResource(src);
+    fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
 void GrD3DCommandList::addingWork() {

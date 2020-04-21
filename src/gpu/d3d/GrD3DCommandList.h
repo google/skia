@@ -20,6 +20,10 @@ class GrD3DTextureResource;
 
 class GrD3DCommandList {
 public:
+    ~GrD3DCommandList() {
+        this->releaseResources();
+    }
+
     enum class SubmitResult {
         kNoWork,
         kSuccess,
@@ -39,6 +43,19 @@ public:
     void resourceBarrier(const GrManagedResource* managedResource,
                          int numBarriers,
                          D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
+
+    // Helper method that calls copyTextureRegion multiple times, once for each subresource
+    void copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                             GrD3DTextureResource* dstTexture,
+                             uint32_t subresourceCount,
+                             D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
+                             int left, int top);
+    void copyTextureRegion(const GrManagedResource* dst,
+                           const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
+                           UINT dstX, UINT dstY,
+                           const GrManagedResource* src,
+                           const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
+                           const D3D12_BOX* srcBox);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
