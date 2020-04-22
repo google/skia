@@ -3142,9 +3142,17 @@ namespace skvm {
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r(x), any(y)); break;
+                case Op::add_f32:
+                    if (find_existing_reg(x) == NA) { a->vaddps(dst(), r(y), any(x)); }
+                    else                            { a->vaddps(dst(), r(x), any(y)); }
+                    break;
+
+                case Op::mul_f32:
+                    if (find_existing_reg(x) == NA) { a->vmulps(dst(), r(y), any(x)); }
+                    else                            { a->vmulps(dst(), r(x), any(y)); }
+                    break;
+
                 case Op::sub_f32: a->vsubps(dst(), r(x), any(y)); break;
-                case Op::mul_f32: a->vmulps(dst(), r(x), any(y)); break;
                 case Op::div_f32: a->vdivps(dst(), r(x), any(y)); break;
                 case Op::min_f32: a->vminps(dst(), r(y), any(x)); break;  // Order matters,
                 case Op::max_f32: a->vmaxps(dst(), r(y), any(x)); break;  // see test SkVM_min_max.
