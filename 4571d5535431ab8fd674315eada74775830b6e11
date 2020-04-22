@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70495e5a_edce7e71",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T14:55:20Z",
+      "side": 1,
+      "message": "So I think for now I plan on leaving this as is. As you said currently it is only tied to the number of textures in a given shader. Thus I expect this like to be about size 4 (0, 1, 2, 3) textures. Quickly looking through 4 options will be very fast. I thought about the count being an index into an array, but it gets a little weird since we don\u0027t really have a bounds on the number of textures we may use in a shader (outside hardware limits). So for the very few variations we have in practice I can\u0027t imagine quickly checking the maybe ~4 items will be too much of a perf lost compared to direct indexing. But happy to do this if you think it will be worth it.\n\nOnce we move away from using spirv and spirv-cross I think it will allow us to be a lot more flexible in how we want to set up these root signatures and possible use other types of descriptors. Once we do that I agree that going more to a key and map based system would be better if we think we\u0027ll get a lot of different variations. But in the short term I don\u0027t think the overhead of setting up that system is worth it for now.",
+      "parentUuid": "83c60a54_f23dce65",
+      "range": {
+        "startLine": 33,
+        "startChar": 9,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "823684e1_fce10ba3",
         "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "4571d5535431ab8fd674315eada74775830b6e11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c70cb3d7_415c91b3",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T14:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "823684e1_fce10ba3",
+      "range": {
+        "startLine": 36,
+        "startChar": 63,
+        "endLine": 36,
+        "endChar": 70
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8135530b_c0373753",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T14:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4953c6f_6b66ada2",
+      "range": {
+        "startLine": 72,
+        "startChar": 93,
+        "endLine": 72,
+        "endChar": 97
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bd8574e_f4539a84",
         "filename": "src/gpu/d3d/GrD3DRootSignature.h",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "4571d5535431ab8fd674315eada74775830b6e11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61278bfc_8026c760",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T14:55:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bd8574e_f4539a84",
+      "range": {
+        "startLine": 28,
+        "startChar": 18,
+        "endLine": 28,
+        "endChar": 50
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
