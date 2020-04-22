@@ -535,7 +535,6 @@ namespace skvm {
 
         Val  death;
         bool can_hoist;
-        bool used_in_loop;
     };
 
     class Builder {

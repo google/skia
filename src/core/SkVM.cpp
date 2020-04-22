@@ -155,7 +155,7 @@ namespace skvm {
 
         o->writeText("digraph {\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
-            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = optimized[id];
+            auto [op, x,y,z, immy,immz, death,can_hoist] = optimized[id];
 
             switch (op) {
                 default:
@@ -285,9 +285,7 @@ namespace skvm {
         o->writeText("):\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
             const OptimizedInstruction& inst = optimized[id];
-            write(o, !inst.can_hoist    ? "  " :
-                      inst.used_in_loop ? "↑ " :
-                                          "↟ ");
+            write(o, inst.can_hoist ? "↑ " : "  ");
             write_one_instruction(id, inst, o);
         }
     }
@@ -573,7 +571,7 @@ namespace skvm {
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
             optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immy,inst.immz,
-                             /*death=*/id, /*can_hoist=*/true, /*used_in_loop=*/false};
+                             /*death=*/id, /*can_hoist=*/true};
         }
 
         // Each Instruction's inputs need to live at least until that Instruction issues.
@@ -586,9 +584,7 @@ namespace skvm {
         }
 
         // Mark which values don't depend on the loop and can be hoisted.
-        for (Val id = 0; id < (Val)optimized.size(); id++) {
-            OptimizedInstruction& inst = optimized[id];
-
+        for (OptimizedInstruction& inst : optimized) {
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
             if (is_always_varying(inst.op)) {
                 inst.can_hoist = false;
@@ -600,12 +596,15 @@ namespace skvm {
                     if (arg != NA) { inst.can_hoist &= optimized[arg].can_hoist; }
                 }
             }
+        }
 
-            // We'll want to know if hoisted values are used in the loop;
-            // if not, we can recycle their registers like we do loop values.
-            if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
+        // Extend the lifetime of any hoisted value that's used in the loop to infinity.
+        for (OptimizedInstruction& inst : optimized) {
+            if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used-in-loop*/) {
                 for (Val arg : {inst.x, inst.y, inst.z}) {
-                    if (arg != NA) { optimized[arg].used_in_loop = true; }
+                    if (arg != NA && optimized[arg].can_hoist) {
+                        optimized[arg].death = (Val)program.size();
+                    }
                 }
             }
         }
@@ -2286,7 +2285,7 @@ namespace skvm {
         std::vector<llvm::Value*> vals(instructions.size());
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
+            auto [op, x,y,z, immy,immz, death,can_hoist] = instructions[i];
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
                        *i8    = llvm::Type::getInt8Ty (*ctx),
@@ -2730,7 +2729,6 @@ namespace skvm {
         //
         // Since we have effectively infinite registers, we hoist any value we can.
         // (The JIT may choose a more complex policy to reduce register pressure.)
-        auto hoisted = [&](Val id) { return instructions[id].can_hoist; };
 
         fImpl->regs = 0;
         std::vector<Reg> avail;
@@ -2742,9 +2740,7 @@ namespace skvm {
             // If this is a real input and it's lifetime ends at this instruction,
             // we can recycle the register it's occupying.
             auto maybe_recycle_register = [&](Val input) {
-                if (input != NA
-                        && instructions[input].death == id
-                        && !(hoisted(input) && instructions[input].used_in_loop)) {
+                if (input != NA && instructions[input].death == id) {
                     avail.push_back(reg[input]);
                 }
             };
@@ -2768,10 +2764,10 @@ namespace skvm {
 
         // Assign a register to each hoisted instruction, then each non-hoisted loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if ( hoisted(id)) { assign_register(id); }
+            if ( instructions[id].can_hoist) { assign_register(id); }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (!hoisted(id)) { assign_register(id); }
+            if (!instructions[id].can_hoist) { assign_register(id); }
         }
 
         // Translate OptimizedInstructions to InterpreterIstructions by mapping values to
@@ -2803,14 +2799,14 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const OptimizedInstruction& inst = instructions[id];
-            if (hoisted(id)) {
+            if (inst.can_hoist) {
                 push_instruction(id, inst);
                 fImpl->loop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const OptimizedInstruction& inst = instructions[id];
-            if (!hoisted(id)) {
+            if (!inst.can_hoist) {
                 push_instruction(id, inst);
             }
         }
@@ -3303,8 +3299,7 @@ namespace skvm {
             // Proactively free the registers holding any value that dies here.
             auto dies_here = [&](Val v) {
                 SkASSERT(v >= 0);
-                return instructions[v].death == id
-                    && !(instructions[v].can_hoist && instructions[v].used_in_loop);
+                return instructions[v].death == id;
             };
             if (rd && dies_here(*rd)) { *rd = NA; }
             if (rx && dies_here(*rx)) { *rx = NA; }
