@@ -48,11 +48,11 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     float gpuFragmentWork = bounds.height() * scales[0] * bounds.width() * scales[1];
     float cpuTessellationWork = (float)numVerbs * SkNextLog2(numVerbs);  // N log N.
     if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
-        bool pathIsLinear;
+        int numCountedCurves;
         // PathToTriangles(..kSimpleInnerPolygon..) will fail if the inner polygon is not simple.
         if ((fPathVertexCount = GrTriangulator::PathToTriangles(
                 fPath, 0, SkRect::MakeEmpty(), &pathVertexAllocator,
-                GrTriangulator::Mode::kSimpleInnerPolygons, &pathIsLinear))) {
+                GrTriangulator::Mode::kSimpleInnerPolygons, &numCountedCurves))) {
             if (((Flags::kStencilOnly | Flags::kWireframe) & fFlags) ||
                 GrAAType::kCoverage == fAAType ||
                 (state->appliedClip() && state->appliedClip()->hasStencilClip())) {
@@ -65,10 +65,10 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
                 fFillPathShader = state->allocator()->make<GrFillTriangleShader>(
                         fViewMatrix, fColor);
             }
-            if (!pathIsLinear) {
+            if (numCountedCurves != 0) {
                 fCubicInstanceCount = GrPathParser::EmitCubicInstances(
                         fPath, &cubicInstanceAllocator);
-                SkASSERT(fCubicInstanceCount);
+                SkASSERT(fCubicInstanceCount == numCountedCurves);
             }
             return;
         }

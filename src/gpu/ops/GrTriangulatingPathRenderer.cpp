@@ -280,24 +280,25 @@ private:
             return;
         }
         vmi.mapRect(&clipBounds);
-        bool isLinear;
+        int numCountedCurves;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int count = GrTriangulator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
-                                                    GrTriangulator::Mode::kNormal, &isLinear);
-        if (count == 0) {
+        int vertexCount = GrTriangulator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
+                                                          GrTriangulator::Mode::kNormal,
+                                                          &numCountedCurves);
+        if (vertexCount == 0) {
             return;
         }
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
         TessInfo info;
-        info.fTolerance = isLinear ? 0 : tol;
-        info.fCount = count;
+        info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
+        info.fCount = vertexCount;
         fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 
-        this->createMesh(target, std::move(vb), 0, count);
+        this->createMesh(target, std::move(vb), 0, vertexCount);
     }
 
     void drawAA(Target* target) {
@@ -311,14 +312,15 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        bool isLinear;
+        int numCountedCurves;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int count = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
-                                                    GrTriangulator::Mode::kEdgeAntialias, &isLinear);
-        if (count == 0) {
+        int vertexCount = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
+                                                          GrTriangulator::Mode::kEdgeAntialias,
+                                                          &numCountedCurves);
+        if (vertexCount == 0) {
             return;
         }
-        this->createMesh(target, std::move(vertexBuffer), firstVertex, count);
+        this->createMesh(target, std::move(vertexBuffer), firstVertex, vertexCount);
     }
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }

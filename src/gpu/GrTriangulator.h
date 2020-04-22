@@ -56,7 +56,7 @@ constexpr size_t GetVertexStride(Mode mode) {
 }
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    GrEagerVertexAllocator*, Mode, bool *isLinear);
+                    GrEagerVertexAllocator*, Mode, int* numCountedCurves);
 }
 
 #endif
