@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5dd91e0_49165981",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2916,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T15:28:00Z",
+      "side": 1,
+      "message": "Yeah, doesn\u0027t hurt.  I think the std::array iterators are required to have this operator-.",
+      "parentUuid": "9be51e98_64434bb5",
+      "range": {
+        "startLine": 2916,
+        "startChar": 30,
+        "endLine": 2916,
+        "endChar": 50
+      },
+      "revId": "19ed0a12b0a9078fd8a8083ef6945c3853528543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb5422db_eec04c2a",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "19ed0a12b0a9078fd8a8083ef6945c3853528543",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de66bf75_48f9efe4",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2944,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T15:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb5422db_eec04c2a",
+      "range": {
+        "startLine": 2944,
+        "startChar": 16,
+        "endLine": 2944,
+        "endChar": 29
+      },
+      "revId": "19ed0a12b0a9078fd8a8083ef6945c3853528543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
