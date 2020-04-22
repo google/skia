@@ -53,12 +53,10 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
-        return new Click();
-    }
-
-    bool onClick(Click* click) override {
-        fCenter.set(click->fCurr.fX, click->fCurr.fY);
-        return false;
+        return new Click([&](Click* c) {
+            fCenter = c->fCurr;
+            return false;
+        });
     }
 
 private:
