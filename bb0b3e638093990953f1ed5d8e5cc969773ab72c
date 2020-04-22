@@ -157,6 +157,30 @@
       "revId": "bb0b3e638093990953f1ed5d8e5cc969773ab72c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de66b492_09243a46",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-22T00:54:55Z",
+      "side": 1,
+      "message": "Yeah, there\u0027s a whole lot of plumbing needed to connect these with the parser, plus I realized most/all of them are presentation attributes (inherited, so they need to be relocated to the base class).  I presume your use case doesn\u0027t require any of that (you invoke the setters directly)?\n\nMe and tdenniston@ started looking at cleaning up some of the boilerplate, I\u0027m fine with deferring if you don\u0027t need that part at the moment - we can revisit when the dust settles.",
+      "parentUuid": "d76f1bcb_ed1cb3f5",
+      "range": {
+        "startLine": 115,
+        "startChar": 41,
+        "endLine": 115,
+        "endChar": 57
+      },
+      "revId": "bb0b3e638093990953f1ed5d8e5cc969773ab72c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
