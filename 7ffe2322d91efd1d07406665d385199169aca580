@@ -102,6 +102,30 @@
       "revId": "7ffe2322d91efd1d07406665d385199169aca580",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ed85c04_90c9e05e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2913,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:58:17Z",
+      "side": 1,
+      "message": "Oh!  You can\u0027t do that with std::vector\u003cbool\u003e, can you?  Shame.",
+      "parentUuid": "a6ba323d_7f060ce9",
+      "range": {
+        "startLine": 2910,
+        "startChar": 10,
+        "endLine": 2913,
+        "endChar": 21
+      },
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
