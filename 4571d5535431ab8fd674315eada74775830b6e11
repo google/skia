@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83c60a54_f23dce65",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-22T14:20:51Z",
+      "side": 1,
+      "message": "O(N) seems fine for now. Is this list expected to remain pretty small anyways, or will we want to figure out a hash-based approach once it\u0027s ready to start polishing the backend?\n\n- follow-up after reading isCompatible() definition: since it currently is tied exactly to the number of texture samplers, that could just be the key, either into a map or an array where it\u0027s the index. Or is the compatibility check of the root signature expected to get more complicated in the future?",
+      "range": {
+        "startLine": 33,
+        "startChar": 9,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "823684e1_fce10ba3",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-22T14:20:51Z",
+      "side": 1,
+      "message": "binding",
+      "range": {
+        "startLine": 36,
+        "startChar": 63,
+        "endLine": 36,
+        "endChar": 70
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4953c6f_6b66ada2",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-22T14:20:51Z",
+      "side": 1,
+      "message": "then",
+      "range": {
+        "startLine": 72,
+        "startChar": 93,
+        "endLine": 72,
+        "endChar": 97
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bd8574e_f4539a84",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-22T14:20:51Z",
+      "side": 1,
+      "message": "Include number of texture samplers, too?",
+      "range": {
+        "startLine": 28,
+        "startChar": 18,
+        "endLine": 28,
+        "endChar": 50
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
