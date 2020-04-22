@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87ae3a21_9cbc9546",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2873,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:52:17Z",
+      "side": 1,
+      "message": "Maybe explicitly\n\n    std::vector\u003cbool\u003e val_on_stack(instructions.size(), false);\n\n?",
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef0fcc2d_9eefaa1b",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2873,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:52:17Z",
+      "side": 1,
+      "message": "Does it sound like `val_on_stack[...]` returns a Val to you?  Maybe just `on_stack`?",
+      "range": {
+        "startLine": 2873,
+        "startChar": 26,
+        "endLine": 2873,
+        "endChar": 38
+      },
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8af55a7_22358092",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2906,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:52:17Z",
+      "side": 1,
+      "message": "Think this function would be more readable with\n\n   Val\u0026 v \u003d regs[r];\n\n?",
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d367dfe1_0eb7cd8b",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2909,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:52:17Z",
+      "side": 1,
+      "message": "Delete.  :)",
+      "range": {
+        "startLine": 2909,
+        "startChar": 20,
+        "endLine": 2909,
+        "endChar": 98
+      },
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6ba323d_7f060ce9",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2913,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T19:52:17Z",
+      "side": 1,
+      "message": "Maybe\n\n    if (!std::exchange(val_on_stack[regs[r]], true)) {\n        store_to_stack(r, regs[r]);\n    }\n\n?",
+      "range": {
+        "startLine": 2910,
+        "startChar": 10,
+        "endLine": 2913,
+        "endChar": 21
+      },
+      "revId": "7ffe2322d91efd1d07406665d385199169aca580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
