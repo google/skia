@@ -2926,29 +2926,43 @@ namespace skvm {
             };
         #endif
 
-            // Vals id, x, y, and z might die with this instruction (id only rarely).
-            // These fingers into regs accelerate their cleanup.
-            Val *rd = nullptr,
-                *rx = nullptr,
-                *ry = nullptr,
-                *rz = nullptr;
-            auto update_fingers = [&](Reg r, Val v) {
-                if (v == id) { rd = &regs[r]; return r; }
-                if (v ==  x) { rx = &regs[r]; return r; }
-                if (v ==  y) { ry = &regs[r]; return r; }
-                if (v ==  z) { rz = &regs[r]; return r; }
-                SkUNREACHABLE;
+            // Which register holds dst,x,y,z for this instruction?  NA if none does yet.
+            int rd = NA,
+                rx = NA,
+                ry = NA,
+                rz = NA;
+
+            auto update_regs = [&](Reg r, Val v) {
+                if (v == id) { rd = r; }
+                if (v ==  x) { rx = r; }
+                if (v ==  y) { ry = r; }
+                if (v ==  z) { rz = r; }
                 return r;
+            };
+
+            auto find_existing_reg = [&](Val v) -> int {
+                // Quick-check our working registers.
+                if (v == id && rd != NA) { return rd; }
+                if (v ==  x && rx != NA) { return rx; }
+                if (v ==  y && ry != NA) { return ry; }
+                if (v ==  z && rz != NA) { return rz; }
+
+                // Search inter-instruction register map.
+                for (auto [r,val] : SkMakeEnumerate(regs)) {
+                    if (val == v) {
+                        return update_regs((Reg)r, v);
+                    }
+                }
+                return NA;
             };
 
             // Return a register for Val, holding that value if it already exists.
             // During this instruction all calls to r(v) will return the same register.
             auto r = [&](Val v) -> Reg {
                 SkASSERT(v >= 0);
-                for (auto [r,val] : SkMakeEnumerate(regs)) {
-                    if (val == v) {
-                        return update_fingers((Reg)r, v);
-                    }
+
+                if (int found = find_existing_reg(v); found != NA) {
+                    return (Reg)found;
                 }
 
                 Reg r = alloc_tmp();
@@ -2961,7 +2975,7 @@ namespace skvm {
                     load_from_stack(r, v);
                 }
                 regs[r] = v;
-                return update_fingers(r, v);
+                return update_regs(r, v);
             };
 
             auto dst = [&]() -> Reg { return r(id); };
@@ -2970,10 +2984,8 @@ namespace skvm {
             // On x86 we can work with many values directly from the stack.
             auto any = [&](Val v) -> A::Operand {
                 SkASSERT(v >= 0);
-                for (auto [r,val] : SkMakeEnumerate(regs)) {
-                    if (val == v) {
-                        return update_fingers((Reg)r, v);
-                    }
+                if (int found = find_existing_reg(v); found != NA) {
+                    return (Reg)found;
                 }
                 SkASSERT(v < id);
                 return A::Mem{A::rsp, v*K*4};
@@ -3306,10 +3318,10 @@ namespace skvm {
                 SkASSERT(v >= 0);
                 return instructions[v].death == id;
             };
-            if (rd && dies_here(*rd)) { *rd = NA; }
-            if (rx && dies_here(*rx)) { *rx = NA; }
-            if (ry && dies_here(*ry)) { *ry = NA; }
-            if (rz && dies_here(*rz)) { *rz = NA; }
+            if (rd != NA &&                   dies_here(regs[rd])) { regs[rd] = NA; }
+            if (rx != NA && regs[rx] != NA && dies_here(regs[rx])) { regs[rx] = NA; }
+            if (ry != NA && regs[ry] != NA && dies_here(regs[ry])) { regs[ry] = NA; }
+            if (rz != NA && regs[rz] != NA && dies_here(regs[rz])) { regs[rz] = NA; }
             return true;
         };
 
