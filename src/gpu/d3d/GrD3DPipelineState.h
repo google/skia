@@ -11,22 +11,36 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
-#include <memory>
+#include "src/gpu/GrManagedResource.h"
 
 class GrD3DGpu;
 class GrD3DRootSignature;
 class GrProgramInfo;
 
-class GrD3DPipelineState {
+class GrD3DPipelineState : public GrManagedResource {
 public:
-    static std::unique_ptr<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
-                                                    sk_sp<GrD3DRootSignature> rootSig,
-                                                    gr_cp<ID3DBlob> vertexShader,
-                                                    gr_cp<ID3DBlob> geometryShader,
-                                                    gr_cp<ID3DBlob> pixelShader,
-                                                    DXGI_FORMAT renderTargetFormat,
-                                                    DXGI_FORMAT depthStencilFormat,
-                                                    unsigned int sampleQualityLevel);
+    static sk_sp<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
+                                          sk_sp<GrD3DRootSignature> rootSig,
+                                          gr_cp<ID3DBlob> vertexShader,
+                                          gr_cp<ID3DBlob> geometryShader,
+                                          gr_cp<ID3DBlob> pixelShader,
+                                          DXGI_FORMAT renderTargetFormat,
+                                          DXGI_FORMAT depthStencilFormat,
+                                          unsigned int sampleQualityLevel);
+
+#ifdef SK_TRACE_MANAGED_RESOURCES
+    /** Output a human-readable dump of this resource's information
+    */
+    void dumpInfo() const override {
+        SkDebugf("GrD3DPipelineState: %p (%d refs)\n", fPipelineState.get(), this->getRefCnt());
+    }
+#endif
+
+    // This will be called right before this class is destroyed and there is no reason to explicitly
+    // release the fPipelineState cause the gr_cp will handle that in the dtor.
+    void freeGPUData() const override {}
+
+    ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
 
 private:
     GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState);
