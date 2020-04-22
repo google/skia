@@ -41,9 +41,9 @@ public:
     GrBackendFormat getBackendFormat() const {
         return GrBackendFormat::MakeDxgi(this->dxgiFormat());
     }
-    const Resource* resource() const {
+    sk_sp<Resource> resource() const {
         SkASSERT(fResource);
-        return fResource.get();
+        return fResource;
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
 
@@ -69,6 +69,12 @@ public:
                                         GrD3DTextureResourceInfo*);
 
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
+
+    void addResourceIdleProc(GrTexture* owningTexture, sk_sp<GrRefCntedCallback> idleProc);
+    void resetResourceIdleProcs();
+    bool resourceIsQueuedForWorkOnGpu() const;
+    int resourceIdleProcCnt() const;
+    sk_sp<GrRefCntedCallback> resourceIdleProc(int i) const;
 
 protected:
     void releaseResource(GrD3DGpu* gpu);
