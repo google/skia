@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f465abbc_d313466c",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T15:46:18Z",
+      "side": 0,
+      "message": "I wonder how much is actually lost by not doing this, or if we were gaining much to begin with? But it is only really doable using raw pointers and a TD array since we don\u0027t need the dtors to be called.",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 5
+      },
+      "revId": "2f7157cc7a3315b71e5560ee0111eb0b670bb72c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
