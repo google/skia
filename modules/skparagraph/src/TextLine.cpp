@@ -531,7 +531,7 @@ void TextLine::justify(SkScalar maxWidth) {
     SkScalar textLen = 0;
     bool whitespacePatch = false;
     this->iterateThroughClustersInGlyphsOrder(false, false,
-        [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+        [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, bool ghost) {
             if (cluster->isWhitespaces()) {
                 if (!whitespacePatch) {
                     whitespacePatch = true;
@@ -555,10 +555,10 @@ void TextLine::justify(SkScalar maxWidth) {
     auto ghostShift = maxWidth - this->fAdvance.fX;
     // Spread the extra whitespaces
     whitespacePatch = false;
-    this->iterateThroughClustersInGlyphsOrder(false, true, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+    this->iterateThroughClustersInGlyphsOrder(false, true, [&](const Cluster* cluster, bool ghost) {
 
         if (ghost) {
-            if (leftToRight) {
+            if (cluster->run()->leftToRight()) {
                 shiftCluster(cluster, ghostShift, ghostShift);
             }
             return true;
@@ -632,7 +632,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     };
 
     iterateThroughClustersInGlyphsOrder(
-        true, false, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+        true, false, [&](const Cluster* cluster, bool ghost) {
             return !attachEllipsis(cluster);
         });
 
@@ -779,39 +779,29 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     return result;
 }
 
-void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
+void TextLine::iterateThroughClustersInGlyphsOrder(bool reversed,
                                                    bool includeGhosts,
                                                    const ClustersVisitor& visitor) const {
     // Walk through the clusters in the logical order (or reverse)
-    for (size_t r = 0; r != fRunsInVisualOrder.size(); ++r) {
-        auto& runIndex = fRunsInVisualOrder[reverse ? fRunsInVisualOrder.size() - r - 1 : r];
-        auto run = this->fMaster->runs().begin() + runIndex;
-        auto start = std::max(run->clusterRange().start, fClusterRange.start);
-        auto end = std::min(run->clusterRange().end, fClusterRange.end);
-        auto ghosts = std::min(run->clusterRange().end, fGhostClusterRange.end);
+    SkSpan<const size_t> runs(fRunsInVisualOrder.data(), fRunsInVisualOrder.size());
+    directional_for_each(runs, reversed, [&](decltype(runs[0]) r) {
+        auto run = this->fMaster->run(r);
+        auto trimmedRange = fClusterRange.intersection(run.clusterRange());
+        auto trailedRange = fGhostClusterRange.intersection(run.clusterRange());
+        SkASSERT(trimmedRange.start == trailedRange.start);
 
-        if (run->leftToRight() != reverse) {
-            for (auto index = start; index < ghosts; ++index) {
-                if (index >= end && !includeGhosts) {
-                    break;
-                }
-                const auto& cluster = &fMaster->cluster(index);
-                if (!visitor(cluster, index, run->leftToRight(), index >= end)) {
-                    return;
-                }
+        auto trailed = fMaster->clusters(trailedRange);
+        auto trimmed = fMaster->clusters(trimmedRange);
+        directional_for_each(trailed, reversed != run.leftToRight(), [&](Cluster& cluster) {
+            bool ghost =  &cluster >= trimmed.end();
+            if (!includeGhosts && ghost) {
+                return;
             }
-        } else {
-            for (auto index = ghosts; index > start; --index) {
-                if (index > end && !includeGhosts) {
-                    continue;
-                }
-                const auto& cluster = &fMaster->cluster(index - 1);
-                if (!visitor(cluster, index - 1, run->leftToRight(), index > end)) {
-                    return;
-                }
+            if (!visitor(&cluster, ghost)) {
+                return;
             }
-        }
-    }
+        });
+    });
 }
 
 SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
