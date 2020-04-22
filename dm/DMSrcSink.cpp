@@ -1606,10 +1606,11 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     return compare_bitmaps(reference, *dst);
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
     , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
+    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1, false)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
