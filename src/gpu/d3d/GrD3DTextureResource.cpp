@@ -91,6 +91,34 @@ void GrD3DTextureResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseH
     fResource->setRelease(std::move(releaseHelper));
 }
 
+void GrD3DTextureResource::addResourceIdleProc(GrTexture* owningTexture,
+                                               sk_sp<GrRefCntedCallback> idleProc) {
+    if (fResource) {
+        fResource->addIdleProc(owningTexture, std::move(idleProc));
+    }
+}
+
+void GrD3DTextureResource::resetResourceIdleProcs() {
+    SkASSERT(fResource);
+    fResource->resetIdleProcs();
+}
+
+bool GrD3DTextureResource::resourceIsQueuedForWorkOnGpu() const {
+    SkASSERT(fResource);
+    return fResource->isQueuedForWorkOnGpu();
+}
+
+int GrD3DTextureResource::resourceIdleProcCnt() const {
+    SkASSERT(fResource);
+    return fResource->idleProcCnt();
+}
+
+sk_sp<GrRefCntedCallback> GrD3DTextureResource::resourceIdleProc(int i) const {
+    SkASSERT(fResource);
+    return fResource->idleProc(i);
+}
+
+
 void GrD3DTextureResource::Resource::freeGPUData() const {
     this->invokeReleaseProc();
     fResource.reset();  // Release our ref to the resource

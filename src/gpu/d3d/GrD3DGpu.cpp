@@ -865,13 +865,13 @@ void GrD3DGpu::testingOnly_endCapture() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrD3DGpu::addResourceBarriers(const GrManagedResource* resource,
+void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
                                    int numBarriers,
                                    D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const {
     SkASSERT(fCurrentDirectCommandList);
     SkASSERT(resource);
 
-    fCurrentDirectCommandList->resourceBarrier(resource, numBarriers, barriers);
+    fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
 }
 
 bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {

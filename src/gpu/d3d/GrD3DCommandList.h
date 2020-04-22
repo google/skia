@@ -41,7 +41,7 @@ public:
 
     // For the moment we only support Transition barriers
     // All barriers should reference subresources of managedResource
-    void resourceBarrier(const GrManagedResource* managedResource,
+    void resourceBarrier(sk_sp<GrManagedResource> managedResource,
                          int numBarriers,
                          D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
@@ -51,33 +51,34 @@ public:
                              uint32_t subresourceCount,
                              D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
                              int left, int top);
-    void copyTextureRegion(const GrManagedResource* dst,
+    void copyTextureRegion(sk_sp<GrManagedResource> dst,
                            const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
                            UINT dstX, UINT dstY,
-                           const GrManagedResource* src,
+                           sk_sp<GrManagedResource> src,
                            const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                            const D3D12_BOX* srcBox);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
-    void addResource(const GrManagedResource* resource) {
+    void addResource(sk_sp<GrManagedResource> resource) {
         SkASSERT(resource);
-        resource->ref();
         resource->notifyQueuedForWorkOnGpu();
-        fTrackedResources.append(1, &resource);
+        fTrackedResources.push_back(std::move(resource));
     }
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
-    void addRecycledResource(const GrRecycledResource* resource) {
-        resource->ref();
+    void addRecycledResource(sk_sp<GrRecycledResource> resource) {
         resource->notifyQueuedForWorkOnGpu();
-        fTrackedRecycledResources.append(1, &resource);
+        fTrackedRecycledResources.push_back(std::move(resource));
     }
 
     void releaseResources();
 
     bool hasWork() const { return fHasWork; }
+
+private:
+    static const int kInitialTrackedResourcesCount = 32;
 
 protected:
     GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -89,8 +90,8 @@ protected:
 
     gr_cp<ID3D12GraphicsCommandList> fCommandList;
 
-    SkTDArray<const GrManagedResource*> fTrackedResources;
-    SkTDArray<const GrRecycledResource*> fTrackedRecycledResources;
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrManagedResource>> fTrackedResources;
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrRecycledResource>> fTrackedRecycledResources;
 
     // When we create a command list it starts in an active recording state
     SkDEBUGCODE(bool fIsActive = true;)
@@ -98,14 +99,6 @@ protected:
 
 private:
     gr_cp<ID3D12CommandAllocator> fAllocator;
-
-    static const int kInitialTrackedResourcesCount = 32;
-    // When resetting the command buffer, we remove the tracked resources from their arrays, and
-    // we prefer to not free all the memory every time so usually we just rewind. However, to avoid
-    // all arrays growing to the max size, after so many resets we'll do a full reset of the tracked
-    // resource arrays.
-    static const int kNumRewindResetsBeforeFullReset = 8;
-    int              fNumResets = 0;
 
     SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 };
