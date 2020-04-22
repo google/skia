@@ -101,7 +101,7 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         // quality levels are only supported for tiled resources so ignore for now
         msTextureDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
         msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
-        msTextureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+        msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
