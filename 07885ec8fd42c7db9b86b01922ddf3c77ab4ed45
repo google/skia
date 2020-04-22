@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6535ae0c_ac8ec2ad",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2020-04-22T17:07:32Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a semicolon here?",
+      "range": {
+        "startLine": 130,
+        "startChar": 68,
+        "endLine": 130,
+        "endChar": 69
+      },
+      "revId": "07885ec8fd42c7db9b86b01922ddf3c77ab4ed45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
