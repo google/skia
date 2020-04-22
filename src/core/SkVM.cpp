@@ -2980,6 +2980,22 @@ namespace skvm {
 
             auto dst = [&]() -> Reg { return r(id); };
 
+            auto dies_here = [&](Val v) -> bool {
+                SkASSERT(v >= 0);
+                return instructions[v].death == id;
+            };
+
+            // Alias dst() to r(v) if dies_here(v).
+            auto alias_reg = [&](Val v) -> bool {
+                SkASSERT(v == x || v == y || v == z);
+                if (dies_here(v)) {
+                    rd = r(v);      // Vals v and id share a register for this instruction.
+                    regs[rd] = id;  // Next instruction, Val id will be in the register, not Val v.
+                    return true;
+                }
+                return false;
+            };
+
         #if defined(__x86_64__)
             // On x86 we can work with many values directly from the stack.
             auto any = [&](Val v) -> A::Operand {
@@ -3131,16 +3147,29 @@ namespace skvm {
                 case Op::min_f32: a->vminps(dst(), r(y), any(x)); break;  // Order matters,
                 case Op::max_f32: a->vmaxps(dst(), r(y), any(x)); break;  // see test SkVM_min_max.
 
-                // TODO: restore special cases that don't need the vmovups move.
-                case Op::fma_f32:  a->vmovups     (dst(), any(x));
-                                   a->vfmadd132ps (dst(), r(z), any(y));
-                                   break;
-                case Op::fms_f32:  a->vmovups     (dst(), any(x));
-                                   a->vfmsub132ps (dst(), r(z), any(y));
-                                   break;
-                case Op::fnma_f32: a->vmovups     (dst(), any(x));
-                                   a->vfnmadd132ps(dst(), r(z), any(y));
-                                   break;
+                case Op::fma_f32:
+                    if (alias_reg(x)) { a->vfmadd132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfmadd213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfmadd231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups    (dst(), any(x));
+                                        a->vfmadd132ps(dst(), r(z), any(y)); }
+                                        break;
+
+                case Op::fms_f32:
+                    if (alias_reg(x)) { a->vfmsub132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfmsub213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfmsub231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups    (dst(), any(x));
+                                        a->vfmsub132ps(dst(), r(z), any(y)); }
+                                        break;
+
+                case Op::fnma_f32:
+                    if (alias_reg(x)) { a->vfnmadd132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfnmadd213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfnmadd231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups     (dst(), any(x));
+                                        a->vfnmadd132ps(dst(), r(z), any(y)); }
+                                        break;
 
                 case Op::sqrt_f32: a->vsqrtps(dst(), any(x)); break;
 
@@ -3241,22 +3270,24 @@ namespace skvm {
                 case Op::mul_f32: a->fmul4s(dst(), r(x), r(y)); break;
                 case Op::div_f32: a->fdiv4s(dst(), r(x), r(y)); break;
 
-                // TODO: restore specializations that don't need the orr16b() move.
                 case Op::fma_f32: // fmla.4s is z += x*y
-                    a->orr16b(dst(), r(z), r(z));
-                    a->fmla4s(dst(), r(x), r(y));
-                    break;
+                    if (alias_reg(z)) { a->fmla4s( r(z), r(x), r(y)); }
+                    else              { a->orr16b(dst(), r(z), r(z));
+                                        a->fmla4s(dst(), r(x), r(y)); }
+                                        break;
 
                 case Op::fnma_f32:  // fmls.4s is z -= x*y
-                    a->orr16b(dst(), r(z), r(z));
-                    a->fmls4s(dst(), r(x), r(y));
-                    break;
+                    if (alias_reg(z)) { a->fmls4s( r(z), r(x), r(y)); }
+                    else              { a->orr16b(dst(), r(z), r(z));
+                                        a->fmls4s(dst(), r(x), r(y)); }
+                                        break;
 
-                case Op::fms_f32:
-                    a->orr16b(dst(), r(z), r(z));
-                    a->fmls4s(dst(), r(x), r(y));  // xy - z
-                    a->fneg4s(dst(), dst());       // z - xy
-                    break;
+                case Op::fms_f32:   // calculate z - xy, then negate to xy - z
+                    if (alias_reg(z)) { a->fmls4s( r(z), r(x), r(y)); }
+                    else              { a->orr16b(dst(), r(z), r(z));
+                                        a->fmls4s(dst(), r(x), r(y)); }
+                                        a->fneg4s(dst(), dst());
+                                        break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r(x), r(y)); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r(x), r(y)); break;
@@ -3274,11 +3305,11 @@ namespace skvm {
                 case Op::bit_xor  : a->eor16b(dst(), r(x), r(y)); break;
                 case Op::bit_clear: a->bic16b(dst(), r(x), r(y)); break;
 
-                // TODO: restore specialization that doesn't need the orr16b() move.
                 case Op::select: // bsl16b is x = x ? y : z
-                    a->orr16b(dst(),  r(x),  r(x));
-                    a->bsl16b(dst(),  r(y),  r(z));
-                    break;
+                    if (alias_reg(x)) { a->bsl16b( r(x), r(y), r(z)); }
+                    else              { a->orr16b(dst(), r(x), r(x));
+                                        a->bsl16b(dst(), r(y), r(z)); }
+                                        break;
 
                 // fmin4s and fmax4s don't work the way we want with NaN,
                 // so we write them the long way:
@@ -3299,11 +3330,11 @@ namespace skvm {
                 case Op::eq_i32: a->cmeq4s(dst(), r(x), r(y)); break;
                 case Op::gt_i32: a->cmgt4s(dst(), r(x), r(y)); break;
 
-                // TODO: delete pack?  restore sli4s optimization?
                 case Op::pack:
-                    a->shl4s (dst(),  r(y),  immz);
-                    a->orr16b(dst(), dst(),  r(x));
-                    break;
+                    if (alias_reg(x)) { a->sli4s ( r(x),  r(y), immz); }
+                    else              { a->shl4s (dst(),  r(y), immz);
+                                        a->orr16b(dst(), dst(), r(x)); }
+                                        break;
 
                 case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
@@ -3314,10 +3345,6 @@ namespace skvm {
             }
 
             // Proactively free the registers holding any value that dies here.
-            auto dies_here = [&](Val v) {
-                SkASSERT(v >= 0);
-                return instructions[v].death == id;
-            };
             if (rd != NA &&                   dies_here(regs[rd])) { regs[rd] = NA; }
             if (rx != NA && regs[rx] != NA && dies_here(regs[rx])) { regs[rx] = NA; }
             if (ry != NA && regs[ry] != NA && dies_here(regs[ry])) { regs[ry] = NA; }
