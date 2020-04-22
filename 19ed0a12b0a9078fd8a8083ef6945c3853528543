@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9be51e98_64434bb5",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2916,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-22T15:18:11Z",
+      "side": 1,
+      "message": "Should probably be std::distance, but doesn\u0027t really matter for std::array.",
+      "range": {
+        "startLine": 2916,
+        "startChar": 30,
+        "endLine": 2916,
+        "endChar": 50
+      },
+      "revId": "19ed0a12b0a9078fd8a8083ef6945c3853528543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5422db_eec04c2a",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 2944,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-22T15:18:11Z",
+      "side": 1,
+      "message": "// Retrieve the value from the stack unless it is value for this instruction.",
+      "range": {
+        "startLine": 2944,
+        "startChar": 16,
+        "endLine": 2944,
+        "endChar": 29
+      },
+      "revId": "19ed0a12b0a9078fd8a8083ef6945c3853528543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
