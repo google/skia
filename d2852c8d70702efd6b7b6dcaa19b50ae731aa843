@@ -22,6 +22,30 @@
       "revId": "d2852c8d70702efd6b7b6dcaa19b50ae731aa843",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a0b8077_7a836aa4",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-22T16:58:14Z",
+      "side": 1,
+      "message": "Can you put the definition in the header so they\u0027ll potentially get inlined?",
+      "parentUuid": "105d7a42_e64ca982",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 60
+      },
+      "revId": "d2852c8d70702efd6b7b6dcaa19b50ae731aa843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
