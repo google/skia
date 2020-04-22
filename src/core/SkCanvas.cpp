@@ -1191,7 +1191,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                              fMCRec->fMatrix.asM33());
     }
 
-    newDevice->setOrigin(fMCRec->fMatrix.asM33(), ir.fLeft, ir.fTop);
+    newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
 
     newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     if (layer->fNext) {
