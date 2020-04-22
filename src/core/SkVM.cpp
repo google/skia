@@ -3140,9 +3140,18 @@ namespace skvm {
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r(x), any(y)); break;
+                // We can swap the arguments of symmetric instructions to make better use of any().
+                case Op::add_f32:
+                    if (find_existing_reg(x) != NA) { a->vaddps(dst(), r(x), any(y)); }
+                    else                            { a->vaddps(dst(), r(y), any(x)); }
+                                                      break;
+
+                case Op::mul_f32:
+                    if (find_existing_reg(x) != NA) { a->vmulps(dst(), r(x), any(y)); }
+                    else                            { a->vmulps(dst(), r(y), any(x)); }
+                                                      break;
+
                 case Op::sub_f32: a->vsubps(dst(), r(x), any(y)); break;
-                case Op::mul_f32: a->vmulps(dst(), r(x), any(y)); break;
                 case Op::div_f32: a->vdivps(dst(), r(x), any(y)); break;
                 case Op::min_f32: a->vminps(dst(), r(y), any(x)); break;  // Order matters,
                 case Op::max_f32: a->vmaxps(dst(), r(y), any(x)); break;  // see test SkVM_min_max.
@@ -3179,13 +3188,30 @@ namespace skvm {
                 case Op::min_f32_imm: a->vminps(dst(), r(x), &constants[immy]); break;
                 case Op::max_f32_imm: a->vmaxps(dst(), r(x), &constants[immy]); break;
 
-                case Op::add_i32: a->vpaddd (dst(), r(x), any(y)); break;
-                case Op::sub_i32: a->vpsubd (dst(), r(x), any(y)); break;
-                case Op::mul_i32: a->vpmulld(dst(), r(x), any(y)); break;
+                case Op::add_i32:
+                    if (find_existing_reg(x) != NA) { a->vpaddd(dst(), r(x), any(y)); }
+                    else                            { a->vpaddd(dst(), r(y), any(x)); }
+                                                      break;
+                case Op::mul_i32:
+                    if (find_existing_reg(x) != NA) { a->vpmulld(dst(), r(x), any(y)); }
+                    else                            { a->vpmulld(dst(), r(y), any(x)); }
+                                                      break;
 
-                case Op::bit_and  : a->vpand (dst(), r(x), any(y)); break;
-                case Op::bit_or   : a->vpor  (dst(), r(x), any(y)); break;
-                case Op::bit_xor  : a->vpxor (dst(), r(x), any(y)); break;
+                case Op::sub_i32: a->vpsubd(dst(), r(x), any(y)); break;
+
+                case Op::bit_and:
+                    if (find_existing_reg(x) != NA) { a->vpand(dst(), r(x), any(y)); }
+                    else                            { a->vpand(dst(), r(y), any(x)); }
+                                                      break;
+                case Op::bit_or:
+                    if (find_existing_reg(x) != NA) { a->vpor(dst(), r(x), any(y)); }
+                    else                            { a->vpor(dst(), r(y), any(x)); }
+                                                      break;
+                case Op::bit_xor:
+                    if (find_existing_reg(x) != NA) { a->vpxor(dst(), r(x), any(y)); }
+                    else                            { a->vpxor(dst(), r(y), any(x)); }
+                                                      break;
+
                 case Op::bit_clear: a->vpandn(dst(), r(y), any(x)); break;  // Notice, y then x.
                 case Op::select   : a->vpblendvb(dst(), r(z), any(y), r(x)); break;
 
@@ -3197,11 +3223,20 @@ namespace skvm {
                 case Op::shr_i32: a->vpsrld(dst(), r(x), immy); break;
                 case Op::sra_i32: a->vpsrad(dst(), r(x), immy); break;
 
-                case Op::eq_i32: a->vpcmpeqd(dst(), r(x), any(y)); break;
+                case Op::eq_i32:
+                    if (find_existing_reg(x) != NA) { a->vpcmpeqd(dst(), r(x), any(y)); }
+                    else                            { a->vpcmpeqd(dst(), r(y), any(x)); }
+                                                      break;
                 case Op::gt_i32: a->vpcmpgtd(dst(), r(x), any(y)); break;
 
-                case Op:: eq_f32: a->vcmpeqps (dst(), r(x), any(y)); break;
-                case Op::neq_f32: a->vcmpneqps(dst(), r(x), any(y)); break;
+                case Op::eq_f32:
+                    if (find_existing_reg(x) != NA) { a->vcmpeqps(dst(), r(x), any(y)); }
+                    else                            { a->vcmpeqps(dst(), r(y), any(x)); }
+                                                      break;
+                case Op::neq_f32:
+                    if (find_existing_reg(x) != NA) { a->vcmpneqps(dst(), r(x), any(y)); }
+                    else                            { a->vcmpneqps(dst(), r(y), any(x)); }
+                                                      break;
                 case Op:: gt_f32: a->vcmpltps (dst(), r(y), any(x)); break;
                 case Op::gte_f32: a->vcmpleps (dst(), r(y), any(x)); break;
 
