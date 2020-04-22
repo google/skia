@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "741d007c_7b0bf2f8",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-22T14:59:16Z",
+      "side": 1,
+      "message": "Sounds good; I agree if the list is small, then scanning it will be plenty fast and not worth extra complexity.",
+      "parentUuid": "caabd7d1_8032402d",
+      "range": {
+        "startLine": 33,
+        "startChar": 9,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "823684e1_fce10ba3",
         "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
         "patchSetId": 5
