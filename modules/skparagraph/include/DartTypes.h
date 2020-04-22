@@ -73,6 +73,16 @@ struct TextBox {
     TextBox(SkRect r, TextDirection d) : rect(r), direction(d) {}
 };
 
+// -------------------------------------------------------------------
+// --- Reversed iterable
+
+template<typename C, typename UnaryFunction>
+UnaryFunction directional_for_each(C& c, bool forwards, UnaryFunction f) {
+    return forwards
+              ? std::for_each(std::begin(c), std::end(c), f)
+              : std::for_each(std::rbegin(c), std::rend(c), f);
+}
+
 const size_t EMPTY_INDEX = std::numeric_limits<size_t>::max();
 template <typename T> struct SkRange {
     SkRange() : start(), end() {}
@@ -97,6 +107,10 @@ template <typename T> struct SkRange {
 
     bool intersects(SkRange<size_t> other) const {
         return std::max(start, other.start) <= std::min(end, other.end);
+    }
+
+    SkRange<size_t> intersection(SkRange<size_t> other) const {
+        return SkRange<size_t>(std::max(start, other.start), std::min(end, other.end));
     }
 
     bool empty() const {
