@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "caabd7d1_8032402d",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-22T14:57:08Z",
+      "side": 1,
+      "message": "Swapping root signatures a lot is pretty inefficient, so I\u0027d expect the list to be small.",
+      "parentUuid": "83c60a54_f23dce65",
+      "range": {
+        "startLine": 33,
+        "startChar": 9,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "823684e1_fce10ba3",
         "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
         "patchSetId": 5
@@ -140,6 +164,29 @@
       "revId": "4571d5535431ab8fd674315eada74775830b6e11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a587c29_d5c0472b",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-22T14:57:08Z",
+      "side": 1,
+      "message": "Need to note this as something to be set up in GrD3DFunctions, if we ever do that.",
+      "range": {
+        "startLine": 82,
+        "startChar": 17,
+        "endLine": 82,
+        "endChar": 44
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
