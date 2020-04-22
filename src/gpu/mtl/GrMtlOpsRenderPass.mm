@@ -124,10 +124,15 @@ bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
 }
 
 void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    // We should never end up here since all clears should either be done as draws or load ops in
-    // metal. If we hit this assert then we missed a chance to set a load op on the
-    // GrRenderTargetContext level.
-    SkASSERT(false);
+    // Ideally we should never end up here since all clears should either be done as draws or
+    // load ops in metal. However, if a client inserts a wait op we need to handle it.
+    fRenderPassDesc.colorAttachments[0].clearColor =
+            MTLClearColorMake(color[0], color[1], color[2], color[3]);
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    this->precreateCmdEncoder();
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
 }
 
 void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
