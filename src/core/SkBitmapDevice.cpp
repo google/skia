@@ -598,9 +598,9 @@ class SkAutoDeviceClipRestore {
 public:
     SkAutoDeviceClipRestore(SkBaseDevice* device, const SkIRect& clip)
         : fDevice(device)
-        , fPrevLocalToDevice(device->localToDevice()) {
+        , fPrevLocalToDevice(device->localToDevice44()) {
         fDevice->save();
-        fDevice->setLocalToDevice(SkMatrix::I());
+        fDevice->setLocalToDevice(SkM44());
         fDevice->clipRect(SkRect::Make(clip), SkClipOp::kIntersect, false);
         fDevice->setLocalToDevice(fPrevLocalToDevice);
     }
@@ -610,8 +610,8 @@ public:
     }
 
 private:
-    SkBaseDevice*  fDevice;
-    const SkMatrix fPrevLocalToDevice;
+    SkBaseDevice* fDevice;
+    const SkM44   fPrevLocalToDevice;
 };
 
 }  // anonymous ns

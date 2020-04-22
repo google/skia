@@ -82,13 +82,23 @@ SkM44& SkM44::preConcat(const SkMatrix& b) {
     return *this;
 }
 
-SkM44& SkM44::preTranslate(SkScalar x, SkScalar y) {
+SkM44& SkM44::preTranslate(SkScalar x, SkScalar y, SkScalar z) {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);
+    sk4f c2 = sk4f::Load(fMat +  8);
     sk4f c3 = sk4f::Load(fMat + 12);
 
     // only need to update the last column
-    skvx::mad(c0, x, skvx::mad(c1, y, c3)).store(fMat + 12);
+    skvx::mad(c0, x, skvx::mad(c1, y, skvx::mad(c2, z, c3))).store(fMat + 12);
+    return *this;
+}
+
+SkM44& SkM44::postTranslate(SkScalar x, SkScalar y, SkScalar z) {
+    sk4f t = { x, y, z, 0 };
+    skvx::mad(t, fMat[ 3], sk4f::Load(fMat +  0)).store(fMat +  0);
+    skvx::mad(t, fMat[ 7], sk4f::Load(fMat +  4)).store(fMat +  4);
+    skvx::mad(t, fMat[11], sk4f::Load(fMat +  8)).store(fMat +  8);
+    skvx::mad(t, fMat[15], sk4f::Load(fMat + 12)).store(fMat + 12);
     return *this;
 }
 
@@ -110,6 +120,21 @@ SkV4 SkM44::map(float x, float y, float z, float w) const {
     SkV4 v;
     skvx::mad(c0, x, skvx::mad(c1, y, skvx::mad(c2, z, c3 * w))).store(&v.x);
     return v;
+}
+
+void SkM44::normalizePerspective() {
+    // If the bottom row of the matrix is [0, 0, 0, not_one], we will treat the matrix as if it
+    // is in perspective, even though it stills behaves like its affine. If we divide everything
+    // by the not_one value, then it will behave the same, but will be treated as affine,
+    // and therefore faster (e.g. clients can forward-difference calculations).
+    if (fMat[15] != 1 && fMat[15] != 0 && fMat[3] == 0 && fMat[7] == 0 && fMat[11] == 0) {
+        double inv = 1.0 / fMat[15];
+        (sk4f::Load(fMat +  0) * inv).store(fMat +  0);
+        (sk4f::Load(fMat +  4) * inv).store(fMat +  4);
+        (sk4f::Load(fMat +  8) * inv).store(fMat +  8);
+        (sk4f::Load(fMat + 12) * inv).store(fMat + 12);
+        fMat[15] = 1.0f;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

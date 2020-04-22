@@ -318,6 +318,31 @@ public:
         return this->setConcat(*this, m);
     }
 
+    SkM44& postConcat(const SkM44& m) {
+        return this->setConcat(m, *this);
+    }
+
+    /**
+     *  A matrix is categorized as 'perspective' if the bottom row is not [0, 0, 0, 1].
+     *  For most uses, a bottom row of [0, 0, 0, X] behaves like a non-perspective matrix, though
+     *  it will be categorized as perspective. Calling normalizePerspective() will change the
+     *  matrix such that, if its bottom row was [0, 0, 0, X], it will be changed to [0, 0, 0, 1]
+     *  by scaling the rest of the matrix by 1/X.
+     *
+     *  | A B C D |    | A/X B/X C/X D/X |
+     *  | E F G H | -> | E/X F/X G/X H/X |   for X != 0
+     *  | I J K L |    | I/X J/X K/X L/X |
+     *  | 0 0 0 X |    |  0   0   0   1  |
+     */
+    void normalizePerspective();
+
+    /** Returns true if all elements of the matrix are finite. Returns false if any
+        element is infinity, or NaN.
+
+        @return  true if matrix has only finite elements
+    */
+    bool isFinite() const { return SkScalarsAreFinite(fMat, 16); }
+
     /** If this is invertible, return that in inverse and return true. If it is
      *  not invertible, return false and leave the inverse parameter unchanged.
      */
@@ -361,7 +386,9 @@ public:
             src[SkMatrix::kMPersp0], src[SkMatrix::kMPersp1], 0, src[SkMatrix::kMPersp2])
     {}
 
-    SkM44& preTranslate(SkScalar x, SkScalar y);
+    SkM44& preTranslate(SkScalar x, SkScalar y, SkScalar z = 0);
+    SkM44& postTranslate(SkScalar x, SkScalar y, SkScalar z = 0);
+
     SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
