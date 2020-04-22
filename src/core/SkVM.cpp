@@ -2870,6 +2870,8 @@ namespace skvm {
             return false;
         }
 
+        std::vector<bool> val_on_stack(instructions.size());
+
         auto emit = [&](Val id, bool scalar) {
             const OptimizedInstruction& inst = instructions[id];
             const Op op = inst.op;
@@ -2905,7 +2907,11 @@ namespace skvm {
                 SkASSERT(regs[r] == NA || regs[r] >= 0);
                 if (regs[r] >= 0) {
                     // TODO: track whether it's already on the stack, whether this store is needed
-                    store_to_stack(r, regs[r]);
+                    if (!val_on_stack[regs[r]]) {
+                        store_to_stack(r, regs[r]);
+                        val_on_stack[regs[r]] = true;
+                    }
+
                     regs[r] = NA;
                 }
                 SkASSERT(regs[r] == NA);
@@ -3375,6 +3381,8 @@ namespace skvm {
             sub(N, K);
             jump(&body);
         }
+
+        std::fill(val_on_stack.begin(), val_on_stack.end(), false);
 
         a->label(&tail);
         {
