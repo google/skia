@@ -2879,38 +2879,25 @@ namespace skvm {
             const Op op = OP;             // Can't close a lambda over local bindings directly.
             const Val x = X, y = Y, z = Z;
 
-            auto still_useful = [&](Val v) {
-                SkASSERT(v >= 0);
-                return instructions[v].death >= id
-                    || (instructions[v].can_hoist && instructions[v].used_in_loop);
-            };
-
-            // As we enter a new instruction, mark the registers containing any values
-            // we won't use again as available, including any TMPs from the last instruction.
-            for (Val& v : regs) {
-                if (v >= 0 && !still_useful(v)) { v = NA; }
-                if (v == TMP                  ) { v = NA; }
-            }
-
-            // Call alloc_reg() for a temporary register that lasts the duration of the instruction.
-            auto alloc_reg = [&]() -> Reg {
-                auto score = [&](Val v) -> int {
-                    // Any available register is best!
-                    if (v == NA) { return 0x7fff'ffff; }
-
-                    // We cannot spill REServed registers,
-                    // nor any registers we need for this instruction.
-                    if (v == RES ||
-                        v == TMP || v == id || v == x || v == y || v == z) {
-                        return -1;
-                    }
-
-                    // Break ties somewhat arbitrarily now, by spilling the latest value to die.
-                    return instructions[v].death;
-                };
-                auto avail = std::max_element(regs.begin(), regs.end(), [&](Val a, Val b) {
-                    return score(a) < score(b);
-                });
+            // alloc_tmp() returns a temporary register, freed manually with free_tmp().
+            auto alloc_tmp = [&]() -> Reg {
+                // Find an available register, or spill an occupied one if nothing's available.
+                auto avail = std::find_if(regs.begin(), regs.end(), [](Val v) { return v == NA; });
+                if (avail == regs.end()) {
+                    auto score_spills = [&](Val v) -> int {
+                        // We cannot spill REServed registers,
+                        // nor any registers we need for this instruction.
+                        if (v == RES ||
+                            v == TMP || v == id || v == x || v == y || v == z) {
+                            return -1;
+                        }
+                        // Break ties somewhat arbitrarily now, by spilling the latest value to die.
+                        return instructions[v].death;
+                    };
+                    avail = std::max_element(regs.begin(), regs.end(), [&](Val a, Val b) {
+                        return score_spills(a) < score_spills(b);
+                    });
+                }
                 SkASSERT(avail != regs.end());
 
                 Reg r = (Reg)std::distance(regs.begin(), avail);
@@ -2927,17 +2914,39 @@ namespace skvm {
                 return r;
             };
 
+        #if defined(__x86_64__)  // Nothing special... just happens to not be used on ARM right now.
+            auto free_tmp = [&](Reg r) {
+                SkASSERT(regs[r] == TMP);
+                regs[r] = NA;
+            };
+        #endif
+
+            // Vals id, x, y, and z might die with this instruction (id only rarely).
+            // These fingers into regs accelerate their cleanup.
+            Val *rd = nullptr,
+                *rx = nullptr,
+                *ry = nullptr,
+                *rz = nullptr;
+            auto update_fingers = [&](Reg r, Val v) {
+                if (v == id) { rd = &regs[r]; return r; }
+                if (v ==  x) { rx = &regs[r]; return r; }
+                if (v ==  y) { ry = &regs[r]; return r; }
+                if (v ==  z) { rz = &regs[r]; return r; }
+                SkUNREACHABLE;
+                return r;
+            };
+
             // Return a register for Val, holding that value if it already exists.
             // During this instruction all calls to r(v) will return the same register.
             auto r = [&](Val v) -> Reg {
                 SkASSERT(v >= 0);
                 for (auto [r,val] : SkMakeEnumerate(regs)) {
                     if (val == v) {
-                        return (Reg)r;
+                        return update_fingers((Reg)r, v);
                     }
                 }
 
-                Reg r = alloc_reg();
+                Reg r = alloc_tmp();
                 SkASSERT(regs[r] == TMP);
 
                 SkASSERT(v <= id);
@@ -2947,7 +2956,7 @@ namespace skvm {
                     load_from_stack(r, v);
                 }
                 regs[r] = v;
-                return r;
+                return update_fingers(r, v);
             };
 
             auto dst = [&]() -> Reg { return r(id); };
@@ -2958,7 +2967,7 @@ namespace skvm {
                 SkASSERT(v >= 0);
                 for (auto [r,val] : SkMakeEnumerate(regs)) {
                     if (val == v) {
-                        return (Reg)r;
+                        return update_fingers((Reg)r, v);
                     }
                 }
                 SkASSERT(v < id);
@@ -3021,7 +3030,7 @@ namespace skvm {
                     // As usual, the gather base pointer is immz bytes off of uniform immy.
                     a->mov(GP0, A::Mem{arg[immy], immz});
 
-                    A::Ymm tmp = alloc_reg();
+                    A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
 
                     for (int i = 0; i < (scalar ? 1 : 8); i++) {
@@ -3034,13 +3043,14 @@ namespace skvm {
                         a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{GP0,0,GP1,A::ONE}, i);
                     }
                     a->vpmovzxbd(dst(), dst());
+                    free_tmp(tmp);
                 } break;
 
                 case Op::gather16: {
                     // Just as gather8 except vpinsrb->vpinsrw, ONE->TWO, and vpmovzxbd->vpmovzxwd.
                     a->mov(GP0, A::Mem{arg[immy], immz});
 
-                    A::Ymm tmp = alloc_reg();
+                    A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
 
                     for (int i = 0; i < (scalar ? 1 : 8); i++) {
@@ -3051,6 +3061,7 @@ namespace skvm {
                         a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{GP0,0,GP1,A::TWO}, i);
                     }
                     a->vpmovzxwd(dst(), dst());
+                    free_tmp(tmp);
                 } break;
 
                 case Op::gather32:
@@ -3066,10 +3077,11 @@ namespace skvm {
                 } else {
                     a->mov(GP0, A::Mem{arg[immy], immz});
 
-                    A::Ymm mask = alloc_reg();
+                    A::Ymm mask = alloc_tmp();
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
 
                     a->vgatherdps(dst(), A::FOUR, r(x), GP0, mask);
+                    free_tmp(mask);
                 }
                 break;
 
@@ -3284,6 +3296,16 @@ namespace skvm {
             #endif
             }
 
+            // Proactively free the registers holding any value that dies here.
+            auto dies_here = [&](Val v) {
+                SkASSERT(v >= 0);
+                return instructions[v].death == id
+                    && !(instructions[v].can_hoist && instructions[v].used_in_loop);
+            };
+            if (rd && dies_here(*rd)) { *rd = NA; }
+            if (rx && dies_here(*rx)) { *rx = NA; }
+            if (ry && dies_here(*ry)) { *ry = NA; }
+            if (rz && dies_here(*rz)) { *rz = NA; }
             return true;
         };
 
