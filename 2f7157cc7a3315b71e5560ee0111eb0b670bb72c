@@ -22,6 +22,30 @@
       "revId": "2f7157cc7a3315b71e5560ee0111eb0b670bb72c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa6f7083_581a57a1",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T16:56:10Z",
+      "side": 1,
+      "message": "Once we start caching the pipelines it will need to be filled out more since that is what we generate the key from. But for right now nothing is needed if we are just creating them.",
+      "parentUuid": "52dfc354_60d0401f",
+      "range": {
+        "startLine": 137,
+        "startChar": 39,
+        "endLine": 137,
+        "endChar": 47
+      },
+      "revId": "2f7157cc7a3315b71e5560ee0111eb0b670bb72c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
