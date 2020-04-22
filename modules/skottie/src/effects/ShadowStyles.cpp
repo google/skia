@@ -10,6 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
@@ -18,6 +19,14 @@
 namespace skottie::internal {
 
 namespace {
+
+static constexpr char ALPHA_SCALE_EFFECT[] = R"(
+    uniform float scale;
+
+    void main(inout half4 color) {
+        color.a = half(color.a * scale);
+    }
+)";
 
 class ShadowAdapter final : public DiscardableAdapterBase<ShadowAdapter,
                                                           sksg::ExternalImageFilter> {
@@ -30,19 +39,22 @@ public:
     ShadowAdapter(const skjson::ObjectValue& jstyle,
                   const AnimationBuilder& abuilder,
                   Type type)
-        : fType(type) {
-        this->bind(abuilder, jstyle["c"], fColor);
-        this->bind(abuilder, jstyle["o"], fOpacity);
-        this->bind(abuilder, jstyle["a"], fAngle);
-        this->bind(abuilder, jstyle["s"], fSize);
-        this->bind(abuilder, jstyle["d"], fDistance);
+        : fType(type)
+        , fRuntimeFilter(std::get<0>(SkRuntimeEffect::Make(SkString(ALPHA_SCALE_EFFECT)))) {
+        this->bind(abuilder, jstyle["c" ], fColor);
+        this->bind(abuilder, jstyle["o" ], fOpacity);
+        this->bind(abuilder, jstyle["a" ], fAngle);
+        this->bind(abuilder, jstyle["s" ], fSize);
+        this->bind(abuilder, jstyle["d" ], fDistance);
+        this->bind(abuilder, jstyle["ch"], fChoke);
     }
 
 private:
     void onSync() override {
         const auto    rad = SkDegreesToRadians(180 + fAngle), // 0deg -> left (style)
                     sigma = fSize * kBlurSizeToSigma,
-                  opacity = SkTPin(fOpacity / 100, 0.0f, 1.0f);
+                  opacity = SkTPin(fOpacity / 100, 0.0f, 1.0f),
+                    choke = SkTPin(fChoke   / 100, 0.0f, 1.0f);
         const auto  color = static_cast<SkColor4f>(fColor);
         const auto offset = SkV2{ fDistance * SkScalarCos(rad),
                                  -fDistance * SkScalarSin(rad)};
@@ -65,11 +77,11 @@ private:
         //
         // [1] https://drafts.fxtf.org/filter-effects/#feDropShadowElement
 
-        // Select and colorize the source alpha channel.
-        SkColorMatrix cm{0, 0, 0,                  0, color.fR,
-                         0, 0, 0,                  0, color.fG,
-                         0, 0, 0,                  0, color.fB,
-                         0, 0, 0, opacity * color.fA,        0};
+        // Select the source alpha channel.
+        SkColorMatrix cm{0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0,
+                         0, 0, 0, 1, 0};
 
         // Inner shadows use the alpha inverse.
         if (fType == Type::kInnerShadow) {
@@ -78,10 +90,59 @@ private:
                           0, 0, 1, 0, 0,
                           0, 0, 0,-1, 1});
         }
+
+        // Add shadow color and opacity.
+        const SkColorMatrix colorize {
+            0, 0, 0,                  0, color.fR,
+            0, 0, 0,                  0, color.fG,
+            0, 0, 0,                  0, color.fB,
+            0, 0, 0, opacity * color.fA,        0
+        };
+
+        // Alpha choke only applies to shadow blurs.
+        const auto requires_alpha_choke = (sigma > 0 && choke > 0);
+
+        if (!requires_alpha_choke) {
+            // We can fold the colorization step with the initial source alpha.
+            cm.postConcat(colorize);
+        }
+
         auto f = SkImageFilters::ColorFilter(SkColorFilters::Matrix(cm), nullptr);
 
         if (sigma > 0) {
             f = SkImageFilters::Blur(sigma, sigma, std::move(f));
+        }
+
+        if (requires_alpha_choke) {
+            // Choke/spread semantics (applied to the blur result):
+            //
+            //     0  -> no effect
+            //     1  -> all non-transparent values turn opaque (the blur "spreads" all the way)
+            // (0..1) -> some form of gradual transition between the two.
+            //
+            // One way to emulate this effect is by upscaling the blur alpha by 1 / (1 - choke):
+            static constexpr float kMaxAlphaScale = 1e6f;
+            const auto alpha_scale = std::min(sk_ieee_float_divide(1, 1 - choke), kMaxAlphaScale);
+
+            if (0) {
+                SkColorMatrix choke_cm(1, 0, 0,           0, 0,
+                                       0, 1, 0,           0, 0,
+                                       0, 0, 1,           0, 0,
+                                       0, 0, 0, alpha_scale, 0);
+
+                // Colorization is deferred until after alpha choke.
+                choke_cm.preConcat(colorize);
+
+                f = SkImageFilters::ColorFilter(SkColorFilters::Matrix(choke_cm), std::move(f));
+            } else {
+                f = SkImageFilters::ColorFilter(SkColorFilters::Compose(
+                        SkColorFilters::Matrix(colorize),
+                        fRuntimeFilter->makeColorFilter(SkData::MakeWithCopy(&alpha_scale,
+                                                                             sizeof(alpha_scale)))),
+                    std::move(f));
+
+            }
+
         }
 
         if (!SkScalarNearlyZero(offset.x) || !SkScalarNearlyZero(offset.y)) {
@@ -101,13 +162,15 @@ private:
                                                            std::move(source)));
     }
 
-    const Type fType;
+    const Type                   fType;
+    const sk_sp<SkRuntimeEffect> fRuntimeFilter;
 
     VectorValue fColor;
     ScalarValue fOpacity  = 100, // percentage
                 fAngle    =   0, // degrees
                 fSize     =   0,
-                fDistance =   0;
+                fDistance =   0,
+                   fChoke =   0;
 
     using INHERITED = DiscardableAdapterBase<ShadowAdapter, sksg::ExternalImageFilter>;
 };
