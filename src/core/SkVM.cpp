@@ -2980,6 +2980,22 @@ namespace skvm {
 
             auto dst = [&]() -> Reg { return r(id); };
 
+            auto dies_here = [&](Val v) -> bool {
+                SkASSERT(v >= 0);
+                return instructions[v].death == id;
+            };
+
+            // Alias dst() to r(v) if dies_here(v).
+            auto alias_reg = [&](Val v) -> bool {
+                SkASSERT(v == x || v == y || v == z);
+                if (dies_here(v)) {
+                    rd = r(v);      // Vals v and id share a register for this instruction.
+                    regs[rd] = id;  // Next instruction, Val id will be in the register, not Val v.
+                    return true;
+                }
+                return false;
+            };
+
         #if defined(__x86_64__)
             // On x86 we can work with many values directly from the stack.
             auto any = [&](Val v) -> A::Operand {
@@ -3131,16 +3147,26 @@ namespace skvm {
                 case Op::min_f32: a->vminps(dst(), r(y), any(x)); break;  // Order matters,
                 case Op::max_f32: a->vmaxps(dst(), r(y), any(x)); break;  // see test SkVM_min_max.
 
-                // TODO: restore special cases that don't need the vmovups move.
-                case Op::fma_f32:  a->vmovups     (dst(), any(x));
-                                   a->vfmadd132ps (dst(), r(z), any(y));
-                                   break;
-                case Op::fms_f32:  a->vmovups     (dst(), any(x));
-                                   a->vfmsub132ps (dst(), r(z), any(y));
-                                   break;
-                case Op::fnma_f32: a->vmovups     (dst(), any(x));
-                                   a->vfnmadd132ps(dst(), r(z), any(y));
-                                   break;
+                case Op::fma_f32:
+                    if (alias_reg(x)) { a->vfmadd132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfmadd213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfmadd231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups    (dst(), any(x));
+                                        a->vfmadd132ps(dst(), r(z), any(y)); } break;
+
+                case Op::fms_f32:
+                    if (alias_reg(x)) { a->vfmsub132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfmsub213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfmsub231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups    (dst(), any(x));
+                                        a->vfmsub132ps(dst(), r(z), any(y)); } break;
+
+                case Op::fnma_f32:
+                    if (alias_reg(x)) { a->vfnmadd132ps(r(x), r(z), any(y)); } else
+                    if (alias_reg(y)) { a->vfnmadd213ps(r(y), r(x), any(z)); } else
+                    if (alias_reg(z)) { a->vfnmadd231ps(r(z), r(x), any(y)); } else
+                                      { a->vmovups     (dst(), any(x));
+                                        a->vfnmadd132ps(dst(), r(z), any(y)); } break;
 
                 case Op::sqrt_f32: a->vsqrtps(dst(), any(x)); break;
 
@@ -3314,10 +3340,6 @@ namespace skvm {
             }
 
             // Proactively free the registers holding any value that dies here.
-            auto dies_here = [&](Val v) {
-                SkASSERT(v >= 0);
-                return instructions[v].death == id;
-            };
             if (rd != NA &&                   dies_here(regs[rd])) { regs[rd] = NA; }
             if (rx != NA && regs[rx] != NA && dies_here(regs[rx])) { regs[rx] = NA; }
             if (ry != NA && regs[ry] != NA && dies_here(regs[ry])) { regs[ry] = NA; }
