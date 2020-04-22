@@ -55,13 +55,19 @@ public:
     // Click handling
     class Click {
     public:
+        Click() {}
+        Click(std::function<bool(Click*)> f) : fFunc(f), fHasFunc(true) {}
         virtual ~Click() = default;
+
         SkPoint     fOrig = {0, 0};
         SkPoint     fPrev = {0, 0};
         SkPoint     fCurr = {0, 0};
         skui::InputState  fState = skui::InputState::kDown;
         skui::ModifierKey fModifierKeys = skui::ModifierKey::kNone;
         SkMetaData  fMeta;
+
+        std::function<bool(Click*)> fFunc;
+        bool fHasFunc = false;
     };
     bool mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey modifierKeys);
 
