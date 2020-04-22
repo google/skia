@@ -140,7 +140,8 @@ public:
 
     // SkMatrixProvider interface:
     bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
-    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
+    const SkMatrix& localToDevice() const override { return fLocalToDevice33; }
+    const SkM44& localToDevice44() const override { return fLocalToDevice; }
 
     const SkMatrixProvider& asMatrixProvider() const { return *this; }
 
@@ -149,7 +150,7 @@ public:
         this->onRestore();
         this->setGlobalCTM(ctm);
     }
-    void restoreLocal(const SkMatrix& localToDevice) {
+    void restoreLocal(const SkM44& localToDevice) {
         this->onRestore();
         this->setLocalToDevice(localToDevice);
     }
@@ -179,8 +180,9 @@ public:
         return this->onClipIsWideOpen();
     }
 
-    void setLocalToDevice(const SkMatrix& localToDevice) {
+    void setLocalToDevice(const SkM44& localToDevice) {
         fLocalToDevice = localToDevice;
+        fLocalToDevice33 = fLocalToDevice.asM33();
     }
     void setGlobalCTM(const SkM44& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
@@ -412,11 +414,11 @@ private:
     // is anchored in the device space. The final device-to-global matrix stored by the SkDevice
     // will include a pre-translation by T(deviceOriginX, deviceOriginY), and the final
     // local-to-device matrix will have a post-translation of T(-deviceOriginX, -deviceOriginY).
-    void setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal, const SkMatrix& localToDevice,
+    void setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal, const SkM44& localToDevice,
                                    int bufferOriginX, int bufferOriginY);
     // Convenience to configure the device to be axis-aligned with the root canvas, but with a
     // unique origin.
-    void setOrigin(const SkMatrix& globalCTM, int x, int y) {
+    void setOrigin(const SkM44& globalCTM, int x, int y) {
         this->setDeviceCoordinateSystem(SkMatrix::I(), globalCTM, x, y);
     }
 
@@ -442,7 +444,9 @@ private:
     SkMatrix             fGlobalToDevice;
     // This is the device CTM, not the global CTM. This transform maps from local space to the
     // device's coordinate space; fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
-    SkMatrix             fLocalToDevice;
+    SkM44                fLocalToDevice;
+    // Cached SkMatrix version of above, for legacy usage
+    SkMatrix             fLocalToDevice33;
 
     typedef SkRefCnt INHERITED;
 };
@@ -457,13 +461,13 @@ public:
         // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
 
-        this->setOrigin(SkMatrix::I(), bounds.left(), bounds.top());
+        this->setOrigin(SkM44(), bounds.left(), bounds.top());
     }
 
     void resetForNextPicture(const SkIRect& bounds) {
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
         this->privateResize(bounds.width(), bounds.height());
-        this->setOrigin(SkMatrix::I(), bounds.left(), bounds.top());
+        this->setOrigin(SkM44(), bounds.left(), bounds.top());
     }
 
 protected:
@@ -510,15 +514,15 @@ public:
         : fDevice(device)
         , fPrevLocalToDevice(device->localToDevice())
     {
-        fDevice->setLocalToDevice(localToDevice);
+        fDevice->setLocalToDevice(SkM44(localToDevice));
     }
     ~SkAutoDeviceTransformRestore() {
         fDevice->setLocalToDevice(fPrevLocalToDevice);
     }
 
 private:
-    SkBaseDevice*   fDevice;
-    const SkMatrix  fPrevLocalToDevice;
+    SkBaseDevice* fDevice;
+    const SkM44   fPrevLocalToDevice;
 };
 
 #endif
