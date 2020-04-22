@@ -214,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "2f231731_00336b25",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-22T15:26:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a587c29_d5c0472b",
+      "range": {
+        "startLine": 82,
+        "startChar": 17,
+        "endLine": 82,
+        "endChar": 44
+      },
+      "revId": "4571d5535431ab8fd674315eada74775830b6e11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bd8574e_f4539a84",
         "filename": "src/gpu/d3d/GrD3DRootSignature.h",
         "patchSetId": 5
