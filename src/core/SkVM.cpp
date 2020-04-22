@@ -2875,9 +2875,13 @@ namespace skvm {
         }
 
         auto emit = [&](Val id, bool scalar) {
-            const auto [OP, X,Y,Z, immy,immz, death,can_hoist,used_in_loop] = instructions[id];
-            const Op op = OP;             // Can't close a lambda over local bindings directly.
-            const Val x = X, y = Y, z = Z;
+            const OptimizedInstruction& inst = instructions[id];
+            const Op op = inst.op;
+            const Val x = inst.x,
+                      y = inst.y,
+                      z = inst.z;
+            const int immy = inst.immy,
+                      immz = inst.immz;
 
             // alloc_tmp() returns a temporary register, freed manually with free_tmp().
             auto alloc_tmp = [&]() -> Reg {
