@@ -93,6 +93,54 @@
       "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c32d4a9_d109435e",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10573
+      },
+      "writtenOn": "2020-04-22T03:52:58Z",
+      "side": 1,
+      "message": "Yes it\u0027s not restricted to shuffle within 128-bit lanes as AVX2, but also not allowed to select from anywhere, some restrictions on the index as below:\n\nFOR j :\u003d 0 to 63\t\n        i :\u003d j*8\n\tIF b[i+7] \u003d\u003d 1\n\t\tdst[i+7:i] :\u003d 0\n\tELSE\n\t\tindex[5:0] :\u003d b[i+3:i] + (j \u0026 0x30)\n\t\tdst[i+7:i] :\u003d a[index*8+7:index*8]\n\tFI\nENDFOR\ndst[MAX:512] :\u003d 0",
+      "parentUuid": "69c9451a_392334ca",
+      "range": {
+        "startLine": 22,
+        "startChar": 32,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c61c3f74_dbeb3e13",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10573
+      },
+      "writtenOn": "2020-04-22T03:52:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7009d9e_4cf36df8",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 31
+      },
+      "revId": "bc713d037a9f02261174d4739ea89407e9637a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
