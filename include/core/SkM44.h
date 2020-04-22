@@ -318,6 +318,19 @@ public:
         return this->setConcat(*this, m);
     }
 
+    SkM44& postConcat(const SkM44& m) {
+        return this->setConcat(m, *this);
+    }
+
+    void normalizePerspective();
+
+    /** Returns true if all elements of the matrix are finite. Returns false if any
+        element is infinity, or NaN.
+
+        @return  true if matrix has only finite elements
+    */
+    bool isFinite() const { return SkScalarsAreFinite(fMat, 16); }
+
     /** If this is invertible, return that in inverse and return true. If it is
      *  not invertible, return false and leave the inverse parameter unchanged.
      */
@@ -361,7 +374,9 @@ public:
             src[SkMatrix::kMPersp0], src[SkMatrix::kMPersp1], 0, src[SkMatrix::kMPersp2])
     {}
 
-    SkM44& preTranslate(SkScalar x, SkScalar y);
+    SkM44& preTranslate(SkScalar x, SkScalar y, SkScalar z = 0);
+    SkM44& postTranslate(SkScalar x, SkScalar y, SkScalar z = 0);
+
     SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
