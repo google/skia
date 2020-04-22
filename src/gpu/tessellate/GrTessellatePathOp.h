@@ -53,13 +53,32 @@ private:
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override;
-    void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
-                      GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override;
     void onPrepare(GrOpFlushState* state) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
+    // Triangulates and writes the SkPath's inner polygon(s). The inner polygons connect the
+    // endpoints of each verb. (i.e., they are the path that would result from collapsing all curves
+    // to single lines.) Stencilled together with the outer cubics, these define the complete path.
+    //
+    // This method works by recursively subdividing the path rather than emitting a linear triangle
+    // fan or strip. This can reduce the load on the rasterizer by a great deal on complex paths.
+    bool prepareInnerTriangles(GrOpFlushState*, int* numCountedCurves);
+
+    // Writes an array of "outer" cubics from each bezier in the SkPath, converting any quadratics
+    // to cubics. An outer cubic is an independent, 4-point closed contour consisting of a single
+    // cubic curve. Stencilled together with the inner triangles, these define the complete path.
+    void prepareOuterCubics(GrOpFlushState* flushState, int numCountedCurves);
+
+    // Writes an array of cubic "wedges" from the SkPath, converting any lines or quadratics to
+    // cubics. A wedge is an independent, 5-point closed contour consisting of 4 cubic control
+    // points plus an anchor point fanning from the center of the curve's resident contour. Once
+    // stencilled, these wedges alone define the complete path.
+    //
+    // TODO: Eventually we want to use rational cubic wedges in order to support conics.
+    bool prepareCubicWedges(GrOpFlushState*);
+
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
     void drawStencilPass(GrOpFlushState*);
     void drawCoverPass(GrOpFlushState*);
 
