@@ -68,8 +68,7 @@ public:
     SkScalar iterateThroughSingleRunByStyles(const Run* run, SkScalar runOffset, TextRange textRange,
                                          StyleType styleType, const RunStyleVisitor& visitor) const;
 
-
-    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost)>;
+    using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign effectiveAlign, SkScalar maxWidth);
