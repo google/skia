@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67b79634_fb5e9668",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1613,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-22T15:15:57Z",
+      "side": 1,
+      "message": "Hey, why are we using a pool here at all?  To use a thread pool kind of indicates that the identity of the thread the work runs on is unimportant.  Are you sure you don\u0027t just want to start a std::thread?",
+      "range": {
+        "startLine": 1613,
+        "startChar": 6,
+        "endLine": 1613,
+        "endChar": 59
+      },
+      "revId": "9d5fac80a18e9d24a8c5dbe15181cab55604208f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
