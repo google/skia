@@ -23,6 +23,18 @@ class SkWStream;
     #define SKVM_LLVM
 #endif
 
+// JIT code isn't MSAN-instrumented, so we won't see when it uses
+// uninitialized memory, and we'll not see the writes it makes as properly
+// initializing memory.  Instead force the interpreter, which should let
+// MSAN see everything our programs do properly.
+//
+// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
+#if defined(__has_feature)
+    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
+        #undef SKVM_JIT
+    #endif
+#endif
+
 namespace skvm {
 
     bool fma_supported();
@@ -52,7 +64,7 @@ namespace skvm {
             x0 , x1 , x2 , x3 , x4 , x5 , x6 , x7 ,
             x8 , x9 , x10, x11, x12, x13, x14, x15,
             x16, x17, x18, x19, x20, x21, x22, x23,
-            x24, x25, x26, x27, x28, x29, x30, xzr,
+            x24, x25, x26, x27, x28, x29, x30, xzr, sp=xzr,
         };
         enum V {
             v0 , v1 , v2 , v3 , v4 , v5 , v6 , v7 ,
@@ -103,11 +115,6 @@ namespace skvm {
             Operand(Mem    m) : mem  (m), kind(MEM  ) {}
             Operand(Label* l) : label(l), kind(LABEL) {}
         };
-
-        void add(GP64, int imm);
-        void sub(GP64, int imm);
-
-        void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
 
         void vpand (Ymm dst, Ymm x, Operand y);
         void vpandn(Ymm dst, Ymm x, Operand y);
@@ -176,16 +183,6 @@ namespace skvm {
 
         void vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z);
 
-        Label here();
-        void label(Label*);
-
-        void jmp(Label*);
-        void je (Label*);
-        void jne(Label*);
-        void jl (Label*);
-        void jc (Label*);
-        void cmp(GP64, int imm);
-
         void vpshufb(Ymm dst, Ymm x, Operand y);
 
         void vptest(Ymm x, Operand y);
@@ -199,21 +196,57 @@ namespace skvm {
         void vmovd(Operand dst, Xmm src);  // dst = src,  32-bit
         void vmovd(Xmm dst, Operand src);  // dst = src,  32-bit
 
-        void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t  -> int
-        void movzwl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint16_t -> int
-        void movb  (GP64 ptr, GP64 src);           // *ptr = src, 8-bit
-
         void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
         void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
-        void vpextrw(Operand dst, Xmm src, int imm);         // dst = src[imm]           , 16-bit
-        void vpextrb(Operand dst, Xmm src, int imm);         // dst = src[imm]           ,  8-bit
+        void vextracti128(Operand dst, Ymm src, int imm);    // dst = src[imm], 128-bit
+        void vpextrd     (Operand dst, Xmm src, int imm);    // dst = src[imm],  32-bit
+        void vpextrw     (Operand dst, Xmm src, int imm);    // dst = src[imm],  16-bit
+        void vpextrb     (Operand dst, Xmm src, int imm);    // dst = src[imm],   8-bit
 
         // if (mask & 0x8000'0000) {
         //     dst = base[scale*ix];
         // }
         // mask = 0;
         void vgatherdps(Ymm dst, Scale scale, Ymm ix, GP64 base, Ymm mask);
+
+
+        Label here();
+        void label(Label*);
+
+        void jmp(Label*);
+        void je (Label*);
+        void jne(Label*);
+        void jl (Label*);
+        void jc (Label*);
+
+        void add (Operand dst, int imm);
+        void sub (Operand dst, int imm);
+        void cmp (Operand dst, int imm);
+        void mov (Operand dst, int imm);
+        void movb(Operand dst, int imm);
+
+        void add (Operand dst, GP64 x);
+        void sub (Operand dst, GP64 x);
+        void cmp (Operand dst, GP64 x);
+        void mov (Operand dst, GP64 x);
+        void movb(Operand dst, GP64 x);
+
+        void add (GP64 dst, Operand x);
+        void sub (GP64 dst, Operand x);
+        void cmp (GP64 dst, Operand x);
+        void mov (GP64 dst, Operand x);
+        void movb(GP64 dst, Operand x);
+
+        // Disambiguators... choice is arbitrary (but generates different code!).
+        void add (GP64 dst, GP64 x) { this->add (Operand(dst), x); }
+        void sub (GP64 dst, GP64 x) { this->sub (Operand(dst), x); }
+        void cmp (GP64 dst, GP64 x) { this->cmp (Operand(dst), x); }
+        void mov (GP64 dst, GP64 x) { this->mov (Operand(dst), x); }
+        void movb(GP64 dst, GP64 x) { this->movb(Operand(dst), x); }
+
+        void movzbq(GP64 dst, Operand x);  // dst = x, uint8_t  -> int
+        void movzwq(GP64 dst, Operand x);  // dst = x, uint16_t -> int
 
         // aarch64
 
@@ -279,13 +312,13 @@ namespace skvm {
 
         void ldrq(V dst, Label*);  // 128-bit PC-relative load
 
-        void ldrq(V dst, X src);  // 128-bit dst = *src
-        void ldrs(V dst, X src);  //  32-bit dst = *src
-        void ldrb(V dst, X src);  //   8-bit dst = *src
+        void ldrq(V dst, X src, int imm12=0);  // 128-bit dst = *(src+imm12*16)
+        void ldrs(V dst, X src, int imm12=0);  //  32-bit dst = *(src+imm12*4)
+        void ldrb(V dst, X src, int imm12=0);  //   8-bit dst = *(src+imm12)
 
-        void strq(V src, X dst);  // 128-bit *dst = src
-        void strs(V src, X dst);  //  32-bit *dst = src
-        void strb(V src, X dst);  //   8-bit *dst = src
+        void strq(V src, X dst, int imm12=0);  // 128-bit *(dst+imm12*16) = src
+        void strs(V src, X dst, int imm12=0);  //  32-bit *(dst+imm12*4)  = src
+        void strb(V src, X dst, int imm12=0);  //   8-bit *(dst+imm12)    = src
 
         void fmovs(X dst, V src); // dst = 32-bit src[0]
 
@@ -299,14 +332,16 @@ namespace skvm {
         enum W { W0, W1 };      // Are the lanes 64-bit (W1) or default (W0)?  Intel Vol 2A 2.3.5.5
         enum L { L128, L256 };  // Is this a 128- or 256-bit operation?        Intel Vol 2A 2.3.6.2
 
+        // Helpers for vector instructions.
         void op(int prefix, int map, int opcode, int dst, int x, Operand y, W,L);
-
         void op(int p, int m, int o, Ymm d, Ymm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L256); }
         void op(int p, int m, int o, Ymm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L256); }
         void op(int p, int m, int o, Xmm d, Xmm x, Operand y, W w=W0) { op(p,m,o, d,x,y,w,L128); }
         void op(int p, int m, int o, Xmm d,        Operand y, W w=W0) { op(p,m,o, d,0,y,w,L128); }
 
-        void op(int opcode, int opcode_ext, GP64 d, int imm);
+        // Helpers for GP64 instructions.
+        void op(int opcode, Operand dst, GP64 x);
+        void op(int opcode, int opcode_ext, Operand dst, int imm);
 
         void jump(uint8_t condition, Label*);
         int disp32(Label*);
@@ -317,10 +352,16 @@ namespace skvm {
         //    [11 bits hi] [5 bits m] [6 bits lo] [5 bits n] [5 bits d]
         void op(uint32_t hi, V m, uint32_t lo, V n, V d);
 
-        // 2-argument ops, with or without an immediate.
-        void op(uint32_t op22, int imm, V n, V d);
-        void op(uint32_t op22, V n, V d) { this->op(op22,0,   n,d); }
-        void op(uint32_t op22, X x, V v) { this->op(op22,0,(V)x,v); }
+        // 0,1,2-argument ops, with or without an immediate:
+        //    [ 22 bits op ] [5 bits n] [5 bits d]
+        // Any immediate falls in the middle somewhere overlapping with either op, n, or both.
+        void op(uint32_t op22, V n, V d, int imm=0);
+        void op(uint32_t op22, X n, V d, int imm=0) { this->op(op22,(V)n,   d,imm); }
+        void op(uint32_t op22, V n, X d, int imm=0) { this->op(op22,   n,(V)d,imm); }
+        void op(uint32_t op22, X n, X d, int imm=0) { this->op(op22,(V)n,(V)d,imm); }
+        void op(uint32_t op22,           int imm=0) { this->op(op22,(V)0,(V)0,imm); }
+        // (1-argument ops don't seem to have a consistent convention of passing as n or d.)
+
 
         // Order matters... value is 4-bit encoding for condition code.
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
@@ -494,7 +535,6 @@ namespace skvm {
 
         Val  death;
         bool can_hoist;
-        bool used_in_loop;
     };
 
     class Builder {
@@ -818,15 +858,7 @@ namespace skvm {
         void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
         void setupLLVM       (const std::vector<OptimizedInstruction>&, const char* debug_name);
 
-        enum class JITMode {
-            // Fastest but most fragile strategy: values in registers, loop-invariant work hoisted.
-            Register,
-            // Usually next best: values in registers, loop-invariant work not hoisted.
-            RegisterNoHoist,
-            // Backup plan: values on the stack, loop-invariant work hoisted.
-            Stack,
-        };
-        bool jit(const std::vector<OptimizedInstruction>&, JITMode, Assembler*) const;
+        bool jit(const std::vector<OptimizedInstruction>&, Assembler*) const;
 
         void waitForLLVM() const;
 

@@ -19,7 +19,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -473,24 +473,27 @@ static void create_vertices(const SegmentArray& segments,
                         color, skipUVs,
                         -segb.fNorms[0].dot(qpts[2]) + c0,
                         0.0f);
-
+            // We need a negative value that is very large that it won't effect results if it is
+            // interpolated with. However, the value can't be too large of a negative that it
+            // effects numerical precision on less powerful GPUs.
+            static const SkScalar kStableLargeNegativeValue = -SK_ScalarMax/1000000;
             verts.write(qpts[0] + segb.fNorms[0],
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        kStableLargeNegativeValue,
+                        kStableLargeNegativeValue);
 
             verts.write(qpts[2] + segb.fNorms[1],
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        kStableLargeNegativeValue,
+                        kStableLargeNegativeValue);
 
             SkVector midVec = segb.fNorms[0] + segb.fNorms[1];
             midVec.normalize();
 
             verts.write(qpts[1] + midVec,
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        kStableLargeNegativeValue,
+                        kStableLargeNegativeValue);
 
             GrPathUtils::QuadUVMatrix toUV(qpts);
             toUV.apply(quadVertsBegin, 6, vertexStride, uvOffset);

@@ -93,7 +93,8 @@ static void get_render_tests(SkQPAssetManager* mgr,
                              std::vector<SkQP::GMFactory>* gmlist,
                              std::unordered_map<std::string, int64_t>* gmThresholds) {
     // Runs all render tests if the |renderTests| file can't be found or is empty.
-    const char *renderTests = renderTestsIn ? renderTestsIn : kDefaultRenderTestsPath;
+    const char *renderTests = (renderTestsIn && renderTestsIn[0]) ?
+        renderTestsIn : kDefaultRenderTestsPath;
     auto insert = [gmThresholds](const char* s, size_t l) {
         SkASSERT(l > 1) ;
         if (l > 0 && s[l - 1] == '\n') {  // strip line endings.

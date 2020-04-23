@@ -64,14 +64,14 @@ static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
 class MarkedMatrices {
 public:
     // For each MarkerID required by 'info', fetch the value of that matrix from 'matrixProvider'
-    void gather(const SkVerticesPriv& info, const SkMarkedMatrixProvider* matrixProvider) {
+    void gather(const SkVerticesPriv& info, const SkMatrixProvider& matrixProvider) {
         for (int i = 0; i < info.attributeCount(); ++i) {
             if (SkCanvas::MarkerID id = info.attributes()[i].fMarkerID) {
                 if (std::none_of(fMatrices.begin(), fMatrices.end(),
                                  [id](const auto& m) { return m.first == id; })) {
                     SkM44 matrix;
                     // SkCanvas should guarantee that this succeeds
-                    SkAssertResult(matrixProvider->getLocalToMarker(id, &matrix));
+                    SkAssertResult(matrixProvider.getLocalToMarker(id, &matrix));
                     fMatrices.push_back({id, matrix});
                 }
             }
@@ -448,8 +448,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
-                   GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix,
-                   const SkRuntimeEffect*, const SkMarkedMatrixProvider* matrixProvider);
+                   GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrixProvider&,
+                   const SkRuntimeEffect*);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -543,11 +543,14 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
-                               sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
-                               GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
-                               const SkMatrix& viewMatrix, const SkRuntimeEffect* effect,
-                               const SkMarkedMatrixProvider* matrixProvider)
+DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,
+                               const SkPMColor4f& color,
+                               sk_sp<SkVertices> vertices,
+                               GrPrimitiveType primitiveType,
+                               GrAAType aaType,
+                               sk_sp<GrColorSpaceXform> colorSpaceXform,
+                               const SkMatrixProvider& matrixProvider,
+                               const SkRuntimeEffect* effect)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
         , fPrimitiveType(primitiveType)
@@ -567,7 +570,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
-    mesh.fViewMatrix = viewMatrix;
+    mesh.fViewMatrix = matrixProvider.localToDevice();
     mesh.fVertices = std::move(vertices);
     mesh.fIgnoreColors = false;
 
@@ -852,19 +855,18 @@ static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
-                                                 const SkMatrix& viewMatrix,
+                                                 const SkMatrixProvider& matrixProvider,
                                                  GrAAType aaType,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType,
-                                                 const SkRuntimeEffect* effect,
-                                                 const SkMarkedMatrixProvider* matrixProvider) {
+                                                 const SkRuntimeEffect* effect) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType
                                        : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(
             context, std::move(paint), std::move(vertices), primType, aaType,
-            std::move(colorSpaceXform), viewMatrix, effect, matrixProvider);
+            std::move(colorSpaceXform), matrixProvider, effect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -972,7 +974,7 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
                          hasIndices);
     }
 
-    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrix(random));
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(random);
 
@@ -985,8 +987,8 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), viewMatrix,
-                                  aaType, std::move(colorSpaceXform), &type, nullptr, nullptr);
+    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), matrixProvider,
+                                  aaType, std::move(colorSpaceXform), &type, nullptr);
 }
 
 #endif

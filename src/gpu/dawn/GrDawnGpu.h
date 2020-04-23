@@ -12,6 +12,7 @@
 
 #include "dawn/webgpu_cpp.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
@@ -85,7 +86,7 @@ public:
     void submit(GrOpsRenderPass*) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
-    bool waitFence(GrFence, uint64_t timeout) override;
+    bool waitFence(GrFence) override;
     void deleteFence(GrFence) const override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) override;
@@ -201,6 +202,8 @@ private:
 
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
     std::unordered_map<GrSamplerState, wgpu::Sampler, SamplerHash> fSamplers;
+
+    GrFinishCallbacks         fFinishCallbacks;
 
     typedef GrGpu INHERITED;
 };

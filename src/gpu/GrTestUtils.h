@@ -17,6 +17,7 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/GrSamplerState.h"
@@ -59,7 +60,7 @@ public:
     const GrFPArgs& args() const { return fArgs; }
 
 private:
-    SkMatrix fViewMatrixStorage;
+    SkSimpleMatrixProvider fMatrixProvider;
     std::unique_ptr<GrColorInfo> fColorInfoStorage;
     GrFPArgs fArgs;
 };

@@ -688,3 +688,160 @@ bool SkRRect::AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]) 
     return true;
 }
 ///////////////////////////////////////////////////////////////////////////////
+
+SkRect SkRRectPriv::InnerBounds(const SkRRect& rr) {
+    if (rr.isEmpty() || rr.isRect()) {
+        return rr.rect();
+    }
+
+    // We start with the outer bounds of the round rect and consider three subsets and take the
+    // one with maximum area. The first two are the horizontal and vertical rects inset from the
+    // corners, the third is the rect inscribed at the corner curves' maximal point. This forms
+    // the exact solution when all corners have the same radii (the radii do not have to be
+    // circular).
+    SkRect innerBounds = rr.getBounds();
+    SkVector tl = rr.radii(SkRRect::kUpperLeft_Corner);
+    SkVector tr = rr.radii(SkRRect::kUpperRight_Corner);
+    SkVector bl = rr.radii(SkRRect::kLowerLeft_Corner);
+    SkVector br = rr.radii(SkRRect::kLowerRight_Corner);
+
+    // Select maximum inset per edge, which may move an adjacent corner of the inscribed
+    // rectangle off of the rounded-rect path, but that is acceptable given that the general
+    // equation for inscribed area is non-trivial to evaluate.
+    SkScalar leftShift   = std::max(tl.fX, bl.fX);
+    SkScalar topShift    = std::max(tl.fY, tr.fY);
+    SkScalar rightShift  = std::max(tr.fX, br.fX);
+    SkScalar bottomShift = std::max(bl.fY, br.fY);
+
+    SkScalar dw = leftShift + rightShift;
+    SkScalar dh = topShift + bottomShift;
+
+    // Area removed by shifting left/right
+    SkScalar horizArea = (innerBounds.width() - dw) * innerBounds.height();
+    // And by shifting top/bottom
+    SkScalar vertArea = (innerBounds.height() - dh) * innerBounds.width();
+    // And by shifting all edges: just considering a corner ellipse, the maximum inscribed rect has
+    // a corner at sqrt(2)/2 * (rX, rY), so scale all corner shifts by (1 - sqrt(2)/2) to get the
+    // safe shift per edge (since the shifts already are the max radius for that edge).
+    // - We actually scale by a value slightly increased to make it so that the shifted corners are
+    //   safely inside the curves, otherwise numerical stability can cause it to fail contains().
+    static constexpr SkScalar kScale = (1.f - SK_ScalarRoot2Over2) + 1e-5f;
+    SkScalar innerArea = (innerBounds.width() - kScale * dw) * (innerBounds.height() - kScale * dh);
+
+    if (horizArea > vertArea && horizArea > innerArea) {
+        // Cut off corners by insetting left and right
+        innerBounds.fLeft += leftShift;
+        innerBounds.fRight -= rightShift;
+    } else if (vertArea > innerArea) {
+        // Cut off corners by insetting top and bottom
+        innerBounds.fTop += topShift;
+        innerBounds.fBottom -= bottomShift;
+    } else if (innerArea > 0.f) {
+        // Inset on all sides, scaled to touch
+        innerBounds.fLeft += kScale * leftShift;
+        innerBounds.fRight -= kScale * rightShift;
+        innerBounds.fTop += kScale * topShift;
+        innerBounds.fBottom -= kScale * bottomShift;
+    } else {
+        // Inner region would collapse to empty
+        return SkRect::MakeEmpty();
+    }
+
+    SkASSERT(innerBounds.isSorted() && !innerBounds.isEmpty());
+    SkASSERT(rr.contains(innerBounds));
+    return innerBounds;
+}
+
+SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
+    // Returns the coordinate of the rect matching the corner enum.
+    auto getCorner = [](const SkRect& r, SkRRect::Corner corner) -> SkPoint {
+        switch(corner) {
+            case SkRRect::kUpperLeft_Corner:  return {r.fLeft, r.fTop};
+            case SkRRect::kUpperRight_Corner: return {r.fRight, r.fTop};
+            case SkRRect::kLowerLeft_Corner:  return {r.fLeft, r.fBottom};
+            case SkRRect::kLowerRight_Corner: return {r.fRight, r.fBottom};
+            default: SkUNREACHABLE;
+        }
+    };
+    // Returns true if shape A's extreme point is contained within shape B's extreme point, relative
+    // to the 'corner' location. If the two shapes' corners have the same ellipse radii, this
+    // is sufficient for A's ellipse arc to be contained by B's ellipse arc.
+    auto insideCorner = [](SkRRect::Corner corner, const SkPoint& a, const SkPoint& b) {
+        switch(corner) {
+            case SkRRect::kUpperLeft_Corner:  return a.fX >= b.fX && a.fY >= b.fY;
+            case SkRRect::kUpperRight_Corner: return a.fX <= b.fX && a.fY >= b.fY;
+            case SkRRect::kLowerRight_Corner: return a.fX <= b.fX && a.fY <= b.fY;
+            case SkRRect::kLowerLeft_Corner:  return a.fX >= b.fX && a.fY <= b.fY;
+            default:  SkUNREACHABLE;
+        }
+    };
+
+    auto getIntersectionRadii = [&](const SkRect& r, SkRRect::Corner corner, SkVector* radii) {
+        SkPoint test = getCorner(r, corner);
+        SkPoint aCorner = getCorner(a.rect(), corner);
+        SkPoint bCorner = getCorner(b.rect(), corner);
+
+        if (test == aCorner) {
+            // Test that A's ellipse is contained by B. This is a non-trivial function to evaluate
+            // so we resrict it to when the corners have the same radii. If not, we use the more
+            // conservative test that the extreme point of A's bounding box is contained in B.
+            *radii = a.radii(corner);
+            if (*radii == b.radii(corner)) {
+                return insideCorner(corner, aCorner, bCorner); // A inside B
+            } else {
+                return b.checkCornerContainment(aCorner.fX, aCorner.fY);
+            }
+        } else if (test == bCorner) {
+            // Mirror of the above
+            *radii = b.radii(corner);
+            if (*radii == a.radii(corner)) {
+                return insideCorner(corner, bCorner, aCorner); // B inside A
+            } else {
+                return a.checkCornerContainment(bCorner.fX, bCorner.fY);
+            }
+        } else {
+            // This is a corner formed by two straight edges of A and B, so confirm that it is
+            // contained in both (if not, then the intersection can't be a round rect).
+            *radii = {0.f, 0.f};
+            return a.checkCornerContainment(test.fX, test.fY) &&
+                   b.checkCornerContainment(test.fX, test.fY);
+        }
+    };
+
+    SkRect edges;
+    if (!edges.intersect(a.rect(), b.rect())) {
+        // Definitely no intersection
+        return SkRRect::MakeEmpty();
+    }
+
+    const SkRRect::Corner corners[] = {
+        SkRRect::kUpperLeft_Corner,
+        SkRRect::kUpperRight_Corner,
+        SkRRect::kLowerRight_Corner,
+        SkRRect::kLowerLeft_Corner
+    };
+    // By definition, edges is contained in the bounds of 'a' and 'b', but now we need to consider
+    // the corners. If the bound's corner point is in both rrects, the corner radii will be 0s.
+    // If the bound's corner point matches a's edges and is inside 'b', we use a's radii.
+    // Same for b's radii. If any corner fails these conditions, we reject the intersection as an
+    // rrect. If after determining radii for all 4 corners, they would overlap, we also reject the
+    // intersection shape.
+    SkVector radii[4];
+    for (auto c : corners) {
+        if (!getIntersectionRadii(edges, c, &radii[c])) {
+            return SkRRect::MakeEmpty(); // Resulting intersection is not a rrect
+        }
+    }
+
+    // Check for radius overlap along the four edges, since the earlier evaluation was only a
+     // one-sided corner check.
+    if (!SkRRect::AreRectAndRadiiValid(edges, radii)) {
+        return SkRRect::MakeEmpty();
+    }
+
+    // The intersection is an rrect of the given radii. Potentially all 4 corners could have
+    // been simplified to (0,0) radii, making the intersection a rectangle.
+    SkRRect intersection;
+    intersection.setRectRadii(edges, radii);
+    return intersection;
+}

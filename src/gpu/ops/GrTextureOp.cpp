@@ -43,7 +43,7 @@
 
 namespace {
 
-using Domain = GrQuadPerEdgeAA::Domain;
+using Subset = GrQuadPerEdgeAA::Subset;
 using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 using ColorType = GrQuadPerEdgeAA::ColorType;
 
@@ -120,30 +120,30 @@ static NormalizationParams proxy_normalization_params(const GrSurfaceProxy* prox
     }
 }
 
-static SkRect inset_domain_for_bilerp(const NormalizationParams& params, const SkRect& domainRect) {
+static SkRect inset_subset_for_bilerp(const NormalizationParams& params, const SkRect& subsetRect) {
     // Normalized pixel size is also equal to iw and ih, so the insets for bilerp are just
-    // in those units and can be applied safely after normalization. However, if the domain is
+    // in those units and can be applied safely after normalization. However, if the subset is
     // smaller than a texel, it should clamp to the center of that axis.
-    float dw = domainRect.width() < params.fIW ? domainRect.width() : params.fIW;
-    float dh = domainRect.height() < params.fIH ? domainRect.height() : params.fIH;
-    return domainRect.makeInset(0.5f * dw, 0.5f * dh);
+    float dw = subsetRect.width() < params.fIW ? subsetRect.width() : params.fIW;
+    float dh = subsetRect.height() < params.fIH ? subsetRect.height() : params.fIH;
+    return subsetRect.makeInset(0.5f * dw, 0.5f * dh);
 }
 
-// Normalize the domain. If 'domainRect' is null, it is assumed no domain constraint is desired,
+// Normalize the subset. If 'subsetRect' is null, it is assumed no subset constraint is desired,
 // so a sufficiently large rect is returned even if the quad ends up batched with an op that uses
-// domains overall.
-static SkRect normalize_domain(GrSamplerState::Filter filter,
+// subsets overall.
+static SkRect normalize_subset(GrSamplerState::Filter filter,
                                const NormalizationParams& params,
-                               const SkRect* domainRect) {
+                               const SkRect* subsetRect) {
     static constexpr SkRect kLargeRect = {-100000, -100000, 1000000, 1000000};
-    if (!domainRect) {
-        // Either the quad has no domain constraint and is batched with a domain constrained op
-        // (in which case we want a domain that doesn't restrict normalized tex coords), or the
-        // entire op doesn't use the domain, in which case the returned value is ignored.
+    if (!subsetRect) {
+        // Either the quad has no subset constraint and is batched with a subset constrained op
+        // (in which case we want a subset that doesn't restrict normalized tex coords), or the
+        // entire op doesn't use the subset, in which case the returned value is ignored.
         return kLargeRect;
     }
 
-    auto ltrb = skvx::Vec<4, float>::Load(domainRect);
+    auto ltrb = skvx::Vec<4, float>::Load(subsetRect);
     // Normalize and offset
     ltrb = mad(ltrb, {params.fIW, params.fIH, params.fIW, params.fIH},
                {0.f, params.fYOffset, 0.f, params.fYOffset});
@@ -197,10 +197,10 @@ public:
                                           GrTextureOp::Saturate saturate,
                                           GrAAType aaType,
                                           DrawQuad* quad,
-                                          const SkRect* domain) {
+                                          const SkRect* subset) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<TextureOp>(std::move(proxyView), std::move(textureXform), filter,
-                                         color, saturate, aaType, quad, domain);
+                                         color, saturate, aaType, quad, subset);
     }
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
@@ -255,13 +255,13 @@ public:
             while(i < fViewCountPairs[p].fQuadCnt && iter.next()) {
                 const GrQuad* quad = iter.deviceQuad();
                 GrQuad uv = iter.isLocalValid() ? *(iter.localQuad()) : GrQuad();
-                const ColorDomainAndAA& info = iter.metadata();
+                const ColorSubsetAndAA& info = iter.metadata();
                 str.appendf(
-                        "%d: Color: 0x%08x, Domain(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
+                        "%d: Color: 0x%08x, Subset(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
                         "  UVs  [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n"
                         "  Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                        i, info.fColor.toBytes_RGBA(), fMetadata.fDomain, info.fDomainRect.fLeft,
-                        info.fDomainRect.fTop, info.fDomainRect.fRight, info.fDomainRect.fBottom,
+                        i, info.fColor.toBytes_RGBA(), fMetadata.fSubset, info.fSubsetRect.fLeft,
+                        info.fSubsetRect.fTop, info.fSubsetRect.fRight, info.fSubsetRect.fBottom,
                         quad->point(0).fX, quad->point(0).fY, quad->point(1).fX, quad->point(1).fY,
                         quad->point(2).fX, quad->point(2).fY, quad->point(3).fX, quad->point(3).fY,
                         uv.point(0).fX, uv.point(0).fY, uv.point(1).fX, uv.point(1).fY,
@@ -309,18 +309,18 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    struct ColorDomainAndAA {
-        ColorDomainAndAA(const SkPMColor4f& color, const SkRect& domainRect, GrQuadAAFlags aaFlags)
+    struct ColorSubsetAndAA {
+        ColorSubsetAndAA(const SkPMColor4f& color, const SkRect& subsetRect, GrQuadAAFlags aaFlags)
                 : fColor(color)
-                , fDomainRect(domainRect)
+                , fSubsetRect(subsetRect)
                 , fAAFlags(static_cast<uint16_t>(aaFlags)) {
             SkASSERT(fAAFlags == static_cast<uint16_t>(aaFlags));
         }
 
         SkPMColor4f fColor;
-        // If the op doesn't use domains, this is ignored. If the op uses domains and the specific
+        // If the op doesn't use subsets, this is ignored. If the op uses subsets and the specific
         // entry does not, this rect will equal kLargeRect, so it automatically has no effect.
-        SkRect fDomainRect;
+        SkRect fSubsetRect;
         unsigned fAAFlags : 4;
 
         GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
@@ -340,14 +340,14 @@ private:
     struct Metadata {
         // AAType must be filled after initialization; ColorType is determined in finalize()
         Metadata(const GrSwizzle& swizzle, GrSamplerState::Filter filter,
-                 GrQuadPerEdgeAA::Domain domain, GrTextureOp::Saturate saturate)
+                 GrQuadPerEdgeAA::Subset subset, GrTextureOp::Saturate saturate)
                 : fSwizzle(swizzle)
                 , fProxyCount(1)
                 , fTotalQuadCount(1)
                 , fFilter(static_cast<uint16_t>(filter))
                 , fAAType(static_cast<uint16_t>(GrAAType::kNone))
                 , fColorType(static_cast<uint16_t>(ColorType::kNone))
-                , fDomain(static_cast<uint16_t>(domain))
+                , fSubset(static_cast<uint16_t>(subset))
                 , fSaturate(static_cast<uint16_t>(saturate)) {}
 
         GrSwizzle fSwizzle; // sizeof(GrSwizzle) == uint16_t
@@ -359,7 +359,7 @@ private:
         uint16_t  fFilter     : 2; // GrSamplerState::Filter
         uint16_t  fAAType     : 2; // GrAAType
         uint16_t  fColorType  : 2; // GrQuadPerEdgeAA::ColorType
-        uint16_t  fDomain     : 1; // bool
+        uint16_t  fSubset     : 1; // bool
         uint16_t  fSaturate   : 1; // bool
         uint16_t  fUnused     : 8; // # of bits left before Metadata exceeds 8 bytes
 
@@ -368,7 +368,7 @@ private:
         }
         GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
         ColorType colorType() const { return static_cast<ColorType>(fColorType); }
-        Domain domain() const { return static_cast<Domain>(fDomain); }
+        Subset subset() const { return static_cast<Subset>(fSubset); }
         GrTextureOp::Saturate saturate() const {
             return static_cast<GrTextureOp::Saturate>(fSaturate);
         }
@@ -418,7 +418,7 @@ private:
 
     };
 
-    // If domainRect is not null it will be used to apply a strict src rect-style constraint.
+    // If subsetRect is not null it will be used to apply a strict src rect-style constraint.
     TextureOp(GrSurfaceProxyView proxyView,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
               GrSamplerState::Filter filter,
@@ -426,12 +426,12 @@ private:
               GrTextureOp::Saturate saturate,
               GrAAType aaType,
               DrawQuad* quad,
-              const SkRect* domainRect)
+              const SkRect* subsetRect)
             : INHERITED(ClassID())
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fDesc(nullptr)
-            , fMetadata(proxyView.swizzle(), filter, Domain(!!domainRect), saturate) {
+            , fMetadata(proxyView.swizzle(), filter, Subset(!!subsetRect), saturate) {
 
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
@@ -440,30 +440,30 @@ private:
         fMetadata.fAAType = static_cast<uint16_t>(aaType);
 
         // We expect our caller to have already caught this optimization.
-        SkASSERT(!domainRect ||
-                 !domainRect->contains(proxyView.proxy()->backingStoreBoundsRect()));
+        SkASSERT(!subsetRect ||
+                 !subsetRect->contains(proxyView.proxy()->backingStoreBoundsRect()));
 
         // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
         // If we don't have (or determined we don't need) coverage AA then we can skip using a
-        // domain.
-        if (domainRect && filter == GrSamplerState::Filter::kNearest &&
+        // subset.
+        if (subsetRect && filter == GrSamplerState::Filter::kNearest &&
             aaType != GrAAType::kCoverage) {
-            domainRect = nullptr;
-            fMetadata.fDomain = static_cast<uint16_t>(Domain::kNo);
+            subsetRect = nullptr;
+            fMetadata.fSubset = static_cast<uint16_t>(Subset::kNo);
         }
 
-        // Normalize src coordinates and the domain (if set)
+        // Normalize src coordinates and the subset (if set)
         NormalizationParams params = proxy_normalization_params(proxyView.proxy(),
                                                                 proxyView.origin());
         normalize_src_quad(params, &quad->fLocal);
-        SkRect domain = normalize_domain(filter, params, domainRect);
+        SkRect subset = normalize_subset(filter, params, subsetRect);
 
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsHairline::kNo);
 
-        int quadCount = this->appendQuad(quad, color, domain);
+        int quadCount = this->appendQuad(quad, color, subset);
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
@@ -481,7 +481,7 @@ private:
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fDesc(nullptr)
             , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
-                        Domain::kNo, saturate) {
+                        Subset::kNo, saturate) {
         // Update counts to reflect the batch op
         fMetadata.fProxyCount = SkToUInt(proxyRunCnt);
         fMetadata.fTotalQuadCount = SkToUInt(cnt);
@@ -489,7 +489,7 @@ private:
         SkRect bounds = SkRectPriv::MakeLargestInverted();
 
         GrAAType netAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
-        Domain netDomain = Domain::kNo;
+        Subset netSubset = Subset::kNo;
         GrSamplerState::Filter netFilter = GrSamplerState::Filter::kNearest;
 
         const GrSurfaceProxy* curProxy = nullptr;
@@ -561,7 +561,7 @@ private:
             }
 
             // Calculate metadata for the entry
-            const SkRect* domainForQuad = nullptr;
+            const SkRect* subsetForQuad = nullptr;
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
                 if (!set[q].fSrcRect.contains(curProxy->backingStoreBoundsRect()) &&
@@ -570,20 +570,20 @@ private:
                     // Can't rely on hardware clamping and the draw will access outer texels
                     // for AA and/or bilerp. Unlike filter quality, this op still has per-quad
                     // control over AA so that can check aaForQuad, not netAAType.
-                    netDomain = Domain::kYes;
-                    domainForQuad = &set[q].fSrcRect;
+                    netSubset = Subset::kYes;
+                    subsetForQuad = &set[q].fSrcRect;
                 }
             }
-            // This domain may represent a no-op, otherwise it will have the origin and dimensions
+            // This subset may represent a no-op, otherwise it will have the origin and dimensions
             // of the texture applied to it. Insetting for bilinear filtering is deferred until
             // on[Pre]Prepare so that the overall filter can be lazily determined.
-            SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
+            SkRect subset = normalize_subset(filter, proxyParams, subsetForQuad);
 
             // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
             // ViewCountPair (this frequently happens when Chrome draws 9-patches).
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
             fViewCountPairs[p].fQuadCnt += this->appendQuad(
-                    &quad, {alpha, alpha, alpha, alpha}, domain);
+                    &quad, {alpha, alpha, alpha, alpha}, subset);
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
@@ -592,12 +592,12 @@ private:
 
         fMetadata.fAAType = static_cast<uint16_t>(netAAType);
         fMetadata.fFilter = static_cast<uint16_t>(netFilter);
-        fMetadata.fDomain = static_cast<uint16_t>(netDomain);
+        fMetadata.fSubset = static_cast<uint16_t>(netSubset);
 
         this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
     }
 
-    int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& domain) {
+    int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& subset) {
         DrawQuad extra;
         // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
         // no inset/outset math that requires w > 0.
@@ -609,9 +609,9 @@ private:
             quad->fEdgeFlags = GrQuadAAFlags::kNone;
             quadCount = 1;
         }
-        fQuads.append(quad->fDevice, {color, domain, quad->fEdgeFlags},  &quad->fLocal);
+        fQuads.append(quad->fDevice, {color, subset, quad->fEdgeFlags},  &quad->fLocal);
         if (quadCount > 1) {
-            fQuads.append(extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
+            fQuads.append(extra.fDevice, {color, subset, extra.fEdgeFlags}, &extra.fLocal);
             fMetadata.fTotalQuadCount++;
         }
         return quadCount;
@@ -698,11 +698,11 @@ private:
 
                 for (int i = 0; i < quadCnt && iter.next(); ++i) {
                     SkASSERT(iter.isLocalValid());
-                    const ColorDomainAndAA& info = iter.metadata();
+                    const ColorSubsetAndAA& info = iter.metadata();
 
                     tessellator.append(iter.deviceQuad(), iter.localQuad(), info.fColor,
-                                       inset ? inset_domain_for_bilerp(params, info.fDomainRect)
-                                             : info.fDomainRect,
+                                       inset ? inset_subset_for_bilerp(params, info.fSubsetRect)
+                                             : info.fSubsetRect,
                                        info.aaFlags());
                 }
 
@@ -763,7 +763,7 @@ private:
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
-        Domain domain = Domain::kNo;
+        Subset subset = Subset::kNo;
         GrAAType overallAAType = fMetadata.aaType();
 
         desc->fNumProxies = 0;
@@ -777,8 +777,8 @@ private:
             if (op.fQuads.localQuadType() > srcQuadType) {
                 srcQuadType = op.fQuads.localQuadType();
             }
-            if (op.fMetadata.domain() == Domain::kYes) {
-                domain = Domain::kYes;
+            if (op.fMetadata.subset() == Subset::kYes) {
+                subset = Subset::kYes;
             }
             colorType = std::max(colorType, op.fMetadata.colorType());
             desc->fNumProxies += op.fMetadata.fProxyCount;
@@ -801,7 +801,7 @@ private:
                                                                         maxQuadsPerMesh);
 
         desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
-                                       domain, overallAAType, /* alpha as coverage */ true,
+                                       subset, overallAAType, /* alpha as coverage */ true,
                                        indexBufferOption);
 
         SkASSERT(desc->fNumTotalQuads <= GrQuadPerEdgeAA::QuadLimit(indexBufferOption));
@@ -922,8 +922,8 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        if (fMetadata.domain() != that->fMetadata.domain()) {
-            // It is technically possible to combine operations across domain modes, but performance
+        if (fMetadata.subset() != that->fMetadata.subset()) {
+            // It is technically possible to combine operations across subset modes, but performance
             // testing suggests it's better to make more draw calls where some take advantage of
             // the more optimal shader path without coordinate clamping.
             return CombineResult::kCannotCombine;
@@ -967,7 +967,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fMetadata.fDomain |= that->fMetadata.fDomain;
+        fMetadata.fSubset |= that->fMetadata.fSubset;
         fMetadata.fColorType = std::max(fMetadata.fColorType, that->fMetadata.fColorType);
         if (upgradeToCoverageAAOnMerge) {
             fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
@@ -981,7 +981,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrQuadBuffer<ColorDomainAndAA> fQuads;
+    GrQuadBuffer<ColorSubsetAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     // Most state of TextureOp is packed into these two field to minimize the op's size.
     // Historically, increasing the size of TextureOp has caused surprising perf regressions, so
@@ -1015,11 +1015,11 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
                                             SkBlendMode blendMode,
                                             GrAAType aaType,
                                             DrawQuad* quad,
-                                            const SkRect* domain) {
+                                            const SkRect* subset) {
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
-    if (domain && domain->contains(proxyView.proxy()->backingStoreBoundsRect())) {
-        // No need for a shader-based domain if hardware clamping achieves the same effect
-        domain = nullptr;
+    if (subset && subset->contains(proxyView.proxy()->backingStoreBoundsRect())) {
+        // No need for a shader-based subset if hardware clamping achieves the same effect
+        subset = nullptr;
     }
 
     if (filter != GrSamplerState::Filter::kNearest &&
@@ -1029,7 +1029,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 
     if (blendMode == SkBlendMode::kSrcOver) {
         return TextureOp::Make(context, std::move(proxyView), std::move(textureXform), filter,
-                               color, saturate, aaType, std::move(quad), domain);
+                               color, saturate, aaType, std::move(quad), subset);
     } else {
         // Emulate complex blending using GrFillRectOp
         GrPaint paint;
@@ -1037,15 +1037,15 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
         std::unique_ptr<GrFragmentProcessor> fp;
-        if (domain) {
+        if (subset) {
             const auto& caps = *context->priv().caps();
             SkRect localRect;
             if (quad->fLocal.asRect(&localRect)) {
                 fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(), filter,
-                                                 *domain, localRect, caps);
+                                                 *subset, localRect, caps);
             } else {
                 fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(), filter,
-                                                 *domain, caps);
+                                                 *subset, caps);
             }
         } else {
             fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
@@ -1160,12 +1160,12 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
                 quad.fLocal = GrQuad(set[i].fSrcRect);
             }
 
-            const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
+            const SkRect* subset = constraint == SkCanvas::kStrict_SrcRectConstraint
                     ? &set[i].fSrcRect : nullptr;
 
             auto op = Make(context, set[i].fProxyView, set[i].fSrcAlphaType, textureColorSpaceXform,
                            filter, {alpha, alpha, alpha, alpha}, saturate, blendMode, aaType,
-                           &quad, domain);
+                           &quad, subset);
             rtc->addDrawOp(clip, std::move(op));
         }
         return;
@@ -1290,7 +1290,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kTop : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
-    bool useDomain = random->nextBool();
+    bool useSubset = random->nextBool();
     auto saturate = random->nextBool() ? GrTextureOp::Saturate::kYes : GrTextureOp::Saturate::kNo;
     GrSurfaceProxyView proxyView(
             std::move(proxy), origin,
@@ -1301,7 +1301,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect), aaFlags};
     return GrTextureOp::Make(context, std::move(proxyView), alphaType, std::move(texXform), filter,
                              color, saturate, SkBlendMode::kSrcOver, aaType,
-                             &quad, useDomain ? &srcRect : nullptr);
+                             &quad, useSubset ? &srcRect : nullptr);
 }
 
 #endif

@@ -25,6 +25,8 @@ enum class SkSVGAttribute {
     kFillRule,
     kFontFamily,
     kFontSize,
+    kFontStyle,
+    kFontWeight,
     kFx, // <radialGradient>: focal point x position
     kFy, // <radialGradient>: focal point y position
     kGradientTransform,

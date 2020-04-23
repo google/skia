@@ -104,7 +104,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new BlockInputFragmentProcessor(std::move(fp)));
     }
 
-    const char* name() const override { return "Block Input"; }
+    const char* name() const override { return "Block_Input"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
@@ -367,9 +367,12 @@ static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
             maxStages = 3;
 #endif
         }
-        if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
-            ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
-            // On Angle D3D we will hit a limit of out variables if we use too many stages.
+        // On Angle D3D we will hit a limit of out variables if we use too many stages. This is
+        // particularly true on D3D9 with a low limit on varyings and the fact that every varying is
+        // packed as though it has 4 components.
+        if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType) {
+            maxStages = 2;
+        } else if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
             maxStages = 3;
         }
     }

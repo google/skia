@@ -52,7 +52,7 @@
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrClearStencilClipOp.h"
@@ -85,20 +85,25 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawShape(const GrClip& clip, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, const GrShape& shape) override {
+    void drawShape(const GrClip& clip,
+                   const SkPaint& paint,
+                   const SkMatrixProvider& matrixProvider,
+                   const GrStyledShape& shape) override {
         GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                             clip, paint, viewMatrix, shape);
+                                             clip, paint, matrixProvider, shape);
     }
 
-    void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
+    void makeGrPaint(GrMaskFormat maskFormat,
+                     const SkPaint& skPaint,
+                     const SkMatrixProvider& matrixProvider,
                      GrPaint* grPaint) override {
         auto context = fRenderTargetContext->fContext;
         const GrColorInfo& colorInfo = fRenderTargetContext->colorInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
-            SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, grPaint);
+            SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, matrixProvider,
+                                               grPaint);
         } else {
-            SkPaintToGrPaint(context, colorInfo, skPaint, viewMatrix, grPaint);
+            SkPaintToGrPaint(context, colorInfo, skPaint, matrixProvider, grPaint);
         }
     }
 
@@ -376,6 +381,9 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask) {
+    if (fOpsTask) {
+        fOpsTask->setClosedObserver(this);
+    }
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
     SkASSERT(this->origin() == fWriteView.origin());
 
@@ -393,6 +401,9 @@ void GrRenderTargetContext::onValidate() const {
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
+    if (fOpsTask) {
+        fOpsTask->setClosedObserver(nullptr);
+    }
 }
 
 inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
@@ -418,7 +429,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpsTask || fOpsTask->isClosed()) {
+    if (!fOpsTask) {
         sk_sp<GrOpsTask> newOpsTask =
                 this->drawingManager()->newOpsTask(this->writeSurfaceView(), fManagedOpsTask);
         if (fOpsTask && fNumStencilSamples > 0) {
@@ -429,15 +440,16 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
             // values?
             newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
         }
+        newOpsTask->setClosedObserver(this);
         fOpsTask = std::move(newOpsTask);
     }
-
+    SkASSERT(!fOpsTask->isClosed());
     return fOpsTask.get();
 }
 
-void GrRenderTargetContext::drawGlyphRunList(
-        const GrClip& clip, const SkMatrix& viewMatrix,
-        const SkGlyphRunList& blob) {
+void GrRenderTargetContext::drawGlyphRunList(const GrClip& clip,
+                                             const SkMatrixProvider& matrixProvider,
+                                             const SkGlyphRunList& blob) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -451,7 +463,7 @@ void GrRenderTargetContext::drawGlyphRunList(
     }
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
-    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
+    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, matrixProvider,
                                        fSurfaceProps, blob);
 }
 
@@ -817,7 +829,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
                                              SkBlendMode blendMode,
                                              GrAA aa,
                                              DrawQuad* quad,
-                                             const SkRect* domain) {
+                                             const SkRect* subset) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -839,12 +851,12 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
-        // Use the provided domain, although hypothetically we could detect that the cropped local
-        // quad is sufficiently inside the domain and the constraint could be dropped.
+        // Use the provided subset, although hypothetically we could detect that the cropped local
+        // quad is sufficiently inside the subset and the constraint could be dropped.
         this->addDrawOp(finalClip,
                         GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
                                           std::move(textureXform), filter, color, saturate,
-                                          blendMode, aaType, quad, domain));
+                                          blendMode, aaType, quad, subset));
     }
 }
 
@@ -877,7 +889,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         if ((!rect.width() || !rect.height()) &&
             SkStrokeRec::kHairline_Style != stroke.getStyle()) {
             SkScalar r = stroke.getWidth() / 2;
-            // TODO: Move these stroke->fill fallbacks to GrShape?
+            // TODO: Move these stroke->fill fallbacks to GrStyledShape?
             switch (stroke.getJoin()) {
                 case SkPaint::kMiter_Join:
                     this->drawRect(
@@ -919,7 +931,8 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
     }
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(rect, *style));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
+                                     GrStyledShape(rect, *style));
 }
 
 void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa,
@@ -1080,11 +1093,10 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, TextureSetEntry s
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPaint&& paint,
-                                         const SkMatrix& viewMatrix,
+                                         const SkMatrixProvider& matrixProvider,
                                          sk_sp<SkVertices> vertices,
                                          GrPrimitiveType* overridePrimType,
-                                         const SkRuntimeEffect* effect,
-                                         const SkMarkedMatrixProvider* matrixProvider) {
+                                         const SkRuntimeEffect* effect) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1095,9 +1107,9 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     SkASSERT(vertices);
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op =
-            GrDrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), viewMatrix,
+            GrDrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
                                    aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
-                                   overridePrimType, effect, matrixProvider);
+                                   overridePrimType, effect);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1188,7 +1200,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(*clip, std::move(paint), aa, viewMatrix,
-                                     GrShape(rrect, style));
+                                     GrStyledShape(rrect, style));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1510,7 +1522,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     path.addRRect(inner);
     path.addRRect(outer);
     path.setFillType(SkPathFillType::kEvenOdd);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(path));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1609,7 +1621,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
-            GrShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
+            GrStyledShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,
@@ -1648,7 +1660,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     }
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
-            GrShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
+            GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
 }
 
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
@@ -2227,7 +2239,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPath", fContext);
 
-    GrShape shape(path, style);
+    GrStyledShape shape(path, style);
 
     this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
 }
@@ -2236,7 +2248,7 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
                                       GrPaint&& paint,
                                       GrAA aa,
                                       const SkMatrix& viewMatrix,
-                                      const GrShape& shape) {
+                                      const GrStyledShape& shape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -2323,7 +2335,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     clip.getConservativeBounds(fRenderTargetContext->width(), fRenderTargetContext->height(),
                                &clipConservativeBounds, nullptr);
 
-    GrShape shape(path, GrStyle::SimpleFill());
+    GrStyledShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->caps();
     canDrawArgs.fProxy = fRenderTargetContext->asRenderTargetProxy();
@@ -2375,7 +2387,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                        GrPaint&& paint,
                                                        GrAA aa,
                                                        const SkMatrix& viewMatrix,
-                                                       const GrShape& originalShape) {
+                                                       const GrStyledShape& originalShape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
@@ -2387,7 +2399,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
-    GrShape tempShape;
+    GrStyledShape tempShape;
     GrAAType aaType = this->chooseAAType(aa);
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
@@ -2432,6 +2444,9 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
             pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
         } else {
             pr = this->drawingManager()->getSoftwarePathRenderer();
+#if GR_PATH_RENDERER_SPEW
+            SkDebugf("falling back to: %s\n", pr->name());
+#endif
         }
     }
 
@@ -2645,4 +2660,9 @@ bool GrRenderTargetContext::blitTexture(GrSurfaceProxyView view, const SkIRect& 
                              clippedSrcRect.height()),
             SkRect::Make(clippedSrcRect));
     return true;
+}
+
+void GrRenderTargetContext::wasClosed(const GrOpsTask& task) {
+    SkASSERT(&task == fOpsTask.get());
+    fOpsTask.reset();
 }

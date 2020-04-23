@@ -271,10 +271,12 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
     return filteredColor.premul();
 }
 
-void GrTextContext::drawGlyphRunList(
-        GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
-        const SkMatrix& drawMatrix, const SkSurfaceProps& props,
-        const SkGlyphRunList& glyphRunList) const {
+void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
+                                     GrTextTarget* target,
+                                     const GrClip& clip,
+                                     const SkMatrixProvider& matrixProvider,
+                                     const SkSurfaceProps& props,
+                                     const SkGlyphRunList& glyphRunList) const {
     auto contextPriv = context->priv();
     // If we have been abandoned, then don't draw
     if (contextPriv.abandoned()) {
@@ -327,6 +329,7 @@ void GrTextContext::drawGlyphRunList(
     bool forceW = fOptions.fDistanceFieldVerticesAlwaysHaveW;
     bool supportsSDFT = context->priv().caps()->shaderCaps()->supportsDistanceFieldText();
     SkGlyphRunListPainter* painter = target->glyphPainter();
+    const SkMatrix& drawMatrix(matrixProvider.localToDevice());
     if (cachedBlob) {
         if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
                                        blurRec, drawMatrix, drawOrigin)) {
@@ -354,7 +357,7 @@ void GrTextContext::drawGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
-    cachedBlob->flush(target, props, blobPaint, drawingColor, clip, drawMatrix, drawOrigin);
+    cachedBlob->flush(target, props, blobPaint, drawingColor, clip, matrixProvider, drawOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -367,7 +370,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                                                               GrRenderTargetContext* rtc,
                                                               const SkPaint& skPaint,
                                                               const SkFont& font,
-                                                              const SkMatrix& drawMatrix,
+                                                              const SkMatrixProvider& mtxProvider,
                                                               const char* text,
                                                               int x,
                                                               int y) {
@@ -382,6 +385,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
 
     SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorInfo());
     GrColor color = filteredColor.toBytes_RGBA();
+    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
 
     auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
@@ -398,7 +402,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    return blob->test_makeOp(textLen, drawMatrix, drawOrigin, skPaint, filteredColor, surfaceProps,
+    return blob->test_makeOp(textLen, mtxProvider, drawOrigin, skPaint, filteredColor, surfaceProps,
                              rtc->textTarget());
 }
 

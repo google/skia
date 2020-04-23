@@ -20,6 +20,9 @@ struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
+#if GR_TEST_UTILS
+struct IDXGraphicsAnalysis;
+#endif
 
 class GrD3DGpu : public GrGpu {
 public:
@@ -50,6 +53,9 @@ public:
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override;
+
+    void testingOnly_startCapture() override;
+    void testingOnly_endCapture() override;
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
@@ -61,8 +67,12 @@ public:
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
+    void addResourceBarriers(const GrManagedResource* resource,
+                             int numBarriers,
+                             D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence, uint64_t) override { return true; }
+    bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) const override {}
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
@@ -85,6 +95,11 @@ public:
     void checkFinishProcs() override {}
 
 private:
+    enum class SyncQueue {
+        kForce,
+        kSkip
+    };
+
     GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
 
     void destroyResources();
@@ -130,16 +145,12 @@ private:
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
-                      size_t rowBytes) override {
-        return true;
-    }
+                      size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                        GrColorType surfaceColorType, GrColorType srcColorType,
                        const GrMipLevel texels[], int mipLevelCount,
-                       bool prepForTexSampling) override {
-        return true;
-    }
+                       bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                             GrColorType surfaceColorType, GrColorType bufferColorType,
@@ -167,9 +178,7 @@ private:
         finishedProc(finishedContext);
     }
 
-    bool onSubmitToGpu(bool syncCpu) override {
-        return true;
-    }
+    bool onSubmitToGpu(bool syncCpu) override;
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
@@ -183,9 +192,13 @@ private:
                                                       GrProtected,
                                                       const BackendTextureData*) override;
 
-    void submitDirectCommandList();
+    bool submitDirectCommandList(SyncQueue sync);
 
     void checkForFinishedCommandLists();
+    void waitForQueueCompletion();
+
+    bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
+                         GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);
 
     bool createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                 SkISize dimensions,
@@ -218,6 +231,10 @@ private:
     SkDeque fOutstandingCommandLists;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
+
+#if GR_TEST_UTILS
+    IDXGraphicsAnalysis* fGraphicsAnalysis;
+#endif
 
     typedef GrGpu INHERITED;
 };
