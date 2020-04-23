@@ -16,6 +16,24 @@
       "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf351a02_673f1059",
+        "filename": "tools/flags/CommonFlagsGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-23T16:33:11Z",
+      "side": 1,
+      "message": "So prepending a bool flag with \"no\" assigns \"!defaultValue\"?\n\nWhat should happen if we make that change and then somebody says \"--GS\u003dtrue\" on a device that doesn\u0027t support geometry shaders? It seems we would have to ignore the \"--GS\u003dtrue\" flag, right? I wonder if in this case that might be more misleading than if we leave it named \"noGS\".",
+      "parentUuid": "dd30ca8e_14dbcc83",
+      "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
