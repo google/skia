@@ -18,6 +18,10 @@ class GrProgramInfo;
 class GrD3DPipelineState {
 public:
     static std::unique_ptr<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
+                                                    gr_cp<ID3D12RootSignature> rootSig,
+                                                    gr_cp<ID3DBlob> vertexShader,
+                                                    gr_cp<ID3DBlob> geometryShader,
+                                                    gr_cp<ID3DBlob> pixelShader,
                                                     DXGI_FORMAT renderTargetFormat,
                                                     DXGI_FORMAT depthStencilFormat,
                                                     unsigned int sampleQualityLevel);

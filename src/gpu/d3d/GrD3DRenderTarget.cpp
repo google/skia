@@ -158,3 +158,11 @@ GrD3DGpu* GrD3DRenderTarget::getD3DGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrD3DGpu*>(this->getGpu());
 }
+
+DXGI_FORMAT GrD3DRenderTarget::stencilDxgiFormat() const {
+    if (auto stencil = this->renderTargetPriv().getStencilAttachment()) {
+        auto d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
+        return d3dStencil->dxgiFormat();
+    }
+    return DXGI_FORMAT_UNKNOWN;
+}
