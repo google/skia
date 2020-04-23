@@ -345,6 +345,7 @@ namespace skvm {
 
         void jump(uint8_t condition, Label*);
         int disp32(Label*);
+        void imm_byte_after_operand(const Operand&, int byte);
 
         // aarch64
 
