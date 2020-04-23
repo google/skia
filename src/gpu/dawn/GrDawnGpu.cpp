@@ -678,9 +678,6 @@ wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     desc.addressModeW = wgpu::AddressMode::ClampToEdge;
     desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
     desc.mipmapFilter = wgpu::FilterMode::Linear;
-    desc.lodMinClamp = 0.0f;
-    desc.lodMaxClamp = 1000.0f;
-    desc.compare = wgpu::CompareFunction::Never;
     wgpu::Sampler sampler = device().CreateSampler(&desc);
     fSamplers.insert(std::pair<GrSamplerState, wgpu::Sampler>(samplerState, sampler));
     return sampler;
