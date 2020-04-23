@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkottieKit Demo</title>
+
+  <script type="text/javascript" src="/bin/skottiekit.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+    // loadKit resolves with SkottieKit.
+    const loadKit = SkottieKitInit({
+      locateFile: (file) => '/bin/'+file,
+    }).ready();
+
+    const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((resp) => {
+      return resp.text();
+    });
+
+    Promise.all([loadKit, loadLegoJSON]).then((values) => {
+      const [SkottieKit, legoJSON] = values;
+      const animation = SkottieKit.MakeManagedAnimation(legoJSON);
+      const duration = animation.duration() * 1000;
+      const size = animation.size();
+
+      const bounds = {fLeft: 0, fTop: 0, fRight: 400, fBottom: 400};
+
+      const surface = SkottieKit.MakeCanvasSurface('legos');
+      if (!surface) {
+        console.error('Could not make surface');
+        return;
+      }
+
+      const firstFrame = Date.now();
+
+      function drawFrame(canvas) {
+        const seek = ((Date.now() - firstFrame) / duration) % 1.0;
+        const damage = animation.seek(seek);
+
+        if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+          canvas.clear(SkottieKit.WHITE);
+          animation.render(canvas, bounds);
+        }
+        surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+    });
+  </script>
+
+  <style>
+    canvas {
+      border: 1px dashed #AAA;
+    }
+  </style>
+
+</head>
+<body>
+  <h1> SkottieKit</h1>
+
+  <canvas id=legos width=400 height=400></canvas>
+
+</body>
+</html>
