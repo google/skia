@@ -2828,6 +2828,8 @@ namespace skvm {
         constexpr Val RES = NA-1,
                       TMP = RES-1;
 
+        std::vector<bool> on_stack(instructions.size(), false);
+
     #if defined(__x86_64__)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
@@ -2845,8 +2847,14 @@ namespace skvm {
             NA,NA,NA,NA, NA,NA,NA,NA,
         };
 
-        auto load_from_stack = [&](Reg r, Val id) { a->vmovups(r, A::Mem{A::rsp, id*K*4}); };
-        auto store_to_stack  = [&](Reg r, Val id) { a->vmovups(A::Mem{A::rsp, id*K*4}, r); };
+        auto load_from_stack = [&](Reg r, Val id) {
+            SkASSERT(on_stack[id]);
+            a->vmovups(r, A::Mem{A::rsp, id*K*4});
+        };
+        auto store_to_stack  = [&](Reg r, Val id) {
+            on_stack[id] = true;
+            a->vmovups(A::Mem{A::rsp, id*K*4}, r);
+        };
     #elif defined(__aarch64__)
         const int K = 4;
         const A::X N     = A::x0,
@@ -2862,15 +2870,19 @@ namespace skvm {
              NA, NA, NA, NA,  NA, NA, NA, NA,
         };
 
-        auto load_from_stack = [&](Reg r, Val id) { a->ldrq(r, A::sp, id); };
-        auto store_to_stack  = [&](Reg r, Val id) { a->strq(r, A::sp, id); };
+        auto load_from_stack = [&](Reg r, Val id) {
+            SkASSERT(on_stack[id]);
+            a->ldrq(r, A::sp, id);
+        };
+        auto store_to_stack  = [&](Reg r, Val id) {
+            on_stack[id] = true;
+            a->strq(r, A::sp, id);
+        };
     #endif
 
         if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
             return false;
         }
-
-        std::vector<bool> on_stack(instructions.size(), false);
 
         auto emit = [&](Val id, bool scalar) {
             const OptimizedInstruction& inst = instructions[id];
@@ -2912,7 +2924,6 @@ namespace skvm {
                 if (v >= 0) {
                     if (!on_stack[v]) {
                         store_to_stack(r, v);
-                        on_stack[v] = true;
                     }
                     v = NA;
                 }
@@ -3469,7 +3480,7 @@ namespace skvm {
         // This point marks a kind of canonical fixed point for register contents: if loop
         // code is generated as if these registers are holding these values, the next time
         // the loop comes around we'd better find those same registers holding those same values.
-        auto restore_incoming_regs = [&,incoming=regs]{
+        auto restore_incoming_regs = [&,incoming=regs,saved_on_stack=on_stack]{
             for (int r = 0; r < (int)regs.size(); r++) {
                 if (regs[r] != incoming[r]) {
                     regs[r]  = incoming[r];
@@ -3478,6 +3489,7 @@ namespace skvm {
                     }
                 }
             }
+            on_stack = saved_on_stack;
         };
 
         a->label(&body);
@@ -3498,8 +3510,6 @@ namespace skvm {
             sub(N, K);
             jump(&body);
         }
-
-        std::fill(on_stack.begin(), on_stack.end(), false);
 
         a->label(&tail);
         {
