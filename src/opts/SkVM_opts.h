@@ -197,16 +197,6 @@ namespace SK_OPTS_NS {
                     CASE(Op::min_f32): r(d).f32 = min(r(x).f32, r(y).f32); break;
                     CASE(Op::max_f32): r(d).f32 = max(r(x).f32, r(y).f32); break;
 
-                    // These _imm instructions are all x86/JIT only.
-                    CASE(Op::add_f32_imm):
-                    CASE(Op::sub_f32_imm):
-                    CASE(Op::mul_f32_imm):
-                    CASE(Op::min_f32_imm):
-                    CASE(Op::max_f32_imm):
-                    CASE(Op::bit_and_imm):
-                    CASE(Op::bit_or_imm ):
-                    CASE(Op::bit_xor_imm): SkUNREACHABLE; break;
-
                     CASE(Op::fma_f32): r(d).f32 = fma(r(x).f32, r(y).f32, r(z).f32); break;
                     CASE(Op::fms_f32): r(d).f32 = fma(r(x).f32, r(y).f32, -r(z).f32); break;
                     CASE(Op::fnma_f32): r(d).f32 = fma(-r(x).f32, r(y).f32, r(z).f32); break;
