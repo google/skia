@@ -388,11 +388,6 @@ namespace skvm {
         M(fma_f32) M(fms_f32) M(fnma_f32)     \
         M(sqrt_f32)                           \
         M(shl_i32) M(shr_i32) M(sra_i32)      \
-        M(add_f32_imm)                        \
-        M(sub_f32_imm)                        \
-        M(mul_f32_imm)                        \
-        M(min_f32_imm)                        \
-        M(max_f32_imm)                        \
         M(floor) M(trunc) M(round) M(to_f32)  \
         M( eq_f32) M( eq_i32)                 \
         M(neq_f32)                            \
@@ -402,9 +397,6 @@ namespace skvm {
         M(bit_or)                             \
         M(bit_xor)                            \
         M(bit_clear)                          \
-        M(bit_and_imm)                        \
-        M(bit_or_imm)                         \
-        M(bit_xor_imm)                        \
         M(select) M(pack)                     \
     // End of SKVM_OPS
 
@@ -545,7 +537,7 @@ namespace skvm {
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-        std::vector<OptimizedInstruction> optimize(bool for_jit=false) const;
+        std::vector<OptimizedInstruction> optimize() const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
@@ -738,7 +730,7 @@ namespace skvm {
         Color to_rgba(HSLA);
 
         void dump(SkWStream* = nullptr) const;
-        void dot (SkWStream* = nullptr, bool for_jit=false) const;
+        void dot (SkWStream* = nullptr) const;
 
         uint64_t hash() const;
 
@@ -787,7 +779,6 @@ namespace skvm {
 
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
-    std::vector<Instruction>          specialize_for_jit (std::vector<Instruction>);
     std::vector<Instruction>          eliminate_dead_code(std::vector<Instruction>);
     std::vector<Instruction>          schedule           (std::vector<Instruction>);
     std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
@@ -816,11 +807,7 @@ namespace skvm {
 
     class Program {
     public:
-        Program(const std::vector<OptimizedInstruction>& interpreter,
-                const std::vector<int>& strides);
-
-        Program(const std::vector<OptimizedInstruction>& interpreter,
-                const std::vector<OptimizedInstruction>& jit,
+        Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>& strides,
                 const char* debug_name);
 
