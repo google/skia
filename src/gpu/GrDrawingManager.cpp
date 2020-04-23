@@ -125,7 +125,7 @@ void GrDrawingManager::RenderTaskDAG::prepForFlush() {
         SkASSERT(result);
     }
 
-#ifdef SK_DEBUG
+#if 0 //def SK_DEBUG
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
     // share the same backing GrSurfaceProxy it means the opsTask was artificially split.
     if (fRenderTasks.count()) {

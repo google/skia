@@ -156,7 +156,8 @@ bool SkDeferredDisplayListRecorder::init() {
             [lazyProxyData](GrResourceProvider* resourceProvider,
                             const GrSurfaceProxy::LazySurfaceDesc&) {
                 // The proxy backing the destination surface had better have been instantiated
-                // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
+                // prior to the this one (i.e., the proxy backing the DLL's surface).
+                // Fulfill this lazy proxy with the destination surface's GrRenderTarget.
                 SkASSERT(lazyProxyData->fReplayDest->peekSurface());
                 auto surface = sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->peekSurface());
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));

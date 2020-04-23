@@ -24,6 +24,87 @@ class SkMipMap;
 class SkPicture;
 struct SkYUVAIndex;
 
+// This class acts as a proxy for a GrBackendTexture that backs an image.
+// Whenever a promise image is created for the image, the promise image receives a ref to
+// potentially several of these objects. Once all the promise images receive their done
+// callbacks this object is deleted - removing the GrBackendTexture from VRAM.
+// Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
+// a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
+// it drops all of its refs (via "reset").
+class PromiseImageCallbackContext : public SkRefCnt {
+public:
+    PromiseImageCallbackContext(GrContext* context, GrBackendFormat backendFormat)
+            : fContext(context)
+            , fBackendFormat(backendFormat) {}
+
+    ~PromiseImageCallbackContext();
+
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
+
+    void setBackendTexture(const GrBackendTexture& backendTexture);
+
+    void destroyBackendTexture() {
+        SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
+
+        if (fPromiseImageTexture) {
+            fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
+        }
+        fPromiseImageTexture = nullptr;
+    }
+
+    sk_sp<SkPromiseImageTexture> fulfill() {
+        SkASSERT(fUnreleasedFulfills >= 0);
+        ++fUnreleasedFulfills;
+        ++fTotalFulfills;
+        return fPromiseImageTexture;
+    }
+
+    void release() {
+        SkASSERT(fUnreleasedFulfills > 0);
+        --fUnreleasedFulfills;
+        ++fTotalReleases;
+    }
+
+    void done() {
+        ++fDoneCnt;
+        SkASSERT(fDoneCnt <= fNumImages);
+    }
+
+    void wasAddedToImage() { fNumImages++; }
+
+    const SkPromiseImageTexture* promiseImageTexture() const {
+        return fPromiseImageTexture.get();
+    }
+
+    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        return callbackContext->fulfill();
+    }
+
+    static void PromiseImageReleaseProc(void* textureContext) {
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        callbackContext->release();
+    }
+
+    static void PromiseImageDoneProc(void* textureContext) {
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        callbackContext->done();
+        callbackContext->unref();
+    }
+
+private:
+    GrContext*                   fContext;
+    GrBackendFormat              fBackendFormat;
+    sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
+    int                          fNumImages = 0;
+    int                          fTotalFulfills = 0;
+    int                          fTotalReleases = 0;
+    int                          fUnreleasedFulfills = 0;
+    int                          fDoneCnt = 0;
+
+    typedef SkRefCnt INHERITED;
+};
+
 // This class consolidates tracking & extraction of the original image data from an skp,
 // the upload of said data to the GPU and the fulfillment of promise images.
 //
@@ -68,71 +149,6 @@ public:
     void reset() { fImageInfo.reset(); }
 
 private:
-    // This class acts as a proxy for a GrBackendTexture that is part of an image.
-    // Whenever a promise image is created for the image, the promise image receives a ref to
-    // potentially several of these objects. Once all the promise images receive their done
-    // callbacks this object is deleted - removing the GrBackendTexture from VRAM.
-    // Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
-    // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
-    // it drops all of its refs (via "reset").
-    class PromiseImageCallbackContext : public SkRefCnt {
-    public:
-        PromiseImageCallbackContext(GrContext* context, GrBackendFormat backendFormat)
-                : fContext(context)
-                , fBackendFormat(backendFormat) {}
-
-        ~PromiseImageCallbackContext();
-
-        const GrBackendFormat& backendFormat() const { return fBackendFormat; }
-
-        void setBackendTexture(const GrBackendTexture& backendTexture);
-
-        void destroyBackendTexture() {
-            SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
-
-            if (fPromiseImageTexture) {
-                fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
-            }
-            fPromiseImageTexture = nullptr;
-        }
-
-        sk_sp<SkPromiseImageTexture> fulfill() {
-            SkASSERT(fUnreleasedFulfills >= 0);
-            ++fUnreleasedFulfills;
-            ++fTotalFulfills;
-            return fPromiseImageTexture;
-        }
-
-        void release() {
-            SkASSERT(fUnreleasedFulfills > 0);
-            --fUnreleasedFulfills;
-            ++fTotalReleases;
-        }
-
-        void done() {
-            ++fDoneCnt;
-            SkASSERT(fDoneCnt <= fNumImages);
-        }
-
-        void wasAddedToImage() { fNumImages++; }
-
-        const SkPromiseImageTexture* promiseImageTexture() const {
-            return fPromiseImageTexture.get();
-        }
-
-    private:
-        GrContext*                   fContext;
-        GrBackendFormat              fBackendFormat;
-        sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
-        int                          fNumImages = 0;
-        int                          fTotalFulfills = 0;
-        int                          fTotalReleases = 0;
-        int                          fUnreleasedFulfills = 0;
-        int                          fDoneCnt = 0;
-
-        typedef SkRefCnt INHERITED;
-    };
-
     // This is the information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
@@ -248,22 +264,6 @@ private:
 
     static void CreateBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
     static void DeleteBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
-
-    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        return callbackContext->fulfill();
-    }
-
-    static void PromiseImageReleaseProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->release();
-    }
-
-    static void PromiseImageDoneProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->done();
-        callbackContext->unref();
-    }
 
     static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
