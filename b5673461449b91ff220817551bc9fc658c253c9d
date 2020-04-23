@@ -34,6 +34,24 @@
       "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "796334be_58a9a15a",
+        "filename": "tools/flags/CommonFlagsGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T16:39:02Z",
+      "side": 1,
+      "message": "Sort of.  The --noFoo always sets the foo flag to false, not !default.  See CommandLineFlags.cpp:110.\n\nWho gives a shit what happens if someone passes --GS\u003dtrue on a device that doesn\u0027t support geometry shaders?",
+      "parentUuid": "bf351a02_673f1059",
+      "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
