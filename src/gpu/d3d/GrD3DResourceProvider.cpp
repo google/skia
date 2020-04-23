@@ -28,3 +28,18 @@ void GrD3DResourceProvider::recycleDirectCommandList(
     commandList->reset();
     fAvailableDirectCommandLists.push_back(std::move(commandList));
 }
+
+sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers) {
+    for (int i = 0; i < fRootSignatures.count(); ++i) {
+        if (fRootSignatures[i]->isCompatible(numTextureSamplers)) {
+            return fRootSignatures[i];
+        }
+    }
+
+    auto rootSig = GrD3DRootSignature::Make(fGpu, numTextureSamplers);
+    if (!rootSig) {
+        return nullptr;
+    }
+    fRootSignatures.push_back(rootSig);
+    return rootSig;
+}

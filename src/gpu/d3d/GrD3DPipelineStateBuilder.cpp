@@ -19,6 +19,7 @@
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
+#include "src/gpu/d3d/GrD3DRootSignature.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include <d3dcompiler.h>
@@ -162,10 +163,14 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         }
     }
 
-    gr_cp<ID3D12RootSignature> rootSignature;
+    sk_sp<GrD3DRootSignature> rootSig =
+            fGpu->resourceProvider().findOrCreateRootSignature(fUniformHandler.fTextures.count());
+    if (!rootSig) {
+        return nullptr;
+    }
 
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
-    return GrD3DPipelineState::Make(fGpu, fProgramInfo, std::move(rootSignature),
+    return GrD3DPipelineState::Make(fGpu, fProgramInfo, std::move(rootSig),
                                     std::move(vertexShader), std::move(geometryShader),
                                     std::move(pixelShader), rt->dxgiFormat(),
                                     rt->stencilDxgiFormat(), rt->sampleQualityLevel());

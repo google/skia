@@ -10,6 +10,7 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
 
@@ -24,10 +25,13 @@ public:
 
     void recycleDirectCommandList(std::unique_ptr<GrD3DDirectCommandList>);
 
+    sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers);
+
 private:
     GrD3DGpu* fGpu;
 
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
+    SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 };
 
 #endif

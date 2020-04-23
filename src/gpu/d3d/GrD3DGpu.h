@@ -37,6 +37,8 @@ public:
 
     const GrD3DCaps& d3dCaps() const { return static_cast<const GrD3DCaps&>(*fCaps); }
 
+    GrD3DResourceProvider& resourceProvider() { return fResourceProvider; }
+
     ID3D12Device* device() const { return fDevice.get(); }
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
