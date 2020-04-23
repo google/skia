@@ -29,7 +29,7 @@ namespace internal {
 
 namespace  {
 
-static constexpr int kNullLayerType   =  3;
+static constexpr size_t kNullLayerType =  3;
 
 struct MaskInfo {
     SkBlendMode       fBlendMode;      // used when masking with layers/blending
@@ -408,26 +408,44 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         LayerBuilder                      fBuilder;
         uint32_t                          fFlags;
     } gLayerBuildInfo[] = {
-        { &AnimationBuilder::attachPrecompLayer, kTransformEffects },  // 'ty': 0 -> precomp
-        { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty': 1 -> solid
-        { &AnimationBuilder::attachImageLayer  , kTransformEffects },  // 'ty': 2 -> image
-        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 3 -> null
-        { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty': 4 -> shape
-        { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty': 5 -> text
+        { &AnimationBuilder::attachPrecompLayer, kTransformEffects },  // 'ty':  0 -> precomp
+        { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty':  1 -> solid
+        { &AnimationBuilder::attachImageLayer  , kTransformEffects },  // 'ty':  2 -> image
+        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty':  3 -> null
+        { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty':  4 -> shape
+        { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty':  5 -> text
+        { nullptr                              ,                 0 },  // 'ty':  6 -> audio
+        { nullptr                              ,                 0 },  // 'ty':  7 -> pholderVideo
+        { nullptr                              ,                 0 },  // 'ty':  8 -> imageSeq
+        { &AnimationBuilder::attachImageLayer  ,                 0 },  // 'ty':  9 -> video
+        { nullptr                              ,                 0 },  // 'ty': 10 -> pholderStill
+        { nullptr                              ,                 0 },  // 'ty': 11 -> guide
+        { nullptr                              ,                 0 },  // 'ty': 12 -> adjustment
+        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 13 -> camera
+        { nullptr                              ,                 0 },  // 'ty': 14 -> light
     };
 
-    if (SkToSizeT(fType) >= SK_ARRAY_COUNT(gLayerBuildInfo) && !this->isCamera()) {
+    // Treat all hidden layers as null.
+    const auto type = ParseDefault<bool>(fJlayer["hd"], false)
+            ? kNullLayerType
+            : SkToSizeT(fType);
+
+    if (type >= SK_ARRAY_COUNT(gLayerBuildInfo)) {
         return nullptr;
     }
+
+    const auto& build_info = gLayerBuildInfo[type];
 
     // Switch to the layer animator scope (which at this point holds transform-only animators).
     AnimationBuilder::AutoScope ascope(&abuilder, std::move(fLayerScope));
 
-    const auto is_hidden = ParseDefault<bool>(fJlayer["hd"], false) || this->isCamera();
-    const auto& build_info = gLayerBuildInfo[is_hidden ? kNullLayerType : SkToSizeT(fType)];
+    // Potentially null.
+    sk_sp<sksg::RenderNode> layer;
 
     // Build the layer content fragment.
-    auto layer = (abuilder.*(build_info.fBuilder))(fJlayer, &layer_info);
+    if (build_info.fBuilder) {
+        layer = (abuilder.*(build_info.fBuilder))(fJlayer, &layer_info);
+    }
 
     // Clip layers with explicit dimensions.
     float w = 0, h = 0;
