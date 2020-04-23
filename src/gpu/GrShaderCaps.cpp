@@ -182,5 +182,8 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fSuppressGeometryShaders) {
         fGeometryShaderSupport = false;
     }
+    if (options.fSuppressTessellationShaders) {
+        fTessellationSupport = false;
+    }
 #endif
 }
