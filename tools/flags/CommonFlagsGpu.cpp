@@ -18,6 +18,7 @@ static DEFINE_bool(cachePathMasks, true,
                    "Allows path mask textures to be cached in GPU configs.");
 
 static DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
+static DEFINE_bool(noTess, false, "Disables support for tessellation shaders.");
 
 static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths?");
 
@@ -91,6 +92,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fDisableCoverageCountingPaths        = !FLAGS_cc;
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders             = FLAGS_noGS;
+    ctxOptions->fSuppressTessellationShaders         = FLAGS_noTess;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;

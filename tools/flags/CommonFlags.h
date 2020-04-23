@@ -29,6 +29,7 @@ bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output
  *     --gpuThreads
  *     --cachePathMasks
  *     --noGS
+ *     --noTess
  *     --pr
  *     --internalSamples
  *     --disableDriverCorrectnessWorkarounds
