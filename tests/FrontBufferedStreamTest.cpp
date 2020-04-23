@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "client_utils/android/FrontBufferedStream.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/utils/SkFrontBufferedStream.h"
 #include "src/core/SkAutoMalloc.h"
 #include "tests/Test.h"
 
-#ifdef SK_ENABLE_ANDROID_UTILS
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,
                       const void* expectations, size_t bytesToRead) {
     // output for reading bufferedStream.
@@ -57,9 +56,8 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     // deleted yet (and we only call const methods in it).
     SkMemoryStream* memStream = SkMemoryStream::MakeDirect(gAbcs, strlen(gAbcs)).release();
 
-    auto bufferedStream = android::skia::FrontBufferedStream::Make(
-            std::unique_ptr<SkStream>(memStream), bufferSize);
-
+    auto bufferedStream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(memStream),
+                                                      bufferSize);
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // First, test reading less than the max buffer size.
@@ -86,8 +84,8 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
 
 static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = SkMemoryStream::MakeDirect(gAbcs, strlen(gAbcs)).release();
-    auto bufferedStream = android::skia::FrontBufferedStream::Make(
-            std::unique_ptr<SkStream>(memStream), bufferSize);
+    auto bufferedStream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(memStream),
+                                                      bufferSize);
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Read exactly the amount that fits in the buffer.
@@ -106,8 +104,8 @@ static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t buf
 
 static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = SkMemoryStream::MakeDirect(gAbcs, strlen(gAbcs)).release();
-    auto bufferedStream = android::skia::FrontBufferedStream::Make(
-        std::unique_ptr<SkStream>(memStream), bufferSize);
+    auto bufferedStream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(memStream),
+                                                      bufferSize);
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Skip half the buffer.
@@ -161,8 +159,8 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
             new AndroidLikeMemoryStream((void*)gAbcs, bufferSize, false);
 
     // Create a buffer that matches the length of the stream.
-    auto bufferedStream = android::skia::FrontBufferedStream::Make(
-            std::unique_ptr<SkStream>(memStream), bufferSize);
+    auto bufferedStream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(memStream),
+                                                      bufferSize);
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
 
     // Attempt to read one more than the bufferSize
@@ -209,8 +207,8 @@ static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) 
         for (int hasPos = 0; hasPos <= 1; hasPos++) {
             LengthOptionalStream* stream =
                     new LengthOptionalStream(SkToBool(hasLen), SkToBool(hasPos));
-            auto buffered = android::skia::FrontBufferedStream::Make(
-                    std::unique_ptr<SkStream>(stream), bufferSize);
+            auto buffered = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(stream),
+                                                        bufferSize);
             test_hasLength(reporter, *buffered.get(), *stream);
         }
     }
@@ -224,8 +222,8 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     // the stream it wraps.
     const size_t arbitraryOffset = 17;
     memStream->skip(arbitraryOffset);
-    auto bufferedStream = android::skia::FrontBufferedStream::Make(
-            std::unique_ptr<SkStream>(memStream), bufferSize);
+    auto bufferedStream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(memStream),
+                                                      bufferSize);
 
     // Since SkMemoryStream has a length, bufferedStream must also.
     REPORTER_ASSERT(reporter, bufferedStream->hasLength());
@@ -289,11 +287,9 @@ private:
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
     FailingStream* failingStream = new FailingStream;
-    auto stream = android::skia::FrontBufferedStream::Make(
-            std::unique_ptr<SkStream>(failingStream), 64);
+    auto stream = SkFrontBufferedStream::Make(std::unique_ptr<SkStream>(failingStream), 64);
 
     // This will fail to create a codec.  However, what we really want to test is that we
     // won't read past the end of the stream.
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
 }
-#endif // SK_ENABLE_ANDROID_UTILS
