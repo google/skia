@@ -319,7 +319,8 @@ public:
                                                  SkColorType colorType,
                                                  sk_sp<SkColorSpace> colorSpace,
                                                  const SkSurfaceProps* surfaceProps,
-                                                 GrMTLHandle* drawable);
+                                                 GrMTLHandle* drawable)
+                                                 SK_API_AVAILABLE_CA_METAL_LAYER;
 
     /** Creates SkSurface from MTKView.
         Returned SkSurface takes a reference on the MTKView. The ref on the layer will be

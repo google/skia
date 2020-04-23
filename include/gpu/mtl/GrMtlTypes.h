@@ -20,6 +20,15 @@ typedef const void*  GrMTLHandle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_METAL
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_SIMULATOR
+#define SK_API_AVAILABLE_CA_METAL_LAYER SK_API_AVAILABLE(macos(10.11), ios(13.0))
+#else  // TARGET_OS_SIMULATOR
+#define SK_API_AVAILABLE_CA_METAL_LAYER SK_API_AVAILABLE(macos(10.11), ios(8.0))
+#endif  // TARGET_OS_SIMULATOR
+
 /**
  * Types for interacting with Metal resources created externally to Skia.
  * This is used by GrBackendObjects.
