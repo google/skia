@@ -63,30 +63,22 @@ void GrD3DCommandList::releaseResources() {
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
-        fTrackedResources[i]->unref();
     }
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
         fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
-        fTrackedRecycledResources[i]->recycle();
+        auto resource = fTrackedRecycledResources[i].release();
+        resource->recycle();
     }
 
-    if (++fNumResets > kNumRewindResetsBeforeFullReset) {
-        fTrackedResources.reset();
-        fTrackedRecycledResources.reset();
-        fTrackedResources.setReserve(kInitialTrackedResourcesCount);
-        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
-        fNumResets = 0;
-    } else {
-        fTrackedResources.rewind();
-        fTrackedRecycledResources.rewind();
-    }
+    fTrackedResources.reset();
+    fTrackedRecycledResources.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // GraphicsCommandList commands
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrD3DCommandList::resourceBarrier(const GrManagedResource* resource,
+void GrD3DCommandList::resourceBarrier(sk_sp<GrManagedResource> resource,
                                        int numBarriers,
                                        D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
     SkASSERT(fIsActive);
@@ -101,7 +93,7 @@ void GrD3DCommandList::resourceBarrier(const GrManagedResource* resource,
 
     fHasWork = true;
     if (resource) {
-        this->addResource(resource);
+        this->addResource(std::move(resource));
     }
 }
 
@@ -141,17 +133,17 @@ void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
     }
 }
 
-void GrD3DCommandList::copyTextureRegion(const GrManagedResource* dst,
+void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
                                          const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
                                          UINT dstX, UINT dstY,
-                                         const GrManagedResource* src,
+                                         sk_sp<GrManagedResource> src,
                                          const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                                          const D3D12_BOX* srcBox) {
     SkASSERT(fIsActive);
 
     this->addingWork();
-    this->addResource(dst);
-    this->addResource(src);
+    this->addResource(std::move(dst));
+    this->addResource(std::move(src));
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
@@ -186,7 +178,7 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
     fCommandList->SetPipelineState(pipelineState->pipelineState());
-    this->addResource(pipelineState.get());
+    this->addResource(std::move(pipelineState));
 }
 
 void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {
