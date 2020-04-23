@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dd66a77_9c1f61ac",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2999,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-23T15:33:13Z",
+      "side": 1,
+      "message": "This was confusing lower down, but it may be because of my memory of the old implementation. It\u0027s reuse hint if you can otherwise get a new one.",
+      "range": {
+        "startLine": 2999,
+        "startChar": 17,
+        "endLine": 2999,
+        "endChar": 20
+      },
+      "revId": "05a83b979cdc5f67d9b5a3b5b7a357ceeab81fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
