@@ -2743,7 +2743,9 @@ namespace skvm {
         constexpr Val RES = NA-1,
                       TMP = RES-1;
 
-        std::vector<bool> on_stack(instructions.size(), false);
+        // Map val -> stack slot.
+        std::vector<int> stack_slot(instructions.size(), NA);
+        int next_stack_slot = 0;
 
     #if defined(__x86_64__)
         if (!SkCpu::Supports(SkCpu::HSW)) {
@@ -2766,13 +2768,13 @@ namespace skvm {
             if (instructions[v].op == Op::splat) {
                 a->vmovups(r, &constants[instructions[v].immy]);
             } else {
-                SkASSERT(on_stack[v]);
-                a->vmovups(r, A::Mem{A::rsp, v*K*4});
+                SkASSERT(stack_slot[v] != NA);
+                a->vmovups(r, A::Mem{A::rsp, stack_slot[v]*K*4});
             }
         };
         auto store_to_stack = [&](Reg r, Val v) {
-            on_stack[v] = true;
-            a->vmovups(A::Mem{A::rsp, v*K*4}, r);
+            stack_slot[v] = next_stack_slot++;
+            a->vmovups(A::Mem{A::rsp, stack_slot[v]*K*4}, r);
         };
     #elif defined(__aarch64__)
         const int K = 4;
@@ -2793,13 +2795,13 @@ namespace skvm {
             if (instructions[v].op == Op::splat) {
                 a->ldrq(r, &constants[instructions[v].immy]);
             } else {
-                SkASSERT(on_stack[v]);
-                a->ldrq(r, A::sp, v);
+                SkASSERT(stack_slot[v] != NA);
+                a->ldrq(r, A::sp, stack_slot[v]);
             }
         };
         auto store_to_stack  = [&](Reg r, Val v) {
-            on_stack[v] = true;
-            a->strq(r, A::sp, v);
+            stack_slot[v] = next_stack_slot++;
+            a->strq(r, A::sp, stack_slot[v]);
         };
     #endif
 
@@ -2845,7 +2847,7 @@ namespace skvm {
 
                 SkASSERT(v == NA || v >= 0);
                 if (v >= 0) {
-                    if (!on_stack[v] && instructions[v].op != Op::splat) {
+                    if (stack_slot[v] == NA && instructions[v].op != Op::splat) {
                         store_to_stack(r, v);
                     }
                     v = NA;
@@ -2952,7 +2954,7 @@ namespace skvm {
                 if (instructions[v].op == Op::splat) {
                     return &constants[instructions[v].immy];
                 }
-                return A::Mem{A::rsp, v*K*4};
+                return A::Mem{A::rsp, stack_slot[v]*K*4};
             };
 
             // This is never really worth asking except when any() might be used;
@@ -3381,7 +3383,8 @@ namespace skvm {
         // This point marks a kind of canonical fixed point for register contents: if loop
         // code is generated as if these registers are holding these values, the next time
         // the loop comes around we'd better find those same registers holding those same values.
-        auto restore_incoming_regs = [&,incoming=regs,saved_on_stack=on_stack]{
+        auto restore_incoming_regs = [&,incoming=regs,saved_stack_slot=stack_slot,
+                                      saved_next_stack_slot=next_stack_slot]{
             for (int r = 0; r < (int)regs.size(); r++) {
                 if (regs[r] != incoming[r]) {
                     regs[r]  = incoming[r];
@@ -3390,7 +3393,8 @@ namespace skvm {
                     }
                 }
             }
-            on_stack = saved_on_stack;
+            stack_slot = saved_stack_slot;
+            next_stack_slot = saved_next_stack_slot;
         };
 
         a->label(&body);
