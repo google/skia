@@ -110,6 +110,7 @@ struct GrMockOptions {
     // GrCaps options.
     bool fMipMapSupport = false;
     bool fDrawInstancedSupport = false;
+    bool fTessellationSupport = false;
     bool fHalfFloatVertexAttributeSupport = false;
     uint32_t fMapBufferFlags = 0;
     int fMaxTextureSize = 2048;
