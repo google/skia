@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae0a14f5_4801ec23",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-23T16:02:51Z",
+      "side": 1,
+      "message": "Naming nit: SPIR-V is an acronym; IWBN if we can keep it capitalized in the file and class names.",
+      "revId": "690a450cdc9e15eea03879ae2f0df90f01537091",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
