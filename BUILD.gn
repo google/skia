@@ -1702,6 +1702,7 @@ if (skia_enable_tools) {
       ":xml",
       "modules/skparagraph:samples",
       "modules/skshaper",
+      "//third_party/imgui",
     ]
 
     if (skia_use_lua) {
