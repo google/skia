@@ -52,6 +52,24 @@
       "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a761651_060b80f9",
+        "filename": "tools/flags/CommonFlagsGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-23T17:45:53Z",
+      "side": 1,
+      "message": "Agreed. Done.",
+      "parentUuid": "796334be_58a9a15a",
+      "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
