@@ -71,7 +71,7 @@ void DDLPromiseImageHelper::PromiseImageInfo::setMipLevels(const SkBitmap& baseL
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
+PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     SkASSERT(fDoneCnt == fNumImages);
     SkASSERT(!fUnreleasedFulfills);
     SkASSERT(fTotalReleases == fTotalFulfills);
@@ -82,8 +82,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     }
 }
 
-void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
-        const GrBackendTexture& backendTexture) {
+void PromiseImageCallbackContext::setBackendTexture(const GrBackendTexture& backendTexture) {
     SkASSERT(!fPromiseImageTexture);
     SkASSERT(fBackendFormat == backendTexture.getBackendFormat());
     fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
@@ -231,7 +230,6 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
                 continue;
             }
 
-
             sk_sp<PromiseImageCallbackContext> callbackContext(
                 new PromiseImageCallbackContext(context, backendFormat));
 
@@ -339,9 +337,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 curImage.overallHeight(),
                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                 curImage.refOverallColorSpace(),
-                DDLPromiseImageHelper::PromiseImageFulfillProc,
-                DDLPromiseImageHelper::PromiseImageReleaseProc,
-                DDLPromiseImageHelper::PromiseImageDoneProc,
+                PromiseImageCallbackContext::PromiseImageFulfillProc,
+                PromiseImageCallbackContext::PromiseImageReleaseProc,
+                PromiseImageCallbackContext::PromiseImageDoneProc,
                 contexts,
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         for (int i = 0; i < textureCount; ++i) {
@@ -363,7 +361,6 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.
-        // DDL TODO: sort out mipmapping
         image = recorder->makePromiseTexture(
                 backendFormat,
                 curImage.overallWidth(),
@@ -373,9 +370,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 curImage.overallColorType(),
                 curImage.overallAlphaType(),
                 curImage.refOverallColorSpace(),
-                DDLPromiseImageHelper::PromiseImageFulfillProc,
-                DDLPromiseImageHelper::PromiseImageReleaseProc,
-                DDLPromiseImageHelper::PromiseImageDoneProc,
+                PromiseImageCallbackContext::PromiseImageFulfillProc,
+                PromiseImageCallbackContext::PromiseImageReleaseProc,
+                PromiseImageCallbackContext::PromiseImageDoneProc,
                 (void*)curImage.refCallbackContext(0).release(),
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         curImage.callbackContext(0)->wasAddedToImage();

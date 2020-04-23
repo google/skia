@@ -256,7 +256,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     promiseImageHelper.uploadAllToGPU(nullptr, context);
 
-    DDLTileHelper tiles(surface, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
+    DDLTileHelper tiles(context, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
 
     tiles.createBackendTextures(nullptr, context);
 
