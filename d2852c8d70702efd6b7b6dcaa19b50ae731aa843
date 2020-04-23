@@ -46,6 +46,30 @@
       "revId": "d2852c8d70702efd6b7b6dcaa19b50ae731aa843",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a055a66_34d17c22",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T16:53:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a0b8077_7a836aa4",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 60
+      },
+      "revId": "d2852c8d70702efd6b7b6dcaa19b50ae731aa843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
