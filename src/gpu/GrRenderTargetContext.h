@@ -282,6 +282,7 @@ public:
                      sk_sp<GrColorSpaceXform> texXform) {
         const SkRect* subset = constraint == SkCanvas::kStrict_SrcRectConstraint ?
                 &srcRect : nullptr;
+
         DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
 
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
