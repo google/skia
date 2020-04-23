@@ -243,6 +243,11 @@ struct SK_API GrContextOptions {
     bool fSuppressGeometryShaders = false;
 
     /**
+     * If true, the caps will never support tessellation shaders.
+     */
+    bool fSuppressTessellationShaders = false;
+
+    /**
      * Render everything in wireframe
      */
     bool fWireframeMode = false;
