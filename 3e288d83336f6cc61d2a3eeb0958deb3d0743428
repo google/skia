@@ -33,6 +33,24 @@
       "revId": "3e288d83336f6cc61d2a3eeb0958deb3d0743428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c97ac944_3b7671a1",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3475,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T19:02:30Z",
+      "side": 1,
+      "message": "Oh, actually, doesn\u0027t this make sense to integrate into restore_incoming_regs?\n\n  auto restore_incoming_state \u003d [\u0026, saved_regs\u003dregs, saved_on_stack\u003don_stack]{\n      ... restore regs to saved_regs ...\n      on_stack \u003d saved_on_stack;\n  };\n\n?",
+      "parentUuid": "57163ad9_4fce3ab6",
+      "revId": "3e288d83336f6cc61d2a3eeb0958deb3d0743428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
