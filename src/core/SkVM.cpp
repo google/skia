@@ -1830,14 +1830,28 @@ namespace skvm {
     void Assembler::vpcmpeqd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
     void Assembler::vpcmpgtd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
+
+    void Assembler::imm_byte_after_operand(const Operand& operand, int imm) {
+        // When we've embedded a label displacement in the middle of an instruction,
+        // we need to tweak it a little so that the resolved displacement starts
+        // from the end of the instruction and not the end of the displacement.
+        if (operand.kind == Operand::LABEL && fCode) {
+            int disp;
+            memcpy(&disp, fCurr-4, 4);
+            disp--;
+            memcpy(fCurr-4, &disp, 4);
+        }
+        this->byte(imm);
+    }
+
     void Assembler::vcmpps(Ymm dst, Ymm x, Operand y, int imm) {
         this->op(0,0x0f,0xc2, dst,x,y);
-        this->byte(imm);
+        this->imm_byte_after_operand(y, imm);
     }
 
     void Assembler::vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z) {
         this->op(0x66,0x3a0f,0x4c, dst,x,y);
-        this->byte(z << 4);
+        this->imm_byte_after_operand(y, z << 4);
     }
 
     // Shift instructions encode their opcode extension as "dst", dst as x, and x as y.
@@ -1861,12 +1875,12 @@ namespace skvm {
     void Assembler::vpermq(Ymm dst, Operand x, int imm) {
         // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
         this->op(0x66,0x3a0f,0x00, dst,x,W1);
-        this->byte(imm);
+        this->imm_byte_after_operand(x, imm);
     }
 
     void Assembler::vroundps(Ymm dst, Operand x, Rounding imm) {
         this->op(0x66,0x3a0f,0x08, dst,x);
-        this->byte(imm);
+        this->imm_byte_after_operand(x, imm);
     }
 
     void Assembler::vmovdqa(Ymm dst, Operand src) { this->op(0x66,0x0f,0x6f, dst,src); }
@@ -1980,27 +1994,31 @@ namespace skvm {
 
     void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x0f,0xc4, dst,src,y);
-        this->byte(imm);
+        this->imm_byte_after_operand(y, imm);
     }
     void Assembler::vpinsrb(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x3a0f,0x20, dst,src,y);
-        this->byte(imm);
+        this->imm_byte_after_operand(y, imm);
     }
 
     void Assembler::vextracti128(Operand dst, Ymm src, int imm) {
         this->op(0x66,0x3a0f,0x39, src,dst);
+        SkASSERT(dst.kind != Operand::LABEL);
         this->byte(imm);
     }
     void Assembler::vpextrd(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x16, src,dst);
+        SkASSERT(dst.kind != Operand::LABEL);
         this->byte(imm);
     }
     void Assembler::vpextrw(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x15, src,dst);
+        SkASSERT(dst.kind != Operand::LABEL);
         this->byte(imm);
     }
     void Assembler::vpextrb(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x14, src,dst);
+        SkASSERT(dst.kind != Operand::LABEL);
         this->byte(imm);
     }
 
