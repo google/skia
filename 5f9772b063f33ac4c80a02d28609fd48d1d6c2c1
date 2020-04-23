@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "b792c240_415e6b6e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T22:45:27Z",
+      "side": 1,
+      "message": "We still do two calls to jit(), first to learn how much we need to mmap, second the real thing,\nso you could have jit() pass back the stack size used the first time around and use that knowledge in the second pass, asserting we end up at the same total.",
+      "revId": "5f9772b063f33ac4c80a02d28609fd48d1d6c2c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc35dce9_32346c56",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 1
