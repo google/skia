@@ -54,6 +54,8 @@ private:
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
     GrD3DGpu* fGpu;
+    SkIRect fBounds;
+    SkIRect fCurrentPipelineBounds;
 
     typedef GrOpsRenderPass INHERITED;
 };

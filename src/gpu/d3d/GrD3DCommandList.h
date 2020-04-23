@@ -16,6 +16,7 @@
 
 class GrD3DGpu;
 class GrD3DBuffer;
+class GrD3DPipelineState;
 class GrD3DTextureResource;
 
 class GrD3DCommandList {
@@ -112,6 +113,14 @@ private:
 class GrD3DDirectCommandList : public GrD3DCommandList {
 public:
     static std::unique_ptr<GrD3DDirectCommandList> Make(ID3D12Device* device);
+
+    void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
+
+    void setStencilRef(unsigned int stencilRef);
+    void setBlendFactor(const float blendFactor[4]);
+    void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
+    void setScissorRects(unsigned int numRects, const D3D12_RECT* rects);
+    void setViewports(unsigned int numViewports, const D3D12_VIEWPORT* viewports);
 
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,

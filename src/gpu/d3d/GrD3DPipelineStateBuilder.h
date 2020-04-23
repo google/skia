@@ -29,10 +29,9 @@ public:
      * available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static std::unique_ptr<GrD3DPipelineState> CreatePipelineState(GrD3DGpu*,
-                                                                   GrRenderTarget*,
-                                                                   const GrProgramDesc&,
-                                                                   const GrProgramInfo&);
+    static sk_sp<GrD3DPipelineState> CreatePipelineState(GrD3DGpu*, GrRenderTarget*,
+                                                         const GrProgramDesc&,
+                                                         const GrProgramInfo&);
 
     const GrCaps* caps() const override;
 
@@ -45,7 +44,7 @@ private:
     GrD3DPipelineStateBuilder(GrD3DGpu*, GrRenderTarget*, const GrProgramDesc&,
                               const GrProgramInfo&);
 
-    std::unique_ptr<GrD3DPipelineState> finalize();
+    sk_sp<GrD3DPipelineState> finalize();
 
     void compileD3DProgram(SkSL::Program::Kind kind,
                            const SkSL::String& sksl,

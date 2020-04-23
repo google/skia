@@ -324,23 +324,22 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
         case GrPrimitiveType::kLines: // fall through
         case GrPrimitiveType::kLineStrip:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-        case GrPrimitiveType::kPatches:
-            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+        case GrPrimitiveType::kPatches: // fall through, unsupported
         case GrPrimitiveType::kPath: // fall through, unsupported
         default:
             SkUNREACHABLE;
     }
 }
 
-std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
-                                                             const GrProgramInfo& programInfo,
-                                                             sk_sp<GrD3DRootSignature> rootSig,
-                                                             gr_cp<ID3DBlob> vertexShader,
-                                                             gr_cp<ID3DBlob> geometryShader,
-                                                             gr_cp<ID3DBlob> pixelShader,
-                                                             DXGI_FORMAT renderTargetFormat,
-                                                             DXGI_FORMAT depthStencilFormat,
-                                                             unsigned int sampleQualityLevel) {
+sk_sp<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
+                                                   const GrProgramInfo& programInfo,
+                                                   sk_sp<GrD3DRootSignature> rootSig,
+                                                   gr_cp<ID3DBlob> vertexShader,
+                                                   gr_cp<ID3DBlob> geometryShader,
+                                                   gr_cp<ID3DBlob> pixelShader,
+                                                   DXGI_FORMAT renderTargetFormat,
+                                                   DXGI_FORMAT depthStencilFormat,
+                                                   unsigned int sampleQualityLevel) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
     psoDesc.pRootSignature = rootSig->rootSignature();
@@ -396,9 +395,8 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
             &psoDesc, IID_PPV_ARGS(&pipelineState));
     SkASSERT(SUCCEEDED(hr));
 
-    return nullptr;
+    return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState)));
 }
 
 GrD3DPipelineState::GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState)
         : fPipelineState(std::move(pipelineState)) {}
-

@@ -9,6 +9,7 @@
 
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -180,6 +181,38 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                                gr_cp<ID3D12GraphicsCommandList> commandList)
     : GrD3DCommandList(std::move(allocator), std::move(commandList)) {
+}
+
+void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
+    SkASSERT(fIsActive);
+    fCommandList->SetPipelineState(pipelineState->pipelineState());
+    this->addResource(pipelineState.get());
+}
+
+void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {
+    SkASSERT(fIsActive);
+    fCommandList->OMSetStencilRef(stencilRef);
+}
+
+void GrD3DDirectCommandList::setBlendFactor(const float blendFactor[4]) {
+    SkASSERT(fIsActive);
+    fCommandList->OMSetBlendFactor(blendFactor);
+}
+
+void GrD3DDirectCommandList::setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) {
+    SkASSERT(fIsActive);
+    fCommandList->IASetPrimitiveTopology(primitiveTopology);
+}
+
+void GrD3DDirectCommandList::setScissorRects(unsigned int numRects, const D3D12_RECT* rects) {
+    SkASSERT(fIsActive);
+    fCommandList->RSSetScissorRects(numRects, rects);
+}
+
+void GrD3DDirectCommandList::setViewports(unsigned int numViewports,
+                                          const D3D12_VIEWPORT* viewports) {
+    SkASSERT(fIsActive);
+    fCommandList->RSSetViewports(numViewports, viewports);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

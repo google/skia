@@ -42,6 +42,8 @@ public:
     ID3D12Device* device() const { return fDevice.get(); }
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
+    GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
+
     bool protectedContext() const { return false; }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;

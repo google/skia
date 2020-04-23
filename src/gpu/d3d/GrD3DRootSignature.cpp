@@ -107,10 +107,6 @@ GrD3DRootSignature::GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int  
         , fNumTextureSamplers(numTextureSamplers) {
 }
 
-void GrD3DRootSignature::freeGPUData() const {
-    fRootSignature.reset();
-}
-
 bool GrD3DRootSignature::isCompatible(int numTextureSamplers) const {
     return fNumTextureSamplers == numTextureSamplers;
 }

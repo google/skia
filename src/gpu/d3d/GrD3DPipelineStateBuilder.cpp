@@ -26,7 +26,7 @@
 
 typedef size_t shader_size;
 
-std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::CreatePipelineState(
+sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::CreatePipelineState(
         GrD3DGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
@@ -120,7 +120,7 @@ void GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::Program::Kind kind,
     }
 }
 
-std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
+sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
