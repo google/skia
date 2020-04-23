@@ -8,8 +8,8 @@
 #ifndef GrDawnProgramBuilder_DEFINED
 #define GrDawnProgramBuilder_DEFINED
 
-#include "src/gpu/GrSpirvUniformHandler.h"
-#include "src/gpu/GrSpirvVaryingHandler.h"
+#include "src/gpu/GrSPIRVUniformHandler.h"
+#include "src/gpu/GrSPIRVVaryingHandler.h"
 #include "src/gpu/dawn/GrDawnProgramDataManager.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "dawn/webgpu_cpp.h"
@@ -49,7 +49,7 @@ struct GrDawnProgram : public SkRefCnt {
         }
     };
     typedef GrGLSLBuiltinUniformHandles BuiltinUniformHandles;
-    GrDawnProgram(const GrSpirvUniformHandler::UniformInfoArray& uniforms,
+    GrDawnProgram(const GrSPIRVUniformHandler::UniformInfoArray& uniforms,
                   uint32_t uniformBufferSize)
       : fDataManager(uniforms, uniformBufferSize) {
     }
@@ -95,8 +95,8 @@ private:
     wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
                                           bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
-    GrSpirvVaryingHandler   fVaryingHandler;
-    GrSpirvUniformHandler   fUniformHandler;
+    GrSPIRVVaryingHandler   fVaryingHandler;
+    GrSPIRVUniformHandler   fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

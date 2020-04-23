@@ -9,8 +9,8 @@
 #define GrD3DPipelineStateBuilder_DEFINED
 
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrSpirvUniformHandler.h"
-#include "src/gpu/GrSpirvVaryingHandler.h"
+#include "src/gpu/GrSPIRVUniformHandler.h"
+#include "src/gpu/GrSPIRVVaryingHandler.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -57,8 +57,8 @@ private:
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
     GrD3DGpu* fGpu;
-    GrSpirvVaryingHandler fVaryingHandler;
-    GrSpirvUniformHandler fUniformHandler;
+    GrSPIRVVaryingHandler fVaryingHandler;
+    GrSPIRVUniformHandler fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

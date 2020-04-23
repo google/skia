@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSpirvUniformHandler.h"
+#include "src/gpu/GrSPIRVUniformHandler.h"
 
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-GrSpirvUniformHandler::GrSpirvUniformHandler(GrGLSLProgramBuilder* program)
+GrSPIRVUniformHandler::GrSPIRVUniformHandler(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fUniforms(kUniformsPerBlock)
     , fSamplers(kUniformsPerBlock)
@@ -17,11 +17,11 @@ GrSpirvUniformHandler::GrSpirvUniformHandler(GrGLSLProgramBuilder* program)
 {
 }
 
-const GrShaderVar& GrSpirvUniformHandler::getUniformVariable(UniformHandle u) const {
+const GrShaderVar& GrSPIRVUniformHandler::getUniformVariable(UniformHandle u) const {
     return fUniforms.item(u.toIndex()).fVariable;
 }
 
-const char* GrSpirvUniformHandler::getUniformCStr(UniformHandle u) const {
+const char* GrSPIRVUniformHandler::getUniformCStr(UniformHandle u) const {
     return fUniforms.item(u.toIndex()).fVariable.getName().c_str();
 }
 
@@ -200,7 +200,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
 
 }
 
-GrGLSLUniformHandler::UniformHandle GrSpirvUniformHandler::internalAddUniformArray(
+GrGLSLUniformHandler::UniformHandle GrSPIRVUniformHandler::internalAddUniformArray(
         const GrFragmentProcessor* owner,
         uint32_t visibility,
         GrSLType type,
@@ -219,7 +219,7 @@ GrGLSLUniformHandler::UniformHandle GrSpirvUniformHandler::internalAddUniformArr
     SkString layoutQualifier;
     layoutQualifier.appendf("offset = %d", offset);
 
-    UniformInfo& info = fUniforms.push_back(SpirvUniformInfo{
+    UniformInfo& info = fUniforms.push_back(SPIRVUniformInfo{
         {
             GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
                         std::move(layoutQualifier), SkString()},
@@ -234,7 +234,7 @@ GrGLSLUniformHandler::UniformHandle GrSpirvUniformHandler::internalAddUniformArr
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrSpirvUniformHandler::addSampler(const GrBackendFormat&,
+GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBackendFormat&,
                                                                      GrSamplerState,
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,
@@ -245,7 +245,7 @@ GrGLSLUniformHandler::SamplerHandle GrSpirvUniformHandler::addSampler(const GrBa
     fProgramBuilder->nameVariable(&mangleName, 's', name, true);
     SkString layoutQualifier;
     layoutQualifier.appendf("set = %d, binding = %d", kSamplerTextureDescriptorSet, binding);
-    SpirvUniformInfo& info = fSamplers.push_back(SpirvUniformInfo{
+    SPIRVUniformInfo& info = fSamplers.push_back(SPIRVUniformInfo{
         {
             GrShaderVar{std::move(mangleName), kSampler_GrSLType,
                         GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
@@ -262,7 +262,7 @@ GrGLSLUniformHandler::SamplerHandle GrSpirvUniformHandler::addSampler(const GrBa
     fProgramBuilder->nameVariable(&mangleTexName, 't', name, true);
     SkString texLayoutQualifier;
     texLayoutQualifier.appendf("set = %d, binding = %d", kSamplerTextureDescriptorSet, binding + 1);
-    UniformInfo& texInfo = fTextures.push_back(SpirvUniformInfo{
+    UniformInfo& texInfo = fTextures.push_back(SPIRVUniformInfo{
         {
             GrShaderVar{std::move(mangleTexName), kTexture2D_GrSLType,
                         GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
@@ -279,18 +279,18 @@ GrGLSLUniformHandler::SamplerHandle GrSpirvUniformHandler::addSampler(const GrBa
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
-const char* GrSpirvUniformHandler::samplerVariable(
+const char* GrSPIRVUniformHandler::samplerVariable(
         GrGLSLUniformHandler::SamplerHandle handle) const {
     return fSamplerReferences[handle.toIndex()].c_str();
 }
 
-GrSwizzle GrSpirvUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHandle handle) const {
+GrSwizzle GrSPIRVUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHandle handle) const {
     return fSamplerSwizzles[handle.toIndex()];
 }
 
-void GrSpirvUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
+void GrSPIRVUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     auto textures = fTextures.items().begin();
-    for (const SpirvUniformInfo& sampler : fSamplers.items()) {
+    for (const SPIRVUniformInfo& sampler : fSamplers.items()) {
         if (sampler.fVisibility & visibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
@@ -313,7 +313,7 @@ void GrSpirvUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkStrin
     }
 }
 
-uint32_t GrSpirvUniformHandler::getRTHeightOffset() const {
+uint32_t GrSPIRVUniformHandler::getRTHeightOffset() const {
     uint32_t dummy = fCurrentUBOOffset;
     return get_ubo_offset(&dummy, kFloat_GrSLType, 0);
 }

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSpirvVaryingHandler_DEFINED
-#define GrSpirvVaryingHandler_DEFINED
+#ifndef GrSPIRVVaryingHandler_DEFINED
+#define GrSPIRVVaryingHandler_DEFINED
 
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
  /*
-  * This class can be used for basic spir-v varying handling. Each added varying just takes the
+  * This class can be used for basic SPIR-V varying handling. Each added varying just takes the
   * next available location slot.
   */
-class GrSpirvVaryingHandler : public GrGLSLVaryingHandler {
+class GrSPIRVVaryingHandler : public GrGLSLVaryingHandler {
 public:
-    GrSpirvVaryingHandler(GrGLSLProgramBuilder* program) : INHERITED(program) {}
+    GrSPIRVVaryingHandler(GrGLSLProgramBuilder* program) : INHERITED(program) {}
 
     typedef GrGLSLVaryingHandler::VarArray VarArray;
 

@@ -10,7 +10,7 @@
 
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
-#include "src/gpu/GrSpirvUniformHandler.h"
+#include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "dawn/webgpu_cpp.h"
 
@@ -21,7 +21,7 @@ class GrDawnUniformBuffer;
 
 class GrDawnProgramDataManager : public GrGLSLProgramDataManager {
 public:
-    typedef GrSpirvUniformHandler::UniformInfoArray UniformInfoArray;
+    typedef GrSPIRVUniformHandler::UniformInfoArray UniformInfoArray;
 
     GrDawnProgramDataManager(const UniformInfoArray&, uint32_t uniformBufferSize);
 
