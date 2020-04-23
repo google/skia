@@ -32,9 +32,9 @@ public:
         SkASSERT(fResource);
         return fResource->fD3DResource.get();
     }
-    const Resource* resource() const {
+    sk_sp<Resource> resource() const {
         SkASSERT(fResource);
-        return fResource.get();
+        return fResource;
     }
 
 protected:

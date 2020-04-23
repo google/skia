@@ -75,7 +75,7 @@ public:
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
-    void addResourceBarriers(const GrManagedResource* resource,
+    void addResourceBarriers(sk_sp<GrManagedResource> resource,
                              int numBarriers,
                              D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
