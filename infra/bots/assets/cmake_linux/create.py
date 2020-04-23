@@ -14,7 +14,7 @@ import common
 import subprocess
 import utils
 
-VERSION = '3.11.0'
+VERSION = '3.13.5'
 URL = 'https://cmake.org/files/v%s/cmake-%s-Linux-x86_64.tar.gz' % (
     VERSION.rsplit('.', 1)[0], VERSION)
 
