@@ -130,6 +130,8 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachStyles(const skjson::ArrayValue& js
         nullptr,                                 // 'ty': 0 -> stroke
         &EffectBuilder::attachDropShadowStyle,   // 'ty': 1 -> drop shadow
         &EffectBuilder::attachInnerShadowStyle,  // 'ty': 2 -> inner shadow
+        &EffectBuilder::attachOuterGlowStyle,    // 'ty': 3 -> outer glow
+        &EffectBuilder::attachInnerGlowStyle,    // 'ty': 4 -> inner glow
     };
 
     for (const skjson::ObjectValue* jstyle : jstyles) {
