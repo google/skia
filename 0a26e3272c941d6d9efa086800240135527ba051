@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95aeb77c_fc0afda6",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-23T13:25:50Z",
+      "side": 1,
+      "message": "Should we assert that fDoFillTriangleBuffer is false and fDoStencilTriangleBuffer is true in this case, since that\u0027s what represents a full bounding box fill at the end?",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 65
+      },
+      "revId": "0a26e3272c941d6d9efa086800240135527ba051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
