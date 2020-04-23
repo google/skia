@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fd1f313_31bc8f79",
+        "filename": "tests/AbseilTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-04-23T16:06:23Z",
+      "side": 1,
+      "message": "I don\u0027t think Android is using Abseil - or at least, if I\u0027ve missed it, our build file isn\u0027t set up to include it, which should explains the Android Framework failure. Given that this is exploratory (is there a tracking bug?), we could simply disable the test on Android. That would look something like:\n\n#include \"tests/Test.h\"\n#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK\n...\n#endif",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 23
+      },
+      "revId": "e6dca28dfd945c56ae76f1b89f2951502a2c5668",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
