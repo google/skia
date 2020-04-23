@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d9a5d5e8_884f052a",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T14:31:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "890908e4_53cb708d",
+      "range": {
+        "startLine": 346,
+        "startChar": 71,
+        "endLine": 346,
+        "endChar": 73
+      },
+      "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83a4c98c_a7e818b4",
         "filename": "src/gpu/d3d/GrD3DPipelineStateBuilder.h",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "273db926_192877d6",
+        "filename": "src/gpu/d3d/GrD3DPipelineStateBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T14:31:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83a4c98c_a7e818b4",
+      "range": {
+        "startLine": 27,
+        "startChar": 5,
+        "endLine": 27,
+        "endChar": 101
+      },
+      "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "451b7af0_bb72d2f9",
         "filename": "src/gpu/d3d/GrD3DUniformHandler.h",
         "patchSetId": 4
@@ -59,6 +107,24 @@
       "writtenOn": "2020-04-22T19:45:37Z",
       "side": 1,
       "message": "Why is everything in this class stubbed out? It\u0027s fine if it\u0027s a TODO, but I\u0027d prefer to see a comment if that\u0027s the case.",
+      "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c2a9acd_d7f73188",
+        "filename": "src/gpu/d3d/GrD3DUniformHandler.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T14:31:11Z",
+      "side": 1,
+      "message": "OHHHH this class is suppose to be deleted. I completely missed it was still here.",
+      "parentUuid": "451b7af0_bb72d2f9",
       "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -79,6 +145,24 @@
       "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7daf903_52f0b4c0",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T14:31:11Z",
+      "side": 1,
+      "message": "yup",
+      "parentUuid": "b35b0f58_67d251b4",
+      "revId": "260e59ba030e6ebeb807f8a1e59d5a19e2171d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
