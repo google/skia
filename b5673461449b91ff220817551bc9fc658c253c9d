@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd30ca8e_14dbcc83",
+        "filename": "tools/flags/CommonFlagsGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T16:24:27Z",
+      "side": 1,
+      "message": "You know, if you name these flags GS and Tess, --noGS and --noTess come for free.  As it is now, you can pass --nonoGS, --nonoTess.  :P",
+      "revId": "b5673461449b91ff220817551bc9fc658c253c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
