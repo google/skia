@@ -235,16 +235,16 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
     }
 }
 
-static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
+static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
                               SkPicture* inputPicture, std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
     SkSurfaceCharacterization dstCharacterization;
-    SkAssertResult(surface->characterize(&dstCharacterization));
+    SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
-    SkIRect viewport = surface->imageInfo().bounds();
+    SkIRect viewport = dstSurface->imageInfo().bounds();
 
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture);
@@ -256,7 +256,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     promiseImageHelper.uploadAllToGPU(nullptr, context);
 
-    DDLTileHelper tiles(surface, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
+    DDLTileHelper tiles(context, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
 
     tiles.createBackendTextures(nullptr, context);
 
@@ -285,7 +285,8 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
-        tiles.composeAllTiles(context);
+        dstSurface->draw(tiles.composeDDL());
+        dstSurface->flush();
     }
 
     tiles.resetAllTiles();
