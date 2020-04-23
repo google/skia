@@ -33,10 +33,12 @@ public:
 private:
     GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int numTextureSamplers);
 
-    void freeGPUData() const override;
+    // This will be called right before this class is destroyed and there is no reason to explicitly
+    // release the fRootSignature cause the gr_cp will handle that in the dtor.
+    void freeGPUData() const override {}
 
     // mutable needed so we can release the resource in freeGPUData
-    mutable gr_cp<ID3D12RootSignature> fRootSignature;
+    gr_cp<ID3D12RootSignature> fRootSignature;
     int fNumTextureSamplers;
 };
 
