@@ -20,18 +20,15 @@ namespace SkGpuBlurUtils {
 /**
   * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
   * as a renderTargetContext in case the caller wishes to draw into the result.
-  *
-  * The 'proxyOffset' is kept separate form 'srcBounds' because they exist in different
-  * coordinate spaces. 'srcBounds' exists in the content space of the special image, and
-  * 'proxyOffset' maps from the content space to the proxy's space.
+  * The origin of the result will watch the origin of the input src. The output
+  * color type, color space, and alpha type will be the same as the src.
   *
   * Note: one of sigmaX and sigmaY should be non-zero!
   * @param context         The GPU context
   * @param srcView         The source to be blurred.
   * @param srcColorType    The colorType of srcProxy
   * @param srcAlphaType    The alphaType of srcProxy
-  * @param colorSpace      Color space of the source (used for the renderTargetContext result,
-  *                        too).
+  * @param colorSpace      Color space of the source.
   * @param dstBounds       The destination bounds, relative to the source texture.
   * @param srcBounds       The source bounds, relative to the source texture's offset. No pixels
   *                        will be sampled outside of this rectangle.
