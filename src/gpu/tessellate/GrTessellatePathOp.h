@@ -136,6 +136,10 @@ private:
     GrStencilPathShader* fStencilCubicsShader = nullptr;
 
     friend class GrOpMemoryPool;  // For ctor.
+
+public:
+    // This serves as a base class for benchmarking individual methods on GrTessellatePathOp.
+    class TestingOnly_Benchmark;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellatePathOp::Flags);

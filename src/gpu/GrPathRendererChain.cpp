@@ -32,7 +32,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
-        if (caps.shaderCaps()->tessellationSupport()) {
+        if (caps.shaderCaps()->tessellationSupport() && caps.drawInstancedSupport()) {
             auto tess = sk_make_sp<GrTessellationPathRenderer>(caps);
             context->priv().addOnFlushCallbackObject(tess.get());
             fChain.push_back(std::move(tess));
