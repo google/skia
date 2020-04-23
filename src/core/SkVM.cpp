@@ -2891,12 +2891,15 @@ namespace skvm {
                         // nor any registers we need for this instruction.
                         if (v == RES ||
                             v == TMP || v == id || v == x || v == y || v == z) {
-                            return -1;
+                            return 0x7fff'ffff;
                         }
-                        // Break ties somewhat arbitrarily now, by spilling the latest value to die.
-                        return instructions[v].death;
+                        // At this point spilling is arbitrary, so we're in the realm of heuristics.
+                        // Here, spill the oldest value.  This is nice because,
+                        //    A) it's very predictable, even in assembly, and
+                        //    B) it's as cheap as you can get.
+                        return v;
                     };
-                    avail = std::max_element(regs.begin(), regs.end(), [&](Val a, Val b) {
+                    avail = std::min_element(regs.begin(), regs.end(), [&](Val a, Val b) {
                         return score_spills(a) < score_spills(b);
                     });
                 }
