@@ -502,14 +502,10 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
 }
 
 std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
-        const SkImageInfo& info,
+        const GrImageInfo& info,
         const SkIRect& srcRect,
         SkSurface::RescaleGamma rescaleGamma,
         SkFilterQuality rescaleQuality) {
-    auto direct = fContext->priv().asDirectContext();
-    if (!direct) {
-        return nullptr;
-    }
     auto rtProxy = this->asRenderTargetProxy();
     if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
         return nullptr;
@@ -618,7 +614,6 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         if (!stepsX && !stepsY) {
             // Might as well fold conversion to final info in the last step.
             cs = info.refColorSpace();
-            colorType = SkColorTypeToGrColorType(info.colorType());
             xform = GrColorSpaceXform::Make(input->colorInfo().colorSpace(),
                                             input->colorInfo().alphaType(), cs.get(),
                                             info.alphaType());
