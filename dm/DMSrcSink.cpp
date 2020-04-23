@@ -1660,8 +1660,11 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // TODO: move the image upload to the utility thread
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
 
+    // Care must be taken when using 'gpuThreadCtx' bc it moves between the gpu-thread and this
+    // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
+    // calls.
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
@@ -1669,9 +1672,21 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
     tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
-    // Apparently adding to a taskGroup isn't thread safe. Wait for the recording task group
-    // to add all its gpuThread work before adding the flush
+
+    // We have to wait for the recording threads to schedule all their work on the gpu thread
+    // before we can schedule the composition draw and the flush. Note that the gpu thread
+    // is not blocked at this point and this thread is borrowing recording work.
     recordingTaskGroup->wait();
+
+    // Note: at this point the recording thread(s) are stalled out w/ nothing to do.
+
+    // The recording threads have already scheduled the drawing of each tile's DDL on the gpu
+    // thread. The composition DDL must be scheduled last bc it relies on the result of all
+    // the tiles' rendering. Additionally, bc we're aliasing the tiles' backend textures,
+    // there is nothing in the DAG to automatically force the required order.
+    gpuTaskGroup->add([dstSurface, ddl = tiles.composeDDL()]() {
+                          dstSurface->draw(ddl);
+                      });
 
     // This should be the only explicit flush for the entire DDL draw
     gpuTaskGroup->add([gpuThreadCtx]() {
@@ -2111,7 +2126,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, fNumDivisions);
+            DDLTileHelper tiles(context, dstCharacterization, viewport, fNumDivisions);
 
             tiles.createBackendTextures(nullptr, context);
 
@@ -2125,9 +2140,12 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             tiles.createDDLsInParallel();
 
             if (replay == fNumReplays - 1) {
-                // This drops the promiseImageHelper's refs on all the promise images if we're in
-                // the last run.
+                // All the DDLs are created and they ref any created promise images which,
+                // in turn, ref the callback contexts. If it is the last run, drop the
+                // promise image helper's refs on the callback contexts.
                 promiseImageHelper.reset();
+                // Note: we cannot drop the tiles' callback contexts here bc they are needed
+                // to create each tile's destination surface.
             }
 
             // Fourth, synchronously render the display lists into the dest tiles
@@ -2135,18 +2153,20 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // drawing to the GPU and composing to the final surface
             tiles.precompileAndDrawAllTiles(context);
 
-            // Finally, compose the drawn tiles into the result
-            // Note: the separation between the tiles and the final composition better
-            // matches Chrome but costs us a copy
-            tiles.composeAllTiles(context);
+            if (replay == fNumReplays - 1) {
+                // At this point the compose DDL holds refs to the composition promise images
+                // which, in turn, hold refs on the tile callback contexts. If it is the last run,
+                // drop the refs on tile callback contexts.
+                tiles.dropCallbackContexts();
+            }
 
-            // We need to ensure all the GPU work is finished so the following
-            // 'deleteBackendTextures' call will work on Vulkan.
+            dstSurface->draw(tiles.composeDDL());
+
+            // We need to ensure all the GPU work is finished so the promise image callback
+            // contexts will delete all the backend textures.
             GrFlushInfo flushInfoSyncCpu;
             flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
             context->flush(flushInfoSyncCpu);
-
-            tiles.deleteBackendTextures(nullptr, context);
         }
         return Result::Ok();
     };

@@ -19,16 +19,21 @@
 #include "tools/DDLPromiseImageHelper.h"
 
 void DDLTileHelper::TileData::init(int id,
-                                   sk_sp<SkSurface> dstSurface,
+                                   GrContext* context,
                                    const SkSurfaceCharacterization& dstSurfaceCharacterization,
                                    const SkIRect& clip) {
     fID = id;
-    fDstSurface = dstSurface;
     fClip = clip;
 
     fCharacterization = dstSurfaceCharacterization.createResized(clip.width(), clip.height());
     SkASSERT(fCharacterization.isValid());
-    SkASSERT(!fBackendTexture.isValid());
+
+    GrBackendFormat backendFormat = context->defaultBackendFormat(fCharacterization.colorType(),
+                                                                  GrRenderable::kYes);
+    SkDEBUGCODE(const GrCaps* caps = context->priv().caps());
+    SkASSERT(caps->isFormatTexturable(backendFormat));
+
+    fCallbackContext.reset(new PromiseImageCallbackContext(context, backendFormat));
 }
 
 DDLTileHelper::TileData::~TileData() {}
@@ -83,6 +88,29 @@ void DDLTileHelper::TileData::createDDL() {
     fDisplayList = recorder.detach();
 }
 
+void DDLTileHelper::createComposeDDL() {
+    SkASSERT(!fComposeDDL);
+
+    SkDeferredDisplayListRecorder recorder(fDstCharacterization);
+
+    SkCanvas* recordingCanvas = recorder.getCanvas();
+
+    for (int i = 0; i < this->numTiles(); ++i) {
+        TileData* tile = &fTiles[i];
+
+        sk_sp<SkImage> promiseImage = tile->makePromiseImage(&recorder);
+
+        SkIRect clipRect = tile->clipRect();
+
+        SkASSERT(clipRect.width() == promiseImage->width() &&
+                 clipRect.height() == promiseImage->height());
+
+        recordingCanvas->drawImage(promiseImage, clipRect.fLeft, clipRect.fTop);
+    }
+
+    fComposeDDL = recorder.detach();
+}
+
 void DDLTileHelper::TileData::precompile(GrContext* context) {
     SkASSERT(fDisplayList);
 
@@ -93,12 +121,18 @@ void DDLTileHelper::TileData::precompile(GrContext* context) {
 }
 
 sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrContext* context) {
-    if (!fBackendTexture.isValid()) {
+    SkASSERT(fCallbackContext && fCallbackContext->promiseImageTexture());
+
+    auto promiseImageTexture = fCallbackContext->promiseImageTexture();
+    if (!promiseImageTexture->backendTexture().isValid()) {
         return nullptr;
     }
 
+    // Here we are, unfortunately, aliasing the backend texture held by the SkPromiseImageTexture.
+    // Both the tile's destination surface and the promise image used to draw the tile will be
+    // backed by the same backendTexture - unbeknownst to Ganesh.
     return SkSurface::MakeFromBackendTexture(context,
-                                             fBackendTexture,
+                                             promiseImageTexture->backendTexture(),
                                              fCharacterization.origin(),
                                              fCharacterization.sampleCount(),
                                              fCharacterization.colorType(),
@@ -126,7 +160,10 @@ void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
 void DDLTileHelper::TileData::draw(GrContext* context) {
     SkASSERT(fDisplayList && !fTileSurface);
 
-    // The tile's surface needs to be held until after the DDL is flushed
+    // The tile's surface needs to be held until after the DDL is flushed bc the DDL doesn't take
+    // a ref on its destination proxy.
+    // TODO: make the DDL (or probably the drawing manager) take a ref on the destination proxy
+    // (maybe in GrDrawingManager::addDDLTarget).
     fTileSurface = this->makeWrappedTileDest(context);
     if (fTileSurface) {
         fTileSurface->draw(fDisplayList.get());
@@ -136,65 +173,67 @@ void DDLTileHelper::TileData::draw(GrContext* context) {
     }
 }
 
-// TODO: We should create a single DDL for the composition step and just add replaying it
-// as the last GPU task
-void DDLTileHelper::TileData::compose(GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
-    SkASSERT(fDstSurface);
-
-    if (!fBackendTexture.isValid()) {
-        return;
-    }
-
-    // Here we are, unfortunately, aliasing 'fBackendTexture'. It is backing both 'fTileSurface'
-    // and 'tmp'.
-    sk_sp<SkImage> tmp = SkImage::MakeFromTexture(context,
-                                                  fBackendTexture,
-                                                  fCharacterization.origin(),
-                                                  fCharacterization.colorType(),
-                                                  kPremul_SkAlphaType,
-                                                  fCharacterization.refColorSpace());
-
-    SkCanvas* canvas = fDstSurface->getCanvas();
-    canvas->save();
-    canvas->clipRect(SkRect::Make(fClip));
-    canvas->drawImage(tmp, fClip.fLeft, fClip.fTop);
-    canvas->restore();
-}
-
 void DDLTileHelper::TileData::reset() {
     // TODO: when DDLs are re-renderable we don't need to do this
     fDisplayList = nullptr;
+
     fTileSurface = nullptr;
+}
+
+sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRecorder* recorder) {
+    SkASSERT(fCallbackContext);
+
+    // The promise image gets a ref on the promise callback context
+    sk_sp<SkImage> promiseImage = recorder->makePromiseTexture(
+                                    fCallbackContext->backendFormat(),
+                                    fClip.width(),
+                                    fClip.height(),
+                                    GrMipMapped::kNo,
+                                    GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                                    fCharacterization.colorType(),
+                                    kPremul_SkAlphaType,
+                                    fCharacterization.refColorSpace(),
+                                    PromiseImageCallbackContext::PromiseImageFulfillProc,
+                                    PromiseImageCallbackContext::PromiseImageReleaseProc,
+                                    PromiseImageCallbackContext::PromiseImageDoneProc,
+                                    (void*)this->refCallbackContext().release(),
+                                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+    fCallbackContext->wasAddedToImage();
+
+    return promiseImage;
 }
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData* tile) {
     SkASSERT(context->priv().asDirectContext());
-    SkASSERT(!tile->fBackendTexture.isValid());
+    SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
-    tile->fBackendTexture = context->createBackendTexture(tile->fCharacterization);
-    // TODO: it seems that, on the Linux bots, backend texture creation is failing
-    // a lot (skbug.com/10142)
-    //SkASSERT(tile->fBackendTexture.isValid());
+    GrBackendTexture beTex = context->createBackendTexture(tile->fCharacterization);
+    tile->fCallbackContext->setBackendTexture(beTex);
 }
 
 void DDLTileHelper::TileData::DeleteBackendTexture(GrContext* context, TileData* tile) {
     SkASSERT(context->priv().asDirectContext());
+    SkASSERT(tile->fCallbackContext);
+
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
     // a lot (skbug.com/10142)
-    //SkASSERT(tile->fBackendTexture.isValid());
+    SkASSERT(!tile->fCallbackContext->promiseImageTexture() ||
+             tile->fCallbackContext->promiseImageTexture()->backendTexture().isValid());
 
     tile->fTileSurface = nullptr;
-    context->deleteBackendTexture(tile->fBackendTexture);
+
+    SkASSERT(tile->fCallbackContext->unique());
+    tile->fCallbackContext.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
+DDLTileHelper::DDLTileHelper(GrContext* context,
                              const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
                              int numDivisions)
-        : fNumDivisions(numDivisions) {
+        : fNumDivisions(numDivisions)
+        , fDstCharacterization(dstChar) {
     SkASSERT(fNumDivisions > 0);
     fTiles = new TileData[this->numTiles()];
 
@@ -212,7 +251,7 @@ DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
 
             SkASSERT(viewport.contains(clip));
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, dstChar, clip);
+            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, context, dstChar, clip);
         }
     }
 }
@@ -227,12 +266,14 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
 void DDLTileHelper::createDDLsInParallel() {
 #if 1
     SkTaskGroup().batch(this->numTiles(), [&](int i) { fTiles[i].createDDL(); });
+    SkTaskGroup().add([this]{ this->createComposeDDL(); });
     SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].createDDL();
     }
+    this->createComposeDDL();
 #endif
 }
 
@@ -246,10 +287,6 @@ static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
     tile->precompile(context);
 
     tile->draw(context);
-
-    // TODO: we should actually have a separate DDL that does
-    // the final composition draw
-    tile->compose(context);
 }
 
 // We expect to have more than one recording thread but just one gpu thread
@@ -274,6 +311,8 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                     });
                                 });
     }
+
+    recordingTaskGroup->add([this] { this->createComposeDDL(); });
 }
 
 void DDLTileHelper::precompileAndDrawAllTiles(GrContext* context) {
@@ -296,9 +335,9 @@ void DDLTileHelper::drawAllTilesDirectly(GrContext* context) {
     }
 }
 
-void DDLTileHelper::composeAllTiles(GrContext* context) {
+void DDLTileHelper::dropCallbackContexts() {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].compose(context);
+        fTiles[i].dropCallbackContext();
     }
 }
 
@@ -306,6 +345,7 @@ void DDLTileHelper::resetAllTiles() {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].reset();
     }
+    fComposeDDL.reset();
 }
 
 void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
