@@ -16,6 +16,24 @@
       "revId": "690a450cdc9e15eea03879ae2f0df90f01537091",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48252ef7_cb463892",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-23T16:39:33Z",
+      "side": 1,
+      "message": "Yeah I can change it to SPIRV. As a point of comparison in sksl we have files named SkSLSPIRV*, so yeah probably better to update this to keeps things consistent within Skia",
+      "parentUuid": "ae0a14f5_4801ec23",
+      "revId": "690a450cdc9e15eea03879ae2f0df90f01537091",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
