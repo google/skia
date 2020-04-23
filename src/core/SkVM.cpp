@@ -1830,11 +1830,13 @@ namespace skvm {
     void Assembler::vpcmpeqd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
     void Assembler::vpcmpgtd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vcmpps(Ymm dst, Ymm x, Operand y, int imm) {
         this->op(0,0x0f,0xc2, dst,x,y);
         this->byte(imm);
     }
 
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z) {
         this->op(0x66,0x3a0f,0x4c, dst,x,y);
         this->byte(z << 4);
@@ -1858,12 +1860,14 @@ namespace skvm {
         this->byte(imm);
     }
 
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vpermq(Ymm dst, Operand x, int imm) {
         // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
         this->op(0x66,0x3a0f,0x00, dst,x,W1);
         this->byte(imm);
     }
 
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vroundps(Ymm dst, Operand x, Rounding imm) {
         this->op(0x66,0x3a0f,0x08, dst,x);
         this->byte(imm);
@@ -1978,10 +1982,12 @@ namespace skvm {
     void Assembler::vmovd(Operand dst, Xmm src) { this->op(0x66,0x0f,0x7e, src,dst); }
     void Assembler::vmovd(Xmm dst, Operand src) { this->op(0x66,0x0f,0x6e, dst,src); }
 
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x0f,0xc4, dst,src,y);
         this->byte(imm);
     }
+    // TODO: if y == label, we need to account for the extra byte
     void Assembler::vpinsrb(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x3a0f,0x20, dst,src,y);
         this->byte(imm);
