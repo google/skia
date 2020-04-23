@@ -25,6 +25,8 @@ class SkSVGText final : public SkSVGShape {
   void setY(const SkSVGLength&);
   void setFontFamily(const SkSVGStringType&);
   void setFontSize(const SkSVGLength&);
+  void setFontStyle(const SkSVGStringType&);
+  void setFontWeight(const SkSVGStringType&);
   void setText(const SkSVGStringType&);
   void setTextAnchor(const SkSVGStringType&);
 
@@ -36,6 +38,8 @@ class SkSVGText final : public SkSVGShape {
 
   SkPath onAsPath(const SkSVGRenderContext&) const override;
 
+  void loadFont();
+
  private:
   SkSVGText();
   SkSVGLength fX = SkSVGLength(0);
@@ -43,6 +47,9 @@ class SkSVGText final : public SkSVGShape {
   SkSVGStringType fText;
   sk_sp<SkTypeface> fTypeface;
   SkSVGLength fFontSize;
+  SkSVGStringType fFontFamily;
+  SkSVGStringType fFontStyle;
+  SkSVGStringType fFontWeight;
   SkTextUtils::Align fTextAlign = SkTextUtils::Align::kLeft_Align;
   typedef SkSVGShape INHERITED;
 };

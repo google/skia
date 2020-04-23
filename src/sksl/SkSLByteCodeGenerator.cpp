@@ -635,7 +635,7 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
 }
 
 bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool discard) {
-    if (b.fOperator == Token::Kind::EQ) {
+    if (b.fOperator == Token::Kind::TK_EQ) {
         std::unique_ptr<LValue> lvalue = this->getLValue(*b.fLeft);
         this->writeExpression(*b.fRight);
         lvalue->store(discard);
@@ -664,7 +664,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
     int count = std::max(SlotCount(lType), SlotCount(rType));
     SkDEBUGCODE(TypeCategory tc = type_category(lType));
     switch (op) {
-        case Token::Kind::LOGICALAND: {
+        case Token::Kind::TK_LOGICALAND: {
             SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
             this->write(ByteCodeInstruction::kDup);
             this->write(ByteCodeInstruction::kMaskPush);
@@ -676,7 +676,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             this->write(ByteCodeInstruction::kMaskPop);
             return false;
         }
-        case Token::Kind::LOGICALOR: {
+        case Token::Kind::TK_LOGICALOR: {
             SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
             this->write(ByteCodeInstruction::kDup);
             this->write(ByteCodeInstruction::kNotB);
@@ -689,8 +689,8 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             this->write(ByteCodeInstruction::kMaskPop);
             return false;
         }
-        case Token::Kind::SHL:
-        case Token::Kind::SHR: {
+        case Token::Kind::TK_SHL:
+        case Token::Kind::TK_SHR: {
             SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                     tc == SkSL::TypeCategory::kUnsigned));
             if (!b.fRight->isConstant()) {
@@ -703,7 +703,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                 return false;
             }
 
-            if (op == Token::Kind::SHL) {
+            if (op == Token::Kind::TK_SHL) {
                 this->write(ByteCodeInstruction::kShiftLeft);
             } else {
                 this->write(type_category(lType) == TypeCategory::kSigned
@@ -724,7 +724,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         }
     }
     // Special case for M*V, V*M, M*M (but not V*V!)
-    if (op == Token::Kind::STAR && lVecOrMtx && rVecOrMtx &&
+    if (op == Token::Kind::TK_STAR && lVecOrMtx && rVecOrMtx &&
         !(lType.kind() == Type::kVector_Kind && rType.kind() == Type::kVector_Kind)) {
         this->write(ByteCodeInstruction::kMatrixMultiply,
                     SlotCount(b.fType) - (SlotCount(lType) + SlotCount(rType)));
@@ -743,7 +743,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         this->write8(rCols);
     } else {
         switch (op) {
-            case Token::Kind::EQEQ:
+            case Token::Kind::TK_EQEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareIEQ,
                                             ByteCodeInstruction::kCompareIEQ,
                                             ByteCodeInstruction::kCompareFEQ,
@@ -753,37 +753,37 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                     this->write(ByteCodeInstruction::kAndB);
                 }
                 break;
-            case Token::Kind::GT:
+            case Token::Kind::TK_GT:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareSGT,
                                             ByteCodeInstruction::kCompareUGT,
                                             ByteCodeInstruction::kCompareFGT,
                                             count);
                 break;
-            case Token::Kind::GTEQ:
+            case Token::Kind::TK_GTEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareSGTEQ,
                                             ByteCodeInstruction::kCompareUGTEQ,
                                             ByteCodeInstruction::kCompareFGTEQ,
                                             count);
                 break;
-            case Token::Kind::LT:
+            case Token::Kind::TK_LT:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareSLT,
                                             ByteCodeInstruction::kCompareULT,
                                             ByteCodeInstruction::kCompareFLT,
                                             count);
                 break;
-            case Token::Kind::LTEQ:
+            case Token::Kind::TK_LTEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareSLTEQ,
                                             ByteCodeInstruction::kCompareULTEQ,
                                             ByteCodeInstruction::kCompareFLTEQ,
                                             count);
                 break;
-            case Token::Kind::MINUS:
+            case Token::Kind::TK_MINUS:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kSubtractI,
                                             ByteCodeInstruction::kSubtractI,
                                             ByteCodeInstruction::kSubtractF,
                                             count);
                 break;
-            case Token::Kind::NEQ:
+            case Token::Kind::TK_NEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareINEQ,
                                             ByteCodeInstruction::kCompareINEQ,
                                             ByteCodeInstruction::kCompareFNEQ,
@@ -793,47 +793,47 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                     this->write(ByteCodeInstruction::kOrB);
                 }
                 break;
-            case Token::Kind::PERCENT:
+            case Token::Kind::TK_PERCENT:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kRemainderS,
                                             ByteCodeInstruction::kRemainderU,
                                             ByteCodeInstruction::kRemainderF,
                                             count);
                 break;
-            case Token::Kind::PLUS:
+            case Token::Kind::TK_PLUS:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kAddI,
                                             ByteCodeInstruction::kAddI,
                                             ByteCodeInstruction::kAddF,
                                             count);
                 break;
-            case Token::Kind::SLASH:
+            case Token::Kind::TK_SLASH:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kDivideS,
                                             ByteCodeInstruction::kDivideU,
                                             ByteCodeInstruction::kDivideF,
                                             count);
                 break;
-            case Token::Kind::STAR:
+            case Token::Kind::TK_STAR:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kMultiplyI,
                                             ByteCodeInstruction::kMultiplyI,
                                             ByteCodeInstruction::kMultiplyF,
                                             count);
                 break;
 
-            case Token::Kind::LOGICALXOR:
+            case Token::Kind::TK_LOGICALXOR:
                 SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
                 this->write(ByteCodeInstruction::kXorB);
                 break;
 
-            case Token::Kind::BITWISEAND:
+            case Token::Kind::TK_BITWISEAND:
                 SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                         tc == SkSL::TypeCategory::kUnsigned));
                 this->write(ByteCodeInstruction::kAndB);
                 break;
-            case Token::Kind::BITWISEOR:
+            case Token::Kind::TK_BITWISEOR:
                 SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                         tc == SkSL::TypeCategory::kUnsigned));
                 this->write(ByteCodeInstruction::kOrB);
                 break;
-            case Token::Kind::BITWISEXOR:
+            case Token::Kind::TK_BITWISEXOR:
                 SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                         tc == SkSL::TypeCategory::kUnsigned));
                 this->write(ByteCodeInstruction::kXorB);
@@ -1116,14 +1116,14 @@ void ByteCodeGenerator::writeNullLiteral(const NullLiteral& n) {
 
 bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool discard) {
     switch (p.fOperator) {
-        case Token::Kind::PLUSPLUS: // fall through
-        case Token::Kind::MINUSMINUS: {
+        case Token::Kind::TK_PLUSPLUS: // fall through
+        case Token::Kind::TK_MINUSMINUS: {
             SkASSERT(SlotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(type_category(p.fType) == TypeCategory::kFloat ? float_to_bits(1.0f) : 1);
-            if (p.fOperator == Token::Kind::PLUSPLUS) {
+            if (p.fOperator == Token::Kind::TK_PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kAddI,
                                             ByteCodeInstruction::kAddI,
@@ -1140,7 +1140,7 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
             discard = false;
             break;
         }
-        case Token::Kind::MINUS: {
+        case Token::Kind::TK_MINUS: {
             this->writeExpression(*p.fOperand);
             this->writeTypedInstruction(p.fType,
                                         ByteCodeInstruction::kNegateI,
@@ -1149,12 +1149,12 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
                                         SlotCount(p.fOperand->fType));
             break;
         }
-        case Token::Kind::LOGICALNOT:
-        case Token::Kind::BITWISENOT: {
+        case Token::Kind::TK_LOGICALNOT:
+        case Token::Kind::TK_BITWISENOT: {
             SkASSERT(SlotCount(p.fOperand->fType) == 1);
             SkDEBUGCODE(TypeCategory tc = type_category(p.fOperand->fType));
-            SkASSERT((p.fOperator == Token::Kind::LOGICALNOT && tc == TypeCategory::kBool) ||
-                     (p.fOperator == Token::Kind::BITWISENOT && (tc == TypeCategory::kSigned ||
+            SkASSERT((p.fOperator == Token::Kind::TK_LOGICALNOT && tc == TypeCategory::kBool) ||
+                     (p.fOperator == Token::Kind::TK_BITWISENOT && (tc == TypeCategory::kSigned ||
                                                                  tc == TypeCategory::kUnsigned)));
             this->writeExpression(*p.fOperand);
             this->write(ByteCodeInstruction::kNotB);
@@ -1168,8 +1168,8 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
 
 bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool discard) {
     switch (p.fOperator) {
-        case Token::Kind::PLUSPLUS: // fall through
-        case Token::Kind::MINUSMINUS: {
+        case Token::Kind::TK_PLUSPLUS: // fall through
+        case Token::Kind::TK_MINUSMINUS: {
             SkASSERT(SlotCount(p.fOperand->fType) == 1);
             std::unique_ptr<LValue> lvalue = this->getLValue(*p.fOperand);
             lvalue->load();
@@ -1179,7 +1179,7 @@ bool ByteCodeGenerator::writePostfixExpression(const PostfixExpression& p, bool 
             }
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(type_category(p.fType) == TypeCategory::kFloat ? float_to_bits(1.0f) : 1);
-            if (p.fOperator == Token::Kind::PLUSPLUS) {
+            if (p.fOperator == Token::Kind::TK_PLUSPLUS) {
                 this->writeTypedInstruction(p.fType,
                                             ByteCodeInstruction::kAddI,
                                             ByteCodeInstruction::kAddI,

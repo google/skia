@@ -7,7 +7,6 @@
 import os
 import subprocess
 import tempfile
-import sysopen
 import sys
 
 def skqp(build):
@@ -20,21 +19,24 @@ def skqp(build):
 
     os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 
-    adb('shell', 'rm -rf /data/local/tmp/skqp; mkdir -p /data/local/tmp/skqp')
+    adb('shell', 'rm -rf /data/local/tmp/skqp; mkdir -p /data/local/tmp/skqp/skqp_assets')
 
     adb('push',
-        os.path.join(*'platform_tools/android/apps/skqp/src/main/assets'.split('/')),
+        os.path.join(*'platform_tools/android/apps/skqp/src/main/assets/skqp'.split('/')),
         '/data/local/tmp/skqp/skqp_assets')
+    adb('push',
+        os.path.join(*'out/skqp/gmkb'.split('/')), '/data/local/tmp/skqp/skqp_assets')
+    adb('push', 'resources', '/data/local/tmp/skqp/skqp_assets')
 
     adb('push', os.path.join(build, 'skqp'), '/data/local/tmp/skqp/skqp')
 
-    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets report"
+    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets '' report"
     sys.stdout.write("adb 'shell' '%s'\n" % cmd)
     ret = subprocess.call(['adb', 'shell', cmd])
 
     tmpdir = tempfile.mkdtemp(prefix='skqp')
 
-    adb('pull', "/data/local/tmp/report", tmpdir)
+    adb('pull', "/data/local/tmp/skqp/report", tmpdir)
 
     return ret, os.path.join(tmpdir, 'report')
 
@@ -49,5 +51,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     sys.stdout.write('\nReturn code: %d\nOutput written to "%s"\n' % (ret, report))
-    sysopen.sysopen(os.path.join(report, 'report.html'))
-
+    os.system("bin/sysopen " + os.path.join(report, 'report.html'))

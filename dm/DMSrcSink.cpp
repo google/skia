@@ -1662,6 +1662,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     constexpr int kNumDivisions = 3;
     DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
 
+    tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
+
     // Reinflate the compressed picture individually for each thread.
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
@@ -1671,14 +1673,26 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     recordingTaskGroup->wait();
 
     // This should be the only explicit flush for the entire DDL draw
-    gpuTaskGroup->add([gpuThreadCtx]() { gpuThreadCtx->flush(); });
+    gpuTaskGroup->add([gpuThreadCtx]() {
+                                           // We need to ensure all the GPU work is finished so
+                                           // the following 'deleteAllFromGPU' call will work
+                                           // on Vulkan.
+                                           // TODO: switch over to using the promiseImage callbacks
+                                           // to free the backendTextures. This is complicated a
+                                           // bit by which thread possesses the direct context.
+                                           GrFlushInfo flushInfoSyncCpu;
+                                           flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+                                           gpuThreadCtx->flush(flushInfoSyncCpu);
+                                       });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
     promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
 
+    tiles.deleteBackendTextures(gpuTaskGroup, gpuThreadCtx);
+
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
-    // textures so it is safe to schedule making 'mainCtx' not current on the gpuThread.
+    // textures so it is safe to schedule making 'gpuTestCtx' not current on the gpuThread.
     gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
 
     // All the work is scheduled on the gpu thread, we just need to wait
@@ -2098,6 +2112,8 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // First, create all the tiles (including their individual dest surfaces)
             DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, fNumDivisions);
 
+            tiles.createBackendTextures(nullptr, context);
+
             // Second, reinflate the compressed picture individually for each thread
             // This recreates the promise SkImages on each replay iteration. We are currently
             // relying on this to test using a SkPromiseImageTexture to fulfill different
@@ -2121,8 +2137,15 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
             // matches Chrome but costs us a copy
-            tiles.composeAllTiles();
-            context->flush();
+            tiles.composeAllTiles(context);
+
+            // We need to ensure all the GPU work is finished so the following
+            // 'deleteBackendTextures' call will work on Vulkan.
+            GrFlushInfo flushInfoSyncCpu;
+            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+            context->flush(flushInfoSyncCpu);
+
+            tiles.deleteBackendTextures(nullptr, context);
         }
         return Result::Ok();
     };

@@ -14,7 +14,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -694,7 +694,8 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrC
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
-    GrFPArgs args(ctx, &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, &colorInfo);
+    SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+    GrFPArgs args(ctx, matrixProvider, SkFilterQuality::kLow_SkFilterQuality, &colorInfo);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 
@@ -717,7 +718,7 @@ static void test_path(GrContext* ctx,
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
-    GrShape shape(path, style);
+    GrStyledShape shape(path, style);
     GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,

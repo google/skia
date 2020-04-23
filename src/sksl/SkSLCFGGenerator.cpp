@@ -163,7 +163,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
     switch (expr->fKind) {
         case Expression::kBinary_Kind: {
             BinaryExpression* b = (BinaryExpression*) expr;
-            if (b->fOperator == Token::EQ) {
+            if (b->fOperator == Token::Kind::TK_EQ) {
                 if (!this->tryRemoveLValueBefore(iter, b->fLeft.get())) {
                     return false;
                 }
@@ -317,8 +317,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kBinary_Kind: {
             BinaryExpression* b = (BinaryExpression*) e->get();
             switch (b->fOperator) {
-                case Token::LOGICALAND: // fall through
-                case Token::LOGICALOR: {
+                case Token::Kind::TK_LOGICALAND: // fall through
+                case Token::Kind::TK_LOGICALOR: {
                     // this isn't as precise as it could be -- we don't bother to track that if we
                     // early exit from a logical and/or, we know which branch of an 'if' we're going
                     // to hit -- but it won't make much difference in practice.
@@ -336,7 +336,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     });
                     break;
                 }
-                case Token::EQ: {
+                case Token::Kind::TK_EQ: {
                     this->addExpression(cfg, &b->fRight, constantPropagate);
                     this->addLValue(cfg, &b->fLeft);
                     cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
@@ -400,8 +400,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kPrefix_Kind: {
             PrefixExpression* p = (PrefixExpression*) e->get();
             this->addExpression(cfg, &p->fOperand, constantPropagate &&
-                                                   p->fOperator != Token::PLUSPLUS &&
-                                                   p->fOperator != Token::MINUSMINUS);
+                                                   p->fOperator != Token::Kind::TK_PLUSPLUS &&
+                                                   p->fOperator != Token::Kind::TK_MINUSMINUS);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;

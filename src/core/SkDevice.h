@@ -15,21 +15,21 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/core/SkMarkerStack.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
 struct SkDrawShadowRec;
-class SkCanvasMatrix;
 class SkGlyphRun;
 class SkGlyphRunList;
 class SkImageFilterCache;
 struct SkIRect;
+class SkMarkerStack;
 class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
-class SkBaseDevice : public SkRefCnt, public SkMarkedMatrixProvider {
+class SkBaseDevice : public SkRefCnt, public SkMatrixProvider {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -138,11 +138,14 @@ public:
     SkMarkerStack* markerStack() const { return fMarkerStack; }
     void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
 
-    // SkMarkedMatrixProvider interface:
+    // SkMatrixProvider interface:
     bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
+    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
+
+    const SkMatrixProvider& asMatrixProvider() const { return *this; }
 
     void save() { this->onSave(); }
-    void restore(const SkCanvasMatrix& ctm) {
+    void restore(const SkM44& ctm) {
         this->onRestore();
         this->setGlobalCTM(ctm);
     }
@@ -176,11 +179,10 @@ public:
         return this->onClipIsWideOpen();
     }
 
-    const SkMatrix& localToDevice() const { return fLocalToDevice; }
     void setLocalToDevice(const SkMatrix& localToDevice) {
         fLocalToDevice = localToDevice;
     }
-    void setGlobalCTM(const SkCanvasMatrix& ctm);
+    void setGlobalCTM(const SkM44& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
 
     virtual bool android_utils_clipWithStencil() { return false; }

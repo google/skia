@@ -36,7 +36,7 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 
 void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                        Precedence parentPrecedence) {
-    if (b.fOperator == Token::PERCENT) {
+    if (b.fOperator == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
         Precedence precedence = GetBinaryPrecedence(b.fOperator);
         if (precedence >= parentPrecedence) {

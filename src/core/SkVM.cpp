@@ -14,6 +14,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <algorithm>
@@ -35,18 +36,6 @@
 #endif
 
 bool gSkVMJITViaDylib{false};
-
-// JIT code isn't MSAN-instrumented, so we won't see when it uses
-// uninitialized memory, and we'll not see the writes it makes as properly
-// initializing memory.  Instead force the interpreter, which should let
-// MSAN see everything our programs do properly.
-//
-// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
-#if defined(__has_feature)
-    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
-        #undef SKVM_JIT
-    #endif
-#endif
 
 #if defined(SKVM_JIT)
     #include <dlfcn.h>      // dlopen, dlsym
@@ -166,7 +155,7 @@ namespace skvm {
 
         o->writeText("digraph {\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
-            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = optimized[id];
+            auto [op, x,y,z, immy,immz, death,can_hoist] = optimized[id];
 
             switch (op) {
                 default:
@@ -296,9 +285,7 @@ namespace skvm {
         o->writeText("):\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
             const OptimizedInstruction& inst = optimized[id];
-            write(o, !inst.can_hoist    ? "  " :
-                      inst.used_in_loop ? "↑ " :
-                                          "↟ ");
+            write(o, inst.can_hoist ? "↑ " : "  ");
             write_one_instruction(id, inst, o);
         }
     }
@@ -584,7 +571,7 @@ namespace skvm {
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
             optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immy,inst.immz,
-                             /*death=*/id, /*can_hoist=*/true, /*used_in_loop=*/false};
+                             /*death=*/id, /*can_hoist=*/true};
         }
 
         // Each Instruction's inputs need to live at least until that Instruction issues.
@@ -597,9 +584,7 @@ namespace skvm {
         }
 
         // Mark which values don't depend on the loop and can be hoisted.
-        for (Val id = 0; id < (Val)optimized.size(); id++) {
-            OptimizedInstruction& inst = optimized[id];
-
+        for (OptimizedInstruction& inst : optimized) {
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
             if (is_always_varying(inst.op)) {
                 inst.can_hoist = false;
@@ -611,12 +596,15 @@ namespace skvm {
                     if (arg != NA) { inst.can_hoist &= optimized[arg].can_hoist; }
                 }
             }
+        }
 
-            // We'll want to know if hoisted values are used in the loop;
-            // if not, we can recycle their registers like we do loop values.
-            if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
+        // Extend the lifetime of any hoisted value that's used in the loop to infinity.
+        for (OptimizedInstruction& inst : optimized) {
+            if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used-in-loop*/) {
                 for (Val arg : {inst.x, inst.y, inst.z}) {
-                    if (arg != NA) { optimized[arg].used_in_loop = true; }
+                    if (arg != NA && optimized[arg].can_hoist) {
+                        optimized[arg].death = (Val)program.size();
+                    }
                 }
             }
         }
@@ -1741,9 +1729,28 @@ namespace skvm {
     }
     void Assembler::ret() { this->byte(0xc3); }
 
-    // Common instruction building for 64-bit opcodes with an immediate argument.
-    void Assembler::op(int opcode, int opcode_ext, GP64 dst, int imm) {
-        opcode |= 0b0000'0001;   // low bit set for 64-bit operands
+    void Assembler::op(int opcode, Operand dst, GP64 x) {
+        if (dst.kind == Operand::REG) {
+            this->byte(rex(W1,x>>3,0,dst.reg>>3));
+            this->bytes(&opcode, SkTFitsIn<uint8_t>(opcode) ? 1 : 2);
+            this->byte(mod_rm(Mod::Direct, x, dst.reg&7));
+        } else {
+            SkASSERT(dst.kind == Operand::MEM);
+            const Mem& m = dst.mem;
+            const bool need_SIB = m.base  == rsp
+                               || m.index != rsp;
+
+            this->byte(rex(W1,x>>3,m.index>>3,m.base>>3));
+            this->bytes(&opcode, SkTFitsIn<uint8_t>(opcode) ? 1 : 2);
+            this->byte(mod_rm(mod(m.disp), x&7, (need_SIB ? rsp : m.base)&7));
+            if (need_SIB) {
+                this->byte(sib(m.scale, m.index&7, m.base&7));
+            }
+            this->bytes(&m.disp, imm_bytes(mod(m.disp)));
+        }
+    }
+
+    void Assembler::op(int opcode, int opcode_ext, Operand dst, int imm) {
         opcode |= 0b1000'0000;   // top bit set for instructions with any immediate
 
         int imm_bytes = 4;
@@ -1752,22 +1759,39 @@ namespace skvm {
             opcode |= 0b0000'0010;  // second bit set for 8-bit immediate, else 32-bit.
         }
 
-        this->byte(rex(1,0,0,dst>>3));
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, opcode_ext, dst&7));
+        this->op(opcode, dst, (GP64)opcode_ext);
         this->bytes(&imm, imm_bytes);
     }
 
-    void Assembler::add(GP64 dst, int imm) { this->op(0,0b000, dst,imm); }
-    void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
-    void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
+    void Assembler::add(Operand dst, int imm) { this->op(0x01,0b000, dst,imm); }
+    void Assembler::sub(Operand dst, int imm) { this->op(0x01,0b101, dst,imm); }
+    void Assembler::cmp(Operand dst, int imm) { this->op(0x01,0b111, dst,imm); }
 
-    void Assembler::movq(GP64 dst, GP64 src, int off) {
-        this->byte(rex(1,dst>>3,0,src>>3));
-        this->byte(0x8b);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
+    // These don't work quite like the other instructions with immediates:
+    // these immediates are always fixed size at 4 bytes or 1 byte.
+    void Assembler::mov(Operand dst, int imm) {
+        this->op(0xC7,dst,(GP64)0b000);
+        this->word(imm);
     }
+    void Assembler::movb(Operand dst, int imm) {
+        this->op(0xC6,dst,(GP64)0b000);
+        this->byte(imm);
+    }
+
+    void Assembler::add (Operand dst, GP64 x) { this->op(0x01, dst,x); }
+    void Assembler::sub (Operand dst, GP64 x) { this->op(0x29, dst,x); }
+    void Assembler::cmp (Operand dst, GP64 x) { this->op(0x39, dst,x); }
+    void Assembler::mov (Operand dst, GP64 x) { this->op(0x89, dst,x); }
+    void Assembler::movb(Operand dst, GP64 x) { this->op(0x88, dst,x); }
+
+    void Assembler::add (GP64 dst, Operand x) { this->op(0x03, x,dst); }
+    void Assembler::sub (GP64 dst, Operand x) { this->op(0x2B, x,dst); }
+    void Assembler::cmp (GP64 dst, Operand x) { this->op(0x3B, x,dst); }
+    void Assembler::mov (GP64 dst, Operand x) { this->op(0x8B, x,dst); }
+    void Assembler::movb(GP64 dst, Operand x) { this->op(0x8A, x,dst); }
+
+    void Assembler::movzbq(GP64 dst, Operand x) { this->op(0xB60F, x,dst); }
+    void Assembler::movzwq(GP64 dst, Operand x) { this->op(0xB70F, x,dst); }
 
     void Assembler::vpaddd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
     void Assembler::vpsubd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
@@ -1954,34 +1978,6 @@ namespace skvm {
     void Assembler::vmovd(Operand dst, Xmm src) { this->op(0x66,0x0f,0x7e, src,dst); }
     void Assembler::vmovd(Xmm dst, Operand src) { this->op(0x66,0x0f,0x6e, dst,src); }
 
-    void Assembler::movzbl(GP64 dst, GP64 src, int off) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,dst>>3,0,src>>3));
-        }
-        this->byte(0x0f);
-        this->byte(0xb6);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
-    void Assembler::movzwl(GP64 dst, GP64 src, int off) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,dst>>3,0,src>>3));
-        }
-        this->byte(0x0f);
-        this->byte(0xb7);
-        this->byte(mod_rm(mod(off), dst&7, src&7));
-        this->bytes(&off, imm_bytes(mod(off)));
-    }
-
-
-    void Assembler::movb(GP64 dst, GP64 src) {
-        if ((dst>>3) || (src>>3)) {
-            this->byte(rex(0,src>>3,0,dst>>3));
-        }
-        this->byte(0x88);
-        this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
-    }
-
     void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x0f,0xc4, dst,src,y);
         this->byte(imm);
@@ -1991,6 +1987,14 @@ namespace skvm {
         this->byte(imm);
     }
 
+    void Assembler::vextracti128(Operand dst, Ymm src, int imm) {
+        this->op(0x66,0x3a0f,0x39, src,dst);
+        this->byte(imm);
+    }
+    void Assembler::vpextrd(Operand dst, Xmm src, int imm) {
+        this->op(0x66,0x3a0f,0x16, src,dst);
+        this->byte(imm);
+    }
     void Assembler::vpextrw(Operand dst, Xmm src, int imm) {
         this->op(0x66,0x3a0f,0x15, src,dst);
         this->byte(imm);
@@ -2028,6 +2032,12 @@ namespace skvm {
                   | (n  &  5_mask) <<  5
                   | (d  &  5_mask) <<  0);
     }
+    void Assembler::op(uint32_t op22, V n, V d, int imm) {
+        this->word( (op22 & 22_mask) << 10
+                  | imm  // size and location depends on the instruction
+                  | (n    &  5_mask) <<  5
+                  | (d    &  5_mask) <<  0);
+    }
 
     void Assembler::and16b(V d, V n, V m) { this->op(0b0'1'0'01110'00'1, m, 0b00011'1, n, d); }
     void Assembler::orr16b(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b00011'1, n, d); }
@@ -2063,27 +2073,20 @@ namespace skvm {
 
     void Assembler::tbl(V d, V n, V m) { this->op(0b0'1'001110'00'0, m, 0b0'00'0'00, n, d); }
 
-    void Assembler::op(uint32_t op22, int imm, V n, V d) {
-        this->word( (op22 & 22_mask) << 10
-                  | imm              << 16   // imm is embedded inside op, bit size depends on op
-                  | (n    &  5_mask) <<  5
-                  | (d    &  5_mask) <<  0);
+    void Assembler::sli4s(V d, V n, int imm5) {
+        this->op(0b0'1'1'011110'0100'000'01010'1,    n, d, ( imm5 & 5_mask)<<16);
     }
-
-    void Assembler::sli4s(V d, V n, int imm) {
-        this->op(0b0'1'1'011110'0100'000'01010'1,    ( imm&31), n, d);
+    void Assembler::shl4s(V d, V n, int imm5) {
+        this->op(0b0'1'0'011110'0100'000'01010'1,    n, d, ( imm5 & 5_mask)<<16);
     }
-    void Assembler::shl4s(V d, V n, int imm) {
-        this->op(0b0'1'0'011110'0100'000'01010'1,    ( imm&31), n, d);
+    void Assembler::sshr4s(V d, V n, int imm5) {
+        this->op(0b0'1'0'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & 5_mask)<<16);
     }
-    void Assembler::sshr4s(V d, V n, int imm) {
-        this->op(0b0'1'0'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
+    void Assembler::ushr4s(V d, V n, int imm5) {
+        this->op(0b0'1'1'011110'0100'000'00'0'0'0'1, n, d, (-imm5 & 5_mask)<<16);
     }
-    void Assembler::ushr4s(V d, V n, int imm) {
-        this->op(0b0'1'1'011110'0100'000'00'0'0'0'1, (-imm&31), n, d);
-    }
-    void Assembler::ushr8h(V d, V n, int imm) {
-        this->op(0b0'1'1'011110'0010'000'00'0'0'0'1, (-imm&15), n, d);
+    void Assembler::ushr8h(V d, V n, int imm4) {
+        this->op(0b0'1'1'011110'0010'000'00'0'0'0'1, n, d, (-imm4 & 4_mask)<<16);
     }
 
     void Assembler::scvtf4s (V d, V n) { this->op(0b0'1'0'01110'0'0'10000'11101'10, n,d); }
@@ -2099,72 +2102,61 @@ namespace skvm {
     void Assembler::uminv4s(V d, V n) { this->op(0b0'1'1'01110'10'11000'1'1010'10, n,d); }
 
     void Assembler::brk(int imm16) {
-        this->word(0b11010100'001'0000000000000000'000'00
-                  | (imm16 & 16_mask) << 5);
+        this->op(0b11010100'001'00000000000, (imm16 & 16_mask) << 5);
     }
 
-    void Assembler::ret(X n) {
-        this->word(0b1101011'0'0'10'11111'0000'0'0 << 10
-                  | (n & 5_mask) << 5);
-    }
+    void Assembler::ret(X n) { this->op(0b1101011'0'0'10'11111'0000'0'0, n, (X)0); }
 
     void Assembler::add(X d, X n, int imm12) {
-        this->word(0b1'0'0'10001'00   << 22
-                  | (imm12 & 12_mask) << 10
-                  | (n     &  5_mask) <<  5
-                  | (d     &  5_mask) <<  0);
+        this->op(0b1'0'0'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
     }
     void Assembler::sub(X d, X n, int imm12) {
-        this->word( 0b1'1'0'10001'00  << 22
-                  | (imm12 & 12_mask) << 10
-                  | (n     &  5_mask) <<  5
-                  | (d     &  5_mask) <<  0);
+        this->op(0b1'1'0'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
     }
     void Assembler::subs(X d, X n, int imm12) {
-        this->word( 0b1'1'1'10001'00  << 22
-                  | (imm12 & 12_mask) << 10
-                  | (n     &  5_mask) <<  5
-                  | (d     &  5_mask) <<  0);
+        this->op(0b1'1'1'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
     }
 
     void Assembler::b(Condition cond, Label* l) {
         const int imm19 = this->disp19(l);
-        this->word( 0b0101010'0           << 24
-                  | (imm19     & 19_mask) <<  5
-                  | ((int)cond &  4_mask) <<  0);
+        this->op(0b0101010'0'00000000000000, (X)0, (V)cond, (imm19 & 19_mask) << 5);
     }
     void Assembler::cbz(X t, Label* l) {
         const int imm19 = this->disp19(l);
-        this->word( 0b1'011010'0      << 24
-                  | (imm19 & 19_mask) <<  5
-                  | (t     &  5_mask) <<  0);
+        this->op(0b1'011010'0'00000000000000, (X)0, t, (imm19 & 19_mask) << 5);
     }
     void Assembler::cbnz(X t, Label* l) {
         const int imm19 = this->disp19(l);
-        this->word( 0b1'011010'1      << 24
-                  | (imm19 & 19_mask) <<  5
-                  | (t     &  5_mask) <<  0);
+        this->op(0b1'011010'1'00000000000000, (X)0, t, (imm19 & 19_mask) << 5);
     }
 
-    void Assembler::ldrq(V dst, X src) { this->op(0b00'111'1'01'11'000000000000, src, dst); }
-    void Assembler::ldrs(V dst, X src) { this->op(0b10'111'1'01'01'000000000000, src, dst); }
-    void Assembler::ldrb(V dst, X src) { this->op(0b00'111'1'01'01'000000000000, src, dst); }
+    void Assembler::ldrq(V dst, X src, int imm12) {
+        this->op(0b00'111'1'01'11'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrs(V dst, X src, int imm12) {
+        this->op(0b10'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrb(V dst, X src, int imm12) {
+        this->op(0b00'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
 
-    void Assembler::strq(V src, X dst) { this->op(0b00'111'1'01'10'000000000000, dst, src); }
-    void Assembler::strs(V src, X dst) { this->op(0b10'111'1'01'00'000000000000, dst, src); }
-    void Assembler::strb(V src, X dst) { this->op(0b00'111'1'01'00'000000000000, dst, src); }
+    void Assembler::strq(V src, X dst, int imm12) {
+        this->op(0b00'111'1'01'10'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::strs(V src, X dst, int imm12) {
+        this->op(0b10'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::strb(V src, X dst, int imm12) {
+        this->op(0b00'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
 
     void Assembler::fmovs(X dst, V src) {
-        this->word(0b0'0'0'11110'00'1'00'110'000000 << 10
-                  | (src & 5_mask)                  << 5
-                  | (dst & 5_mask)                  << 0);
+        this->op(0b0'0'0'11110'00'1'00'110'000000, src, dst);
     }
 
     void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
-        this->word( 0b10'011'1'00     << 24
-                  | (imm19 & 19_mask) << 5
-                  | (dst   &  5_mask) << 0);
+        this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & 19_mask) << 5);
     }
 
     void Assembler::label(Label* l) {
@@ -2293,7 +2285,7 @@ namespace skvm {
         std::vector<llvm::Value*> vals(instructions.size());
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
+            auto [op, x,y,z, immy,immz, death,can_hoist] = instructions[i];
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
                        *i8    = llvm::Type::getInt8Ty (*ctx),
@@ -2737,7 +2729,6 @@ namespace skvm {
         //
         // Since we have effectively infinite registers, we hoist any value we can.
         // (The JIT may choose a more complex policy to reduce register pressure.)
-        auto hoisted = [&](Val id) { return instructions[id].can_hoist; };
 
         fImpl->regs = 0;
         std::vector<Reg> avail;
@@ -2749,9 +2740,7 @@ namespace skvm {
             // If this is a real input and it's lifetime ends at this instruction,
             // we can recycle the register it's occupying.
             auto maybe_recycle_register = [&](Val input) {
-                if (input != NA
-                        && instructions[input].death == id
-                        && !(hoisted(input) && instructions[input].used_in_loop)) {
+                if (input != NA && instructions[input].death == id) {
                     avail.push_back(reg[input]);
                 }
             };
@@ -2775,10 +2764,10 @@ namespace skvm {
 
         // Assign a register to each hoisted instruction, then each non-hoisted loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if ( hoisted(id)) { assign_register(id); }
+            if ( instructions[id].can_hoist) { assign_register(id); }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (!hoisted(id)) { assign_register(id); }
+            if (!instructions[id].can_hoist) { assign_register(id); }
         }
 
         // Translate OptimizedInstructions to InterpreterIstructions by mapping values to
@@ -2810,14 +2799,14 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const OptimizedInstruction& inst = instructions[id];
-            if (hoisted(id)) {
+            if (inst.can_hoist) {
                 push_instruction(id, inst);
                 fImpl->loop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const OptimizedInstruction& inst = instructions[id];
-            if (!hoisted(id)) {
+            if (!inst.can_hoist) {
                 push_instruction(id, inst);
             }
         }
@@ -2825,224 +2814,204 @@ namespace skvm {
 
 #if defined(SKVM_JIT)
 
-    bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
-                      const JITMode mode,
-                      Assembler* a) const {
+    bool Program::jit(const std::vector<OptimizedInstruction>& instructions, Assembler* a) const {
         using A = Assembler;
-        const bool try_hoisting = mode != JITMode::RegisterNoHoist;
 
-        auto debug_dump = [&] {
-        #if 0
-            SkDebugfStream stream;
-            this->dump(&stream);
-            return true;
-        #else
-            return false;
-        #endif
-        };
+        SkTHashMap<int, A::Label> constants;    // Constants share the same pool.
+        A::Label                  iota;         // Varies per lane, for Op::index.
+
+        // The `regs` array tracks everything we know about each register's state:
+        //   - NA:   empty
+        //   - RES:  reserved by ABI
+        //   - TMP:  holding a temporary
+        //   - id:   holding Val id
+        constexpr Val RES = NA-1,
+                      TMP = RES-1;
 
     #if defined(__x86_64__)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
-        const bool stack_only = mode == JITMode::Stack;
-        A::GP64 N        = A::rdi,
-                scratch  = A::rax,
-                scratch2 = A::r11,
-                arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+        const A::GP64 N   = A::rdi,
+                      GP0 = A::rax,
+                      GP1 = A::r11,
+                      arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
-        const uint32_t all_regs = 0xffff;
-        uint32_t avail = all_regs;
+        std::array<Val,16> regs = {
+            NA,NA,NA,NA, NA,NA,NA,NA,
+            NA,NA,NA,NA, NA,NA,NA,NA,
+        };
 
+        auto load_from_stack = [&](Reg r, Val id) { a->vmovups(r, A::Mem{A::rsp, id*K*4}); };
+        auto store_to_stack  = [&](Reg r, Val id) { a->vmovups(A::Mem{A::rsp, id*K*4}, r); };
     #elif defined(__aarch64__)
         const int K = 4;
-        const bool stack_only = false;  // TODO
-        A::X N       = A::x0,
-             scratch = A::x8,
-             arg[]   = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
+        const A::X N     = A::x0,
+                   GP0   = A::x8,
+                   arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
         // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
         using Reg = A::V;
-        const uint32_t all_regs = 0xffff00ff;
-        uint32_t avail = all_regs;
+        std::array<Val,32> regs = {
+             NA, NA, NA, NA,  NA, NA, NA, NA,
+            RES,RES,RES,RES, RES,RES,RES,RES,
+             NA, NA, NA, NA,  NA, NA, NA, NA,
+             NA, NA, NA, NA,  NA, NA, NA, NA,
+        };
+
+        auto load_from_stack = [&](Reg r, Val id) { a->ldrq(r, A::sp, id); };
+        auto store_to_stack  = [&](Reg r, Val id) { a->strq(r, A::sp, id); };
     #endif
 
         if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
             return false;
         }
 
-        auto hoisted = [&](Val id) { return try_hoisting && instructions[id].can_hoist; };
-
-        std::vector<Reg> r(instructions.size());
-
-        struct LabelAndReg {
-            A::Label label;
-            Reg      reg;
-        };
-        SkTHashMap<int, LabelAndReg> constants;    // All constants share the same pool.
-        LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
+        std::vector<bool> on_stack(instructions.size(), false);
 
         auto emit = [&](Val id, bool scalar) {
-            if (stack_only) {
-                SkASSERT(avail == all_regs);
-            }
-
             const OptimizedInstruction& inst = instructions[id];
-            Op op = inst.op;
-            Val x = inst.x,
-                y = inst.y,
-                z = inst.z;
-            int immy = inst.immy,
-                immz = inst.immz;
+            const Op op = inst.op;
+            const Val x = inst.x,
+                      y = inst.y,
+                      z = inst.z;
+            const int immy = inst.immy,
+                      immz = inst.immz;
 
-            // Most (but not all) ops create an output value and need a register to hold it, dst.
-            // We track each instruction's dst in r[] so we can thread it through as an input
-            // to any future instructions needing that value.
-            //
-            // And some ops may need a temporary register, tmp.  Some need both tmp and dst.
-            //
-            // tmp and dst are very similar and can and will often be assigned the same register,
-            // but tmp may never alias any of the instructions's inputs, while dst may when this
-            // instruction consumes that input, i.e. if the input reaches its end of life here.
-            //
-            // We'll assign both registers lazily to keep register pressure as low as possible.
-            bool tmp_is_set = false,
-                 dst_is_set = false;
-            Reg tmp_reg = (Reg)0;  // This initial value won't matter... anything legal is fine.
-
-            bool ok = true;   // Set to false if we need to assign a register and none's available.
-
-            if (stack_only) {
-                // Move each unique argument into a temporary register.
-                auto load_from_stack = [&](Val arg) {
-                    if (int found = __builtin_ffs(avail)) {
-                        Reg reg = (Reg)(found - 1);
-                        avail ^= 1 << reg;
-                        r[arg] = reg;
-                    #if defined(__x86_64__)
-                        a->vmovups(r[arg], A::Mem{A::rsp, arg*K*4});
-                    #else
-                        SkASSERT(false); // TODO
-                    #endif
-                    } else {
-                        if (debug_dump()) {
-                            SkDebugf("\nCould not find temporary register for %d\n", arg);
+            // alloc_tmp() returns a temporary register, freed manually with free_tmp().
+            auto alloc_tmp = [&]() -> Reg {
+                // Find an available register, or spill an occupied one if nothing's available.
+                auto avail = std::find_if(regs.begin(), regs.end(), [](Val v) { return v == NA; });
+                if (avail == regs.end()) {
+                    auto score_spills = [&](Val v) -> int {
+                        // We cannot spill REServed registers,
+                        // nor any registers we need for this instruction.
+                        if (v == RES ||
+                            v == TMP || v == id || v == x || v == y || v == z) {
+                            return -1;
                         }
-                        ok = false;
-                    }
-                };
-                if (x != NA                    ) { load_from_stack(x); }
-                if (y != NA && y != x          ) { load_from_stack(y); }
-                if (z != NA && z != x && z != y) { load_from_stack(z); }
-            }
-
-            // First lock in how to choose tmp if we need to based on the registers
-            // available before this instruction, not including any of its input registers.
-            auto tmp = [&,avail/*important, closing over avail's current value*/]{
-                if (!tmp_is_set) {
-                    tmp_is_set = true;
-                    if (int found = __builtin_ffs(avail)) {
-                        // This is a temporary register just for this op,
-                        // so we leave it marked available for future ops.
-                        tmp_reg = (Reg)(found - 1);
-                    } else {
-                        // We needed a tmp register but couldn't find one available. :'(
-                        // This will cause emit() to return false, in turn causing jit() to fail.
-                        if (debug_dump()) {
-                            SkDebugf("\nCould not find a register to hold tmp\n");
-                        }
-                        ok = false;
-                    }
+                        // Break ties somewhat arbitrarily now, by spilling the latest value to die.
+                        return instructions[v].death;
+                    };
+                    avail = std::max_element(regs.begin(), regs.end(), [&](Val a, Val b) {
+                        return score_spills(a) < score_spills(b);
+                    });
                 }
-                return tmp_reg;
-            };
+                SkASSERT(avail != regs.end());
 
-            // Now make available any registers that are consumed by this instruction.
-            // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            auto maybe_recycle_register = [&](Val input) {
-                if (input != NA
-                        && instructions[input].death == id
-                        && !(hoisted(input) && instructions[input].used_in_loop)) {
-                    avail |= 1 << r[input];
+                Reg r = (Reg)std::distance(regs.begin(), avail);
+                Val& v = regs[r];
+
+                SkASSERT(v == NA || v >= 0);
+                if (v >= 0) {
+                    if (!on_stack[v]) {
+                        store_to_stack(r, v);
+                        on_stack[v] = true;
+                    }
+                    v = NA;
                 }
-            };
-            maybe_recycle_register(x);
-            maybe_recycle_register(y);
-            maybe_recycle_register(z);
-            // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
+                SkASSERT(v == NA);
 
-            // Some ops may decide dst on their own to best fit the instruction (see Op::fma_f32).
-            auto set_dst = [&](Reg reg){
-                SkASSERT(dst_is_set == false);
-                dst_is_set = true;
-
-                SkASSERT(avail & (1<<reg));
-                avail ^= 1<<reg;
-
-                r[id] = reg;
+                v = TMP;
+                return r;
             };
 
-            // Thanks to AVX and NEON's 3-argument instruction sets,
-            // most ops can use any register as dst.
-            auto dst = [&]{
-                if (!dst_is_set) {
-                    if (int found = __builtin_ffs(avail)) {
-                        set_dst((Reg)(found-1));
-                    } else {
-                        // Same deal as with tmp... all the registers are occupied.  Time to fail!
-                        if (debug_dump()) {
-                            SkDebugf("\nCould not find a register to hold value %d\n", id);
-                        }
-                        ok = false;
+        #if defined(__x86_64__)  // Nothing special... just happens to not be used on ARM right now.
+            auto free_tmp = [&](Reg r) {
+                SkASSERT(regs[r] == TMP);
+                regs[r] = NA;
+            };
+        #endif
+
+            // Vals id, x, y, and z might die with this instruction (id only rarely).
+            // These fingers into regs accelerate their cleanup.
+            Val *rd = nullptr,
+                *rx = nullptr,
+                *ry = nullptr,
+                *rz = nullptr;
+            auto update_fingers = [&](Reg r, Val v) {
+                if (v == id) { rd = &regs[r]; return r; }
+                if (v ==  x) { rx = &regs[r]; return r; }
+                if (v ==  y) { ry = &regs[r]; return r; }
+                if (v ==  z) { rz = &regs[r]; return r; }
+                SkUNREACHABLE;
+                return r;
+            };
+
+            // Return a register for Val, holding that value if it already exists.
+            // During this instruction all calls to r(v) will return the same register.
+            auto r = [&](Val v) -> Reg {
+                SkASSERT(v >= 0);
+                for (auto [r,val] : SkMakeEnumerate(regs)) {
+                    if (val == v) {
+                        return update_fingers((Reg)r, v);
                     }
                 }
-                return r[id];
+
+                Reg r = alloc_tmp();
+                SkASSERT(regs[r] == TMP);
+
+                SkASSERT(v <= id);
+                if (v < id) {
+                    // If v < id, we're loading one of this instruction's inputs from the stack.
+                    // If v == id we're just allocating its destination register.
+                    load_from_stack(r, v);
+                }
+                regs[r] = v;
+                return update_fingers(r, v);
             };
 
-            // Because we use the same logic to pick an arbitrary dst and to pick tmp,
-            // and we know that tmp will never overlap any of the inputs, `dst() == tmp()`
-            // is a simple idiom to check that the destination does not overlap any of the inputs.
-            // Sometimes we can use this knowledge to do better instruction selection.
+            auto dst = [&]() -> Reg { return r(id); };
 
-            // Ok!  Keep in mind that we haven't assigned tmp or dst yet,
-            // just laid out hooks for how to do so if we need them, depending on the instruction.
-            //
-            // Now let's actually assemble the instruction!
+        #if defined(__x86_64__)
+            // On x86 we can work with many values directly from the stack.
+            auto any = [&](Val v) -> A::Operand {
+                SkASSERT(v >= 0);
+                for (auto [r,val] : SkMakeEnumerate(regs)) {
+                    if (val == v) {
+                        return update_fingers((Reg)r, v);
+                    }
+                }
+                SkASSERT(v < id);
+                return A::Mem{A::rsp, v*K*4};
+            };
+        #endif
+
             switch (op) {
-                default:
-                    if (debug_dump()) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;  // TODO: many new ops
-
             #if defined(__x86_64__)
                 case Op::assert_true: {
-                    a->vptest (r[x], &constants[0xffffffff].label);
+                    a->vptest (r(x), &constants[0xffffffff]);
                     A::Label all_true;
                     a->jc(&all_true);
                     a->int3();
                     a->label(&all_true);
                 } break;
 
-                case Op::store8: if (scalar) { a->vpextrb  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
-                                 else        { a->vpackusdw(tmp(), r[x], r[x]);
-                                               a->vpermq   (tmp(), tmp(), 0xd8);
-                                               a->vpackuswb(tmp(), tmp(), tmp());
-                                               a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
-                                               break;
+                case Op::store8:
+                    if (scalar) {
+                        a->vpextrb(A::Mem{arg[immy]}, (A::Xmm)r(x), 0);
+                    } else {
+                        a->vpackusdw(dst(), r(x), r(x));
+                        a->vpermq   (dst(), dst(), 0xd8);
+                        a->vpackuswb(dst(), dst(), dst());
+                        a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)dst());
+                    } break;
 
-                case Op::store16: if (scalar) { a->vpextrw  (A::Mem{arg[immy]}, (A::Xmm)r[x], 0); }
-                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
-                                                a->vpermq   (tmp(), tmp(), 0xd8);
-                                                a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)tmp()); }
-                                                break;
+                case Op::store16:
+                    if (scalar) {
+                        a->vpextrw(A::Mem{arg[immy]}, (A::Xmm)r(x), 0);
+                    } else {
+                        a->vpackusdw(dst(), r(x), r(x));
+                        a->vpermq   (dst(), dst(), 0xd8);
+                        a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)dst());
+                    } break;
 
-                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r[x]); }
-                                  else        { a->vmovups(A::Mem{arg[immy]},         r[x]); }
-                                                break;
+                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r(x)); }
+                                  else        { a->vmovups(A::Mem{arg[immy]},         r(x)); }
+                                  break;
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
@@ -3062,220 +3031,150 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
                                  break;
 
+                case Op::gather8: {
+                    // As usual, the gather base pointer is immz bytes off of uniform immy.
+                    a->mov(GP0, A::Mem{arg[immy], immz});
+
+                    A::Ymm tmp = alloc_tmp();
+                    a->vmovups(tmp, any(x));
+
+                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                        if (i == 4) {
+                            // vpextrd can only pluck indices out from an Xmm register,
+                            // so we manually swap over to the top when we're halfway through.
+                            a->vextracti128((A::Xmm)tmp, tmp, 1);
+                        }
+                        a->vpextrd(GP1, (A::Xmm)tmp, i%4);
+                        a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{GP0,0,GP1,A::ONE}, i);
+                    }
+                    a->vpmovzxbd(dst(), dst());
+                    free_tmp(tmp);
+                } break;
+
+                case Op::gather16: {
+                    // Just as gather8 except vpinsrb->vpinsrw, ONE->TWO, and vpmovzxbd->vpmovzxwd.
+                    a->mov(GP0, A::Mem{arg[immy], immz});
+
+                    A::Ymm tmp = alloc_tmp();
+                    a->vmovups(tmp, any(x));
+
+                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                        if (i == 4) {
+                            a->vextracti128((A::Xmm)tmp, tmp, 1);
+                        }
+                        a->vpextrd(GP1, (A::Xmm)tmp, i%4);
+                        a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{GP0,0,GP1,A::TWO}, i);
+                    }
+                    a->vpmovzxwd(dst(), dst());
+                    free_tmp(tmp);
+                } break;
+
                 case Op::gather32:
                 if (scalar) {
-                    auto base  = scratch,
-                         index = scratch2;
                     // Our gather base pointer is immz bytes off of uniform immy.
-                    a->movq(base, arg[immy], immz);
+                    a->mov(GP0, A::Mem{arg[immy], immz});
 
                     // Grab our index from lane 0 of the index argument.
-                    a->vmovd(index, (A::Xmm)r[x]);
+                    a->vmovd(GP1, (A::Xmm)r(x));
 
                     // dst = *(base + 4*index)
-                    a->vmovd((A::Xmm)dst(), A::Mem{base, 0, index, A::FOUR});
+                    a->vmovd((A::Xmm)dst(), A::Mem{GP0, 0, GP1, A::FOUR});
                 } else {
-                    // We may not let any of dst(), index, or mask use the same register,
-                    // so we must allocate registers manually and very carefully.
+                    a->mov(GP0, A::Mem{arg[immy], immz});
 
-                    // index is argument x and has already been maybe_recycle_register()'d,
-                    // so we explicitly ignore its availability during this op.
-                    A::Ymm index = r[x];
-                    uint32_t avail_during_gather = avail & ~(1<<index);
-
-                    // Choose dst() to not overlap with index.
-                    if (int found = __builtin_ffs(avail_during_gather)) {
-                        set_dst((A::Ymm)(found-1));
-                        avail_during_gather ^= (1<<dst());
-                    } else {
-                        ok = false;
-                        break;
-                    }
-
-                    // Choose (temporary) mask to not overlap with dst() or index.
-                    A::Ymm mask;
-                    if (int found = __builtin_ffs(avail_during_gather)) {
-                        mask = (A::Ymm)(found-1);
-                    } else {
-                        ok = false;
-                        break;
-                    }
-
-                    // Our gather base pointer is immz bytes off of uniform immy.
-                    auto base = scratch;
-                    a->movq(base, arg[immy], immz);
+                    A::Ymm mask = alloc_tmp();
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
-                    a->vgatherdps(dst(), A::FOUR, index, base, mask);
+
+                    a->vgatherdps(dst(), A::FOUR, r(x), GP0, mask);
+                    free_tmp(mask);
                 }
                 break;
 
-                case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
-                                   a->vmovd((A::Xmm)dst(), scratch);
+                case Op::uniform8: a->movzbq(GP0, A::Mem{arg[immy], immz});
+                                   a->vmovd((A::Xmm)dst(), GP0);
                                    a->vbroadcastss(dst(), dst());
                                    break;
 
-                case Op::uniform16: a->movzwl(scratch, arg[immy], immz);
-                                    a->vmovd((A::Xmm)dst(), scratch);
+                case Op::uniform16: a->movzwq(GP0, A::Mem{arg[immy], immz});
+                                    a->vmovd((A::Xmm)dst(), GP0);
                                     a->vbroadcastss(dst(), dst());
                                     break;
 
                 case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immy], immz});
                                     break;
 
-                case Op::index: a->vmovd((A::Xmm)tmp(), N);
-                                a->vbroadcastss(tmp(), tmp());
-                                a->vpsubd(dst(), tmp(), &iota.label);
+                case Op::index: a->vmovd((A::Xmm)dst(), N);
+                                a->vbroadcastss(dst(), dst());
+                                a->vpsubd(dst(), dst(), &iota);
                                 break;
 
-                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy].label); }
+                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy]); }
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
-                case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
-                case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
-                case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
-                case Op::min_f32: a->vminps(dst(), r[y], r[x]); break;  // Order matters,
-                case Op::max_f32: a->vmaxps(dst(), r[y], r[x]); break;  // see test SkVM_min_max.
+                case Op::add_f32: a->vaddps(dst(), r(x), any(y)); break;
+                case Op::sub_f32: a->vsubps(dst(), r(x), any(y)); break;
+                case Op::mul_f32: a->vmulps(dst(), r(x), any(y)); break;
+                case Op::div_f32: a->vdivps(dst(), r(x), any(y)); break;
+                case Op::min_f32: a->vminps(dst(), r(y), any(x)); break;  // Order matters,
+                case Op::max_f32: a->vmaxps(dst(), r(y), any(x)); break;  // see test SkVM_min_max.
 
-                case Op::fma_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmadd213ps(r[y], r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmadd231ps(r[z], r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfmadd132ps(dst(),r[z], r[y]); }
-                                                                 break;
+                // TODO: restore special cases that don't need the vmovups move.
+                case Op::fma_f32:  a->vmovups     (dst(), any(x));
+                                   a->vfmadd132ps (dst(), r(z), any(y));
+                                   break;
+                case Op::fms_f32:  a->vmovups     (dst(), any(x));
+                                   a->vfmsub132ps (dst(), r(z), any(y));
+                                   break;
+                case Op::fnma_f32: a->vmovups     (dst(), any(x));
+                                   a->vfnmadd132ps(dst(), r(z), any(y));
+                                   break;
 
-                case Op::fms_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmsub132ps(r[x], r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmsub213ps(r[y], r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmsub231ps(r[z], r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfmsub132ps(dst(),r[z], r[y]); }
-                                                                 break;
+                case Op::sqrt_f32: a->vsqrtps(dst(), any(x)); break;
 
-                case Op::fnma_f32:
-                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfnmadd132ps(r[x],r[z], r[y]); }
-                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfnmadd213ps(r[y],r[x], r[z]); }
-                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfnmadd231ps(r[z],r[x], r[y]); }
-                    else                        {                SkASSERT(dst() == tmp());
-                                                                 a->vmovdqa    (dst(),r[x]);
-                                                                 a->vfnmadd132ps(dst(),r[z],r[y]); }
-                                                                 break;
+                case Op::add_f32_imm: a->vaddps(dst(), r(x), &constants[immy]); break;
+                case Op::sub_f32_imm: a->vsubps(dst(), r(x), &constants[immy]); break;
+                case Op::mul_f32_imm: a->vmulps(dst(), r(x), &constants[immy]); break;
+                case Op::min_f32_imm: a->vminps(dst(), r(x), &constants[immy]); break;
+                case Op::max_f32_imm: a->vmaxps(dst(), r(x), &constants[immy]); break;
 
-                case Op::sqrt_f32: a->vsqrtps(dst(), r[x]); break;
+                case Op::add_i32: a->vpaddd (dst(), r(x), any(y)); break;
+                case Op::sub_i32: a->vpsubd (dst(), r(x), any(y)); break;
+                case Op::mul_i32: a->vpmulld(dst(), r(x), any(y)); break;
 
-                case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy].label); break;
-                case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy].label); break;
-                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy].label); break;
-                case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy].label); break;
-                case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy].label); break;
+                case Op::bit_and  : a->vpand (dst(), r(x), any(y)); break;
+                case Op::bit_or   : a->vpor  (dst(), r(x), any(y)); break;
+                case Op::bit_xor  : a->vpxor (dst(), r(x), any(y)); break;
+                case Op::bit_clear: a->vpandn(dst(), r(y), any(x)); break;  // Notice, y then x.
+                case Op::select   : a->vpblendvb(dst(), r(z), any(y), r(x)); break;
 
-                case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
-                case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
-                case Op::mul_i32: a->vpmulld(dst(), r[x], r[y]); break;
+                case Op::bit_and_imm: a->vpand (dst(), r(x), &constants[immy]); break;
+                case Op::bit_or_imm : a->vpor  (dst(), r(x), &constants[immy]); break;
+                case Op::bit_xor_imm: a->vpxor (dst(), r(x), &constants[immy]); break;
 
-                case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
-                case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
-                case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
-                case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // Notice, y then x.
-                case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
+                case Op::shl_i32: a->vpslld(dst(), r(x), immy); break;
+                case Op::shr_i32: a->vpsrld(dst(), r(x), immy); break;
+                case Op::sra_i32: a->vpsrad(dst(), r(x), immy); break;
 
-                case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy].label); break;
-                case Op::bit_or_imm : a->vpor  (dst(), r[x], &constants[immy].label); break;
-                case Op::bit_xor_imm: a->vpxor (dst(), r[x], &constants[immy].label); break;
+                case Op::eq_i32: a->vpcmpeqd(dst(), r(x), any(y)); break;
+                case Op::gt_i32: a->vpcmpgtd(dst(), r(x), any(y)); break;
 
-                case Op::shl_i32: a->vpslld(dst(), r[x], immy); break;
-                case Op::shr_i32: a->vpsrld(dst(), r[x], immy); break;
-                case Op::sra_i32: a->vpsrad(dst(), r[x], immy); break;
+                case Op:: eq_f32: a->vcmpeqps (dst(), r(x), any(y)); break;
+                case Op::neq_f32: a->vcmpneqps(dst(), r(x), any(y)); break;
+                case Op:: gt_f32: a->vcmpltps (dst(), r(y), any(x)); break;
+                case Op::gte_f32: a->vcmpleps (dst(), r(y), any(x)); break;
 
-                case Op::eq_i32: a->vpcmpeqd(dst(), r[x], r[y]); break;
-                case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
-
-                case Op:: eq_f32: a->vcmpeqps (dst(), r[x], r[y]); break;
-                case Op::neq_f32: a->vcmpneqps(dst(), r[x], r[y]); break;
-                case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
-                case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
-
-                case Op::pack: a->vpslld(tmp(),  r[y], immz);
-                               a->vpor  (dst(), tmp(), r[x]);
+                case Op::pack: a->vpslld(dst(),  r(y), immz);
+                               a->vpor  (dst(), dst(), any(x));
                                break;
 
-                case Op::floor : a->vroundps  (dst(), r[x], Assembler::FLOOR); break;
-                case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
-                case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
-                case Op::round : a->vcvtps2dq (dst(), r[x]); break;
+                case Op::floor : a->vroundps  (dst(), any(x), Assembler::FLOOR); break;
+                case Op::to_f32: a->vcvtdq2ps (dst(), any(x)); break;
+                case Op::trunc : a->vcvttps2dq(dst(), any(x)); break;
+                case Op::round : a->vcvtps2dq (dst(), any(x)); break;
 
             #elif defined(__aarch64__)
-                case Op::assert_true: {
-                    a->uminv4s(tmp(), r[x]);   // uminv acts like an all() across the vector.
-                    a->fmovs(scratch, tmp());
-                    A::Label all_true;
-                    a->cbnz(scratch, &all_true);
-                    a->brk(0);
-                    a->label(&all_true);
-                } break;
-
-                case Op::store8: a->xtns2h(tmp(), r[x]);
-                                 a->xtnh2b(tmp(), tmp());
-                   if (scalar) { a->strb  (tmp(), arg[immy]); }
-                   else        { a->strs  (tmp(), arg[immy]); }
-                                 break;
-                // TODO: another case where it'd be okay to alias r[x] and tmp if r[x] dies here.
-
-                case Op::store32: if (scalar) { a->strs(r[x], arg[immy]); }
-                                  else        { a->strq(r[x], arg[immy]); }
-                                                break;
-
-                case Op::load8: if (scalar) { a->ldrb(tmp(), arg[immy]); }
-                                else        { a->ldrs(tmp(), arg[immy]); }
-                                              a->uxtlb2h(tmp(), tmp());
-                                              a->uxtlh2s(dst(), tmp());
-                                              break;
-
-                case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
-                                 else        { a->ldrq(dst(), arg[immy]); }
-                                               break;
-
-                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy].label); }
-                                else      { a->eor16b(dst(), dst(), dst()); }
-                                break;
-                                // TODO: If we hoist these, pack 4 values in each register
-                                // and use vector/lane operations, cutting the register
-                                // pressure cost of hoisting by 4?
-
-                case Op::add_f32: a->fadd4s(dst(), r[x], r[y]); break;
-                case Op::sub_f32: a->fsub4s(dst(), r[x], r[y]); break;
-                case Op::mul_f32: a->fmul4s(dst(), r[x], r[y]); break;
-                case Op::div_f32: a->fdiv4s(dst(), r[x], r[y]); break;
-
-                case Op::fma_f32: // fmla.4s is z += x*y
-                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
-                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
-                                                            a->fmla4s(tmp(),  r[x],  r[y]);
-                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
-                                                            break;
-
-                case Op::fnma_f32:  // fmls.4s is z -= x*y
-                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmls4s( r[z],  r[x],  r[y]);   }
-                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
-                                                            a->fmls4s(tmp(),  r[x],  r[y]);
-                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
-                                                            break;
-
-                case Op::fms_f32:
-                    // first dst() = xy - z as if fnma_f32
-                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmls4s( r[z],  r[x],  r[y]);   }
-                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
-                                                            a->fmls4s(tmp(),  r[x],  r[y]);
-                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
-                    // then dst() = -dst()  (i.e. z - xy)
-                                                            a->fneg4s(dst(), dst());
-                                                            break;
-
-                // These _imm instructions are all x86/JIT only.
+                // All these _imm instructions are x86-only.
                 case  Op::add_f32_imm :
                 case  Op::sub_f32_imm :
                 case  Op::mul_f32_imm :
@@ -3283,85 +3182,135 @@ namespace skvm {
                 case  Op::max_f32_imm :
                 case  Op::bit_and_imm :
                 case  Op::bit_or_imm  :
-                case  Op::bit_xor_imm : SkUNREACHABLE; break;
+                case  Op::bit_xor_imm :
+                default:  // TODO
+                    if (false) {
+                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    }
+                    return false;
 
-                case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
-                case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
-                case Op:: eq_f32: a->fcmeq4s (dst(), r[x], r[y]); break;
-                case Op::neq_f32: a->fcmeq4s (tmp(), r[x], r[y]);
-                                  a->not16b  (dst(), tmp());      break;
+                case Op::assert_true: {
+                    a->uminv4s(dst(), r(x));   // uminv acts like an all() across the vector.
+                    a->fmovs(GP0, dst());
+                    A::Label all_true;
+                    a->cbnz(GP0, &all_true);
+                    a->brk(0);
+                    a->label(&all_true);
+                } break;
+
+                case Op::store8: a->xtns2h(dst(), r(x));
+                                 a->xtnh2b(dst(), dst());
+                   if (scalar) { a->strb  (dst(), arg[immy]); }
+                   else        { a->strs  (dst(), arg[immy]); }
+                                 break;
+
+                case Op::store32: if (scalar) { a->strs(r(x), arg[immy]); }
+                                  else        { a->strq(r(x), arg[immy]); }
+                                                break;
+
+                case Op::load8: if (scalar) { a->ldrb(dst(), arg[immy]); }
+                                else        { a->ldrs(dst(), arg[immy]); }
+                                              a->uxtlb2h(dst(), dst());
+                                              a->uxtlh2s(dst(), dst());
+                                              break;
+
+                case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
+                                 else        { a->ldrq(dst(), arg[immy]); }
+                                               break;
+
+                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy]); }
+                                else      { a->eor16b(dst(), dst(), dst()); }
+                                break;
+                                // TODO: pack 4 values in each register and use vector/lane
+                                // operations, cutting the register pressure cost of hoisting by 4?
+
+                case Op::add_f32: a->fadd4s(dst(), r(x), r(y)); break;
+                case Op::sub_f32: a->fsub4s(dst(), r(x), r(y)); break;
+                case Op::mul_f32: a->fmul4s(dst(), r(x), r(y)); break;
+                case Op::div_f32: a->fdiv4s(dst(), r(x), r(y)); break;
+
+                // TODO: restore specializations that don't need the orr16b() move.
+                case Op::fma_f32: // fmla.4s is z += x*y
+                    a->orr16b(dst(), r(z), r(z));
+                    a->fmla4s(dst(), r(x), r(y));
+                    break;
+
+                case Op::fnma_f32:  // fmls.4s is z -= x*y
+                    a->orr16b(dst(), r(z), r(z));
+                    a->fmls4s(dst(), r(x), r(y));
+                    break;
+
+                case Op::fms_f32:
+                    a->orr16b(dst(), r(z), r(z));
+                    a->fmls4s(dst(), r(x), r(y));  // xy - z
+                    a->fneg4s(dst(), dst());       // z - xy
+                    break;
+
+                case Op:: gt_f32: a->fcmgt4s (dst(), r(x), r(y)); break;
+                case Op::gte_f32: a->fcmge4s (dst(), r(x), r(y)); break;
+                case Op:: eq_f32: a->fcmeq4s (dst(), r(x), r(y)); break;
+                case Op::neq_f32: a->fcmeq4s (dst(), r(x), r(y));
+                                  a->not16b  (dst(), dst());      break;
 
 
-                case Op::add_i32: a->add4s(dst(), r[x], r[y]); break;
-                case Op::sub_i32: a->sub4s(dst(), r[x], r[y]); break;
-                case Op::mul_i32: a->mul4s(dst(), r[x], r[y]); break;
+                case Op::add_i32: a->add4s(dst(), r(x), r(y)); break;
+                case Op::sub_i32: a->sub4s(dst(), r(x), r(y)); break;
+                case Op::mul_i32: a->mul4s(dst(), r(x), r(y)); break;
 
-                case Op::bit_and  : a->and16b(dst(), r[x], r[y]); break;
-                case Op::bit_or   : a->orr16b(dst(), r[x], r[y]); break;
-                case Op::bit_xor  : a->eor16b(dst(), r[x], r[y]); break;
-                case Op::bit_clear: a->bic16b(dst(), r[x], r[y]); break;
+                case Op::bit_and  : a->and16b(dst(), r(x), r(y)); break;
+                case Op::bit_or   : a->orr16b(dst(), r(x), r(y)); break;
+                case Op::bit_xor  : a->eor16b(dst(), r(x), r(y)); break;
+                case Op::bit_clear: a->bic16b(dst(), r(x), r(y)); break;
 
+                // TODO: restore specialization that doesn't need the orr16b() move.
                 case Op::select: // bsl16b is x = x ? y : z
-                    if (avail & (1<<r[x])) { set_dst(r[x]); a->bsl16b( r[x],  r[y],  r[z]); }
-                    else {                                  a->orr16b(tmp(),  r[x],  r[x]);
-                                                            a->bsl16b(tmp(),  r[y],  r[z]);
-                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
-                                                            break;
+                    a->orr16b(dst(),  r(x),  r(x));
+                    a->bsl16b(dst(),  r(y),  r(z));
+                    break;
 
                 // fmin4s and fmax4s don't work the way we want with NaN,
                 // so we write them the long way:
                 case Op::min_f32: // min(x,y) = y<x ? y : x
-                                  a->fcmgt4s(tmp(), r[x],r[y]);
-                                  a->bsl16b (tmp(), r[y],r[x]);
-             if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); }
+                                  a->fcmgt4s(dst(), r(x), r(y));
+                                  a->bsl16b (dst(), r(y), r(x));
                                   break;
 
                 case Op::max_f32: // max(x,y) = x<y ? y : x
-                                  a->fcmgt4s(tmp(), r[y],r[x]);
-                                  a->bsl16b (tmp(), r[y],r[x]);
-             if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); }
+                                  a->fcmgt4s(dst(), r(y), r(x));
+                                  a->bsl16b (dst(), r(y), r(x));
                                   break;
 
-                case Op::shl_i32: a-> shl4s(dst(), r[x], immy); break;
-                case Op::shr_i32: a->ushr4s(dst(), r[x], immy); break;
-                case Op::sra_i32: a->sshr4s(dst(), r[x], immy); break;
+                case Op::shl_i32: a-> shl4s(dst(), r(x), immy); break;
+                case Op::shr_i32: a->ushr4s(dst(), r(x), immy); break;
+                case Op::sra_i32: a->sshr4s(dst(), r(x), immy); break;
 
-                case Op::eq_i32: a->cmeq4s(dst(), r[x], r[y]); break;
-                case Op::gt_i32: a->cmgt4s(dst(), r[x], r[y]); break;
+                case Op::eq_i32: a->cmeq4s(dst(), r(x), r(y)); break;
+                case Op::gt_i32: a->cmgt4s(dst(), r(x), r(y)); break;
 
+                // TODO: delete pack?  restore sli4s optimization?
                 case Op::pack:
-                    if (avail & (1<<r[x])) { set_dst(r[x]); a->sli4s ( r[x],  r[y],  immz); }
-                    else                   {                a->shl4s (tmp(),  r[y],  immz);
-                                                            a->orr16b(dst(), tmp(),  r[x]); }
-                                                            break;
+                    a->shl4s (dst(),  r(y),  immz);
+                    a->orr16b(dst(), dst(),  r(x));
+                    break;
 
-                case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
-                case Op::trunc:  a->fcvtzs4s(dst(), r[x]); break;
-                case Op::round:  a->fcvtns4s(dst(), r[x]); break;
+                case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
+                case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
+                case Op::round:  a->fcvtns4s(dst(), r(x)); break;
                 // TODO: fcvtns.4s rounds to nearest even.
                 // I think we actually want frintx -> fcvtzs to round to current mode.
             #endif
             }
 
-            if (stack_only) {
-                if (dst_is_set) {
-                #if defined(__x86_64__)
-                    a->vmovups(A::Mem{A::rsp, id*K*4}, r[id]);
-                #else
-                    SkASSERT(false);  // TODO
-                #endif
-                    avail |= 1 << r[id];
-                }
-                for (Val arg : {x,y,z}) {
-                    if (arg != NA) {
-                        avail |= 1 << r[arg];
-                    }
-                }
-                SkASSERT(avail == all_regs);
-            }
-
-            // Calls to tmp() or dst() might have flipped this false from its default true state.
-            return ok;
+            // Proactively free the registers holding any value that dies here.
+            auto dies_here = [&](Val v) {
+                SkASSERT(v >= 0);
+                return instructions[v].death == id;
+            };
+            if (rd && dies_here(*rd)) { *rd = NA; }
+            if (rx && dies_here(*rx)) { *rx = NA; }
+            if (ry && dies_here(*ry)) { *ry = NA; }
+            if (rz && dies_here(*rz)) { *rz = NA; }
+            return true;
         };
 
 
@@ -3373,7 +3322,9 @@ namespace skvm {
             auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
 
             auto enter = [&]{ a->sub(A::rsp, instructions.size()*K*4); };
-            auto exit  = [&]{ a->add(A::rsp, instructions.size()*K*4); a->vzeroupper(); a->ret(); };
+            auto exit  = [&]{ a->add(A::rsp, instructions.size()*K*4);
+                              a->vzeroupper();
+                              a->ret(); };
         #elif defined(__aarch64__)
             auto jump_if_less = [&](A::Label* l) { a->blt(l); };
             auto jump         = [&](A::Label* l) { a->b  (l); };
@@ -3381,8 +3332,9 @@ namespace skvm {
             auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
             auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
 
-            auto enter = [&]{};
-            auto exit  = [&]{ a->ret(A::x30); };
+            auto enter = [&]{ a->sub(A::sp, A::sp, instructions.size()*K*4); };
+            auto exit  = [&]{ a->add(A::sp, A::sp, instructions.size()*K*4);
+                              a->ret(A::x30); };
         #endif
 
         A::Label body,
@@ -3391,20 +3343,35 @@ namespace skvm {
 
         enter();
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (hoisted(id) && !emit(id, /*scalar=*/false)) {
+            if (instructions[id].can_hoist && !emit(id, /*scalar=*/false)) {
                 return false;
             }
         }
+
+        // This point marks a kind of canonical fixed point for register contents: if loop
+        // code is generated as if these registers are holding these values, the next time
+        // the loop comes around we'd better find those same registers holding those same values.
+        auto restore_incoming_regs = [&,incoming=regs]{
+            for (int r = 0; r < (int)regs.size(); r++) {
+                if (regs[r] != incoming[r]) {
+                    regs[r]  = incoming[r];
+                    if (regs[r] >= 0) {
+                        load_from_stack((Reg)r, regs[r]);
+                    }
+                }
+            }
+        };
 
         a->label(&body);
         {
             a->cmp(N, K);
             jump_if_less(&tail);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
-                if (!hoisted(id) && !emit(id, /*scalar=*/false)) {
+                if (!instructions[id].can_hoist && !emit(id, /*scalar=*/false)) {
                     return false;
                 }
             }
+            restore_incoming_regs();
             for (int i = 0; i < (int)fImpl->strides.size(); i++) {
                 if (fImpl->strides[i]) {
                     add(arg[i], K*fImpl->strides[i]);
@@ -3414,15 +3381,18 @@ namespace skvm {
             jump(&body);
         }
 
+        std::fill(on_stack.begin(), on_stack.end(), false);
+
         a->label(&tail);
         {
             a->cmp(N, 1);
             jump_if_less(&done);
             for (Val id = 0; id < (Val)instructions.size(); id++) {
-                if (!hoisted(id) && !emit(id, /*scalar=*/true)) {
+                if (!instructions[id].can_hoist && !emit(id, /*scalar=*/true)) {
                     return false;
                 }
             }
+            restore_incoming_regs();
             for (int i = 0; i < (int)fImpl->strides.size(); i++) {
                 if (fImpl->strides[i]) {
                     add(arg[i], 1*fImpl->strides[i]);
@@ -3442,17 +3412,17 @@ namespace skvm {
         // byte patterns on ARM or 32-byte patterns on x86, we only need to
         // align to 4 bytes, the element size and alignment requirement.
 
-        constants.foreach([&](int imm, LabelAndReg* entry) {
+        constants.foreach([&](int imm, A::Label* label) {
             a->align(4);
-            a->label(&entry->label);
+            a->label(label);
             for (int i = 0; i < K; i++) {
                 a->word(imm);
             }
         });
 
-        if (!iota.label.references.empty()) {
+        if (!iota.references.empty()) {
             a->align(4);
-            a->label(&iota.label);
+            a->label(&iota);
             for (int i = 0; i < K; i++) {
                 a->word(i);
             }
@@ -3465,19 +3435,9 @@ namespace skvm {
                            const char* debug_name) {
         // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
         Assembler a{nullptr};
-
-        // First try allowing code hoisting (faster code)
-        // then again without if that fails (lower register pressure).
-        JITMode mode = JITMode::Register;
-        bool ok = false;
-        for (JITMode m : {JITMode::Register, JITMode::RegisterNoHoist, JITMode::Stack}) {
-            if (this->jit(instructions, m, &a)) {
-                ok = true;
-                mode = m;
-                break;
-            }
+        if (!this->jit(instructions, &a)) {
+            return;
         }
-        if (!ok) { return; }
 
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
@@ -3491,7 +3451,7 @@ namespace skvm {
 
         // Assemble the program for real.
         a = Assembler{jit_entry};
-        SkAssertResult(this->jit(instructions, mode, &a));
+        SkAssertResult(this->jit(instructions, &a));
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.

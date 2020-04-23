@@ -28,7 +28,7 @@ class GrRecordingContext;
 class GrRenderTarget;
 class GrRenderTargetContext;
 class GrResourceProvider;
-class GrShape;
+class GrStyledShape;
 class GrSurfaceProxyView;
 class GrTexture;
 class GrTextureProxy;
@@ -103,7 +103,7 @@ public:
      *        filterMaskGPU(devShape, ...)
      * this would hide the RRect special case and the mask generation
      */
-    virtual bool canFilterMaskGPU(const GrShape&,
+    virtual bool canFilterMaskGPU(const GrStyledShape&,
                                   const SkIRect& devSpaceShapeBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
@@ -118,7 +118,7 @@ public:
                                      GrPaint&& paint,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
-                                     const GrShape& shape) const;
+                                     const GrStyledShape& shape) const;
 
     /**
      * This function is used to implement filters that require an explicit src mask. It should only

@@ -610,40 +610,40 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 MetalCodeGenerator::Precedence MetalCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
     switch (op) {
-        case Token::STAR:         // fall through
-        case Token::SLASH:        // fall through
-        case Token::PERCENT:      return MetalCodeGenerator::kMultiplicative_Precedence;
-        case Token::PLUS:         // fall through
-        case Token::MINUS:        return MetalCodeGenerator::kAdditive_Precedence;
-        case Token::SHL:          // fall through
-        case Token::SHR:          return MetalCodeGenerator::kShift_Precedence;
-        case Token::LT:           // fall through
-        case Token::GT:           // fall through
-        case Token::LTEQ:         // fall through
-        case Token::GTEQ:         return MetalCodeGenerator::kRelational_Precedence;
-        case Token::EQEQ:         // fall through
-        case Token::NEQ:          return MetalCodeGenerator::kEquality_Precedence;
-        case Token::BITWISEAND:   return MetalCodeGenerator::kBitwiseAnd_Precedence;
-        case Token::BITWISEXOR:   return MetalCodeGenerator::kBitwiseXor_Precedence;
-        case Token::BITWISEOR:    return MetalCodeGenerator::kBitwiseOr_Precedence;
-        case Token::LOGICALAND:   return MetalCodeGenerator::kLogicalAnd_Precedence;
-        case Token::LOGICALXOR:   return MetalCodeGenerator::kLogicalXor_Precedence;
-        case Token::LOGICALOR:    return MetalCodeGenerator::kLogicalOr_Precedence;
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::LOGICALANDEQ: // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEOREQ:  return MetalCodeGenerator::kAssignment_Precedence;
-        case Token::COMMA:        return MetalCodeGenerator::kSequence_Precedence;
+        case Token::Kind::TK_STAR:         // fall through
+        case Token::Kind::TK_SLASH:        // fall through
+        case Token::Kind::TK_PERCENT:      return MetalCodeGenerator::kMultiplicative_Precedence;
+        case Token::Kind::TK_PLUS:         // fall through
+        case Token::Kind::TK_MINUS:        return MetalCodeGenerator::kAdditive_Precedence;
+        case Token::Kind::TK_SHL:          // fall through
+        case Token::Kind::TK_SHR:          return MetalCodeGenerator::kShift_Precedence;
+        case Token::Kind::TK_LT:           // fall through
+        case Token::Kind::TK_GT:           // fall through
+        case Token::Kind::TK_LTEQ:         // fall through
+        case Token::Kind::TK_GTEQ:         return MetalCodeGenerator::kRelational_Precedence;
+        case Token::Kind::TK_EQEQ:         // fall through
+        case Token::Kind::TK_NEQ:          return MetalCodeGenerator::kEquality_Precedence;
+        case Token::Kind::TK_BITWISEAND:   return MetalCodeGenerator::kBitwiseAnd_Precedence;
+        case Token::Kind::TK_BITWISEXOR:   return MetalCodeGenerator::kBitwiseXor_Precedence;
+        case Token::Kind::TK_BITWISEOR:    return MetalCodeGenerator::kBitwiseOr_Precedence;
+        case Token::Kind::TK_LOGICALAND:   return MetalCodeGenerator::kLogicalAnd_Precedence;
+        case Token::Kind::TK_LOGICALXOR:   return MetalCodeGenerator::kLogicalXor_Precedence;
+        case Token::Kind::TK_LOGICALOR:    return MetalCodeGenerator::kLogicalOr_Precedence;
+        case Token::Kind::TK_EQ:           // fall through
+        case Token::Kind::TK_PLUSEQ:       // fall through
+        case Token::Kind::TK_MINUSEQ:      // fall through
+        case Token::Kind::TK_STAREQ:       // fall through
+        case Token::Kind::TK_SLASHEQ:      // fall through
+        case Token::Kind::TK_PERCENTEQ:    // fall through
+        case Token::Kind::TK_SHLEQ:        // fall through
+        case Token::Kind::TK_SHREQ:        // fall through
+        case Token::Kind::TK_LOGICALANDEQ: // fall through
+        case Token::Kind::TK_LOGICALXOREQ: // fall through
+        case Token::Kind::TK_LOGICALOREQ:  // fall through
+        case Token::Kind::TK_BITWISEANDEQ: // fall through
+        case Token::Kind::TK_BITWISEXOREQ: // fall through
+        case Token::Kind::TK_BITWISEOREQ:  return MetalCodeGenerator::kAssignment_Precedence;
+        case Token::Kind::TK_COMMA:        return MetalCodeGenerator::kSequence_Precedence;
         default: ABORT("unsupported binary operator");
     }
 }
@@ -665,13 +665,13 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     Precedence precedence = GetBinaryPrecedence(b.fOperator);
     bool needParens = precedence >= parentPrecedence;
     switch (b.fOperator) {
-        case Token::EQEQ:
+        case Token::Kind::TK_EQEQ:
             if (b.fLeft->fType.kind() == Type::kVector_Kind) {
                 this->write("all");
                 needParens = true;
             }
             break;
-        case Token::NEQ:
+        case Token::Kind::TK_NEQ:
             if (b.fLeft->fType.kind() == Type::kVector_Kind) {
                 this->write("any");
                 needParens = true;
@@ -691,12 +691,12 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         // dereference it here.
         this->write("*");
     }
-    if (b.fOperator == Token::STAREQ && b.fLeft->fType.kind() == Type::kMatrix_Kind &&
+    if (b.fOperator == Token::Kind::TK_STAREQ && b.fLeft->fType.kind() == Type::kMatrix_Kind &&
         b.fRight->fType.kind() == Type::kMatrix_Kind) {
         this->writeMatrixTimesEqualHelper(b.fLeft->fType, b.fRight->fType, b.fType);
     }
     this->writeExpression(*b.fLeft, precedence);
-    if (b.fOperator != Token::EQ && Compiler::IsAssignment(b.fOperator) &&
+    if (b.fOperator != Token::Kind::TK_EQ && Compiler::IsAssignment(b.fOperator) &&
         Expression::kSwizzle_Kind == b.fLeft->fKind && !b.fLeft->hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);

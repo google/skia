@@ -161,6 +161,16 @@ public:
     }
 
     static const SkScalar* M44ColMajor(const SkM44& m) { return m.fMat; }
+
+    // This is legacy functionality that only checks the 3x3 portion. The matrix could have Z-based
+    // shear, or other complex behavior. Only use this if you're planning to use the information
+    // to accelerate some purely 2D operation.
+    static bool IsScaleTranslateAsM33(const SkM44& m) {
+        return m.rc(1,0) == 0 && m.rc(3,0) == 0 &&
+               m.rc(0,1) == 0 && m.rc(3,1) == 0 &&
+               m.rc(3,3) == 1;
+
+    }
 };
 
 #endif

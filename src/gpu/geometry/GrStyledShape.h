@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrShape_DEFINED
-#define GrShape_DEFINED
+#ifndef GrStyledShape_DEFINED
+#define GrStyledShape_DEFINED
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
@@ -20,9 +20,9 @@ class SkIDChangeListener;
 
 /**
  * Represents a geometric shape (rrect or path) and the GrStyle that it should be rendered with.
- * It is possible to apply the style to the GrShape to produce a new GrShape where the geometry
- * reflects the styling information (e.g. is stroked). It is also possible to apply just the
- * path effect from the style. In this case the resulting shape will include any remaining
+ * It is possible to apply the style to the GrStyledShape to produce a new GrStyledShape where the
+ * geometry reflects the styling information (e.g. is stroked). It is also possible to apply just
+ * the path effect from the style. In this case the resulting shape will include any remaining
  * stroking information that is to be applied after the path effect.
  *
  * Shapes can produce keys that represent only the geometry information, not the style. Note that
@@ -35,26 +35,26 @@ class SkIDChangeListener;
  * applying style to the geometry. The idea is to expand this to cover most or all of the geometries
  * that have fast paths in the GPU backend.
  */
-class GrShape {
+class GrStyledShape {
 public:
     // Keys for paths may be extracted from the path data for small paths. Clients aren't supposed
     // to have to worry about this. This value is exposed for unit tests.
     static constexpr int kMaxKeyFromDataVerbCnt = 10;
 
-    GrShape() { this->initType(Type::kEmpty); }
+    GrStyledShape() { this->initType(Type::kEmpty); }
 
-    explicit GrShape(const SkPath& path) : GrShape(path, GrStyle::SimpleFill()) {}
+    explicit GrStyledShape(const SkPath& path) : GrStyledShape(path, GrStyle::SimpleFill()) {}
 
-    explicit GrShape(const SkRRect& rrect) : GrShape(rrect, GrStyle::SimpleFill()) {}
+    explicit GrStyledShape(const SkRRect& rrect) : GrStyledShape(rrect, GrStyle::SimpleFill()) {}
 
-    explicit GrShape(const SkRect& rect) : GrShape(rect, GrStyle::SimpleFill()) {}
+    explicit GrStyledShape(const SkRect& rect) : GrStyledShape(rect, GrStyle::SimpleFill()) {}
 
-    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style) {
+    GrStyledShape(const SkPath& path, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const GrStyle& style) : fStyle(style) {
+    GrStyledShape(const SkRRect& rrect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
@@ -63,7 +63,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRRect& rrect, SkPathDirection dir, unsigned start, bool inverted,
+    GrStyledShape(const SkRRect& rrect, SkPathDirection dir, unsigned start, bool inverted,
             const GrStyle& style)
         : fStyle(style) {
         this->initType(Type::kRRect);
@@ -83,7 +83,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const GrStyle& style) : fStyle(style) {
+    GrStyledShape(const SkRect& rect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
@@ -92,12 +92,12 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint) {
+    GrStyledShape(const SkPath& path, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const SkPaint& paint) : fStyle(paint) {
+    GrStyledShape(const SkRRect& rrect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
@@ -106,7 +106,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const SkPaint& paint) : fStyle(paint) {
+    GrStyledShape(const SkRect& rect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
@@ -115,13 +115,13 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    static GrShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
+    static GrStyledShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
                            SkScalar sweepAngleDegrees, bool useCenter, const GrStyle& style);
 
-    GrShape(const GrShape&);
-    GrShape& operator=(const GrShape& that);
+    GrStyledShape(const GrStyledShape&);
+    GrStyledShape& operator=(const GrStyledShape& that);
 
-    ~GrShape() { this->changeType(Type::kEmpty); }
+    ~GrStyledShape() { this->changeType(Type::kEmpty); }
 
     /**
      * Informs MakeFilled on how to modify that shape's fill rule when making a simple filled
@@ -140,7 +140,8 @@ public:
      * (e.g. filled paths are always closed when stored in a shape and dashed paths are always
      * made non-inverted since dashing ignores inverseness).
      */
-    static GrShape MakeFilled(const GrShape& original, FillInversion = FillInversion::kPreserve);
+    static GrStyledShape MakeFilled(const GrStyledShape& original,
+                                    FillInversion = FillInversion::kPreserve);
 
     const GrStyle& style() const { return fStyle; }
 
@@ -149,8 +150,8 @@ public:
      * information from this shape's style to its geometry. Scale is used when approximating the
      * output geometry and typically is computed from the view matrix
      */
-    GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
-        return GrShape(*this, apply, scale);
+    GrStyledShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
+        return GrStyledShape(*this, apply, scale);
     }
 
     bool isRect() const {
@@ -457,8 +458,8 @@ public:
     }
 
     /**
-     * Gets the size of the key for the shape represented by this GrShape (ignoring its styling).
-     * A negative value is returned if the shape has no key (shouldn't be cached).
+     * Gets the size of the key for the shape represented by this GrStyledShape (ignoring its
+     * styling). A negative value is returned if the shape has no key (shouldn't be cached).
      */
     int unstyledKeySize() const;
 
@@ -533,13 +534,13 @@ private:
     }
 
     /** Constructor used by the applyStyle() function */
-    GrShape(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
+    GrStyledShape(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
 
     /**
      * Determines the key we should inherit from the input shape's geometry and style when
      * we are applying the style to create a new shape.
      */
-    void setInheritedKey(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
+    void setInheritedKey(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
 
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();

@@ -23,14 +23,14 @@
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath
 GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
-    // not found and try again with the new GrShape.
+    // not found and try again with the new GrStyledShape.
     if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
         (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
         // This is the fallback renderer for when a path is too complicated for the GPU ones.
@@ -40,7 +40,7 @@ GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix& matrix,
+static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkMatrix& matrix,
                                            SkIRect* devBounds) {
     SkRect shapeBounds = shape.styledBounds();
     if (shapeBounds.isEmpty()) {
@@ -69,7 +69,7 @@ static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix&
 // is no intersection.
 bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* renderTargetContext,
                                                    const GrClip& clip,
-                                                   const GrShape& shape,
+                                                   const GrStyledShape& shape,
                                                    const SkMatrix& matrix,
                                                    SkIRect* unclippedDevShapeBounds,
                                                    SkIRect* clippedDevShapeBounds,
@@ -198,8 +198,8 @@ namespace {
  */
 class SoftwarePathData {
 public:
-    SoftwarePathData(const SkIRect& maskBounds, const SkMatrix& viewMatrix, const GrShape& shape,
-                     GrAA aa)
+    SoftwarePathData(const SkIRect& maskBounds, const SkMatrix& viewMatrix,
+                     const GrStyledShape& shape, GrAA aa)
             : fMaskBounds(maskBounds)
             , fViewMatrix(viewMatrix)
             , fShape(shape)
@@ -207,13 +207,13 @@ public:
 
     const SkIRect& getMaskBounds() const { return fMaskBounds; }
     const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
-    const GrShape& getShape() const { return fShape; }
+    const GrStyledShape& getShape() const { return fShape; }
     GrAA getAA() const { return fAA; }
 
 private:
     SkIRect fMaskBounds;
     SkMatrix fViewMatrix;
-    GrShape fShape;
+    GrStyledShape fShape;
     GrAA fAA;
 };
 

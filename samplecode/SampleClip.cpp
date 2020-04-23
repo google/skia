@@ -619,20 +619,13 @@ class HalfPlaneCoons : public SampleCameraView {
         const float tol = 15;
         for (int i = 0; i < 12; ++i) {
             if (dist({x,y}, fPatch[i]) <= tol) {
-                Click* c = new Click;
-                c->fMeta.setS32("index", i);
-                return c;
+                return new Click([this, i](Click* c) {
+                    fPatch[i] = c->fCurr;
+                    return true;
+                });
             }
         }
         return nullptr;
-    }
-
-    bool onClick(Click* click) override {
-        int32_t index;
-        SkAssertResult(click->fMeta.findS32("index", &index));
-        SkASSERT(index >= 0 && index < 12);
-        fPatch[index] = click->fCurr;
-        return true;
     }
 
     bool onChar(SkUnichar uni) override {

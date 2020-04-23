@@ -212,7 +212,7 @@ private:
                                                                         fQuads.count());
 
         return VertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
-                          fHelper.usesLocalCoords(), GrQuadPerEdgeAA::Domain::kNo,
+                          fHelper.usesLocalCoords(), GrQuadPerEdgeAA::Subset::kNo,
                           fHelper.aaType(),
                           fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
     }

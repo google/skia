@@ -21,9 +21,8 @@
 #include "src/gpu/GrTextureMaker.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 
 namespace {
@@ -379,7 +378,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
 static void draw_texture_producer(GrContext* context,
                                   GrRenderTargetContext* rtc,
                                   const GrClip& clip,
-                                  const SkMatrix& ctm,
+                                  const SkMatrixProvider& matrixProvider,
                                   const SkPaint& paint,
                                   GrTextureProducer* producer,
                                   const SkRect& src,
@@ -392,6 +391,7 @@ static void draw_texture_producer(GrContext* context,
                                   GrSamplerState::WrapMode wm,
                                   GrSamplerState::Filter fm,
                                   bool doBicubic) {
+    const SkMatrix& ctm(matrixProvider.localToDevice());
     if (wm == GrSamplerState::WrapMode::kClamp && !producer->isPlanar() &&
         can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
@@ -463,8 +463,8 @@ static void draw_texture_producer(GrContext* context,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(context, rtc->colorInfo(), paint, ctm, std::move(fp),
-                                     producer->isAlphaOnly(), &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(context, rtc->colorInfo(), paint, matrixProvider,
+                                     std::move(fp), producer->isAlphaOnly(), &grPaint)) {
         return;
     }
 
@@ -485,17 +485,17 @@ static void draw_texture_producer(GrContext* context,
                                     canUseTextureCoordsAsLocalCoords ? &src : nullptr);
         }
     } else {
-        // Must draw the mask filter as a GrShape. For now, this loses the per-edge AA information
-        // since it always draws with AA, but that is should not be noticeable since the mask filter
-        // is probably a blur.
-        GrShape shape;
+        // Must draw the mask filter as a GrStyledShape. For now, this loses the per-edge AA
+        // information since it always draws with AA, but that should not be noticeable since the
+        // mask filter is probably a blur.
+        GrStyledShape shape;
         if (dstClip) {
             // Represent it as an SkPath formed from the dstClip
             SkPath path;
             path.addPoly(dstClip, 4, true);
-            shape = GrShape(path);
+            shape = GrStyledShape(path);
         } else {
-            shape = GrShape(dst);
+            shape = GrStyledShape(dst);
         }
 
         GrBlurUtils::drawShapeWithMaskFilter(
@@ -508,7 +508,7 @@ void draw_tiled_bitmap(GrContext* context,
                        const GrClip& clip,
                        const SkBitmap& bitmap,
                        int tileSize,
-                       const SkMatrix& ctm,
+                       const SkMatrixProvider& matrixProvider,
                        const SkMatrix& srcToDst,
                        const SkRect& srcRect,
                        const SkIRect& clippedSrcIRect,
@@ -593,9 +593,9 @@ void draw_tiled_bitmap(GrContext* context,
                 SkMatrix offsetSrcToDst = srcToDst;
                 offsetSrcToDst.preTranslate(offset.fX, offset.fY);
 
-                draw_texture_producer(context, rtc, clip, ctm, paint, &tileProducer, tileR,
-                                      rectToDraw, nullptr, offsetSrcToDst, aa, aaFlags, constraint,
-                                      wm, fm, doBicubic);
+                draw_texture_producer(context, rtc, clip, matrixProvider, paint, &tileProducer,
+                                      tileR, rectToDraw, nullptr, offsetSrcToDst, aa, aaFlags,
+                                      constraint, wm, fm, doBicubic);
             }
         }
     }
@@ -627,10 +627,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
                                                 : GrSamplerState::WrapMode::kClamp;
 
     // Get final CTM matrix
-    SkMatrix ctm = this->localToDevice();
-    if (preViewMatrix) {
-        ctm.preConcat(*preViewMatrix);
-    }
+    SkPreConcatMatrixProvider matrixProvider(this->asMatrixProvider(),
+                                             preViewMatrix ? *preViewMatrix : SkMatrix::I());
+    const SkMatrix& ctm(matrixProvider.localToDevice());
 
     bool doBicubic;
     GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
@@ -647,8 +646,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
         GrYUVAImageTextureMaker maker(fContext.get(), image);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
-                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
         return;
     }
@@ -670,9 +669,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         }
 
         GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
-                              &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              wrapMode, fm, doBicubic);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+                              paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
+                              constraint, wrapMode, fm, doBicubic);
         return;
     }
 
@@ -704,8 +703,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
                 SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
                 LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
                 draw_tiled_bitmap(fContext.get(), fRenderTargetContext.get(), clip, bm, tileSize,
-                                  ctm, srcToDst, src, clippedSubset, paint, aa, constraint,
-                                  wrapMode, fm, doBicubic);
+                                  matrixProvider, srcToDst, src, clippedSubset, paint, aa,
+                                  constraint, wrapMode, fm, doBicubic);
                 return;
             }
         }
@@ -719,8 +718,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // texture creation.
     if (image->isLazyGenerated()) {
         GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
-                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
         return;
     }
@@ -728,8 +727,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
-                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
     }
 

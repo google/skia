@@ -32,7 +32,7 @@ class GrFixedClip;
 class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
-class GrShape;
+class GrStyledShape;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
@@ -41,7 +41,7 @@ class SkGlyphRunList;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
-class SkMarkedMatrixProvider;
+class SkMatrixProvider;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -57,7 +57,7 @@ class SkVertices;
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrRenderTargetContext : public GrSurfaceContext {
+class GrRenderTargetContext : public GrSurfaceContext, public GrOpsTaskClosedObserver {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
@@ -140,7 +140,7 @@ public:
 
     ~GrRenderTargetContext() override;
 
-    virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
+    virtual void drawGlyphRunList(const GrClip&, const SkMatrixProvider&, const SkGlyphRunList&);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -280,30 +280,30 @@ public:
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform) {
-        const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint ?
+        const SkRect* subset = constraint == SkCanvas::kStrict_SrcRectConstraint ?
                 &srcRect : nullptr;
         DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
 
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, domain);
+                               filter, color, mode, aa, &quad, subset);
     }
 
     /**
      * Variant of drawTexture that instead draws the texture applied to 'dstQuad' transformed by
-     * 'viewMatrix', using the 'srcQuad' texture coordinates clamped to the optional 'domain'. If
-     * 'domain' is null, it's equivalent to using the fast src rect constraint. If 'domain' is
-     * provided, the strict src rect constraint is applied using 'domain'.
+     * 'viewMatrix', using the 'srcQuad' texture coordinates clamped to the optional 'subset'. If
+     * 'subset' is null, it's equivalent to using the fast src rect constraint. If 'subset' is
+     * provided, the strict src rect constraint is applied using 'subset'.
      */
     void drawTextureQuad(const GrClip& clip, GrSurfaceProxyView view, GrColorType srcColorType,
                          SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
                          const SkPMColor4f& color, const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4], GrAA aa, GrQuadAAFlags edgeAA,
-                         const SkRect* domain, const SkMatrix& viewMatrix,
+                         const SkRect* subset, const SkMatrix& viewMatrix,
                          sk_sp<GrColorSpaceXform> texXform) {
         DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, domain);
+                               filter, color, mode, aa, &quad, subset);
     }
 
     /** Used with drawTextureSet */
@@ -407,7 +407,7 @@ public:
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
-                   const GrShape&);
+                   const GrStyledShape&);
 
 
     /**
@@ -421,11 +421,10 @@ public:
      */
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
-                      const SkMatrix& viewMatrix,
+                      const SkMatrixProvider& matrixProvider,
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr,
-                      const SkRuntimeEffect* effect = nullptr,
-                      const SkMarkedMatrixProvider* matrixProvider = nullptr);
+                      const SkRuntimeEffect* effect = nullptr);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the
@@ -581,6 +580,8 @@ public:
 
     GrTextTarget* textTarget() { return fTextTarget.get(); }
 
+    void wasClosed(const GrOpsTask& task) override;
+
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
@@ -668,10 +669,10 @@ private:
                           SkBlendMode blendMode,
                           GrAA aa,
                           DrawQuad* quad,
-                          const SkRect* domain = nullptr);
+                          const SkRect* subset = nullptr);
 
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrShape&);
+                                    const GrStyledShape&);
 
     void addOp(std::unique_ptr<GrOp>);
 

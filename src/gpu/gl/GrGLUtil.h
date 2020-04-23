@@ -156,7 +156,8 @@ enum class GrGLANGLEBackend {
 
 enum class GrGLANGLEVendor {
     kUnknown,
-    kIntel
+    kIntel,
+    kNVIDIA
 };
 
 enum class GrGLANGLERenderer {
@@ -228,8 +229,8 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const GrGLExtensions&);
-void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend*,
-                                GrGLANGLEVendor*, GrGLANGLERenderer*);
+std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfoFromString(
+        const char* rendererString);
 
 void GrGLGetDriverInfo(GrGLStandard standard,
                        GrGLVendor vendor,
@@ -243,6 +244,8 @@ GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
 GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
+std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfo(
+        const GrGLInterface*);
 
 /**
  * Helpers for glGetError()

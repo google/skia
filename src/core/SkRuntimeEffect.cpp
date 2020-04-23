@@ -506,7 +506,7 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrRecordingContext* context, const GrColorInfo& colorInfo) const override {
-        auto fp = GrSkSLFP::Make(context, fEffect, "Runtime Color Filter", fInputs);
+        auto fp = GrSkSLFP::Make(context, fEffect, "Runtime_Color_Filter", fInputs);
         for (const auto& child : fChildren) {
             auto childFP = child ? child->asFragmentProcessor(context, colorInfo) : nullptr;
             if (!childFP) {

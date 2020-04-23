@@ -15,12 +15,12 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
+#include "src/core/SkMarkerStack.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -57,8 +57,8 @@ void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
     }
 }
 
-void SkBaseDevice::setGlobalCTM(const SkCanvasMatrix& ctm) {
-    fLocalToDevice = ctm;
+void SkBaseDevice::setGlobalCTM(const SkM44& ctm) {
+    fLocalToDevice = ctm.asM33();
     fLocalToDevice.normalizePerspective();
     if (!fGlobalToDevice.isIdentity()) {
         // Map from the global CTM state to this device's coordinate system.
@@ -96,7 +96,8 @@ bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
     SkM44 globalToMarker;
     if (fMarkerStack && fMarkerStack->findMarkerInverse(id, &globalToMarker)) {
         if (localToMarker) {
-            *localToMarker = globalToMarker * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
+            *localToMarker =
+                    globalToMarker * SkM44(SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice));
         }
         return true;
     }
