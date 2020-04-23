@@ -7,7 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
-#include "src/gpu/GrSpirvUniformHandler.h"
+#include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTextureSamplers) {
@@ -20,7 +20,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     uniformRange.NumDescriptors = 1;
     uniformRange.BaseShaderRegister = 0;
     // Spirv-Cross uses the descriptor set as the space in HSLS
-    uniformRange.RegisterSpace = GrSpirvUniformHandler::kUniformDescriptorSet;
+    uniformRange.RegisterSpace = GrSPIRVUniformHandler::kUniformDescriptorSet;
     uniformRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -42,7 +42,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             samplerRanges[i].NumDescriptors = 1;
             samplerRanges[i].BaseShaderRegister = 2 * i;
             // Spirv-Cross uses the descriptor set as the space in HSLS
-            samplerRanges[i].RegisterSpace = GrSpirvUniformHandler::kSamplerTextureDescriptorSet;
+            samplerRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             samplerRanges[i].OffsetInDescriptorsFromTableStart =
                     D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -51,7 +51,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             textureRanges[i].NumDescriptors = 1;
             textureRanges[i].BaseShaderRegister = 2 * i + 1;
             // Spirv-Cross uses the descriptor set as the space in HSLS
-            textureRanges[i].RegisterSpace = GrSpirvUniformHandler::kSamplerTextureDescriptorSet;
+            textureRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             textureRanges[i].OffsetInDescriptorsFromTableStart =
                     D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;

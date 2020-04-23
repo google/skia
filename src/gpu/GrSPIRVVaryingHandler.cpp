@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSpirvVaryingHandler.h"
+#include "src/gpu/GrSPIRVVaryingHandler.h"
 
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */
@@ -78,7 +78,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
     SK_ABORT("Unexpected type");
 }
 
-static void finalize_helper(GrSpirvVaryingHandler::VarArray& vars) {
+static void finalize_helper(GrSPIRVVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
     for (GrShaderVar& var : vars.items()) {
         SkString location;
@@ -94,10 +94,10 @@ static void finalize_helper(GrSpirvVaryingHandler::VarArray& vars) {
         SkASSERT(numElements > 0);
         locationIndex += elementSize * numElements;
     }
-    // TODO: determine the layout limits for Spirv, and enforce them via asserts here.
+    // TODO: determine the layout limits for SPIR-V, and enforce them via asserts here.
 }
 
-void GrSpirvVaryingHandler::onFinalize() {
+void GrSPIRVVaryingHandler::onFinalize() {
     finalize_helper(fVertexInputs);
     finalize_helper(fVertexOutputs);
     finalize_helper(fGeomInputs);
