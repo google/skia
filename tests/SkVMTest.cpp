@@ -1184,13 +1184,17 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        A::Label l;
+        a.vcmpeqps (A::ymm0, A::ymm1, &l);      // vcmpeqps 0x1c(%rip), %ymm1, %ymm0
         a.vpcmpeqd (A::ymm0, A::ymm1, A::ymm2);
         a.vpcmpgtd (A::ymm0, A::ymm1, A::ymm2);
         a.vcmpeqps (A::ymm0, A::ymm1, A::ymm2);
         a.vcmpltps (A::ymm0, A::ymm1, A::ymm2);
         a.vcmpleps (A::ymm0, A::ymm1, A::ymm2);
         a.vcmpneqps(A::ymm0, A::ymm1, A::ymm2);
+        a.label(&l);   // 28 bytes after the vcmpeqps that uses it.
     },{
+        0xc5,0xf4,0xc2,0x05,0x1c,0x00,0x00,0x00,0x00,
         0xc5,0xf5,0x76,0xc2,
         0xc5,0xf5,0x66,0xc2,
         0xc5,0xf4,0xc2,0xc2,0x00,
