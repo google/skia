@@ -22,6 +22,52 @@
       "revId": "d97ef6c7b64a1c88acd5857fc6377f9586c9996d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c849ec0f_88da6993",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-23T19:57:16Z",
+      "side": 1,
+      "message": "I believe this is only used by setOrigin (at the moment), so it might as well have deviceToGlobal be an SkM44 as well.",
+      "range": {
+        "startLine": 417,
+        "startChar": 9,
+        "endLine": 417,
+        "endChar": 34
+      },
+      "revId": "d97ef6c7b64a1c88acd5857fc6377f9586c9996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "310fa7e9_3976f92e",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-23T19:57:16Z",
+      "side": 1,
+      "message": "At the moment, these always identity or a translation matrix, so could be safely updated without affecting our ability to identify matrix type (I think...)",
+      "range": {
+        "startLine": 443,
+        "startChar": 4,
+        "endLine": 444,
+        "endChar": 12
+      },
+      "revId": "d97ef6c7b64a1c88acd5857fc6377f9586c9996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
