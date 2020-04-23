@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ef53a0c_b6ce3c0d",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-23T12:49:28Z",
+      "side": 1,
+      "message": "should we add a link to skbug.com/10163?",
+      "range": {
+        "startLine": 127,
+        "startChar": 7,
+        "endLine": 128,
+        "endChar": 86
+      },
+      "revId": "a992720594fed7ebdc4be6965d955536bb35e8ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
