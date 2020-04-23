@@ -13,6 +13,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 
 class DDLPromiseImageHelper;
+class PromiseImageCallbackContext;
 class SkCanvas;
 class SkData;
 class SkDeferredDisplayList;
@@ -30,7 +31,7 @@ public:
         ~TileData();
 
         void init(int id,
-                  sk_sp<SkSurface> dstSurface,
+                  GrContext* context,
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& clip);
 
@@ -53,15 +54,21 @@ public:
         // Replay the recorded DDL into the tile surface - creating 'fImage'.
         void draw(GrContext*);
 
+#if 0
         // Draw the result of replaying the DDL (i.e., 'fImage') into the
         // final destination surface ('fDstSurface').
         void compose(GrContext*);
+#endif
 
         void reset();
 
         int id() const { return fID; }
+        SkIRect clipRect() const { return fClip; }
 
         SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
+
+        sk_sp<SkImage> makePromiseImage(SkDeferredDisplayListRecorder*);
+        void dropCallbackContext() { fCallbackContext1.reset(); }
 
         static void CreateBackendTexture(GrContext*, TileData*);
         static void DeleteBackendTexture(GrContext*, TileData*);
@@ -69,9 +76,12 @@ public:
     private:
         sk_sp<SkSurface> makeWrappedTileDest(GrContext* context);
 
-        int                       fID = -1;
-        sk_sp<SkSurface>          fDstSurface;       // the ultimate target for composition
+        sk_sp<PromiseImageCallbackContext> refCallbackContext() { return fCallbackContext1; }
 
+        int                       fID = -1;
+        sk_sp<SkSurface>          fDstSurface1;       // the ultimate target for composition
+
+        sk_sp<PromiseImageCallbackContext> fCallbackContext1;
         GrBackendTexture          fBackendTexture;   // destination for this tile's content
         SkSurfaceCharacterization fCharacterization; // characterization for the tile's surface
         SkIRect                   fClip;             // in the device space of the 'fDstSurface'
@@ -85,7 +95,7 @@ public:
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
 
-    DDLTileHelper(sk_sp<SkSurface> dstSurface,
+    DDLTileHelper(GrContext* context,
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
                   int numDivisions);
@@ -101,6 +111,10 @@ public:
 
     void createDDLsInParallel();
 
+    // Create the DDL that will compose all the tile images into a final result.
+    void createComposeDDL();
+    SkDeferredDisplayList* composeDDL() const { return fComposeDDL.get(); }
+
     void precompileAndDrawAllTiles(GrContext*);
 
     // For each tile, create its DDL and then draw it - all on a single thread. This is to allow
@@ -114,8 +128,9 @@ public:
     // DDLs first - all on a single thread.
     void drawAllTilesDirectly(GrContext*);
 
-    void composeAllTiles(GrContext*);
+//    void composeAllTiles(GrContext*);
 
+    void dropCallbackContexts();
     void resetAllTiles();
 
     int numTiles() const { return fNumDivisions * fNumDivisions; }
@@ -126,6 +141,10 @@ public:
 private:
     int                fNumDivisions; // number of tiles along a side
     TileData*          fTiles;        // 'fNumDivisions' x 'fNumDivisions'
+
+    std::unique_ptr<SkDeferredDisplayList> fComposeDDL;
+
+    const SkSurfaceCharacterization        fDstCharacterization;
 };
 
 #endif

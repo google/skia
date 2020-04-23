@@ -1606,6 +1606,7 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     return compare_bitmaps(reference, *dst);
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
     , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
@@ -1659,8 +1660,11 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // TODO: move the image upload to the utility thread
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
 
+    // Care must be taken when using 'gpuThreadCtx' bc it moves between the gpu-thread and this
+    // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
+    // calls.
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
@@ -1671,6 +1675,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // Apparently adding to a taskGroup isn't thread safe. Wait for the recording task group
     // to add all its gpuThread work before adding the flush
     recordingTaskGroup->wait();
+
+    gpuTaskGroup->add([dstSurface, ddl=tiles.composeDDL()]() {
+                          dstSurface->draw(ddl);
+                      });
 
     // This should be the only explicit flush for the entire DDL draw
     gpuTaskGroup->add([gpuThreadCtx]() {
@@ -2110,7 +2118,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, fNumDivisions);
+            DDLTileHelper tiles(context, dstCharacterization, viewport, fNumDivisions);
 
             tiles.createBackendTextures(nullptr, context);
 
@@ -2124,9 +2132,9 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             tiles.createDDLsInParallel();
 
             if (replay == fNumReplays - 1) {
-                // This drops the promiseImageHelper's refs on all the promise images if we're in
-                // the last run.
+                // Drop the refs on all the callback contexts if we're in the last run.
                 promiseImageHelper.reset();
+                tiles.dropCallbackContexts();
             }
 
             // Fourth, synchronously render the display lists into the dest tiles
@@ -2134,10 +2142,13 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // drawing to the GPU and composing to the final surface
             tiles.precompileAndDrawAllTiles(context);
 
+            dstSurface->draw(tiles.composeDDL());
+#if 0
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
             // matches Chrome but costs us a copy
             tiles.composeAllTiles(context);
+#endif
 
             // We need to ensure all the GPU work is finished so the following
             // 'deleteBackendTextures' call will work on Vulkan.
@@ -2145,7 +2156,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
             context->flush(flushInfoSyncCpu);
 
-            tiles.deleteBackendTextures(nullptr, context);
+//            tiles.deleteBackendTextures(nullptr, context);
         }
         return Result::Ok();
     };
