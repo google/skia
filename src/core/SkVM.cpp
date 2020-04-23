@@ -99,12 +99,7 @@ namespace skvm {
         }
 
         static void write(SkWStream* o, Op op) {
-            const char* raw = name(op);
-            if (const char* found = strstr(raw, "_imm")) {
-                o->write(raw, found-raw);
-            } else {
-                o->writeText(raw);
-            }
+            o->writeText(name(op));
         }
         static void write(SkWStream* o, Arg a) {
             write(o, "arg(");
@@ -147,11 +142,11 @@ namespace skvm {
         }
     }
 
-    void Builder::dot(SkWStream* o, bool for_jit) const {
+    void Builder::dot(SkWStream* o) const {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        std::vector<OptimizedInstruction> optimized = this->optimize(for_jit);
+        std::vector<OptimizedInstruction> optimized = this->optimize();
 
         o->writeText("digraph {\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {
@@ -230,12 +225,6 @@ namespace skvm {
 
             case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
 
-            case Op::add_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::sub_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::mul_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::min_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-            case Op::max_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
-
             case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
             case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
             case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
@@ -257,10 +246,6 @@ namespace skvm {
             case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
             case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
             case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-
-            case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
-            case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
-            case Op::bit_xor_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
 
             case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
             case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
@@ -359,12 +344,6 @@ namespace skvm {
 
                 case Op::sqrt_f32: write(o, R{d}, "=", op, R{x}); break;
 
-                case Op::add_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
-                case Op::sub_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
-                case Op::mul_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
-                case Op::min_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
-                case Op::max_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
-
                 case Op:: eq_f32: write(o, R{d}, "=", op, R{x}, R{y}); break;
                 case Op::neq_f32: write(o, R{d}, "=", op, R{x}, R{y}); break;
                 case Op:: gt_f32: write(o, R{d}, "=", op, R{x}, R{y}); break;
@@ -387,10 +366,6 @@ namespace skvm {
                 case Op::bit_xor  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_clear: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
 
-                case Op::bit_and_imm: write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
-                case Op::bit_or_imm : write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
-                case Op::bit_xor_imm: write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
-
                 case Op::select:  write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
                 case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
@@ -401,70 +376,6 @@ namespace skvm {
             }
             write(o, "\n");
         }
-    }
-
-    std::vector<Instruction> specialize_for_jit(std::vector<Instruction> program) {
-        // We could use a temporary Builder to let new Instructions participate in common
-        // sub-expression elimination, but we'll never hit anything valuable with the
-        // specializations we've got today.  Worth keeping in mind for the future though.
-        for (Val i = 0; i < (Val)program.size(); i++) {
-        #if defined(SK_CPU_X86)
-            Instruction& inst = program[i];
-
-            auto is_imm = [&](Val id, int* bits) {
-                *bits = program[id].immy;
-                return  program[id].op == Op::splat;
-            };
-
-            switch (Op imm_op; inst.op) {
-                default: break;
-
-                case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
-                case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
-                case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
-                case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
-                case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
-                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x;
-                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x;
-                case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
-
-                try_imm_x_and_y:
-                    if (int bits; is_imm(inst.x, &bits)) {
-                        inst.op   = imm_op;
-                        inst.x    = inst.y;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } else if (int bits; is_imm(inst.y, &bits)) {
-                        inst.op   = imm_op;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } break;
-
-                try_imm_x:
-                    if (int bits; is_imm(inst.x, &bits)) {
-                        inst.op   = imm_op;
-                        inst.x    = inst.y;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } break;
-
-                try_imm_y:
-                    if (int bits; is_imm(inst.y, &bits)) {
-                        inst.op   = imm_op;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } break;
-
-                case Op::bit_clear:
-                    if (int bits; is_imm(inst.y, &bits)) {
-                        inst.op   = Op::bit_and_imm;
-                        inst.y    = NA;
-                        inst.immy = ~bits;
-                    } break;
-            }
-        #endif
-        }
-        return program;
     }
 
     std::vector<Instruction> eliminate_dead_code(std::vector<Instruction> program) {
@@ -612,11 +523,8 @@ namespace skvm {
         return optimized;
     }
 
-    std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
+    std::vector<OptimizedInstruction> Builder::optimize() const {
         std::vector<Instruction> program = this->program();
-        if (for_jit) {
-            program = specialize_for_jit(std::move(program));
-        }
         program = eliminate_dead_code(std::move(program));
         program = schedule           (std::move(program));
         return    finalize           (std::move(program));
@@ -629,11 +537,7 @@ namespace skvm {
             debug_name = buf;
         }
 
-    #if defined(SKVM_LLVM) || defined(SKVM_JIT)
-        return {this->optimize(false), this->optimize(true), fStrides, debug_name};
-    #else
-        return {this->optimize(false), fStrides};
-    #endif
+        return {this->optimize(), fStrides, debug_name};
     }
 
     uint64_t Builder::hash() const {
@@ -2707,25 +2611,18 @@ namespace skvm {
         return *this;
     }
 
-    Program::Program(const std::vector<OptimizedInstruction>& interpreter,
-                     const std::vector<int>& strides) : Program() {
-        fImpl->strides = strides;
-        this->setupInterpreter(interpreter);
-    }
-
-    Program::Program(const std::vector<OptimizedInstruction>& interpreter,
-                     const std::vector<OptimizedInstruction>& jit,
+    Program::Program(const std::vector<OptimizedInstruction>& instructions,
                      const std::vector<int>& strides,
                      const char* debug_name) : Program() {
         fImpl->strides = strides;
     #if 1 && defined(SKVM_LLVM)
-        this->setupLLVM(interpreter, debug_name);
+        this->setupLLVM(instructions, debug_name);
     #elif 1 && defined(SKVM_JIT)
-        this->setupJIT(jit, debug_name);
+        this->setupJIT(instructions, debug_name);
     #endif
 
         // Might as well do this after setupLLVM() to get a little more time to compile.
-        this->setupInterpreter(interpreter);
+        this->setupInterpreter(instructions);
     }
 
     std::vector<InterpreterInstruction> Program::instructions() const { return fImpl->instructions; }
@@ -2835,7 +2732,7 @@ namespace skvm {
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions, Assembler* a) const {
         using A = Assembler;
 
-        SkTHashMap<int, A::Label> constants;    // Constants share the same pool.
+        SkTHashMap<int, A::Label> constants;    // Constants (mostly splats) share the same pool.
         A::Label                  iota;         // Varies per lane, for Op::index.
 
         // The `regs` array tracks everything we know about each register's state:
@@ -2865,13 +2762,17 @@ namespace skvm {
             NA,NA,NA,NA, NA,NA,NA,NA,
         };
 
-        auto load_from_stack = [&](Reg r, Val id) {
-            SkASSERT(on_stack[id]);
-            a->vmovups(r, A::Mem{A::rsp, id*K*4});
+        auto load_from_memory = [&](Reg r, Val v) {
+            if (instructions[v].op == Op::splat) {
+                a->vmovups(r, &constants[instructions[v].immy]);
+            } else {
+                SkASSERT(on_stack[v]);
+                a->vmovups(r, A::Mem{A::rsp, v*K*4});
+            }
         };
-        auto store_to_stack  = [&](Reg r, Val id) {
-            on_stack[id] = true;
-            a->vmovups(A::Mem{A::rsp, id*K*4}, r);
+        auto store_to_stack = [&](Reg r, Val v) {
+            on_stack[v] = true;
+            a->vmovups(A::Mem{A::rsp, v*K*4}, r);
         };
     #elif defined(__aarch64__)
         const int K = 4;
@@ -2888,13 +2789,17 @@ namespace skvm {
              NA, NA, NA, NA,  NA, NA, NA, NA,
         };
 
-        auto load_from_stack = [&](Reg r, Val id) {
-            SkASSERT(on_stack[id]);
-            a->ldrq(r, A::sp, id);
+        auto load_from_memory = [&](Reg r, Val v) {
+            if (instructions[v].op == Op::splat) {
+                a->ldrq(r, &constants[instructions[v].immy]);
+            } else {
+                SkASSERT(on_stack[v]);
+                a->ldrq(r, A::sp, v);
+            }
         };
-        auto store_to_stack  = [&](Reg r, Val id) {
-            on_stack[id] = true;
-            a->strq(r, A::sp, id);
+        auto store_to_stack  = [&](Reg r, Val v) {
+            on_stack[v] = true;
+            a->strq(r, A::sp, v);
         };
     #endif
 
@@ -2940,7 +2845,7 @@ namespace skvm {
 
                 SkASSERT(v == NA || v >= 0);
                 if (v >= 0) {
-                    if (!on_stack[v]) {
+                    if (!on_stack[v] && instructions[v].op != Op::splat) {
                         store_to_stack(r, v);
                     }
                     v = NA;
@@ -3002,9 +2907,9 @@ namespace skvm {
 
                 SkASSERT(v <= id);
                 if (v < id) {
-                    // If v < id, we're loading one of this instruction's inputs from the stack.
+                    // If v < id, we're loading one of this instruction's inputs.
                     // If v == id we're just allocating its destination register.
-                    load_from_stack(r, v);
+                    load_from_memory(r, v);
                 }
                 regs[r] = v;
                 return update_regs(r, v);
@@ -3036,13 +2941,17 @@ namespace skvm {
             };
 
         #if defined(__x86_64__)
-            // On x86 we can work with many values directly from the stack.
+            // On x86 we can work with many values directly from the stack or program constant pool.
             auto any = [&](Val v) -> A::Operand {
                 SkASSERT(v >= 0);
+                SkASSERT(v < id);
+
                 if (int found = find_existing_reg(v); found != NA) {
                     return (Reg)found;
                 }
-                SkASSERT(v < id);
+                if (instructions[v].op == Op::splat) {
+                    return &constants[instructions[v].immy];
+                }
                 return A::Mem{A::rsp, v*K*4};
             };
 
@@ -3054,6 +2963,9 @@ namespace skvm {
         #endif
 
             switch (op) {
+                // Splats are handled above.
+                case Op::splat: break;
+
             #if defined(__x86_64__)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
@@ -3181,10 +3093,6 @@ namespace skvm {
                                 a->vpsubd(dst(), dst(), &iota);
                                 break;
 
-                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy]); }
-                                else      { a->vpxor(dst(), dst(), dst()); }
-                                break;
-
                 // We can swap the arguments of symmetric instructions to make better use of any().
                 case Op::add_f32:
                     if (in_reg(x)) { a->vaddps(dst(x), r(x), any(y)); }
@@ -3233,12 +3141,6 @@ namespace skvm {
                     else           { a->vsqrtps(dst(), any(x)); }
                                      break;
 
-                case Op::add_f32_imm: a->vaddps(dst(x), r(x), &constants[immy]); break;
-                case Op::sub_f32_imm: a->vsubps(dst(x), r(x), &constants[immy]); break;
-                case Op::mul_f32_imm: a->vmulps(dst(x), r(x), &constants[immy]); break;
-                case Op::min_f32_imm: a->vminps(dst(x), r(x), &constants[immy]); break;
-                case Op::max_f32_imm: a->vmaxps(dst(x), r(x), &constants[immy]); break;
-
                 case Op::add_i32:
                     if (in_reg(x)) { a->vpaddd(dst(x), r(x), any(y)); }
                     else           { a->vpaddd(dst(y), r(y), any(x)); }
@@ -3269,10 +3171,6 @@ namespace skvm {
                     if (try_alias(z)) { a->vpblendvb(dst(z), r(z), any(y), r(x)); }
                     else              { a->vpblendvb(dst(x), r(z), any(y), r(x)); }
                                         break;
-
-                case Op::bit_and_imm: a->vpand (dst(x), r(x), &constants[immy]); break;
-                case Op::bit_or_imm : a->vpor  (dst(x), r(x), &constants[immy]); break;
-                case Op::bit_xor_imm: a->vpxor (dst(x), r(x), &constants[immy]); break;
 
                 case Op::shl_i32: a->vpslld(dst(x), r(x), immy); break;
                 case Op::shr_i32: a->vpsrld(dst(x), r(x), immy); break;
@@ -3323,15 +3221,6 @@ namespace skvm {
                                      break;
 
             #elif defined(__aarch64__)
-                // All these _imm instructions are x86-only.
-                case  Op::add_f32_imm :
-                case  Op::sub_f32_imm :
-                case  Op::mul_f32_imm :
-                case  Op::min_f32_imm :
-                case  Op::max_f32_imm :
-                case  Op::bit_and_imm :
-                case  Op::bit_or_imm  :
-                case  Op::bit_xor_imm :
                 default:  // TODO
                     if (false) {
                         SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
@@ -3366,12 +3255,6 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
-
-                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy]); }
-                                else      { a->eor16b(dst(), dst(), dst()); }
-                                break;
-                                // TODO: pack 4 values in each register and use vector/lane
-                                // operations, cutting the register pressure cost of hoisting by 4?
 
                 case Op::add_f32: a->fadd4s(dst(), r(x), r(y)); break;
                 case Op::sub_f32: a->fsub4s(dst(), r(x), r(y)); break;
@@ -3503,7 +3386,7 @@ namespace skvm {
                 if (regs[r] != incoming[r]) {
                     regs[r]  = incoming[r];
                     if (regs[r] >= 0) {
-                        load_from_stack((Reg)r, regs[r]);
+                        load_from_memory((Reg)r, regs[r]);
                     }
                 }
             }
