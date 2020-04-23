@@ -22,6 +22,30 @@
       "revId": "05a83b979cdc5f67d9b5a3b5b7a357ceeab81fc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "497f069c_926f3471",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2999,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T15:36:24Z",
+      "side": 1,
+      "message": "Right.  I\u0027m hoping this is the best balance of clarity, good aliasing hints, and keeping what should be a compact one-liner a compact one-liner.  There are many ways to trade those off.",
+      "parentUuid": "0dd66a77_9c1f61ac",
+      "range": {
+        "startLine": 2999,
+        "startChar": 17,
+        "endLine": 2999,
+        "endChar": 20
+      },
+      "revId": "05a83b979cdc5f67d9b5a3b5b7a357ceeab81fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
