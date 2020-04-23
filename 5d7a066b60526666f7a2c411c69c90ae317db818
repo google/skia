@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1322dfc4_7ef4f993",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-04-23T21:43:04Z",
+      "side": 1,
+      "message": "Alternatively, we could move this include to the bottom. But then it wouldn\u0027t be alphabetical. I guess it still isn\u0027t, due to SkTypes. I guess we could put it at the bottom with a comment explaining why it\u0027s there, like I did here. I don\u0027t have a strong preference.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 53
+      },
+      "revId": "5d7a066b60526666f7a2c411c69c90ae317db818",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
