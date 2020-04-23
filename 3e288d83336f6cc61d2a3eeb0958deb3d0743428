@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8448f259_7b877b34",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2833,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T18:57:35Z",
+      "side": 1,
+      "message": "Let\u0027s move the indent back.",
+      "revId": "3e288d83336f6cc61d2a3eeb0958deb3d0743428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57163ad9_4fce3ab6",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3475,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-23T18:57:35Z",
+      "side": 1,
+      "message": "Maybe just `const auto` here?\n\nThis is the sort of place where what type on_stack is does not matter... all we need to know\nis that we\u0027re saving its state and restoring it later.  On the other hand, const lets us know\nthat we\u0027ll not change that saved state between now and then.",
+      "revId": "3e288d83336f6cc61d2a3eeb0958deb3d0743428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
