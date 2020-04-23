@@ -33,11 +33,7 @@ public:
 private:
     GrGpu* gpu() override;
 
-    bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override {
-        // TODO: When this gets implemented make sure we bind the stencil reference value since that
-        // is not part of the pipline in d3d12.
-        return true;
-    }
+    bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override {}
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override {

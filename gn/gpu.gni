@@ -745,6 +745,8 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DOpsRenderPass.h",
   "$_src/gpu/d3d/GrD3DPipelineState.cpp",
   "$_src/gpu/d3d/GrD3DPipelineState.h",
+  "$_src/gpu/d3d/GrD3DPipelineStateBuilder.cpp",
+  "$_src/gpu/d3d/GrD3DPipelineStateBuilder.h",
   "$_src/gpu/d3d/GrD3DRenderTarget.cpp",
   "$_src/gpu/d3d/GrD3DRenderTarget.h",
   "$_src/gpu/d3d/GrD3DResourceProvider.cpp",

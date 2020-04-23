@@ -22,6 +22,20 @@ namespace SkSL {
 bool SPIRVtoHLSL(const String& spirv, String* hlsl) {
     spirv_cross::CompilerHLSL hlslCompiler((const uint32_t*)spirv.c_str(),
                                            spirv.size() / sizeof(uint32_t));
+
+    spirv_cross::CompilerGLSL::Options optionsGLSL;
+    // Force all uninitialized variables to be 0, otherwise they will fail to compile
+    // by FXC.
+    optionsGLSL.force_zero_initialized_variables = true;
+
+    spirv_cross::CompilerHLSL::Options optionsHLSL;
+    optionsHLSL.shader_model = 51;
+    // PointCoord and PointSize are not supported in HLSL
+    optionsHLSL.point_coord_compat = true;
+    optionsHLSL.point_size_compat = true;
+
+    hlslCompiler.set_common_options(optionsGLSL);
+    hlslCompiler.set_hlsl_options(optionsHLSL);
     hlsl->assign(hlslCompiler.compile());
     return true;
 }

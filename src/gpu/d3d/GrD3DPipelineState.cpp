@@ -268,31 +268,47 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
     dsDesc->DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
     dsDesc->DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
     dsDesc->StencilEnable = !stencilSettings.isDisabled();
-    if (stencilSettings.isTwoSided()) {
-        const auto& frontFace = stencilSettings.postOriginCCWFace(origin);
-        const auto& backFace = stencilSettings.postOriginCCWFace(origin);
+    if (!stencilSettings.isDisabled()) {
+        if (stencilSettings.isTwoSided()) {
+            const auto& frontFace = stencilSettings.postOriginCCWFace(origin);
+            const auto& backFace = stencilSettings.postOriginCCWFace(origin);
 
-        SkASSERT(frontFace.fTestMask == backFace.fTestMask);
-        SkASSERT(frontFace.fWriteMask == backFace.fWriteMask);
-        dsDesc->StencilReadMask = frontFace.fTestMask;
-        dsDesc->StencilWriteMask = frontFace.fWriteMask;
+            SkASSERT(frontFace.fTestMask == backFace.fTestMask);
+            SkASSERT(frontFace.fWriteMask == backFace.fWriteMask);
+            dsDesc->StencilReadMask = frontFace.fTestMask;
+            dsDesc->StencilWriteMask = frontFace.fWriteMask;
 
-        setup_stencilop_desc(&dsDesc->FrontFace, frontFace);
-        setup_stencilop_desc(&dsDesc->BackFace, backFace);
-    } else {
-        dsDesc->StencilReadMask = stencilSettings.singleSidedFace().fTestMask;
-        dsDesc->StencilWriteMask = stencilSettings.singleSidedFace().fTestMask;
-        setup_stencilop_desc(&dsDesc->FrontFace, stencilSettings.singleSidedFace());
-        dsDesc->BackFace = dsDesc->FrontFace;
+            setup_stencilop_desc(&dsDesc->FrontFace, frontFace);
+            setup_stencilop_desc(&dsDesc->BackFace, backFace);
+        } else {
+            dsDesc->StencilReadMask = stencilSettings.singleSidedFace().fTestMask;
+            dsDesc->StencilWriteMask = stencilSettings.singleSidedFace().fTestMask;
+            setup_stencilop_desc(&dsDesc->FrontFace, stencilSettings.singleSidedFace());
+            dsDesc->BackFace = dsDesc->FrontFace;
+        }
     }
 }
 
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
                                                              const GrProgramInfo& programInfo,
+                                                             gr_cp<ID3D12RootSignature> rootSig,
+                                                             gr_cp<ID3DBlob> vertexShader,
+                                                             gr_cp<ID3DBlob> geometryShader,
+                                                             gr_cp<ID3DBlob> pixelShader,
                                                              DXGI_FORMAT renderTargetFormat,
                                                              DXGI_FORMAT depthStencilFormat,
                                                              unsigned int sampleQualityLevel) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+
+    psoDesc.VS = { reinterpret_cast<UINT8*>(vertexShader->GetBufferPointer()),
+                   vertexShader->GetBufferSize() };
+    psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()),
+                   pixelShader->GetBufferSize() };
+
+    if (geometryShader.get()) {
+        psoDesc.GS = { reinterpret_cast<UINT8*>(geometryShader->GetBufferPointer()),
+                       geometryShader->GetBufferSize() };
+    }
 
     psoDesc.StreamOutput = {nullptr, 0, nullptr, 0, 0};
 
@@ -327,11 +343,8 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
     psoDesc.CachedPSO = {nullptr, 0};
     psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    // TODO: fill in the rest of the descriptor.
+    // TODO: We need to create a real root descriptor before trying to make a pipeline
 #if 0
-    psoDesc.pRootSignature = m_rootSignature.Get();
-    psoDesc.VS = { reinterpret_cast<UINT8*>(vertexShader->GetBufferPointer()), vertexShader->GetBufferSize() };
-    psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()), pixelShader->GetBufferSize() };
     ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));
 #endif
 
