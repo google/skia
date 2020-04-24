@@ -134,7 +134,7 @@ public:
                const SkPaint& paint,
                const SkPMColor4f& filteredColor,
                const GrClip& clip,
-               const SkMatrixProvider& matrixProvider,
+               const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 
     void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
