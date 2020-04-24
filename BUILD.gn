@@ -1564,7 +1564,6 @@ if (skia_enable_tools) {
     if (!(skia_use_freetype && skia_use_fontconfig)) {
       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
-    include_dirs = [ "third_party/externals/abseil-cpp" ]
     deps = [
       ":experimental_svg_model",
       ":flags",
@@ -1575,7 +1574,6 @@ if (skia_enable_tools) {
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
-      "//third_party/absl",
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",
