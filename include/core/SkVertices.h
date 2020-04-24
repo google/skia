@@ -84,10 +84,7 @@ public:
             kPosition,
         };
 
-        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, uint32_t id = 0)
-            : fType(t)
-            , fUsage(u)
-            , fMarkerID(id) {}
+        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, const char* markerName = nullptr);
 
         bool operator==(const Attribute& that) const {
             return fType == that.fType && fUsage == that.fUsage && fMarkerID == that.fMarkerID;
