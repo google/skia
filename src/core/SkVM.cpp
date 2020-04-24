@@ -2729,7 +2729,9 @@ namespace skvm {
 
 #if defined(SKVM_JIT)
 
-    bool Program::jit(const std::vector<OptimizedInstruction>& instructions, Assembler* a) const {
+    bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
+                      int* stack_hint,
+                      Assembler* a) const {
         using A = Assembler;
 
         SkTHashMap<int, A::Label> constants;    // Constants (mostly splats) share the same pool.
@@ -2746,6 +2748,10 @@ namespace skvm {
         // Map val -> stack slot.
         std::vector<int> stack_slot(instructions.size(), NA);
         int next_stack_slot = 0;
+
+        const int nstack_slots = *stack_hint >= 0 ? *stack_hint
+                                                  : stack_slot.size();
+
 
     #if defined(__x86_64__)
         if (!SkCpu::Supports(SkCpu::HSW)) {
@@ -2773,6 +2779,7 @@ namespace skvm {
             }
         };
         auto store_to_stack = [&](Reg r, Val v) {
+            SkASSERT(next_stack_slot < nstack_slots);
             stack_slot[v] = next_stack_slot++;
             a->vmovups(A::Mem{A::rsp, stack_slot[v]*K*4}, r);
         };
@@ -2800,6 +2807,7 @@ namespace skvm {
             }
         };
         auto store_to_stack  = [&](Reg r, Val v) {
+            SkASSERT(next_stack_slot < nstack_slots);
             stack_slot[v] = next_stack_slot++;
             a->strq(r, A::sp, stack_slot[v]);
         };
@@ -3345,7 +3353,6 @@ namespace skvm {
             return true;
         };
 
-
         #if defined(__x86_64__)
             auto jump_if_less = [&](A::Label* l) { a->jl (l); };
             auto jump         = [&](A::Label* l) { a->jmp(l); };
@@ -3353,8 +3360,8 @@ namespace skvm {
             auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
             auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
 
-            auto enter = [&]{ a->sub(A::rsp, instructions.size()*K*4); };
-            auto exit  = [&]{ a->add(A::rsp, instructions.size()*K*4);
+            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
+            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
                               a->vzeroupper();
                               a->ret(); };
         #elif defined(__aarch64__)
@@ -3364,8 +3371,8 @@ namespace skvm {
             auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
             auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
 
-            auto enter = [&]{ a->sub(A::sp, A::sp, instructions.size()*K*4); };
-            auto exit  = [&]{ a->add(A::sp, A::sp, instructions.size()*K*4);
+            auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
+            auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
                               a->ret(A::x30); };
         #endif
 
@@ -3393,6 +3400,7 @@ namespace skvm {
                     }
                 }
             }
+            *stack_hint = std::max(*stack_hint, next_stack_slot);
             stack_slot = saved_stack_slot;
             next_stack_slot = saved_next_stack_slot;
         };
@@ -3468,7 +3476,8 @@ namespace skvm {
                            const char* debug_name) {
         // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
         Assembler a{nullptr};
-        if (!this->jit(instructions, &a)) {
+        int stack_hint = -1;
+        if (!this->jit(instructions, &stack_hint, &a)) {
             return;
         }
 
@@ -3484,7 +3493,7 @@ namespace skvm {
 
         // Assemble the program for real.
         a = Assembler{jit_entry};
-        SkAssertResult(this->jit(instructions, &a));
+        SkAssertResult(this->jit(instructions, &stack_hint, &a));
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
