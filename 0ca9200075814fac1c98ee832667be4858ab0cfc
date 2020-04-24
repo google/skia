@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4f45cc3c_c20b6802",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2753,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-24T16:48:24Z",
+      "side": 1,
+      "message": "This is the key.\n\nnstack_slots is always the number of stack slots we have in this call to jit().\n\nWe start it at one-per-instruction, then *stack_hint goes from -1 up to the maximum number of stack slots used during the call (the scalar and vector values might be different), and then the second time around that *stack_hint will be the new nstack_slots.\n\nSo e.g. we could see these four states at the point where *stack_hint updates when jitting one program\n\n1st jit, vector: nstack_slots \u003d 2032, *stack_hint\u003d-1, next_stack_slot\u003d22  --\u003e *stack_hint\u003d22\n1st jit, scalar: nstack_slots \u003d 2032, *stack_hint\u003d22, next_stack_slot\u003d23  --\u003e *stack_hint\u003d23\n2nd jit, vector: nstack_slots \u003d 23  , *stack_hint\u003d23, next_stack_slot\u003d22\n2nd jit, vector: nstack_slots \u003d 23  , *stack_hint\u003d23, next_stack_slot\u003d23",
+      "range": {
+        "startLine": 2752,
+        "startChar": 7,
+        "endLine": 2753,
+        "endChar": 70
+      },
+      "revId": "0ca9200075814fac1c98ee832667be4858ab0cfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb3ef300_0597d747",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 3
