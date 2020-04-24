@@ -46,6 +46,30 @@
       "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75836540_462d8f29",
+        "filename": "src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-24T15:34:03Z",
+      "side": 1,
+      "message": "Err, scratch that. I guess you still need some amount of ifdef for the creation stuff. But I think you could hide that inside the cpp with a factory function that just returns nullptr if the define is missing. Then the GPU doesn\u0027t need to know about this at all (other than the changes to try making a local one)?",
+      "parentUuid": "48c7bb8d_a8e5c4a5",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 17
+      },
+      "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
