@@ -139,9 +139,20 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
             return nullptr;
         }
     }
+    sk_sp<GrVkMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
+    if (!memoryAllocator) {
+        // We were not given a memory allocator at creation
+        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fPhysicalDevice,
+                                                       backendContext.fDevice, interface);
+    }
+    if (!memoryAllocator) {
+        SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
+        return nullptr;
+    }
 
      sk_sp<GrVkGpu> vkGpu(new GrVkGpu(context, options, backendContext, interface,
-                                       instanceVersion, physDevVersion));
+                                      instanceVersion, physDevVersion,
+                                      std::move(memoryAllocator)));
      if (backendContext.fProtectedContext == GrProtected::kYes &&
          !vkGpu->vkCaps().supportsProtectedMemory()) {
          return nullptr;
@@ -153,10 +164,11 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                  const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface,
-                 uint32_t instanceVersion, uint32_t physicalDeviceVersion)
+                 uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+                 sk_sp<GrVkMemoryAllocator> memoryAllocator)
         : INHERITED(context)
         , fInterface(std::move(interface))
-        , fMemoryAllocator(backendContext.fMemoryAllocator)
+        , fMemoryAllocator(std::move(memoryAllocator))
         , fPhysicalDevice(backendContext.fPhysicalDevice)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
@@ -165,12 +177,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fDisconnected(false)
         , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
-
-    if (!fMemoryAllocator) {
-        // We were not given a memory allocator at creation
-        fMemoryAllocator.reset(new GrVkAMDMemoryAllocator(backendContext.fPhysicalDevice,
-                                                          fDevice, fInterface));
-    }
+    SkASSERT(fMemoryAllocator);
 
     fCompiler = new SkSL::Compiler();
 
