@@ -97,7 +97,7 @@
 #define SK_CPU_SSE_LEVEL_SSE42    42
 #define SK_CPU_SSE_LEVEL_AVX      51
 #define SK_CPU_SSE_LEVEL_AVX2     52
-#define SK_CPU_SSE_LEVEL_AVX512   60
+#define SK_CPU_SSE_LEVEL_SKX      60
 
 // When targetting iOS and using gyp to generate the build files, it is not
 // possible to select files to build depending on the architecture (i.e. it
@@ -111,8 +111,9 @@
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level.
-    #if defined(__AVX512F__)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX512
+    #if defined(__AVX512F__) && defined(__AVX512DQ__) && defined(__AVX512CD__) && \
+        defined(__AVX512BW__) && defined(__AVX512VL__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SKX
     #elif defined(__AVX2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
     #elif defined(__AVX__)
@@ -134,7 +135,10 @@
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level. 64-bit intel guarantees at least SSE2 support.
-    #if defined(__AVX2__)
+    #if defined(__AVX512F__) && defined(__AVX512DQ__) && defined(__AVX512CD__) && \
+        defined(__AVX512BW__) && defined(__AVX512VL__)
+        #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_SKX
+    #elif defined(__AVX2__)
         #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_AVX2
     #elif defined(__AVX__)
         #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_AVX
