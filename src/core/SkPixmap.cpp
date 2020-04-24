@@ -174,10 +174,10 @@ bool SkPixmap::erase(SkColor color, const SkIRect& subset) const {
     return this->erase(SkColor4f::FromColor(color), &subset);
 }
 
-bool SkPixmap::erase(const SkColor4f& color, const SkIRect* subset) const {
+bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* subset) const {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setColor4f(color, nullptr);
+    paint.setColor4f(color, cs);
 
     SkIRect clip = this->bounds();
     if (subset && !clip.intersect(*subset)) {
