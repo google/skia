@@ -17,7 +17,7 @@ public:
 
     virtual const SkMatrix& localToDevice() const = 0;
     virtual const SkM44& localToDevice44() const = 0;
-    virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
+    virtual bool getLocalToMarker(const char* name, SkM44* localToMarker) const = 0;
 };
 
 class SkOverrideDeviceMatrixProvider : public SkMatrixProvider {
@@ -29,8 +29,8 @@ public:
 
     const SkMatrix& localToDevice() const override { return fLocalToDevice; }
     const SkM44& localToDevice44() const override { return fLocalToDevice44; }
-    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
-        return fParent.getLocalToMarker(id, localToMarker);
+    bool getLocalToMarker(const char* name, SkM44* localToMarker) const override {
+        return fParent.getLocalToMarker(name, localToMarker);
     }
 
 private:
@@ -50,8 +50,8 @@ public:
 
     const SkMatrix& localToDevice() const override { return fLocalToDevice; }
     const SkM44& localToDevice44() const override { return fLocalToDevice44; }
-    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
-        if (fParent.getLocalToMarker(id, localToMarker)) {
+    bool getLocalToMarker(const char* name, SkM44* localToMarker) const override {
+        if (fParent.getLocalToMarker(name, localToMarker)) {
             if (localToMarker) {
                 localToMarker->preConcat(fPreMatrix);
             }
@@ -75,7 +75,7 @@ public:
 
     const SkMatrix& localToDevice() const override { return fLocalToDevice; }
     const SkM44& localToDevice44() const override { return fLocalToDevice44; }
-    bool getLocalToMarker(uint32_t, SkM44*) const override { return false; }
+    bool getLocalToMarker(const char*, SkM44*) const override { return false; }
 
 private:
     SkMatrix fLocalToDevice;
