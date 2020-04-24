@@ -15,7 +15,77 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 
+#if defined(HAVE_VIDEO_DECODER)
+    #include "experimental/ffmpeg/SkVideoDecoder.h"
+#endif
+
 namespace skresources {
+namespace  {
+
+#if defined(HAVE_VIDEO_DECODER)
+
+class VideoAsset final : public ImageAsset {
+public:
+    static sk_sp<VideoAsset> Make(sk_sp<SkData> data) {
+        auto decoder = std::make_unique<SkVideoDecoder>();
+
+        if (!decoder->loadStream(SkMemoryStream::Make(std::move(data))) ||
+            decoder->duration() <= 0) {
+            return nullptr;
+        }
+
+        return sk_sp<VideoAsset>(new VideoAsset(std::move(decoder)));
+    }
+
+private:
+    explicit VideoAsset(std::unique_ptr<SkVideoDecoder> decoder)
+        : fDecoder(std::move(decoder)) {
+    }
+
+    bool isMultiFrame() override { return true; }
+
+    // Each frame has a presentation timestamp
+    //   => the timespan for frame N is [stamp_N .. stamp_N+1)
+    //   => we use a two-frame sliding window to track the current interval.
+    void advance() {
+        fWindow[0] = std::move(fWindow[1]);
+        fWindow[1].frame = fDecoder->nextImage(&fWindow[1].stamp);
+        fEof = !fWindow[1].frame;
+    }
+
+    sk_sp<SkImage> getFrame(float t_float) override {
+        const auto t = SkTPin(static_cast<double>(t_float), 0.0, fDecoder->duration());
+
+        if (t < fWindow[0].stamp) {
+            // seeking back requires a full rewind
+            fDecoder->rewind();
+            fWindow[0].stamp = fWindow[1].stamp = 0;
+            fEof = 0;
+        }
+
+        while (!fEof && t >= fWindow[1].stamp) {
+            this->advance();
+        }
+
+        SkASSERT(fWindow[0].stamp <= t && (fEof || t < fWindow[1].stamp));
+
+        return fWindow[0].frame;
+    }
+
+    const std::unique_ptr<SkVideoDecoder> fDecoder;
+
+    struct FrameRec {
+        sk_sp<SkImage> frame;
+        double         stamp = 0;
+    };
+
+    FrameRec fWindow[2];
+    bool     fEof = false;
+};
+
+#endif // defined(HAVE_VIDEO_DECODER)
+
+} // namespace
 
 sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
@@ -95,7 +165,19 @@ sk_sp<SkData> FileResourceProvider::load(const char resource_path[],
 sk_sp<ImageAsset> FileResourceProvider::loadImageAsset(const char resource_path[],
                                                        const char resource_name[],
                                                        const char[]) const {
-    return MultiFrameImageAsset::Make(this->load(resource_path, resource_name), fPredecode);
+    auto data = this->load(resource_path, resource_name);
+
+    if (auto image = MultiFrameImageAsset::Make(data, fPredecode)) {
+        return std::move(image);
+    }
+
+#if defined(HAVE_VIDEO_DECODER)
+    if (auto video = VideoAsset::Make(data)) {
+        return std::move(video);
+    }
+#endif
+
+    return nullptr;
 }
 
 ResourceProviderProxyBase::ResourceProviderProxyBase(sk_sp<ResourceProvider> rp)
