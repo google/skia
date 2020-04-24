@@ -46,6 +46,30 @@
       "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "644fb6fc_2c7079e1",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-24T14:55:03Z",
+      "side": 1,
+      "message": "Oh I missed your message...",
+      "parentUuid": "49ae1b18_870eec3e",
+      "range": {
+        "startLine": 437,
+        "startChar": 15,
+        "endLine": 437,
+        "endChar": 28
+      },
+      "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
