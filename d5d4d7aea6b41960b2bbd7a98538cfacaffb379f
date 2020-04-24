@@ -22,6 +22,30 @@
       "revId": "d5d4d7aea6b41960b2bbd7a98538cfacaffb379f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "841de1b2_154deb93",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-24T12:27:45Z",
+      "side": 1,
+      "message": "I think these are all the layer types found on AE, but not all are used/exported.  Assuming Hernan just added the enum values for completeness: https://github.com/bodymovin/bodymovin-extension/blob/master/bundle/jsx/enums/layerTypes.jsx\n\nE.g. \u0027imageSeq\u0027 would be the native image sequence footage type, but BM doesn\u0027t export it as such - at the moment it converts to a single-image layer \"progression\" on the fly.\n\nOf the remaining ones, I\u0027m guessing only \u0027light\u0027 and \u0027adjustment\u0027 would be interesting to support.",
+      "parentUuid": "0495fa81_ba8f071c",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 419,
+        "endChar": 94
+      },
+      "revId": "d5d4d7aea6b41960b2bbd7a98538cfacaffb379f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
