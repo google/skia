@@ -517,8 +517,8 @@ DEF_SIMPLE_GM(vertices_custom_colors, canvas, 400, 200) {
     }
 }
 
-static sk_sp<SkVertices> make_cone(Attr::Usage u, uint32_t id) {
-    Attr attr(Attr::Type::kFloat3, u, id);
+static sk_sp<SkVertices> make_cone(Attr::Usage u, const char* markerName) {
+    Attr attr(Attr::Type::kFloat3, u, markerName);
 
     constexpr int kPerimeterVerts = 64;
     // +1 for the center, +1 to repeat the first perimeter point (so we draw a complete circle)
@@ -547,12 +547,9 @@ static sk_sp<SkVertices> make_cone(Attr::Usage u, uint32_t id) {
 DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 300) {
     ToolUtils::draw_checkerboard(canvas);
 
-    enum MatrixMarkers {
-        kDeviceSpace = 0,
-        kViewSpace,
-        kWorldSpace,
-        kLocalSpace,
-    };
+    const char* kViewSpace = "local_to_view";
+    const char* kWorldSpace = "local_to_world";
+    const char* kLocalSpace = "local_to_local";
 
     auto draw = [=](SkScalar cx, SkScalar cy, sk_sp<SkVertices> vertices, const char* prog,
                     SkScalar squish = 1.0f) {
@@ -588,7 +585,7 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 300) {
         })";
 
     // raw, local vectors, normals, and positions should all look the same (no real transform)
-    draw(50,  50, make_cone(Attr::Usage::kRaw, 0), vectorProg);
+    draw(50,  50, make_cone(Attr::Usage::kRaw, nullptr), vectorProg);
     draw(150, 50, make_cone(Attr::Usage::kVector, kLocalSpace), vectorProg);
     draw(250, 50, make_cone(Attr::Usage::kNormalVector, kLocalSpace), vectorProg);
     draw(350, 50, make_cone(Attr::Usage::kPosition, kLocalSpace), vectorProg);

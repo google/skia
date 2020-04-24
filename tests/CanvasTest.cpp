@@ -684,8 +684,8 @@ DEF_TEST(canvas_markctm, reporter) {
     SkCanvas canvas(10, 10);
 
     SkM44    m;
-    uint32_t id_a = 1,
-             id_b = 2;
+    const char* id_a = "a";
+    const char* id_b = "b";
 
     REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_a, nullptr));
     REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_b, nullptr));

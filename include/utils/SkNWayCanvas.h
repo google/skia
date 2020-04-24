@@ -30,7 +30,7 @@ protected:
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
-    void onMarkCTM(MarkerID) override;
+    void onMarkCTM(const char*) override;
     void didConcat44(const SkM44&) override;
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;

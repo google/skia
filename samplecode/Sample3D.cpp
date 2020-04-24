@@ -82,9 +82,7 @@ protected:
     SkV3    fCOA { 0, 0, 0 };
     SkV3    fUp  { 0, 1, 0 };
 
-    enum {
-        kWorldID = 42,
-    };
+    const char* kLocalToWorld = "local_to_world";
 
 public:
     void concatCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
@@ -98,7 +96,7 @@ public:
 
     SkM44 localToWorld(SkCanvas* canvas) {
         SkM44 worldToDevice;
-        SkAssertResult(canvas->findMarkedCTM(kWorldID, &worldToDevice));
+        SkAssertResult(canvas->findMarkedCTM(kLocalToWorld, &worldToDevice));
         return inv(worldToDevice) * canvas->getLocalToDevice();
     }
 };
@@ -289,7 +287,7 @@ public:
                 canvas->concat(trans);
 
                 // "World" space - content is centered at the origin, in device scale (+-200)
-                canvas->markCTM(kWorldID);
+                canvas->markCTM(kLocalToWorld);
 
                 canvas->concat(m * inv(trans));
                 this->drawContent(canvas, f.fColor, index++, drawFront);

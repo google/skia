@@ -1541,16 +1541,16 @@ void SkCanvas::resetMatrix() {
     this->setMatrix(SkMatrix::I());
 }
 
-void SkCanvas::markCTM(MarkerID id) {
-    if (id == 0) return;
-
-    this->onMarkCTM(id);
-
-    fMarkerStack->setMarker(id, this->getLocalToDevice(), fMCRec);
+void SkCanvas::markCTM(const char* name) {
+    if (name && name[0]) {
+        fMarkerStack->setMarker(SkOpts::hash_fn(name, strlen(name), 0),
+                                this->getLocalToDevice(), fMCRec);
+        this->onMarkCTM(name);
+    }
 }
 
-bool SkCanvas::findMarkedCTM(MarkerID id, SkM44* mx) const {
-    return fMarkerStack->findMarker(id, mx);
+bool SkCanvas::findMarkedCTM(const char* name, SkM44* mx) const {
+    return name && name[0] && fMarkerStack->findMarker(SkOpts::hash_fn(name, strlen(name), 0), mx);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1963,7 +1963,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
                 return;
             }
             // If we can't provide any of the asked-for matrices, we can't draw this
-            if (attr.fMarkerID && !this->findMarkedCTM(attr.fMarkerID, nullptr)) {
+            if (attr.fMarkerID && !fMarkerStack->findMarker(attr.fMarkerID, nullptr)) {
                 return;
             }
         }

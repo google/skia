@@ -93,7 +93,7 @@ template <> void Draw::draw(const DrawBehind& r) {
     SkCanvasPriv::DrawBehind(fCanvas, r.paint);
 }
 
-DRAW(MarkCTM, markCTM(r.id));
+DRAW(MarkCTM, markCTM(r.name.c_str()));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat44, concat(r.matrix));
 DRAW(Concat, concat(r.matrix));

@@ -880,23 +880,19 @@ public:
     void concat(const SkMatrix& matrix);
     void concat(const SkM44&);
 
-    typedef uint32_t MarkerID;
-
     /**
-     *  Record a marker (provided by caller) for the current CTM. This does not
-     *  change anything about the ctm or clip, but does "note" this matrix value, so it can
-     *  be referenced by custom effects (who access it by specifying the same id).
+     *  Record a marker (provided by caller) for the current CTM. This does not change anything
+     *  about the ctm or clip, but does "name" this matrix value, so it can be referenced by
+     *  custom effects (who access it by specifying the same name).
      *
-     *  Within a save frame, marking with the same id more than once just replaces the previous
-     *  value. However, between save frames, marking with the same id does not lose the marker
+     *  Within a save frame, marking with the same name more than once just replaces the previous
+     *  value. However, between save frames, marking with the same name does not lose the marker
      *  in the previous save frame. It is "visible" when the current save() is balanced with
      *  a restore().
-     *
-     *  NOTE: id==0 is reserved.
      */
-    void markCTM(MarkerID id);
+    void markCTM(const char* name);
 
-    bool findMarkedCTM(MarkerID id, SkM44*) const;
+    bool findMarkedCTM(const char* name, SkM44*) const;
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2500,7 +2496,7 @@ protected:
     virtual void willRestore() {}
     virtual void didRestore() {}
 
-    virtual void onMarkCTM(MarkerID) {}
+    virtual void onMarkCTM(const char*) {}
     virtual void didConcat44(const SkM44&) {}
     virtual void didConcat(const SkMatrix& ) {}
     virtual void didSetMatrix(const SkMatrix& ) {}
