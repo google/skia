@@ -25,6 +25,7 @@
       '../../experimental/ffmpeg',
       '../../experimental/minimal_ios_mtl_skia_app/BUILD.gn',
       '../../experimental/minimal_ios_mtl_skia_app/main.mm',
+      '../../experimental/skottiekit/skottiekit_bindings.cpp',
       '../../experimental/svg/model',
       '../../experimental/tools/coreGraphicsPdf2png.cpp',
       '../../experimental/wasm-skp-debugger/debugger_bindings.cpp',
