@@ -336,7 +336,7 @@ static bool is_format_natively_supported(GrContext* context, YUVFormat yuvFormat
                                       is_colorType_texturable(caps, GrColorType::kRG_F16);
         case kY416_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_16161616);
         case kAYUV_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_8888);
-        case kY410_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_1010102);
+        case kY410_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA1_1010102);
         case kNV12_YUVFormat:  // fall through
         case kNV21_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kGray_8) &&
                                       is_colorType_texturable(caps, GrColorType::kRG_88);
@@ -1058,6 +1058,7 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
             case VK_FORMAT_R8G8B8A8_UNORM:           return kRGBA_8888_SkColorType;
             case VK_FORMAT_B8G8R8A8_UNORM:           return kBGRA_8888_SkColorType;
             case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return kRGBA_1010102_SkColorType;
+            case VK_FORMAT_A2R10G10B10_UNORM_PACK32: return kBGRA_1010102_SkColorType;
             case VK_FORMAT_R16_SFLOAT:               return kA16_float_SkColorType;
             case VK_FORMAT_R16G16_SFLOAT:            return kR16G16_float_SkColorType;
             case VK_FORMAT_R16_UNORM:                return kA16_unorm_SkColorType;
