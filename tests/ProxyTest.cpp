@@ -115,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
     for (auto widthHeight : {100, 128, 1048576}) {
         for (auto ct : {GrColorType::kAlpha_8, GrColorType::kBGR_565, GrColorType::kRGBA_8888,
-                        GrColorType::kRGBA_1010102}) {
+                        GrColorType::kRGBA1_1010102}) {
             for (auto fit : {SkBackingFit::kExact, SkBackingFit::kApprox}) {
                 for (auto budgeted : {SkBudgeted::kYes, SkBudgeted::kNo}) {
                     for (auto numSamples : {1, 4, 16, 128}) {
