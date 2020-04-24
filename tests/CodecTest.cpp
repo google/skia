@@ -5,6 +5,12 @@
  * found in the LICENSE file.
  */
 
+// Make sure SkUserConfig.h is included so #defines are available on
+// Android.
+#include "include/core/SkTypes.h"
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "client_utils/android/FrontBufferedStream.h"
+#endif
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
@@ -32,7 +38,6 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/third_party/skcms/skcms.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkAutoMalloc.h"
@@ -455,9 +460,9 @@ static void check(skiatest::Reporter* r,
         REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
         compare_to_good_digest(r, codecDigest, bm);
 
-#ifndef SK_PNG_DISABLE_TESTS
-        // Test using SkFrontBufferedStream, as Android does
-        auto bufferedStream = SkFrontBufferedStream::Make(
+#if !defined(SK_PNG_DISABLE_TESTS) && defined(SK_ENABLE_ANDROID_UTILS)
+        // Test using FrontBufferedStream, as Android does
+        auto bufferedStream = android::skia::FrontBufferedStream::Make(
                       SkMemoryStream::Make(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
         REPORTER_ASSERT(r, bufferedStream);
         codec = SkCodec::MakeFromStream(std::move(bufferedStream));
