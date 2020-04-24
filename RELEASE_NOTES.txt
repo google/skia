@@ -8,6 +8,12 @@ Milestone 84
 
   * <insert new release note here>
 
+  * SkBitmap and SkPixmap's erase() methods now treat their color parameters
+    consistently with the rest of Skia, with all SkColors and any untagged
+    SkColor4fs interpreted as sRGB, not as a color in the bitmap's color space.
+    SkPixmap::erase(SkColor4f) now takes an SkColorSpace, so you can pass
+    pixmap.colorSpace() if you want the old behavior.
+
   * SkCamera.h and SkMatrix44.h are DEPRECATED.
     Use SkM44 if you want to have 3d transformations.
 
