@@ -16,6 +16,8 @@
     #else
         #define SK_OPTS_NS neon
     #endif
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    #define SK_OPTS_NS skx
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #define SK_OPTS_NS avx2
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
@@ -109,6 +111,7 @@ namespace SkOpts {
     void Init_sse42();
     void Init_avx();
     void Init_hsw();
+    void Init_skx();
     void Init_crc32();
 
     static void init() {
@@ -129,6 +132,10 @@ namespace SkOpts {
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
             if (SkCpu::Supports(SkCpu::AVX)) { Init_avx();   }
             if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw();   }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SKX
+            if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
         #endif
 
     #elif defined(SK_CPU_ARM64)
