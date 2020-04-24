@@ -15,6 +15,7 @@ extern "C" {
 #include "libavformat/avformat.h"
 #include "libavformat/avio.h"
 #include "libavutil/pixdesc.h"
+#include "libswscale/swscale.h"
 }
 
 class SkVideoDecoder {

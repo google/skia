@@ -1499,23 +1499,6 @@ if (skia_enable_tools) {
     sources = [ "third_party/etc1/etc1.cpp" ]
   }
 
-  if (skia_use_ffmpeg) {
-    test_lib("video_decoder") {
-      sources = [
-        "experimental/ffmpeg/SkVideoDecoder.cpp",
-        "experimental/ffmpeg/SkVideoDecoder.h",
-        "experimental/ffmpeg/SkVideoEncoder.cpp",
-        "experimental/ffmpeg/SkVideoEncoder.h",
-      ]
-      libs = [
-        "swscale",
-        "avcodec",
-        "avformat",
-        "avutil",
-      ]
-    }
-  }
-
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
@@ -1538,7 +1521,7 @@ if (skia_enable_tools) {
     public_deps = [ ":gpu_tool_utils" ]
 
     if (skia_use_ffmpeg) {
-      deps += [ ":video_decoder" ]
+      deps += [ "experimental/ffmpeg:video_decoder" ]
       sources += [ "gm/video_decoder.cpp" ]
     }
   }
@@ -1828,7 +1811,7 @@ if (skia_enable_tools) {
         ":flags",
         ":gpu_tool_utils",
         ":skia",
-        ":video_decoder",
+        "experimental/ffmpeg:video_decoder",
         "modules/skottie",
         "modules/skottie:utils",
       ]

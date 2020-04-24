@@ -222,13 +222,39 @@ sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
 
     switch (frame->format) {
         case AV_PIX_FMT_YUV420P:
-            return make_yuv_420(fGr, frame->width, frame->height, frame->data, frame->linesize,
-                                yuv_space, fCSCache.fCS);
+            if (auto image = make_yuv_420(fGr, frame->width, frame->height, frame->data,
+                                          frame->linesize, yuv_space, fCSCache.fCS)) {
+                return image;
+            }
             break;
         default:
-            SkDebugf("unsupported format (for now)\n");
+            break;
     }
-    return nullptr;
+
+    // General N32 fallback.
+    const auto info = SkImageInfo::MakeN32(frame->width, frame->height,
+                                           SkAlphaType::kOpaque_SkAlphaType);
+
+    SkBitmap bm;
+    bm.allocPixels(info, info.minRowBytes());
+
+    constexpr auto fmt = SK_PMCOLOR_BYTE_ORDER(R,G,B,A) ? AV_PIX_FMT_RGBA : AV_PIX_FMT_BGRA;
+
+    // TODO: should we cache these?
+    auto* ctx = sws_getContext(frame->width, frame->height, (AVPixelFormat)frame->format,
+                               info.width(), info.height(), fmt,
+                               SWS_BILINEAR, nullptr, nullptr, nullptr);
+
+    uint8_t*   dst[] = { (uint8_t*)bm.pixmap().writable_addr() };
+    int dst_stride[] = { SkToInt(bm.pixmap().rowBytes()) };
+
+    sws_scale(ctx, frame->data, frame->linesize, 0, frame->height, dst, dst_stride);
+
+    sws_freeContext(ctx);
+
+    bm.setImmutable();
+
+    return SkImage::MakeFromBitmap(bm);
 }
 
 sk_sp<SkImage> SkVideoDecoder::nextImage(double* timeStamp) {
