@@ -5,14 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkCodec.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkFrontBufferedStream.h"
+#include "FrontBufferedStream.h"
 
+#include <algorithm>
+
+namespace {
 class FrontBufferedStream : public SkStreamRewindable {
 public:
     // Called by Make.
     FrontBufferedStream(std::unique_ptr<SkStream>, size_t bufferSize);
+    ~FrontBufferedStream() override;
+
+    bool failedToAllocateBuffer() const { return !fBuffer; }
 
     size_t read(void* buffer, size_t size) override;
 
@@ -39,9 +45,9 @@ private:
     size_t                    fBufferedSoFar;
     // Total size of the buffer.
     const size_t              fBufferSize;
-    // FIXME: SkAutoTMalloc throws on failure. Instead, Create should return a
-    // nullptr stream.
-    SkAutoTMalloc<char>       fBuffer;
+    char*                     fBuffer;
+    static constexpr size_t   kStorageSize = SkCodec::MinBufferedBytesNeeded();
+    char                      fStorage[kStorageSize];
 
     // Read up to size bytes from already buffered data, and copy to
     // dst, if non-nullptr. Updates fOffset. Assumes that fOffset is less
@@ -60,16 +66,29 @@ private:
 
     typedef SkStream INHERITED;
 };
+} // anonymous namespace
 
-std::unique_ptr<SkStreamRewindable> SkFrontBufferedStream::Make(std::unique_ptr<SkStream> stream,
-                                                                size_t bufferSize) {
+namespace android {
+namespace skia {
+
+std::unique_ptr<SkStreamRewindable> FrontBufferedStream::Make(std::unique_ptr<SkStream> stream,
+                                                              size_t bufferSize) {
     if (!stream) {
         return nullptr;
     }
-    return std::unique_ptr<SkStreamRewindable>(new FrontBufferedStream(std::move(stream),
-                                                                       bufferSize));
-}
+    auto frontBufferedStream = std::unique_ptr<::FrontBufferedStream>(
+            new ::FrontBufferedStream(std::move(stream), bufferSize));
+    if (frontBufferedStream->failedToAllocateBuffer()) {
+        return nullptr;
+    }
 
+    // Work around a warning regarding a copy on older compilers.
+    return std::move(frontBufferedStream);
+}
+} // namespace skia
+} // namespace android
+
+namespace {
 FrontBufferedStream::FrontBufferedStream(std::unique_ptr<SkStream> stream, size_t bufferSize)
     : fStream(std::move(stream))
     , fHasLength(fStream->hasPosition() && fStream->hasLength())
@@ -77,7 +96,14 @@ FrontBufferedStream::FrontBufferedStream(std::unique_ptr<SkStream> stream, size_
     , fOffset(0)
     , fBufferedSoFar(0)
     , fBufferSize(bufferSize)
-    , fBuffer(bufferSize) {}
+    , fBuffer(bufferSize <= kStorageSize ? fStorage
+                                         : reinterpret_cast<char*>(malloc(bufferSize))) {}
+
+FrontBufferedStream::~FrontBufferedStream() {
+    if (fBuffer != fStorage) {
+        free(fBuffer);
+    }
+}
 
 bool FrontBufferedStream::isAtEnd() const {
     if (fOffset < fBufferedSoFar) {
@@ -148,8 +174,9 @@ size_t FrontBufferedStream::readDirectlyFromStream(char* dst, size_t size) {
 
     // If we have read past the end of the buffer, rewinding is no longer
     // supported, so we can go ahead and free the memory.
-    if (bytesReadDirectly > 0) {
-        sk_free(fBuffer.release());
+    if (bytesReadDirectly > 0 && fBuffer != fStorage) {
+        free(fBuffer);
+        fBuffer = nullptr;
     }
 
     return bytesReadDirectly;
@@ -212,3 +239,4 @@ size_t FrontBufferedStream::read(void* voidDst, size_t size) {
 
     return fOffset - start;
 }
+} // anonymous namespace

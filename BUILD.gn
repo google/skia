@@ -272,6 +272,14 @@ template("optional") {
   }
 }
 
+optional("android_utils") {
+  enabled = skia_enable_android_utils
+
+  public = [ "client_utils/android/FrontBufferedStream.h" ]
+  public_defines = [ "SK_ENABLE_ANDROID_UTILS" ]
+  sources = [ "client_utils/android/FrontBufferedStream.cpp" ]
+}
+
 optional("fontmgr_android") {
   enabled = skia_enable_fontmgr_android
 
@@ -859,6 +867,7 @@ component("skia") {
   ]
 
   deps = [
+    ":android_utils",
     ":arm64",
     ":armv7",
     ":avx",
@@ -1143,6 +1152,7 @@ group("modules") {
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
+    "client_utils/android",
     "include/android",
     "include/atlastext",
     "include/c",

@@ -15,6 +15,7 @@
       '../../build/fuchsia',
       '../../build_overrides',
       '../../buildtools',
+      '../../client_utils/android',
       '../../dm',
       '../../docs/examples',
       '../../example',
