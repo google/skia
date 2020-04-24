@@ -335,27 +335,9 @@ bool SkVerticesPriv::hasUsage(SkVertices::Attribute::Usage u) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum EncodedVerticesVersions {
-    kOriginal_Version       = 0,    // before we called out the mask for versions
-    kNoBones_Version        = 1,    // we explicitly ignore the bones-flag (0x400)
-    kPerVertexData_Version  = 2,    // add new count (and array)
     kAttribute_Version      = 3,    // Adds array of custom attribute types
 
     kCurrent_Version        = kAttribute_Version
-};
-
-struct Header_v1 {
-    uint32_t    fPacked;
-    int32_t     fVertexCount;
-    int32_t     fIndexCount;
-    // [pos] + [texs] + [colors] + [indices]
-};
-
-struct Header_v2 {
-    uint32_t    fPacked;
-    int32_t     fVertexCount;
-    int32_t     fIndexCount;
-    int32_t     fPerVertexDataCount;
-    // [pos] + [vertexData] + [texs] + [colors] + [indices]
 };
 
 struct Header_v3 {
@@ -364,20 +346,17 @@ struct Header_v3 {
     int32_t               fIndexCount;
     int32_t               fAttributeCount;
     SkVertices::Attribute fAttributes[SkVertices::kMaxCustomAttributes];
-    // [pos] + [vertexData] + [texs] + [colors] + [indices]
+    // [pos] + [customData] + [texs] + [colors] + [indices]
 };
 
 #define kCurrentHeaderSize    sizeof(Header_v3)
 
-// storage = packed | vertex_count | index_count | pos[] | texs[] | colors[] | boneIndices[] |
-//           boneWeights[] | indices[]
-//         = header + arrays
+// storage = packed | vertex_count | index_count | attr_count
+//           | pos[] | custom[] | texs[] | colors[] | indices[]
 
 #define kMode_Mask          0x0FF
 #define kHasTexs_Mask       0x100
 #define kHasColors_Mask     0x200
-#define kHasBones_Mask_V0   0x400
-#define kIsNonVolatile_Mask 0x800  // Deprecated flag
 // new as of 3/2020
 #define kVersion_Shift      24
 #define kVersion_Mask       (0xFF << kVersion_Shift)
@@ -421,7 +400,7 @@ sk_sp<SkData> SkVertices::encode() const {
 }
 
 sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
-    if (length < sizeof(Header_v1)) {
+    if (length < sizeof(Header_v3)) {
         return nullptr;
     }
 
@@ -433,39 +412,22 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
                                                     kCurrent_Version);
     const int vertexCount = safe.checkGE(reader.readInt(), 0);
     const int indexCount = safe.checkGE(reader.readInt(), 0);
+    const int attrCount = safe.checkGE(reader.readInt(), 0);
     const VertexMode mode = safe.checkLE<VertexMode>(packed & kMode_Mask,
                                                      SkVertices::kLast_VertexMode);
-    if (!safe) {
-        return nullptr;
-    }
-    if (version >= kPerVertexData_Version && length < sizeof(Header_v2)) {
-        return nullptr;
-    }
-    if (version >= kAttribute_Version && length < sizeof(Header_v3)) {
+    const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
+    const bool hasColors = SkToBool(packed & kHasColors_Mask);
+
+    if (!safe                                           // Invalid header fields
+        || attrCount > kMaxCustomAttributes             // Too many custom attributes?
+        || version < kAttribute_Version                 // Old (unsupported) version
+        || (attrCount > 0 && (hasTexs || hasColors))) { // Overspecified (incompatible features)
         return nullptr;
     }
 
     Attribute attrs[kMaxCustomAttributes];
-    const int attrCount = (version >= kPerVertexData_Version) ? reader.readS32() : 0;
-    if (attrCount < 0 || attrCount > kMaxCustomAttributes) {
-        return nullptr;
-    }
+    reader.read(attrs, sizeof(attrs));
 
-    if (version >= kAttribute_Version) {
-        reader.read(attrs, sizeof(attrs));
-    } else if (version == kPerVertexData_Version) {
-        // Attributes default to kFloat, which works fine to migrate this version of data.
-    }
-
-    // now we finish unpacking the packed field
-    const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
-    const bool hasColors = SkToBool(packed & kHasColors_Mask);
-    const bool hasBones = SkToBool(packed & kHasBones_Mask_V0);
-
-    // check if we're overspecified for v2+
-    if (attrCount > 0 && (hasTexs || hasColors || hasBones)) {
-        return nullptr;
-    }
     const Desc desc{
         mode, vertexCount, indexCount, hasTexs, hasColors, attrCount ? attrs : nullptr, attrCount
     };
@@ -488,10 +450,6 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.customData(), sizes.fDSize);
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
-    if (hasBones) {
-        reader.skip(safe_math.mul(vertexCount, sizeof(SkVertices_DeprecatedBoneIndices)));
-        reader.skip(safe_math.mul(vertexCount, sizeof(SkVertices_DeprecatedBoneWeights)));
-    }
     size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
     reader.read(builder.indices(), isize);
     if (indexCount > 0) {
