@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "536f7e98_474f96fe",
+        "filename": "src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-24T15:26:35Z",
+      "side": 1,
+      "message": "Is it any cleaner to try and pull this file out of the gn list entirely? It seemed like an uglier and more work change IMO but I\u0027m also on the fence about it.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 17
+      },
+      "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
