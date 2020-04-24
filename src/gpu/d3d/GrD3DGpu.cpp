@@ -272,12 +272,20 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     }
 
     // Set up src location and box
-    GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(surface->asTexture());
-    if (!d3dTex) {
+    GrD3DTextureResource* texResource = nullptr;
+    GrD3DRenderTarget* rt = static_cast<GrD3DRenderTarget*>(surface->asRenderTarget());
+    if (rt) {
+        texResource = rt;
+    } else {
+        texResource = static_cast<GrD3DTexture*>(surface->asTexture());
+    }
+
+    if (!texResource) {
         return false;
     }
+
     D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
-    srcLocation.pResource = d3dTex->d3dResource();
+    srcLocation.pResource = texResource->d3dResource();
     SkASSERT(srcLocation.pResource);
     srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     srcLocation.SubresourceIndex = 0;
@@ -300,7 +308,7 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                                    nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (this->d3dCaps().bytesPerPixel(d3dTex->dxgiFormat()) != bpp) {
+    if (this->d3dCaps().bytesPerPixel(texResource->dxgiFormat()) != bpp) {
         return false;
     }
     size_t tightRowBytes = bpp * width;
@@ -313,10 +321,10 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     dstLocation.pResource = d3dBuf->d3dResource();
 
     // Need to change the resource state to COPY_SOURCE in order to download from it
-    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+    texResource->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
     fCurrentDirectCommandList->copyTextureRegion(d3dBuf->resource(), &dstLocation, 0, 0,
-                                                 d3dTex->resource(), &srcLocation, &srcBox);
+                                                 texResource->resource(), &srcLocation, &srcBox);
     this->submitDirectCommandList(SyncQueue::kForce);
 
     const void* mappedMemory = transferBuffer->map();

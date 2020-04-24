@@ -124,10 +124,8 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
 
 void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
                            const D3D12_FEATURE_DATA_D3D12_OPTIONS2& options2Desc) {
-    // There doesn't seem to be a property for this, and setting it to MAXINT makes tests which test
-    // all the vertex attribs time out looping over that many. For now, we'll cap this at 64 max and
-    // can raise it if we ever find that need.
-    fMaxVertexAttributes = 64;
+    // We assume a minimum of Shader Model 5.1, which allows at most 32 vertex inputs.
+    fMaxVertexAttributes = 32;
 
     // TODO: we can set locations but not sure if we can query them
     fSampleLocationsSupport = false;
