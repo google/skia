@@ -1932,11 +1932,8 @@ STAGE(to_srgb, Ctx::None) {
         U32 sign;
         l = strip_sign(l, &sign);
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER_IS_SKX)
-        const float c = 1.130026340485f,
-                    d = 0.141387879848f;
-    #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-          defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW )
+    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
+        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW ) || defined(JUMPER_IS_SKX)
         const float c = 1.130048394203f,
                     d = 0.141357362270f;
     #elif defined(JUMPER_IS_NEON)
