@@ -331,8 +331,8 @@ void SkRecorder::didRestore() {
     this->append<SkRecords::Restore>(this->getTotalMatrix());
 }
 
-void SkRecorder::onMarkCTM(MarkerID id) {
-    this->append<SkRecords::MarkCTM>(id);
+void SkRecorder::onMarkCTM(const char* name) {
+    this->append<SkRecords::MarkCTM>(SkString(name));
 }
 
 void SkRecorder::didConcat44(const SkM44& m) {

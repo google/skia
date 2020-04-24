@@ -57,6 +57,14 @@ public:
 
     static constexpr int kMaxCustomAttributes = 8;
 
+    /**
+     *  EXPERIMENTAL - An SkVertices object can be constructed with a custom collection of vertex
+     *  attributes. Each attribute is described by a single Attribute struct. Type defines the CPU
+     *  type of the data. Usage determines what transformation (if any) is applied to that data in
+     *  the vertex shader. For positions or vectors, markerName identifies what matrix is used in
+     *  the vertex shader to transform the data. Those names should match a named transform on the
+     *  CTM stack, created by calling SkCanvas::markCTM().
+     */
     struct Attribute {
         enum class Type : uint8_t {
             kFloat,
@@ -84,10 +92,11 @@ public:
             kPosition,
         };
 
-        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, uint32_t id = 0)
-            : fType(t)
-            , fUsage(u)
-            , fMarkerID(id) {}
+        /**
+         *  markerName is not copied by the Attribute, so it must outlive this struct.
+         *  It is copied when this Attribute is passed to the Builder constructor.
+         */
+        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, const char* markerName = nullptr);
 
         bool operator==(const Attribute& that) const {
             return fType == that.fType && fUsage == that.fUsage && fMarkerID == that.fMarkerID;
@@ -101,9 +110,10 @@ public:
         size_t bytesPerVertex() const;
         bool isValid() const;
 
-        Type fType;
-        Usage fUsage;
-        uint32_t fMarkerID;
+        Type        fType;
+        Usage       fUsage;
+        uint32_t    fMarkerID;
+        const char* fMarkerName;  // Preserved for serialization and debugging
     };
 
     enum BuilderFlags {
@@ -188,6 +198,7 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
+    Attribute*   fAttributes;       // [attributeCount] or null
     SkPoint*     fPositions;        // [vertexCount]
     uint16_t*    fIndices;          // [indexCount] or null
     void*        fCustomData;       // [customDataSize * vertexCount] or null
@@ -197,9 +208,7 @@ private:
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCount;
     int     fIndexCount;
-
-    Attribute fAttributes[kMaxCustomAttributes];
-    int       fAttributeCount;
+    int     fAttributeCount;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.
