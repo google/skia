@@ -1811,7 +1811,7 @@ if (skia_enable_tools) {
         ":flags",
         ":gpu_tool_utils",
         ":skia",
-        "experimental/ffmpeg:video_decoder",
+        "experimental/ffmpeg:video_encoder",
         "modules/skottie",
         "modules/skottie:utils",
       ]
