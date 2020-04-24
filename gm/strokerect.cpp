@@ -36,14 +36,14 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
     paint.setColor(SK_ColorRED);
-    canvas->drawPath(path, paint);
+    // canvas->drawPath(path, paint);
 
     paint.setStrokeWidth(3);
     paint.setStrokeJoin(SkPaint::kMiter_Join);
     int n = path.countPoints();
     SkAutoTArray<SkPoint> points(n);
     path.getPoints(points.get(), n);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+    // canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
 }
 
 /*
@@ -103,6 +103,8 @@ protected:
                 SkAutoCanvasRestore acr(canvas, true);
                 for (size_t j = 0; j < SK_ARRAY_COUNT(gRects); ++j) {
                     const SkRect& r = gRects[j];
+
+                    if (j != 11 || i != 2) continue;
 
                     SkPath path, fillPath;
                     path.addRect(r);

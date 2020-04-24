@@ -27,11 +27,11 @@ uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
 }
 
 bool GrStyledShape::testingOnly_isPath() const {
-    return Type::kPath == fType;
+    return fShape.isPath();
 }
 
 bool GrStyledShape::testingOnly_isNonVolatilePath() const {
-    return Type::kPath == fType && !fPathData.fPath.isVolatile();
+    return fShape.isPath() && !fShape.path().isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
@@ -173,6 +173,9 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
                                                   : SkPathFillType::kEvenOdd);
         }
         if (!ignoreInversenessDifference && !ignoreWindingVsEvenOdd) {
+            if (keyA != keyB) {
+                SkDebugf("more bloody debugging\n");
+            }
             REPORTER_ASSERT(r, keyA == keyB);
         } else {
             REPORTER_ASSERT(r, keyA != keyB);
@@ -194,6 +197,11 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
         }
     }
     REPORTER_ASSERT(r, a.isEmpty() == b.isEmpty());
+
+    if (!allowedClosednessDiff && a.knownToBeClosed() != b.knownToBeClosed()) {
+        SkDebugf("Debugging\n");
+    }
+
     REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeClosed() == b.knownToBeClosed());
     // closedness can affect convexity.
     REPORTER_ASSERT(r, allowedClosednessDiff || a.knownToBeConvex() == b.knownToBeConvex());
@@ -298,6 +306,9 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     make_key(&noninvertedKey, noninverted);
 
     if (invertedKey.count() || noninvertedKey.count()) {
+        if (invertedKey == noninvertedKey) {
+            SkDebugf("DEBUGGING\n");
+        }
         REPORTER_ASSERT(r, invertedKey != noninvertedKey);
     }
     if (shape.style().isSimpleFill()) {
@@ -625,6 +636,11 @@ private:
         SkPath path;
         fBase->asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fBase->isEmpty());
+
+        if (path.getSegmentMasks() != fBase->segmentMask()) {
+            SkDebugf("debugging\n");
+        }
+
         REPORTER_ASSERT(r, path.getSegmentMasks() == fBase->segmentMask());
         fAppliedPE->asPath(&path);
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE->isEmpty());
@@ -731,12 +747,18 @@ void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
     SkPath a, b;
     switch (expectation) {
         case kAllDifferent_ComparisonExpecation:
+            if (fBaseKey == that.fBaseKey) {
+                SkDebugf("debugging!\n");
+            }
             REPORTER_ASSERT(r, fBaseKey != that.fBaseKey);
             REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
         case kSameUpToPE_ComparisonExpecation:
             check_equivalence(r, *fBase, *that.fBase, fBaseKey, that.fBaseKey);
+            if (fAppliedPEKey == that.fAppliedPEKey) {
+                SkDebugf("Debugging PE\n");
+            }
             REPORTER_ASSERT(r, fAppliedPEKey != that.fAppliedPEKey);
             REPORTER_ASSERT(r, fAppliedFullKey != that.fAppliedFullKey);
             break;
@@ -1674,6 +1696,9 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                 for (Style style : {kFill, kStroke, kHairline, kStrokeAndFill}) {
                     for (bool dash : {false, true}) {
                         sk_sp<SkPathEffect> pe = dash ? dashEffect : nullptr;
+                        if (index(inverted, dir, start, style, dash) == 11) {
+                            SkDebugf("do it\n");
+                        }
                         shapes[index(inverted, dir, start, style, dash)] =
                                 GrStyledShape(rrect, dir, start, SkToBool(inverted),
                                         GrStyle(strokeRecs[style], std::move(pe)));
@@ -1826,6 +1851,10 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                     a.compare(r, b, TestCase::kAllSame_ComparisonExpecation);
                     c.compare(r, d, TestCase::kAllSame_ComparisonExpecation);
 
+                    if (index(inverted, dir, start, kStroke, dash) == 11) {
+                        SkDebugf("time to begin!\n");
+                    }
+
                     const GrStyledShape& strokeCase = shapes[index(inverted, dir, start, kStroke,
                                                              dash)];
                     const GrStyledShape& hairlineCase = shapes[index(inverted, dir, start,
@@ -1847,6 +1876,9 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                                                               &queryInverted));
                         REPORTER_ASSERT(r, queryRR == rrect);
                         REPORTER_ASSERT(r, queryDir == dir);
+                        if (queryStart != expectedStart) {
+                            strokeCase.asRRect(&queryRR, &queryDir, &queryStart, &queryInverted);
+                        }
                         REPORTER_ASSERT(r, queryStart == expectedStart);
                         REPORTER_ASSERT(r, !queryInverted);
                         REPORTER_ASSERT(r, hairlineCase.asRRect(&queryRR, &queryDir, &queryStart,
@@ -2221,6 +2253,9 @@ DEF_TEST(GrStyledShape, reporter) {
     }
 
     for (int i = 0; i < geos.count(); ++i) {
+        if (i == 29) {
+            SkDebugf("barf\n");
+        }
         test_basic(reporter, *geos[i]);
         test_scale(reporter, *geos[i]);
         test_dash_fill(reporter, *geos[i]);
