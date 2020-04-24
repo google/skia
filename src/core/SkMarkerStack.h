@@ -11,15 +11,16 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 
+#include <string>
 #include <vector>
 
 class SkMarkerStack : public SkRefCnt {
 public:
     SkMarkerStack() {}
 
-    void setMarker(uint32_t id, const SkM44& mx, void* boundary);
-    bool findMarker(uint32_t id, SkM44* mx) const;
-    bool findMarkerInverse(uint32_t id, SkM44* mx) const;
+    void setMarker(const char* name, const SkM44& mx, void* boundary);
+    bool findMarker(const char* name, SkM44* mx) const;
+    bool findMarkerInverse(const char* name, SkM44* mx) const;
     void restore(void* boundary);
 
 private:
@@ -27,7 +28,7 @@ private:
         void*       fBoundary;
         SkM44       fMatrix;
         SkM44       fMatrixInverse;
-        uint32_t    fID;
+        std::string fName;
     };
     std::vector<Rec> fStack;
 };

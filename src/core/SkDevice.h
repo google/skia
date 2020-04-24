@@ -139,7 +139,7 @@ public:
     void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
 
     // SkMatrixProvider interface:
-    bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
+    bool getLocalToMarker(const char* name, SkM44* localToMarker) const override;
     const SkMatrix& localToDevice() const override { return fLocalToDevice33; }
     const SkM44& localToDevice44() const override { return fLocalToDevice; }
 

@@ -60,10 +60,10 @@ size_t SkVertices::Attribute::bytesPerVertex() const {
 bool SkVertices::Attribute::isValid() const {
     switch (fUsage) {
         case Usage::kRaw:
-            return fMarkerID == 0;
+            return fMarkerName == nullptr;
         case Usage::kColor:
-            return fMarkerID == 0 && (fType == Type::kFloat3 || fType == Type::kFloat4 ||
-                                      fType == Type::kByte4_unorm);
+            return fMarkerName == nullptr && (fType == Type::kFloat3 || fType == Type::kFloat4 ||
+                                              fType == Type::kByte4_unorm);
         case Usage::kVector:
         case Usage::kNormalVector:
         case Usage::kPosition:
@@ -99,14 +99,21 @@ struct SkVertices::Sizes {
     Sizes(const Desc& desc) {
         desc.validate();
 
-        for (int i = 0; i < desc.fAttributeCount; ++i) {
-            if (!desc.fAttributes[i].isValid()) {
-                return;
-            }
-        }
-
         SkSafeMath safe;
 
+        fNameSize = 0;
+        for (int i = 0; i < desc.fAttributeCount; ++i) {
+            const Attribute& attr(desc.fAttributes[i]);
+            if (!attr.isValid()) {
+                return;
+            }
+            if (attr.fMarkerName) {
+                fNameSize = safe.add(fNameSize, strlen(attr.fMarkerName) + 1);
+            }
+        }
+        fNameSize = SkAlign4(fNameSize);
+
+        fAttrSize = safe.mul(desc.fAttributeCount, sizeof(Attribute));
         fVSize = safe.mul(desc.fVertexCount, sizeof(SkPoint));
         fDSize = safe.mul(custom_data_size(desc.fAttributes, desc.fAttributeCount),
                           desc.fVertexCount);
@@ -137,14 +144,16 @@ struct SkVertices::Sizes {
         }
 
         fTotal = safe.add(sizeof(SkVertices),
+                 safe.add(fAttrSize,
+                 safe.add(fNameSize,
                  safe.add(fVSize,
                  safe.add(fDSize,
                  safe.add(fTSize,
                  safe.add(fCSize,
-                          fISize)))));
+                          fISize)))))));
 
         if (safe.ok()) {
-            fArrays = fTotal - sizeof(SkVertices);  // just the sum of the arrays
+            fArrays = fVSize + fDSize + fTSize + fCSize + fISize;  // just the sum of the arrays
         } else {
             sk_bzero(this, sizeof(*this));
         }
@@ -153,7 +162,9 @@ struct SkVertices::Sizes {
     bool isValid() const { return fTotal != 0; }
 
     size_t fTotal;  // size of entire SkVertices allocation (obj + arrays)
-    size_t fArrays; // size of all the arrays (V + D + T + C + I)
+    size_t fAttrSize;  // size of attributes
+    size_t fNameSize;  // size of attribute marker names
+    size_t fArrays; // size of all the data arrays (V + D + T + C + I)
     size_t fVSize;
     size_t fDSize;  // size of all customData = [customDataSize * fVertexCount]
     size_t fTSize;
@@ -211,6 +222,23 @@ void SkVertices::Builder::init(const Desc& desc) {
         return new_ptr;
     };
 
+    fVertices->fAttributes = (Attribute*)advance(sizes.fAttrSize);
+    char* markerNames      =             advance(sizes.fNameSize);
+
+    // Copy the attributes into our block of memory (immediately after the SkVertices)
+    sk_careful_memcpy(fVertices->fAttributes, desc.fAttributes,
+                      desc.fAttributeCount * sizeof(Attribute));
+    fVertices->fAttributeCount = desc.fAttributeCount;
+
+    // Now we copy the marker names, and fix up the pointers in our attributes
+    for (int i = 0; i < desc.fAttributeCount; ++i) {
+        Attribute& attr(fVertices->fAttributes[i]);
+        if (attr.fMarkerName) {
+            attr.fMarkerName = strcpy(markerNames, attr.fMarkerName);
+            markerNames += (strlen(markerNames) + 1);
+        }
+    }
+
     fVertices->fPositions     = (SkPoint*) advance(sizes.fVSize);
     fVertices->fCustomData    = (void*)    advance(sizes.fDSize);
     fVertices->fTexs          = (SkPoint*) advance(sizes.fTSize);
@@ -219,10 +247,6 @@ void SkVertices::Builder::init(const Desc& desc) {
 
     fVertices->fVertexCount   = desc.fVertexCount;
     fVertices->fIndexCount    = desc.fIndexCount;
-
-    sk_careful_memcpy(fVertices->fAttributes, desc.fAttributes,
-                      desc.fAttributeCount * sizeof(Attribute));
-    fVertices->fAttributeCount = desc.fAttributeCount;
 
     fVertices->fMode = desc.fMode;
 
@@ -309,7 +333,7 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
 }
 
 size_t SkVertices::approximateSize() const {
-    return sizeof(SkVertices) + this->getSizes().fArrays;
+    return this->getSizes().fTotal;
 }
 
 SkVertices::Sizes SkVertices::getSizes() const {
@@ -335,21 +359,26 @@ bool SkVerticesPriv::hasUsage(SkVertices::Attribute::Usage u) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum EncodedVerticesVersions {
-    kAttribute_Version      = 3,    // Adds array of custom attribute types
+    kNamedMarkers_Version = 4,    // Marker IDs changes to strings
 
-    kCurrent_Version        = kAttribute_Version
+    kCurrent_Version      = kNamedMarkers_Version
 };
 
-struct Header_v3 {
-    uint32_t              fPacked;
-    int32_t               fVertexCount;
-    int32_t               fIndexCount;
-    int32_t               fAttributeCount;
-    SkVertices::Attribute fAttributes[SkVertices::kMaxCustomAttributes];
-    // [pos] + [customData] + [texs] + [colors] + [indices]
+struct EncodedAttribute {
+    SkVertices::Attribute::Type  fType;
+    SkVertices::Attribute::Usage fUsage;
+    bool                         fHasMarkerName;
 };
 
-#define kCurrentHeaderSize    sizeof(Header_v3)
+struct Header_v4 {
+    uint32_t         fPacked;
+    int32_t          fVertexCount;
+    int32_t          fIndexCount;
+    int32_t          fAttributeCount;
+    // [EncodedAttributes] + [MarkerNames] + [pos] + [customData] + [texs] + [colors] + [indices]
+};
+
+#define kCurrentHeaderSize    sizeof(Header_v4)
 
 // storage = packed | vertex_count | index_count | attr_count
 //           | pos[] | custom[] | texs[] | colors[] | indices[]
@@ -373,22 +402,43 @@ sk_sp<SkData> SkVertices::encode() const {
     }
     packed |= kCurrent_Version << kVersion_Shift;
 
+    size_t attrSize = SkAlign4(sizeof(EncodedAttribute) * fAttributeCount);
+    for (int i = 0; i < fAttributeCount; ++i) {
+        if (fAttributes[i].fMarkerName) {
+            attrSize += SkWriter32::WriteStringSize(fAttributes[i].fMarkerName);
+        }
+    }
+
     Sizes sizes = this->getSizes();
     SkASSERT(!sizes.fBuilderTriFanISize);
     // need to force alignment to 4 for SkWriter32 -- will pad w/ 0s as needed
-    const size_t size = SkAlign4(kCurrentHeaderSize + sizes.fArrays);
+    const size_t size = SkAlign4(kCurrentHeaderSize + attrSize + sizes.fArrays);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     SkWriter32 writer(data->writable_data(), data->size());
 
+    // Header
     writer.write32(packed);
     writer.write32(fVertexCount);
     writer.write32(fIndexCount);
     writer.write32(fAttributeCount);
 
-    // Write all custom attribute slots to simplify alignment
-    writer.write(fAttributes, sizeof(fAttributes));
+    // Encoded attributes (may not be 4 byte aligned)
+    EncodedAttribute* encodedAttrs =
+            (EncodedAttribute*)writer.reservePad(fAttributeCount * sizeof(EncodedAttribute));
+    for (int i = 0; i < fAttributeCount; ++i) {
+        encodedAttrs[i] = {fAttributes[i].fType, fAttributes[i].fUsage,
+                           SkToBool(fAttributes[i].fMarkerName)};
+    }
 
+    // Marker names
+    for (int i = 0; i < fAttributeCount; ++i) {
+        if (fAttributes[i].fMarkerName) {
+            writer.writeString(fAttributes[i].fMarkerName);
+        }
+    }
+
+    // Data arrays
     writer.write(fPositions, sizes.fVSize);
     writer.write(fCustomData, sizes.fDSize);
     writer.write(fTexs, sizes.fTSize);
@@ -400,7 +450,7 @@ sk_sp<SkData> SkVertices::encode() const {
 }
 
 sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
-    if (length < sizeof(Header_v3)) {
+    if (length < sizeof(Header_v4)) {
         return nullptr;
     }
 
@@ -420,13 +470,23 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
 
     if (!safe                                           // Invalid header fields
         || attrCount > kMaxCustomAttributes             // Too many custom attributes?
-        || version < kAttribute_Version                 // Old (unsupported) version
+        || version < kNamedMarkers_Version              // Old (unsupported) version
         || (attrCount > 0 && (hasTexs || hasColors))) { // Overspecified (incompatible features)
         return nullptr;
     }
 
+    if (!reader.isAvailable(attrCount * sizeof(EncodedAttribute))) {
+        return nullptr;
+    }
+
     Attribute attrs[kMaxCustomAttributes];
-    reader.read(attrs, sizeof(attrs));
+    const EncodedAttribute* encodedAttrs =
+            (const EncodedAttribute*)reader.skip(attrCount * sizeof(EncodedAttribute));
+    for (int i = 0; i < attrCount; ++i) {
+        attrs[i].fType = encodedAttrs[i].fType;
+        attrs[i].fUsage = encodedAttrs[i].fUsage;
+        attrs[i].fMarkerName = encodedAttrs[i].fHasMarkerName ? reader.readString() : nullptr;
+    }
 
     const Desc desc{
         mode, vertexCount, indexCount, hasTexs, hasColors, attrCount ? attrs : nullptr, attrCount
@@ -437,6 +497,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
     // logically we can be only 2-byte aligned, but our buffer is always 4-byte aligned
     if (reader.available() != SkAlign4(sizes.fArrays)) {
+        SkASSERT(false);
         return nullptr;
     }
 

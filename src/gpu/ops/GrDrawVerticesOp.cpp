@@ -22,6 +22,9 @@
 #include "src/gpu/ops/GrDrawVerticesOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
+#include <string>
+#include <vector>
+
 namespace {
 
 enum class ColorArrayType {
@@ -66,21 +69,21 @@ public:
     // For each MarkerID required by 'info', fetch the value of that matrix from 'matrixProvider'
     void gather(const SkVerticesPriv& info, const SkMatrixProvider& matrixProvider) {
         for (int i = 0; i < info.attributeCount(); ++i) {
-            if (SkCanvas::MarkerID id = info.attributes()[i].fMarkerID) {
+            if (const char* name = info.attributes()[i].fMarkerName) {
                 if (std::none_of(fMatrices.begin(), fMatrices.end(),
-                                 [id](const auto& m) { return m.first == id; })) {
+                                 [name](const auto& m) { return m.first == name; })) {
                     SkM44 matrix;
                     // SkCanvas should guarantee that this succeeds
-                    SkAssertResult(matrixProvider.getLocalToMarker(id, &matrix));
-                    fMatrices.push_back({id, matrix});
+                    SkAssertResult(matrixProvider.getLocalToMarker(name, &matrix));
+                    fMatrices.emplace_back(name, matrix);
                 }
             }
         }
     }
 
-    SkM44 get(SkCanvas::MarkerID id) const {
+    SkM44 get(const std::string& name) const {
         for (const auto& m : fMatrices) {
-            if (m.first == id) {
+            if (m.first == name) {
                 return m.second;
             }
         }
@@ -95,7 +98,7 @@ private:
     // If we expected many MarkerIDs, this should be a hash table. As it is, we're bounded by
     // SkVertices::kMaxCustomAttributes (which is 8). Realistically, we're never going to see
     // more than 1 or 2 unique MarkerIDs, so rely on linear search when inserting and fetching.
-    std::vector<std::pair<SkCanvas::MarkerID, SkM44>> fMatrices;
+    std::vector<std::pair<std::string, SkM44>> fMatrices;
 };
 
 class VerticesGP : public GrGeometryProcessor {
@@ -195,22 +198,22 @@ public:
                 SkString varyingIn(attr.name());
 
                 UniformHandle matrixHandle;
-                if (customAttr.fMarkerID) {
+                if (customAttr.fMarkerName) {
                     bool normal = customAttr.fUsage == Usage::kNormalVector;
-                    for (const MarkedUniform& matrixUni : fCustomMatrixUniforms) {
-                        if (matrixUni.fID == customAttr.fMarkerID && matrixUni.fNormal == normal) {
-                            matrixHandle = matrixUni.fUniform;
+                    for (const MarkedUniform& uni : fCustomMatrixUniforms) {
+                        if (uni.fName == customAttr.fMarkerName && uni.fNormal == normal) {
+                            matrixHandle = uni.fUniform;
                             break;
                         }
                     }
                     if (!matrixHandle.isValid()) {
-                        SkString uniName = SkStringPrintf("customMatrix_%d%s", customAttr.fMarkerID,
+                        SkString uniName = SkStringPrintf("mtx_%s%s", customAttr.fMarkerName,
                                                           normal ? "_IT" : "");
                         matrixHandle = uniformHandler->addUniform(
                                 nullptr, kVertex_GrShaderFlag,
                                 normal ? kFloat3x3_GrSLType : kFloat4x4_GrSLType, uniName.c_str());
                         fCustomMatrixUniforms.push_back(
-                                {customAttr.fMarkerID, normal, matrixHandle});
+                                {customAttr.fMarkerName, normal, matrixHandle});
                     }
                 }
 
@@ -306,11 +309,14 @@ public:
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
 
+            uint32_t usageBits = 0;
             for (int i = 0; i < vgp.fCustomAttributeCount; ++i) {
-                SkASSERT(SkTFitsIn<uint16_t>(vgp.fCustomAttributes[i].fMarkerID));
-                b->add32(vgp.fCustomAttributes[i].fMarkerID << 16 |
-                         (uint32_t)vgp.fCustomAttributes[i].fUsage);
+                usageBits = (usageBits << 8) | (uint32_t)vgp.fCustomAttributes[i].fUsage;
+                if (const char* name = vgp.fCustomAttributes[i].fMarkerName) {
+                    b->add32(SkOpts::hash_fn(name, strlen(name), 0));
+                }
             }
+            b->add32(usageBits);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -335,7 +341,7 @@ public:
 
             for (const auto& matrixUni : fCustomMatrixUniforms) {
                 SkASSERT(matrixUni.fUniform.isValid());
-                SkM44 mtx = vgp.fCustomMatrices->get(matrixUni.fID);
+                SkM44 mtx = vgp.fCustomMatrices->get(matrixUni.fName);
                 if (matrixUni.fNormal) {
                     // Get the upper-left 3x3 (rotation + scale):
                     mtx.setCol(3, {0, 0, 0, 1});
@@ -363,9 +369,9 @@ public:
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
         struct MarkedUniform {
-            SkCanvas::MarkerID fID;
-            bool               fNormal;
-            UniformHandle      fUniform;
+            std::string   fName;
+            bool          fNormal;
+            UniformHandle fUniform;
         };
         std::vector<MarkedUniform> fCustomMatrixUniforms;
 

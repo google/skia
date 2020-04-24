@@ -566,9 +566,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
         } break;
         case MARK_CTM: {
-            uint32_t id = reader->readInt();
+            SkString name;
+            reader->readString(&name);
             BREAK_ON_READ_ERROR(reader);
-            canvas->markCTM(id);
+            canvas->markCTM(name.c_str());
         } break;
         case RESTORE:
             canvas->restore();
