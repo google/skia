@@ -86,13 +86,8 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords,
                           coords.c_str());
         result = coords2D;
     }
-    switch (matrix.fKind) {
-        case SkSL::SampleMatrix::Kind::kMixed:
-        case SkSL::SampleMatrix::Kind::kVariable:
-            result = SkStringPrintf("(_matrix * float3(%s, 1)).xy", result.c_str());
-            break;
-        default:
-            break;
+    if (matrix.fFlags & SkSL::SampleMatrix::kVariable_Flag) {
+        result = SkStringPrintf("(_matrix * float3(%s, 1)).xy", result.c_str());
     }
     return result;
 }
@@ -173,8 +168,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
-    bool hasVariableMatrix = args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                             args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed;
+    bool hasVariableMatrix = args.fFp.sampleMatrix().fFlags & SkSL::SampleMatrix::kVariable_Flag;
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
@@ -191,7 +185,8 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                 SkASSERT(transform.getType() == kVoid_GrSLType);
                 break;
         }
-        if (args.fFp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+        // FIXME this is wrong, need to have switched over to kFragment_Flag in this case
+        if (args.fFp.sampleMatrix().fFlags) {
             SkASSERT(!hasVariableMatrix);
             this->codeAppend("{\n");
             args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);

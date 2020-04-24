@@ -21,61 +21,42 @@ struct Expression;
  * Represents the matrix applied to a fragment processor by its parent's sample(child, matrix) call.
  */
 struct SampleMatrix {
-    enum class Kind {
-        // No sample(child, matrix) call affects the FP.
-        kNone,
-        // The FP is sampled with a matrix whose value is fixed and based only on constants or
-        // uniforms, and thus the transform can be hoisted to the vertex shader.
-        kConstantOrUniform,
-        // The FP is sampled with a non-constant/uniform value, or sampled multiple times, and
-        // thus the transform cannot be hoisted to the vertex shader.
-        kVariable,
-        // The FP is sampled with a constant or uniform value, *and* also inherits a variable
-        // transform from an ancestor. The transform cannot be hoisted to the vertex shader, and
-        // both matrices need to be applied.
-        kMixed,
+    enum Flags {
+        kVariable_Flag = 1 << 0,
+        kVertex_Flag   = 1 << 1,
+        kFragment_Flag = 1 << 2
     };
 
     SampleMatrix()
-    : fOwner(nullptr)
-    , fKind(Kind::kNone) {}
+    : fFlags(0)
+    , fOwner(nullptr) {}
 
-    SampleMatrix(Kind kind)
-    : fOwner(nullptr)
-    , fKind(kind) {
-        SkASSERT(kind == Kind::kNone || kind == Kind::kVariable);
+    SampleMatrix(int flags)
+    : fFlags(flags) {}
+
+    SampleMatrix(int flags, GrFragmentProcessor* owner)
+    : fFlags(flags)
+    , fOwner(owner) {}
+
+    SampleMatrix(int flags, GrFragmentProcessor* owner, String expression)
+    : fFlags(flags)
+    , fOwner(owner)
+    , fExpression(expression) {
+        SkASSERT((flags & kVertex_Flag) == 0 || (flags & kFragment_Flag) == 0);
     }
-
-    SampleMatrix(Kind kind, GrFragmentProcessor* owner, String expression)
-    : fOwner(owner)
-    , fKind(kind)
-    , fExpression(expression) {}
 
     SampleMatrix merge(const SampleMatrix& other);
 
     bool operator==(const SampleMatrix& other) const {
-        return fKind == other.fKind && fExpression == other.fExpression;
+        return fFlags == other.fFlags && fExpression == other.fExpression;
     }
 
-#ifdef SK_DEBUG
-    String description() {
-        switch (fKind) {
-            case Kind::kNone:
-                return "SampleMatrix<None>";
-            case Kind::kConstantOrUniform:
-                return "SampleMatrix<ConstantOrUniform(" + fExpression + ")>";
-            case Kind::kVariable:
-                return "SampleMatrix<Variable>";
-            case Kind::kMixed:
-                return "SampleMatrix<Mixed(" + fExpression + ")>";
-        }
+    String description() const {
+        return String::printf("SampleMatrix<%d, %p, '%s'>", fFlags, fOwner, fExpression.c_str());
     }
-#endif
 
+    int fFlags;
     GrFragmentProcessor* fOwner;
-    Kind fKind;
-    // The constant or uniform expression representing the matrix (will be the empty string when
-    // kind == kNone or kVariable)
     String fExpression;
 };
 

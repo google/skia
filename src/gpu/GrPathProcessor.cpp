@@ -58,15 +58,23 @@ public:
                               m[3], m[4], m[5], m[6], m[7], m[8]);
     }
 
+    // NVPR does not use a vertex shader, so the actual application of the transform matrix happens
+    // in setData (see "setPathFragmentInputTransform").
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
                         GrGLSLUniformHandler* uniformHandler,
                         FPCoordTransformHandler* transformHandler) {
         for (int i = 0; *transformHandler; ++*transformHandler, ++i) {
             auto [coordTransform, fp] = transformHandler->get();
 
-            SkString matrix;
             GrShaderVar fragmentVar;
             GrShaderVar transformVar;
+            SkSL::SampleMatrix matrix = fp.sampleMatrix();
+            // no vertex shader, so we have to move things into the fragment shader
+            if (matrix.fFlags & SkSL::SampleMatrix::kVertex_Flag) {
+                int newFlags = (matrix.fFlags & ~SkSL::SampleMatrix::kVertex_Flag) |
+                               SkSL::SampleMatrix::kFragment_Flag;
+                ((GrFragmentProcessor&) fp).setSampleMatrix(SkSL::SampleMatrix(newFlags));
+            }
             if (fp.isSampledWithExplicitCoords()) {
                 if (coordTransform.isNoOp()) {
                     transformHandler->omitCoordsForCurrCoordTransform();
@@ -89,7 +97,6 @@ public:
                                                        &name)
                                           .toIndex();
                     transformVar = uniformHandler->getUniformVariable(uni.fHandle);
-                    matrix = name;
                 }
             } else {
                 SkString strVaryingName;
@@ -104,10 +111,9 @@ public:
                                 .toIndex();
 #endif
                 fVaryingTransform.back().fType = varyingType;
-                matrix = matrix_to_sksl(coordTransform.matrix());
                 fragmentVar = {SkString(v.fsIn()), varyingType};
             }
-            transformHandler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fragmentVar);
+            transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
         }
     }
 

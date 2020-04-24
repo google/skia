@@ -22,7 +22,7 @@ public:
 
     SampleMatrixConstantEffect(std::unique_ptr<GrFragmentProcessor> child)
         : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
+        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::kVariable_Flag));
         this->registerChildProcessor(std::move(child));
     }
 

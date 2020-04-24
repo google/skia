@@ -452,7 +452,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             coordsName = "_coords" + to_string(c.fOffset);
             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), coordsName));
         }
-        if (matrix.fKind == SampleMatrix::Kind::kVariable) {
+        if (matrix.fFlags & SampleMatrix::kVariable_Flag) {
             matrixName = "_matrix" + to_string(c.fOffset);
             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), matrixName));
         }
@@ -463,18 +463,13 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." + String(child.fName) +
                                  "_index" + inputArg + ", args, " + coordsName + ".c_str());");
         } else {
-            switch (matrix.fKind) {
-                case SampleMatrix::Kind::kMixed:
-                case SampleMatrix::Kind::kVariable:
-                    addExtraEmitCodeLine(childName + " = this->invokeChildWithMatrix(_outer." +
-                                         String(child.fName) + "_index" + inputArg + ", args, " +
-                                         matrixName + ".c_str());");
-                    break;
-                case SampleMatrix::Kind::kConstantOrUniform:
-                case SampleMatrix::Kind::kNone:
-                    addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." +
-                                         String(child.fName) + "_index" + inputArg + ", args);");
-                    break;
+            if (matrix.fFlags & SampleMatrix::kVariable_Flag) {
+                addExtraEmitCodeLine(childName + " = this->invokeChildWithMatrix(_outer." +
+                                     String(child.fName) + "_index" + inputArg + ", args, " +
+                                     matrixName + ".c_str());");
+            } else {
+                addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." +
+                                     String(child.fName) + "_index" + inputArg + ", args);");
             }
         }
 

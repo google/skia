@@ -78,18 +78,8 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix matrix) {
     if (matrix == fMatrix) {
         return;
     }
-    SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
-    if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-        SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                 (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
-                  matrix.fExpression == fMatrix.fExpression));
-        fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
-                                     fMatrix.fExpression);
-    } else {
-        SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
-        fMatrix = matrix;
-    }
-    if (matrix.fKind == SkSL::SampleMatrix::Kind::kVariable) {
+    fMatrix.merge(matrix);
+    if (matrix.fFlags & SkSL::SampleMatrix::kVariable_Flag) {
         for (auto& child : fChildProcessors) {
             child->setSampleMatrix(matrix);
         }
@@ -122,8 +112,7 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));
-    SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
-             fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform);
+    SkASSERT((fMatrix.fFlags & SkSL::SampleMatrix::kVariable_Flag) == 0);
     return index;
 }
 
