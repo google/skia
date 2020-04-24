@@ -1,0 +1,53 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_use_ffmpeg) {
+  config("public_decoder_config") {
+    defines = [ "HAVE_VIDEO_DECODER" ]
+    include_dirs = [ "." ]
+  }
+
+  static_library("video_decoder") {
+    public_configs = [ ":public_decoder_config" ]
+    sources = [
+      "SkVideoDecoder.cpp",
+      "SkVideoDecoder.h",
+    ]
+    deps = [ "../..:skia" ]
+    libs = [
+      "swscale",
+      "avcodec",
+      "avformat",
+      "avutil",
+    ]
+  }
+
+  config("public_encoder_config") {
+    defines = [ "HAVE_VIDEO_ENCODER" ]
+    include_dirs = [ "." ]
+  }
+
+  static_library("video_encoder") {
+    public_configs = [ ":public_encoder_config" ]
+    sources = [
+      "SkVideoEncoder.cpp",
+      "SkVideoEncoder.h",
+    ]
+    deps = [ "../..:skia" ]
+    libs = [
+      "swscale",
+      "avcodec",
+      "avformat",
+      "avutil",
+    ]
+  }
+} else {
+  group("video_decoder") {
+  }
+  group("video_encoder") {
+  }
+}
