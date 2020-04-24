@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
-#include "GrContextFactory.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 using namespace sk_gpu_test;
 
@@ -49,5 +47,3 @@ DEF_GPUTEST(GrContext_abandonContext, reporter, options) {
         }
     }
 }
-
-#endif

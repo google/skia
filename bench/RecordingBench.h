@@ -8,9 +8,8 @@
 #ifndef RecordingBench_DEFINED
 #define RecordingBench_DEFINED
 
-#include "Benchmark.h"
-#include "SkPicture.h"
-#include "SkLiteDL.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkPicture.h"
 
 class PictureCentricBench : public Benchmark {
 public:
@@ -30,26 +29,14 @@ protected:
 
 class RecordingBench : public PictureCentricBench {
 public:
-    RecordingBench(const char* name, const SkPicture*, bool useBBH, bool lite);
+    RecordingBench(const char* name, const SkPicture*, bool useBBH);
 
 protected:
     void onDraw(int loops, SkCanvas*) override;
 
 private:
-    std::unique_ptr<SkLiteDL> fDL;
     bool fUseBBH;
 
-    typedef PictureCentricBench INHERITED;
-};
-
-class PipingBench : public PictureCentricBench {
-public:
-    PipingBench(const char* name, const SkPicture*);
-
-protected:
-    void onDraw(int loops, SkCanvas*) override;
-
-private:
     typedef PictureCentricBench INHERITED;
 };
 

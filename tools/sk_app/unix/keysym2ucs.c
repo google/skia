@@ -34,7 +34,7 @@
  * AUTOMATICALLY GENERATED FILE, DO NOT EDIT !!! (unicode/convmap.pl)
  */
 
-#include "keysym2ucs.h"
+#include "tools/sk_app/unix/keysym2ucs.h"
 
 struct codepair {
   unsigned short keysym;

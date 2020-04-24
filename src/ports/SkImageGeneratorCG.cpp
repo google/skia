@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageGeneratorCG.h"
-#include "SkPixmapPriv.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/ports/SkImageGeneratorCG.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/mac/SkCGUtils.h"
+#include "src/core/SkPixmapPriv.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -18,60 +22,71 @@
 #include <MobileCoreServices/MobileCoreServices.h>
 #endif
 
-static CGImageSourceRef data_to_CGImageSrc(SkData* data) {
-    CGDataProviderRef cgData = CGDataProviderCreateWithData(data, data->data(), data->size(),
-            nullptr);
+namespace {
+class ImageGeneratorCG : public SkImageGenerator {
+public:
+    ImageGeneratorCG(const SkImageInfo&, SkUniqueCFRef<CGImageSourceRef> imageSrc,
+                     sk_sp<SkData> data, SkEncodedOrigin);
+
+protected:
+    sk_sp<SkData> onRefEncodedData() override;
+
+    bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
+
+private:
+    const SkUniqueCFRef<CGImageSourceRef> fImageSrc;
+    const sk_sp<SkData> fData;
+    const SkEncodedOrigin fOrigin;
+
+    typedef SkImageGenerator INHERITED;
+};
+
+static SkUniqueCFRef<CGImageSourceRef> data_to_CGImageSrc(SkData* data) {
+    SkUniqueCFRef<CGDataProviderRef> cgData(
+            CGDataProviderCreateWithData(data, data->data(), data->size(), nullptr));
     if (!cgData) {
         return nullptr;
     }
-    CGImageSourceRef imageSrc = CGImageSourceCreateWithDataProvider(cgData, 0);
-    CGDataProviderRelease(cgData);
-    return imageSrc;
+    return SkUniqueCFRef<CGImageSourceRef>(
+            CGImageSourceCreateWithDataProvider(cgData.get(), nullptr));
 }
 
-#ifdef SK_LEGACY_NEW_FROM_ENCODED_CG
-SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
-    return MakeFromEncodedCG(sk_ref_sp(data)).release();
-}
-#endif
+}  // namespace
 
 std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<SkData> data) {
-    CGImageSourceRef imageSrc = data_to_CGImageSrc(data.get());
+    SkUniqueCFRef<CGImageSourceRef> imageSrc = data_to_CGImageSrc(data.get());
     if (!imageSrc) {
         return nullptr;
     }
 
-    // Make sure we call CFRelease to free the imageSrc.  Since CFRelease actually takes
-    // a const void*, we must cast the imageSrc to a const void*.
-    SkAutoTCallVProc<const void, CFRelease> autoImageSrc(imageSrc);
-
-    CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSrc, 0, nullptr);
+    SkUniqueCFRef<CFDictionaryRef> properties(
+            CGImageSourceCopyPropertiesAtIndex(imageSrc.get(), 0, nullptr));
     if (!properties) {
         return nullptr;
     }
 
-    CFNumberRef widthRef = (CFNumberRef) (CFDictionaryGetValue(properties,
-            kCGImagePropertyPixelWidth));
-    CFNumberRef heightRef = (CFNumberRef) (CFDictionaryGetValue(properties,
-            kCGImagePropertyPixelHeight));
+    CFNumberRef widthRef = static_cast<CFNumberRef>(
+            CFDictionaryGetValue(properties.get(), kCGImagePropertyPixelWidth));
+    CFNumberRef heightRef = static_cast<CFNumberRef>(
+            CFDictionaryGetValue(properties.get(), kCGImagePropertyPixelHeight));
     if (nullptr == widthRef || nullptr == heightRef) {
         return nullptr;
     }
 
     int width, height;
-    if (!CFNumberGetValue(widthRef, kCFNumberIntType, &width) ||
-            !CFNumberGetValue(heightRef, kCFNumberIntType, &height)) {
+    if (!CFNumberGetValue(widthRef , kCFNumberIntType, &width ) ||
+        !CFNumberGetValue(heightRef, kCFNumberIntType, &height))
+    {
         return nullptr;
     }
 
-    bool hasAlpha = (bool) (CFDictionaryGetValue(properties,
-            kCGImagePropertyHasAlpha));
+    bool hasAlpha = bool(CFDictionaryGetValue(properties.get(), kCGImagePropertyHasAlpha));
     SkAlphaType alphaType = hasAlpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
     SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
 
-    auto origin = kDefault_SkEncodedOrigin;
-    auto orientationRef = (CFNumberRef) (CFDictionaryGetValue(properties,
-            kCGImagePropertyOrientation));
+    SkEncodedOrigin origin = kDefault_SkEncodedOrigin;
+    CFNumberRef orientationRef = static_cast<CFNumberRef>(
+            CFDictionaryGetValue(properties.get(), kCGImagePropertyOrientation));
     int originInt;
     if (orientationRef && CFNumberGetValue(orientationRef, kCFNumberIntType, &originInt)) {
         origin = (SkEncodedOrigin) originInt;
@@ -85,24 +100,25 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<Sk
     //        though I think it makes sense to wait until we understand how
     //        we want to communicate it to the generator.
 
-    return std::unique_ptr<SkImageGenerator>(new SkImageGeneratorCG(info, autoImageSrc.release(),
-                                                                    std::move(data), origin));
+    return std::unique_ptr<SkImageGenerator>(new ImageGeneratorCG(info, std::move(imageSrc),
+                                                                  std::move(data), origin));
 }
 
-SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imageSrc,
-                                       sk_sp<SkData> data, SkEncodedOrigin origin)
+ImageGeneratorCG::ImageGeneratorCG(const SkImageInfo& info, SkUniqueCFRef<CGImageSourceRef> src,
+                                   sk_sp<SkData> data, SkEncodedOrigin origin)
     : INHERITED(info)
-    , fImageSrc(imageSrc)
+    , fImageSrc(std::move(src))
     , fData(std::move(data))
     , fOrigin(origin)
 {}
 
-sk_sp<SkData> SkImageGeneratorCG::onRefEncodedData() {
+sk_sp<SkData> ImageGeneratorCG::onRefEncodedData() {
     return fData;
 }
 
-bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        const Options&) {
+bool ImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                   const Options&)
+{
     if (kN32_SkColorType != info.colorType()) {
         // FIXME: Support other colorTypes.
         return false;
@@ -120,12 +136,10 @@ bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size
             return false;
     }
 
-    CGImageRef image = CGImageSourceCreateImageAtIndex((CGImageSourceRef) fImageSrc.get(), 0,
-            nullptr);
+    SkUniqueCFRef<CGImageRef> image(CGImageSourceCreateImageAtIndex(fImageSrc.get(), 0, nullptr));
     if (!image) {
         return false;
     }
-    SkAutoTCallVProc<CGImage, CGImageRelease> autoImage(image);
 
     SkPixmap dst(info, pixels, rowBytes);
     auto decode = [&image](const SkPixmap& pm) {
@@ -137,7 +151,7 @@ bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size
         //     kGray_8_SkColorType
         // Additionally, it would be interesting to compare the performance
         // of SkSwizzler with CG's built in swizzler.
-        return SkCopyPixelsFromCGImage(pm, image);
+        return SkCopyPixelsFromCGImage(pm, image.get());
     };
     return SkPixmapPriv::Orient(dst, fOrigin, decode);
 }

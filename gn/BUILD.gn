@@ -5,21 +5,28 @@
 
 exec_script("xamarin_inject_compat.py", [ rebase_path("..") ])
 
+if (is_fuchsia) {
+  import("//build/fuchsia/sdk.gni")
+}
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
   extra_cflags_c = []
   extra_cflags_cc = []
   extra_ldflags = []
+  use_PIC = true
 
   malloc = ""
 
   enable_bitcode =
     (is_tvos || is_watchos) &&
     (target_cpu == "arm" || target_cpu == "arm64")
+
+  xcode_sysroot = ""
 }
 
-if (is_ios) {
+if (is_ios && xcode_sysroot == "") {
   if (is_tvos) {
     sdk = "appletv"
   } else if (is_watchos) {
@@ -32,7 +39,16 @@ if (is_ios) {
   } else {
     sdk += "os"
   }
-  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  xcode_sysroot = exec_script("find_xcode_sysroot.py", [ sdk ], "trim string")
+}
+
+# If building for mac on a mac then lookup all the system includes so that goma and the clang
+# shipped with chrome can find them. When the gn_to_bp.py tool is run, then the host_os != mac.
+# In this case leave the xcode_sysroot empty, and the cc/c++ that come with XCode will be able to
+# find needed include paths.
+if (is_mac && host_os == "mac" && xcode_sysroot == "") {
+  xcode_sysroot =
+      exec_script("find_xcode_sysroot.py", [ "macosx" ], "trim string")
 }
 
 config("default") {
@@ -44,11 +60,43 @@ config("default") {
   ldflags = []
   libs = []
 
+  if (werror) {
+    if (is_win) {
+      cflags += [ "/WX" ]
+    } else {
+      cflags += [ "-Werror" ]
+    }
+  }
+
+  if (is_fuchsia && using_fuchsia_sdk) {
+    ldflags += [
+      "-v",
+      "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot"),
+    ]
+    cflags += [ "--sysroot=" +
+                rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
+    if (target_cpu == "x64") {
+      target_triple = "--target=x86_64-${target_os}"
+    } else if (target_cpu == "arm64") {
+      target_triple = "--target=aarch64-unknown-${target_os}"
+    } else {
+      print("Unknown target CPU for Fuchsia target build.")
+      assert(false)
+    }
+    ldflags += [ target_triple ]
+    cflags += [ target_triple ]
+    asmflags += [ target_triple ]
+  }
+
   if (is_win) {
+    if (is_clang && target_cpu == "arm64") {
+      cflags += [ "--target=arm64-windows" ]
+    }
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
+    cflags_cc += [ "/std:c++17" ]
     if (is_clang) {
       cflags += [ "-fms-compatibility-version=19" ]  # 2015
     }
@@ -89,11 +137,11 @@ config("default") {
       "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu$_is_store",
     ]
   } else {
-    cflags += [
-      "-fstrict-aliasing",
-      "-fPIC",
-    ]
-    cflags_cc += [ "-std=c++11" ]
+    if (use_PIC) {
+      cflags += [ "-fPIC" ]
+    }
+    cflags += [ "-fstrict-aliasing" ]
+    cflags_cc += [ "-std=c++17" ]
 
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
     # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
@@ -155,10 +203,12 @@ config("default") {
       "--sysroot=$ndk/platforms/$ndk_platform",
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
+      "-static-libstdc++",
     ]
     lib_dirs = [
       "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
+      "$ndk/toolchains/llvm/prebuilt/$ndk_host/sysroot/usr/lib/$ndk_target/$ndk_api",
     ]
 
     libs += [
@@ -212,20 +262,23 @@ config("default") {
     }
     asmflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
-    cflags_cc += [ "-stdlib=libc++" ]
+    cflags_cc += [
+      "-stdlib=libc++",
+      "-fno-aligned-allocation",
+    ]
     ldflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
       "-stdlib=libc++",
@@ -241,8 +294,29 @@ config("default") {
 
   if (is_linux) {
     libs += [ "pthread" ]
+    if (is_debug && sanitize == "") {
+      defines += [ "_GLIBCXX_DEBUG" ]
+    }
   }
+
   if (is_mac) {
+    # If there was a xcode_sysroot set in args or calculated then use it, else don't set anything
+    # because the XCode cc/c++ already know all this stuff.
+    if (xcode_sysroot != "") {
+      asmflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+      cflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+      ldflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+    }
+
     # Disable linker warnings.  They're usually just annoyances like,
     #   ld: warning: text-based stub file
     #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
@@ -251,43 +325,21 @@ config("default") {
     ldflags += [ "-Wl,-w" ]
   }
 
-  if (sanitize != "") {
+  if (sanitize != "" && sanitize != "MSVC") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
 
-    # fyi_sanitizers only print out stacktraces of their issues
-    fyi_sanitizers = fyi_sanitize
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
-
-      if (fyi_sanitize == "" && !is_android) {
-        fyi_sanitizers = "float-divide-by-zero"
-      }
-
-      if (!is_mac && !is_win) {
-        sanitizers += ",function"  # Not supported on Mac or Win.
-      }
-      if (!is_win) {
-        sanitizers += ",vptr"  # Not supported on Win.
-      }
-      if (!is_debug && !is_win) {
-        # No-op with somewhat annoying warning at -O0.
-        # Seems to be broken on Win.
-        sanitizers += ",object-size"
-      }
+      sanitizers = "undefined"
       if (sanitize == "ASAN") {
         sanitizers += ",address"
       }
-      if (is_android) {
-        # Android only easily supports address for now
-        # UBSAN runs into linking errors
-        sanitizers = "address"
 
-        # recommended by
-        # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
-        cflags += [ "-fno-omit-frame-pointer" ]
+      if (is_android) {
+        # TODO(mtklein): work out UBSAN link errors
+        sanitizers = "address"
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
@@ -295,20 +347,34 @@ config("default") {
       sanitizers = "memory"
     }
 
+    _blacklist = rebase_path("../tools/xsan.blacklist")
+
     cflags += [
-      "-fsanitize=$sanitizers,$fyi_sanitizers",
+      "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
+      "-fsanitize-blacklist=$_blacklist",
     ]
-    if (!is_win) {
-      cflags += [ "-fno-omit-frame-pointer" ]
+    ldflags += [ "-fsanitize=$sanitizers" ]
+
+    if (is_win) {
+      cflags += [ "/FI$_blacklist" ]
+    } else {
+      cflags += [
+        "-include$_blacklist",
+        "-fno-omit-frame-pointer",
+      ]
     }
+
     if (is_linux) {
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
     }
-    ldflags += [ "-fsanitize=$sanitizers" ]
+
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
+    }
+    if (sanitizers == "safe-stack") {
+      cflags_cc += [ "-fno-aligned-allocation" ]
     }
   }
 }
@@ -327,7 +393,6 @@ config("warnings") {
   cflags_objcc = []
   if (is_win) {
     cflags += [
-      "/WX",  # Treat warnings as errors.
       "/W3",  # Turn on lots of warnings.
 
       # Disable a bunch of warnings:
@@ -338,10 +403,16 @@ config("warnings") {
       # Probably only triggers when /EHsc is enabled.
       "/wd4291",  # no matching operator delete found;
                   # memory will not be freed if initialization throws an exception
+
+      # These only show up in shared builds:
+      "/wd4251",  # class 'type' needs to have dll-interface to be used by clients of class 'type2'
+      "/wd4275",  # non dll-interface class 'base' used as base for dll-interface class 'derived'
+
+      # It'd be nice to fix these and turn this on:
+      "/wd5041",  # out-of-line definition for constexpr static data member is not needed and is deprecated in C++17
     ]
   } else {
     cflags += [
-      "-Werror",
       "-Wall",
       "-Wextra",
       "-Winit-self",
@@ -355,11 +426,19 @@ config("warnings") {
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
+
+      # GCC 8+ bundles a number of fundamentally different warnings under this same flag,
+      # ranging from false positive (only copying a prefix of SkRRect from serialized form)
+      # to possibly useful (memcpy() with non-trivial types).  Annoyingly you can't really
+      # break them up any finer.
+      # TODO(mtklein): suppress / fix each site as appropriate?
+      "-Wno-class-memaccess",
     ]
   }
 
   if (is_clang) {
     cflags += [
+      "-fcolor-diagnostics",
       "-Weverything",
       "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
     ]
@@ -411,6 +490,7 @@ config("warnings") {
       "-Wno-unused-member-function",
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
+      "-Wno-thread-safety-negative",
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
@@ -431,6 +511,7 @@ config("warnings") {
       "-Wno-c++98-compat",
       "-Wno-c++98-compat-pedantic",
       "-Wno-undefined-func-template",
+      "-Wno-return-std-move-in-c++11",
     ]
     cflags_objc += [
       "-Wno-direct-ivar-access",
@@ -469,7 +550,12 @@ config("debug_symbols") {
     ]
   } else if (is_win) {
     cflags = [ "/Z7" ]
-    ldflags = [ "/DEBUG:FASTLINK" ]
+    if (is_clang) {
+      cflags += [ "-gcodeview-ghash" ]
+      ldflags = [ "/DEBUG:GHASH" ]
+    } else {
+      ldflags = [ "/DEBUG:FASTLINK" ]
+    }
   } else {
     cflags = [ "-g" ]
   }
@@ -485,7 +571,7 @@ config("no_rtti") {
   }
 }
 
-config("release") {
+config("optimize") {
   if (is_win) {
     cflags = [
       "/O2",
@@ -518,6 +604,9 @@ config("release") {
       ldflags += [ "-O3" ]
     }
   }
+}
+
+config("NDEBUG") {
   defines = [ "NDEBUG" ]
 }
 

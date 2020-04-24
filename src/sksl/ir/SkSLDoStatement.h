@@ -8,8 +8,8 @@
 #ifndef SKSL_DOSTATEMENT
 #define SKSL_DOSTATEMENT
 
-#include "SkSLExpression.h"
-#include "SkSLStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 namespace SkSL {
 
@@ -22,6 +22,11 @@ struct DoStatement : public Statement {
     : INHERITED(offset, kDo_Kind)
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
+
+    std::unique_ptr<Statement> clone() const override {
+        return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
+                                                          fTest->clone()));
+    }
 
     String description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";

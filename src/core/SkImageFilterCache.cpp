@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageFilterCache.h"
+#include "src/core/SkImageFilterCache.h"
 
 #include <vector>
 
-#include "SkImageFilter.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkOpts.h"
-#include "SkRefCnt.h"
-#include "SkSpecialImage.h"
-#include "SkTDynamicHash.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };
@@ -41,12 +41,12 @@ public:
         }
     }
     struct Value {
-        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter)
-            : fKey(key), fImage(SkRef(image)), fOffset(offset), fFilter(filter) {}
+        Value(const Key& key, const skif::FilterResult<For::kOutput>& image,
+              const SkImageFilter* filter)
+            : fKey(key), fImage(image), fFilter(filter) {}
 
         Key fKey;
-        sk_sp<SkSpecialImage> fImage;
-        SkIPoint fOffset;
+        skif::FilterResult<For::kOutput> fImage;
         const SkImageFilter* fFilter;
         static const Key& GetKey(const Value& v) {
             return v.fKey;
@@ -57,28 +57,32 @@ public:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };
 
-    sk_sp<SkSpecialImage> get(const Key& key, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
+    bool get(const Key& key, skif::FilterResult<For::kOutput>* result) const override {
+        SkASSERT(result);
+
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
-            *offset = v->fOffset;
             if (v != fLRU.head()) {
                 fLRU.remove(v);
                 fLRU.addToHead(v);
             }
-            return v->fImage;
+
+            *result = v->fImage;
+            return true;
         }
-        return nullptr;
+        return false;
     }
 
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+    void set(const Key& key, const SkImageFilter* filter,
+             const skif::FilterResult<For::kOutput>& result) override {
+        SkAutoMutexExclusive mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
-        Value* v = new Value(key, image, offset, filter);
+        Value* v = new Value(key, result, filter);
         fLookup.add(v);
         fLRU.addToHead(v);
-        fCurrentBytes += image->getSize();
+        fCurrentBytes += result.image() ? result.image()->getSize() : 0;
         if (auto* values = fImageFilterValues.find(filter)) {
             values->push_back(v);
         } else {
@@ -96,7 +100,7 @@ public:
     }
 
     void purge() override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         while (fCurrentBytes > 0) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -105,7 +109,7 @@ public:
     }
 
     void purgeByImageFilter(const SkImageFilter* filter) override {
-        SkAutoMutexAcquire mutex(fMutex);
+        SkAutoMutexExclusive mutex(fMutex);
         auto* values = fImageFilterValues.find(filter);
         if (!values) {
             return;
@@ -122,7 +126,6 @@ public:
     SkDEBUGCODE(int count() const override { return fLookup.count(); })
 private:
     void removeInternal(Value* v) {
-        SkASSERT(v->fImage);
         if (v->fFilter) {
             if (auto* values = fImageFilterValues.find(v->fFilter)) {
                 if (values->size() == 1 && (*values)[0] == v) {
@@ -137,7 +140,7 @@ private:
                 }
             }
         }
-        fCurrentBytes -= v->fImage->getSize();
+        fCurrentBytes -= v->fImage.image() ? v->fImage.image()->getSize() : 0;
         fLRU.remove(v);
         fLookup.remove(v->fKey);
         delete v;

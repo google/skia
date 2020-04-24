@@ -1158,7 +1158,7 @@ const unsigned char LiberationSansNormalVerbs[] = {
 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSansNormalCharCodes[] = {
+const SkUnichar LiberationSansNormalCharCodes[] = {
 0, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
@@ -1184,9 +1184,9 @@ const SkFixed LiberationSansNormalWidths[] = {
 0x00008000, 0x00005580, 0x00004280, 0x00005580, 0x00009580
 };
 
-const int LiberationSansNormalCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSansNormalCharCodes);
+const size_t LiberationSansNormalCharCodesCount = SK_ARRAY_COUNT(LiberationSansNormalCharCodes);
 
-const SkPaint::FontMetrics LiberationSansNormalMetrics = {
+const SkFontMetrics LiberationSansNormalMetrics = {
 0x0000000f, -0.910156f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.589355f, 1.25342f,
 -0.203125f, 1.05029f, 0.52832f, 0.687988f, 0.0732422f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -2321,7 +2321,7 @@ const unsigned char LiberationSansBoldVerbs[] = {
 0, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSansBoldCharCodes[] = {
+const SkUnichar LiberationSansBoldCharCodes[] = {
 0,
 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
@@ -2348,9 +2348,9 @@ const SkFixed LiberationSansBoldWidths[] = {
 0x00008000, 0x000063a0, 0x000047a0, 0x000063a0, 0x00009580
 };
 
-const int LiberationSansBoldCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSansBoldCharCodes);
+const size_t LiberationSansBoldCharCodesCount = SK_ARRAY_COUNT(LiberationSansBoldCharCodes);
 
-const SkPaint::FontMetrics LiberationSansBoldMetrics = {
+const SkFontMetrics LiberationSansBoldMetrics = {
 0x0000000f, -1.0332f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.612305f, 1.24609f,
 -0.184082f, 1.06201f, 0.52832f, 0.687988f, 0.10498f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -3563,7 +3563,7 @@ const unsigned char LiberationSansItalicVerbs[] = {
 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSansItalicCharCodes[] = {
+const SkUnichar LiberationSansItalicCharCodes[] = {
 0, 32, 33,
 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
@@ -3589,9 +3589,9 @@ const SkFixed LiberationSansItalicWidths[] = {
 0x00008000, 0x00005580, 0x00004280, 0x00005580, 0x00009580
 };
 
-const int LiberationSansItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSansItalicCharCodes);
+const size_t LiberationSansItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSansItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSansItalicMetrics = {
+const SkFontMetrics LiberationSansItalicMetrics = {
 0x0000000f, -1.01416f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.590332f, 1.33447f,
 -0.271973f, 1.0625f, 0.52832f, 0.687988f, 0.0732422f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -4823,7 +4823,7 @@ const unsigned char LiberationSansBoldItalicVerbs[] = {
 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSansBoldItalicCharCodes[] = {
+const SkUnichar LiberationSansBoldItalicCharCodes[] = {
 0, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
@@ -4849,9 +4849,9 @@ const SkFixed LiberationSansBoldItalicWidths[] = {
 0x00008000, 0x000063a0, 0x000047a0, 0x000063a0, 0x00009580
 };
 
-const int LiberationSansBoldItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSansBoldItalicCharCodes);
+const size_t LiberationSansBoldItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSansBoldItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSansBoldItalicMetrics = {
+const SkFontMetrics LiberationSansBoldItalicMetrics = {
 0x0000000f, -1.02979f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.61377f, 1.3374f,
 -0.208984f, 1.12842f, 0.52832f, 0.687988f, 0.10498f, 0.105957f, 0.0498047f, -0.258789f
 };

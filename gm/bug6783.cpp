@@ -5,8 +5,18 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 
 // This GM reproduces skia:6783, which demonstrated a bug in repeat and mirror
 // image sampling tiling modes as implemented in software.  We want to tile to
@@ -42,6 +52,6 @@ DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
     p.setFilterQuality(kLow_SkFilterQuality);
 
     // It's only important to repeat or mirror in x to show off the bug.
-    p.setShader(img->makeShader(SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode, &m));
+    p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kClamp, &m));
     canvas->drawPaint(p);
 }

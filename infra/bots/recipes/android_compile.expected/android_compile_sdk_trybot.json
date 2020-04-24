@@ -1,0 +1,27 @@
+[
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
+      "--lunch_target",
+      "sdk",
+      "--mmma_targets",
+      "external/skia",
+      "--issue",
+      "456789",
+      "--patchset",
+      "12",
+      "--builder_name",
+      "Build-Debian9-Clang-host-sdk-Android_Framework"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Trigger and wait for task on android compile server"
+  },
+  {
+    "name": "$result"
+  }
+]

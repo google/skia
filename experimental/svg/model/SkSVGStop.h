@@ -8,8 +8,8 @@
 #ifndef SkSVGStop_DEFINED
 #define SkSVGStop_DEFINED
 
-#include "SkSVGHiddenContainer.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGHiddenContainer.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 class SkSVGLengthContext;
 

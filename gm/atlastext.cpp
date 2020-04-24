@@ -5,21 +5,40 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_ATLAS_TEXT
 
-#include "SkAtlasTextContext.h"
-#include "SkAtlasTextFont.h"
-#include "SkAtlasTextTarget.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "gpu/TestContext.h"
-#include "gpu/atlastext/GLTestAtlasTextRenderer.h"
-#include "gpu/atlastext/TestAtlasTextRenderer.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/atlastext/SkAtlasTextContext.h"
+#include "include/atlastext/SkAtlasTextFont.h"
+#include "include/atlastext/SkAtlasTextRenderer.h"
+#include "include/atlastext/SkAtlasTextTarget.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ToolUtils.h"
+#include "tools/gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "tools/gpu/atlastext/TestAtlasTextRenderer.h"
+
+#include <memory>
+#include <utility>
+
+class GrContext;
+class GrRenderTargetContext;
 
 // GM that draws text using the Atlas Text interface offscreen and then blits that to the canvas.
 
@@ -28,18 +47,19 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
     if (!text.size()) {
         return x;
     }
-    auto font = SkAtlasTextFont::Make(typeface, size);
-    int cnt = SkUTF8_CountUnichars(text.c_str());
+    auto atlas_font = SkAtlasTextFont::Make(typeface, size);
+    int cnt = SkUTF::CountUTF8(text.c_str(), text.size());
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
-    typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(), cnt);
 
     // Using a paint to get the positions for each glyph.
-    SkPaint paint;
-    paint.setTextSize(size);
-    paint.setTypeface(std::move(typeface));
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkFont font;
+    font.setSize(size);
+    font.setTypeface(std::move(typeface));
+
+    font.textToGlyphs(text.c_str(), text.size(), SkTextEncoding::kUTF8, glyphs.get(), cnt);
+
     std::unique_ptr<SkScalar[]> widths(new SkScalar[cnt]);
-    paint.getTextWidths(glyphs.get(), cnt * sizeof(SkGlyphID), widths.get(), nullptr);
+    font.getWidths(glyphs.get(), cnt, widths.get());
 
     std::unique_ptr<SkPoint[]> positions(new SkPoint[cnt]);
     positions[0] = {x, y};
@@ -47,13 +67,13 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
         positions[i] = {positions[i - 1].fX + widths[i - 1], y};
     }
 
-    target->drawText(glyphs.get(), positions.get(), cnt, color, *font);
+    target->drawText(glyphs.get(), positions.get(), cnt, color, *atlas_font);
 
     // Return the width of the of draw.
     return positions[cnt - 1].fX + widths[cnt - 1] - positions[0].fX;
 }
 
-class AtlasTextGM : public skiagm::GM {
+class AtlasTextGM : public skiagm::GpuGM {
 public:
     AtlasTextGM() = default;
 
@@ -72,28 +92,35 @@ protected:
         if (!targetHandle) {
             return;
         }
+
         fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
 
-        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());
-        fTypefaces[1] =
-                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Italic());
-        fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Normal());
-        fTypefaces[3] =
-                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
-        fTypefaces[4] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Bold());
-        fTypefaces[5] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
+        fTypefaces[0] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
+        fTypefaces[1] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Italic());
+        fTypefaces[2] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Normal());
+        fTypefaces[3] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
+        fTypefaces[4] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold());
+        fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        if (!fRenderer || !fTarget || !fTarget->handle()) {
-            canvas->clear(SK_ColorRED);
-            return;
+    DrawResult onDraw(GrContext*,
+                      GrRenderTargetContext*,
+                      SkCanvas* canvas,
+                      SkString* errorMsg) override {
+        if (!fRenderer) {
+            *errorMsg = "No renderer... probably not supported.";
+            return DrawResult::kSkip;
+        }
+        if (!fTarget || !fTarget->handle()) {
+            *errorMsg = "No target... we can't continue.";
+            return DrawResult::kFail;
         }
         fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
         auto bmp = this->drawText();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         canvas->drawBitmap(bmp, 0, 0);
+        return DrawResult::kOk;
     }
 
 private:

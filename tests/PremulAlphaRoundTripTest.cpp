@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "sk_tool_utils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#endif
+#include "include/gpu/GrContext.h"
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;
@@ -56,8 +54,7 @@ static void fill_surface(SkSurface* surf, SkColorType colorType, PackUnpremulPro
         }
     }
 
-    const SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(),
-                                               colorType, kUnpremul_SkAlphaType);
+    const SkImageInfo info = SkImageInfo::Make(bmp.dimensions(), colorType, kUnpremul_SkAlphaType);
     surf->writePixels({info, bmp.getPixels(), bmp.rowBytes()}, 0, 0);
 }
 
@@ -76,8 +73,7 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp2.eraseColor(0);
 
         surf->readPixels(readBmp1, 0, 0);
-        sk_tool_utils::write_pixels(surf, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
-                                    kUnpremul_SkAlphaType);
+        surf->writePixels(readBmp1, 0, 0);
         surf->readPixels(readBmp2, 0, 0);
 
         bool success = true;
@@ -102,7 +98,6 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
 
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
 
@@ -111,4 +106,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) 
                                                       info));
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-#endif

@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkPaint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "tests/Test.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -42,12 +41,12 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     SkCanvas canvas(bitmap);
     SkPaint paint;
 
-    SkScalar blueToCyan[20] = {
+    float blueToCyan[20] = {
             1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(blueToCyan));
+    paint.setColorFilter(SkColorFilters::Matrix(blueToCyan));
 
     paint.setColor(SK_ColorBLUE);
     canvas.drawPoint(0, 0, paint);
@@ -66,13 +65,13 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     canvas.drawPoint(0, 0, paint);
     assert_color(reporter, SK_ColorWHITE, bitmap.getColor(0, 0));
 
-    SkScalar transparentRedAddBlue[20] = {
+    float transparentRedAddBlue[20] = {
             1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f, 64.0f,
+            0.0f, 0.0f, 1.0f, 0.0f, 64.0f/255,
            -0.5f, 0.0f, 0.0f, 1.0f, 0.0f
     };
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(transparentRedAddBlue));
+    paint.setColorFilter(SkColorFilters::Matrix(transparentRedAddBlue));
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     paint.setColor(SK_ColorRED);
@@ -93,7 +92,7 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     assert_color(reporter, SK_ColorCYAN, bitmap.getColor(0, 0));
 
     // create a new filter with the changed matrix
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(transparentRedAddBlue));
+    paint.setColorFilter(SkColorFilters::Matrix(transparentRedAddBlue));
     canvas.drawPoint(0, 0, paint);
     assert_color(reporter, SK_ColorBLUE, bitmap.getColor(0, 0));
 }
@@ -107,13 +106,13 @@ DEF_TEST(ColorMatrix_clamp_while_unpremul, r) {
     // This matrix does green += 255/255 and alpha += 32/255.  We want to test
     // that if we pass it opaque alpha and small red and blue values, red and
     // blue stay unchanged, not pumped up by that ~1.12 intermediate alpha.
-    SkScalar m[] = {
+    float m[] = {
         1, 0, 0, 0, 0,
-        0, 1, 0, 0, 255,
+        0, 1, 0, 0, 1,
         0, 0, 1, 0, 0,
-        0, 0, 0, 1, 32,
+        0, 0, 0, 1, 32.0f/255,
     };
-    auto filter = SkColorFilter::MakeMatrixFilterRowMajor255(m);
+    auto filter = SkColorFilters::Matrix(m);
 
     SkColor filtered = filter->filterColor(0xff0a0b0c);
     REPORTER_ASSERT(r, SkColorGetA(filtered) == 0xff);

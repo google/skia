@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
 
-#include "Test.h"
-
-#if SK_SUPPORT_GPU
+#include "tests/Test.h"
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
@@ -33,12 +31,10 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
 DEF_TEST(SkSLBadOffset, r) {
     test_failure(r,
                  "struct Bad { layout (offset = 5) int x; } bad; void main() { bad.x = 5; "
-                 "sk_FragColor.r = float(bad.x); }",
+                 "sk_FragColor.r = half(bad.x); }",
                  "error: 1: offset of field 'x' must be a multiple of 4\n1 error\n");
     test_failure(r,
                  "struct Bad { int x; layout (offset = 0) int y; } bad; void main() { bad.x = 5; "
-                 "sk_FragColor.r = float(bad.x); }",
+                 "sk_FragColor.r = half(bad.x); }",
                  "error: 1: offset of field 'y' must be at least 4\n1 error\n");
 }
-
-#endif

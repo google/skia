@@ -5,26 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkImage.h"
-#include "SkRandom.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "Timer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "tools/timer/Timer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 #endif
 
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
-class FlutterAnimateView : public SampleView {
+class FlutterAnimateView : public Sample {
 public:
     FlutterAnimateView() : fCurrTime(0), fResetTime(0) {}
 
@@ -34,22 +32,12 @@ protected:
         initChars();
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FlutterAnimate");
-            return true;
-        }
-
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("FlutterAnimate"); }
 
     void onDrawContent(SkCanvas* canvas) override {
+        SkFont font(fTypeface, 50);
         SkPaint paint;
-        paint.setTypeface(fTypeface);
-        paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
-        paint.setTextSize(50);
 
         // rough center of each glyph
         static constexpr auto kMidX = 35;
@@ -63,16 +51,16 @@ protected:
             canvas->translate(fChars[i].fPosition.fX + kMidX, fChars[i].fPosition.fY - kMidY);
             canvas->rotate(SkRadiansToDegrees(rot));
             canvas->translate(-35,+50);
-            canvas->drawString(fChars[i].fChar, 0, 0, paint);
+            canvas->drawString(fChars[i].fChar, 0, 0, font, paint);
             canvas->restore();
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fCurrTime = timer.secs() - fResetTime;
+    bool onAnimate(double nanos) override {
+        fCurrTime = 1e-9 * nanos - fResetTime;
         if (fCurrTime > kDuration) {
             this->initChars();
-            fResetTime = timer.secs();
+            fResetTime = 1e-9 * nanos;
             fCurrTime = 0;
         }
 
@@ -106,10 +94,9 @@ private:
     static constexpr int kNumChars = 40;
     AnimatedChar fChars[kNumChars];
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FlutterAnimateView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new FlutterAnimateView(); )

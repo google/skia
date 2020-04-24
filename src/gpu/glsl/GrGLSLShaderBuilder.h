@@ -8,10 +8,11 @@
 #ifndef GrGLSLShaderBuilder_DEFINED
 #define GrGLSLShaderBuilder_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/SkSLString.h"
 
 #include <stdarg.h>
 
@@ -26,7 +27,6 @@ public:
     virtual ~GrGLSLShaderBuilder() {}
 
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
@@ -65,14 +65,6 @@ public:
     /** Version of above that appends the result to the shader code instead. */
     void appendColorGamutXform(const char* srcColor, GrGLSLColorSpaceXformHelper* colorXformHelper);
 
-    /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
-        dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
-        exactly once, so expressions like "idx++" are acceptable. */
-    void appendTexelFetch(SkString* out, TexelBufferHandle, const char* coordExpr) const;
-
-    /** Version of above that appends the result to the shader code instead.*/
-    void appendTexelFetch(TexelBufferHandle, const char* coordExpr);
-
     /**
     * Adds a constant declaration to the top of the shader.
     */
@@ -110,6 +102,8 @@ public:
     }
 
     void codeAppend(const char* str) { this->code().append(str); }
+
+    void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
@@ -169,10 +163,10 @@ protected:
         kFragCoordConventions_GLSLPrivateFeature,
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
-        kTexelBuffer_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature
+        kSampleVariables_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kSampleVariables_GLSLPrivateFeature
     };
 
     /*
@@ -201,12 +195,14 @@ protected:
 
     void nextStage() {
         fShaderStrings.push_back();
-        fCompilerStrings.push_back(this->code().c_str());
-        fCompilerStringLengths.push_back((int)this->code().size());
         fCodeIndex++;
     }
 
-    SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
+    void deleteStage() {
+        fShaderStrings.pop_back();
+        fCodeIndex--;
+    }
+
     SkString& extensions() { return fShaderStrings[kExtensions]; }
     SkString& definitions() { return fShaderStrings[kDefinitions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
@@ -221,7 +217,6 @@ protected:
     virtual void onFinalize() = 0;
 
     enum {
-        kVersionDecl,
         kExtensions,
         kDefinitions,
         kPrecisionQualifier,
@@ -232,12 +227,13 @@ protected:
         kFunctions,
         kMain,
         kCode,
+
+        kPrealloc = kCode + 6,  // 6 == Reasonable upper bound on number of processor stages
     };
 
     GrGLSLProgramBuilder* fProgramBuilder;
-    SkSTArray<kCode, const char*, true> fCompilerStrings;
-    SkSTArray<kCode, int, true> fCompilerStringLengths;
-    SkSTArray<kCode, SkString> fShaderStrings;
+    SkSL::String fCompilerString;
+    SkSTArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;
     SkString fExtensions;
@@ -252,8 +248,10 @@ protected:
     friend class GrCCCoverageProcessor; // to access code().
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
+    friend class GrDawnProgramBuilder;
     friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.
     friend class GrGLPathProgramBuilder; // to access fInputs.
     friend class GrVkPipelineStateBuilder;
+    friend class GrMtlPipelineStateBuilder;
 };
 #endif

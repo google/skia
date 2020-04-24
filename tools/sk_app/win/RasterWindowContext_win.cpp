@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "../RasterWindowContext.h"
-#include "SkAutoMalloc.h"
-#include "SkSurface.h"
-#include "WindowContextFactory_win.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkAutoMalloc.h"
+#include "tools/sk_app/RasterWindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 #include <Windows.h>
 
@@ -40,14 +40,14 @@ RasterWindowContext_win::RasterWindowContext_win(HWND wnd, const DisplayParams& 
     : INHERITED(params)
     , fWnd(wnd) {
     RECT rect;
-    GetWindowRect(wnd, &rect);
+    GetClientRect(wnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
 }
 
 void RasterWindowContext_win::setDisplayParams(const DisplayParams& params) {
     fDisplayParams = params;
     RECT rect;
-    GetWindowRect(fWnd, &rect);
+    GetClientRect(fWnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
 }
 
@@ -87,10 +87,9 @@ void RasterWindowContext_win::swapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForWin(HWND wnd, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         ctx = nullptr;
     }
     return ctx;

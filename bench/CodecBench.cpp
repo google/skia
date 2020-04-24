@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "CodecBench.h"
-#include "CodecBenchPriv.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkCommandLineFlags.h"
-#include "SkOSFile.h"
+#include "bench/CodecBench.h"
+#include "bench/CodecBenchPriv.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkOSFile.h"
+#include "tools/flags/CommandLineFlags.h"
 
 // Actually zeroing the memory would throw off timing, so we just lie.
-DEFINE_bool(zero_init, false, "Pretend our destination is zero-intialized, simulating Android?");
+static DEFINE_bool(zero_init, false,
+                   "Pretend our destination is zero-intialized, simulating Android?");
 
 CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType,
         SkAlphaType alphaType)

@@ -8,13 +8,17 @@
 #ifndef GrPathRendering_DEFINED
 #define GrPathRendering_DEFINED
 
-#include "SkPath.h"
-#include "GrPipeline.h"
+#include "include/core/SkPath.h"
 
 class GrGpu;
 class GrPath;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrRenderTargetProxy;
+class GrScissorState;
 class GrStencilSettings;
 class GrStyle;
+struct GrUserStencilSettings;
 struct SkScalerContextEffects;
 class SkDescriptor;
 class SkTypeface;
@@ -59,7 +63,6 @@ public:
 
             default:
                 SK_ABORT("Unknown path transform type");
-                return 0;
         }
     }
 
@@ -109,17 +112,17 @@ public:
 
     void stencilPath(const StencilPathArgs& args, const GrPath* path);
 
-    void drawPath(const GrPipeline& pipeline,
-                  const GrPrimitiveProcessor& primProc,
-                  const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+    void drawPath(GrRenderTarget*,
+                  const GrProgramInfo&,
+                  const GrStencilSettings& stencilPassSettings,  // Cover pass settings in pipeline.
                   const GrPath* path);
 
 protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(const GrPipeline&,
-                            const GrPrimitiveProcessor&,
+    virtual void onDrawPath(GrRenderTarget*,
+                            const GrProgramInfo&,
                             const GrStencilSettings&,
                             const GrPath*) = 0;
 

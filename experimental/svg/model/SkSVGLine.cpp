@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSVGLine.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGLine.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
 
 SkSVGLine::SkSVGLine() : INHERITED(SkSVGTag::kLine) {}
 
@@ -64,7 +64,7 @@ std::tuple<SkPoint, SkPoint> SkSVGLine::resolve(const SkSVGLengthContext& lctx) 
 }
 
 void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPath::FillType) const {
+                       const SkPaint& paint, SkPathFillType) const {
     SkPoint p0, p1;
     std::tie(p0, p1) = this->resolve(lctx);
 

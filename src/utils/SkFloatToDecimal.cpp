@@ -5,13 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkFloatToDecimal.h"
+#include "src/utils/SkFloatToDecimal.h"
 
 #include <cfloat>
 #include <climits>
 #include <cmath>
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+
+// returns `value * pow(base, e)`, assuming `e` is positive.
+static double pow_by_squaring(double value, double base, int e) {
+    // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+    SkASSERT(e > 0);
+    while (true) {
+        if (e & 1) {
+            value *= base;
+        }
+        e >>= 1;
+        if (0 == e) {
+            return value;
+        }
+        base *= base;
+    }
+}
 
 // Return pow(10.0, e), optimized for common cases.
 static double pow10(int e) {
@@ -34,28 +50,24 @@ static double pow10(int e) {
         case 15: return 1e+15;
         default:
             if (e > 15) {
-                double value = 1e+15;
-                while (e-- > 15) { value *= 10.0; }
-                return value;
+                return pow_by_squaring(1e+15, 10.0, e - 15);
             } else {
                 SkASSERT(e < 0);
-                double value = 1.0;
-                while (e++ < 0) { value /= 10.0; }
-                return value;
+                return pow_by_squaring(1.0, 0.1, -e);
             }
     }
 }
 
-/** Write a string into result, includeing a terminating '\0' (for
-    unit testing).  Return strlen(result) (for SkWStream::write) The
+/** Write a string into output, including a terminating '\0' (for
+    unit testing).  Return strlen(output) (for SkWStream::write) The
     resulting string will be in the form /[-]?([0-9]*.)?[0-9]+/ and
-    sscanf(result, "%f", &x) will return the original value iff the
+    sscanf(output, "%f", &x) will return the original value iff the
     value is finite. This function accepts all possible input values.
 
     Motivation: "PDF does not support [numbers] in exponential format
     (such as 6.02e23)."  Otherwise, this function would rely on a
     sprintf-type function from the standard library. */
-unsigned SkFloatToDecimal(float value, char result[kMaximumSkFloatToDecimalLength]) {
+unsigned SkFloatToDecimal(float value, char output[kMaximumSkFloatToDecimalLength]) {
     /* The longest result is -FLT_MIN.
        We serialize it as "-.0000000000000000000000000000000000000117549435"
        which has 48 characters plus a terminating '\0'. */
@@ -75,13 +87,13 @@ unsigned SkFloatToDecimal(float value, char result[kMaximumSkFloatToDecimalLengt
        Experimentally, rasterizers such as pdfium do seem to benefit
        from this.  Rasterizers that rely on fixed-point scalars should
        gracefully ignore these values that they can not parse. */
-    char* output = &result[0];
-    const char* const end = &result[kMaximumSkFloatToDecimalLength - 1];
+    char* output_ptr = &output[0];
+    const char* const end = &output[kMaximumSkFloatToDecimalLength - 1];
     // subtract one to leave space for '\0'.
 
     /* This function is written to accept any possible input value,
        including non-finite values such as INF and NAN.  In that case,
-       we ignore value-correctness and and output a syntacticly-valid
+       we ignore value-correctness and output a syntacticly-valid
        number. */
     if (value == INFINITY) {
         value = FLT_MAX;  // nearest finite float.
@@ -92,12 +104,12 @@ unsigned SkFloatToDecimal(float value, char result[kMaximumSkFloatToDecimalLengt
     if (!std::isfinite(value) || value == 0.0f) {
         // NAN is unsupported in PDF.  Always output a valid number.
         // Also catch zero here, as a special case.
-        *output++ = '0';
-        *output = '\0';
-        return static_cast<unsigned>(output - result);
+        *output_ptr++ = '0';
+        *output_ptr = '\0';
+        return static_cast<unsigned>(output_ptr - output);
     }
     if (value < 0.0) {
-        *output++ = '-';
+        *output_ptr++ = '-';
         value = -value;
     }
     SkASSERT(value >= 0.0f);
@@ -136,37 +148,37 @@ unsigned SkFloatToDecimal(float value, char result[kMaximumSkFloatToDecimalLengt
     if (decimalShift >= 0) {
         do {
             --bufferIndex;
-            *output++ = '0' + buffer[bufferIndex];
+            *output_ptr++ = '0' + buffer[bufferIndex];
         } while (bufferIndex);
         for (int i = 0; i < decimalShift; ++i) {
-            *output++ = '0';
+            *output_ptr++ = '0';
         }
     } else {
         int placesBeforeDecimal = bufferIndex + decimalShift;
         if (placesBeforeDecimal > 0) {
             while (placesBeforeDecimal-- > 0) {
                 --bufferIndex;
-                *output++ = '0' + buffer[bufferIndex];
+                *output_ptr++ = '0' + buffer[bufferIndex];
             }
-            *output++ = '.';
+            *output_ptr++ = '.';
         } else {
-            *output++ = '.';
+            *output_ptr++ = '.';
             int placesAfterDecimal = -placesBeforeDecimal;
             while (placesAfterDecimal-- > 0) {
-                *output++ = '0';
+                *output_ptr++ = '0';
             }
         }
         while (bufferIndex > 0) {
             --bufferIndex;
-            *output++ = '0' + buffer[bufferIndex];
-            if (output == end) {
+            *output_ptr++ = '0' + buffer[bufferIndex];
+            if (output_ptr == end) {
                 break;  // denormalized: don't need extra precision.
                 // Note: denormalized numbers will not have the same number of
                 // significantDigits, but do not need them to round-trip.
             }
         }
     }
-    SkASSERT(output <= end);
-    *output = '\0';
-    return static_cast<unsigned>(output - result);
+    SkASSERT(output_ptr <= end);
+    *output_ptr = '\0';
+    return static_cast<unsigned>(output_ptr - output);
 }

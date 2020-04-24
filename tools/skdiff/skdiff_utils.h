@@ -8,7 +8,7 @@
 #ifndef skdiff_utils_DEFINED
 #define skdiff_utils_DEFINED
 
-#include "skdiff.h"
+#include "tools/skdiff/skdiff.h"
 
 class SkBitmap;
 class SkData;
@@ -25,7 +25,8 @@ bool are_buffers_equal(SkData* skdata1, SkData* skdata2);
 sk_sp<SkData> read_file(const char* file_path);
 
 /** Decodes the fileBits into the resource.fBitmap. Returns false on failure. */
-bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly);
+bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly,
+                bool ignoreColorSpace);
 
 /** Writes the bitmap as a PNG to the path specified. */
 bool write_bitmap(const SkString& path, const SkBitmap& bitmap);

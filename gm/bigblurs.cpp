@@ -5,11 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBlurMask.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkBlurMask.h"
 
 namespace skiagm {
 
@@ -20,7 +29,7 @@ namespace skiagm {
 class BigBlursGM : public GM {
 public:
     BigBlursGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -43,7 +52,7 @@ protected:
         SkPath rectori;
 
         rectori.addRect(bigRect);
-        rectori.addRect(insetRect, SkPath::kCCW_Direction);
+        rectori.addRect(insetRect, SkPathDirection::kCCW);
 
         // The blur extends 3*kSigma out from the big rect.
         // Offset the close-up windows so we get the entire blur

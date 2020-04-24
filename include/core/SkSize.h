@@ -8,15 +8,15 @@
 #ifndef SkSize_DEFINED
 #define SkSize_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 struct SkISize {
     int32_t fWidth;
     int32_t fHeight;
 
-    static SkISize Make(int32_t w, int32_t h) { return {w, h}; }
+    static constexpr SkISize Make(int32_t w, int32_t h) { return {w, h}; }
 
-    static SkISize MakeEmpty() { return {0, 0}; }
+    static constexpr SkISize MakeEmpty() { return {0, 0}; }
 
     void set(int32_t w, int32_t h) { *this = SkISize{w, h}; }
 
@@ -24,14 +24,16 @@ struct SkISize {
      */
     bool isZero() const { return 0 == fWidth && 0 == fHeight; }
 
-    /** Returns true if either widht or height are <= 0 */
+    /** Returns true if either width or height are <= 0 */
     bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
 
     /** Set the width and height to 0 */
     void setEmpty() { fWidth = fHeight = 0; }
 
-    int32_t width() const { return fWidth; }
-    int32_t height() const { return fHeight; }
+    constexpr int32_t width() const { return fWidth; }
+    constexpr int32_t height() const { return fHeight; }
+
+    int64_t area() const { return fWidth * fHeight; }
 
     bool equals(int32_t w, int32_t h) const { return fWidth == w && fHeight == h; }
 };
@@ -54,10 +56,6 @@ struct SkSize {
         return {SkIntToScalar(src.width()), SkIntToScalar(src.height())};
     }
 
-    SkSize& operator=(const SkISize& src) {
-        return *this = SkSize{SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight)};
-    }
-
     static SkSize MakeEmpty() { return {0, 0}; }
 
     void set(SkScalar w, SkScalar h) { *this = SkSize{w, h}; }
@@ -66,7 +64,7 @@ struct SkSize {
      */
     bool isZero() const { return 0 == fWidth && 0 == fHeight; }
 
-    /** Returns true if either widht or height are <= 0 */
+    /** Returns true if either width or height are <= 0 */
     bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
 
     /** Set the width and height to 0 */

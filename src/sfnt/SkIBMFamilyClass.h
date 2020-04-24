@@ -8,7 +8,7 @@
 #ifndef SkIBMFamilyClass_DEFINED
 #define SkIBMFamilyClass_DEFINED
 
-#include "SkOTTableTypes.h"
+#include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)
 

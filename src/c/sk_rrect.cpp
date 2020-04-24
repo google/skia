@@ -7,9 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRRect.h"
-#include "sk_rrect.h"
-#include "sk_types_priv.h"
+#include "include/core/SkRRect.h"
+
+#include "include/c/sk_rrect.h"
+
+#include "src/c/sk_types_priv.h"
 
 
 sk_rrect_t* sk_rrect_new(void) {

@@ -5,8 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkGradientShader.h"
+
+#include <initializer_list>
+#include <utility>
 
 namespace skiagm {
 
@@ -19,7 +31,7 @@ DEF_SIMPLE_GM(stroke_rect_shader, canvas, 690, 300) {
     constexpr SkColor kColors[] {SK_ColorRED, SK_ColorBLUE};
     SkPaint paint;
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
-                                                          SkShader::kClamp_TileMode);
+                                                          SkTileMode::kClamp);
     paint.setShader(std::move(shader));
     paint.setStyle(SkPaint::kStroke_Style);
     // Do a large initial translate so that local coords disagree with device coords significantly

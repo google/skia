@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <cstdlib>
 
@@ -37,6 +37,8 @@ void sk_abort_no_print() {
 #endif
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
     __debugbreak();
+#elif defined(__clang__)
+    __builtin_debugtrap();
 #else
     abort();
 #endif

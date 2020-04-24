@@ -8,8 +8,8 @@
 #ifndef SkGeometry_DEFINED
 #define SkGeometry_DEFINED
 
-#include "SkMatrix.h"
-#include "SkNx.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkNx.h"
 
 static inline Sk2s from_point(const SkPoint& point) {
     return Sk2s::Load(&point);
@@ -89,7 +89,7 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]);
     convert it into the cubic fitting the same curve. The new cubic
     curve is returned in dst[0..3].
 */
-SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
+void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -154,6 +154,9 @@ int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3] = nullptr);
+/** Returns t value of cusp if cubic has one; returns -1 otherwise.
+ */
+SkScalar SkFindCubicCusp(const SkPoint src[4]);
 
 bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
 bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
@@ -179,7 +182,6 @@ static inline bool SkCubicIsDegenerate(SkCubicType type) {
             return true;
     }
     SK_ABORT("Invalid SkCubicType");
-    return true;
 }
 
 static inline const char* SkCubicTypeName(SkCubicType type) {
@@ -192,7 +194,6 @@ static inline const char* SkCubicTypeName(SkCubicType type) {
         case SkCubicType::kLineOrPoint: return "kLineOrPoint";
     }
     SK_ABORT("Invalid SkCubicType");
-    return "";
 }
 
 /** Returns the cubic classification.
@@ -272,13 +273,13 @@ struct SkConic {
      *  return the power-of-2 number of quads needed to approximate this conic
      *  with a sequence of quads. Will be >= 0.
      */
-    int SK_API computeQuadPOW2(SkScalar tol) const;
+    int SK_SPI computeQuadPOW2(SkScalar tol) const;
 
     /**
      *  Chop this conic into N quads, stored continguously in pts[], where
      *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
      */
-    int SK_API SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
+    int SK_SPI SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
     bool findXExtrema(SkScalar* t) const;
     bool findYExtrema(SkScalar* t) const;
@@ -307,7 +308,7 @@ struct SkConic {
 };
 
 // inline helpers are contained in a namespace to avoid external leakage to fragile SkNx members
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 /**
  *  use for : eval(t) == A * t^2 + B * t + C
@@ -402,7 +403,7 @@ struct SkCubicCoeff {
 
 }
 
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 /**
  *  Help class to allocate storage for approximating a conic with N quads.

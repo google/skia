@@ -7,15 +7,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkDrawable.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
 
-#include "sk_picture.h"
+#include "include/c/sk_picture.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
-sk_picture_recorder_t* sk_picture_recorder_new() {
+sk_picture_recorder_t* sk_picture_recorder_new(void) {
     return ToPictureRecorder(new SkPictureRecorder);
 }
 
@@ -53,4 +54,12 @@ uint32_t sk_picture_get_unique_id(sk_picture_t* cpic) {
 
 void sk_picture_get_cull_rect(sk_picture_t* cpic, sk_rect_t* crect) {
     *crect = ToRect(AsPicture(cpic)->cullRect());
+}
+
+sk_shader_t* sk_picture_make_shader(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile) {
+    SkMatrix m;
+    if (localMatrix) {
+        m = AsMatrix(localMatrix);
+    }
+    return ToShader(AsPicture(src)->makeShader((SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr, AsRect(tile)).release());
 }

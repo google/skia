@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"go.skia.org/infra/go/gcs"
+	"go.skia.org/infra/go/httputils"
+	"go.skia.org/infra/go/skerr"
 
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/option"
@@ -42,14 +44,13 @@ const (
 
 // Command line flags.
 var (
-	devicesFile        = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
-	dryRun             = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
-	dumpDevFile        = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
-	minAPIVersion      = flag.Int("min_api", 0, "Minimum API version required by device.")
-	maxAPIVersion      = flag.Int("max_api", 99, "Maximum API version required by device.")
-	properties         = flag.String("properties", "", "Custom meta data to be added to the uploaded APK. Comma separated list of key=value pairs, i.e. 'k1=v1,k2=v2,k3=v3.")
-	serviceAccountFile = flag.String("service_account_file", "", "Credentials file for service account.")
-	uploadGCSPath      = flag.String("upload_path", "", "GCS path (bucket/path) to where the APK should be uploaded to. It's assume to a full path (not a directory).")
+	devicesFile   = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
+	dryRun        = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
+	dumpDevFile   = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
+	minAPIVersion = flag.Int("min_api", 0, "Minimum API version required by device.")
+	maxAPIVersion = flag.Int("max_api", 99, "Maximum API version required by device.")
+	properties    = flag.String("properties", "", "Custom meta data to be added to the uploaded APK. Comma separated list of key=value pairs, i.e. 'k1=v1,k2=v2,k3=v3.")
+	uploadGCSPath = flag.String("upload_path", "", "GCS path (bucket/path) to where the APK should be uploaded to. It's assume to a full path (not a directory).")
 )
 
 const (
@@ -103,10 +104,11 @@ func main() {
 	}
 
 	// Make sure we can authenticate locally and in the cloud.
-	client, err := auth.NewJWTServiceAccountClient("", *serviceAccountFile, nil, gstorage.CloudPlatformScope, "https://www.googleapis.com/auth/userinfo.email")
+	ts, err := auth.NewDefaultTokenSource(true, gstorage.CloudPlatformScope, "https://www.googleapis.com/auth/userinfo.email")
 	if err != nil {
-		sklog.Fatalf("Failed to authenticate service account: %s. Run 'get_service_account' to obtain a service account file.", err)
+		sklog.Fatal(err)
 	}
+	client := httputils.DefaultClientConfig().WithTokenSource(ts).With2xxOnly().Client()
 
 	// Filter the devices according the white list and other parameters.
 	devices, ignoredDevices := filterDevices(fbDevices, whiteList, *minAPIVersion, *maxAPIVersion)
@@ -141,14 +143,14 @@ func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
 	cmd.Stdout = &buf
 	cmd.Stderr = io.MultiWriter(os.Stdout, &errBuf)
 	if err := cmd.Run(); err != nil {
-		return nil, nil, sklog.FmtErrorf("Error running: %s\nError:%s\nStdErr:%s", CMD_AVAILABLE_DEVICES, err, errBuf)
+		return nil, nil, skerr.Wrapf(err, "Error running: %s\nStdErr:%s", CMD_AVAILABLE_DEVICES, errBuf)
 	}
 
 	// Unmarshal the result.
 	foundDevices := []*DeviceVersions{}
 	bufBytes := buf.Bytes()
 	if err := json.Unmarshal(bufBytes, &foundDevices); err != nil {
-		return nil, nil, sklog.FmtErrorf("Unmarshal of device information failed: %s \nJSON Input: %s\n", err, string(bufBytes))
+		return nil, nil, skerr.Wrapf(err, "Unmarshal of device information failed: \nJSON Input: %s\n", string(bufBytes))
 	}
 
 	// Filter the devices and copy them to device list.
@@ -260,7 +262,7 @@ func runTests(apk_path string, devices, ignoredDevices []*DeviceVersions, client
 		// Exit code 10 means triggering on Testlab succeeded, but but some of the
 		// runs on devices failed. We consider it a success for this script.
 		if exitCode != 10 {
-			return sklog.FmtErrorf("Error running: %s\nError:%s\nStdErr:%s", cmdStr, err, errBuf)
+			return skerr.Wrapf(err, "Error running: %s\nStdErr:%s", cmdStr, errBuf)
 		}
 	}
 
@@ -310,7 +312,7 @@ func splitProperties(propStr string) (map[string]string, error) {
 	for _, oneProp := range splitProps {
 		kv := strings.Split(oneProp, "=")
 		if len(kv) != 2 {
-			return nil, sklog.FmtErrorf("Inavlid porperties format. Unable to parse '%s'", propStr)
+			return nil, skerr.Fmt("Invalid properties format. Unable to parse '%s'", propStr)
 		}
 		properties[strings.TrimSpace(kv[0])] = strings.TrimSpace(kv[1])
 	}
@@ -357,11 +359,11 @@ func (d DeviceList) find(id string) *DevInfo {
 func writeDeviceList(fileName string, devList DeviceList) error {
 	jsonBytes, err := json.MarshalIndent(devList, "", "  ")
 	if err != nil {
-		return sklog.FmtErrorf("Unable to encode JSON: %s", err)
+		return skerr.Wrapf(err, "Unable to encode JSON")
 	}
 
 	if err := ioutil.WriteFile(fileName, jsonBytes, 0644); err != nil {
-		sklog.FmtErrorf("Unable to write file '%s': %s", fileName, err)
+		skerr.Wrapf(err, "Unable to write file '%s'", fileName)
 	}
 	return nil
 }
@@ -369,13 +371,13 @@ func writeDeviceList(fileName string, devList DeviceList) error {
 func readDeviceList(fileName string) (DeviceList, error) {
 	inFile, err := os.Open(fileName)
 	if err != nil {
-		return nil, sklog.FmtErrorf("Unable to open file '%s': %s", fileName, err)
+		return nil, skerr.Wrapf(err, "Unable to open file '%s'", fileName)
 	}
 	defer util.Close(inFile)
 
 	var devList DeviceList
 	if err := json.NewDecoder(inFile).Decode(&devList); err != nil {
-		return nil, sklog.FmtErrorf("Unable to decode JSON from '%s': %s", fileName, err)
+		return nil, skerr.Wrapf(err, "Unable to decode JSON from '%s'", fileName)
 	}
 	return devList, nil
 }

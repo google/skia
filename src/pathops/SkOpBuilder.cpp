@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkMatrix.h"
-#include "SkOpEdgeBuilder.h"
-#include "SkPathPriv.h"
-#include "SkPathOps.h"
-#include "SkPathOpsCommon.h"
+#include "include/core/SkMatrix.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkPathPriv.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {
     SkSTArenaAlloc<256> allocator;
@@ -36,11 +36,11 @@ void SkOpBuilder::ReversePath(SkPath* path) {
 }
 
 bool SkOpBuilder::FixWinding(SkPath* path) {
-    SkPath::FillType fillType = path->getFillType();
-    if (fillType == SkPath::kInverseEvenOdd_FillType) {
-        fillType = SkPath::kInverseWinding_FillType;
-    } else if (fillType == SkPath::kEvenOdd_FillType) {
-        fillType = SkPath::kWinding_FillType;
+    SkPathFillType fillType = path->getNewFillType();
+    if (fillType == SkPathFillType::kInverseEvenOdd) {
+        fillType = SkPathFillType::kInverseWinding;
+    } else if (fillType == SkPathFillType::kEvenOdd) {
+        fillType = SkPathFillType::kWinding;
     }
     SkPathPriv::FirstDirection dir;
     if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {

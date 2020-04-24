@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSemaphore.h"
+#include "src/gpu/gl/GrGLSemaphore.h"
 
-#include "GrGLGpu.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
-GrGLSemaphore::GrGLSemaphore(const GrGLGpu* gpu, bool isOwned)
-    : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {
+GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu, bool isOwned)
+        : fGpu(gpu), fSync(0), fIsOwned(isOwned) {
 }
 
 GrGLSemaphore::~GrGLSemaphore() {
-    if (fIsOwned && fGpu) {
-        static_cast<const GrGLGpu*>(fGpu)->deleteSync(fSync);
+    if (fSync && fIsOwned) {
+        fGpu->deleteSync(fSync);
     }
 }

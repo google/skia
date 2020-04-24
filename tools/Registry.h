@@ -8,7 +8,8 @@
 #ifndef sk_tools_Registry_DEFINED
 #define sk_tools_Registry_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
 
 namespace sk_tools {
 
@@ -18,9 +19,7 @@ namespace sk_tools {
  */
 template <typename T> class Registry : SkNoncopyable {
 public:
-    typedef T Factory;
-
-    explicit Registry(T fact) : fFact(fact) {
+    explicit Registry(T value) : fValue(value) {
 #ifdef SK_BUILD_FOR_ANDROID
         // work-around for double-initialization bug
         {
@@ -40,10 +39,22 @@ public:
     static const Registry* Head() { return gHead; }
 
     const Registry* next() const { return fChain; }
-    const Factory& factory() const { return fFact; }
+    const T& get() const { return fValue; }
+
+    // for (const T& t : sk_tools::Registry<T>::Range()) { process(t); }
+    struct Range {
+        struct Iterator {
+            const Registry* fPtr;
+            const T& operator*() { return SkASSERT(fPtr), fPtr->get(); }
+            void operator++() { if (fPtr) { fPtr = fPtr->next(); } }
+            bool operator!=(const Iterator& other) const { return fPtr != other.fPtr; }
+        };
+        Iterator begin() const { return Iterator{Registry::Head()}; }
+        Iterator end() const { return Iterator{nullptr}; }
+    };
 
 private:
-    Factory   fFact;
+    T fValue;
     Registry* fChain;
 
     static Registry* gHead;

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkFixed.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFixed.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPremultiplyARGBInline(a, r, g, b);
@@ -104,73 +104,46 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPM4fPriv.h"
-#include "SkHalf.h"
 
-SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
-    return From4f(swizzle_rb_if_bgra(Sk4f_fromL32(c)));
-}
-
-SkColor4f SkPM4f::unpremul() const {
-    float alpha = fVec[A];
-    if (0 == alpha) {
-        return { 0, 0, 0, 0 };
-    } else {
-        float invAlpha = 1 / alpha;
-        return { fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha, alpha };
-    }
-}
-
-void SkPM4f::toF16(uint16_t half[4]) const {
-    for (int i = 0; i < 4; ++i) {
-        half[i] = SkFloatToHalf(fVec[i]);
-    }
-}
-
-uint64_t SkPM4f::toF16() const {
-    uint64_t value;
-    this->toF16(reinterpret_cast<uint16_t*>(&value));
-    return value;
-}
-
-SkPM4f SkPM4f::FromF16(const uint16_t half[4]) {
-    return {{
-        SkHalfToFloat(half[0]),
-        SkHalfToFloat(half[1]),
-        SkHalfToFloat(half[2]),
-        SkHalfToFloat(half[3])
-    }};
-}
-
-#ifdef SK_DEBUG
-void SkPM4f::assertIsUnit() const {
-    auto c4 = Sk4f::Load(fVec);
-    SkASSERT((c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue());
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
+template <>
 SkColor4f SkColor4f::FromColor(SkColor bgra) {
     SkColor4f rgba;
-    swizzle_rb(Sk4f_fromS32(bgra)).store(rgba.vec());
+    swizzle_rb(Sk4f_fromL32(bgra)).store(rgba.vec());
     return rgba;
 }
 
+template <>
 SkColor SkColor4f::toSkColor() const {
-    return Sk4f_toS32(swizzle_rb(Sk4f::Load(this->vec())));
+    return Sk4f_toL32(swizzle_rb(Sk4f::Load(this->vec())));
 }
 
-SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
-    SkColor4f c4;
-    Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
-    return c4;
+template <>
+uint32_t SkColor4f::toBytes_RGBA() const {
+    return Sk4f_toL32(Sk4f::Load(this->vec()));
 }
 
-SkPM4f SkColor4f::premul() const {
-    auto src = Sk4f::Load(this->pin().vec());
-    float srcAlpha = src[3];  // need the pinned version of our alpha
-    src = src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1);
+template <>
+SkColor4f SkColor4f::FromBytes_RGBA(uint32_t c) {
+    SkColor4f color;
+    Sk4f_fromL32(c).store(&color);
+    return color;
+}
 
-    return SkPM4f::From4f(src);
+template <>
+SkPMColor4f SkPMColor4f::FromPMColor(SkPMColor c) {
+    SkPMColor4f color;
+    swizzle_rb_if_bgra(Sk4f_fromL32(c)).store(&color);
+    return color;
+}
+
+template <>
+uint32_t SkPMColor4f::toBytes_RGBA() const {
+    return Sk4f_toL32(Sk4f::Load(this->vec()));
+}
+
+template <>
+SkPMColor4f SkPMColor4f::FromBytes_RGBA(uint32_t c) {
+    SkPMColor4f color;
+    Sk4f_fromL32(c).store(&color);
+    return color;
 }

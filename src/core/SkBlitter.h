@@ -8,13 +8,13 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
-#include "SkAutoMalloc.h"
-#include "SkBitmapProcShader.h"
-#include "SkColor.h"
-#include "SkCoverageDelta.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkShaderBase.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkImagePriv.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
 class SkMatrix;
@@ -31,12 +31,6 @@ struct SkMask;
 class SkBlitter {
 public:
     virtual ~SkBlitter();
-
-    // The actual blitter may speedup the process by rewriting this in a more efficient way.
-    // For example, one may avoid some virtual blitAntiH calls by directly calling
-    // SkBlitRow::Color32.
-    virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                    bool isEvenOdd, bool isInverse, bool isConvex);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
@@ -157,8 +151,6 @@ public:
                                    int left, int top,
                                    SkArenaAlloc*);
     ///@}
-
-    static SkShaderBase::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
     static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
 

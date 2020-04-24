@@ -4,19 +4,35 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
-#include "SkMaskFilter.h"
-#include "SkMatrix.h"
-#include "SkRandom.h"
-#include "SkTArray.h"
+
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlurMask.h"
 
 namespace skiagm {
 
 class CircleGM : public GM {
+    sk_sp<SkDrawLooper> fLooper;
+    enum {
+        kLooperColorSentinel = 0x01020304
+    };
 public:
     CircleGM() {
         this->setBGColor(0xFF000000);
@@ -66,20 +82,17 @@ protected:
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
         p.setShader(SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
         fPaints.push_back(p);
         }
 
+        fLooper = SkBlurDrawLooper::Make(SK_ColorBLUE, SkBlurMask::ConvertRadiusToSigma(10),5,10);
         {
-        // AA with blur
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setLooper(SkBlurDrawLooper::Make(SK_ColorBLUE,
-                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                     SkIntToScalar(5), SkIntToScalar(10)));
-        fPaints.push_back(p);
+            SkPaint p;
+            p.setColor(kLooperColorSentinel);
+            p.setAntiAlias(true);
+            fPaints.push_back(p);
         }
-
         {
         // AA with stroke style
         SkPaint p;
@@ -159,13 +172,15 @@ protected:
             // position the path, and make it at off-integer coords.
             canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 4,
                               SK_Scalar1 * 200 * (i / 5) + 3 * SK_Scalar1 / 4);
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            fPaints[i].setColor(color);
-
-            canvas->drawCircle(SkIntToScalar(40), SkIntToScalar(40),
-                               SkIntToScalar(20),
-                               fPaints[i]);
+            SkPaint p = fPaints[i];
+            p.setColor(rand.nextU() | 0xff000000);
+            if (fPaints[i].getColor() == kLooperColorSentinel) {
+                fLooper->apply(canvas, p, [](SkCanvas* c, const SkPaint& p) {
+                    c->drawCircle(40, 40, 20, p);
+                });
+            } else {
+                canvas->drawCircle(40, 40, 20, p);
+            }
             canvas->restore();
         }
 
@@ -179,14 +194,8 @@ protected:
 
             SkPaint paint;
             paint.setAntiAlias(true);
-
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            paint.setColor(color);
-
-            canvas->drawCircle(SkIntToScalar(40), SkIntToScalar(40),
-                               SkIntToScalar(20),
-                               paint);
+            paint.setColor(rand.nextU() | 0xff000000);
+            canvas->drawCircle(40, 40, 20, paint);
 
             canvas->restore();
         }
@@ -200,7 +209,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new CircleGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new CircleGM; )
 
 }

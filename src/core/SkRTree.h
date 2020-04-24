@@ -8,9 +8,9 @@
 #ifndef SkRTree_DEFINED
 #define SkRTree_DEFINED
 
-#include "SkBBoxHierarchy.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkBBoxHierarchy.h"
 
 /**
  * An R-Tree implementation. In short, it is a balanced n-ary tree containing a hierarchy of
@@ -30,14 +30,7 @@
  */
 class SkRTree : public SkBBoxHierarchy {
 public:
-
-
-    /**
-     * If you have some prior information about the distribution of bounds you're expecting, you
-     * can provide an optional aspect ratio parameter. This allows the bulk-load algorithm to
-     * create better proportioned tiles of rectangles.
-     */
-    explicit SkRTree(SkScalar aspectRatio = 1);
+    SkRTree();
     ~SkRTree() override {}
 
     void insert(const SkRect[], int N) override;
@@ -81,13 +74,12 @@ private:
     Branch bulkLoad(SkTDArray<Branch>* branches, int level = 0);
 
     // How many times will bulkLoad() call allocateNodeAtLevel()?
-    static int CountNodes(int branches, SkScalar aspectRatio);
+    static int CountNodes(int branches);
 
     Node* allocateNodeAtLevel(uint16_t level);
 
     // This is the count of data elements (rather than total nodes in the tree)
     int fCount;
-    SkScalar fAspectRatio;
     Branch fRoot;
     SkTDArray<Node> fNodes;
 

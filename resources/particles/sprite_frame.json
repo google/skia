@@ -1,0 +1,40 @@
+{
+   "MaxCount": 32,
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "images",
+      "Name": "explosion_sprites.png",
+      "Columns": 4,
+      "Rows": 4
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 8;",
+      "}",
+      ""
+   ],
+   "Code": [
+      "float2 circle() {",
+      "  float x;",
+      "  float y;",
+      "  do {",
+      "    x = rand * 2 - 1;",
+      "    y = rand * 2 - 1;",
+      "  } while (x*x + y*y > 1);",
+      "  return float2(x, y);",
+      "}",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 1.0 + rand * 2.0;",
+      "  float2 ofs = circle() * 60;",
+      "  p.pos += ofs;",
+      "  p.vel = ofs / 3;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.frame = p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

@@ -7,7 +7,7 @@
 #ifndef SkBitmapKey_DEFINED
 #define SkBitmapKey_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 struct SkBitmapKey {
     SkIRect fSubset;

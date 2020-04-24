@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkNullCanvas.h"
+#include "include/utils/SkNullCanvas.h"
 
-#include "SkCanvas.h"
-#include "SkNWayCanvas.h"
-#include "SkMakeUnique.h"
+#include "include/core/SkCanvas.h"
+#include "include/utils/SkNWayCanvas.h"
+#include "src/core/SkMakeUnique.h"
 
 std::unique_ptr<SkCanvas> SkMakeNullCanvas() {
     // An N-Way canvas forwards calls to N canvas's. When N == 0 it's

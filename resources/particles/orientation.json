@@ -1,0 +1,33 @@
+{
+   "MaxCount": 32,
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "images",
+      "Name": "index8.png",
+      "Columns": 1,
+      "Rows": 1
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 0.5;",
+      "  effect.scale = 0.1;",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 5;",
+      "  float a = radians(mix(-30, -80, rand));",
+      "  float s = mix(150, 200, rand);",
+      "  p.vel.x = cos(a) * s;",
+      "  p.vel.y = sin(a) * s;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.vel.y += 50 * dt;",
+      "  p.dir = normalize(p.vel);",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

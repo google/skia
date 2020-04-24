@@ -8,8 +8,9 @@
 #ifndef SkTaskGroup_DEFINED
 #define SkTaskGroup_DEFINED
 
-#include "SkExecutor.h"
-#include "SkTypes.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
 #include <atomic>
 #include <functional>
 

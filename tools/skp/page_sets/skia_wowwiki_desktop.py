@@ -21,7 +21,8 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(25)
+    action_runner.ScrollPage(distance=6000000)
+    action_runner.Wait(60)
 
 
 class SkiaWowwikiDesktopPageSet(story.StorySet):
@@ -33,8 +34,9 @@ class SkiaWowwikiDesktopPageSet(story.StorySet):
       archive_data_file='data/skia_wowwiki_desktop.json')
 
     urls_list = [
-      # Why: http://code.google.com/p/chromium/issues/detail?id=136555
-      'http://www.wowwiki.com/World_of_Warcraft:_Mists_of_Pandaria',
+      # Why: go/skia-skps-3-2019
+      ('https://wowwiki.fandom.com/wiki/World_of_Warcraft:'
+       '_Wrath_of_the_Lich_King'),
     ]
 
     for url in urls_list:

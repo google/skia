@@ -38,19 +38,22 @@ TAG_PROJECT_SKIA = 'project:skia'
 TAG_VERSION_PREFIX = 'version:'
 TAG_VERSION_TMPL = '%s%%s' % TAG_VERSION_PREFIX
 
-WHICH = 'where' if sys.platform.startswith('win') else 'which'
-
 VERSION_FILENAME = 'VERSION'
 ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
 
 class CIPDStore(object):
   """Wrapper object for CIPD."""
-  def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL):
+  def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL,
+               service_account_json=None):
     self._cipd = 'cipd'
     if sys.platform == 'win32':
       self._cipd = 'cipd.bat'
     self._cipd_url = cipd_url
+    if service_account_json:
+      self._service_account_json = os.path.abspath(service_account_json)
+    else:
+      self._service_account_json = None
     self._check_setup()
 
   def _check_setup(self):
@@ -69,15 +72,15 @@ class CIPDStore(object):
     cipd_args = []
     if specify_service_url:
       cipd_args.extend(['--service-url', self._cipd_url])
-    if os.getenv('USE_CIPD_GCE_AUTH'):
+    if self._service_account_json:
+      cipd_args.extend(['-service-account-json', self._service_account_json])
+    elif os.getenv('USE_CIPD_GCE_AUTH'):
       # Enable automatic GCE authentication. For context see
       # https://bugs.chromium.org/p/skia/issues/detail?id=6385#c3
       cipd_args.extend(['-service-account-json', ':gce'])
-    subprocess.check_call(
-        [self._cipd]
-        + cmd
-        + cipd_args
-    )
+    return subprocess.check_output(
+        [self._cipd] + cmd + cipd_args,
+        stderr=subprocess.STDOUT)
 
   def _json_output(self, cmd):
     """Run the given command, return the JSON output."""
@@ -89,8 +92,13 @@ class CIPDStore(object):
     return parsed.get('result', [])
 
   def _search(self, pkg_name):
-    res = self._json_output(['search', pkg_name, '--tag', TAG_PROJECT_SKIA])
-    return [r['instance_id'] for r in res]
+    try:
+      res = self._json_output(['search', pkg_name, '--tag', TAG_PROJECT_SKIA])
+    except subprocess.CalledProcessError as e:
+      if 'no such package' in e.output:
+        return []
+      raise
+    return [r['instance_id'] for r in res or []]
 
   def _describe(self, pkg_name, instance_id):
     """Obtain details about the given package and instance ID."""
@@ -114,9 +122,9 @@ class CIPDStore(object):
     versions.sort()
     return versions
 
-  def upload(self, name, version, target_dir):
+  def upload(self, name, version, target_dir, extra_tags=None):
     """Create a CIPD package."""
-    self._run([
+    cmd = [
         'create',
         '--name', CIPD_PACKAGE_NAME_TMPL % name,
         '--in', target_dir,
@@ -124,7 +132,11 @@ class CIPDStore(object):
         '--tag', TAG_VERSION_TMPL % version,
         '--compression-level', '1',
         '-verification-timeout', '30m0s',
-    ])
+    ]
+    if extra_tags:
+      for tag in extra_tags:
+        cmd.extend(['--tag', tag])
+    self._run(cmd)
 
   def download(self, name, version, target_dir):
     """Download a CIPD package."""
@@ -148,14 +160,28 @@ class CIPDStore(object):
 
 class GSStore(object):
   """Wrapper object for interacting with Google Storage."""
-  def __init__(self, gsutil=None, bucket=DEFAULT_GS_BUCKET):
+  def __init__(self, gsutil=None, bucket=DEFAULT_GS_BUCKET,
+               service_account_json=None):
     if gsutil:
       gsutil = os.path.abspath(gsutil)
     else:
-      gsutil = subprocess.check_output([WHICH, 'gsutil']).rstrip()
+      gsutils = subprocess.check_output([
+          utils.WHICH, 'gsutil']).rstrip().splitlines()
+      for g in gsutils:
+        ok = True
+        try:
+          subprocess.check_call([g, 'version'])
+        except OSError:
+          ok = False
+        if ok:
+          gsutil = g
+          break
     self._gsutil = [gsutil]
     if gsutil.endswith('.py'):
       self._gsutil = ['python', gsutil]
+    if service_account_json:
+      sa = os.path.abspath(service_account_json)
+      self._gsutil += ['-o', 'Credentials:gs_service_key_file=' + sa]
     self._gs_bucket = bucket
 
   def copy(self, src, dst):
@@ -179,7 +205,8 @@ class GSStore(object):
     versions.sort()
     return versions
 
-  def upload(self, name, version, target_dir):
+  # pylint: disable=unused-argument
+  def upload(self, name, version, target_dir, extra_tags=None):
     """Upload to GS."""
     target_dir = os.path.abspath(target_dir)
     with utils.tmp_dir():
@@ -214,16 +241,19 @@ class GSStore(object):
 class MultiStore(object):
   """Wrapper object which uses CIPD as the primary store and GS for backup."""
   def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL,
+               service_account_json=None,
                gsutil=None, gs_bucket=DEFAULT_GS_BUCKET):
-    self._cipd = CIPDStore(cipd_url=cipd_url)
-    self._gs = GSStore(gsutil=gsutil, bucket=gs_bucket)
+    self._cipd = CIPDStore(cipd_url=cipd_url,
+                           service_account_json=service_account_json)
+    self._gs = GSStore(gsutil=gsutil, bucket=gs_bucket,
+                       service_account_json=service_account_json)
 
   def get_available_versions(self, name):
     return self._cipd.get_available_versions(name)
 
-  def upload(self, name, version, target_dir):
-    self._cipd.upload(name, version, target_dir)
-    self._gs.upload(name, version, target_dir)
+  def upload(self, name, version, target_dir, extra_tags=None):
+    self._cipd.upload(name, version, target_dir, extra_tags=extra_tags)
+    self._gs.upload(name, version, target_dir, extra_tags=extra_tags)
 
   def download(self, name, version, target_dir):
     self._gs.download(name, version, target_dir)
@@ -276,10 +306,10 @@ class Asset(object):
     v = self.get_current_version()
     self.download_version(v, target_dir)
 
-  def upload_new_version(self, target_dir, commit=False):
+  def upload_new_version(self, target_dir, commit=False, extra_tags=None):
     """Upload a new version and update the version file for the asset."""
     version = self.get_next_version()
-    self._store.upload(self._name, version, target_dir)
+    self._store.upload(self._name, version, target_dir, extra_tags=extra_tags)
 
     def _write_version():
       with open(self.version_file, 'w') as f:

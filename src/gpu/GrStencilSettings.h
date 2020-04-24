@@ -9,8 +9,8 @@
 #ifndef GrStencilSettings_DEFINED
 #define GrStencilSettings_DEFINED
 
-#include "GrUserStencilSettings.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
+#include "src/gpu/GrUserStencilSettings.h"
 
 class GrProcessorKeyBuilder;
 
@@ -78,8 +78,25 @@ public:
         void setDisabled();
     };
 
-    const Face& front() const { SkASSERT(!this->isDisabled()); return fFront; }
-    const Face& back() const { SkASSERT(this->isTwoSided()); return fBack; }
+    const Face& singleSidedFace() const {
+        SkASSERT(!this->isDisabled());
+        SkASSERT(!this->isTwoSided());
+        return fCWFace;
+    }
+    // Returns the stencil settings for triangles that wind clockwise in "post-origin" space.
+    // (i.e., the space that results after a potential y-axis flip on device space for bottom-left
+    // origins.)
+    const Face& postOriginCWFace(GrSurfaceOrigin origin) const {
+        SkASSERT(this->isTwoSided());
+        return (kTopLeft_GrSurfaceOrigin == origin) ? fCWFace : fCCWFace;
+    }
+    // Returns the stencil settings for triangles that wind counter-clockwise in "post-origin"
+    // space. (i.e., the space that results after a potential y-axis flip on device space for
+    // bottom-left origins.)
+    const Face& postOriginCCWFace(GrSurfaceOrigin origin) const {
+        SkASSERT(this->isTwoSided());
+        return (kTopLeft_GrSurfaceOrigin == origin) ? fCCWFace : fCWFace;
+    }
 
     /**
      * Given a thing to draw into the stencil clip, a fill type, and a set op
@@ -117,8 +134,8 @@ private:
     enum { kInvalid_PrivateFlag = (kLast_StencilFlag << 1) };
 
     uint32_t   fFlags;
-    Face       fFront;
-    Face       fBack;
+    Face       fCWFace;
+    Face       fCCWFace;
 };
 
 #endif

@@ -8,18 +8,19 @@
 #define fiddle_main_DEFINED
 
 #ifdef FIDDLE_BUILD_TEST
-    #include "GrContext.h"
-    #include "SkCanvas.h"
-    #include "SkDocument.h"
-    #include "SkPictureRecorder.h"
-    #include "SkStream.h"
-    #include "SkSurface.h"
-    #include "gl/GrGLAssembleInterface.h"
-    #include "gl/GrGLInterface.h"
+    #include "include/core/SkCanvas.h"
+    #include "include/core/SkDocument.h"
+    #include "include/core/SkPictureRecorder.h"
+    #include "include/core/SkStream.h"
+    #include "include/core/SkSurface.h"
+    #include "include/gpu/GrContext.h"
+    #include "include/gpu/gl/GrGLAssembleInterface.h"
+    #include "include/gpu/gl/GrGLInterface.h"
 #else
     #include "skia.h"
 #endif
 
+#include <memory>
 #include <sstream>
 
 extern GrBackendTexture backEndTexture;
@@ -29,6 +30,10 @@ extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
+
+namespace sk_gpu_test {
+class GLTestContext;
+}
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
@@ -86,6 +91,7 @@ extern void draw(SkCanvas*);
 
 // There are different implementations of create_grcontext() for EGL, Mesa,
 // and a fallback to a null context.
-extern sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo);
+extern sk_sp<GrContext> create_grcontext(std::ostringstream& driverinfo,
+                                         std::unique_ptr<sk_gpu_test::GLTestContext>* glContext);
 
 #endif  // fiddle_main_DEFINED

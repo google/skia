@@ -8,7 +8,7 @@
 #ifndef GrScissorState_DEFINED
 #define GrScissorState_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 class GrScissorState {
 public:
@@ -30,7 +30,10 @@ public:
     bool operator!=(const GrScissorState& other) const { return !(*this == other); }
 
     bool enabled() const { return fEnabled; }
-    const SkIRect& rect() const { return fRect; }
+    const SkIRect& rect() const {
+        SkASSERT(fEnabled);
+        return fRect;
+    }
 
 private:
     bool    fEnabled;

@@ -8,8 +8,8 @@
 #ifndef GrCustomXfermode_DEFINED
 #define GrCustomXfermode_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkRefCnt.h"
 
 class GrTexture;
 class GrXPFactory;

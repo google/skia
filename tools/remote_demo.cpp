@@ -16,10 +16,10 @@
 #include <thread>
 #include <unistd.h>
 
-#include "SkGraphics.h"
-#include "SkRemoteGlyphCache.h"
-#include "SkScalerContext.h"
-#include "SkSurface.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkRemoteGlyphCache.h"
+#include "src/core/SkScalerContext.h"
 
 static std::string gSkpName;
 static bool gUseGpu = true;
@@ -132,12 +132,12 @@ private:
     std::chrono::duration<double>                       fElapsedSeconds{0.0};
 };
 
-static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer, int writeFd) {
-    SkMatrix deviceMatrix = SkMatrix::I();
+static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer,
+                           sk_sp<SkColorSpace> colorSpace, int writeFd) {
     const SkIRect bounds = pic.cullRect().round();
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), deviceMatrix, props,
-                                     strikeServer);
+    SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), props,
+                                     strikeServer, std::move(colorSpace), true);
     pic.playback(&filter);
 
     std::vector<uint8_t> fontData;
@@ -236,6 +236,7 @@ static int renderer(
     sk_sp<SkData> stream;
     if (gUseGpu) {
         auto pic = SkPicture::MakeFromData(skpData.get());
+        auto colorSpace = SkColorSpace::MakeSRGB();
         SkSerialProcs procs;
         auto encode = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
             return reinterpret_cast<SkStrikeServer*>(ctx)->serializeTypeface(tf);
@@ -257,7 +258,7 @@ static int renderer(
                 return 0;
             }
             if (gPurgeFontCaches) discardableManager.purgeAll();
-            push_font_data(*pic.get(), &server, writeFd);
+            push_font_data(*pic.get(), &server, colorSpace, writeFd);
         }
     } else {
         stream = skpData;

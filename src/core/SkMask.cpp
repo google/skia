@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkMask.h"
-#include "SkMalloc.h"
-#include "SkSafeMath.h"
+#include "src/core/SkMask.h"
+
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkSafeMath.h"
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this
     returns 0.
@@ -60,12 +62,17 @@ SkMask SkMask::PrepareDestination(int radiusX, int radiusY, const SkMask& src) {
     // dstH = srcH + 2 * radiusY;
     size_t dstH = safe.add(src.fBounds.height(), safe.add(radiusY, radiusY));
 
-    dst.fBounds.set(0, 0, SkTo<int>(dstW), SkTo<int>(dstH));
-    dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
-    dst.fBounds.offset(-radiusX, -radiusY);
+    if (!SkTFitsIn<int>(dstW) || !SkTFitsIn<int>(dstH)) {
+        dst.fBounds.setEmpty();
+        dst.fRowBytes = 0;
+    } else {
+        dst.fBounds.setWH(SkTo<int>(dstW), SkTo<int>(dstH));
+        dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
+        dst.fBounds.offset(-radiusX, -radiusY);
+        dst.fRowBytes = SkTo<uint32_t>(dstW);
+    }
 
     dst.fImage = nullptr;
-    dst.fRowBytes = SkTo<uint32_t>(dstW);
     dst.fFormat = SkMask::kA8_Format;
 
     size_t toAlloc = safe.mul(dstW, dstH);

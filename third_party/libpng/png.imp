@@ -1,5 +1,11 @@
 [
   { include: ["\"pngconf.h\"", "private", "\"png.h\"", "public"] },
   { include: ["\"pnglibconf.h\"", "private", "\"png.h\"", "public"] },
-  { include: ["\"scripts/pnglibconf.h.prebuilt\"", "private", "\"png.h\"", "public"] }
+  { include: ["\"scripts/pnglibconf.h.prebuilt\"", "private", "\"png.h\"", "public"] },
+  { include: ["\"../externals/libpng/scripts/pnglibconf.h.prebuilt\"", "private", "\"png.h\"", "public"] },
+
+  { include: ["<pngconf.h>", "private", "\"png.h\"", "public"] },
+  { include: ["<pnglibconf.h>", "private", "\"png.h\"", "public"] },
+  { include: ["<scripts/pnglibconf.h.prebuilt>", "private", "\"png.h\"", "public"] },
+  { include: ["<../externals/libpng/scripts/pnglibconf.h.prebuilt>", "private", "\"png.h\"", "public"] },
 ]

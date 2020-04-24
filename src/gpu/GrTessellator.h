@@ -8,9 +8,9 @@
 #ifndef GrTessellator_DEFINED
 #define GrTessellator_DEFINED
 
-#include "GrColor.h"
-#include "SkColorData.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkColorData.h"
+#include "src/gpu/GrColor.h"
 
 class SkPath;
 struct SkRect;
@@ -47,8 +47,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
                    WindingVertex** verts);
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator*, bool antialias, const GrColor& color,
-                    bool canTweakAlphaForCoverage, bool *isLinear);
+                    VertexAllocator*, bool antialias, bool *isLinear);
 }
 
 #endif

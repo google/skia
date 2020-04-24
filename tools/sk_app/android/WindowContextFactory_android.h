@@ -11,6 +11,7 @@
 
 #include <android/native_window_jni.h>
 
+#include <memory>
 
 namespace sk_app {
 
@@ -19,11 +20,11 @@ struct DisplayParams;
 
 namespace window_context_factory {
 
-WindowContext* NewVulkanForAndroid(ANativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeVulkanForAndroid(ANativeWindow*, const DisplayParams&);
 
-WindowContext* NewGLForAndroid(ANativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow*, const DisplayParams&);
 
-WindowContext* NewRasterForAndroid(ANativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow*, const DisplayParams&);
 
 }  // namespace window_context_factory
 

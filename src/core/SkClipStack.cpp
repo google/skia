@@ -5,19 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkClipOpPriv.h"
-
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include <atomic>
 #include <new>
 
-
-// 0-2 are reserved for invalid, empty & wide-open
-static const int32_t kFirstUnreservedGenID = 3;
-int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
+#if SK_SUPPORT_GPU
+#include "src/gpu/GrProxyProvider.h"
+#endif
 
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getDeviceSpaceType()) {
@@ -43,6 +41,15 @@ SkClipStack::Element::Element(const Element& that) {
     fFiniteBound = that.fFiniteBound;
     fIsIntersectionOfRects = that.fIsIntersectionOfRects;
     fGenID = that.fGenID;
+}
+
+SkClipStack::Element::~Element() {
+#if SK_SUPPORT_GPU
+    for (int i = 0; i < fKeysToInvalidate.count(); ++i) {
+        fProxyProvider->processInvalidUniqueKey(fKeysToInvalidate[i], nullptr,
+                                                GrProxyProvider::InvalidateGPUResource::kYes);
+    }
+#endif
 }
 
 bool SkClipStack::Element::operator== (const Element& element) const {
@@ -122,13 +129,13 @@ void SkClipStack::Element::invertShapeFillType() {
         case DeviceSpaceType::kRect:
             fDeviceSpacePath.init();
             fDeviceSpacePath.get()->addRect(this->getDeviceSpaceRect());
-            fDeviceSpacePath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
+            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kRRect:
             fDeviceSpacePath.init();
             fDeviceSpacePath.get()->addRRect(fDeviceSpaceRRect);
-            fDeviceSpacePath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
+            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kPath:
@@ -217,17 +224,14 @@ void SkClipStack::Element::asDeviceSpacePath(SkPath* path) const {
     switch (fDeviceSpaceType) {
         case DeviceSpaceType::kEmpty:
             path->reset();
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kRect:
             path->reset();
             path->addRect(this->getDeviceSpaceRect());
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kRRect:
             path->reset();
             path->addRRect(fDeviceSpaceRRect);
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kPath:
             *path = *fDeviceSpacePath.get();
@@ -503,13 +507,6 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             break;
     }
 
-    if (!fDoAA) {
-        fFiniteBound.set(SkScalarRoundToScalar(fFiniteBound.fLeft),
-                         SkScalarRoundToScalar(fFiniteBound.fTop),
-                         SkScalarRoundToScalar(fFiniteBound.fRight),
-                         SkScalarRoundToScalar(fFiniteBound.fBottom));
-    }
-
     // Now determine the previous Element's bound information taking into
     // account that there may be no previous clip
     SkRect prevFinite;
@@ -755,7 +752,7 @@ bool SkClipStack::asPath(SkPath *path) const {
     bool isAA = false;
 
     path->reset();
-    path->setFillType(SkPath::kInverseEvenOdd_FillType);
+    path->setFillType(SkPathFillType::kInverseEvenOdd);
 
     SkClipStack::Iter iter(*this, SkClipStack::Iter::kBottom_IterStart);
     while (const SkClipStack::Element* element = iter.next()) {
@@ -963,13 +960,18 @@ void SkClipStack::getConservativeBounds(int offsetX,
 }
 
 bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const {
-    // We limit to 5 elements. This means the back element will be bounds checked at most 4 times if
-    // it is an rrect.
-    int cnt = fDeque.count();
-    if (!cnt || cnt > 5) {
+    const Element* back = static_cast<const Element*>(fDeque.back());
+    if (!back) {
+        // TODO: return bounds?
         return false;
     }
-    const Element* back = static_cast<const Element*>(fDeque.back());
+    // First check if the entire stack is known to be a rect by the top element.
+    if (back->fIsIntersectionOfRects && back->fFiniteBoundType == BoundsType::kNormal_BoundsType) {
+        rrect->setRect(back->fFiniteBound);
+        *aa = back->isAA();
+        return true;
+    }
+
     if (back->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kRect &&
         back->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kRRect) {
         return false;
@@ -983,6 +985,12 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
     if (back->getOp() == kIntersect_SkClipOp) {
         SkRect backBounds;
         if (!backBounds.intersect(bounds, back->asDeviceSpaceRRect().rect())) {
+            return false;
+        }
+        // We limit to 17 elements. This means the back element will be bounds checked at most 16
+        // times if it is an rrect.
+        int cnt = fDeque.count();
+        if (cnt > 17) {
             return false;
         }
         if (cnt > 1) {
@@ -1007,9 +1015,13 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
 }
 
 uint32_t SkClipStack::GetNextGenID() {
+    // 0-2 are reserved for invalid, empty & wide-open
+    static const uint32_t kFirstUnreservedGenID = 3;
+    static std::atomic<uint32_t> nextID{kFirstUnreservedGenID};
+
     uint32_t id;
     do {
-        id = static_cast<uint32_t>(sk_atomic_inc(&gGenID));
+        id = nextID++;
     } while (id < kFirstUnreservedGenID);
     return id;
 }

@@ -5,72 +5,66 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkHalf.h"
-#include "SkSurface.h"
-#include "SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "tests/Test.h"
 
-DEF_TEST(NonlinearBlending, r) {
+DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
+    auto srgb = SkColorSpace::MakeSRGB();
+    auto dp3  = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
 
-    // First check our familiar basics with linear F16.
-    {
-        auto info = SkImageInfo::Make(1,1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                                      SkColorSpace::MakeSRGBLinear());
+    skcms_ICCProfile srgb_profile;
+    srgb->toProfile(&srgb_profile);
+    skcms_ICCProfile dp3_profile;
+    dp3->toProfile(&dp3_profile);
 
-        auto surface = SkSurface::MakeRaster(info);
-        surface->getCanvas()->clear(0xff808080);
-        uint64_t pix;
-        REPORTER_ASSERT(r, surface->readPixels(info, &pix, sizeof(pix),0,0));
+    // These colors provide a good spread of interesting test cases.
+    SkColor colors[] = {
+        0xffff0000, 0x7fff0000, 0x7f7f0000,
+        0xff00ff00, 0x7f00ff00, 0x7f007f00,
+    };
 
-        // 0x80 in sRGB is ≈ 0.22 linear.
-        REPORTER_ASSERT(r, SkHalfToFloat(pix & 0xffff) < 0.25f);
-    }
+    for (auto color : colors) {
+        auto bgra = skcms_PixelFormat_BGRA_8888,
+              f32 = skcms_PixelFormat_RGBA_ffff;
+        auto unpremul = skcms_AlphaFormat_Unpremul,
+               premul = skcms_AlphaFormat_PremulAsEncoded;
 
-    // Test that we support sRGB-encoded F16.  This is somewhat new.
-    {
-        auto info = SkImageInfo::Make(1,1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                                      SkColorSpace::MakeSRGB());
+        float via_skcms[4];
+        skcms_Transform(&color,     bgra, unpremul, &srgb_profile,
+                        &via_skcms,  f32,   premul,  &dp3_profile,
+                        1);
 
-        auto surface = SkSurface::MakeRaster(info);
-        surface->getCanvas()->clear(0xff808080);
-        uint64_t pix;
-        REPORTER_ASSERT(r, surface->readPixels(info, &pix, sizeof(pix),0,0));
+        SkColorSpaceXformSteps steps(srgb.get(), kUnpremul_SkAlphaType,
+                                      dp3.get(),   kPremul_SkAlphaType);
+        float via_steps[4] = {
+            SkColorGetR(color) * (1 / 255.0f),
+            SkColorGetG(color) * (1 / 255.0f),
+            SkColorGetB(color) * (1 / 255.0f),
+            SkColorGetA(color) * (1 / 255.0f),
+        };
+        steps.apply(via_steps);
 
-        // 0x80 sRGB is ≈ 0.501.
-        REPORTER_ASSERT(r, SkHalfToFloat(pix & 0xffff) >= 0.5f);
-    }
+        REPORTER_ASSERT(r, fabsf(via_skcms[0] - via_steps[0]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(via_skcms[1] - via_steps[1]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(via_skcms[2] - via_steps[2]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(via_skcms[3] - via_steps[3]) <= 0.0f);
 
-    // Since we're only clear()ing, this should work the same as the last block.
-    {
-        auto info = SkImageInfo::Make(1,1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                                      SkColorSpace::MakeSRGB()->makeNonlinearBlending());
+        // Now go back using the other method's inverse transform
+        float steps_to_skcms[4];
+        skcms_Transform(via_steps,      f32, premul, &dp3_profile,
+                        steps_to_skcms, f32, premul, &srgb_profile,
+                        1);
 
-        auto surface = SkSurface::MakeRaster(info);
-        surface->getCanvas()->clear(0xff808080);
-        uint64_t pix;
-        REPORTER_ASSERT(r, surface->readPixels(info, &pix, sizeof(pix),0,0));
+        float skcms_to_steps[4] = { via_skcms[0], via_skcms[1], via_skcms[2], via_skcms[3] };
+        SkColorSpaceXformSteps inv_steps(dp3.get(), kPremul_SkAlphaType,
+                                        srgb.get(), kPremul_SkAlphaType);
+        inv_steps.apply(skcms_to_steps);
 
-        // 0x80 sRGB is ≈ 0.501.
-        REPORTER_ASSERT(r, SkHalfToFloat(pix & 0xffff) >= 0.5f);
-    }
-
-    // This won't work until we actually support color spaces with non-linear blending.
-    if (0) {
-        auto info = SkImageInfo::Make(1,1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                                      SkColorSpace::MakeSRGB()->makeNonlinearBlending());
-
-        auto surface = SkSurface::MakeRaster(info);
-
-        surface->getCanvas()->clear(SK_ColorWHITE);
-        SkPaint p;
-        p.setColor(0x80000000);
-        surface->getCanvas()->drawPaint(p);
-
-        uint64_t pix;
-        REPORTER_ASSERT(r, surface->readPixels(info, &pix, sizeof(pix),0,0));
-
-        // 0x80 sRGB is ≈ 0.501.  A likely failure here is ~0.75, linear blending.
-        REPORTER_ASSERT(r, SkHalfToFloat(pix & 0xffff) >= 0.45f &&
-                           SkHalfToFloat(pix & 0xffff) <= 0.55f);
+        REPORTER_ASSERT(r, fabsf(skcms_to_steps[0] - steps_to_skcms[0]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(skcms_to_steps[1] - steps_to_skcms[1]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(skcms_to_steps[2] - steps_to_skcms[2]) <= 0.005f);
+        REPORTER_ASSERT(r, fabsf(skcms_to_steps[3] - steps_to_skcms[3]) <= 0.0f);
     }
 }

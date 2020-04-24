@@ -8,9 +8,9 @@
 #ifndef GrVkStencil_DEFINED
 #define GrVkStencil_DEFINED
 
-#include "GrStencilAttachment.h"
-#include "GrVkImage.h"
-#include "vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/vk/GrVkImage.h"
 
 class GrVkImageView;
 class GrVkGpu;

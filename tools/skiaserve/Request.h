@@ -8,18 +8,16 @@
 #ifndef Request_DEFINED
 #define Request_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#endif
+#include "tools/gpu/GrContextFactory.h"
 
-#include "SkDebugCanvas.h"
-#include "SkPicture.h"
-#include "SkStream.h"
-#include "SkSurface.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "tools/debugger/DebugCanvas.h"
 
-#include "UrlDataManager.h"
+#include "tools/UrlDataManager.h"
 
 namespace sk_gpu_test {
 class GrContextFactory;
@@ -41,7 +39,6 @@ struct Request {
     sk_sp<SkData> drawToPng(int n, int m = -1);
     sk_sp<SkData> writeOutSkp();
     SkCanvas* getCanvas();
-    SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
     bool setOverdraw(bool enable);
     bool setColorMode(int mode);
@@ -54,7 +51,7 @@ struct Request {
     sk_sp<SkData> getJsonOps(int n);
 
     // Returns a json list of ops as an SkData
-    sk_sp<SkData> getJsonOpList(int n);
+    sk_sp<SkData> getJsonOpsTask(int n);
 
     // Returns json with the viewMatrix and clipRect
     sk_sp<SkData> getJsonInfo(int n);
@@ -63,12 +60,11 @@ struct Request {
     SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
-    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
+    std::unique_ptr<DebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
 
 private:
     sk_sp<SkData> writeCanvasToPng(SkCanvas* canvas);
-    void drawToCanvas(int n, int m = -1);
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
     SkIRect getBounds();

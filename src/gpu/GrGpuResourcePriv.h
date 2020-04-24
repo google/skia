@@ -8,7 +8,7 @@
 #ifndef GrGpuResourcePriv_DEFINED
 #define GrGpuResourcePriv_DEFINED
 
-#include "GrGpuResource.h"
+#include "include/gpu/GrGpuResource.h"
 
 /**
  * This class allows code internal to Skia privileged access to manage the cache keys and budget
@@ -16,8 +16,6 @@
  */
 class GrGpuResource::ResourcePriv {
 public:
-    SkDEBUGCODE(bool hasPendingIO_debugOnly() const { return fResource->internalHasPendingIO(); })
-
     /**
      * Sets a unique key for the resource. If the resource was previously cached as scratch it will
      * be converted to a uniquely-keyed resource. If the key is invalid then this is equivalent to
@@ -43,12 +41,13 @@ public:
     void makeUnbudgeted() { fResource->makeUnbudgeted(); }
 
     /**
-     * Does the resource count against the resource budget?
+     * Get the resource's budgeted-type which indicates whether it counts against the resource cache
+     * budget and if not whether it is allowed to be cached.
      */
-    SkBudgeted isBudgeted() const {
-        bool ret = SkBudgeted::kYes == fResource->fBudgeted;
-        SkASSERT(ret || !fResource->getUniqueKey().isValid() || fResource->fRefsWrappedObjects);
-        return SkBudgeted(ret);
+    GrBudgetedType budgetedType() const {
+        SkASSERT(GrBudgetedType::kBudgeted == fResource->fBudgetedType ||
+                 !fResource->getUniqueKey().isValid() || fResource->fRefsWrappedObjects);
+        return fResource->fBudgetedType;
     }
 
     /**
@@ -68,6 +67,10 @@ public:
      * at resource creation time, this means the resource will never again be used as scratch.
      */
     void removeScratchKey() const { fResource->removeScratchKey();  }
+
+    bool isPurgeable() const { return fResource->isPurgeable(); }
+
+    bool hasRef() const { return fResource->hasRef(); }
 
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }

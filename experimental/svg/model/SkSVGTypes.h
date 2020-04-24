@@ -8,15 +8,15 @@
 #ifndef SkSVGTypes_DEFINED
 #define SkSVGTypes_DEFINED
 
-#include "SkColor.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkString.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 
 template <typename T>
 class SkSVGPrimitiveTypeWrapper {
@@ -239,9 +239,9 @@ public:
 
     Type type() const { return fType; }
 
-    SkPath::FillType asFillType() const {
+    SkPathFillType asFillType() const {
         SkASSERT(fType != Type::kInherit); // should never be called for unresolved values.
-        return fType == Type::kEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
+        return fType == Type::kEvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding;
     }
 
 private:

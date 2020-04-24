@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkTSort.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTSort.h"
 
+#include <algorithm>
 #include <stdlib.h>
 
 static const int N = 1000;
@@ -85,8 +86,12 @@ static void qsort_sort(int array[N]) {
     qsort(array, N, sizeof(int), int_compare);
 }
 
+static void stdsort_sort(int array[N]) {
+    std::sort(array, array+N);
+}
+
 enum SortType {
-    kSKQSort, kSKHeap, kQSort
+    kSKQSort, kSKHeap, kQSort, kStdSort,
 };
 
 static const struct {
@@ -94,8 +99,9 @@ static const struct {
     SortProc    fProc;
 } gSorts[] = {
     { "skqsort", skqsort_sort },
-    { "skheap", skheap_sort },
-    { "qsort", qsort_sort },
+    { "skheap",   skheap_sort },
+    { "qsort",     qsort_sort },
+    { "stdsort", stdsort_sort },
 };
 
 class SortBench : public Benchmark {
@@ -152,23 +158,31 @@ static Benchmark* NewSkHeap(Type t) {
 static Benchmark* NewQSort(Type t) {
     return new SortBench(t, kQSort);
 }
+static Benchmark* NewStdSort(Type t) {
+    return new SortBench(t, kStdSort);
+}
 
 DEF_BENCH( return NewSkQSort(kRand); )
 DEF_BENCH( return NewSkHeap(kRand); )
 DEF_BENCH( return NewQSort(kRand); )
+DEF_BENCH( return NewStdSort(kRand); )
 
 DEF_BENCH( return NewSkQSort(kRandN); )
 DEF_BENCH( return NewSkHeap(kRandN); )
 DEF_BENCH( return NewQSort(kRandN); )
+DEF_BENCH( return NewStdSort(kRandN); )
 
 DEF_BENCH( return NewSkQSort(kFore); )
 DEF_BENCH( return NewSkHeap(kFore); )
 DEF_BENCH( return NewQSort(kFore); )
+DEF_BENCH( return NewStdSort(kFore); )
 
 DEF_BENCH( return NewSkQSort(kBack); )
 DEF_BENCH( return NewSkHeap(kBack); )
 DEF_BENCH( return NewQSort(kBack); )
+DEF_BENCH( return NewStdSort(kBack); )
 
 DEF_BENCH( return NewSkQSort(kSame); )
 DEF_BENCH( return NewSkHeap(kSame); )
 DEF_BENCH( return NewQSort(kSame); )
+DEF_BENCH( return NewStdSort(kSame); )

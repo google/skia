@@ -8,7 +8,7 @@
 #ifndef GLTestAtlasTextRenderer_DEFINED
 #define GLTestAtlasTextRenderer_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 namespace sk_gpu_test {
 

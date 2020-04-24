@@ -5,63 +5,109 @@
  * found in the LICENSE file.
  */
 
-#include "ProxyUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/core/SkColor.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width, int height,
-                                               GrColorType ct, GrSRGBEncoded srgbEncoded,
-                                               GrSurfaceOrigin origin, const void* data,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+                                               GrRenderable renderable,
+                                               GrSurfaceOrigin origin,
+                                               const GrImageInfo& imageInfo,
+                                               const void* data,
                                                size_t rowBytes) {
-    auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
-    sk_sp<GrTextureProxy> proxy;
-    if (kBottomLeft_GrSurfaceOrigin == origin) {
-        // We (soon will) only support using kBottomLeft with wrapped textures.
-        auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                nullptr, width, height, config, isRT, GrMipMapped::kNo);
-        if (!backendTex.isValid()) {
-            return nullptr;
-        }
-        // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
-        if (isRT) {
-            proxy = context->contextPriv().proxyProvider()->wrapRenderableBackendTexture(
-                    backendTex, origin, 1, kAdopt_GrWrapOwnership);
-        } else {
-            proxy = context->contextPriv().proxyProvider()->wrapBackendTexture(
-                    backendTex, origin, kAdopt_GrWrapOwnership);
-        }
-
-        if (!proxy) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
-            return nullptr;
-        }
-
-    } else {
-        GrSurfaceDesc desc;
-        desc.fConfig = config;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fFlags = isRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-        proxy = context->contextPriv().proxyProvider()->createProxy(
-                desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
-        if (!proxy) {
-            return nullptr;
-        }
+    if (context->priv().abandoned()) {
+        return nullptr;
     }
-    auto sContext = context->contextPriv().makeWrappedSurfaceContext(proxy, nullptr);
+
+    const GrCaps* caps = context->priv().caps();
+
+    const GrBackendFormat format = caps->getDefaultBackendFormat(imageInfo.colorType(), renderable);
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
+    sk_sp<GrTextureProxy> proxy;
+    GrSurfaceDesc desc;
+    desc.fConfig = GrColorTypeToPixelConfig(imageInfo.colorType());
+    desc.fWidth = imageInfo.width();
+    desc.fHeight = imageInfo.height();
+    proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
+                                                         GrMipMapped::kNo, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes, GrProtected::kNo);
+    if (!proxy) {
+        return nullptr;
+    }
+    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, imageInfo.colorType(),
+                                                              imageInfo.alphaType(),
+                                                              imageInfo.refColorSpace(), nullptr);
     if (!sContext) {
         return nullptr;
     }
-    if (!context->contextPriv().writeSurfacePixels(sContext.get(), 0, 0, width, height, ct, nullptr,
-                                                   data, rowBytes)) {
+    if (!sContext->writePixels(imageInfo, data, rowBytes, {0, 0}, context)) {
         return nullptr;
     }
     return proxy;
 }
+
+GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
+                                 SkArenaAlloc* arena,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&& appliedClip,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor* geomProc,
+                                 SkBlendMode blendMode,
+                                 GrPrimitiveType primitiveType,
+                                 GrPipeline::InputFlags flags,
+                                 const GrUserStencilSettings* stencil) {
+
+    GrPipeline::InitArgs initArgs;
+    initArgs.fInputFlags = flags;
+    initArgs.fUserStencil = stencil;
+    initArgs.fCaps = caps;
+    initArgs.fDstProxyView = dstProxyView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    if (appliedClip.scissorState().enabled()) {
+        fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
+                                                        appliedClip.scissorState().rect());
+    }
+
+    GrProcessorSet processors = GrProcessorSet(blendMode);
+
+    SkPMColor4f analysisColor = { 0, 0, 0, 1 }; // opaque black
+
+    SkDEBUGCODE(auto analysis =) processors.finalize(analysisColor,
+                                                     GrProcessorAnalysisCoverage::kNone,
+                                                     &appliedClip, stencil, false,
+                                                     *caps, GrClampType::kAuto, &analysisColor);
+    SkASSERT(!analysis.requiresDstTexture());
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
+                                                   std::move(processors),
+                                                   std::move(appliedClip));
+
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                      dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
+                                      dstView->origin(),
+                                      pipeline,
+                                      geomProc,
+                                      fixedDynamicState,
+                                      nullptr, 0,
+                                      primitiveType);
+}
+
 
 }  // namespace sk_gpu_test

@@ -8,14 +8,13 @@
 #ifndef SkEmbossMaskFilter_DEFINED
 #define SkEmbossMaskFilter_DEFINED
 
-#include "SkFlattenablePriv.h"
-#include "SkMaskFilterBase.h"
+#include "src/core/SkMaskFilterBase.h"
 
 /** \class SkEmbossMaskFilter
 
     This mask filter creates a 3D emboss look, by specifying a light and blur amount.
 */
-class SK_API SkEmbossMaskFilter : public SkMaskFilterBase {
+class SkEmbossMaskFilter : public SkMaskFilterBase {
 public:
     struct Light {
         SkScalar    fDirection[3];  // x,y,z
@@ -33,14 +32,13 @@ public:
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmbossMaskFilter)
-
 protected:
     SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkEmbossMaskFilter)
+
     Light       fLight;
     SkScalar    fBlurSigma;
 

@@ -5,35 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkPaint.h"
-#include "SkPDFCanon.h"
-#include "SkPDFFormXObject.h"
-#include "SkPDFGraphicState.h"
-#include "SkPDFUtils.h"
+#include "src/pdf/SkPDFGraphicState.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkPaint.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTo.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFUtils.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
-    // PDF32000.book section 11.3.5 "Blend Mode"
-    switch (mode) {
-        case SkBlendMode::kScreen:      return "Screen";
-        case SkBlendMode::kOverlay:     return "Overlay";
-        case SkBlendMode::kDarken:      return "Darken";
-        case SkBlendMode::kLighten:     return "Lighten";
-        case SkBlendMode::kColorDodge:  return "ColorDodge";
-        case SkBlendMode::kColorBurn:   return "ColorBurn";
-        case SkBlendMode::kHardLight:   return "HardLight";
-        case SkBlendMode::kSoftLight:   return "SoftLight";
-        case SkBlendMode::kDifference:  return "Difference";
-        case SkBlendMode::kExclusion:   return "Exclusion";
-        case SkBlendMode::kMultiply:    return "Multiply";
-        case SkBlendMode::kHue:         return "Hue";
-        case SkBlendMode::kSaturation:  return "Saturation";
-        case SkBlendMode::kColor:       return "Color";
-        case SkBlendMode::kLuminosity:  return "Luminosity";
-        // Other blendmodes are either unsupported or handled in
-        // SkPDFDevice::setUpContentEntry.
-        default:                        return "Normal";
-    }
+    const char* name = SkPDFUtils::BlendModeName(mode);
+    SkASSERT(name);
+    return name;
 }
 
 static int to_stroke_cap(uint8_t cap) {
@@ -59,112 +44,97 @@ static int to_stroke_join(uint8_t join) {
 // If a SkXfermode is unsupported in PDF, this function returns
 // SrcOver, otherwise, it returns that Xfermode as a Mode.
 static uint8_t pdf_blend_mode(SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kSrcOver:
-        case SkBlendMode::kMultiply:
-        case SkBlendMode::kScreen:
-        case SkBlendMode::kOverlay:
-        case SkBlendMode::kDarken:
-        case SkBlendMode::kLighten:
-        case SkBlendMode::kColorDodge:
-        case SkBlendMode::kColorBurn:
-        case SkBlendMode::kHardLight:
-        case SkBlendMode::kSoftLight:
-        case SkBlendMode::kDifference:
-        case SkBlendMode::kExclusion:
-        case SkBlendMode::kHue:
-        case SkBlendMode::kSaturation:
-        case SkBlendMode::kColor:
-        case SkBlendMode::kLuminosity:
-            return SkToU8((unsigned)mode);
-        default:
-            return SkToU8((unsigned)SkBlendMode::kSrcOver);
+    if (!SkPDFUtils::BlendModeName(mode)
+        || SkBlendMode::kXor  == mode
+        || SkBlendMode::kPlus == mode)
+    {
+        mode = SkBlendMode::kSrcOver;
     }
+    return SkToU8((unsigned)mode);
 }
 
-sk_sp<SkPDFDict> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
-                                                            const SkPaint& p) {
-    SkASSERT(canon);
+SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument* doc,
+                                                                  const SkPaint& p) {
+    SkASSERT(doc);
     if (SkPaint::kFill_Style == p.getStyle()) {
-        SkPDFFillGraphicState fillKey = {p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
-        auto& fillMap = canon->fFillGSMap;
-        if (sk_sp<SkPDFDict>* statePtr = fillMap.find(fillKey)) {
+        SkPDFFillGraphicState fillKey = {p.getColor4f().fA, pdf_blend_mode(p.getBlendMode())};
+        auto& fillMap = doc->fFillGSMap;
+        if (SkPDFIndirectReference* statePtr = fillMap.find(fillKey)) {
             return *statePtr;
         }
-        auto state = sk_make_sp<SkPDFDict>();
-        state->reserve(2);
-        state->insertScalar("ca", fillKey.fAlpha / 255.0f);
-        state->insertName("BM", as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode));
-        fillMap.set(fillKey, state);
-        return state;
+        SkPDFDict state;
+        state.reserve(2);
+        state.insertColorComponentF("ca", fillKey.fAlpha);
+        state.insertName("BM", as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode));
+        SkPDFIndirectReference ref = doc->emit(state);
+        fillMap.set(fillKey, ref);
+        return ref;
     } else {
         SkPDFStrokeGraphicState strokeKey = {
-            p.getStrokeWidth(), p.getStrokeMiter(),
-            SkToU8(p.getStrokeCap()), SkToU8(p.getStrokeJoin()),
-            p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
-        auto& sMap = canon->fStrokeGSMap;
-        if (sk_sp<SkPDFDict>* statePtr = sMap.find(strokeKey)) {
+            p.getStrokeWidth(),
+            p.getStrokeMiter(),
+            p.getColor4f().fA,
+            SkToU8(p.getStrokeCap()),
+            SkToU8(p.getStrokeJoin()),
+            pdf_blend_mode(p.getBlendMode())
+        };
+        auto& sMap = doc->fStrokeGSMap;
+        if (SkPDFIndirectReference* statePtr = sMap.find(strokeKey)) {
             return *statePtr;
         }
-        auto state = sk_make_sp<SkPDFDict>();
-        state->reserve(8);
-        state->insertScalar("CA", strokeKey.fAlpha / 255.0f);
-        state->insertScalar("ca", strokeKey.fAlpha / 255.0f);
-        state->insertInt("LC", to_stroke_cap(strokeKey.fStrokeCap));
-        state->insertInt("LJ", to_stroke_join(strokeKey.fStrokeJoin));
-        state->insertScalar("LW", strokeKey.fStrokeWidth);
-        state->insertScalar("ML", strokeKey.fStrokeMiter);
-        state->insertBool("SA", true);  // SA = Auto stroke adjustment.
-        state->insertName("BM", as_pdf_blend_mode_name((SkBlendMode)strokeKey.fBlendMode));
-        sMap.set(strokeKey, state);
-        return state;
+        SkPDFDict state;
+        state.reserve(8);
+        state.insertColorComponentF("CA", strokeKey.fAlpha);
+        state.insertColorComponentF("ca", strokeKey.fAlpha);
+        state.insertInt("LC", to_stroke_cap(strokeKey.fStrokeCap));
+        state.insertInt("LJ", to_stroke_join(strokeKey.fStrokeJoin));
+        state.insertScalar("LW", strokeKey.fStrokeWidth);
+        state.insertScalar("ML", strokeKey.fStrokeMiter);
+        state.insertBool("SA", true);  // SA = Auto stroke adjustment.
+        state.insertName("BM", as_pdf_blend_mode_name((SkBlendMode)strokeKey.fBlendMode));
+        SkPDFIndirectReference ref = doc->emit(state);
+        sMap.set(strokeKey, ref);
+        return ref;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkPDFStream> make_invert_function() {
+static SkPDFIndirectReference make_invert_function(SkPDFDocument* doc) {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
     // a type 2 function, so we use a type 4 function.
-    auto domainAndRange = sk_make_sp<SkPDFArray>();
-    domainAndRange->reserve(2);
-    domainAndRange->appendInt(0);
-    domainAndRange->appendInt(1);
-
     static const char psInvert[] = "{1 exch sub}";
     // Do not copy the trailing '\0' into the SkData.
-    auto invertFunction = sk_make_sp<SkPDFStream>(
-            SkData::MakeWithoutCopy(psInvert, strlen(psInvert)));
-    invertFunction->dict()->insertInt("FunctionType", 4);
-    invertFunction->dict()->insertObject("Domain", domainAndRange);
-    invertFunction->dict()->insertObject("Range", std::move(domainAndRange));
-    return invertFunction;
+    auto invertFunction = SkData::MakeWithoutCopy(psInvert, strlen(psInvert));
+
+    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
+    dict->insertInt("FunctionType", 4);
+    dict->insertObject("Domain", SkPDFMakeArray(0, 1));
+    dict->insertObject("Range", SkPDFMakeArray(0, 1));
+    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(std::move(invertFunction)), doc);
 }
 
-sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
-        sk_sp<SkPDFObject> sMask,
-        bool invert,
-        SkPDFSMaskMode sMaskMode,
-        SkPDFCanon* canon) {
+SkPDFIndirectReference SkPDFGraphicState::GetSMaskGraphicState(SkPDFIndirectReference sMask,
+                                                               bool invert,
+                                                               SkPDFSMaskMode sMaskMode,
+                                                               SkPDFDocument* doc) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    auto sMaskDict = sk_make_sp<SkPDFDict>("Mask");
+    auto sMaskDict = SkPDFMakeDict("Mask");
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insertObjRef("G", std::move(sMask));
+    sMaskDict->insertRef("G", sMask);
     if (invert) {
-        // Instead of calling SkPDFGraphicState::MakeInvertFunction,
-        // let the canon deduplicate this object.
-        sk_sp<SkPDFStream>& invertFunction = canon->fInvertFunction;
-        if (!invertFunction) {
-            invertFunction = make_invert_function();
+        // let the doc deduplicate this object.
+        if (doc->fInvertFunction == SkPDFIndirectReference()) {
+            doc->fInvertFunction = make_invert_function(doc);
         }
-        sMaskDict->insertObjRef("TR", invertFunction);
+        sMaskDict->insertRef("TR", doc->fInvertFunction);
     }
-    auto result = sk_make_sp<SkPDFDict>("ExtGState");
-    result->insertObject("SMask", std::move(sMaskDict));
-    return result;
+    SkPDFDict result("ExtGState");
+    result.insertObject("SMask", std::move(sMaskDict));
+    return doc->emit(result);
 }

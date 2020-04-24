@@ -6,45 +6,47 @@
  * found in the LICENSE file.
  */
 
-#include "sk_xamarin.h"
+#include "include/xamarin/sk_xamarin.h"
 
 // Skia
-#include "gr_context.h"
-#include "sk_bitmap.h"
-#include "sk_canvas.h"
-#include "sk_codec.h"
-#include "sk_colorfilter.h"
-#include "sk_colorspace.h"
-#include "sk_colortable.h"
-#include "sk_data.h"
-#include "sk_document.h"
-#include "sk_drawable.h"
-#include "sk_general.h"
-#include "sk_image.h"
-#include "sk_imagefilter.h"
-#include "sk_mask.h"
-#include "sk_maskfilter.h"
-#include "sk_matrix.h"
-#include "sk_paint.h"
-#include "sk_path.h"
-#include "sk_patheffect.h"
-#include "sk_picture.h"
-#include "sk_pixmap.h"
-#include "sk_region.h"
-#include "sk_rrect.h"
-#include "sk_shader.h"
-#include "sk_stream.h"
-#include "sk_string.h"
-#include "sk_surface.h"
-#include "sk_svg.h"
-#include "sk_textblob.h"
-#include "sk_typeface.h"
-#include "sk_xml.h"
-#include "sk_vertices.h"
+#include "include/c/gr_context.h"
+#include "include/c/sk_bitmap.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_codec.h"
+#include "include/c/sk_colorfilter.h"
+#include "include/c/sk_colorspace.h"
+#include "include/c/sk_colortable.h"
+#include "include/c/sk_data.h"
+#include "include/c/sk_document.h"
+#include "include/c/sk_drawable.h"
+#include "include/c/sk_font.h"
+#include "include/c/sk_general.h"
+#include "include/c/sk_image.h"
+#include "include/c/sk_imagefilter.h"
+#include "include/c/sk_mask.h"
+#include "include/c/sk_maskfilter.h"
+#include "include/c/sk_matrix.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_path.h"
+#include "include/c/sk_patheffect.h"
+#include "include/c/sk_picture.h"
+#include "include/c/sk_pixmap.h"
+#include "include/c/sk_region.h"
+#include "include/c/sk_rrect.h"
+#include "include/c/sk_shader.h"
+#include "include/c/sk_stream.h"
+#include "include/c/sk_string.h"
+#include "include/c/sk_surface.h"
+#include "include/c/sk_svg.h"
+#include "include/c/sk_textblob.h"
+#include "include/c/sk_typeface.h"
+#include "include/c/sk_vertices.h"
+#include "include/c/sk_xml.h"
 
 // Xamarin
-#include "sk_managedstream.h"
-#include "sk_manageddrawable.h"
+#include "include/xamarin/sk_managedstream.h"
+#include "include/xamarin/sk_manageddrawable.h"
+#include "include/xamarin/sk_compatpaint.h"
 
 SK_X_API void** KeepSkiaCSymbols (void);
 
@@ -64,6 +66,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_data_new_empty,
         (void*)sk_document_unref,
         (void*)sk_drawable_unref,
+        (void*)sk_font_new,
         (void*)sk_image_ref,
         (void*)sk_imagefilter_croprect_new,
         (void*)sk_mask_alloc_image,
@@ -82,11 +85,12 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_surface_new_null,
         (void*)sk_svgcanvas_create_with_stream,
         (void*)sk_typeface_unref,
-        (void*)sk_textblob_ref,
         (void*)sk_xmlstreamwriter_new,
+        (void*)sk_textblob_ref,
         (void*)sk_vertices_unref,
 
         // Xamarin
+        (void*)sk_compatpaint_new,
         (void*)sk_managedstream_new,
         (void*)sk_manageddrawable_new,
     };

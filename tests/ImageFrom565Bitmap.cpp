@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkImageInfo.h"
-#include "SkImage.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "tests/Test.h"
 
 DEF_TEST(ImageFrom565Bitmap, r) {
     SkBitmap bm;

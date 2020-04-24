@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SubsetPath.h"
+#include "include/core/SkRegion.h"
+#include "include/utils/SkRandom.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/SubsetPath.h"
 
 #define DEBUG_SIMPLIFY_FAILS 0
 
@@ -38,7 +38,7 @@ static void testOvalSet(const OvalSet& set, const SkPath& oval, SkOpBuilder* bui
                     Op(*result, rotated, kUnion_SkPathOp, result);
                 } else {
                     SkRegion rgnB, openClip;
-                    openClip.setRect(-16000, -16000, 16000, 16000);
+                    openClip.setRect({-16000, -16000, 16000, 16000});
                     rgnB.setPath(rotated, openClip);
                     region->op(rgnB, SkRegion::kUnion_Op);
                 }
@@ -54,7 +54,7 @@ static void testOvalSet(const OvalSet& set, const SkPath& oval, SkOpBuilder* bui
 
 static void testOne(skiatest::Reporter* reporter, const OvalSet& set) {
     SkPath oval, regionResult, builderResult, opResult;
-    oval.setFillType(SkPath::kWinding_FillType);
+    oval.setFillType(SkPathFillType::kWinding);
     oval.addOval(set.fBounds);
     SkOpBuilder builder;
     SkRegion region;
@@ -88,14 +88,15 @@ static void setupOne(skiatest::Reporter* reporter, int col, int row, int rot, in
     testOne(reporter, set);
 }
 
-#include "SkCommandLineFlags.h"
+#include "tools/flags/CommandLineFlags.h"
 
-DEFINE_int32(processOffset, 0, "Offset the test by this value. This permits multiple processes "
-                          "to exercise the same test in parallel with different test values.");
-DEFINE_int32(processCount, 1, "Test iteration count. This permits multiple "
-                          "processes "
-                          "to exercise the same test in parallel with different test values.");
-DEFINE_int32(trialRuns, 100, "Run this many tests (defaults to 100).");
+static DEFINE_int(processOffset, 0,
+                    "Offset the test by this value. This permits multiple processes "
+                    "to exercise the same test in parallel with different test values.");
+static DEFINE_int(processCount, 1,
+                    "Test iteration count. This permits multiple processes "
+                    "to exercise the same test in parallel with different test values.");
+static DEFINE_int(trialRuns, 100, "Run this many tests (defaults to 100).");
 
 DEF_TEST(SixtyOvals, reporter) {
     bool skipOneOffs = false;
@@ -411,7 +412,7 @@ testSimplify(reporter, path, __FUNCTION__);
 
 DEF_TEST(SixtyOvalsA, reporter) {
 SkPath path;
-path.setFillType(SkPath::kEvenOdd_FillType);
+path.setFillType(SkPathFillType::kEvenOdd);
 path.moveTo(11.1722f, -8.10398f);
 path.conicTo(22.9143f, -10.3787f, 23.7764f, -7.72542f, 1.00863f);
 path.conicTo(24.6671f, -4.98406f, 13.8147f, 0.0166066f, 0.973016f);
@@ -438,7 +439,7 @@ path.conicTo(16.9933f, -18.5554f, 11.1722f, -8.10398f, 0.989875f);
 path.close();
 SkPath one(path);
 path.reset();
-path.setFillType(SkPath::kWinding_FillType);
+path.setFillType(SkPathFillType::kWinding);
 path.moveTo(-1.54509f, -4.75528f);
 path.conicTo(22.2313f, -12.4807f, 23.7764f, -7.72543f, 0.707107f);
 path.conicTo(25.3215f, -2.97014f, 1.54509f, 4.75528f, 0.707107f);
@@ -452,7 +453,7 @@ Op(one, two, kUnion_SkPathOp, &result);
 
 DEF_TEST(SixtyOvalsAX, reporter) {
 SkPath path;
-path.setFillType(SkPath::kEvenOdd_FillType);
+path.setFillType(SkPathFillType::kEvenOdd);
 path.moveTo(SkBits2Float(0x4132c174), SkBits2Float(0xc101a9e5));  // 11.1722f, -8.10398f
 path.conicTo(SkBits2Float(0x41b7508a), SkBits2Float(0xc1260efe), SkBits2Float(0x41be3618), SkBits2Float(0xc0f736ad), SkBits2Float(0x3f811abd));  // 22.9143f, -10.3787f, 23.7764f, -7.72542f, 1.00863f
 path.conicTo(SkBits2Float(0x41c5564b), SkBits2Float(0xc09f7d6d), SkBits2Float(0x415d0934), SkBits2Float(0x3c880a93), SkBits2Float(0x3f79179a));  // 24.6671f, -4.98406f, 13.8147f, 0.0166066f, 0.973016f
@@ -480,7 +481,7 @@ path.close();
 path.close();
 SkPath one(path);
 path.reset();
-path.setFillType(SkPath::kWinding_FillType);
+path.setFillType(SkPathFillType::kWinding);
 path.moveTo(SkBits2Float(0xbfc5c55c), SkBits2Float(0xc0982b46));  // -1.54509f, -4.75528f
 path.conicTo(SkBits2Float(0x41b1d9c2), SkBits2Float(0xc147b0fc), SkBits2Float(0x41be3618), SkBits2Float(0xc0f736b3), SkBits2Float(0x3f3504f3));  // 22.2313f, -12.4807f, 23.7764f, -7.72543f, 0.707107f
 path.conicTo(SkBits2Float(0x41ca926e), SkBits2Float(0xc03e16da), SkBits2Float(0x3fc5c55c), SkBits2Float(0x40982b46), SkBits2Float(0x3f3504f3));  // 25.3215f, -2.97014f, 1.54509f, 4.75528f, 0.707107f
@@ -622,7 +623,7 @@ const char ovalsAsQuads[] = "M 146.4187316894531 136.5"
 " Q 146.3946533203125 126.4554138183594 146.4066772460938 129.8022613525391"
 " Q 146.4187316894531 133.1491088867188 146.4187316894531 136.5 Z";
 
-#include "SkParsePath.h"
+#include "include/utils/SkParsePath.h"
 
 DEF_TEST(PathOpsOvalsAsQuads, reporter) {
     return; // don't execute this for now

@@ -8,7 +8,7 @@
 #ifndef SKSL_UNRESOLVEDFUNCTION
 #define SKSL_UNRESOLVEDFUNCTION
 
-#include "SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 namespace SkSL {
 
@@ -21,7 +21,7 @@ struct UnresolvedFunction : public Symbol {
     , fFunctions(std::move(funcs)) {
 #ifdef DEBUG
         for (auto func : funcs) {
-            ASSERT(func->fName == fName);
+            SkASSERT(func->fName == fName);
         }
 #endif
     }

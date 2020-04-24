@@ -5,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "Sk1DPathEffect.h"
-#include "SkCornerPathEffect.h"
-#include "SkPathMeasure.h"
-#include "SkRandom.h"
-#include "SkColorPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
+#include "tools/timer/TimeUtils.h"
 
 #define CORNER_RADIUS   12
 
@@ -66,9 +65,9 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
 
 ///////////////////////////////////////////////////////////
 
-#include "SkColorFilter.h"
+#include "include/core/SkColorFilter.h"
 
-class PathEffectView : public SampleView {
+class PathEffectView : public Sample {
     SkPath  fPath;
     SkPoint fClickPt;
     SkScalar fPhase;
@@ -98,8 +97,7 @@ protected:
 
         {
             SkRect  oval;
-            oval.set(SkIntToScalar(20), SkIntToScalar(30),
-                     SkIntToScalar(100), SkIntToScalar(60));
+            oval.setLTRB(20, 30, 100, 60);
             oval.offset(x, 0);
             fPath.addRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8));
         }
@@ -109,13 +107,7 @@ protected:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PathEffects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("PathEffects"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
@@ -139,16 +131,15 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fPhase = timer.scaled(40);
+    bool onAnimate(double nanos) override {
+        fPhase = TimeUtils::Scaled(1e-9 * nanos, 40);
         return true;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PathEffectView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new PathEffectView(); )

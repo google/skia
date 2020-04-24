@@ -5,17 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "SkBlendModePriv.h"
-#include "SkColorPriv.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#endif
+#include <string.h>
 
 namespace skiagm {
 
@@ -25,7 +40,7 @@ namespace skiagm {
  */
 class Xfermodes3GM : public GM {
 public:
-    Xfermodes3GM() {}
+    Xfermodes3GM() { this->setBGColor(ToolUtils::color_to_565(0xFF70D0E0)); }
 
 protected:
     SkString onShortName() override {
@@ -36,18 +51,11 @@ protected:
         return SkISize::Make(630, 1215);
     }
 
-    void onDrawBackground(SkCanvas* canvas) override {
-        SkPaint bgPaint;
-        bgPaint.setColor(sk_tool_utils::color_to_565(0xFF70D0E0));
-        canvas->drawPaint(bgPaint);
-    }
-
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
+        SkFont  font(ToolUtils::create_portable_typeface());
         SkPaint labelP;
-        labelP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&labelP);
 
         constexpr SkColor kSolidColors[] = {
             SK_ColorTRANSPARENT,
@@ -72,9 +80,9 @@ protected:
             for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
                 canvas->drawString(SkBlendMode_Name(mode),
-                                 SkIntToScalar(x),
-                                 SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
-                                 labelP);
+                                   SkIntToScalar(x),
+                                   SkIntToScalar(y + kSize + 3) + font.getSize(),
+                                   font, labelP);
                 for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
                     SkPaint modePaint;
                     modePaint.setBlendMode(mode);
@@ -178,8 +186,7 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(kCheckSize), SkIntToScalar(kCheckSize));
-        fBGShader = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &lm);
+        fBGShader = bg.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm);
 
         SkPaint bmpPaint;
         const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
@@ -188,7 +195,7 @@ private:
         };
         bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
                                                         kColors, nullptr, SK_ARRAY_COUNT(kColors),
-                                                        SkShader::kRepeat_TileMode));
+                                                        SkTileMode::kRepeat));
 
         SkBitmap bmp;
         bmp.allocN32Pixels(kSize, kSize);
@@ -199,8 +206,7 @@ private:
                         7 * SkIntToScalar(kSize) / 8, 7 * SkIntToScalar(kSize) / 8};
         bmpCanvas.drawRect(rect, bmpPaint);
 
-        fBmpShader = SkShader::MakeBitmapShader(bmp, SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode);
+        fBmpShader = bmp.makeShader();
     }
 
     enum {

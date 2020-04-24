@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkVertexBuffer.h"
-#include "GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkVertexBuffer.h"
 
 GrVkVertexBuffer::GrVkVertexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                    const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, desc.fSizeInBytes, kVertex_GrBufferType,
-                desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern)
-    , GrVkBuffer(desc, bufferResource) {
+        : INHERITED(gpu, desc.fSizeInBytes, GrGpuBufferType::kVertex,
+                    desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern)
+        , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkVertexBuffer* GrVkVertexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
+sk_sp<GrVkVertexBuffer> GrVkVertexBuffer::Make(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = dynamic;
+    desc.fDynamic = gpu->protectedContext() ? true : dynamic;
     desc.fType = GrVkBuffer::kVertex_Type;
     desc.fSizeInBytes = size;
 
@@ -31,7 +31,7 @@ GrVkVertexBuffer* GrVkVertexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynam
     if (!buffer) {
         bufferResource->unref(gpu);
     }
-    return buffer;
+    return sk_sp<GrVkVertexBuffer>(buffer);
 }
 
 void GrVkVertexBuffer::onRelease() {
@@ -49,7 +49,7 @@ void GrVkVertexBuffer::onAbandon() {
 
 void GrVkVertexBuffer::onMap() {
     if (!this->wasDestroyed()) {
-        this->GrBuffer::fMapPtr = this->vkMap(this->getVkGpu());
+        this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu());
     }
 }
 

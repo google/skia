@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkMakeUnique.h"
-#include "SkVptr.h"
-#include "Test.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkVptr.h"
+#include "tests/Test.h"
 
 namespace {
 

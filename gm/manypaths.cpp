@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
@@ -19,7 +25,7 @@ static SkColor gen_color(SkRandom* rand) {
     hsv[1] = rand->nextRangeF(0.5f, 1.0f);
     hsv[2] = rand->nextRangeF(0.5f, 1.0f);
 
-    return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
+    return ToolUtils::color_to_565(SkHSVToColor(hsv));
 }
 
 class ManyCirclesGM : public GM {

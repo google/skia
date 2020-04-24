@@ -5,37 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkBackendContext.h"
-#include "vk/GrVkUtil.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/GrVkExtensions.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#define ACQUIRE_PROC(name, instance, device) fFunctions.f##name = \
-    reinterpret_cast<PFN_vk##name>(getProc("vk"#name, instance, device));
+#define ACQUIRE_PROC(name, instance, device) \
+    fFunctions.f##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device))
 
-GrVkInterface::GetProc make_unified_getter(const GrVkInterface::GetInstanceProc& iproc,
-                                           const GrVkInterface::GetDeviceProc& dproc) {
-    return [&iproc, &dproc](const char* proc_name, VkInstance instance, VkDevice device) {
-        if (device != VK_NULL_HANDLE) {
-            return dproc(device, proc_name);
-        }
-        return iproc(instance, proc_name);
-    };
-}
+#define ACQUIRE_PROC_SUFFIX(name, suffix, instance, device) \
+    fFunctions.f##name =                                    \
+            reinterpret_cast<PFN_vk##name##suffix>(getProc("vk" #name #suffix, instance, device))
 
-GrVkInterface::GrVkInterface(const GetInstanceProc& getInstanceProc,
-                             const GetDeviceProc& getDeviceProc,
+GrVkInterface::GrVkInterface(GrVkGetProc getProc,
                              VkInstance instance,
                              VkDevice device,
-                             uint32_t extensionFlags)
-        : GrVkInterface(make_unified_getter(getInstanceProc, getDeviceProc),
-                        instance,
-                        device,
-                        extensionFlags) {}
-
-GrVkInterface::GrVkInterface(GetProc getProc,
-                             VkInstance instance,
-                             VkDevice device,
-                             uint32_t extensionFlags) {
+                             uint32_t instanceVersion,
+                             uint32_t physicalDeviceVersion,
+                             const GrVkExtensions* extensions) {
     if (getProc == nullptr) {
         return;
     }
@@ -58,13 +45,6 @@ GrVkInterface::GrVkInterface(GetProc getProc,
     ACQUIRE_PROC(DestroyDevice, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceExtensionProperties, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceLayerProperties, instance, VK_NULL_HANDLE);
-
-    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
-        // Also instance Procs.
-        ACQUIRE_PROC(CreateDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DebugReportMessageEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DestroyDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-    }
 
     // Device Procs.
     ACQUIRE_PROC(GetDeviceQueue, VK_NULL_HANDLE, device);
@@ -186,6 +166,88 @@ GrVkInterface::GrVkInterface(GetProc getProc,
     ACQUIRE_PROC(CmdNextSubpass, VK_NULL_HANDLE, device);
     ACQUIRE_PROC(CmdEndRenderPass, VK_NULL_HANDLE, device);
     ACQUIRE_PROC(CmdExecuteCommands, VK_NULL_HANDLE, device);
+
+    // Functions for VK_KHR_get_physical_device_properties2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(GetPhysicalDeviceFeatures2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceProperties2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceFormatProperties2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceImageFormatProperties2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceQueueFamilyProperties2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceMemoryProperties2, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC(GetPhysicalDeviceSparseImageFormatProperties2, instance, VK_NULL_HANDLE);
+    } else if (extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                                        1)) {
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceFeatures2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceProperties2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceFormatProperties2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceImageFormatProperties2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceQueueFamilyProperties2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceMemoryProperties2, KHR, instance, VK_NULL_HANDLE);
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceSparseImageFormatProperties2, KHR, instance,
+                            VK_NULL_HANDLE);
+    }
+
+    // Functions for VK_KHR_get_memory_requirements2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(GetImageMemoryRequirements2, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(GetBufferMemoryRequirements2, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(GetImageSparseMemoryRequirements2, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(GetImageMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(GetBufferMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(GetImageSparseMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_KHR_bind_memory2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(BindBufferMemory2, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(BindImageMemory2, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(BindBufferMemory2, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(BindImageMemory2, KHR, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_KHR_maintenance1 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(TrimCommandPool, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(TrimCommandPool, KHR, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_KHR_maintenance3 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(GetDescriptorSetLayoutSupport, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(GetDescriptorSetLayoutSupport, KHR, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_KHR_external_memory_capabilities
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(GetPhysicalDeviceExternalBufferProperties, instance, VK_NULL_HANDLE);
+    } else if (extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceExternalBufferProperties, KHR, instance,
+                            VK_NULL_HANDLE);
+    }
+
+    // Functions for VK_KHR_sampler_ycbcr_conversion
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(DestroySamplerYcbcrConversion, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(CreateSamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(DestroySamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
+    }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // Functions for VK_ANDROID_external_memory_android_hardware_buffer
+    if (extensions->hasExtension(
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2)) {
+        ACQUIRE_PROC_SUFFIX(GetAndroidHardwareBufferProperties, ANDROID, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(GetMemoryAndroidHardwareBuffer, ANDROID, VK_NULL_HANDLE, device);
+    }
+#endif
+
 }
 
 #ifdef SK_DEBUG
@@ -198,7 +260,8 @@ GrVkInterface::GrVkInterface(GetProc getProc,
     if (kIsDebug) { SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); } \
     return false;
 
-bool GrVkInterface::validate(uint32_t extensionFlags) const {
+bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+                             const GrVkExtensions* extensions) const {
     // functions that are always required
     if (nullptr == fFunctions.fCreateInstance ||
         nullptr == fFunctions.fDestroyInstance ||
@@ -338,13 +401,83 @@ bool GrVkInterface::validate(uint32_t extensionFlags) const {
         RETURN_FALSE_INTERFACE
     }
 
-    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
-        if (nullptr == fFunctions.fCreateDebugReportCallbackEXT ||
-            nullptr == fFunctions.fDebugReportMessageEXT ||
-            nullptr == fFunctions.fDestroyDebugReportCallbackEXT) {
+    // Functions for VK_KHR_get_physical_device_properties2 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fGetPhysicalDeviceFeatures2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceProperties2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceFormatProperties2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceImageFormatProperties2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceQueueFamilyProperties2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceMemoryProperties2 ||
+            nullptr == fFunctions.fGetPhysicalDeviceSparseImageFormatProperties2) {
             RETURN_FALSE_INTERFACE
         }
     }
+
+    // Functions for VK_KHR_get_memory_requirements2 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fGetImageMemoryRequirements2 ||
+            nullptr == fFunctions.fGetBufferMemoryRequirements2 ||
+            nullptr == fFunctions.fGetImageSparseMemoryRequirements2) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_bind_memory2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fBindBufferMemory2 ||
+            nullptr == fFunctions.fBindImageMemory2) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_maintenance1 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fTrimCommandPool) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_maintenance3 or vulkan 1.1
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fGetDescriptorSetLayoutSupport) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_external_memory_capabilities
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_sampler_ycbcr_conversion
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fCreateSamplerYcbcrConversion ||
+            nullptr == fFunctions.fDestroySamplerYcbcrConversion) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // Functions for VK_ANDROID_external_memory_android_hardware_buffer
+    if (extensions->hasExtension(
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2)) {
+        if (nullptr == fFunctions.fGetAndroidHardwareBufferProperties ||
+            nullptr == fFunctions.fGetMemoryAndroidHardwareBuffer) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+#endif
+
     return true;
 }
 

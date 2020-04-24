@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSVGCircle.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGCircle.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
 
 SkSVGCircle::SkSVGCircle() : INHERITED(SkSVGTag::kCircle) {}
 
@@ -54,7 +54,7 @@ std::tuple<SkPoint, SkScalar> SkSVGCircle::resolve(const SkSVGLengthContext& lct
     return std::make_tuple(SkPoint::Make(cx, cy), r);
 }
 void SkSVGCircle::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                         const SkPaint& paint, SkPath::FillType) const {
+                         const SkPaint& paint, SkPathFillType) const {
     SkPoint pos;
     SkScalar r;
     std::tie(pos, r) = this->resolve(lctx);

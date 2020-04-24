@@ -5,29 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "Test.h"
-
-#if SK_SUPPORT_GPU
+#include "tests/Test.h"
 
 #include <array>
 #include <vector>
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGeometryProcessor.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrOpFlushState.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceKey.h"
-#include "GrResourceProvider.h"
-#include "SkBitmap.h"
-#include "SkMakeUnique.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "include/core/SkBitmap.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrResourceKey.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
@@ -57,7 +57,12 @@ public:
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
 
-    void drawMesh(const GrMesh& mesh);
+    sk_sp<const GrBuffer> fVertBuffer;
+    sk_sp<const GrBuffer> fVertBuffer2;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    sk_sp<const GrBuffer> fInstBuffer;
+
+    void drawMesh(const GrMesh& mesh, GrPrimitiveType);
 
 private:
     GrOpFlushState* fState;
@@ -77,15 +82,16 @@ struct Box {
  * from the set (r,g,b) = (0,255)^3, so the GPU renderings ought to produce exact matches.
  */
 
-static void run_test(const char* testName, skiatest::Reporter*, const sk_sp<GrRenderTargetContext>&,
-                     const SkBitmap& gold, std::function<void(DrawMeshHelper*)> testFn);
+static void run_test(GrContext* context, const char* testName, skiatest::Reporter*,
+                     const std::unique_ptr<GrRenderTargetContext>&, const SkBitmap& gold,
+                     std::function<void(DrawMeshHelper*)> prepareFn,
+                     std::function<void(DrawMeshHelper*)> executeFn);
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
-    GrContext* const context = ctxInfo.grContext();
+    GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-                                                 SkBackingFit::kExact, kImageWidth, kImageHeight,
-                                                 kRGBA_8888_GrPixelConfig, nullptr));
+    auto rtc = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, kImageWidth, kImageHeight, GrColorType::kRGBA_8888, nullptr);
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;
@@ -109,17 +115,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
             int rgb[3] = {-(c & 1) & 0xff, -((c >> 1) & 1) & 0xff, -((c >> 2) & 1) & 0xff};
 
             const Box box = boxes.push_back() = {
-                float(x * kBoxSize),
-                float(y * kBoxSize),
-                GrColorPackRGBA(rgb[0], rgb[1], rgb[2], 255)
+                    float(x * kBoxSize),
+                    float(y * kBoxSize),
+                    GrColorPackRGBA(rgb[0], rgb[1], rgb[2], 255)
             };
 
             std::array<Box, 4>& boxVertices = vertexData.push_back();
             for (int i = 0; i < 4; ++i) {
                 boxVertices[i] = {
-                    box.fX + (i/2) * kBoxSize,
-                    box.fY + (i%2) * kBoxSize,
-                    box.fColor
+                        box.fX + (i / 2) * kBoxSize,
+                        box.fY + (i % 2) * kBoxSize,
+                        box.fColor
                 };
             }
 
@@ -128,123 +134,141 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }
     }
 
-    goldCanvas.flush();
-
     // ---- tests ----------
 
-#define VALIDATE(buff) \
-    if (!buff) { \
-        ERRORF(reporter, #buff " is null."); \
-        return; \
-    }
+#define VALIDATE(buff)                           \
+    do {                                         \
+        if (!buff) {                             \
+            ERRORF(reporter, #buff " is null."); \
+            return;                              \
+        }                                        \
+    } while (0)
 
-    run_test("setNonIndexedNonInstanced", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
-        SkTArray<Box> expandedVertexData;
-        for (int i = 0; i < kBoxCount; ++i) {
-            for (int j = 0; j < 6; ++j) {
-                expandedVertexData.push_back(vertexData[i][kIndexPattern[j]]);
-            }
-        }
+    run_test(context, "setNonIndexedNonInstanced", reporter, rtc, gold,
+             [&](DrawMeshHelper* helper) {
+                 SkTArray<Box> expandedVertexData;
+                 for (int i = 0; i < kBoxCount; ++i) {
+                     for (int j = 0; j < 6; ++j) {
+                         expandedVertexData.push_back(vertexData[i][kIndexPattern[j]]);
+                     }
+                 }
 
-        // Draw boxes one line at a time to exercise base vertex.
-        auto vbuff = helper->makeVertexBuffer(expandedVertexData);
-        VALIDATE(vbuff);
-        for (int y = 0; y < kBoxCountY; ++y) {
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
-            mesh.setVertexData(vbuff.get(), y * kBoxCountX * 6);
-            helper->drawMesh(mesh);
-        }
-    });
+                 // Draw boxes one line at a time to exercise base vertex.
+                 helper->fVertBuffer = helper->makeVertexBuffer(expandedVertexData);
+                 VALIDATE(helper->fVertBuffer);
+             },
+             [&](DrawMeshHelper* helper) {
+                 for (int y = 0; y < kBoxCountY; ++y) {
+                     GrMesh mesh(GrPrimitiveType::kTriangles);
+                     mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
+                     mesh.setVertexData(helper->fVertBuffer, y * kBoxCountX * 6);
+                     helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
+                 }
+             });
 
-    run_test("setIndexed", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
-        auto ibuff = helper->getIndexBuffer();
-        VALIDATE(ibuff);
-        auto vbuff = helper->makeVertexBuffer(vertexData);
-        VALIDATE(vbuff);
-        int baseRepetition = 0;
-        int i = 0;
+    run_test(context, "setIndexed", reporter, rtc, gold,
+             [&](DrawMeshHelper* helper) {
+                helper->fIndexBuffer = helper->getIndexBuffer();
+                VALIDATE(helper->fIndexBuffer);
+                helper->fVertBuffer = helper->makeVertexBuffer(vertexData);
+                VALIDATE(helper->fVertBuffer);
+             },
+             [&](DrawMeshHelper* helper) {
+                int baseRepetition = 0;
+                int i = 0;
+                // Start at various repetitions within the patterned index buffer to exercise base
+                // index.
+                while (i < kBoxCount) {
+                    GR_STATIC_ASSERT(kIndexPatternRepeatCount >= 3);
+                    int repetitionCount = SkTMin(3 - baseRepetition, kBoxCount - i);
 
-        // Start at various repetitions within the patterned index buffer to exercise base index.
-        while (i < kBoxCount) {
-            GR_STATIC_ASSERT(kIndexPatternRepeatCount >= 3);
-            int repetitionCount = SkTMin(3 - baseRepetition, kBoxCount - i);
+                    GrMesh mesh(GrPrimitiveType::kTriangles);
+                    mesh.setIndexed(helper->fIndexBuffer, repetitionCount * 6, baseRepetition * 6,
+                                    baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1,
+                                    GrPrimitiveRestart::kNo);
+                    mesh.setVertexData(helper->fVertBuffer, (i - baseRepetition) * 4);
+                    helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
 
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setIndexed(ibuff.get(), repetitionCount * 6, baseRepetition * 6,
-                            baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1);
-            mesh.setVertexData(vbuff.get(), (i - baseRepetition) * 4);
-            helper->drawMesh(mesh);
+                    baseRepetition = (baseRepetition + 1) % 3;
+                    i += repetitionCount;
+                }
+            });
 
-            baseRepetition = (baseRepetition + 1) % 3;
-            i += repetitionCount;
-        }
-    });
-
-    run_test("setIndexedPatterned", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
-        auto ibuff = helper->getIndexBuffer();
-        VALIDATE(ibuff);
-        auto vbuff = helper->makeVertexBuffer(vertexData);
-        VALIDATE(vbuff);
-
-        // Draw boxes one line at a time to exercise base vertex. setIndexedPatterned does not
-        // support a base index.
-        for (int y = 0; y < kBoxCountY; ++y) {
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setIndexedPatterned(ibuff.get(), 6, 4, kBoxCountX, kIndexPatternRepeatCount);
-            mesh.setVertexData(vbuff.get(), y * kBoxCountX * 4);
-            helper->drawMesh(mesh);
-        }
-    });
+    run_test(context, "setIndexedPatterned", reporter, rtc, gold,
+             [&](DrawMeshHelper* helper) {
+                 helper->fIndexBuffer = helper->getIndexBuffer();
+                 VALIDATE(helper->fIndexBuffer);
+                 helper->fVertBuffer = helper->makeVertexBuffer(vertexData);
+                 VALIDATE(helper->fVertBuffer);
+             },
+             [&](DrawMeshHelper* helper) {
+                // Draw boxes one line at a time to exercise base vertex. setIndexedPatterned does
+                // not support a base index.
+                for (int y = 0; y < kBoxCountY; ++y) {
+                    GrMesh mesh(GrPrimitiveType::kTriangles);
+                    mesh.setIndexedPatterned(helper->fIndexBuffer, 6, 4, kBoxCountX,
+                                             kIndexPatternRepeatCount);
+                    mesh.setVertexData(helper->fVertBuffer, y * kBoxCountX * 4);
+                    helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
+                }
+             });
 
     for (bool indexed : {false, true}) {
-        if (!context->contextPriv().caps()->instanceAttribSupport()) {
+        if (!context->priv().caps()->instanceAttribSupport()) {
             break;
         }
 
-        run_test(indexed ? "setIndexedInstanced" : "setInstanced",
-                 reporter, rtc, gold, [&](DrawMeshHelper* helper) {
-            auto idxbuff = indexed ? helper->getIndexBuffer() : nullptr;
-            auto instbuff = helper->makeVertexBuffer(boxes);
-            VALIDATE(instbuff);
-            auto vbuff = helper->makeVertexBuffer(std::vector<float>{0,0, 0,1, 1,0, 1,1});
-            VALIDATE(vbuff);
-            auto vbuff2 = helper->makeVertexBuffer( // for testing base vertex.
-                              std::vector<float>{-1,-1, -1,-1, 0,0, 0,1, 1,0, 1,1});
-            VALIDATE(vbuff2);
+        run_test(context, indexed ? "setIndexedInstanced" : "setInstanced",
+                 reporter, rtc, gold,
+                 [&](DrawMeshHelper* helper) {
+                     helper->fIndexBuffer = indexed ? helper->getIndexBuffer() : nullptr;
+                     helper->fInstBuffer = helper->makeVertexBuffer(boxes);
+                     VALIDATE(helper->fInstBuffer);
+                     helper->fVertBuffer =
+                             helper->makeVertexBuffer(std::vector<float>{0,0, 0,1, 1,0, 1,1});
+                     VALIDATE(helper->fVertBuffer);
+                     helper->fVertBuffer2 = helper->makeVertexBuffer( // for testing base vertex.
+                         std::vector<float>{-1,-1, -1,-1, 0,0, 0,1, 1,0, 1,1});
+                     VALIDATE(helper->fVertBuffer2);
+                 },
+                 [&](DrawMeshHelper* helper) {
+                     // Draw boxes one line at a time to exercise base instance, base vertex, and
+                     // null vertex buffer. setIndexedInstanced intentionally does not support a
+                     // base index.
+                     for (int y = 0; y < kBoxCountY; ++y) {
 
-            // Draw boxes one line at a time to exercise base instance, base vertex, and null vertex
-            // buffer. setIndexedInstanced intentionally does not support a base index.
-            for (int y = 0; y < kBoxCountY; ++y) {
-                GrMesh mesh(indexed ? GrPrimitiveType::kTriangles
-                                    : GrPrimitiveType::kTriangleStrip);
-                if (indexed) {
-                    VALIDATE(idxbuff);
-                    mesh.setIndexedInstanced(idxbuff.get(), 6,
-                                             instbuff.get(), kBoxCountX, y * kBoxCountX);
-                } else {
-                    mesh.setInstanced(instbuff.get(), kBoxCountX, y * kBoxCountX, 4);
-                }
-                switch (y % 3) {
-                    case 0:
-                        if (context->contextPriv().caps()->shaderCaps()->vertexIDSupport()) {
-                            if (y % 2) {
-                                // We don't need this call because it's the initial state of GrMesh.
-                                mesh.setVertexData(nullptr);
-                            }
-                            break;
-                        }
-                        // Fallthru.
-                    case 1:
-                        mesh.setVertexData(vbuff.get());
-                        break;
-                    case 2:
-                        mesh.setVertexData(vbuff2.get(), 2);
-                        break;
-                }
-                helper->drawMesh(mesh);
-            }
-        });
+                         GrPrimitiveType primitiveType = indexed ? GrPrimitiveType::kTriangles
+                                                                 : GrPrimitiveType::kTriangleStrip;
+                         GrMesh mesh(primitiveType);
+                         if (indexed) {
+                             VALIDATE(helper->fIndexBuffer);
+                             mesh.setIndexedInstanced(helper->fIndexBuffer, 6, helper->fInstBuffer,
+                                                      kBoxCountX, y * kBoxCountX,
+                                                      GrPrimitiveRestart::kNo);
+                         } else {
+                             mesh.setInstanced(helper->fInstBuffer, kBoxCountX, y * kBoxCountX, 4);
+                         }
+                         switch (y % 3) {
+                             case 0:
+                                 if (context->priv().caps()->shaderCaps()->vertexIDSupport()) {
+                                     if (y % 2) {
+                                         // We don't need this call because it's the initial state
+                                         // of GrMesh.
+                                         mesh.setVertexData(nullptr);
+                                     }
+                                     break;
+                                 }
+                                 // Fallthru.
+                             case 1:
+                                 mesh.setVertexData(helper->fVertBuffer);
+                                 break;
+                             case 2:
+                                 mesh.setVertexData(helper->fVertBuffer2, 2);
+                                 break;
+                         }
+                         helper->drawMesh(mesh, primitiveType);
+                     }
+                 });
     }
 }
 
@@ -254,91 +278,118 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
-        : INHERITED(ClassID())
-        , fTestFn(testFn) {
-        this->setBounds(SkRect::MakeIWH(kImageWidth, kImageHeight),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          std::function<void(DrawMeshHelper*)> prepareFn,
+                                          std::function<void(DrawMeshHelper*)> executeFn) {
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+
+        return pool->allocate<GrMeshTestOp>(prepareFn, executeFn);
     }
 
 private:
-    const char* name() const override { return "GrMeshTestOp"; }
-    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                GrPixelConfigIsClamped) override {
-        return RequiresDstTexture::kNo;
-    }
-    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state) override {
-        DrawMeshHelper helper(state);
-        fTestFn(&helper);
+    friend class GrOpMemoryPool; // for ctor
+
+    GrMeshTestOp(std::function<void(DrawMeshHelper*)> prepareFn,
+                 std::function<void(DrawMeshHelper*)> executeFn)
+        : INHERITED(ClassID())
+        , fPrepareFn(prepareFn)
+        , fExecuteFn(executeFn){
+        this->setBounds(SkRect::MakeIWH(kImageWidth, kImageHeight),
+                        HasAABloat::kNo, IsHairline::kNo);
     }
 
-    std::function<void(DrawMeshHelper*)> fTestFn;
+    const char* name() const override { return "GrMeshTestOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
+        return GrProcessorSet::EmptySetAnalysis();
+    }
+    void onPrepare(GrOpFlushState* state) override {
+        fHelper.reset(new DrawMeshHelper(state));
+        fPrepareFn(fHelper.get());
+    }
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
+        fExecuteFn(fHelper.get());
+    }
+
+    std::unique_ptr<DrawMeshHelper> fHelper;
+    std::function<void(DrawMeshHelper*)> fPrepareFn;
+    std::function<void(DrawMeshHelper*)> fExecuteFn;
 
     typedef GrDrawOp INHERITED;
 };
 
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
-    GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
-        : INHERITED(kGrMeshTestProcessor_ClassID)
-        , fInstanceLocation(nullptr)
-        , fVertex(nullptr)
-        , fColor(nullptr) {
-        if (instanced) {
-            fInstanceLocation = &this->addInstanceAttrib("location", kHalf2_GrVertexAttribType);
-            if (hasVertexBuffer) {
-                fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
-            }
-            fColor = &this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
-        } else {
-            fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
-            fColor = &this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
-        }
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool instanced, bool hasVertexBuffer) {
+        return arena->make<GrMeshTestProcessor>(instanced, hasVertexBuffer);
     }
 
-    const char* name() const override { return "GrMeshTest Processor"; }
+    const char* name() const override { return "GrMeshTestProcessor"; }
+
+    const Attribute& inColor() const {
+        return fVertexColor.isInitialized() ? fVertexColor : fInstanceColor;
+    }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
-        b->add32(SkToBool(fInstanceLocation));
-        b->add32(SkToBool(fVertex));
+        b->add32(fInstanceLocation.isInitialized());
+        b->add32(fVertexPosition.isInitialized());
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-protected:
-    const Attribute* fInstanceLocation;
-    const Attribute* fVertex;
-    const Attribute* fColor;
-
+private:
     friend class GLSLMeshTestProcessor;
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
+            : INHERITED(kGrMeshTestProcessor_ClassID) {
+        if (instanced) {
+            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            this->setInstanceAttributes(&fInstanceLocation, 2);
+            if (hasVertexBuffer) {
+                fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+                this->setVertexAttributes(&fVertexPosition, 1);
+            }
+        } else {
+            fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            this->setVertexAttributes(&fVertexPosition, 2);
+        }
+    }
+
+    Attribute fVertexPosition;
+    Attribute fVertexColor;
+
+    Attribute fInstanceLocation;
+    Attribute fInstanceColor;
+
     typedef GrGeometryProcessor INHERITED;
 };
 
 class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) final {}
+                 const CoordTransformRange& transformIter) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrMeshTestProcessor& mp = args.fGP.cast<GrMeshTestProcessor>();
 
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         varyingHandler->emitAttributes(mp);
-        varyingHandler->addPassThroughAttribute(mp.fColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(mp.inColor(), args.fOutputColor);
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        if (!mp.fInstanceLocation) {
-            v->codeAppendf("float2 vertex = %s;", mp.fVertex->fName);
+        if (!mp.fInstanceLocation.isInitialized()) {
+            v->codeAppendf("float2 vertex = %s;", mp.fVertexPosition.name());
         } else {
-            if (mp.fVertex) {
-                v->codeAppendf("float2 offset = %s;", mp.fVertex->fName);
+            if (mp.fVertexPosition.isInitialized()) {
+                v->codeAppendf("float2 offset = %s;", mp.fVertexPosition.name());
             } else {
                 v->codeAppend ("float2 offset = float2(sk_VertexID / 2, sk_VertexID % 2);");
             }
-            v->codeAppendf("float2 vertex = %s + offset * %i;",
-                           mp.fInstanceLocation->fName, kBoxSize);
+            v->codeAppendf("float2 vertex = %s + offset * %i;", mp.fInstanceLocation.name(),
+                           kBoxSize);
         }
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
@@ -355,11 +406,8 @@ GrGLSLPrimitiveProcessor* GrMeshTestProcessor::createGLSLInstance(const GrShader
 
 template<typename T>
 sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count) {
-    return sk_sp<const GrBuffer>(
-        fState->resourceProvider()->createBuffer(
-            count * sizeof(T), kVertex_GrBufferType, kDynamic_GrAccessPattern,
-            GrResourceProvider::kNoPendingIO_Flag |
-            GrResourceProvider::kRequireGpuMemory_Flag, data));
+    return sk_sp<const GrBuffer>(fState->resourceProvider()->createBuffer(
+            count * sizeof(T), GrGpuBufferType::kVertex, kDynamic_GrAccessPattern, data));
 }
 
 sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
@@ -368,17 +416,28 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
             kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
 }
 
-void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
-    GrRenderTargetProxy* proxy = fState->drawOpArgs().fProxy;
-    GrPipeline pipeline(proxy, GrPipeline::ScissorState::kDisabled, SkBlendMode::kSrc);
-    GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->rtCommandBuffer()->draw(pipeline, mtp, &mesh, nullptr, 1,
-                                    SkRect::MakeIWH(kImageWidth, kImageHeight));
+void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType) {
+    GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
+
+    GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(fState->allocator(),
+                                                         mesh.isInstanced(), mesh.hasVertexData());
+
+    GrProgramInfo programInfo(fState->proxy()->numSamples(),
+                              fState->proxy()->numStencilSamples(),
+                              fState->proxy()->backendFormat(),
+                              fState->view()->origin(),
+                              &pipeline,
+                              mtp,
+                              nullptr, nullptr, 0, primitiveType);
+
+    fState->opsRenderPass()->draw(programInfo, &mesh, 1,
+                                  SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 
-static void run_test(const char* testName, skiatest::Reporter* reporter,
-                     const sk_sp<GrRenderTargetContext>& rtc, const SkBitmap& gold,
-                     std::function<void(DrawMeshHelper*)> testFn) {
+static void run_test(GrContext* context, const char* testName, skiatest::Reporter* reporter,
+                     const std::unique_ptr<GrRenderTargetContext>& rtc, const SkBitmap& gold,
+                     std::function<void(DrawMeshHelper*)> prepareFn,
+                     std::function<void(DrawMeshHelper*)> executeFn) {
     const int w = gold.width(), h = gold.height(), rowBytes = gold.rowBytes();
     const uint32_t* goldPx = reinterpret_cast<const uint32_t*>(gold.getPixels());
     if (h != rtc->height() || w != rtc->width()) {
@@ -391,9 +450,10 @@ static void run_test(const char* testName, skiatest::Reporter* reporter,
     }
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
-    rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
-    rtc->priv().testingOnly_addDrawOp(skstd::make_unique<GrMeshTestOp>(testFn));
-    rtc->readPixels(gold.info(), resultPx, rowBytes, 0, 0, 0);
+    rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
+               GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(context, prepareFn, executeFn));
+    rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t expected = goldPx[y * kImageWidth + x];
@@ -406,5 +466,3 @@ static void run_test(const char* testName, skiatest::Reporter* reporter,
         }
     }
 }
-
-#endif

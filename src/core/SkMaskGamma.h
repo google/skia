@@ -8,10 +8,11 @@
 #ifndef SkMaskGamma_DEFINED
 #define SkMaskGamma_DEFINED
 
-#include "SkTypes.h"
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkRefCnt.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkNoncopyable.h"
 
 /**
  * SkColorSpaceLuminance is used to convert luminances to and from linear and

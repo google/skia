@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkChecksum.h"
-#include "SkPaint.h"
-#include "SkString.h"
-#include "SkTemplates.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTemplates.h"
 
-#include "gUniqueGlyphIDs.h"
+#include "bench/gUniqueGlyphIDs.h"
+
 #define gUniqueGlyphIDs_Sentinel    0xFFFF
 
 static int count_glyphs(const uint16_t start[]) {
@@ -33,15 +36,14 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkPaint paint;
-        this->setupPaint(&paint);
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
 
         const uint16_t* array = gUniqueGlyphIDs;
         while (*array != gUniqueGlyphIDs_Sentinel) {
             int count = count_glyphs(array);
             for (int i = 0; i < loops; ++i) {
-                paint.measureText(array, count * sizeof(uint16_t));
+                (void)font.measureText(array, count * sizeof(uint16_t), SkTextEncoding::kGlyphID);
             }
             array += count + 1;    // skip the sentinel
         }
@@ -138,10 +140,60 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
 DEF_BENCH( return new FontCacheBench(); )
 
 // undefine this to run the efficiency test
 //DEF_BENCH( return new FontCacheEfficiency(); )
+
+///////////////////////////////////////////////////////////////////////////////
+
+class FontPathBench : public Benchmark {
+    SkFont fFont;
+    uint16_t fGlyphs[100];
+    SkString fName;
+    const bool fOneAtATime;
+
+public:
+    FontPathBench(bool oneAtATime) : fOneAtATime(oneAtATime) {
+        fName.printf("font-path-%s", oneAtATime ? "loop" : "batch");
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDelayedSetup() override {
+        fFont.setSize(32);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fGlyphs); ++i) {
+            fGlyphs[i] = i;
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPath path;
+        for (int i = 0; i < loops; ++i) {
+            if (fOneAtATime) {
+                for (size_t i = 0; i < SK_ARRAY_COUNT(fGlyphs); ++i) {
+                    fFont.getPath(fGlyphs[i], &path);
+                }
+            } else {
+                fFont.getPaths(fGlyphs, SK_ARRAY_COUNT(fGlyphs),
+                               [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+                                   if (src) {
+                                       src->transform(mx, static_cast<SkPath*>(ctx));
+                                   }
+                               }, &path);
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new FontPathBench(true); )
+DEF_BENCH( return new FontPathBench(false); )

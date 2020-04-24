@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestAtlasTextRenderer.h"
-#include "../gl/GLTestContext.h"
-#include "SkBitmap.h"
-#include "TestAtlasTextRenderer.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "include/core/SkBitmap.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "tools/gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "tools/gpu/atlastext/TestAtlasTextRenderer.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 using sk_gpu_test::GLTestContext;
 
@@ -82,6 +82,7 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
     auto version = GrGLGetVersionFromString(versionStr);
     auto standard = GrGLGetStandardInUseFromString(versionStr);
     switch (standard) {
+        case kWebGL_GrGLStandard:
         case kNone_GrGLStandard:
             return;
         case kGLES_GrGLStandard:

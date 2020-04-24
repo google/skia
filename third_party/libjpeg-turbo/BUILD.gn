@@ -72,13 +72,13 @@ if (skia_use_system_libjpeg_turbo) {
 
     if (current_cpu == "arm" && !is_ios && !is_win) {
       sources += [
-        "../externals/libjpeg-turbo/simd/jsimd_arm.c",
-        "../externals/libjpeg-turbo/simd/jsimd_arm_neon.S",
+        "../externals/libjpeg-turbo/simd/arm/jsimd.c",
+        "../externals/libjpeg-turbo/simd/arm/jsimd_neon.S",
       ]
     } else if (current_cpu == "arm64" && !is_ios && !is_win) {
       sources += [
-        "../externals/libjpeg-turbo/simd/jsimd_arm64.c",
-        "../externals/libjpeg-turbo/simd/jsimd_arm64_neon.S",
+        "../externals/libjpeg-turbo/simd/arm64/jsimd.c",
+        "../externals/libjpeg-turbo/simd/arm64/jsimd_neon.S",
       ]
     } else {
       sources += [ "../externals/libjpeg-turbo/jsimd_none.c" ]

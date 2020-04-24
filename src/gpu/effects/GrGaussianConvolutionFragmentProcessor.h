@@ -8,9 +8,9 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
-#include "GrTextureDomain.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.
@@ -22,14 +22,15 @@ public:
     enum class Direction { kX, kY };
 
     /// Convolve with a Gaussian kernel
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      Direction dir,
                                                      int halfWidth,
                                                      float gaussianSigma,
                                                      GrTextureDomain::Mode mode,
                                                      int* bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-                std::move(proxy), dir, halfWidth, gaussianSigma, mode, bounds));
+                std::move(proxy), alphaType, dir, halfWidth, gaussianSigma, mode, bounds));
     }
 
     const float* kernel() const { return fKernel; }
@@ -43,6 +44,17 @@ public:
     GrTextureDomain::Mode mode() const { return fMode; }
 
     const char* name() const override { return "GaussianConvolution"; }
+
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("dir: %s radius: %d bounds: [%d %d]",
+                    Direction::kX == fDirection ? "X" : "Y",
+                    fRadius,
+                    fBounds[0], fBounds[1]);
+        return str;
+    }
+#endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
@@ -60,7 +72,7 @@ public:
 
 private:
     /// Convolve with a Gaussian kernel
-    GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
+    GrGaussianConvolutionFragmentProcessor(sk_sp<GrSurfaceProxy>, SkAlphaType alphaType, Direction,
                                            int halfWidth, float gaussianSigma,
                                            GrTextureDomain::Mode mode, int bounds[2]);
 
@@ -72,16 +84,18 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    GrCoordTransform fCoordTransform;
-    TextureSampler fTextureSampler;
+    GrCoordTransform      fCoordTransform;
+    TextureSampler        fTextureSampler;
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
-    float fKernel[kMaxKernelWidth];
-    int   fBounds[2];
-    int fRadius;
-    Direction fDirection;
+    float                 fKernel[kMaxKernelWidth];
+    int                   fBounds[2];
+    int                   fRadius;
+    Direction             fDirection;
     GrTextureDomain::Mode fMode;
 
     typedef GrFragmentProcessor INHERITED;

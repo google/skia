@@ -6,11 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkManagedDrawable.h"
+#include "include/xamarin/SkManagedDrawable.h"
 
-#include "sk_manageddrawable.h"
-#include "sk_picture.h"
-#include "sk_types_priv.h"
+#include "include/xamarin/sk_manageddrawable.h"
+#include "include/c/sk_picture.h"
+#include "src/c/sk_types_priv.h"
 
 static inline SkManagedDrawable* AsManagedDrawable(sk_manageddrawable_t* d) {
     return reinterpret_cast<SkManagedDrawable*>(d);

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "sk_tool_utils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 /*  Variants for bitmaps
 
@@ -48,7 +48,8 @@ public:
 protected:
     const char* onGetName() override {
         fName.set("bitmap");
-        fName.appendf("_%s%s", sk_tool_utils::colortype_name(fColorType),
+        fName.appendf("_%s%s",
+                      ToolUtils::colortype_name(fColorType),
                       kOpaque_SkAlphaType == fAlphaType ? "" : "_A");
         if (fDoScale) {
             fName.append("_scale");
@@ -112,7 +113,7 @@ protected:
                           SkIntToScalar(SkMin32(w, h))*3/8, p);
 
         SkRect r;
-        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
+        r.setWH(SkIntToScalar(w), SkIntToScalar(h));
         p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(SkIntToScalar(4));
         p.setColor(SK_ColorBLUE);
@@ -177,7 +178,7 @@ protected:
 
             canvas->translate(x, y);
             // just enough so we can't take the sprite case
-            canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
+            canvas->scale(1.1f, 1.1f);
             canvas->translate(-x, -y);
         }
         if (fFlags & kRotate_Flag) {
@@ -265,7 +266,7 @@ protected:
             SkRect r;
             for (int x = 0; x < w; x+=2)
             {
-                r.set(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
+                r.setLTRB(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
                 canvas.drawRect(r, p);
             }
 
@@ -290,7 +291,7 @@ protected:
                 } else if (x % 3 == 2) {
                     p.setColor(SK_ColorRED); // Opaque
                 }
-                r.set(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
+                r.setLTRB(SkIntToScalar(x), 0, SkIntToScalar(x+1), SkIntToScalar(h));
                 canvas.drawRect(r, p);
             }
         }

@@ -7,9 +7,9 @@
 #ifndef SkOpSpan_DEFINED
 #define SkOpSpan_DEFINED
 
-#include "SkPathOpsDebug.h"
-#include "SkPathOpsTypes.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "src/pathops/SkPathOpsDebug.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
 class SkArenaAlloc;
 class SkOpAngle;
@@ -177,7 +177,13 @@ protected:
 
 class SkOpSpanBase {
 public:
-    void addOpp(SkOpSpanBase* opp);
+    enum class Collapsed {
+        kNo,
+        kYes,
+        kError,
+    };
+
+    bool addOpp(SkOpSpanBase* opp);
 
     void bumpSpanAdds() {
         ++fSpanAdds;
@@ -193,7 +199,7 @@ public:
         return fCoinEnd;
     }
 
-    bool collapsed(double s, double e) const;
+    Collapsed collapsed(double s, double e) const;
     bool contains(const SkOpSpanBase* ) const;
     const SkOpPtT* contains(const SkOpSegment* ) const;
 
@@ -287,7 +293,7 @@ public:
     }
 
     void merge(SkOpSpan* span);
-    void mergeMatches(SkOpSpanBase* opp);
+    bool mergeMatches(SkOpSpanBase* opp);
 
     const SkOpSpan* prev() const {
         return fPrev;
@@ -415,7 +421,6 @@ public:
         if (fAlreadyAdded) {
             return true;
         }
-        fAlreadyAdded = true;
         return false;
     }
 
@@ -481,6 +486,10 @@ public:
     bool isCoincident() const {
         SkASSERT(!final());
         return fCoincident != this;
+    }
+
+    void markAdded() {
+        fAlreadyAdded = true;
     }
 
     SkOpSpanBase* next() const {
@@ -563,7 +572,7 @@ private:  // no direct access to internals to avoid treating a span base as a sp
     int fOppValue;  // normally 0 -- when binary coincident edges combine, opp value goes here
     int fTopTTry; // specifies direction and t value to try next
     bool fDone;  // if set, this span to next higher T has been processed
-    mutable bool fAlreadyAdded;
+    bool fAlreadyAdded;
 };
 
 #endif

@@ -8,8 +8,8 @@
 #ifndef SkSVGCircle_DEFINED
 #define SkSVGCircle_DEFINED
 
-#include "SkSVGShape.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGShape.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 struct SkPoint;
 
@@ -26,7 +26,7 @@ protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
-                SkPath::FillType) const override;
+                SkPathFillType) const override;
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 

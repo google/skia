@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "SkPathMeasure.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/TimeUtils.h"
 
 class AddArcGM : public skiagm::GM {
 public:
@@ -37,7 +47,7 @@ protected:
 
         SkScalar sign = 1;
         while (r.width() > paint.getStrokeWidth() * 3) {
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             SkScalar startAngle = rand.nextUScalar1() * 360;
 
             SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
@@ -52,8 +62,8 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fRotate = timer.scaled(1, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 1, 360);
         return true;
     }
 
@@ -67,16 +77,7 @@ DEF_GM( return new AddArcGM; )
 
 #define R   400
 
-class AddArcMeasGM : public skiagm::GM {
-public:
-    AddArcMeasGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("addarc_meas"); }
-
-    SkISize onISize() override { return SkISize::Make(2*R + 40, 2*R + 40); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
         canvas->translate(R + 20, R + 20);
 
         SkPaint paint;
@@ -106,12 +107,7 @@ protected:
                 canvas->drawLine({0, 0}, pos, measPaint);
             }
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new AddArcMeasGM; )
+}
 
 ///////////////////////////////////////////////////
 
@@ -145,15 +141,15 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->rotate(fRotate * sign);
 
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
@@ -198,15 +194,15 @@ protected:
         while (r.width() > strokeWidth * 2) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->rotate(fRotate * sign);
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fRotate = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fRotate = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
@@ -230,16 +226,7 @@ static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, Sk
 }
 
 // Lifted from canvas-arc-circumference-fill-diffs.html
-class ManyArcsGM : public skiagm::GM {
-public:
-    ManyArcsGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("manyarcs"); }
-
-    SkISize onISize() override { return SkISize::Make(620, 330); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -281,24 +268,10 @@ protected:
             canvas->restore();
             canvas->translate(0, 40);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new ManyArcsGM; )
+}
 
 // Lifted from https://bugs.chromium.org/p/chromium/issues/detail?id=640031
-class TinyAngleBigRadiusArcsGM : public skiagm::GM {
-public:
-    TinyAngleBigRadiusArcsGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("tinyanglearcs"); }
-
-    SkISize onISize() override { return SkISize::Make(620, 330); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -331,9 +304,4 @@ protected:
             canvas->drawPath(path, paint);
             canvas->translate(20, 0);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new TinyAngleBigRadiusArcsGM; )
+}

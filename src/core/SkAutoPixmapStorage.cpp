@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
-#include "SkData.h"
+#include "include/core/SkData.h"
+#include "src/core/SkAutoPixmapStorage.h"
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
 
 SkAutoPixmapStorage::~SkAutoPixmapStorage() {
     this->freeStorage();
+}
+
+SkAutoPixmapStorage::SkAutoPixmapStorage(SkAutoPixmapStorage&& other) : fStorage(nullptr) {
+    *this = std::move(other);
 }
 
 SkAutoPixmapStorage& SkAutoPixmapStorage::operator=(SkAutoPixmapStorage&& other) {

@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#if SK_SUPPORT_GPU
-
-#include "GrPathUtils.h"
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 
 class CubicKLMBench : public Benchmark {
 public:
@@ -63,5 +61,3 @@ DEF_BENCH( return new CubicKLMBench(285.625f, 499.687f, 411.625f, 808.188f,
                                     1064.62f, 135.688f, 1042.63f, 585.187f); )
 DEF_BENCH( return new CubicKLMBench(635.625f, 614.687f, 171.625f, 236.188f,
                                     1064.62f, 135.688f, 516.625f, 570.187f); )
-
-#endif

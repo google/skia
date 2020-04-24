@@ -8,8 +8,11 @@
 #ifndef SkottieSlide_DEFINED
 #define SkottieSlide_DEFINED
 
-#include "Slide.h"
-#include "Skottie.h"
+#include "tools/viewer/Slide.h"
+
+#if defined(SK_ENABLE_SKOTTIE)
+#include "modules/skottie/include/Skottie.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 
 namespace sksg    { class Scene;     }
 
@@ -24,21 +27,24 @@ public:
     SkISize getDimensions() const override;
 
     void draw(SkCanvas*) override;
-    bool animate(const SkAnimTimer&) override;
+    bool animate(double) override;
 
     bool onChar(SkUnichar) override;
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
 private:
-    SkString                  fPath;
-    sk_sp<skottie::Animation> fAnimation;
-    skottie::Animation::Stats fAnimationStats;
-    SkSize                    fWinSize = SkSize::MakeEmpty();
-    SkMSec                    fTimeBase  = 0;
-    bool                      fShowAnimationInval = false,
-                              fShowAnimationStats = false;
+    SkString                           fPath;
+    sk_sp<skottie::Animation>          fAnimation;
+    skottie::Animation::Builder::Stats fAnimationStats;
+    sksg::InvalidationController       fInvalController;
+    SkSize                             fWinSize = SkSize::MakeEmpty();
+    SkMSec                             fTimeBase  = 0;
+    bool                               fShowAnimationInval = false,
+                                       fShowAnimationStats = false;
 
     typedef Slide INHERITED;
 };
+
+#endif // SK_ENABLE_SKOTTIE
 
 #endif // SkottieSlide_DEFINED

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 #ifndef FakeStreams_DEFINED
 #define FakeStreams_DEFINED

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkImageInfo.h"
-#include "SkSurface.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSurface.h"
+#include "tests/CodecPriv.h"
+#include "tests/Test.h"
 
 // A 20x1 image with 8 bits per pixel and a palette size of 2. Pixel values are 255, 254... Run
 // this test with ASAN to make sure we don't try to access before/after any palette-sized buffers.

@@ -8,7 +8,7 @@
 #ifndef sk_general_DEFINED
 #define sk_general_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
@@ -27,6 +27,8 @@ SK_C_API void sk_nvrefcnt_safe_unref(sk_nvrefcnt_t* refcnt);
 // color type
 
 SK_C_API sk_colortype_t sk_colortype_get_default_8888(void);
+SK_C_API gr_pixelconfig_t sk_colortype_to_gr_pixelconfig(sk_colortype_t colorType);
+SK_C_API sk_colortype_t gr_pixelconfig_to_sk_colortype(gr_pixelconfig_t pixelConfig);
 
 SK_C_PLUS_PLUS_END_GUARD
 

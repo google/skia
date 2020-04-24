@@ -8,8 +8,8 @@
 #ifndef SkBlurPriv_DEFINED
 #define SkBlurPriv_DEFINED
 
-#include "SkRRect.h"
-#include "SkSize.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkSize.h"
 
 static const int kSkBlurRRectMaxDivisions = 6;
 

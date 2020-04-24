@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkDashPathEffect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+
+#include <utility>
 
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
     SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);
@@ -26,7 +34,7 @@ static SkPath generate_rect_line(SkScalar cx, SkScalar cy, SkScalar l) {
 
 static SkPath generate_circle(SkScalar cx, SkScalar cy, SkScalar d) {
     SkPath path;
-    path.addCircle(cx, cy, d/2, SkPath::kCW_Direction);
+    path.addCircle(cx, cy, d/2, SkPathDirection::kCW);
     return path;
 }
 
@@ -123,10 +131,10 @@ DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
                     canvas->clipRect(clipRect);
 
                     SkPath path = paths[pathIndex](cx, cy, size);
-                    path.setFillType(SkPath::kInverseWinding_FillType);
+                    path.setFillType(SkPathFillType::kInverseWinding);
                     canvas->drawPath(path, paint);
 
-                    path.setFillType(SkPath::kWinding_FillType);
+                    path.setFillType(SkPathFillType::kWinding);
                     canvas->drawPath(path, outlinePaint);
 
                     canvas->restore();

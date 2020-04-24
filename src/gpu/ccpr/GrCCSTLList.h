@@ -8,16 +8,19 @@
 #ifndef GrCCSTLList_DEFINED
 #define GrCCSTLList_DEFINED
 
-#include "SkArenaAlloc.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/core/SkArenaAlloc.h"
+#include <new>
 
 /**
  * A singly-linked list whose head element is a local class member. This is required by
- * GrCCDrawPathsOp because the owning opList is unknown at the time of creation, so we can't use its
- * associated allocator to create the first element.
+ * GrCCDrawPathsOp because the owning opsTask is unknown at the time of creation, so we can't use
+ * its associated allocator to create the first element.
  */
-template<typename T> class GrCCSTLList {
+template<typename T> class GrCCSTLList : SkNoncopyable {
 public:
-    GrCCSTLList(T&& head) : fHead(std::move(head)) {}
+    template <typename ...Args>
+    GrCCSTLList(Args&&... args) : fHead(std::forward<Args>(args)...) {}
 
     ~GrCCSTLList() {
         T* draw = fHead.fNext; // fHead will be destructed automatically.
@@ -44,14 +47,16 @@ public:
         fTail = !nextTail ? newRightHead : nextTail;
     }
 
-    struct Iter {
+    template<typename U> struct Iter {
         bool operator!=(const Iter& that) { return fCurr != that.fCurr; }
-        const T& operator*() { return *fCurr; }
+        U& operator*() { return *fCurr; }
         void operator++() { fCurr = fCurr->fNext; }
-        const T* fCurr;
+        U* fCurr;
     };
-    Iter begin() const { return Iter{&fHead}; }
-    Iter end() const { return Iter{nullptr}; }
+    Iter<const T> begin() const { return Iter<const T>{&fHead}; }
+    Iter<const T> end() const { return Iter<const T>{nullptr}; }
+    Iter<T> begin() { return Iter<T>{&fHead}; }
+    Iter<T> end() { return Iter<T>{nullptr}; }
 
 private:
     T fHead;

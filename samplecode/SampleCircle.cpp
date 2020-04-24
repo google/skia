@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkView.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
 
 // ensure that we don't accidentally screw up the bounds when the oval is
 // fractional, and the impl computes the center and radii, and uses them to
@@ -22,27 +21,8 @@ static void test_circlebounds(SkCanvas*) {
     SkASSERT(r == p.getBounds());
 }
 
-class CircleView : public SampleView {
-public:
-    static const SkScalar ANIM_DX;
-    static const SkScalar ANIM_DY;
-    static const SkScalar ANIM_RAD;
-    SkScalar fDX, fDY, fRAD;
-
-    CircleView() {
-        fDX = fDY = fRAD = 0;
-        fN = 3;
-    }
-
-protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Circles");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+class CircleView : public Sample {
+    SkString name() override { return SkString("Circles"); }
 
     void circle(SkCanvas* canvas, int width, bool aa) {
         SkPaint paint;
@@ -54,7 +34,7 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(SkIntToScalar(width));
         }
-        canvas->drawCircle(0, 0, SkIntToScalar(9) + fRAD, paint);
+        canvas->drawCircle(0, 0, 9.0f, paint);
         if (false) { // avoid bit rot, suppress warning
             test_circlebounds(canvas);
         }
@@ -81,13 +61,12 @@ protected:
         SkScalar angle = 0;
         for (int i = 1; i < n; i++) {
             angle += step;
-            SkScalar c, s = SkScalarSinCos(angle, &c);
-            path->lineTo(c, s);
+            path->lineTo(SkScalarCos(angle), SkScalarSin(angle));
         }
         path->close();
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -104,17 +83,6 @@ protected:
             canvas->drawPath(path, paint);
         }
     }
-
-private:
-    int fN;
-    typedef SampleView INHERITED;
 };
 
-const SkScalar CircleView::ANIM_DX(SK_Scalar1 / 67);
-const SkScalar CircleView::ANIM_DY(SK_Scalar1 / 29);
-const SkScalar CircleView::ANIM_RAD(SK_Scalar1 / 19);
-
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new CircleView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new CircleView(); )

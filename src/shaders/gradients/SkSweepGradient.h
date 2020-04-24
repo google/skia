@@ -8,7 +8,7 @@
 #ifndef SkSweepGradient_DEFINED
 #define SkSweepGradient_DEFINED
 
-#include "SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 class SkSweepGradient final : public SkGradientShaderBase {
 public:
@@ -20,17 +20,19 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
+    SkScalar getTBias() const { return fTBias; }
+
+    SkScalar getTScale() const { return fTScale; }
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSweepGradient)
+
     const SkPoint  fCenter;
     const SkScalar fTBias,
                    fTScale;

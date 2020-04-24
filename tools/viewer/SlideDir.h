@@ -8,9 +8,9 @@
 #ifndef SlideDir_DEFINED
 #define SlideDir_DEFINED
 
-#include "Slide.h"
+#include "tools/viewer/Slide.h"
 
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class SkString;
 
@@ -23,7 +23,7 @@ class Scene;
 
 class SlideDir final : public Slide {
 public:
-    SlideDir(const SkString& name, SkTArray<sk_sp<Slide>, true>&&,
+    SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&&,
              int columns = kDefaultColumnCount);
 
 protected:
@@ -33,10 +33,10 @@ protected:
     SkISize getDimensions() const override;
 
     void draw(SkCanvas*) override;
-    bool animate(const SkAnimTimer&) override;
+    bool animate(double) override;
 
     bool onChar(SkUnichar) override;
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
 private:
     struct Rec;
@@ -46,7 +46,7 @@ private:
 
     const Rec* findCell(float x, float y) const;
 
-    const SkTArray<sk_sp<Slide>, true> fSlides;
+    const SkTArray<sk_sp<Slide>>       fSlides;
     std::unique_ptr<FocusController>   fFocusController;
     const int                          fColumns;
 

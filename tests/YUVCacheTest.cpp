@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkYUVPlanesCache.h"
-#include "SkResourceCache.h"
-#include "Test.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkYUVPlanesCache.h"
+#include "tests/Test.h"
 
 enum LockedState {
     kUnlocked,
@@ -32,10 +32,15 @@ DEF_TEST(YUVPlanesCache, reporter) {
     SkResourceCache cache(1024);
 
     SkYUVPlanesCache::Info yuvInfo;
-    for (int i = 0; i < 3; i++) {
-        yuvInfo.fSizeInfo.fSizes[i].fWidth = 20 * i;
-        yuvInfo.fSizeInfo.fSizes[i].fHeight = 10 * i;
-        yuvInfo.fSizeInfo.fWidthBytes[i] = 80 * i;
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; i++) {
+        yuvInfo.fSizeInfo.fSizes[i].fWidth = 20 * (i + 1);
+        yuvInfo.fSizeInfo.fSizes[i].fHeight = 10 * (i + 1);
+        yuvInfo.fSizeInfo.fWidthBytes[i] = 80 * (i + 1);
+    }
+
+    for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
+        yuvInfo.fYUVAIndices[i].fIndex = -1;
+        yuvInfo.fYUVAIndices[i].fChannel = SkColorChannel::kR;
     }
     yuvInfo.fColorSpace = kRec601_SkYUVColorSpace;
 
@@ -59,14 +64,12 @@ DEF_TEST(YUVPlanesCache, reporter) {
 
     REPORTER_ASSERT(reporter, data);
     REPORTER_ASSERT(reporter, data->size() == size);
-    for (int i = 0; i < 3; ++i) {
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fSizes[i].fWidth ==
-                yuvInfoRead.fSizeInfo.fSizes[i].fWidth);
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fSizes[i].fHeight ==
-                yuvInfoRead.fSizeInfo.fSizes[i].fHeight);
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fWidthBytes[i] ==
-                yuvInfoRead.fSizeInfo.fWidthBytes[i]);
+    REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo == yuvInfoRead.fSizeInfo);
+
+    for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
+        REPORTER_ASSERT(reporter, yuvInfo.fYUVAIndices[i] == yuvInfoRead.fYUVAIndices[i]);
     }
+
     REPORTER_ASSERT(reporter, yuvInfo.fColorSpace == yuvInfoRead.fColorSpace);
 
     check_data(reporter, data, 2, kInCache, kLocked);

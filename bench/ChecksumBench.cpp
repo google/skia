@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkChecksum.h"
-#include "SkOpts.h"
-#include "SkMD5.h"
-#include "SkRandom.h"
-#include "SkTemplates.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkOpts.h"
 
 enum ChecksumType {
     kMD5_ChecksumType,
@@ -43,7 +43,7 @@ protected:
             case kMD5_ChecksumType: return "compute_md5";
             case kHash_ChecksumType: return "compute_hash";
 
-            default: SK_ABORT("Invalid Type"); return "";
+            default: SK_ABORT("Invalid Type");
         }
     }
 
@@ -53,8 +53,7 @@ protected:
                 for (int i = 0; i < loops; i++) {
                     SkMD5 md5;
                     md5.write(fData, sizeof(fData));
-                    SkMD5::Digest digest;
-                    md5.finish(digest);
+                    (void)md5.finish();
                 }
             } break;
             case kHash_ChecksumType: {

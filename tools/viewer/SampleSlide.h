@@ -8,32 +8,31 @@
 #ifndef SampleSlide_DEFINED
 #define SampleSlide_DEFINED
 
-#include "Slide.h"
-#include "SampleCode.h"
+#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 class SampleSlide : public Slide {
 public:
-    SampleSlide(const SkViewFactory* factory);
+    SampleSlide(const SampleFactory factory);
     ~SampleSlide() override;
+
+    SkISize getDimensions() const override;
 
     void draw(SkCanvas* canvas) override;
     void load(SkScalar winWidth, SkScalar winHeight) override;
-    void unload() override;
-    bool animate(const SkAnimTimer& timer) override {
-        if (fView && SampleView::IsSampleView(fView.get())) {
-            return ((SampleView*)fView.get())->animate(timer);
-        }
-        return false;
+    void resize(SkScalar winWidth, SkScalar winHeight) override {
+        fSample->setSize(winWidth, winHeight);
     }
+    void unload() override;
+    bool animate(double) override;
 
     bool onChar(SkUnichar c) override;
-    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
-                 uint32_t modifiers) override;
+    bool onMouse(SkScalar x, SkScalar y, skui::InputState state,
+                 skui::ModifierKey modifiers) override;
 
 private:
-    const SkViewFactory*   fViewFactory;
-    sk_sp<SkView>          fView;
-    SkView::Click*         fClick;
+    const SampleFactory fSampleFactory;
+    std::unique_ptr<Sample> fSample;
 };
 
 #endif

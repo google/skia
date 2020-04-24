@@ -1,0 +1,49 @@
+[
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/lottie-samples"
+    ],
+    "infra_step": true,
+    "name": "list lottie files",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/LICENSE@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie2.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie3.json@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "RECIPE CRASH (Uncaught exception)",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@",
+      "The recipe has crashed at point 'Uncaught exception'!",
+      "",
+      "Traceback (most recent call last):",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", in run_steps",
+      "    raw_result = recipe_obj.run_steps(api, engine)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", in run_steps",
+      "    properties_def, api=api)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in invoke_with_properties",
+      "    arg_names, **additional_args)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
+      "    return callable_obj(*props, **additional_args)",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 128, in RunSteps",
+      "    raise Exception('Could not recognize the buildername %s' % buildername)",
+      "Exception: Could not recognize the buildername Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized"
+    ]
+  },
+  {
+    "failure": {
+      "humanReason": "Uncaught Exception: Exception('Could not recognize the buildername Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized',)"
+    },
+    "name": "$result"
+  }
+]

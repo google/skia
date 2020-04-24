@@ -5,20 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkColorPriv.h"
-#include "SkMathPriv.h"
-#include "SkRandom.h"
-#include "SkTypes.h"
-#include "SkUnPreMultiply.h"
-#include "Test.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkColorData.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/Test.h"
 
-#define GetPackedR16As32(packed)    (SkGetPackedR16(dc) << (8 - SK_R16_BITS))
-#define GetPackedG16As32(packed)    (SkGetPackedG16(dc) << (8 - SK_G16_BITS))
-#define GetPackedB16As32(packed)    (SkGetPackedB16(dc) << (8 - SK_B16_BITS))
-
-static inline void test_premul(skiatest::Reporter* reporter) {
+DEF_TEST(ColorPremul, reporter) {
     for (int a = 0; a <= 255; a++) {
         for (int x = 0; x <= 255; x++) {
             SkColor c0 = SkColorSetARGB(a, x, x, x);
@@ -44,8 +39,7 @@ static inline void test_premul(skiatest::Reporter* reporter) {
   SkAlpha255To256 implemented as (alpha + 1) is faster than
   (alpha + (alpha >> 7)), but inaccurate, and Skia intends to phase it out.
 */
-/*
-static void test_interp(skiatest::Reporter* reporter) {
+DEF_TEST(ColorInterp, reporter) {
     SkRandom r;
 
     U8CPU a0 = 0;
@@ -56,13 +50,14 @@ static void test_interp(skiatest::Reporter* reporter) {
         SkPMColor src = SkPreMultiplyColor(colorSrc);
         SkPMColor dst = SkPreMultiplyColor(colorDst);
 
-        REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a0) == dst);
-        REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a255) == src);
+        if (false) {
+            REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a0) == dst);
+            REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a255) == src);
+        }
     }
 }
-*/
 
-static inline void test_fast_interp(skiatest::Reporter* reporter) {
+DEF_TEST(ColorFastIterp, reporter) {
     SkRandom r;
 
     U8CPU a0 = 0;
@@ -76,11 +71,4 @@ static inline void test_fast_interp(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, SkFastFourByteInterp(src, dst, a0) == dst);
         REPORTER_ASSERT(reporter, SkFastFourByteInterp(src, dst, a255) == src);
     }
-}
-
-DEF_TEST(Color, reporter) {
-    test_premul(reporter);
-    //test_interp(reporter);
-    test_fast_interp(reporter);
-    //test_565blend();
 }

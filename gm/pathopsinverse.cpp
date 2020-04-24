@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRect.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/pathops/SkPathOps.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
@@ -21,16 +27,16 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        const unsigned oneColor = sk_tool_utils::color_to_565(0xFF8080FF);
+        const unsigned oneColor   = ToolUtils::color_to_565(0xFF8080FF);
         const unsigned twoColor = 0x807F1f1f;
         SkColor blendColor = blend(oneColor, twoColor);
         makePaint(&fOnePaint, oneColor);
         makePaint(&fTwoPaint, twoColor);
         makePaint(&fOpPaint[kDifference_SkPathOp], oneColor);
         makePaint(&fOpPaint[kIntersect_SkPathOp], blendColor);
-        makePaint(&fOpPaint[kUnion_SkPathOp], sk_tool_utils::color_to_565(0xFFc0FFc0));
+        makePaint(&fOpPaint[kUnion_SkPathOp], ToolUtils::color_to_565(0xFFc0FFc0));
         makePaint(&fOpPaint[kReverseDifference_SkPathOp], twoColor);
-        makePaint(&fOpPaint[kXOR_SkPathOp], sk_tool_utils::color_to_565(0xFFa0FFe0));
+        makePaint(&fOpPaint[kXOR_SkPathOp], ToolUtils::color_to_565(0xFFa0FFe0));
         makePaint(&fOutlinePaint, 0xFF000000);
         fOutlinePaint.setStyle(SkPaint::kStroke_Style);
     }
@@ -63,11 +69,11 @@ protected:
         SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {
-            SkPath::FillType oneF = oneFill ? SkPath::kInverseEvenOdd_FillType
-                    : SkPath::kEvenOdd_FillType;
+            SkPathFillType oneF = oneFill ? SkPathFillType::kInverseEvenOdd
+                    : SkPathFillType::kEvenOdd;
             for (int twoFill = 0; twoFill <= 1; ++twoFill) {
-                SkPath::FillType twoF = twoFill ? SkPath::kInverseEvenOdd_FillType
-                        : SkPath::kEvenOdd_FillType;
+                SkPathFillType twoF = twoFill ? SkPathFillType::kInverseEvenOdd
+                        : SkPathFillType::kEvenOdd;
                 one.reset();
                 one.setFillType(oneF);
                 one.addRect(10, 10, 70, 70);
@@ -109,7 +115,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new PathOpsInverseGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new PathOpsInverseGM; )
 
 }

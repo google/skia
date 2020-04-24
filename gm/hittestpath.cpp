@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
 
 static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
@@ -48,13 +53,13 @@ DEF_SIMPLE_GM(hittestpath, canvas, 700, 460) {
                          randoms[10] * scale, randoms[11] * scale);
         }
 
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         path.offset(SkIntToScalar(20), SkIntToScalar(20));
 
         test_hittest(canvas, path);
 
         canvas->translate(SkIntToScalar(scale), 0);
-        path.setFillType(SkPath::kWinding_FillType);
+        path.setFillType(SkPathFillType::kWinding);
 
         test_hittest(canvas, path);
 }

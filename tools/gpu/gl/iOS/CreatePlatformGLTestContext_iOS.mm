@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GLTestContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 #import <OpenGLES/EAGL.h>
 #include <dlfcn.h>
 
@@ -42,10 +42,17 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
 
     if (shareContext) {
         EAGLContext* iosShareContext = shareContext->fEAGLContext;
-        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2
-                                            sharegroup: [iosShareContext sharegroup]];
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3
+                                            sharegroup:[iosShareContext sharegroup]];
+        if (fEAGLContext == nil) {
+            fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2
+                                                sharegroup:[iosShareContext sharegroup]];
+        }
     } else {
-        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+        if (fEAGLContext == nil) {
+            fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        }
     }
     SkScopeExit restorer(context_restorer());
     [EAGLContext setCurrentContext:fEAGLContext];

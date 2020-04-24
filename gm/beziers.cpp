@@ -5,9 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
 
 #define W   400
 #define H   400
@@ -30,7 +35,7 @@ static void rnd_quad(SkPath* p, SkPaint* paint, SkRandom& rand) {
     SkScalar width = rand.nextRangeScalar(1, 5);
     width *= width;
     paint->setStrokeWidth(width);
-    paint->setAlpha(0xFF);
+    paint->setAlphaf(1.0f);
 }
 
 static void rnd_cubic(SkPath* p, SkPaint* paint, SkRandom& rand) {
@@ -50,7 +55,7 @@ static void rnd_cubic(SkPath* p, SkPaint* paint, SkRandom& rand) {
     SkScalar width = rand.nextRangeScalar(1, 5);
     width *= width;
     paint->setStrokeWidth(width);
-    paint->setAlpha(0xFF);
+    paint->setAlphaf(1.0f);
 }
 
 class BeziersGM : public skiagm::GM {

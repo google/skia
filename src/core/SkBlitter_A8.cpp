@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCoreBlitters.h"
-#include "SkColorData.h"
-#include "SkShader.h"
-#include "SkXfermodePriv.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkCoreBlitters.h"
+#include "src/core/SkXfermodePriv.h"
 
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device,
                              const SkPaint& paint) : SkRasterBlitter(device) {

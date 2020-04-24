@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSVGEllipse.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGEllipse.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
 
 SkSVGEllipse::SkSVGEllipse() : INHERITED(SkSVGTag::kEllipse) {}
 
@@ -67,7 +67,7 @@ SkRect SkSVGEllipse::resolve(const SkSVGLengthContext& lctx) const {
 }
 
 void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                          const SkPaint& paint, SkPath::FillType) const {
+                          const SkPaint& paint, SkPathFillType) const {
     canvas->drawOval(this->resolve(lctx), paint);
 }
 

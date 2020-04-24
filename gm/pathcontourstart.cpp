@@ -5,12 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 
 namespace skiagm {
 
@@ -47,19 +55,19 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
+        drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkPath path;
             path.addRect(rect, dir, startIndex);
             return path;
         });
 
-        drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
+        drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkPath path;
             path.addOval(rect, dir, startIndex);
             return path;
         });
 
-        drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
+        drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             const SkVector radii[4] = { {15, 15}, {15, 15}, {15, 15}, {15, 15}};
             rrect.setRectRadii(rect, radii);
@@ -69,7 +77,7 @@ protected:
             return path;
         });
 
-        drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
+        drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             rrect.setRect(rect);
 
@@ -78,7 +86,7 @@ protected:
             return path;
         });
 
-        drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
+        drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             rrect.setOval(rect);
 
@@ -97,15 +105,15 @@ private:
     SkRect  fRect;
 
     void drawDirs(SkCanvas* canvas,
-                  SkPath (*makePath)(const SkRect&, SkPath::Direction, unsigned)) const {
-        drawOneColumn(canvas, SkPath::kCW_Direction, makePath);
+                  SkPath (*makePath)(const SkRect&, SkPathDirection, unsigned)) const {
+        drawOneColumn(canvas, SkPathDirection::kCW, makePath);
         canvas->translate(kImageWidth / 10, 0);
-        drawOneColumn(canvas, SkPath::kCCW_Direction, makePath);
+        drawOneColumn(canvas, SkPathDirection::kCCW, makePath);
         canvas->translate(kImageWidth / 10, 0);
     }
 
-    void drawOneColumn(SkCanvas* canvas, SkPath::Direction dir,
-                       SkPath (*makePath)(const SkRect&, SkPath::Direction, unsigned)) const {
+    void drawOneColumn(SkCanvas* canvas, SkPathDirection dir,
+                       SkPath (*makePath)(const SkRect&, SkPathDirection, unsigned)) const {
         SkAutoCanvasRestore acr(canvas, true);
 
         for (unsigned i = 0; i < 8; ++i) {

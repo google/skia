@@ -1,0 +1,149 @@
+[
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "mkdirs out_dir"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "remove previous lottie files"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
+      "[START_DIR]/lottie-samples",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "copy lottie files"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\n\nlottie_files_dir = sys.argv[1]\nout_dir = sys.argv[2]\nlottie_build = sys.argv[3]\n\n# Make sure all the lottie files are readable by everyone so we can see\n# them in the docker container.\nos.system('chmod 0644 %s/*' % lottie_files_dir)\nos.system('chmod 0644 %s/*' % lottie_build)\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\n# This typically means that the non-privileged docker won't be able to write.\nos.chmod(out_dir, 0o777)\n",
+      "/tmp/lottie_files",
+      "[START_DIR]/[SWARM_OUT_DIR]",
+      "[START_DIR]/lottie/build/player"
+    ],
+    "infra_step": true,
+    "name": "Set up for docker",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@lottie_files_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@out_dir = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@lottie_build = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Make sure all the lottie files are readable by everyone so we can see@@@",
+      "@@@STEP_LOG_LINE@python.inline@# them in the docker container.@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.system('chmod 0644 %s/*' % lottie_files_dir)@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.system('chmod 0644 %s/*' % lottie_build)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Prepare output folder, api.file.ensure_directory doesn't touch@@@",
+      "@@@STEP_LOG_LINE@python.inline@# the permissions of the out directory if it already exists.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# This typically means that the non-privileged docker won't be able to write.@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.chmod(out_dir, 0o777)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "docker",
+      "run",
+      "--shm-size=2gb",
+      "--rm",
+      "-v",
+      "[START_DIR]:/SRC",
+      "-v",
+      "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
+      "-v",
+      "[START_DIR]/lottie/build/player:/LOTTIE_BUILD",
+      "-v",
+      "/tmp/lottie_files:/LOTTIE_FILES",
+      "gcr.io/skia-public/gold-lottie-web-puppeteer:v2",
+      "/SRC/skia/infra/lottiecap/docker/lottiecap_gold.sh",
+      "--builder",
+      "Test-Debian9-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb",
+      "--git_hash",
+      "abc123",
+      "--buildbucket_build_id",
+      "",
+      "--bot_id",
+      "",
+      "--task_id",
+      "",
+      "--browser",
+      "Chrome",
+      "--config",
+      "Debug",
+      "--issue",
+      "1234",
+      "--patchset",
+      "7",
+      "--patch_storage",
+      "gerrit"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Create lottie-web Gold output with Docker"
+  },
+  {
+    "name": "$result"
+  }
+]

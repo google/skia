@@ -6,18 +6,18 @@
  */
 
 
-#include "Sk1DPathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkPathMeasure.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 // Since we are stepping by a float, the do/while loop might go on forever (or nearly so).
 // Put in a governor to limit crash values from looping too long (and allocating too much ram).
 #define MAX_REASONABLE_ITERATIONS   100000
 
-bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                SkStrokeRec*, const SkRect*) const {
+bool Sk1DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                  SkStrokeRec*, const SkRect*) const {
     SkPathMeasure   meas(src, false);
     do {
         int governor = MAX_REASONABLE_ITERATIONS;
@@ -40,6 +40,10 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkS
                                        Style style) : fPath(path) {
     SkASSERT(advance > 0 && !path.isEmpty());
     SkASSERT((unsigned)style <= kMorph_Style);
+
+    // Make the path thread-safe.
+    fPath.updateBoundsCache();
+    (void)fPath.getGenerationID();
 
     // cleanup their phase parameter, inverting it so that it becomes an
     // offset along the path (to match the interpretation in PostScript)
@@ -64,15 +68,15 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkS
     fInitialOffset = phase;
 
     if ((unsigned)style > kMorph_Style) {
-        SkDEBUGF(("SkPath1DPathEffect style enum out of range %d\n", style));
+        SkDEBUGF("SkPath1DPathEffect style enum out of range %d\n", style);
     }
     fStyle = style;
 }
 
-bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec* rec, const SkRect* cullRect) const {
+bool SkPath1DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                      SkStrokeRec* rec, const SkRect* cullRect) const {
     rec->setFillStyle();
-    return this->INHERITED::filterPath(dst, src, rec, cullRect);
+    return this->INHERITED::onFilterPath(dst, src, rec, cullRect);
 }
 
 static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
@@ -171,6 +175,11 @@ void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
 
 SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
                                   SkPathMeasure& meas) const {
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    if (dst->countPoints() > 100000) {
+        return fAdvance;
+    }
+#endif
     switch (fStyle) {
         case kTranslate_Style: {
             SkPoint pos;
@@ -192,14 +201,6 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
             break;
     }
     return fAdvance;
-}
-
-
-void SkPath1DPathEffect::toString(SkString* str) const {
-    str->appendf("SkPath1DPathEffect: (");
-    // TODO: add path and style
-    str->appendf("advance: %.2f phase %.2f", fAdvance, fInitialOffset);
-    str->appendf(")");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,13 +7,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 
-#include "sk_codec.h"
+#include "include/c/sk_codec.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
-size_t sk_codec_min_buffered_bytes_needed() {
+size_t sk_codec_min_buffered_bytes_needed(void) {
     return SkCodec::MinBufferedBytesNeeded();
 }
 

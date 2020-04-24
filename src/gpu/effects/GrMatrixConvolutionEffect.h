@@ -8,7 +8,7 @@
 #ifndef GrMatrixConvolutionEffect_DEFINED
 #define GrMatrixConvolutionEffect_DEFINED
 
-#include "GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).
@@ -16,7 +16,7 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> srcProxy,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -57,7 +57,7 @@ public:
 private:
     // srcProxy is the texture that is going to be convolved
     // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
-    GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcProxy,
+    GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
                               const SkIRect& srcBounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,
@@ -74,6 +74,8 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
+
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
 
     GrCoordTransform fCoordTransform;
     GrTextureDomain  fDomain;

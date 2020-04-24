@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+
+#include <float.h>
 
 #define STROKE_WIDTH    SkIntToScalar(20)
 
@@ -18,7 +28,7 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
     paint.setAntiAlias(true);
     paint.setStyle(doFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
 
-    paint.setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+    paint.setColor(SK_ColorGRAY);
     paint.setStrokeWidth(STROKE_WIDTH);
     paint.setStrokeJoin(join);
     canvas->drawRect(rect, paint);

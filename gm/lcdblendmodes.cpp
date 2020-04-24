@@ -5,16 +5,26 @@
  * found in the LICENSE file.
  */
 
-
-/*
- * Tests text rendering with LCD and the various blend modes.
- */
-
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
@@ -32,7 +42,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorRED, SK_ColorGREEN,
     };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kRepeat_TileMode);
+                                        SkTileMode::kRepeat);
 }
 
 class LcdBlendGM : public skiagm::GM {
@@ -48,7 +58,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard = sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
+        fCheckerboard = ToolUtils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
     }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
@@ -62,7 +72,7 @@ protected:
         canvas->drawRect(r, p);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        auto surface(sk_tool_utils::makeSurface(canvas, info));
+        auto        surface(ToolUtils::makeSurface(canvas, info));
 
         SkCanvas* surfCanvas = surface->getCanvas();
         this->drawColumn(surfCanvas, SK_ColorBLACK, SK_ColorWHITE, false);
@@ -118,19 +128,17 @@ protected:
         for (size_t m = 0; m < SK_ARRAY_COUNT(gModes); m++) {
             SkPaint paint;
             paint.setColor(textColor);
-            paint.setAntiAlias(true);
-            paint.setSubpixelText(true);
-            paint.setLCDRenderText(true);
-            paint.setTextSize(fTextHeight);
             paint.setBlendMode(gModes[m]);
-            sk_tool_utils::set_portable_typeface(&paint);
+            SkFont font(ToolUtils::create_portable_typeface(), fTextHeight);
+            font.setSubpixel(true);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
             if (useGrad) {
                 SkRect r;
                 r.setXYWH(0, y - fTextHeight, SkIntToScalar(kColWidth), fTextHeight);
                 paint.setShader(make_shader(r));
             }
             SkString string(SkBlendMode_Name(gModes[m]));
-            canvas->drawString(string, 0, y, paint);
+            canvas->drawString(string, 0, y, font, paint);
             y+=fTextHeight;
         }
     }

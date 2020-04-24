@@ -8,9 +8,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRegion.h"
-#include "sk_region.h"
-#include "sk_types_priv.h"
+#include "include/core/SkRegion.h"
+
+#include "include/c/sk_region.h"
+
+#include "src/c/sk_types_priv.h"
+
 
 // sk_region_t
 

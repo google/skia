@@ -1,0 +1,25 @@
+#! /usr/bin/env python2
+# Copyright 2017 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+import subprocess
+import sys
+
+def spawn(cmd):
+  with open(os.devnull, 'w') as o:
+    subprocess.Popen(cmd, stdout=o, stderr=o)
+
+def sysopen(arg):
+  plat = sys.platform
+  if plat.startswith('darwin'):
+    spawn(["open", arg])
+  elif plat.startswith('win'):
+    os.startfile(arg)
+  else:
+    spawn(["xdg-open", arg])
+
+if __name__ == '__main__':
+  for a in sys.argv[1:]:
+    sysopen(a)

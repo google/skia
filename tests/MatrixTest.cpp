@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkMath.h"
-#include "SkMatrixPriv.h"
-#include "SkMatrixUtils.h"
-#include "SkPoint3.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMatrixUtils.h"
+#include "tests/Test.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 200000;
@@ -20,11 +20,17 @@ static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
 static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
     for (int i = 0; i < 9; i++) {
         if (!nearly_equal_scalar(a[i], b[i])) {
-            SkDebugf("not equal %g %g\n", (float)a[i], (float)b[i]);
+            SkDebugf("matrices not equal [%d] %g %g\n", i, (float)a[i], (float)b[i]);
             return false;
         }
     }
     return true;
+}
+
+static int float_bits(float f) {
+    int result;
+    memcpy(&result, &f, 4);
+    return result;
 }
 
 static bool are_equal(skiatest::Reporter* reporter,
@@ -38,8 +44,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *SkTCast<int*>(&aVal);
-                int bValI = *SkTCast<int*>(&bVal);
+                int aValI = float_bits(aVal);
+                int bValI = float_bits(bVal);
                 if (0 == aVal && 0 == bVal && aValI != bValI) {
                     foundZeroSignDiff = true;
                 } else {
@@ -52,8 +58,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *SkTCast<int*>(&aVal);
-                int bValI = *SkTCast<int*>(&bVal);
+                int aValI = float_bits(aVal);
+                int bValI = float_bits(bVal);
                 if (sk_float_isnan(aVal) && aValI == bValI) {
                     foundNaN = true;
                 } else {
@@ -115,18 +121,18 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     SkRect src, dst;
     SkMatrix matrix;
 
-    src.set(0, 0, SK_Scalar1*10, SK_Scalar1*10);
+    src.setLTRB(0, 0, 10, 10);
     dst = src;
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 
-    dst.offset(SK_Scalar1, SK_Scalar1);
+    dst.offset(1, 1);
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 
-    dst.fRight += SK_Scalar1;
+    dst.fRight += 1;
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter,
                     (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask) == matrix.getType());
@@ -165,47 +171,45 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
 
     SkMatrix identity;
     identity.reset();
-    REPORTER_ASSERT(reporter, SK_Scalar1 == identity.getMinScale());
-    REPORTER_ASSERT(reporter, SK_Scalar1 == identity.getMaxScale());
+    REPORTER_ASSERT(reporter, 1 == identity.getMinScale());
+    REPORTER_ASSERT(reporter, 1 == identity.getMaxScale());
     success = identity.getMinMaxScales(scales);
-    REPORTER_ASSERT(reporter, success && SK_Scalar1 == scales[0] && SK_Scalar1 == scales[1]);
+    REPORTER_ASSERT(reporter, success && 1 == scales[0] && 1 == scales[1]);
 
     SkMatrix scale;
-    scale.setScale(SK_Scalar1 * 2, SK_Scalar1 * 4);
-    REPORTER_ASSERT(reporter, SK_Scalar1 * 2 == scale.getMinScale());
-    REPORTER_ASSERT(reporter, SK_Scalar1 * 4 == scale.getMaxScale());
+    scale.setScale(2, 4);
+    REPORTER_ASSERT(reporter, 2 == scale.getMinScale());
+    REPORTER_ASSERT(reporter, 4 == scale.getMaxScale());
     success = scale.getMinMaxScales(scales);
-    REPORTER_ASSERT(reporter, success && SK_Scalar1 * 2 == scales[0] && SK_Scalar1 * 4 == scales[1]);
+    REPORTER_ASSERT(reporter, success && 2 == scales[0] && 4 == scales[1]);
 
     SkMatrix rot90Scale;
-    rot90Scale.setRotate(90 * SK_Scalar1);
-    rot90Scale.postScale(SK_Scalar1 / 4, SK_Scalar1 / 2);
+    rot90Scale.setRotate(90).postScale(SK_Scalar1 / 4, SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, SK_Scalar1 / 4 == rot90Scale.getMinScale());
     REPORTER_ASSERT(reporter, SK_Scalar1 / 2 == rot90Scale.getMaxScale());
     success = rot90Scale.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, success && SK_Scalar1 / 4  == scales[0] && SK_Scalar1 / 2 == scales[1]);
 
     SkMatrix rotate;
-    rotate.setRotate(128 * SK_Scalar1);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, rotate.getMinScale(), SK_ScalarNearlyZero));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, rotate.getMaxScale(), SK_ScalarNearlyZero));
+    rotate.setRotate(128);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(1, rotate.getMinScale(), SK_ScalarNearlyZero));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(1, rotate.getMaxScale(), SK_ScalarNearlyZero));
     success = rotate.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, success);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, scales[0], SK_ScalarNearlyZero));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, scales[1], SK_ScalarNearlyZero));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(1, scales[0], SK_ScalarNearlyZero));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(1, scales[1], SK_ScalarNearlyZero));
 
     SkMatrix translate;
-    translate.setTranslate(10 * SK_Scalar1, -5 * SK_Scalar1);
-    REPORTER_ASSERT(reporter, SK_Scalar1 == translate.getMinScale());
-    REPORTER_ASSERT(reporter, SK_Scalar1 == translate.getMaxScale());
+    translate.setTranslate(10, -5);
+    REPORTER_ASSERT(reporter, 1 == translate.getMinScale());
+    REPORTER_ASSERT(reporter, 1 == translate.getMaxScale());
     success = translate.getMinMaxScales(scales);
-    REPORTER_ASSERT(reporter, success && SK_Scalar1 == scales[0] && SK_Scalar1 == scales[1]);
+    REPORTER_ASSERT(reporter, success && 1 == scales[0] && 1 == scales[1]);
 
     SkMatrix perspX;
-    perspX.reset();
-    perspX.setPerspX(SK_Scalar1 / 1000);
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
+    perspX.reset().setPerspX(SK_Scalar1 / 1000);
+    REPORTER_ASSERT(reporter, -1 == perspX.getMinScale());
+    REPORTER_ASSERT(reporter, -1 == perspX.getMaxScale());
     success = perspX.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, !success);
 
@@ -226,14 +230,13 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, success && 0 == scales[0]);
 
     SkMatrix perspY;
-    perspY.reset();
-    perspY.setPerspY(-SK_Scalar1 / 500);
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMinScale());
-    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMaxScale());
+    perspY.reset().setPerspY(-SK_Scalar1 / 500);
+    REPORTER_ASSERT(reporter, -1 == perspY.getMinScale());
+    REPORTER_ASSERT(reporter, -1 == perspY.getMaxScale());
     scales[0] = -5;
     scales[1] = -5;
     success = perspY.getMinMaxScales(scales);
-    REPORTER_ASSERT(reporter, !success && -5 * SK_Scalar1 == scales[0] && -5 * SK_Scalar1  == scales[1]);
+    REPORTER_ASSERT(reporter, !success && -5 == scales[0] && -5  == scales[1]);
 
     SkMatrix baseMats[] = {scale, rot90Scale, rotate,
                            translate, perspX, perspY};
@@ -307,84 +310,67 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // translation only
-    mat.reset();
-    mat.setTranslate(SkIntToScalar(100), SkIntToScalar(100));
+    mat.setTranslate(100, 100);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scale with same size
-    mat.reset();
-    mat.setScale(SkIntToScalar(15), SkIntToScalar(15));
+    mat.setScale(15, 15);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scale with one negative
-    mat.reset();
-    mat.setScale(SkIntToScalar(-15), SkIntToScalar(15));
+    mat.setScale(-15, 15);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scale with different size
-    mat.reset();
-    mat.setScale(SkIntToScalar(15), SkIntToScalar(20));
+    mat.setScale(15, 20);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scale with same size at a pivot point
-    mat.reset();
-    mat.setScale(SkIntToScalar(15), SkIntToScalar(15),
-                 SkIntToScalar(2), SkIntToScalar(2));
+    mat.setScale(15, 15, 2, 2);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scale with different size at a pivot point
-    mat.reset();
-    mat.setScale(SkIntToScalar(15), SkIntToScalar(20),
-                 SkIntToScalar(2), SkIntToScalar(2));
+    mat.setScale(15, 20, 2, 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // skew with same size
-    mat.reset();
-    mat.setSkew(SkIntToScalar(15), SkIntToScalar(15));
+    mat.setSkew(15, 15);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // skew with different size
-    mat.reset();
-    mat.setSkew(SkIntToScalar(15), SkIntToScalar(20));
+    mat.setSkew(15, 20);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // skew with same size at a pivot point
-    mat.reset();
-    mat.setSkew(SkIntToScalar(15), SkIntToScalar(15),
-                SkIntToScalar(2), SkIntToScalar(2));
+    mat.setSkew(15, 15, 2, 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // skew with different size at a pivot point
-    mat.reset();
-    mat.setSkew(SkIntToScalar(15), SkIntToScalar(20),
-                SkIntToScalar(2), SkIntToScalar(2));
+    mat.setSkew(15, 20, 2, 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // perspective x
-    mat.reset();
-    mat.setPerspX(SK_Scalar1 / 2);
+    mat.reset().setPerspX(SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // perspective y
-    mat.reset();
-    mat.setPerspY(SK_Scalar1 / 2);
+    mat.reset().setPerspY(SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // rotate
     for (int angle = 0; angle < 360; ++angle) {
-        mat.reset();
         mat.setRotate(SkIntToScalar(angle));
         REPORTER_ASSERT(reporter, mat.isSimilarity());
         REPORTER_ASSERT(reporter, mat.preservesRightAngles());
@@ -393,36 +379,28 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
     // see if there are any accumulated precision issues
     mat.reset();
     for (int i = 1; i < 360; i++) {
-        mat.postRotate(SkIntToScalar(1));
+        mat.postRotate(1);
     }
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // rotate + translate
-    mat.reset();
-    mat.setRotate(SkIntToScalar(30));
-    mat.postTranslate(SkIntToScalar(10), SkIntToScalar(20));
+    mat.setRotate(30).postTranslate(10, 20);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // rotate + uniform scale
-    mat.reset();
-    mat.setRotate(SkIntToScalar(30));
-    mat.postScale(SkIntToScalar(2), SkIntToScalar(2));
+    mat.setRotate(30).postScale(2, 2);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // rotate + non-uniform scale
-    mat.reset();
-    mat.setRotate(SkIntToScalar(30));
-    mat.postScale(SkIntToScalar(3), SkIntToScalar(2));
+    mat.setRotate(30).postScale(3, 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // non-uniform scale + rotate
-    mat.reset();
-    mat.setScale(SkIntToScalar(3), SkIntToScalar(2));
-    mat.postRotate(SkIntToScalar(30));
+    mat.setScale(3, 2).postRotate(30);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
@@ -432,22 +410,21 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // all zero except perspective
-    mat.reset();
-    mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, SK_Scalar1);
+    mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, 1);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // scales zero, only skews (rotation)
-    mat.setAll(0, SK_Scalar1, 0,
-               -SK_Scalar1, 0, 0,
-               0, 0, SkMatrix::I()[8]);
+    mat.setAll(0, 1, 0,
+               -1, 0, 0,
+               0, 0, 1);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 
     // scales zero, only skews (reflection)
-    mat.setAll(0, SK_Scalar1, 0,
-               SK_Scalar1, 0, 0,
-               0, 0, SkMatrix::I()[8]);
+    mat.setAll(0, 1, 0,
+               1, 0, 0,
+               0, 0, 1);
     REPORTER_ASSERT(reporter, mat.isSimilarity());
     REPORTER_ASSERT(reporter, mat.preservesRightAngles());
 }
@@ -529,71 +506,57 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation then uniform scale
-    mat.setRotate(kRotation1);
-    mat.postScale(kScale0, kScale0);
+    mat.setRotate(kRotation1).postScale(kScale0, kScale0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // uniform scale then rotation
-    mat.setScale(kScale0, kScale0);
-    mat.postRotate(kRotation1);
+    mat.setScale(kScale0, kScale0).postRotate(kRotation1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation then uniform scale+reflection
-    mat.setRotate(kRotation0);
-    mat.postScale(kScale1, -kScale1);
+    mat.setRotate(kRotation0).postScale(kScale1, -kScale1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // uniform scale+reflection, then rotate
-    mat.setScale(kScale0, -kScale0);
-    mat.postRotate(kRotation1);
+    mat.setScale(kScale0, -kScale0).postRotate(kRotation1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation then anisotropic scale
-    mat.setRotate(kRotation1);
-    mat.postScale(kScale1, kScale0);
+    mat.setRotate(kRotation1).postScale(kScale1, kScale0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation then anisotropic scale
-    mat.setRotate(90);
-    mat.postScale(kScale1, kScale0);
+    mat.setRotate(90).postScale(kScale1, kScale0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // anisotropic scale then rotation
-    mat.setScale(kScale1, kScale0);
-    mat.postRotate(kRotation0);
+    mat.setScale(kScale1, kScale0).postRotate(kRotation0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // anisotropic scale then rotation
-    mat.setScale(kScale1, kScale0);
-    mat.postRotate(90);
+    mat.setScale(kScale1, kScale0).postRotate(90);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation, uniform scale, then different rotation
-    mat.setRotate(kRotation1);
-    mat.postScale(kScale0, kScale0);
-    mat.postRotate(kRotation0);
+    mat.setRotate(kRotation1).postScale(kScale0, kScale0).postRotate(kRotation0);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation, anisotropic scale, then different rotation
-    mat.setRotate(kRotation0);
-    mat.postScale(kScale1, kScale0);
-    mat.postRotate(kRotation1);
+    mat.setRotate(kRotation0).postScale(kScale1, kScale0).postRotate(kRotation1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
     // rotation, anisotropic scale + reflection, then different rotation
-    mat.setRotate(kRotation0);
-    mat.postScale(-kScale1, kScale0);
-    mat.postRotate(kRotation1);
+    mat.setRotate(kRotation0).postScale(-kScale1, kScale0).postRotate(kRotation1);
     REPORTER_ASSERT(reporter, SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2));
     REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
 
@@ -604,9 +567,7 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
         SkScalar sx = rand.nextRangeF(-3000.f, 3000.f);
         SkScalar sy = rand.nextRangeF(-3000.f, 3000.f);
         SkScalar rot1 = rand.nextRangeF(-180, 180);
-        mat.setRotate(rot0);
-        mat.postScale(sx, sy);
-        mat.postRotate(rot1);
+        mat.setRotate(rot0).postScale(sx, sy).postRotate(rot1);
 
         if (SkDecomposeUpper2x2(mat, &rotation1, &scale, &rotation2)) {
             REPORTER_ASSERT(reporter, check_matrix_recomposition(mat, rotation1, scale, rotation2));
@@ -752,7 +713,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     mat.mapPoints(&pnt, &pnt, 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
     }
 
     // rotation of point
@@ -766,7 +727,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     mat.mapPoints(&pnt, &pnt, 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
     }
 
     // rotation, scale, rotation of point
@@ -782,7 +743,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     mat.mapPoints(&pnt, &pnt, 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
     }
 
     // compare with naive approach
@@ -798,18 +759,55 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
 }
 
-static bool check_decompScale(const SkMatrix& matrix) {
+static bool check_decompScale(const SkMatrix& original) {
     SkSize scale;
     SkMatrix remaining;
 
-    if (!matrix.decomposeScale(&scale, &remaining)) {
+    if (!original.decomposeScale(&scale, &remaining)) {
         return false;
     }
     if (scale.width() <= 0 || scale.height() <= 0) {
         return false;
     }
-    remaining.preScale(scale.width(), scale.height());
-    return nearly_equal(matrix, remaining);
+
+    // First ensure that the decomposition reconstitutes back to the original
+    {
+        SkMatrix reconstituted = remaining;
+
+        reconstituted.preScale(scale.width(), scale.height());
+        if (!nearly_equal(original, reconstituted)) {
+            return false;
+        }
+    }
+
+    // Then push some points through both paths and make sure they are the same.
+    static const int kNumPoints = 5;
+    const SkPoint testPts[kNumPoints] = {
+        {  0.0f,  0.0f },
+        {  1.0f,  1.0f },
+        {  1.0f,  0.5f },
+        { -1.0f, -0.5f },
+        { -1.0f,  2.0f }
+    };
+
+    SkPoint v1[kNumPoints];
+    original.mapPoints(v1, testPts, kNumPoints);
+
+    SkPoint v2[kNumPoints];
+    SkMatrix scaleMat = SkMatrix::MakeScale(scale.width(), scale.height());
+
+    // Note, we intend the decomposition to be applied in the order scale and then remainder but,
+    // due to skbug.com/7211, the order is reversed!
+    scaleMat.mapPoints(v2, testPts, kNumPoints);
+    remaining.mapPoints(v2, kNumPoints);
+
+    for (int i = 0; i < kNumPoints; ++i) {
+        if (!SkPointPriv::EqualsWithinTolerance(v1[i], v2[i], 0.00001f)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 static void test_decompScale(skiatest::Reporter* reporter) {
@@ -824,31 +822,36 @@ static void test_decompScale(skiatest::Reporter* reporter) {
 
     m.setScale(1, 0);
     REPORTER_ASSERT(reporter, !check_decompScale(m));
+
+    m.setRotate(35, 0, 0).preScale(2, 3);
+    REPORTER_ASSERT(reporter, check_decompScale(m));
+
+    m.setRotate(35, 0, 0).postScale(2, 3);
+    REPORTER_ASSERT(reporter, check_decompScale(m));
 }
 
 DEF_TEST(Matrix, reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
     mat.reset();
-    mat.setTranslate(SK_Scalar1, SK_Scalar1);
+    mat.setTranslate(1, 1);
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
-    mat.setScale(SkIntToScalar(2), SkIntToScalar(4));
-    REPORTER_ASSERT(reporter, mat.invert(&inverse));
-    iden1.setConcat(mat, inverse);
-    REPORTER_ASSERT(reporter, is_identity(iden1));
-    test_flatten(reporter, mat);
-
-    mat.setScale(SK_Scalar1/2, SkIntToScalar(2));
+    mat.setScale(2, 4);
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
     test_flatten(reporter, mat);
 
-    mat.setScale(SkIntToScalar(3), SkIntToScalar(5), SkIntToScalar(20), 0);
-    mat.postRotate(SkIntToScalar(25));
+    mat.setScale(SK_Scalar1/2, 2);
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
+    iden1.setConcat(mat, inverse);
+    REPORTER_ASSERT(reporter, is_identity(iden1));
+    test_flatten(reporter, mat);
+
+    mat.setScale(3, 5, 20, 0).postRotate(25);
     REPORTER_ASSERT(reporter, mat.invert(nullptr));
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     iden1.setConcat(mat, inverse);
@@ -858,10 +861,10 @@ DEF_TEST(Matrix, reporter) {
     test_flatten(reporter, mat);
     test_flatten(reporter, iden2);
 
-    mat.setScale(0, SK_Scalar1);
+    mat.setScale(0, 1);
     REPORTER_ASSERT(reporter, !mat.invert(nullptr));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
-    mat.setScale(SK_Scalar1, 0);
+    mat.setScale(1, 0);
     REPORTER_ASSERT(reporter, !mat.invert(nullptr));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
 
@@ -879,22 +882,22 @@ DEF_TEST(Matrix, reporter) {
             bool        mStaysRect;
         }
         gRectStaysRectSamples[] = {
-            {          0,          0,          0,           0, false },
-            {          0,          0,          0,  SK_Scalar1, false },
-            {          0,          0, SK_Scalar1,           0, false },
-            {          0,          0, SK_Scalar1,  SK_Scalar1, false },
-            {          0, SK_Scalar1,          0,           0, false },
-            {          0, SK_Scalar1,          0,  SK_Scalar1, false },
-            {          0, SK_Scalar1, SK_Scalar1,           0, true },
-            {          0, SK_Scalar1, SK_Scalar1,  SK_Scalar1, false },
-            { SK_Scalar1,          0,          0,           0, false },
-            { SK_Scalar1,          0,          0,  SK_Scalar1, true },
-            { SK_Scalar1,          0, SK_Scalar1,           0, false },
-            { SK_Scalar1,          0, SK_Scalar1,  SK_Scalar1, false },
-            { SK_Scalar1, SK_Scalar1,          0,           0, false },
-            { SK_Scalar1, SK_Scalar1,          0,  SK_Scalar1, false },
-            { SK_Scalar1, SK_Scalar1, SK_Scalar1,           0, false },
-            { SK_Scalar1, SK_Scalar1, SK_Scalar1,  SK_Scalar1, false }
+            { 0, 0, 0, 0, false },
+            { 0, 0, 0, 1, false },
+            { 0, 0, 1, 0, false },
+            { 0, 0, 1, 1, false },
+            { 0, 1, 0, 0, false },
+            { 0, 1, 0, 1, false },
+            { 0, 1, 1, 0, true },
+            { 0, 1, 1, 1, false },
+            { 1, 0, 0, 0, false },
+            { 1, 0, 0, 1, true },
+            { 1, 0, 1, 0, false },
+            { 1, 0, 1, 1, false },
+            { 1, 1, 0, 0, false },
+            { 1, 1, 0, 1, false },
+            { 1, 1, 1, 0, false },
+            { 1, 1, 1, 1, false }
         };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRectStaysRectSamples); i++) {
@@ -911,12 +914,12 @@ DEF_TEST(Matrix, reporter) {
     }
 
     mat.reset();
-    mat.set(SkMatrix::kMScaleX, SkIntToScalar(1));
-    mat.set(SkMatrix::kMSkewX,  SkIntToScalar(2));
-    mat.set(SkMatrix::kMTransX, SkIntToScalar(3));
-    mat.set(SkMatrix::kMSkewY,  SkIntToScalar(4));
-    mat.set(SkMatrix::kMScaleY, SkIntToScalar(5));
-    mat.set(SkMatrix::kMTransY, SkIntToScalar(6));
+    mat.set(SkMatrix::kMScaleX, 1)
+       .set(SkMatrix::kMSkewX,  2)
+       .set(SkMatrix::kMTransX, 3)
+       .set(SkMatrix::kMSkewY,  4)
+       .set(SkMatrix::kMScaleY, 5)
+       .set(SkMatrix::kMTransY, 6);
     SkScalar affine[6];
     REPORTER_ASSERT(reporter, mat.asAffine(affine));
 
@@ -955,8 +958,7 @@ DEF_TEST(Matrix, reporter) {
     test_decompScale(reporter);
 
     mat.setScaleTranslate(2, 3, 1, 4);
-    mat2.setScale(2, 3);
-    mat2.postTranslate(1, 4);
+    mat2.setScale(2, 3).postTranslate(1, 4);
     REPORTER_ASSERT(reporter, mat == mat2);
 }
 
@@ -978,8 +980,7 @@ DEF_TEST(Matrix_maprects, r) {
     const SkScalar scale = 1000;
 
     SkMatrix mat;
-    mat.setScale(2, 3);
-    mat.postTranslate(1, 4);
+    mat.setScale(2, 3).postTranslate(1, 4);
 
     SkRandom rand;
     for (int i = 0; i < 10000; ++i) {
@@ -1013,4 +1014,8 @@ DEF_TEST(Matrix_maprects, r) {
             REPORTER_ASSERT(r, !rect.isFinite());
         }
     }
+}
+
+DEF_TEST(Matrix_Ctor, r) {
+    REPORTER_ASSERT(r, SkMatrix{} == SkMatrix::I());
 }

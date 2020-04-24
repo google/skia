@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkXMLWriter.h"
-#include "SkStream.h"
+#include "src/xml/SkXMLWriter.h"
+
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
 
 SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
@@ -188,14 +190,9 @@ void SkXMLWriter::writeHeader()
 
 // SkXMLStreamWriter
 
-static void tab(SkWStream& stream, int level) {
-    for (int i = 0; i < level; i++) {
-        stream.writeText("\t");
-    }
-}
-
-SkXMLStreamWriter::SkXMLStreamWriter(SkWStream* stream) : fStream(*stream)
-{}
+SkXMLStreamWriter::SkXMLStreamWriter(SkWStream* stream, uint32_t flags)
+    : fStream(*stream)
+    , fFlags(flags) {}
 
 SkXMLStreamWriter::~SkXMLStreamWriter() {
     this->flush();
@@ -215,25 +212,25 @@ void SkXMLStreamWriter::onAddText(const char text[], size_t length) {
 
     if (!elem->fHasChildren && !elem->fHasText) {
         fStream.writeText(">");
-        fStream.newline();
+        this->newline();
     }
 
-    tab(fStream, fElems.count() + 1);
+    this->tab(fElems.count() + 1);
     fStream.write(text, length);
-    fStream.newline();
+    this->newline();
 }
 
 void SkXMLStreamWriter::onEndElement() {
     Elem* elem = getEnd();
     if (elem->fHasChildren || elem->fHasText) {
-        tab(fStream, fElems.count());
+        this->tab(fElems.count());
         fStream.writeText("</");
         fStream.writeText(elem->fName.c_str());
         fStream.writeText(">");
     } else {
         fStream.writeText("/>");
     }
-    fStream.newline();
+    this->newline();
     doEnd(elem);
 }
 
@@ -242,10 +239,10 @@ void SkXMLStreamWriter::onStartElementLen(const char name[], size_t length) {
     if (this->doStart(name, length)) {
         // the first child, need to close with >
         fStream.writeText(">");
-        fStream.newline();
+        this->newline();
     }
 
-    tab(fStream, level);
+    this->tab(level);
     fStream.writeText("<");
     fStream.write(name, length);
 }
@@ -253,12 +250,26 @@ void SkXMLStreamWriter::onStartElementLen(const char name[], size_t length) {
 void SkXMLStreamWriter::writeHeader() {
     const char* header = getHeader();
     fStream.write(header, strlen(header));
-    fStream.newline();
+    this->newline();
+}
+
+void SkXMLStreamWriter::newline() {
+    if (!(fFlags & kNoPretty_Flag)) {
+        fStream.newline();
+    }
+}
+
+void SkXMLStreamWriter::tab(int level) {
+    if (!(fFlags & kNoPretty_Flag)) {
+        for (int i = 0; i < level; i++) {
+            fStream.writeText("\t");
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkXMLParser.h"
+#include "src/xml/SkXMLParser.h"
 
 SkXMLParserWriter::SkXMLParserWriter(SkXMLParser* parser)
     : SkXMLWriter(false), fParser(*parser)

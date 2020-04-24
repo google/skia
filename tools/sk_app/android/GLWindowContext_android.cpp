@@ -8,9 +8,9 @@
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_android.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/android/WindowContextFactory_android.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
@@ -101,25 +101,7 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
 //    SkDebugf("Vendor: %s", eglQueryString(fDisplay, EGL_VENDOR));
 //    SkDebugf("Extensions: %s", eglQueryString(fDisplay, EGL_EXTENSIONS));
 
-    // These values are the same as the corresponding VG colorspace attributes,
-    // which were accepted starting in EGL 1.2. For some reason in 1.4, sRGB
-    // became hidden behind an extension, but it looks like devices aren't
-    // advertising that extension (including Nexus 5X). So just check version?
-    const EGLint srgbWindowAttribs[] = {
-        /*EGL_GL_COLORSPACE_KHR*/ 0x309D, /*EGL_GL_COLORSPACE_SRGB_KHR*/ 0x3089,
-        EGL_NONE,
-    };
-    const EGLint* windowAttribs = nullptr;
-    auto srgbColorSpace = SkColorSpace::MakeSRGB();
-    if (srgbColorSpace == fDisplayParams.fColorSpace && majorVersion == 1 && minorVersion >= 2) {
-        windowAttribs = srgbWindowAttribs;
-    }
-
-    fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
-    if (EGL_NO_SURFACE == fSurfaceAndroid && windowAttribs) {
-        // Try again without sRGB
-        fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
-    }
+    fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
     SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
@@ -134,6 +116,8 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_STENCIL_SIZE, &fStencilBits);
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
     fSampleCount = SkTMax(fSampleCount, 1);
+
+    eglSwapInterval(fDisplay, fDisplayParams.fDisableVsync ? 0 : 1);
 
     return GrGLMakeNativeInterface();
 }
@@ -160,10 +144,10 @@ void GLWindowContext_android::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForAndroid(ANativeWindow* window, const DisplayParams& params) {
-    WindowContext* ctx = new GLWindowContext_android(window, params);
+std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow* window,
+                                                const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_android(window, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

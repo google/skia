@@ -8,7 +8,7 @@
 #ifndef SKSL_SECTION
 #define SKSL_SECTION
 
-#include "SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 
@@ -21,6 +21,10 @@ struct Section : public ProgramElement {
     , fName(std::move(name))
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
+
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
+    }
 
     String description() const override {
         String result = "@" + fName;

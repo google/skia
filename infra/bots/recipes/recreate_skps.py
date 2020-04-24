@@ -7,7 +7,7 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'depot_tools/gclient',
   'flavor',
   'infra',
@@ -36,8 +36,15 @@ TEST_BUILDERS = {
 def RunSteps(api):
   # Check out Chrome.
   api.vars.setup()
-  checkout_root = api.core.default_checkout_root
-  api.core.checkout_bot_update(checkout_root=checkout_root)
+
+  checkout_root = api.checkout.default_checkout_root
+  extra_gclient_env = {
+      'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1'}
+  api.checkout.bot_update(
+      checkout_root=checkout_root,
+      checkout_chromium=True,
+      extra_gclient_env=extra_gclient_env)
+
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
@@ -69,18 +76,17 @@ def RunSteps(api):
          '--chrome_src_path', src_dir,
          '--browser_executable', src_dir.join('out', 'Release', 'chrome'),
          '--target_dir', output_dir]
-  # TODO(rmistry): Uncomment the below after skbug.com/6797 is fixed.
-  # if 'Canary' not in api.properties['buildername']:
-  #   cmd.append('--upload_to_partner_bucket')
+  if 'Canary' not in api.properties['buildername']:
+    cmd.append('--upload_to_partner_bucket')
   with api.context(cwd=skia_dir):
     api.run(api.step, 'Recreate SKPs', cmd=cmd)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
-    api.infra.update_go_deps()
     cmd = ['python',
            skia_dir.join('infra', 'bots', 'upload_skps.py'),
-           '--target_dir', output_dir]
+           '--target_dir', output_dir,
+           '--chromium_path', src_dir]
     with api.context(cwd=skia_dir, env=api.infra.go_env):
       api.run(api.step, 'Upload SKPs', cmd=cmd)
 

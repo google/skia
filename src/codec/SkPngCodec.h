@@ -7,14 +7,13 @@
 #ifndef SkPngCodec_DEFINED
 #define SkPngCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorTable.h"
-#include "SkPngChunkReader.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImageInfo.h"
-#include "SkRefCnt.h"
-#include "SkSwizzler.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPngChunkReader.h"
+#include "include/core/SkRefCnt.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSwizzler.h"
 
 class SkStream;
 
@@ -45,14 +44,13 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, std::unique_ptr<SkStream>,
-               SkPngChunkReader*, void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkPngChunkReader*,
+               void* png_ptr, void* info_ptr, int bitDepth);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
 
     SkSampler* getSampler(bool createIfNecessary) override;
     void applyXformRow(void* dst, const void* src);

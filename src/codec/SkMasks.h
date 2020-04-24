@@ -7,7 +7,7 @@
 #ifndef SkMasks_DEFINED
 #define SkMasks_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /*
  *
@@ -45,7 +45,7 @@ public:
      * Create the masks object
      *
      */
-    static SkMasks* CreateMasks(InputMasks masks, uint32_t bpp);
+    static SkMasks* CreateMasks(InputMasks masks, int bytesPerPixel);
 
     /*
      *

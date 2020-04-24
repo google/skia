@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+# Copyright 2019 Google LLC. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+"""
+ Opens |base_manifest| and copies the contents to |manifest| then traverses
+ |root_dir| and appends every file as a Fuchsia package manifest entry to
+ |manifest|.
+"""
+
+import argparse
+import os
+import subprocess
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--root_dir', dest='root_dir', action='store', required=True)
+parser.add_argument('--base_manifest', dest='base_manifest', action='store', required=True)
+parser.add_argument('--manifest', dest='manifest', action='store', required=True)
+parser.add_argument('--deps', dest='deps', action='store', required=True)
+parser.add_argument('--root_build_dir', dest='root_build_dir', action='store', required=True)
+args = parser.parse_args()
+
+root_dir = args.root_dir
+if not os.path.exists(root_dir):
+    print "--root_dir path specified: " + root_dir + " doesn't exist.\n"
+    exit(1)
+
+base_manifest = args.base_manifest
+if not os.path.exists(base_manifest):
+    print "--base_manifest specified: " + base_manifest + " doesn't exist.\n"
+    exit(1)
+
+manifest = args.manifest
+root_build_dir = args.root_build_dir
+
+# Prepend |base_manifest| contents to |manifest|.
+deps_file = open(args.deps, 'w')
+relative_path = os.path.relpath(args.manifest, root_build_dir)
+deps_file.write('%s: ' % relative_path)
+
+out_file = open(manifest, 'w')
+with open(base_manifest, 'r') as in_file:
+    base_content = in_file.readlines()
+
+for base_line in base_content:
+    out_file.write(base_line)
+    base_line_list = base_line.split("=")
+    if len(base_line_list) != 2:
+        print "Error: Base manifest line format error. Expected \"lhs=rhs\" but got: " + base_line
+        exit(1)
+    base_line_rhs = base_line_list[1].strip()
+    relative_path = os.path.relpath(base_line_rhs, root_build_dir)
+    deps_file.write(relative_path + " ")
+
+# Append all files discovered under |root_dir| to |manifest|.
+files = subprocess.check_output(["find", root_dir, "-type", "f"])
+file_lines = files.splitlines()
+
+for file in file_lines:
+        source = file
+        if not source.startswith(root_dir):
+            print "Error: source path " + source + " is not under |root_dir|\n"
+            exit(1)
+        dest = source[len(root_dir):]
+        out_file.write('data%s=' % dest)
+        out_file.write('%s\n' % source)
+        relative_path = os.path.relpath(source, root_build_dir)
+        deps_file.write(relative_path + " ")
+
+out_file.close()
+deps_file.close()

@@ -8,7 +8,9 @@
 #ifndef SkMSAN_DEFINED
 #define SkMSAN_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+
+#include <string.h>
 
 // Typically declared in LLVM's msan_interface.h.  Easier for us to just re-declare.
 extern "C" {

@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 
-#include "sk_textblob.h"
+#include "include/c/sk_textblob.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 void sk_textblob_ref(const sk_textblob_t* blob) {
@@ -30,8 +30,12 @@ void sk_textblob_get_bounds(const sk_textblob_t* blob, sk_rect_t* bounds) {
     *bounds = ToRect(AsTextBlob(blob)->bounds());
 }
 
+int sk_textblob_get_intercepts(const sk_textblob_t* blob, const float bounds[2], float intervals[], const sk_paint_t* paint) {
+    return AsTextBlob(blob)->getIntercepts(bounds, intervals, AsPaint(paint));
+}
 
-sk_textblob_builder_t* sk_textblob_builder_new() {
+
+sk_textblob_builder_t* sk_textblob_builder_new(void) {
     return ToTextBlobBuilder(new SkTextBlobBuilder());
 }
 
@@ -43,14 +47,34 @@ sk_textblob_t* sk_textblob_builder_make(sk_textblob_builder_t* builder) {
     return ToTextBlob(AsTextBlobBuilder(builder)->make().release());
 }
 
-void sk_textblob_builder_alloc_run_text(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, float x, float y, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunText(AsPaint(*font), count, x, y, textByteCount, SkString(), AsRect(bounds)));
+void sk_textblob_builder_alloc_run(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float x, float y, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRun(AsFont(*font), count, x, y, AsRect(bounds)));
 }
 
-void sk_textblob_builder_alloc_run_text_pos_h(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, float y, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunTextPosH(AsPaint(*font), count, y, textByteCount, SkString(), AsRect(bounds)));
+void sk_textblob_builder_alloc_run_pos_h(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float y, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunPosH(AsFont(*font), count, y, AsRect(bounds)));
 }
 
-void sk_textblob_builder_alloc_run_text_pos(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunTextPos(AsPaint(*font), count, textByteCount, SkString(), AsRect(bounds)));
+void sk_textblob_builder_alloc_run_pos(sk_textblob_builder_t* builder, const sk_font_t* font, int count, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunPos(AsFont(*font), count, AsRect(bounds)));
+}
+
+void sk_textblob_builder_alloc_run_rsxform(sk_textblob_builder_t* builder, const sk_font_t* font, int count, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunRSXform(AsFont(*font), count));
+}
+
+// (obsolete)
+
+#include "src/core/SkTextBlobPriv.h"
+
+void sk_textblob_builder_alloc_run_text(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float x, float y, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(SkTextBlobBuilderPriv::AllocRunText(AsTextBlobBuilder(builder), AsFont(*font), count, x, y, textByteCount, SkString(), AsRect(bounds)));
+}
+
+void sk_textblob_builder_alloc_run_text_pos_h(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float y, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(SkTextBlobBuilderPriv::AllocRunTextPosH(AsTextBlobBuilder(builder), AsFont(*font), count, y, textByteCount, SkString(), AsRect(bounds)));
+}
+
+void sk_textblob_builder_alloc_run_text_pos(sk_textblob_builder_t* builder, const sk_font_t* font, int count, int textByteCount, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(SkTextBlobBuilderPriv::AllocRunTextPos(AsTextBlobBuilder(builder), AsFont(*font), count, textByteCount, SkString(), AsRect(bounds)));
 }

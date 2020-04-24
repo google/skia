@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/TimeUtils.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -56,16 +62,16 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(sk_tool_utils::color_to_565(0xFF007700));
+        paint.setColor(ToolUtils::color_to_565(0xFF007700));
 
         canvas->drawPath(path, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar kDesiredDurationSecs = 3.0f;
 
         // Make the animation ping-pong back and forth but start in the fully drawn state
-        SkScalar fraction = 1.0f - timer.scaled(2.0f/kDesiredDurationSecs, 2.0f);
+        SkScalar fraction = 1.0f - TimeUtils::Scaled(1e-9 * nanos, 2.0f/kDesiredDurationSecs, 2.0f);
         if (fraction <= 0.0f) {
             fraction = -fraction;
         }
@@ -83,3 +89,75 @@ private:
 };
 
 DEF_GM( return new StringArtGM; )
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if 0
+#include "modules/skottie/include/Skottie.h"
+
+class SkottieGM : public skiagm::GM {
+    enum {
+        kWidth = 800,
+        kHeight = 600,
+    };
+
+    enum {
+        N = 100,
+    };
+    skottie::Animation* fAnims[N];
+    SkRect              fRects[N];
+    SkScalar            fDur;
+
+public:
+    SkottieGM() {
+        sk_bzero(fAnims, sizeof(fAnims));
+    }
+    ~SkottieGM() override {
+        for (auto anim : fAnims) {
+            SkSafeUnref(anim);
+        }
+    }
+
+protected:
+
+    SkString onShortName() override { return SkString("skottie"); }
+
+    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
+
+    void init() {
+        SkRandom rand;
+        auto data = SkData::MakeFromFileName("/Users/reed/Downloads/maps_pinlet.json");
+   //     for (;;) skottie::Animation::Make((const char*)data->data(), data->size());
+        for (int i = 0; i < N; ++i) {
+            fAnims[i] = skottie::Animation::Make((const char*)data->data(), data->size()).release();
+            SkScalar x = rand.nextF() * kWidth;
+            SkScalar y = rand.nextF() * kHeight;
+            fRects[i].setXYWH(x, y, 400, 400);
+        }
+        fDur = fAnims[0]->duration();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        if (!fAnims[0]) {
+            this->init();
+        }
+        canvas->drawColor(0xFFBBBBBB);
+        for (int i = 0; i < N; ++i) {
+            fAnims[0]->render(canvas, &fRects[i]);
+        }
+    }
+
+    bool onAnimate(double nanos) override {
+        SkScalar time = (float)(fmod(1e-9 * nanos, fDur) / fDur);
+        for (auto anim : fAnims) {
+            anim->seek(time);
+        }
+        return true;
+    }
+
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new SkottieGM; )
+#endif
+

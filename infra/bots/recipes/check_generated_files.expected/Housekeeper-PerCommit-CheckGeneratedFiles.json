@@ -3,6 +3,31 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git'])\nprint 'git was found at %s' % git\nif 'cipd_bin_packages' not in git:\n  print >> sys.stderr, 'Git must be obtained through CIPD.'\n  sys.exit(1)\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Assert that Git is from CIPD",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@which = 'where' if sys.platform == 'win32' else 'which'@@@",
+      "@@@STEP_LOG_LINE@python.inline@git = subprocess.check_output([which, 'git'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'git was found at %s' % git@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cipd_bin_packages' not in git:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print >> sys.stderr, 'Git must be obtained through CIPD.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
@@ -16,7 +41,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -48,9 +73,9 @@
       "skia@abc123"
     ],
     "cwd": "[START_DIR]/cache/work",
-    "env_prefixes": {
+    "env_suffixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "infra_step": true,
@@ -95,7 +120,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -117,10 +142,92 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "git diff #1",
-    "stdout": "/path/to/tmp/"
+    "name": "git diff #1"
+  },
+  {
+    "cmd": [
+      "make",
+      "-C",
+      "tools/gpu/gl/interface",
+      "generate"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>"
+    },
+    "name": "generate gl interfaces"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "git",
+      "ls-files",
+      "*.gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "list .gn files"
+  },
+  {
+    "cmd": [
+      "bin/gn",
+      "format",
+      "BUILD.gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "format BUILD.gn"
+  },
+  {
+    "cmd": [
+      "bin/gn",
+      "format",
+      "gn/foo.gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "format gn/foo.gn"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "tools/rewrite_includes.py"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "rewrite #includes"
   },
   {
     "cmd": [
@@ -131,7 +238,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "touch fp files",
     "~followup_annotations": [
@@ -149,6 +256,25 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "infra_step": true,
+    "name": "Get clang_linux VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-gn"
@@ -156,10 +282,10 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "fetch-gn"
+    "name": "fetch-gn (2)"
   },
   {
     "cmd": [
@@ -170,7 +296,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-clang-format"
@@ -180,27 +306,25 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/build/out/Release",
-      "--args=is_debug=false skia_compile_processors=true skia_generate_workarounds=true"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false skia_compile_processors=true skia_generate_workarounds=true werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/build/out/Release"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
@@ -213,10 +337,9 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "git diff #2",
-    "stdout": "/path/to/tmp/"
+    "name": "git diff #2"
   },
   {
     "cmd": [
@@ -227,7 +350,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "compare diffs",
     "~followup_annotations": [
@@ -243,8 +366,6 @@
     ]
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

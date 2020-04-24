@@ -1,0 +1,37 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+
+skia_sksg_sources = [
+  "$_src/SkSGClipEffect.cpp",
+  "$_src/SkSGColorFilter.cpp",
+  "$_src/SkSGDraw.cpp",
+  "$_src/SkSGEffectNode.cpp",
+  "$_src/SkSGGeometryNode.cpp",
+  "$_src/SkSGGeometryTransform.cpp",
+  "$_src/SkSGGradient.cpp",
+  "$_src/SkSGGroup.cpp",
+  "$_src/SkSGImage.cpp",
+  "$_src/SkSGInvalidationController.cpp",
+  "$_src/SkSGMaskEffect.cpp",
+  "$_src/SkSGMerge.cpp",
+  "$_src/SkSGNode.cpp",
+  "$_src/SkSGNodePriv.h",
+  "$_src/SkSGOpacityEffect.cpp",
+  "$_src/SkSGPaint.cpp",
+  "$_src/SkSGPath.cpp",
+  "$_src/SkSGPlane.cpp",
+  "$_src/SkSGRect.cpp",
+  "$_src/SkSGRenderEffect.cpp",
+  "$_src/SkSGRenderNode.cpp",
+  "$_src/SkSGRoundEffect.cpp",
+  "$_src/SkSGScene.cpp",
+  "$_src/SkSGText.cpp",
+  "$_src/SkSGTransform.cpp",
+  "$_src/SkSGTransformPriv.h",
+  "$_src/SkSGTrimEffect.cpp",
+]

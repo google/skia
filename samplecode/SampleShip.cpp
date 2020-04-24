@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "Resources.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "Timer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkSurface.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
+#include "tools/timer/Timer.h"
 
 #include <stdio.h>
 
@@ -45,7 +44,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 }
 
 
-class DrawShipView : public SampleView {
+class DrawShipView : public Sample {
 public:
     DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
         fAtlas = GetResourceAsImage("images/ship.png");
@@ -81,21 +80,12 @@ public:
         fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_ScalarPI*0.5f,
                                                        kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
 
-        fCurrentTime = 0;
-        fTimer.start();
     }
 
     ~DrawShipView() override {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, fName);
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString(fName); }
 
     void onDrawContent(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
@@ -108,25 +98,6 @@ protected:
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setColor(SK_ColorWHITE);
-        paint.setTextSize(15.0f);
-
-        fTimer.end();
-
-        fTimes[fCurrentTime] = (float)(fTimer.fWall);
-        fCurrentTime = (fCurrentTime + 1) & 0x1f;
-
-        float meanTime = 0.0f;
-        for (int i = 0; i < 32; ++i) {
-            meanTime += fTimes[i];
-        }
-        meanTime /= 32.f;
-        SkString outString("fps: ");
-        SkScalar fps = 1000.f/meanTime;
-        outString.appendScalar(fps);
-        outString.append(" ms: ");
-        outString.appendScalar(meanTime);
-
-        fTimer.start();
 
         SkScalar anchorX = fAtlas->width()*0.5f;
         SkScalar anchorY = fAtlas->height()*0.5f;
@@ -147,20 +118,14 @@ protected:
         }
 
         fProc(canvas, fAtlas.get(), fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
-        paint.setColor(SK_ColorWHITE);
-        canvas->drawString(outString, 5, 15, paint);
     }
 
-#if 0
-    // TODO: switch over to use this for our animation
-    bool onAnimate(const SkAnimTimer& timer) override {
-        SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
-        fAnimatingDrawable->setSweep(angle);
+    bool onAnimate(double nanos) override {
+        //TODO: use nanos
+        //SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
+        //fAnimatingDrawable->setSweep(angle);
         return true;
     }
-#endif
 
 private:
     const char*         fName;
@@ -169,12 +134,8 @@ private:
     sk_sp<SkImage> fAtlas;
     SkRSXform   fXform[kGrid*kGrid+1];
     SkRect      fTex[kGrid*kGrid+1];
-    WallTimer   fTimer;
-    float       fTimes[32];
-    int         fCurrentTime;
 
-
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

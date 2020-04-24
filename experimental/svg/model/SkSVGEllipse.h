@@ -8,8 +8,8 @@
 #ifndef SkSVGEllipse_DEFINED
 #define SkSVGEllipse_DEFINED
 
-#include "SkSVGShape.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGShape.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 struct SkRect;
 
@@ -27,7 +27,7 @@ protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
-                SkPath::FillType) const override;
+                SkPathFillType) const override;
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 

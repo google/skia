@@ -8,9 +8,9 @@
 #ifndef SkLatticeIter_DEFINED
 #define SkLatticeIter_DEFINED
 
-#include "SkCanvas.h"
-#include "SkScalar.h"
-#include "SkTArray.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTArray.h"
 
 struct SkIRect;
 struct SkRect;
@@ -18,7 +18,7 @@ struct SkRect;
 /**
  *  Disect a lattice request into an sequence of src-rect / dst-rect pairs
  */
-class SK_API SkLatticeIter {
+class SK_SPI SkLatticeIter {
 public:
 
     static bool Valid(int imageWidth, int imageHeight, const SkCanvas::Lattice& lattice);

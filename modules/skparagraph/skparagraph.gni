@@ -1,0 +1,47 @@
+# Copyright 2019 Google LLC.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+_include = get_path_info("include", "abspath")
+_utils = get_path_info("utils", "abspath")
+
+skparagraph_public = [
+  "$_include/ParagraphStyle.h",
+  "$_include/TextStyle.h",
+  "$_include/TextShadow.h",
+  "$_include/FontCollection.h",
+  "$_include/Paragraph.h",
+  "$_include/ParagraphBuilder.h",
+  "$_include/ParagraphCache.h",
+  "$_include/DartTypes.h",
+  "$_include/TypefaceFontProvider.h",
+  "$_utils/TestFontCollection.h",
+]
+
+skparagraph_sources = [
+  "$_src/FontCollection.cpp",
+  "$_src/Iterators.h",
+  "$_src/OneLineShaper.h",
+  "$_src/OneLineShaper.cpp",
+  "$_src/ParagraphBuilderImpl.h",
+  "$_src/ParagraphBuilderImpl.cpp",
+  "$_src/ParagraphCache.cpp",
+  "$_src/ParagraphImpl.h",
+  "$_src/ParagraphImpl.cpp",
+  "$_src/ParagraphStyle.cpp",
+  "$_src/Run.h",
+  "$_src/Run.cpp",
+  "$_src/TextLine.h",
+  "$_src/TextLine.cpp",
+  "$_src/TextShadow.cpp",
+  "$_src/TextStyle.cpp",
+  "$_src/TextWrapper.h",
+  "$_src/TextWrapper.cpp",
+  "$_src/TypefaceFontProvider.cpp",
+  "$_utils/TestFontCollection.cpp",
+]
+
+skparagraph_utils = [
+  "$_utils/TestFontCollection.h",
+  "$_utils/TestFontCollection.cpp",
+]

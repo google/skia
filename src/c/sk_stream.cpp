@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
-#include "sk_stream.h"
+#include "include/c/sk_stream.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 // stream asset base
@@ -38,7 +38,7 @@ bool sk_filestream_is_valid(sk_stream_filestream_t* cstream) {
 
 // memory stream
 
-sk_stream_memorystream_t* sk_memorystream_new () {
+sk_stream_memorystream_t* sk_memorystream_new (void) {
     return ToMemoryStream(new SkMemoryStream());
 }
 
@@ -175,7 +175,7 @@ void sk_dynamicmemorywstream_destroy(sk_wstream_dynamicmemorystream_t* cstream) 
     delete AsDynamicMemoryWStream(cstream);
 }
 
-sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new() {
+sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new(void) {
     return ToDynamicMemoryWStream(new SkDynamicMemoryWStream());
 }
 

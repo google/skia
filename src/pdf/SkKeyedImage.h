@@ -7,9 +7,9 @@
 #ifndef SkKeyedImage_DEFINED
 #define SkKeyedImage_DEFINED
 
-#include "SkBitmap.h"
-#include "SkBitmapKey.h"
-#include "SkImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "src/pdf/SkBitmapKey.h"
 
 /**
    This class has all the advantages of SkBitmaps and SkImages.
@@ -27,7 +27,7 @@ public:
     SkKeyedImage& operator=(SkKeyedImage&&) = default;
     SkKeyedImage& operator=(const SkKeyedImage&) = default;
 
-    explicit operator bool() const { return fImage; }
+    explicit operator bool() const { return fImage != nullptr; }
     const SkBitmapKey& key() const { return fKey; }
     const sk_sp<SkImage>& image() const { return fImage; }
     sk_sp<SkImage> release();

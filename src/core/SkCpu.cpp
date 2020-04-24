@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCpu.h"
-#include "SkOnce.h"
-
-#if !defined(__has_include)
-    #define __has_include(x) 0
-#endif
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkCpu.h"
 
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN)
@@ -85,6 +83,34 @@
         uint32_t hwcaps = getauxval(AT_HWCAP);
         if (hwcaps & kHWCAP_CRC32  ) { features |= SkCpu::CRC32; }
         if (hwcaps & kHWCAP_ASIMDHP) { features |= SkCpu::ASIMDHP; }
+
+        // The Samsung Mongoose 3 core sets the ASIMDHP bit but doesn't support it.
+        for (int core = 0; features & SkCpu::ASIMDHP; core++) {
+            // These /sys files contain the core's MIDR_EL1 register, the source of
+            // CPU {implementer, variant, part, revision} you'd see in /proc/cpuinfo.
+            SkString path =
+                SkStringPrintf("/sys/devices/system/cpu/cpu%d/regs/identification/midr_el1", core);
+
+            // Can't use SkData::MakeFromFileName() here, I think because /sys can't be mmap()'d.
+            SkFILEStream midr_el1(path.c_str());
+            if (!midr_el1.isValid()) {
+                // This is our ordinary exit path.
+                // If we ask for MIDR_EL1 from a core that doesn't exist, we've checked all cores.
+                if (core == 0) {
+                    // On the other hand, if we can't read MIDR_EL1 from any core, assume the worst.
+                    features &= ~(SkCpu::ASIMDHP);
+                }
+                break;
+            }
+
+            const char kMongoose3[] = "0x00000000531f0020";  // 53 == Samsung.
+            char buf[SK_ARRAY_COUNT(kMongoose3) - 1];  // No need for the terminating \0.
+
+            if (SK_ARRAY_COUNT(buf) != midr_el1.read(buf, SK_ARRAY_COUNT(buf))
+                          || 0 == memcmp(kMongoose3, buf, SK_ARRAY_COUNT(buf))) {
+                features &= ~(SkCpu::ASIMDHP);
+            }
+        }
         return features;
     }
 

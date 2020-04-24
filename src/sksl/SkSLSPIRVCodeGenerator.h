@@ -12,35 +12,72 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "SkSLCodeGenerator.h"
-#include "SkSLMemoryLayout.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLBoolLiteral.h"
-#include "ir/SkSLConstructor.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLFloatLiteral.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLInterfaceBlock.h"
-#include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLFieldAccess.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDeclaration.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLProgramElement.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLStatement.h"
-#include "ir/SkSLSwitchStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclarations.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLVariableReference.h"
-#include "ir/SkSLWhileStatement.h"
-#include "spirv.h"
+#include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLMemoryLayout.h"
+#include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
+#include "src/sksl/spirv.h"
+
+union ConstantValue {
+    ConstantValue(int64_t i)
+        : fInt(i) {}
+
+    ConstantValue(double d)
+        : fDouble(d) {}
+
+    bool operator==(const ConstantValue& other) const {
+        return fInt == other.fInt;
+    }
+
+    int64_t fInt;
+    double fDouble;
+};
+
+enum class ConstantType {
+    kInt,
+    kUInt,
+    kShort,
+    kUShort,
+    kFloat,
+    kDouble,
+    kHalf,
+};
+
+namespace std {
+
+template <>
+struct hash<std::pair<ConstantValue, ConstantType>> {
+    size_t operator()(const std::pair<ConstantValue, ConstantType>& key) const {
+        return key.first.fInt ^ (int) key.second;
+    }
+};
+
+}
 
 namespace SkSL {
 
@@ -69,7 +106,7 @@ public:
     : INHERITED(program, errors, out)
     , fContext(*context)
     , fDefaultLayout(MemoryLayout::k140_Standard)
-    , fCapabilities(1 << SpvCapabilityShader)
+    , fCapabilities(0)
     , fIdCount(1)
     , fBoolTrue(0)
     , fBoolFalse(0)
@@ -95,9 +132,16 @@ private:
         kMin_SpecialIntrinsic,
         kMix_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
+        kDFdy_SpecialIntrinsic,
+        kSaturate_SpecialIntrinsic,
+        kSampledImage_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
-        kTexelFetch_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
+    };
+
+    enum class Precision {
+        kLow,
+        kHigh,
     };
 
     void setupIntrinsics();
@@ -119,7 +163,9 @@ private:
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
-    void writePrecisionModifier(const Modifiers& modifiers, SpvId id);
+    void writePrecisionModifier(Precision precision, SpvId id);
+
+    void writePrecisionModifier(const Type& type, SpvId id);
 
     std::vector<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
@@ -191,6 +237,10 @@ private:
     void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
                          OutputStream& out);
 
+    void addColumnEntry(SpvId columnType, Precision precision, std::vector<SpvId>* currentColumn,
+                        std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
+                        OutputStream& out);
+
     SpvId writeMatrixConstructor(const Constructor& c, OutputStream& out);
 
     SpvId writeVectorConstructor(const Constructor& c, OutputStream& out);
@@ -212,7 +262,12 @@ private:
     SpvId foldToBool(SpvId id, const Type& operandType, SpvOp op, OutputStream& out);
 
     SpvId writeMatrixComparison(const Type& operandType, SpvId lhs, SpvId rhs, SpvOp_ floatOperator,
-                                SpvOp_ intOperator, OutputStream& out);
+                                SpvOp_ intOperator, SpvOp_ vectorMergeOperator,
+                                SpvOp_ mergeOperator, OutputStream& out);
+
+    SpvId writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs, SpvId rhs,
+                                         SpvOp_ floatOperator, SpvOp_ intOperator,
+                                         OutputStream& out);
 
     SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
@@ -220,6 +275,10 @@ private:
 
     SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, OutputStream& out);
+
+    SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
+                                const Type& rightType, SpvId rhs, const Type& resultType,
+                                OutputStream& out);
 
     SpvId writeBinaryExpression(const BinaryExpression& b, OutputStream& out);
 
@@ -327,10 +386,9 @@ private:
 
     SpvId fBoolTrue;
     SpvId fBoolFalse;
-    std::unordered_map<int64_t, SpvId> fIntConstants;
-    std::unordered_map<uint64_t, SpvId> fUIntConstants;
-    std::unordered_map<float, SpvId> fFloatConstants;
-    std::unordered_map<double, SpvId> fDoubleConstants;
+    std::unordered_map<std::pair<ConstantValue, ConstantType>, SpvId> fNumberConstants;
+    // The constant float2(0, 1), used in swizzling
+    SpvId fConstantZeroOneVector = 0;
     bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;

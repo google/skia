@@ -6,16 +6,4 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
-
-#include "sk_xamarin.h"
-
-#include "sk_types_priv.h"
-
-#ifdef NEED_INIT_NEON
-
-namespace SkOpts {
-    void Init_neon() {}
-}
-
-#endif
+#include "include/xamarin/sk_xamarin.h"

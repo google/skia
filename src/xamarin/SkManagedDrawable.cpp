@@ -6,10 +6,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkManagedDrawable.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/xamarin/SkManagedDrawable.h"
 
 SkManagedDrawable::Procs SkManagedDrawable::fProcs;
 

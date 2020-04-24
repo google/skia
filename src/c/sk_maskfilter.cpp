@@ -7,12 +7,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
-#include "SkTableMaskFilter.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkTableMaskFilter.h"
+#include "include/effects/SkShaderMaskFilter.h"
 
-#include "sk_maskfilter.h"
+#include "include/c/sk_maskfilter.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]) {
     return ToMaskFilter(SkTableMaskFilter::Create(table));
@@ -38,6 +40,10 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma).release());
 }
 
-sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, bool respectCTM) {
-    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, *AsRect(occluder), respectCTM).release());
+sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, bool respectCTM) {
+    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, respectCTM).release());
+}
+
+sk_maskfilter_t* sk_maskfilter_new_shader(sk_shader_t* cshader) {
+    return ToMaskFilter(SkShaderMaskFilter::Make(sk_ref_sp(AsShader(cshader))).release());
 }

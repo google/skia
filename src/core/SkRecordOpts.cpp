@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecordOpts.h"
+#include "src/core/SkRecordOpts.h"
 
-#include "SkCanvasPriv.h"
-#include "SkRecordPattern.h"
-#include "SkRecords.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkRecordPattern.h"
+#include "src/core/SkRecords.h"
 
 using namespace SkRecords;
 
@@ -94,11 +94,9 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
     // true, we assume paint is too.
 
     // The alpha folding can proceed if the filter layer paint does not have properties which cause
-    // the resulting filter layer to be "blended" in complex ways to the parent layer. For example,
-    // looper drawing unmodulated filter layer twice and then modulating the result produces
-    // different image to drawing modulated filter layer twice.
-    // TODO: most likely the looper and only some xfer modes are the hard constraints
-    if (!paint->isSrcOver() || paint->getLooper()) {
+    // the resulting filter layer to be "blended" in complex ways to the parent layer.
+    // TODO: most likely only some xfer modes are the hard constraints
+    if (!paint->isSrcOver()) {
         return false;
     }
 
@@ -134,7 +132,6 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
             !layerPaint->isSrcOver()     ||
             layerPaint->getMaskFilter()  ||
             layerPaint->getColorFilter() ||
-            layerPaint->getLooper()      ||
             layerPaint->getImageFilter()) {
             return false;
         }

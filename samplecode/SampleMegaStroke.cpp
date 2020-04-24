@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
 
-class MegaStrokeView : public SampleView {
+class MegaStrokeView : public Sample {
 public:
     MegaStrokeView() {
-        fClip.set(0, 0, 950, 600);
+        fClip.setLTRB(0, 0, 950, 600);
         fAngle = 0;
         fPlusMinus = 0;
         SkRandom rand;
@@ -26,21 +26,11 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "MegaStroke");
-            return true;
-        }
+    SkString name() override { return SkString("MegaStroke"); }
 
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
-           fClip.set(0, 0, 950, 600);
-        }
-        if (evt->isType("SampleCode_Key_Event")) {
-           fClip.set(0, 0, 950, 600);
-        }
-        return this->INHERITED::onQuery(evt);
+    bool onChar(SkUnichar uni) override {
+        fClip.setLTRB(0, 0, 950, 600);
+        return true;
     }
 
     void onDrawBackground(SkCanvas* canvas) override {
@@ -76,22 +66,19 @@ protected:
     }
 
     void onSizeChange() override {
-        fClip.set(0, 0, 950, 600);
+        fClip.setWH(950, 600);
     }
 
-    bool onAnimate(const SkAnimTimer& ) override {
-        return true;
-    }
+    bool onAnimate(double /*nanos*/) override { return true; }
 
 private:
     SkPath      fMegaPath;
     SkRect      fClip;
     int         fAngle;
     int         fPlusMinus;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new MegaStrokeView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new MegaStrokeView(); )

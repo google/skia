@@ -8,30 +8,25 @@
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
-#include "../private/SkTDArray.h"
-#include "SkPath.h"
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkTDArray.h"
 
-struct SkConic;
-
-class SK_API SkPathMeasure : SkNoncopyable {
+class SK_API SkPathMeasure {
 public:
     SkPathMeasure();
-    /** Initialize the pathmeasure with the specified path. The path must remain valid
-        for the lifetime of the measure object, or until setPath() is called with
-        a different path (or null), since the measure object keeps a pointer to the
-        path object (does not copy its data).
-
-        resScale controls the precision of the measure. values > 1 increase the
-        precision (and possible slow down the computation).
-    */
+    /** Initialize the pathmeasure with the specified path. The parts of the path that are needed
+     *  are copied, so the client is free to modify/delete the path after this call.
+     *
+     *  resScale controls the precision of the measure. values > 1 increase the
+     *  precision (and possible slow down the computation).
+     */
     SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
 
-    /** Reset the pathmeasure with the specified path. The path must remain valid
-        for the lifetime of the measure object, or until setPath() is called with
-        a different path (or null), since the measure object keeps a pointer to the
-        path object (does not copy its data).
-    */
+    /** Reset the pathmeasure with the specified path. The parts of the path that are needed
+     *  are copied, so the client is free to modify/delete the path after this call..
+     */
     void setPath(const SkPath*, bool forceClosed);
 
     /** Return the total length of the current contour, or 0 if no path
@@ -83,41 +78,11 @@ public:
 #endif
 
 private:
-    SkPath::Iter    fIter;
-    SkPath          fPath;
-    SkScalar        fTolerance;
-    SkScalar        fLength;            // relative to the current contour
-    unsigned        fFirstPtIndex;      // relative to the current contour
-    bool            fIsClosed;          // relative to the current contour
-    bool            fForceClosed;
+    SkContourMeasureIter    fIter;
+    sk_sp<SkContourMeasure> fContour;
 
-    struct Segment {
-        SkScalar    fDistance;  // total distance up to this point
-        unsigned    fPtIndex; // index into the fPts array
-        unsigned    fTValue : 30;
-        unsigned    fType : 2;  // actually the enum SkSegType
-                                // See SkPathMeasurePriv.h
-
-        SkScalar getScalarT() const;
-    };
-    SkTDArray<Segment>  fSegments;
-    SkTDArray<SkPoint>  fPts; // Points used to define the segments
-
-    static const Segment* NextSegment(const Segment*);
-
-    void     buildSegments();
-    SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
-                                int mint, int maxt, unsigned ptIndex);
-    SkScalar compute_conic_segs(const SkConic&, SkScalar distance,
-                                int mint, const SkPoint& minPt,
-                                int maxt, const SkPoint& maxPt, unsigned ptIndex);
-    SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
-                                int mint, int maxt, unsigned ptIndex);
-    const Segment* distanceToSegment(SkScalar distance, SkScalar* t);
-    bool quad_too_curvy(const SkPoint pts[3]);
-    bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,const SkPoint& lastPt);
-    bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y);
-    bool cubic_too_curvy(const SkPoint pts[4]);
+    SkPathMeasure(const SkPathMeasure&) = delete;
+    SkPathMeasure& operator=(const SkPathMeasure&) = delete;
 };
 
 #endif

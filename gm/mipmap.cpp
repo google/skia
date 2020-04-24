@@ -5,18 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 
 static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
     auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
-    canvas->drawColor(sk_tool_utils::color_to_565(0xFFF8F8F8));
+    canvas->drawColor(0xFFF8F8F8);
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -35,10 +42,9 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     SkPaint paint;
     const SkRect dst = SkRect::MakeWH(177, 15);
 
-    paint.setTextSize(30);
     SkString str;
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
-//    canvas->drawString(str, 300, 100, paint);
+//    canvas->drawString(str, 300, 100, SkFont(nullptr, 30), paint);
 
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {

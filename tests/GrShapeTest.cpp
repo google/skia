@@ -5,18 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/geometry/GrShape.h"
+#include "tests/Test.h"
+
 #include <initializer_list>
 #include <functional>
-#include "Test.h"
-#if SK_SUPPORT_GPU
-#include "GrShape.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkRectPriv.h"
-#include "SkSurface.h"
-#include "SkClipOpPriv.h"
+#include <utility>
 
 uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
@@ -118,7 +119,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     // The asRRect() output params are all initialized just to silence compiler warnings about
     // uninitialized variables.
     SkRRect rrectA = SkRRect::MakeEmpty(), rrectB = SkRRect::MakeEmpty();
-    SkPath::Direction dirA = SkPath::kCW_Direction, dirB = SkPath::kCW_Direction;
+    SkPathDirection dirA = SkPathDirection::kCW, dirB = SkPathDirection::kCW;
     unsigned startA = ~0U, startB = ~0U;
     bool invertedA = true, invertedB = true;
 
@@ -144,8 +145,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         ignoreInversenessDifference = (canDropInverse1 != canDropInverse2);
     }
     bool ignoreWindingVsEvenOdd = false;
-    if (SkPath::ConvertToNonInverseFillType(pathA.getFillType()) !=
-        SkPath::ConvertToNonInverseFillType(pathB.getFillType())) {
+    if (SkPathFillType_ConvertToNonInverse(pathA.getNewFillType()) !=
+        SkPathFillType_ConvertToNonInverse(pathB.getNewFillType())) {
         bool aCanChange = can_interchange_winding_and_even_odd_fill(a);
         bool bCanChange = can_interchange_winding_and_even_odd_fill(b);
         if (aCanChange != bCanChange) {
@@ -162,14 +163,14 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         REPORTER_ASSERT(r, a.inverseFilled() == pA.isInverseFillType());
         REPORTER_ASSERT(r, b.inverseFilled() == pB.isInverseFillType());
         if (ignoreInversenessDifference) {
-            pA.setFillType(SkPath::ConvertToNonInverseFillType(pathA.getFillType()));
-            pB.setFillType(SkPath::ConvertToNonInverseFillType(pathB.getFillType()));
+            pA.setFillType(SkPathFillType_ConvertToNonInverse(pathA.getNewFillType()));
+            pB.setFillType(SkPathFillType_ConvertToNonInverse(pathB.getNewFillType()));
         }
         if (ignoreWindingVsEvenOdd) {
-            pA.setFillType(pA.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-                                                  : SkPath::kEvenOdd_FillType);
-            pB.setFillType(pB.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-                                                  : SkPath::kEvenOdd_FillType);
+            pA.setFillType(pA.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
+                                                  : SkPathFillType::kEvenOdd);
+            pB.setFillType(pB.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
+                                                  : SkPathFillType::kEvenOdd);
         }
         if (!ignoreInversenessDifference && !ignoreWindingVsEvenOdd) {
             REPORTER_ASSERT(r, keyA == keyB);
@@ -424,11 +425,11 @@ public:
     PathGeo(const SkPath& path, Invert invert) : fPath(path)  {
         SkASSERT(!path.isInverseFillType());
         if (Invert::kYes == invert) {
-            if (fPath.getFillType() == SkPath::kEvenOdd_FillType) {
-                fPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+            if (fPath.getNewFillType() == SkPathFillType::kEvenOdd) {
+                fPath.setFillType(SkPathFillType::kInverseEvenOdd);
             } else {
-                SkASSERT(fPath.getFillType() == SkPath::kWinding_FillType);
-                fPath.setFillType(SkPath::kInverseWinding_FillType);
+                SkASSERT(fPath.getNewFillType() == SkPathFillType::kWinding);
+                fPath.setFillType(SkPathFillType::kInverseWinding);
             }
         }
     }
@@ -456,7 +457,7 @@ public:
         }
         SkRect rect;
         unsigned start;
-        SkPath::Direction dir;
+        SkPathDirection dir;
         if (SkPathPriv::IsSimpleClosedRect(fPath, &rect, &dir, &start)) {
             return RectGeo(rect).strokeAndFillIsConvertedToFill(paint);
         }
@@ -571,7 +572,7 @@ private:
         }
         // The bounds API explicitly calls out that it does not consider inverseness.
         SkPath p = path;
-        p.setFillType(SkPath::ConvertToNonInverseFillType(path.getFillType()));
+        p.setFillType(SkPathFillType_ConvertToNonInverse(path.getNewFillType()));
         REPORTER_ASSERT(r, test_bounds_by_rasterizing(p, bounds));
     }
 
@@ -1151,18 +1152,22 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
             return kRRect;
         }
 
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new RRectPathEffect); }
+        Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             dst->reset();
             dst->addRRect(RRect());
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = RRect().getBounds();
+
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            return RRect().getBounds();
         }
-        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new RRectPathEffect); }
-        Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
+
     private:
         RRectPathEffect() {}
     };
@@ -1229,8 +1234,13 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
      */
     class AddLineTosPathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
+        Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             *dst = src;
             // To avoid triggering data-based keying of paths with few verbs we add many segments.
             for (int i = 0; i < 100; ++i) {
@@ -1238,14 +1248,12 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
             }
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = src;
-            SkRectPriv::GrowToInclude(dst, {0, 0});
-            SkRectPriv::GrowToInclude(dst, {100, 100});
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            SkRect dst = src;
+            SkRectPriv::GrowToInclude(&dst, {0, 0});
+            SkRectPriv::GrowToInclude(&dst, {100, 100});
+            return dst;
         }
-        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
-        Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         AddLineTosPathEffect() {}
     };
@@ -1271,18 +1279,19 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
      */
     class MakeHairlinePathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
-                        const SkRect* cullR) const override {
-            *dst = src;
-            strokeRec->setHairlineStyle();
-            return true;
-        }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override { *dst = src; }
         static sk_sp<SkPathEffect> Make() {
             return sk_sp<SkPathEffect>(new MakeHairlinePathEffect);
         }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
+        const char* getTypeName() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
+                          const SkRect* cullR) const override {
+            *dst = src;
+            strokeRec->setHairlineStyle();
+            return true;
+        }
     private:
         MakeHairlinePathEffect() {}
     };
@@ -1353,22 +1362,23 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
      */
     class EmptyPathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make(bool invert) {
+            return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
+        }
+        Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return nullptr; }
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             dst->reset();
             if (fInvert) {
                 dst->toggleInverseFillType();
             }
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            dst->setEmpty();
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            return { 0, 0, 0, 0 };
         }
-        static sk_sp<SkPathEffect> Make(bool invert) {
-            return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
-        }
-        Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
     private:
         bool fInvert;
         EmptyPathEffect(bool invert) : fInvert(invert) {}
@@ -1440,16 +1450,14 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
      */
     class FailurePathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
-            return false;
-        }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = src;
-        }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new FailurePathEffect); }
         Factory getFactory() const override { return nullptr; }
-        void toString(SkString*) const override {}
+        const char* getTypeName() const override { return nullptr; }
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
+            return false;
+        }
     private:
         FailurePathEffect() {}
     };
@@ -1569,7 +1577,7 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
 
-    static constexpr SkPath::Direction kDir = SkPath::kCCW_Direction;
+    static constexpr SkPathDirection kDir = SkPathDirection::kCCW;
     static constexpr int kStart = 0;
 
     TestCase fillInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true, GrStyle(fill));
@@ -1638,21 +1646,21 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     static constexpr Style kStyleCnt = static_cast<Style>(SK_ARRAY_COUNT(strokeRecs));
 
     auto index = [](bool inverted,
-                    SkPath::Direction dir,
+                    SkPathDirection dir,
                     unsigned start,
                     Style style,
                     bool dash) -> int {
         return inverted * (2 * 8 * kStyleCnt * 2) +
-               dir      * (    8 * kStyleCnt * 2) +
+               (int)dir * (    8 * kStyleCnt * 2) +
                start    * (        kStyleCnt * 2) +
                style    * (                    2) +
                dash;
     };
-    static const SkPath::Direction kSecondDirection = static_cast<SkPath::Direction>(1);
+    static const SkPathDirection kSecondDirection = static_cast<SkPathDirection>(1);
     const int cnt = index(true, kSecondDirection, 7, static_cast<Style>(kStyleCnt - 1), true) + 1;
     SkAutoTArray<GrShape> shapes(cnt);
     for (bool inverted : {false, true}) {
-        for (SkPath::Direction dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
+        for (SkPathDirection dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (unsigned start = 0; start < 8; ++start) {
                 for (Style style : {kFill, kStroke, kHairline, kStrokeAndFill}) {
                     for (bool dash : {false, true}) {
@@ -1668,7 +1676,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
 
     // Get the keys for some example shape instances that we'll use for comparision against the
     // rest.
-    static constexpr SkPath::Direction kExamplesDir = SkPath::kCW_Direction;
+    static constexpr SkPathDirection kExamplesDir = SkPathDirection::kCW;
     static constexpr unsigned kExamplesStart = 0;
     const GrShape& exampleFillCase = shapes[index(false, kExamplesDir, kExamplesStart, kFill,
                                                   false)];
@@ -1712,61 +1720,61 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
 
     // These are dummy initializations to suppress warnings.
     SkRRect queryRR = SkRRect::MakeEmpty();
-    SkPath::Direction queryDir = SkPath::kCW_Direction;
+    SkPathDirection queryDir = SkPathDirection::kCW;
     unsigned queryStart = ~0U;
     bool queryInverted = true;
 
     REPORTER_ASSERT(r, exampleFillCase.asRRect(&queryRR, &queryDir, &queryStart, &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
     REPORTER_ASSERT(r, exampleInvFillCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                   &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, queryInverted);
 
     REPORTER_ASSERT(r, exampleStrokeAndFillCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                         &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
     REPORTER_ASSERT(r, exampleInvStrokeAndFillCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                            &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, queryInverted);
 
     REPORTER_ASSERT(r, exampleHairlineCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                    &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
     REPORTER_ASSERT(r, exampleInvHairlineCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                       &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, queryInverted);
 
     REPORTER_ASSERT(r, exampleStrokeCase.asRRect(&queryRR, &queryDir, &queryStart, &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, !queryInverted);
 
     REPORTER_ASSERT(r, exampleInvStrokeCase.asRRect(&queryRR, &queryDir, &queryStart,
                                                     &queryInverted));
     REPORTER_ASSERT(r, queryRR == rrect);
-    REPORTER_ASSERT(r, SkPath::kCW_Direction == queryDir);
+    REPORTER_ASSERT(r, SkPathDirection::kCW == queryDir);
     REPORTER_ASSERT(r, 0 == queryStart);
     REPORTER_ASSERT(r, queryInverted);
 
@@ -1783,7 +1791,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     REPORTER_ASSERT(r, exampleInvStrokeAndFillCaseKey == exampleInvHairlineCaseKey);
 
     for (bool inverted : {false, true}) {
-        for (SkPath::Direction dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
+        for (SkPathDirection dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (unsigned start = 0; start < 8; ++start) {
                 for (bool dash : {false, true}) {
                     const GrShape& fillCase = shapes[index(inverted, dir, start, kFill, dash)];
@@ -1838,7 +1846,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
 
                         // The pre-style case for the dash will match the non-dash example iff the
                         // dir and start match (dir=cw, start=0).
-                        if (0 == expectedStart && SkPath::kCW_Direction == dir) {
+                        if (0 == expectedStart && SkPathDirection::kCW == dir) {
                             e.compare(r, f, TestCase::kSameUpToPE_ComparisonExpecation);
                             g.compare(r, h, TestCase::kSameUpToPE_ComparisonExpecation);
                         } else {
@@ -1877,7 +1885,7 @@ DEF_TEST(GrShape_lines, r) {
     lineAC.lineTo(kC);
 
     SkPath invLineAB = lineAB;
-    invLineAB.setFillType(SkPath::kInverseEvenOdd_FillType);
+    invLineAB.setFillType(SkPathFillType::kInverseEvenOdd);
 
     SkPaint fill;
     SkPaint stroke;
@@ -1938,11 +1946,12 @@ DEF_TEST(GrShape_lines, r) {
         canonicalizeAsAB = true;
     } else if (pts[1] == kA && pts[0] == kB) {
         canonicalizeAsAB = false;
-        SkTSwap(canonicalPts[0], canonicalPts[1]);
+        using std::swap;
+        swap(canonicalPts[0], canonicalPts[1]);
     } else {
         ERRORF(r, "Should return pts (a,b) or (b, a)");
         return;
-    };
+    }
 
     strokeAB.compare(r, canonicalizeAsAB ? dashAB : dashBA,
                      TestCase::kSameUpToPE_ComparisonExpecation);
@@ -2328,5 +2337,3 @@ DEF_TEST(GrShape_arcs, reporter) {
         ovalArcWithCenter.compare(reporter, oval, ovalExpectations);
     }
 }
-
-#endif

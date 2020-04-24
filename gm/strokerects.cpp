@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
-
-
-#include "gm.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
 
 namespace skiagm {
 
@@ -41,7 +45,7 @@ protected:
         SkScalar hoffset = rand.nextSScalar1();
         SkScalar woffset = rand.nextSScalar1();
 
-        r->set(x, y, x + w, y + h);
+        r->setXYWH(x, y, w, h);
         r->offset(-w/2 + woffset, -h/2 + hoffset);
     }
 
@@ -77,7 +81,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new StrokeRectsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new StrokeRectsGM; )
 
 }

@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkTArray.h"
+
 #include <functional>
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "gm.h"
 
 constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
 constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 184.f, 300.f, 355.f};
@@ -232,4 +242,24 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
 
     SkRect kRect = { 60, 0, 100, 40};
     canvas->drawArc(kRect, 45, 90, true, p0);
+}
+
+DEF_SIMPLE_GM(crbug_888453, canvas, 480, 150) {
+    // Two GPU path renderers were using a too-large tolerance when chopping connics to quads.
+    // This manifested as not-very-round circular arcs at certain radii. All the arcs being drawn
+    // here should look like circles.
+    SkPaint fill;
+    fill.setAntiAlias(true);
+    SkPaint hairline = fill;
+    hairline.setStyle(SkPaint::kStroke_Style);
+    SkPaint stroke = hairline;
+    stroke.setStrokeWidth(2.0f);
+    int x = 4;
+    int y0 = 25, y1 = 75, y2 = 125;
+    for (int r = 2; r <= 20; ++r) {
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y0 - r, 2 * r, 2 * r), 0, 360, false, fill);
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y1 - r, 2 * r, 2 * r), 0, 360, false, hairline);
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y2 - r, 2 * r, 2 * r), 0, 360, false, stroke);
+        x += 2 * r + 4;
+    }
 }

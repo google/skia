@@ -10,7 +10,7 @@
 #ifndef gr_context_DEFINED
 #define gr_context_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 

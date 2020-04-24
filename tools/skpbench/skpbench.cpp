@@ -5,58 +5,82 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/SkDeferredDisplayList.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "src/utils/SkMultiPictureDocument.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/DDLPromiseImageHelper.h"
+#include "tools/DDLTileHelper.h"
+#include "tools/SkSharingProc.h"
+#include "tools/ToolUtils.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/flags/CommonFlags.h"
+#include "tools/flags/CommonFlagsConfig.h"
+#include "tools/gpu/GpuTimer.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#ifdef SK_XML
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "src/xml/SkDOM.h"
+#endif
+
 #include <stdlib.h>
 #include <algorithm>
 #include <array>
 #include <chrono>
 #include <cmath>
 #include <vector>
-#include "GpuTimer.h"
-#include "GrCaps.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkCommonFlags.h"
-#include "SkCommonFlagsGpu.h"
-#include "SkGr.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkSurfaceProps.h"
-#include "flags/SkCommandLineFlags.h"
-#include "flags/SkCommonFlagsConfig.h"
-#include "picture_utils.h"
-#include "sk_tool_utils.h"
 
 /**
- * This is a minimalist program whose sole purpose is to open an skp file, benchmark it on a single
- * config, and exit. It is intended to be used through skpbench.py rather than invoked directly.
- * Limiting the entire process to a single config/skp pair helps to keep the results repeatable.
+ * This is a minimalist program whose sole purpose is to open a .skp or .svg file, benchmark it on a
+ * single config, and exit. It is intended to be used through skpbench.py rather than invoked
+ * directly. Limiting the entire process to a single config/skp pair helps to keep the results
+ * repeatable.
  *
  * No tiling, looping, or other fanciness is used; it just draws the skp whole into a size-matched
  * render target and syncs the GPU after each draw.
  *
+ * Well, maybe a little fanciness, MSKP's can be loaded and played. The animation is played as many
+ * times as necessary to reach the target sample duration and FPS is reported.
+ *
  * Currently, only GPU configs are supported.
  */
 
-DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
-DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
-DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
-DEFINE_bool(fps, false, "use fps instead of ms");
-DEFINE_string(skp, "", "path to a single .skp file, or 'warmup' for a builtin warmup run");
-DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
-DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
-DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
+static DEFINE_bool(ddl, false, "record the skp into DDLs before rendering");
+static DEFINE_int(ddlNumAdditionalThreads, 0,
+                    "number of DDL recording threads in addition to main one");
+static DEFINE_int(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
+static DEFINE_bool(ddlRecordTime, false, "report just the cpu time spent recording DDLs");
+
+static DEFINE_int(duration, 5000, "number of milliseconds to run the benchmark");
+static DEFINE_int(sampleMs, 50, "minimum duration of a sample");
+static DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
+static DEFINE_bool(fps, false, "use fps instead of ms");
+static DEFINE_string(src, "",
+                     "path to a single .skp or .svg file, or 'warmup' for a builtin warmup run");
+static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
+static DEFINE_int(verbosity, 4, "level of verbosity (0=none to 5=debug)");
+static DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 
 static const char* header =
 "   accum    median       max       min   stddev  samples  sample_ms  clock  metric  config    bench";
 
 static const char* resultFormat =
 "%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-5s  %-6s  %-9s %s";
+
+static constexpr int kNumFlushesToPrimeCache = 3;
 
 struct Sample {
     using duration = std::chrono::nanoseconds;
@@ -94,23 +118,169 @@ enum class ExitErr {
     kSoftware     = 70
 };
 
-static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
+static void draw_skp_and_flush(SkSurface*, const SkPicture*);
 static sk_sp<SkPicture> create_warmup_skp();
+static sk_sp<SkPicture> create_skp_from_svg(SkStream*, const char* filename);
 static bool mkdir_p(const SkString& name);
-static SkString join(const SkCommandLineFlags::StringArray&);
+static SkString         join(const CommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
-static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
-                          const SkPicture* skp, std::vector<Sample>* samples) {
+// An interface used by both static SKPs and animated SKPs
+class SkpProducer {
+ public:
+  virtual ~SkpProducer() {}
+  // Draw an SkPicture to the provided surface, flush the surface, and sync the GPU.
+  // You may use the static draw_skp_and_flush declared above.
+  // returned int tells how many draw/flush/sync were done.
+  virtual int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) = 0;
+};
+
+class StaticSkp : public SkpProducer {
+ public:
+  StaticSkp(sk_sp<SkPicture> skp) : fSkp(skp) {}
+
+    int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) override {
+        draw_skp_and_flush(surface, fSkp.get());
+        gpuSync.syncToPreviousFrame();
+        return 1;
+    }
+ private:
+  sk_sp<SkPicture> fSkp;
+};
+
+// A class for playing/benchmarking a multi frame SKP file.
+// the recorded frames are looped over repeatedly.
+// This type of benchmark may have a much higher std dev in frame times.
+class MultiFrameSkp : public SkpProducer {
+public:
+    MultiFrameSkp(const std::vector<SkDocumentPage>& frames) : fFrames(frames){}
+
+    static std::unique_ptr<MultiFrameSkp> MakeFromFile(const SkString& path) {
+        // Load the multi frame skp at the given filename.
+        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path.c_str());
+        if (!stream) { return nullptr; }
+
+        // Attempt to deserialize with an image sharing serial proc.
+        auto deserialContext = std::make_unique<SkSharingDeserialContext>();
+        SkDeserialProcs procs;
+        procs.fImageProc = SkSharingDeserialContext::deserializeImage;
+        procs.fImageCtx = deserialContext.get();
+
+        // The outer format of multi-frame skps is the multi-picture document, which is a
+        // skp file containing subpictures separated by annotations.
+        int page_count = SkMultiPictureDocumentReadPageCount(stream.get());
+        if (!page_count) {
+            return nullptr;
+        }
+        std::vector<SkDocumentPage> frames(page_count); // can't call reserve, why?
+        if (!SkMultiPictureDocumentRead(stream.get(), frames.data(), page_count, &procs)) {
+            return nullptr;
+        }
+
+        return std::make_unique<MultiFrameSkp>(frames);
+    }
+
+    // Draw the whole animation once.
+    int drawAndFlushAndSync(SkSurface* surface, GpuSync& gpuSync) override {
+        for (int i=0; i<this->count(); i++){
+            draw_skp_and_flush(surface, this->frame(i).get());
+            gpuSync.syncToPreviousFrame();
+        }
+        return this->count();
+    }
+    // Return the requested frame.
+    sk_sp<SkPicture> frame(int n) const { return fFrames[n].fPicture; }
+    // Return the number of frames in the recording.
+    int count() const { return fFrames.size(); }
+private:
+    std::vector<SkDocumentPage> fFrames;
+};
+
+static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSync, Sample* sample,
+                       std::chrono::high_resolution_clock::time_point* startStopTime) {
+    using clock = std::chrono::high_resolution_clock;
+
+    clock::time_point start = *startStopTime;
+
+    tiles->createDDLsInParallel();
+
+    if (!FLAGS_ddlRecordTime) {
+        tiles->drawAllTilesAndFlush(context, true);
+        if (gpuSync) {
+            gpuSync->syncToPreviousFrame();
+        }
+    }
+
+    *startStopTime = clock::now();
+
+    tiles->resetAllTiles();
+
+    if (sample) {
+        SkASSERT(gpuSync);
+        sample->fDuration += *startStopTime - start;
+        sample->fFrames++;
+    }
+}
+
+static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
+                              GrContext* context, SkCanvas* finalCanvas,
+                              SkPicture* inputPicture, std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    draw_skp_and_flush(canvas, skp);
-    GpuSync gpuSync(fenceSync);
+    SkIRect viewport = finalCanvas->imageInfo().bounds();
 
-    draw_skp_and_flush(canvas, skp);
-    gpuSync.syncToPreviousFrame();
+    DDLPromiseImageHelper promiseImageHelper;
+    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture);
+    if (!compressedPictureData) {
+        exitf(ExitErr::kUnavailable, "DDL: conversion of skp failed");
+    }
+
+    promiseImageHelper.uploadAllToGPU(context);
+
+    DDLTileHelper tiles(finalCanvas, viewport, FLAGS_ddlTilingWidthHeight);
+
+    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+
+    SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
+
+    clock::time_point startStopTime = clock::now();
+
+    ddl_sample(context, &tiles, nullptr, nullptr, &startStopTime);
+    GpuSync gpuSync(fenceSync);
+    ddl_sample(context, &tiles, &gpuSync, nullptr, &startStopTime);
+
+    clock::duration cumulativeDuration = std::chrono::milliseconds(0);
+
+    do {
+        samples->emplace_back();
+        Sample& sample = samples->back();
+
+        do {
+            ddl_sample(context, &tiles, &gpuSync, &sample, &startStopTime);
+        } while (sample.fDuration < sampleDuration);
+
+        cumulativeDuration += sample.fDuration;
+    } while (cumulativeDuration < benchDuration || 0 == samples->size() % 2);
+
+    if (!FLAGS_png.isEmpty()) {
+        // The user wants to see the final result
+        tiles.composeAllTiles(finalCanvas);
+    }
+}
+
+static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkSurface* surface,
+                          SkpProducer* skpp, std::vector<Sample>* samples) {
+    using clock = std::chrono::high_resolution_clock;
+    const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+    const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
+
+    GpuSync gpuSync(fenceSync);
+    int i = 0;
+    do {
+        i += skpp->drawAndFlushAndSync(surface, gpuSync);
+    } while(i < kNumFlushesToPrimeCache);
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;
@@ -121,18 +291,15 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
         Sample& sample = samples->back();
 
         do {
-            draw_skp_and_flush(canvas, skp);
-            gpuSync.syncToPreviousFrame();
-
-            now = clock::now();
-            sample.fDuration = now - sampleStart;
-            ++sample.fFrames;
+          sample.fFrames += skpp->drawAndFlushAndSync(surface, gpuSync);
+          now = clock::now();
+          sample.fDuration = now - sampleStart;
         } while (sample.fDuration < sampleDuration);
     } while (now < endTime || 0 == samples->size() % 2);
 }
 
 static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
-                                   const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
+                                   const sk_gpu_test::FenceSync* fenceSync, SkSurface* surface,
                                    const SkPicture* skp, std::vector<Sample>* samples) {
     using sk_gpu_test::PlatformTimerQuery;
     using clock = std::chrono::steady_clock;
@@ -144,13 +311,16 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
                         "results may be unreliable\n");
     }
 
-    draw_skp_and_flush(canvas, skp);
+    draw_skp_and_flush(surface, skp);
     GpuSync gpuSync(fenceSync);
 
-    gpuTimer->queueStart();
-    draw_skp_and_flush(canvas, skp);
-    PlatformTimerQuery previousTime = gpuTimer->queueStop();
-    gpuSync.syncToPreviousFrame();
+    PlatformTimerQuery previousTime = 0;
+    for (int i = 1; i < kNumFlushesToPrimeCache; ++i) {
+        gpuTimer->queueStart();
+        draw_skp_and_flush(surface, skp);
+        previousTime = gpuTimer->queueStop();
+        gpuSync.syncToPreviousFrame();
+    }
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;
@@ -162,7 +332,7 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
 
         do {
             gpuTimer->queueStart();
-            draw_skp_and_flush(canvas, skp);
+            draw_skp_and_flush(surface, skp);
             PlatformTimerQuery time = gpuTimer->queueStop();
             gpuSync.syncToPreviousFrame();
 
@@ -224,9 +394,10 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("Use skpbench.py instead. "
-                                 "You usually don't want to use this program directly.");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage(
+            "Use skpbench.py instead. "
+            "You usually don't want to use this program directly.");
+    CommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_suppressHeader) {
         printf("%s\n", header);
@@ -245,33 +416,46 @@ int main(int argc, char** argv) {
     }
 
     // Parse the skp.
-    if (FLAGS_skp.count() != 1) {
-        exitf(ExitErr::kUsage, "invalid skp '%s': must specify a single skp file, or 'warmup'",
-                               join(FLAGS_skp).c_str());
+    if (FLAGS_src.count() != 1) {
+        exitf(ExitErr::kUsage,
+              "invalid input '%s': must specify a single .skp or .svg file, or 'warmup'",
+              join(FLAGS_src).c_str());
     }
+
+    SkGraphics::Init();
+
     sk_sp<SkPicture> skp;
-    SkString skpname;
-    if (0 == strcmp(FLAGS_skp[0], "warmup")) {
+    std::unique_ptr<MultiFrameSkp> mskp; // populated if the file is multi frame.
+    SkString srcname;
+    if (0 == strcmp(FLAGS_src[0], "warmup")) {
         skp = create_warmup_skp();
-        skpname = "warmup";
+        srcname = "warmup";
     } else {
-        const char* skpfile = FLAGS_skp[0];
-        std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
-        if (!skpstream) {
-            exitf(ExitErr::kIO, "failed to open skp file %s", skpfile);
+        SkString srcfile(FLAGS_src[0]);
+        std::unique_ptr<SkStream> srcstream(SkStream::MakeFromFile(srcfile.c_str()));
+        if (!srcstream) {
+            exitf(ExitErr::kIO, "failed to open file %s", srcfile.c_str());
         }
-        skp = SkPicture::MakeFromStream(skpstream.get());
+        if (srcfile.endsWith(".svg")) {
+            skp = create_skp_from_svg(srcstream.get(), srcfile.c_str());
+        } else if (srcfile.endsWith(".mskp")) {
+            mskp = MultiFrameSkp::MakeFromFile(srcfile);
+            // populate skp with it's first frame, for width height determination.
+            skp = mskp->frame(0);
+        } else {
+            skp = SkPicture::MakeFromStream(srcstream.get());
+        }
         if (!skp) {
-            exitf(ExitErr::kData, "failed to parse skp file %s", skpfile);
+            exitf(ExitErr::kData, "failed to parse file %s", srcfile.c_str());
         }
-        skpname = SkOSPath::Basename(skpfile);
+        srcname = SkOSPath::Basename(srcfile.c_str());
     }
     int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
         height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
     if (FLAGS_verbosity >= 3 &&
         (width != skp->cullRect().width() || height != skp->cullRect().height())) {
         fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
-                        skpname.c_str(), SkScalarCeilToInt(skp->cullRect().width()),
+                        srcname.c_str(), SkScalarCeilToInt(skp->cullRect().width()),
                         SkScalarCeilToInt(skp->cullRect().height()), width, height);
     }
 
@@ -295,14 +479,13 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
               width, height, ctx->maxRenderTargetSize());
     }
-    GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(
-            config->getColorType(), config->getColorSpace(), *ctx->contextPriv().caps());
-    if (kUnknown_GrPixelConfig == grPixConfig) {
-        exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
+    GrBackendFormat format = ctx->defaultBackendFormat(config->getColorType(), GrRenderable::kYes);
+    if (!format.isValid()) {
+        exitf(ExitErr::kUnavailable, "failed to get GrBackendFormat from SkColorType: %d",
                                      config->getColorType());
     }
-    int supportedSampleCount = ctx->contextPriv().caps()->getRenderTargetSampleCount(
-            config->getSamples(), grPixConfig);
+    int supportedSampleCount = ctx->priv().caps()->getRenderTargetSampleCount(
+            config->getSamples(), format);
     if (supportedSampleCount != config->getSamples()) {
         exitf(ExitErr::kUnavailable, "sample count %i not supported by platform",
                                      config->getSamples());
@@ -339,15 +522,25 @@ int main(int argc, char** argv) {
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
     if (!FLAGS_gpuClock) {
-        run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);
+        if (FLAGS_ddl) {
+            run_ddl_benchmark(testCtx->fenceSync(), ctx, canvas, skp.get(), &samples);
+        } else if (!mskp) {
+            auto s = std::make_unique<StaticSkp>(skp);
+            run_benchmark(testCtx->fenceSync(), surface.get(), s.get(), &samples);
+        } else {
+            run_benchmark(testCtx->fenceSync(), surface.get(), mskp.get(), &samples);
+        }
     } else {
+        if (FLAGS_ddl) {
+            exitf(ExitErr::kUnavailable, "DDL: GPU-only timing not supported");
+        }
         if (!testCtx->gpuTimingSupport()) {
             exitf(ExitErr::kUnavailable, "GPU does not support timing");
         }
-        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), canvas, skp.get(),
-                               &samples);
+        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), surface.get(),
+                               skp.get(), &samples);
     }
-    print_result(samples, config->getTag().c_str(), skpname.c_str());
+    print_result(samples, config->getTag().c_str(), srcname.c_str());
 
     // Save a proof (if one was requested).
     if (!FLAGS_png.isEmpty()) {
@@ -356,12 +549,10 @@ int main(int argc, char** argv) {
         if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
             exitf(ExitErr::kUnavailable, "failed to read canvas pixels for png");
         }
-        const SkString &dirname = SkOSPath::Dirname(FLAGS_png[0]),
-                       &basename = SkOSPath::Basename(FLAGS_png[0]);
-        if (!mkdir_p(dirname)) {
-            exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
+        if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
+            exitf(ExitErr::kIO, "failed to create directory for png \"%s\"", FLAGS_png[0]);
         }
-        if (!sk_tools::write_bitmap_to_disk(bmp, dirname, nullptr, basename)) {
+        if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
     }
@@ -369,9 +560,10 @@ int main(int argc, char** argv) {
     exit(0);
 }
 
-static void draw_skp_and_flush(SkCanvas* canvas, const SkPicture* skp) {
+static void draw_skp_and_flush(SkSurface* surface, const SkPicture* skp) {
+    auto canvas = surface->getCanvas();
     canvas->drawPicture(skp);
-    canvas->flush();
+    surface->flush();
 }
 
 static sk_sp<SkPicture> create_warmup_skp() {
@@ -387,7 +579,7 @@ static sk_sp<SkPicture> create_warmup_skp() {
 
     // Use a big path to (theoretically) warmup the CPU.
     SkPath bigPath;
-    sk_tool_utils::make_big_path(bigPath);
+    ToolUtils::make_big_path(bigPath);
     recording->drawPath(bigPath, stroke);
 
     // Use a perlin shader to warmup the GPU.
@@ -398,14 +590,38 @@ static sk_sp<SkPicture> create_warmup_skp() {
     return recorder.finishRecordingAsPicture();
 }
 
+static sk_sp<SkPicture> create_skp_from_svg(SkStream* stream, const char* filename) {
+#ifdef SK_XML
+    SkDOM xml;
+    if (!xml.build(*stream)) {
+        exitf(ExitErr::kData, "failed to parse xml in file %s", filename);
+    }
+    sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromDOM(xml);
+    if (!svg) {
+        exitf(ExitErr::kData, "failed to build svg dom from file %s", filename);
+    }
+
+    static constexpr SkRect bounds{0, 0, 1200, 1200};
+    SkPictureRecorder recorder;
+    SkCanvas* recording = recorder.beginRecording(bounds);
+
+    svg->setContainerSize(SkSize::Make(recording->getBaseLayerSize()));
+    svg->render(recording);
+
+    return recorder.finishRecordingAsPicture();
+#endif
+    exitf(ExitErr::kData, "SK_XML is disabled; cannot open svg file %s", filename);
+    return nullptr;
+}
+
 bool mkdir_p(const SkString& dirname) {
-    if (dirname.isEmpty()) {
+    if (dirname.isEmpty() || dirname == SkString("/")) {
         return true;
     }
     return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
 }
 
-static SkString join(const SkCommandLineFlags::StringArray& stringArray) {
+static SkString join(const CommandLineFlags::StringArray& stringArray) {
     SkString joined;
     for (int i = 0; i < stringArray.count(); ++i) {
         joined.appendf(i ? " %s" : "%s", stringArray[i]);

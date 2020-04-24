@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsQuadIntersectionTestData.h"
-#include "SkIntersections.h"
-#include "SkPathOpsRect.h"
-#include "SkReduceOrder.h"
-#include "Test.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "tests/PathOpsQuadIntersectionTestData.h"
+#include "tests/Test.h"
 
 static const QuadPts testSet[] = {
     {{{1, 1}, {2, 2}, {1, 1.000003}}},

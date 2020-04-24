@@ -8,9 +8,9 @@
 #ifndef SkSpriteBlitter_DEFINED
 #define SkSpriteBlitter_DEFINED
 
-#include "SkBlitter.h"
-#include "SkPixmap.h"
-#include "SkShader.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkShader.h"
+#include "src/core/SkBlitter.h"
 
 class SkPaint;
 

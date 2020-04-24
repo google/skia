@@ -7,14 +7,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkPathOps.h"
-#include "SkParsePath.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkParsePath.h"
 
-#include "sk_path.h"
+#include "include/c/sk_path.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_path_rmove_to(sk_path_t* cpath, float dx, float dy) {
     AsPath(cpath)->rMoveTo(dx, dy);
@@ -37,7 +37,7 @@ void sk_path_rcubic_to(sk_path_t* cpath, float dx0, float dy0, float dx1, float 
 }
 
 void sk_path_add_rect_start(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir, uint32_t startIndex) {
-    AsPath(cpath)->addRect(*AsRect(crect), (SkPath::Direction)cdir, startIndex);
+    AsPath(cpath)->addRect(*AsRect(crect), (SkPathDirection)cdir, startIndex);
 }
 
 void sk_path_add_arc(sk_path_t* cpath, const sk_rect_t* crect, float startAngle, float sweepAngle) {
@@ -45,7 +45,7 @@ void sk_path_add_arc(sk_path_t* cpath, const sk_rect_t* crect, float startAngle,
 }
 
 void sk_path_set_filltype(sk_path_t* cpath, sk_path_filltype_t cfilltype) {
-    AsPath(cpath)->setFillType((SkPath::FillType)cfilltype);
+    AsPath(cpath)->setFillType((SkPathFillType)cfilltype);
 }
 
 sk_path_filltype_t sk_path_get_filltype(sk_path_t *cpath) {
@@ -56,7 +56,7 @@ void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix) {
     AsPath(cpath)->transform(AsMatrix(cmatrix));
 }
 
-void sk_path_transform_to_dest(sk_path_t* cpath, const sk_matrix_t* cmatrix, sk_path_t* destination) {
+void sk_path_transform_to_dest(const sk_path_t* cpath, const sk_matrix_t* cmatrix, sk_path_t* destination) {
     AsPath(cpath)->transform(AsMatrix(cmatrix), AsPath(destination));
 }
 
@@ -76,8 +76,8 @@ sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose) {
     return ToPathIter(new SkPath::Iter(*AsPath(cpath), forceClose));
 }
 
-sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact) {
-    return (sk_path_verb_t)AsPathIter(iterator)->next(AsPoint(points), doConsumeDegenerates, exact);
+sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4]) {
+    return (sk_path_verb_t)AsPathIter(iterator)->next(AsPoint(points));
 }
 
 float sk_path_iter_conic_weight (sk_path_iterator_t *iterator) {
@@ -132,7 +132,7 @@ void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other) {
     AsPath (cpath)->reverseAddPath (AsPath (*other));
 }
 
-sk_path_t* sk_path_new() {
+sk_path_t* sk_path_new(void) {
     return ToPath(new SkPath());
 }
 
@@ -161,11 +161,11 @@ void sk_path_cubic_to(sk_path_t* cpath, float x0, float y0, float x1, float y1, 
 }
 
 void sk_path_arc_to(sk_path_t* cpath, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y) {
-    AsPath(cpath)->arcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPath::Direction)sweep, x, y);
+    AsPath(cpath)->arcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPathDirection)sweep, x, y);
 }
 
 void sk_path_rarc_to(sk_path_t* cpath, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y) {
-    AsPath(cpath)->rArcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPath::Direction)sweep, x, y);
+    AsPath(cpath)->rArcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPathDirection)sweep, x, y);
 }
 
 void sk_path_arc_to_with_oval(sk_path_t* cpath, const sk_rect_t* oval, float startAngle, float sweepAngle, bool forceMoveTo) {
@@ -181,27 +181,27 @@ void sk_path_close(sk_path_t* cpath) {
 }
 
 void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
-    AsPath(cpath)->addRect(*AsRect(crect), (SkPath::Direction)cdir);
+    AsPath(cpath)->addRect(*AsRect(crect), (SkPathDirection)cdir);
 }
 
 void sk_path_add_rrect(sk_path_t* cpath, const sk_rrect_t* crect, sk_path_direction_t cdir) {
-    AsPath(cpath)->addRRect(*AsRRect(crect), (SkPath::Direction)cdir);
+    AsPath(cpath)->addRRect(*AsRRect(crect), (SkPathDirection)cdir);
 }
 
 void sk_path_add_rrect_start(sk_path_t* cpath, const sk_rrect_t* crect, sk_path_direction_t cdir, uint32_t start) {
-    AsPath(cpath)->addRRect(*AsRRect(crect), (SkPath::Direction)cdir, start);
+    AsPath(cpath)->addRRect(*AsRRect(crect), (SkPathDirection)cdir, start);
 }
 
 void sk_path_add_rounded_rect(sk_path_t* cpath, const sk_rect_t* crect, float rx, float ry, sk_path_direction_t cdir) {
-    AsPath(cpath)->addRoundRect(*AsRect(crect), rx, ry, (SkPath::Direction)cdir);
+    AsPath(cpath)->addRoundRect(*AsRect(crect), rx, ry, (SkPathDirection)cdir);
 }
 
 void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
-    AsPath(cpath)->addOval(*AsRect(crect), (SkPath::Direction)cdir);
+    AsPath(cpath)->addOval(*AsRect(crect), (SkPathDirection)cdir);
 }
 
 void sk_path_add_circle(sk_path_t* cpath, float x, float y, float radius, sk_path_direction_t dir) {
-    AsPath(cpath)->addCircle(x, y, radius, (SkPath::Direction)dir);
+    AsPath(cpath)->addCircle(x, y, radius, (SkPathDirection)dir);
 }
 
 void sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
@@ -233,11 +233,11 @@ bool sk_path_contains (const sk_path_t* cpath, float x, float y) {
 }
 
 sk_path_convexity_t sk_path_get_convexity (const sk_path_t* cpath) {
-    return (sk_path_convexity_t)AsPath(cpath)->getConvexity();
+    return (sk_path_convexity_t)AsPath(cpath)->getConvexityType();
 }
 
 void sk_path_set_convexity (sk_path_t* cpath, sk_path_convexity_t convexity) {
-    AsPath(cpath)->setConvexity((SkPath::Convexity)convexity);
+    AsPath(cpath)->setConvexityType((SkPathConvexityType)convexity);
 }
 
 bool sk_path_parse_svg_string (sk_path_t* cpath, const char* str) {
@@ -264,7 +264,7 @@ bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result) {
     return TightBounds(*AsPath(path), AsRect(result));
 }
 
-sk_opbuilder_t* sk_opbuilder_new() {
+sk_opbuilder_t* sk_opbuilder_new(void) {
     return ToOpBuilder(new SkOpBuilder());
 }
 
@@ -284,7 +284,7 @@ int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, c
     return SkPath::ConvertConicToQuads(*AsPoint(p0), *AsPoint(p1), *AsPoint(p2), w, AsPoint(pts), pow2);
 }
 
-sk_pathmeasure_t* sk_pathmeasure_new() {
+sk_pathmeasure_t* sk_pathmeasure_new(void) {
     return ToPathMeasure(new SkPathMeasure());
 }
 
@@ -348,5 +348,5 @@ bool sk_path_is_line(sk_path_t* cpath, sk_point_t line [2]) {
 }
 
 bool sk_path_is_rect(sk_path_t* cpath, sk_rect_t* rect, bool* isClosed, sk_path_direction_t* direction) {
-    return AsPath(cpath)->isRect(AsRect(rect), isClosed, (SkPath::Direction*)direction);
+    return AsPath(cpath)->isRect(AsRect(rect), isClosed, (SkPathDirection*)direction);
 }

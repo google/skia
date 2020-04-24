@@ -9,8 +9,8 @@
 #ifndef SkManagedDrawable_h
 #define SkManagedDrawable_h
 
-#include "SkTypes.h"
-#include "SkDrawable.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkDrawable.h"
 
 class SkCanvas;
 class SkPicture;
@@ -26,7 +26,7 @@ class SkManagedDrawable : public SkDrawable {
 public:
     SkManagedDrawable(void* context);
 
-    virtual ~SkManagedDrawable();
+    ~SkManagedDrawable() override;
 
 public:
     typedef void       (*DrawProc)               (SkManagedDrawable* d, void* context, SkCanvas* canvas);

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkStencilAttachment.h"
-#include "GrVkGpu.h"
-#include "GrVkImage.h"
-#include "GrVkImageView.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkStencilAttachment.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
@@ -51,7 +51,8 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
 
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage,
                                                            format.fInternalFormat,
-                                                           GrVkImageView::kStencil_Type, 1);
+                                                           GrVkImageView::kStencil_Type, 1,
+                                                           GrVkYcbcrConversionInfo());
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;

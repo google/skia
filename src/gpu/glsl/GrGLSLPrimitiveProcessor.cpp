@@ -5,33 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLPrimitiveProcessor.h"
+#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 
-#include "GrCoordTransform.h"
-#include "GrTexture.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
-                                                      const GrCoordTransform& coordTransform) {
+SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const GrCoordTransform& coordTransform,
+                                                      const SkMatrix& preMatrix) {
     SkMatrix combined;
-    combined.setConcat(coordTransform.getMatrix(), localMatrix);
+    combined.setConcat(coordTransform.matrix(), preMatrix);
     if (coordTransform.normalize()) {
         combined.postIDiv(coordTransform.peekTexture()->width(),
                           coordTransform.peekTexture()->height());
     }
 
     if (coordTransform.reverseY()) {
-        // combined.postScale(1,-1);
-        // combined.postTranslate(0,1);
-        combined.set(SkMatrix::kMSkewY,
-            combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
-        combined.set(SkMatrix::kMScaleY,
-            combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
-        combined.set(SkMatrix::kMTransY,
-            combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        if (coordTransform.normalize()) {
+            // combined.postScale(1,-1);
+            // combined.postTranslate(0,1);
+            combined.set(SkMatrix::kMSkewY,
+                         combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+            combined.set(SkMatrix::kMScaleY,
+                         combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+            combined.set(SkMatrix::kMTransY,
+                         combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        } else {
+            // combined.postScale(1, -1);
+            // combined.postTranslate(0,1);
+            SkScalar h = coordTransform.peekTexture()->height();
+            combined.set(SkMatrix::kMSkewY,
+                         h * combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+            combined.set(SkMatrix::kMScaleY,
+                         h * combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+            combined.set(SkMatrix::kMTransY,
+                         h * combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        }
     }
     return combined;
 }
@@ -54,13 +66,19 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
 
 //////////////////////////////////////////////////////////////////////////////
 
-const GrCoordTransform* GrGLSLPrimitiveProcessor::FPCoordTransformHandler::nextCoordTransform() {
-#ifdef SK_DEBUG
-    SkASSERT(nullptr == fCurr || fAddedCoord);
-    fAddedCoord = false;
-    fCurr = fIter.next();
-    return fCurr;
-#else
-    return fIter.next();
-#endif
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
+        const GrPipeline& pipeline, SkTArray<TransformVar>* transformedCoordVars)
+        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
+
+std::pair<const GrCoordTransform&, const GrFragmentProcessor&>
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
+    return *fIter;
+}
+
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler&
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::operator++() {
+    SkASSERT(fAddedCoord);
+    ++fIter;
+    SkDEBUGCODE(fAddedCoord = false;)
+    return *this;
 }

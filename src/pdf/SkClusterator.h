@@ -8,21 +8,15 @@
 #define SkClusterator_DEFINED
 
 #include <vector>
+#include <cstdint>
 
-#include "SkTypes.h"
-#include "SkPaint.h"
+class SkGlyphRun;
 
 /** Given the m-to-n glyph-to-character mapping data (as returned by
     harfbuzz), iterate over the clusters. */
 class SkClusterator {
 public:
-    SkClusterator(const void* sourceText,
-                  size_t sourceByteCount,
-                  const SkPaint& paint,
-                  const uint32_t* clusters,
-                  uint32_t utf8TextByteLength,
-                  const char* utf8Text);
-    const SkGlyphID* glyphs() const { return fGlyphs; }
+    SkClusterator(const SkGlyphRun& run);
     uint32_t glyphCount() const { return fGlyphCount; }
     bool reversedChars() const { return fReversedChars; }
     struct Cluster {
@@ -37,21 +31,16 @@ public:
                 && fGlyphIndex     == o.fGlyphIndex
                 && fGlyphCount     == o.fGlyphCount;
         }
-
     };
     Cluster next();
 
 private:
-    std::vector<SkGlyphID> fGlyphStorage;
-    std::vector<char> fUtf8textStorage;
-    std::vector<uint32_t> fClusterStorage;
-    const SkGlyphID* fGlyphs;
-    const uint32_t* fClusters;
-    const char* fUtf8Text;
-    uint32_t fGlyphCount;
-    uint32_t fTextByteLength;
+    uint32_t const * const fClusters;
+    char const * const fUtf8Text;
+    uint32_t const fGlyphCount;
+    uint32_t const fTextByteLength;
+    bool const fReversedChars;
     uint32_t fCurrentGlyphIndex = 0;
-    bool fReversedChars = false;
 };
 
 

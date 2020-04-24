@@ -1,0 +1,30 @@
+{
+   "MaxCount": 1000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 200;",
+      "  effect.color = float4(1, 0, 0, 1);",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 3 + rand;",
+      "  p.vel.y = -50;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  float w = mix(15, 3, p.age);",
+      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand);",
+      "  if (rand < 0.5) { p.pos.x = -p.pos.x; }",
+      "",
+      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand)) / 255;",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

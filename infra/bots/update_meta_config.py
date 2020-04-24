@@ -17,55 +17,14 @@ import git_utils
 
 SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
-CQ_INCLUDE_CHROMIUM_TRYBOTS = [
-    ('luci.chromium.try', [
-        'android_optional_gpu_tests_rel',
-        'linux_chromium_compile_dbg_ng',
-        'linux_chromium_dbg_ng',
-        'linux_chromium_rel_ng',
-        'linux_optional_gpu_tests_rel',
-        'mac_chromium_compile_dbg_ng',
-        'mac_chromium_compile_rel_ng',
-        'mac_chromium_dbg_ng',
-        'mac_chromium_rel_ng',
-        'mac_optional_gpu_tests_rel',
-        'win_chromium_compile_dbg_ng',
-        'win_chromium_dbg_ng',
-        'win_optional_gpu_tests_rel',
-    ]),
-    ('master.tryserver.blink', [
-        'linux_trusty_blink_dbg',
-        'linux_trusty_blink_rel',
-        'mac10.10_blink_rel',
-        'mac10.11_blink_rel',
-        'mac10.11_retina_blink_rel',
-        'mac10.12_blink_rel',
-        'win10_blink_rel',
-        'win7_blink_rel',
-    ]),
-    ('master.tryserver.chromium.linux', [
-        'linux_chromium_compile_rel_ng',
-    ]),
-    ('master.tryserver.chromium.win', [
-        'win_chromium_compile_rel_ng',
-        'win7_chromium_rel_ng',
-        'win10_chromium_x64_rel_ng',
-    ]),
-    ('master.tryserver.chromium.android', [
-        'android_blink_rel',
-        'android_compile_dbg',
-        'android_compile_rel',
-        'android_n5x_swarming_dbg',
-        'android_n5x_swarming_rel',
-    ])
+CQ_INCLUDE_CHROMIUM_BUCKETS = [
+    'luci.chromium.try',
 ]
 
 
-def addChromiumTrybots(f):
-  for master, bots in CQ_INCLUDE_CHROMIUM_TRYBOTS:
-    f.write('[bucket "%s"]\n' % master)
-    for bot in bots:
-      f.write('\tbuilder = %s\n' % bot)
+def addChromiumBuckets(f):
+  for bucket in CQ_INCLUDE_CHROMIUM_BUCKETS:
+    f.write('[bucket "%s"]\n' % bucket)
 
 
 def main():
@@ -94,7 +53,7 @@ def main():
     with open(buildbucket_config, 'w') as f:
 
       if args.repo_name == 'skia':
-        addChromiumTrybots(f)
+        addChromiumBuckets(f)
 
       # Adding all Skia jobs.
       f.write('[bucket "skia.primary"]\n')

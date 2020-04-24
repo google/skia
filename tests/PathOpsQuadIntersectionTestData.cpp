@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsQuadIntersectionTestData.h"
+#include "tests/PathOpsQuadIntersectionTestData.h"
 
 const QuadPts quadraticPoints[] = {
     {{{0, 0}, {1, 0}, {0, 0}}},

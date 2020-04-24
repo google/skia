@@ -8,9 +8,9 @@
 #ifndef SkLineParameters_DEFINED
 #define SkLineParameters_DEFINED
 
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 // Sources
 // computer-aided design - volume 22 number 9 november 1990 pp 538 - 549

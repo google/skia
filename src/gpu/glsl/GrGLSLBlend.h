@@ -8,8 +8,8 @@
 #ifndef GrGLBlend_DEFINED
 #define GrGLBlend_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkRegion.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkRegion.h"
 
 class GrGLSLFragmentBuilder;
 

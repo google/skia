@@ -8,7 +8,7 @@
 #ifndef GrGLSLGeometryProcessor_DEFINED
 #define GrGLSLGeometryProcessor_DEFINED
 
-#include "GrGLSLPrimitiveProcessor.h"
+#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 
 class GrGLSLGPBuilder;
 
@@ -26,7 +26,7 @@ protected:
     // A helper which subclasses can use to upload coord transform matrices in setData().
     void setTransformDataHelper(const SkMatrix& localMatrix,
                                 const GrGLSLProgramDataManager& pdman,
-                                FPCoordTransformIter*);
+                                const CoordTransformRange&);
 
     // Emit transformed local coords from the vertex shader as a uniform matrix and varying per
     // coord-transform. localCoordsVar must be a 2- or 3-component vector. If it is 3 then it is

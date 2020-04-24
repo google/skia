@@ -7,11 +7,11 @@
 #ifndef SkIntersections_DEFINE
 #define SkIntersections_DEFINE
 
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsPoint.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 class SkIntersections {
 public:
@@ -269,6 +269,10 @@ public:
     int intersectRay(const SkDQuad&, const SkDLine&);
     int intersectRay(const SkDConic&, const SkDLine&);
     int intersectRay(const SkDCubic&, const SkDLine&);
+    int intersectRay(const SkTCurve& tCurve, const SkDLine& line) {
+        return tCurve.intersectRay(this, line);
+    }
+
     void merge(const SkIntersections& , int , const SkIntersections& , int );
     int mostOutside(double rangeStart, double rangeEnd, const SkDPoint& origin) const;
     void removeOne(int index);

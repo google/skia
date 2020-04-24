@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
-#include "SkMatrix.h"
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {
@@ -26,8 +26,7 @@ void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matr
 }
 
 void GrGLSLProgramDataManager::setSkMatrix44(UniformHandle u, const SkMatrix44& matrix) const {
-    // TODO: We could skip this temporary buffer if we had direct access to the matrix storage
-    float m[16];
-    matrix.asColMajorf(m);
-    this->setMatrix4f(u, m);
+    float mt[16];
+    matrix.asColMajorf(mt);
+    this->setMatrix4f(u, mt);
 }

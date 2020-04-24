@@ -1,4 +1,4 @@
-#!/usr/bin/pyton
+#!/usr/bin/python
 
 # Copyright 2017 Google Inc.
 #
@@ -129,7 +129,6 @@ def compile_branch(args, branch):
 
   commands = [
     ['git', 'checkout', branch],
-    ['gclient', 'sync'],
     ['ninja', '-C', args.ninjadir, 'nanobench'],
     ['cp', args.ninjadir + '/nanobench', nano_path(args, branch)]
   ]

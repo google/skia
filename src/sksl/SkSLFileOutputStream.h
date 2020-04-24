@@ -8,8 +8,8 @@
 #ifndef SKSL_FILEOUTPUTSTREAM
 #define SKSL_FILEOUTPUTSTREAM
 
-#include "SkSLOutputStream.h"
-#include "SkSLUtil.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLUtil.h"
 #include <stdio.h>
 
 namespace SkSL {
@@ -21,7 +21,7 @@ public:
     }
 
     ~FileOutputStream() override {
-        ASSERT(!fOpen);
+        SkASSERT(!fOpen);
     }
 
     bool isValid() const override {
@@ -29,7 +29,7 @@ public:
     }
 
     void write8(uint8_t b) override {
-        ASSERT(fOpen);
+        SkASSERT(fOpen);
         if (isValid()) {
             if (EOF == fputc(b, fFile)) {
                 fFile = nullptr;
@@ -38,7 +38,7 @@ public:
     }
 
     void writeText(const char* s) override {
-        ASSERT(fOpen);
+        SkASSERT(fOpen);
         if (isValid()) {
             if (EOF == fputs(s, fFile)) {
                 fFile = nullptr;

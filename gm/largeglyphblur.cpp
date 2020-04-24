@@ -5,39 +5,39 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkTextBlob.h"
+#include <string.h>
 
-// This test ensures that glyphs whose point size is less than the SkGlyphCache's maxmium, but
+// This test ensures that glyphs whose point size is less than the SkStrike's maxmium, but
 // who have a large blur, are still handled correctly
 DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
-        const char text[] = "Hamburgefons";
+    const char text[] = "Hamburgefons";
 
-        SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(256);
-        paint.setAntiAlias(true);
+    SkFont font(ToolUtils::create_portable_typeface(), 256);
+    auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
 
-        // setup up maskfilter
-        const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
+    // setup up maskfilter
+    const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
 
-        SkPaint blurPaint(paint);
-        blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
+    SkPaint blurPaint;
+    blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
-        SkTextBlobBuilder builder;
+    canvas->drawTextBlob(blob, 10, 200, blurPaint);
+    canvas->drawTextBlob(blob, 10, 200, SkPaint());
 
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
-
-        sk_sp<SkTextBlob> blob(builder.make());
-        canvas->drawTextBlob(blob, 10, 200, blurPaint);
-        canvas->drawTextBlob(blob, 10, 200, paint);
-
-        size_t len = strlen(text);
-        canvas->drawText(text, len, 10, 500, blurPaint);
-        canvas->drawText(text, len, 10, 500, paint);
+    size_t len = strlen(text);
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 10, 500, font, blurPaint);
+    canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 10, 500, font, SkPaint());
 }

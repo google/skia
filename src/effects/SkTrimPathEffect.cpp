@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
-#include "SkTrimPathEffect.h"
-#include "SkTrimPE.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/effects/SkTrimPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/effects/SkTrimPE.h"
 
 namespace {
 
@@ -53,7 +53,7 @@ private:
 SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
     : fStartT(startT), fStopT(stopT), fMode(mode) {}
 
-bool SkTrimPE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                             const SkRect* cullRect) const {
     if (fStartT >= fStopT) {
         SkASSERT(fMode == SkTrimPathEffect::Mode::kNormal);
@@ -95,10 +95,6 @@ sk_sp<SkFlattenable> SkTrimPE::CreateProc(SkReadBuffer& buffer) {
 
     return SkTrimPathEffect::Make(start, stop,
         (mode & 1) ? SkTrimPathEffect::Mode::kInverted : SkTrimPathEffect::Mode::kNormal);
-}
-
-void SkTrimPE::toString(SkString* str) const {
-    str->appendf("SkTrimPathEffect: (%g %g)", fStartT, fStopT);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

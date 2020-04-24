@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkRect.h"
-#include "SkSVGRect.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGRect.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
 
 SkSVGRect::SkSVGRect() : INHERITED(SkSVGTag::kRect) {}
 
@@ -83,7 +83,7 @@ SkRRect SkSVGRect::resolve(const SkSVGLengthContext& lctx) const {
 }
 
 void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPath::FillType) const {
+                       const SkPaint& paint, SkPathFillType) const {
     canvas->drawRRect(this->resolve(lctx), paint);
 }
 

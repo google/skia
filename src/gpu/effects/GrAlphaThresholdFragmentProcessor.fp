@@ -18,7 +18,7 @@ in uniform half outerThreshold;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> mask,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
@@ -45,7 +45,7 @@ in uniform half outerThreshold;
 
 void main() {
     half4 color = sk_InColor;
-    half4 mask_color = texture(mask, sk_TransformedCoords2D[0]);
+    half4 mask_color = sample(mask, sk_TransformedCoords2D[0]);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
             half scale = outerThreshold / color.a;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLS.h"
-#include "SkOnce.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkTLS.h"
 
 #include <pthread.h>
 
@@ -16,7 +16,7 @@ void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
     // should we use forceCreateTheSlot to potentially just return nullptr if
     // we've never been called with forceCreateTheSlot==true ?
     static SkOnce once;
-    once(pthread_key_create, &gSkTLSKey, SkTLS::Destructor);
+    once([]{pthread_key_create(&gSkTLSKey, SkTLS::Destructor);});
     return pthread_getspecific(gSkTLSKey);
 }
 

@@ -4,10 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
 
 #include <iostream>
 #include <cmath>
@@ -16,7 +15,7 @@
 
 #define LIN_SEGMENTS 10
 
-class OverstrokeView : public SampleView {
+class OverstrokeView : public Sample {
    public:
     SkScalar fStroke;
     int fPathType;  // super lazy enum
@@ -33,13 +32,9 @@ class OverstrokeView : public SampleView {
     }
 
    protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PathOverstroke");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("PathOverstroke"); }
+
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case ',':
                     fStroke += 1.0;
@@ -62,8 +57,7 @@ class OverstrokeView : public SampleView {
                 default:
                     break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     SkPath quadPath(SkPoint p1, SkPoint p2) {
@@ -197,10 +191,9 @@ class OverstrokeView : public SampleView {
     }
 
    private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new OverstrokeView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new OverstrokeView(); )

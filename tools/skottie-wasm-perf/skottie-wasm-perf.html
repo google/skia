@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skottie-WASM Perf</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="res/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function() {
+      const PATH = '/res/lottie.json';
+
+      let lottieJSON = null;
+      let CK = null;
+
+     CanvasKitInit({
+        locateFile: (file) => '/res/'+file,
+    }).ready().then((CanvasKit) => {
+        CK = CanvasKit;
+        Bench(CK, lottieJSON);
+    });
+
+    fetch(PATH).then((resp) => {
+      resp.text().then((json) => {
+        lottieJSON = json;
+        Bench(CK, lottieJSON);
+      });
+    });
+  })();
+
+  const maxFrames = 25;
+  const maxLoops = 5;
+
+  function Bench(CK, json) {
+    if (!CK || !json) {
+      return;
+    }
+
+    const animation = CK.MakeManagedAnimation(json, null);
+    if (!animation) {
+      window._error = 'Could not process JSON';
+      return
+    }
+
+    let surface = null;
+    if (window.location.hash.indexOf('gpu') !== -1) {
+      surface = CK.MakeWebGLCanvasSurface('anim');
+      if (!surface) {
+        window._error = 'Could not make GPU surface';
+        return;
+      }
+      let c = document.getElementById('anim');
+      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+      // to CPU and add a ck-replaced class to the canvas element.
+      if (c.classList.contains('ck-replaced')) {
+        window._error = 'fell back to CPU';
+        return;
+      }
+    } else {
+      surface = CK.MakeSWCanvasSurface('anim');
+      if (!surface) {
+        window._error = 'Could not make CPU surface';
+        return;
+      }
+    }
+    const canvas = surface.getCanvas();
+
+    const t_rate = 1.0 / (maxFrames-1);
+    let seek = 0;
+    let frame = 0;
+    let loop = 0;
+    const drawFrame = () => {
+      if (frame >= maxFrames) {
+        // Reached the end of one loop.
+        loop++;
+        if (loop == maxLoops) {
+          // These are global variables to talk with puppeteer.
+          window._skottieDone = true;
+          return;
+        }
+        // Reset frame and seek to restart the loop.
+        frame = 0;
+        seek = 0;
+      }
+
+      let damage = animation.seek(seek);
+      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+        animation.render(canvas, {
+                         fLeft: 0,
+                         fTop: 0,
+                         fRight: 1000,
+                         fBottom: 1000
+                         });
+        surface.flush();
+      }
+      console.log(`Used seek: ${seek}`);
+      seek += t_rate;
+      frame++;
+      window.requestAnimationFrame(drawFrame);
+    };
+    window.requestAnimationFrame(drawFrame);
+  }
+  </script>
+</body>
+</html>

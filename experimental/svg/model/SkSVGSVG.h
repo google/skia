@@ -8,9 +8,9 @@
 #ifndef SkSVGSVG_DEFINED
 #define SkSVGSVG_DEFINED
 
-#include "SkSVGContainer.h"
-#include "SkSVGTypes.h"
-#include "SkTLazy.h"
+#include "experimental/svg/model/SkSVGContainer.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "src/core/SkTLazy.h"
 
 class SkSVGLengthContext;
 

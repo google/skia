@@ -10,7 +10,7 @@
 #ifndef sk_image_DEFINED
 #define sk_image_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
@@ -25,7 +25,7 @@ SK_C_API sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, co
 SK_C_API sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* matrix, const sk_paint_t* paint);
 
 SK_C_API sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset);
-SK_C_API sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context, sk_colorspace_t* colorspace);
+SK_C_API sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context, bool mipmapped);
 SK_C_API sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage);
 SK_C_API sk_image_t* sk_image_make_raster_image(const sk_image_t* cimage);
 SK_C_API sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset);

@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsQuad.h"
-#include "SkRandom.h"
-#include "SkReduceOrder.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static struct quadCubic {
     CubicPts cubic;

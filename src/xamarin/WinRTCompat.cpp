@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "WinRTCompat.h"
+#include "include/xamarin/WinRTCompat.h"
 
 #ifdef SK_BUILD_FOR_WINRT
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
-#include "SkJSONWriter.h"
-#include "SkMakeUnique.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
+#include "src/utils/SkJSONWriter.h"
 
 namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
@@ -78,14 +78,21 @@ bool GrGLExtensions::init(GrGLStandard standard,
         return false;
     }
 
-    // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
     const GrGLubyte* verString = getString(GR_GL_VERSION);
     GrGLVersion version = GrGLGetVersionFromString((const char*) verString);
     if (GR_GL_INVALID_VER == version) {
         return false;
     }
 
-    bool indexed = version >= GR_GL_VER(3, 0);
+    bool indexed = false;
+    if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
+        // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
+        indexed = version >= GR_GL_VER(3, 0);
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        // WebGL (1.0 or 2.0) doesn't natively support glGetStringi, but enscripten adds it in
+        // https://github.com/emscripten-core/emscripten/issues/3472
+        indexed = version >= GR_GL_VER(2, 0);
+    }
 
     if (indexed) {
         if (!getStringi || !getIntegerv) {
@@ -151,6 +158,7 @@ void GrGLExtensions::add(const char ext[]) {
     }
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
 void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     writer->beginArray();
     for (int i = 0; i < fStrings.count(); ++i) {
@@ -158,3 +166,6 @@ void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     }
     writer->endArray();
 }
+#else
+void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const { }
+#endif

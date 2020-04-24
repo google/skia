@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "sk_tool_utils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
 
 enum Align {
     kLeft_Align,
@@ -42,9 +42,7 @@ protected:
         return SkIPoint::Make(640, 100);
     }
 
-    void onDelayedSetup() override {
-        sk_tool_utils::make_big_path(fPath);
-    }
+    void onDelayedSetup() override { ToolUtils::make_big_path(fPath); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;

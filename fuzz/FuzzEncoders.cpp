@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "SkBitmap.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkJpegEncoder.h"
-#include "SkPixmap.h"
-#include "SkPngEncoder.h"
-#include "SkRandom.h"
-#include "SkWebpEncoder.h"
-#include "SkOSFile.h"
+#include "fuzz/Fuzz.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkOSFile.h"
 
 #include <vector>
 

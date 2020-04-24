@@ -8,7 +8,7 @@
 #ifndef SkPanose_DEFINED
 #define SkPanose_DEFINED
 
-#include "SkOTTableTypes.h"
+#include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)
 

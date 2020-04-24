@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#if SK_SUPPORT_GPU
-
-#include "GrContext.h"
-#include "GrContextOptions.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTArray.h"
 
 /** This tests the GPU backend's caching of path coverage masks */
 class PathMaskCache : public skiagm::GM {
@@ -81,7 +86,7 @@ protected:
         paths.push_back();
         paths.back().addCircle(30.f, 30.f, 30.f);
         paths.back().addRect(SkRect::MakeXYWH(45.f, 45.f, 50.f, 60.f));
-        paths.back().setFillType(SkPath::kEvenOdd_FillType);
+        paths.back().setFillType(SkPathFillType::kEvenOdd);
 
         canvas->translate(kPad, kPad);
 
@@ -113,5 +118,3 @@ private:
 };
 
 DEF_GM( return new PathMaskCache(); )
-
-#endif

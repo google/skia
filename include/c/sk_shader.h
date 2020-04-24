@@ -10,7 +10,7 @@
 #ifndef sk_shader_DEFINED
 #define sk_shader_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
@@ -26,9 +26,9 @@ SK_C_API sk_shader_t* sk_shader_with_color_filter(const sk_shader_t* shader, con
 SK_C_API sk_shader_t* sk_shader_new_empty(void);
 SK_C_API sk_shader_t* sk_shader_new_color(sk_color_t color);
 SK_C_API sk_shader_t* sk_shader_new_color4f(const sk_color4f_t* color, const sk_colorspace_t* colorspace);
-SK_C_API sk_shader_t* sk_shader_new_compose(const sk_shader_t* shaderA, const sk_shader_t* shaderB, sk_blendmode_t mode);
-SK_C_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix);
-SK_C_API sk_shader_t* sk_shader_new_picture(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile);
+SK_C_API sk_shader_t* sk_shader_new_blend(sk_blendmode_t mode, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix);
+SK_C_API sk_shader_t* sk_shader_new_lerp(float t, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix);
+SK_C_API sk_shader_t* sk_shader_new_lerp_red(const sk_shader_t* red, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix);
 
 // SkGradientShader
 

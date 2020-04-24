@@ -5,34 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "SkBBHFactory.h"
-#include "SkBBoxHierarchy.h"
-#include "SkBigPicture.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkClipOp.h"
-#include "SkClipOpPriv.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkFontStyle.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkMiniRecorder.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkPixelRef.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "SkRectPriv.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkShader.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkBigPicture.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkMiniRecorder.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkRectPriv.h"
+#include "tests/Test.h"
 
 #include <memory>
 
@@ -108,12 +108,18 @@ public:
         : INHERITED(width, height)
         , fSaveCount(0)
         , fSaveLayerCount(0)
+        , fSaveBehindCount(0)
         , fRestoreCount(0){
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
         ++fSaveLayerCount;
         return this->INHERITED::getSaveLayerStrategy(rec);
+    }
+
+    bool onDoSaveBehind(const SkRect* subset) override {
+        ++fSaveBehindCount;
+        return this->INHERITED::onDoSaveBehind(subset);
     }
 
     void willSave() override {
@@ -128,11 +134,13 @@ public:
 
     unsigned int getSaveCount() const { return fSaveCount; }
     unsigned int getSaveLayerCount() const { return fSaveLayerCount; }
+    unsigned int getSaveBehindCount() const { return fSaveBehindCount; }
     unsigned int getRestoreCount() const { return fRestoreCount; }
 
 private:
     unsigned int fSaveCount;
     unsigned int fSaveLayerCount;
+    unsigned int fSaveBehindCount;
     unsigned int fRestoreCount;
 
     typedef SkCanvas INHERITED;
@@ -371,7 +379,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
 
     SkPath invPath;
     invPath.addOval(rect1);
-    invPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+    invPath.setFillType(SkPathFillType::kInverseEvenOdd);
     SkPath path;
     path.addOval(rect2);
     SkPath path2;
@@ -452,7 +460,7 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     canvas->drawRect(bounds, paint);
     canvas->drawRect(bounds, paint);
     sk_sp<SkPicture> p(recorder.finishRecordingAsPictureWithCull(bounds));
-    const SkBigPicture* picture = p->asSkBigPicture();
+    const SkBigPicture* picture = SkPicturePriv::AsSkBigPicture(p);
     REPORTER_ASSERT(reporter, picture);
 
     SkRect finalCullRect = picture->cullRect();
@@ -550,9 +558,8 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 static void test_typeface(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
-    SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("Arial", SkFontStyle::Italic()));
-    canvas->drawString("Q", 0, 10, paint);
+    SkFont font(SkTypeface::MakeFromName("Arial", SkFontStyle::Italic()));
+    canvas->drawString("Q", 0, 10, font, SkPaint());
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
@@ -652,7 +659,6 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     make_bm(&replayBM, 100, 100, SK_ColorBLACK, false);
     SkCanvas replayCanvas(replayBM);
     picture->playback(&replayCanvas);
-    replayCanvas.flush();
 
     // With the bug present, at (55, 55) we would get a fully opaque red
     // intead of a dark red.
@@ -678,7 +684,7 @@ struct CountingBBH : public SkBBoxHierarchy {
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
     explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
-    SkBBoxHierarchy* operator()(const SkRect&) const override {
+    SkBBoxHierarchy* operator()() const override {
         return SkRef(fBBH);
     }
 private:
@@ -755,7 +761,7 @@ DEF_TEST(Picture_getRecordingCanvas, r) {
 DEF_TEST(MiniRecorderLeftHanging, r) {
     // Any shader or other ref-counted effect will do just fine here.
     SkPaint paint;
-    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
+    paint.setShader(SkShaders::Color(SK_ColorRED));
 
     SkMiniRecorder rec;
     REPORTER_ASSERT(r, rec.drawRect(SkRect::MakeWH(20,30), paint));
@@ -873,3 +879,75 @@ DEF_TEST(Picture_empty_serial, reporter) {
     REPORTER_ASSERT(reporter, pic2);
 }
 
+
+DEF_TEST(Picture_drawsNothing, r) {
+    // Tests that pic->cullRect().isEmpty() is a good way to test a picture
+    // recorded with an R-tree draws nothing.
+    struct {
+        bool draws_nothing;
+        void (*fn)(SkCanvas*);
+    } cases[] = {
+        {  true, [](SkCanvas* c) {                                                             } },
+        {  true, [](SkCanvas* c) { c->save();                                    c->restore(); } },
+        {  true, [](SkCanvas* c) { c->save(); c->clipRect({0,0,5,5});            c->restore(); } },
+        {  true, [](SkCanvas* c) {            c->clipRect({0,0,5,5});                          } },
+
+        { false, [](SkCanvas* c) {            c->drawRect({0,0,5,5}, SkPaint{});               } },
+        { false, [](SkCanvas* c) { c->save(); c->drawRect({0,0,5,5}, SkPaint{}); c->restore(); } },
+        { false, [](SkCanvas* c) {
+            c->drawRect({0,0, 5, 5}, SkPaint{});
+            c->drawRect({5,5,10,10}, SkPaint{});
+        }},
+    };
+
+    for (const auto& c : cases) {
+        SkPictureRecorder rec;
+        SkRTreeFactory factory;
+        c.fn(rec.beginRecording(10,10, &factory));
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        REPORTER_ASSERT(r, pic->cullRect().isEmpty() == c.draws_nothing);
+    }
+}
+
+DEF_TEST(Picture_emptyNestedPictureBug, r) {
+    const SkRect bounds = {-5000, -5000, 5000, 5000};
+
+    SkPictureRecorder recorder;
+    SkRTreeFactory factory;
+
+    // These three pictures should all draw the same but due to bugs they don't:
+    //
+    //   1) inner has enough content that it is recoreded as an SkBigPicture,
+    //      and all its content falls outside the positive/positive quadrant,
+    //      and it is recorded with an R-tree so we contract the cullRect to those bounds;
+    //
+    //   2) middle wraps inner,
+    //      and it its recorded with an R-tree so we update middle's cullRect to inner's;
+    //
+    //   3) outer wraps inner,
+    //      and notices that middle contains only one op, drawPicture(inner),
+    //      so it plays middle back during recording rather than ref'ing middle,
+    //      querying middle's R-tree with its SkCanvas' bounds* {0,0, 5000,5000},
+    //      finding nothing to draw.
+    //
+    //  * The bug was that these bounds were not tracked as {-5000,-5000, 5000,5000}.
+    {
+        SkCanvas* canvas = recorder.beginRecording(bounds, &factory);
+        canvas->translate(-100,-100);
+        canvas->drawRect({0,0,50,50}, SkPaint{});
+    }
+    sk_sp<SkPicture> inner = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds, &factory)->drawPicture(inner);
+    sk_sp<SkPicture> middle = recorder.finishRecordingAsPicture();
+
+    // This doesn't need &factory to reproduce the bug,
+    // but it's nice to see we come up with the same {-100,-100, -50,-50} bounds.
+    recorder.beginRecording(bounds, &factory)->drawPicture(middle);
+    sk_sp<SkPicture> outer = recorder.finishRecordingAsPicture();
+
+    REPORTER_ASSERT(r, (inner ->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
+}

@@ -24,10 +24,6 @@
 #  error "must define either SK_DEBUG or SK_RELEASE"
 #endif
 
-#if defined(SK_SUPPORT_UNITTEST) && !defined(SK_DEBUG)
-#  error "can't have unittests without debug"
-#endif
-
 /**
  * Matrix calculations may be float or double.
  * The default is float, as that's what Chromium's using.
@@ -44,17 +40,10 @@
 #  error "must define either SK_CPU_LENDIAN or SK_CPU_BENDIAN"
 #endif
 
-/**
- * Ensure the port has defined all of SK_X32_SHIFT, or none of them.
- */
-#ifdef SK_A32_SHIFT
-#  if !defined(SK_R32_SHIFT) || !defined(SK_G32_SHIFT) || !defined(SK_B32_SHIFT)
-#    error "all or none of the 32bit SHIFT amounts must be defined"
-#  endif
-#else
-#  if defined(SK_R32_SHIFT) || defined(SK_G32_SHIFT) || defined(SK_B32_SHIFT)
-#    error "all or none of the 32bit SHIFT amounts must be defined"
-#  endif
+#if defined(SK_CPU_BENDIAN) && !defined(I_ACKNOWLEDGE_SKIA_DOES_NOT_SUPPORT_BIG_ENDIAN)
+    #error "The Skia team is not endian-savvy enough to support big-endian CPUs."
+    #error "If you still want to use Skia,"
+    #error "please define I_ACKNOWLEDGE_SKIA_DOES_NOT_SUPPORT_BIG_ENDIAN."
 #endif
 
 #if !defined(SK_HAS_COMPILER_FEATURE)
@@ -73,16 +62,19 @@
 #  endif
 #endif
 
-#if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #define SK_VECTORCALL __vectorcall
-#elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)
-    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
-#else
-    #define SK_VECTORCALL
-#endif
-
 #if !defined(SK_SUPPORT_GPU)
 #  define SK_SUPPORT_GPU 1
+#endif
+
+/**
+ * If GPU is enabled but no GPU backends are enabled then enable GL by default.
+ * Traditionally clients have relied on Skia always building with the GL backend
+ * and opting in to additional backends. TODO: Require explicit opt in for GL.
+ */
+#if SK_SUPPORT_GPU
+#  if !defined(SK_GL) && !defined(SK_VULKAN) && !defined(SK_METAL)
+#    define SK_GL
+#  endif
 #endif
 
 #if !defined(SK_SUPPORT_ATLAS_TEXT)
@@ -107,23 +99,15 @@
 #  endif
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-
-// TODO(mdempsky): Move elsewhere as appropriate.
-#include <new>
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_BUILD_FOR_WIN
-#  ifndef SK_A32_SHIFT
-#    define SK_A32_SHIFT 24
-#    define SK_R32_SHIFT 16
-#    define SK_G32_SHIFT 8
-#    define SK_B32_SHIFT 0
+#if !defined(SkUNREACHABLE)
+#  if defined(_MSC_VER) && !defined(__clang__)
+#    define SkUNREACHABLE __assume(false)
+#  else
+#    define SkUNREACHABLE __builtin_unreachable()
 #  endif
-#
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
 
 #if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
@@ -149,27 +133,28 @@
        SK_DUMP_LINE_FORMAT(message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
+       SkUNREACHABLE; \
     } while (false)
 #endif
 
-/**
- *  We check to see if the SHIFT value has already been defined.
- *  if not, we define it ourself to some default values. We default to OpenGL
- *  order (in memory: r,g,b,a)
- */
-#ifndef SK_A32_SHIFT
-#  ifdef SK_CPU_BENDIAN
-#    define SK_R32_SHIFT    24
-#    define SK_G32_SHIFT    16
-#    define SK_B32_SHIFT    8
-#    define SK_A32_SHIFT    0
-#  else
-#    define SK_R32_SHIFT    0
-#    define SK_G32_SHIFT    8
-#    define SK_B32_SHIFT    16
-#    define SK_A32_SHIFT    24
-#  endif
+// If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
+// If not, we'll default to RGBA everywhere except BGRA on Windows.
+#if defined(SK_R32_SHIFT)
+    static_assert(SK_R32_SHIFT == 0 || SK_R32_SHIFT == 16, "");
+#elif defined(SK_BUILD_FOR_WIN)
+    #define SK_R32_SHIFT 16
+#else
+    #define SK_R32_SHIFT 0
 #endif
+
+#if defined(SK_B32_SHIFT)
+    static_assert(SK_B32_SHIFT == (16-SK_R32_SHIFT), "");
+#else
+    #define SK_B32_SHIFT (16-SK_R32_SHIFT)
+#endif
+
+#define SK_G32_SHIFT 8
+#define SK_A32_SHIFT 24
 
 /**
  * SkColor has well defined shift values, but SkPMColor is configurable. This
@@ -204,44 +189,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined SK_DEBUG && defined SK_BUILD_FOR_WIN
-#  ifdef free
-#    undef free
-#  endif
-#  include <crtdbg.h>
-#  undef free
-#
-#  ifdef SK_DEBUGx
-#    if defined(SK_SIMULATE_FAILED_MALLOC) && defined(__cplusplus)
-       void * operator new(
-           size_t cb,
-           int nBlockUse,
-           const char * szFileName,
-           int nLine,
-           int foo
-           );
-       void * operator new[](
-           size_t cb,
-           int nBlockUse,
-           const char * szFileName,
-           int nLine,
-           int foo
-           );
-       void operator delete(
-           void *pUserData,
-           int, const char*, int, int
-           );
-       void operator delete(
-           void *pUserData
-           );
-       void operator delete[]( void * p );
-#      define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__, 0)
-#    else
-#      define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__)
-#    endif
-#    define new DEBUG_CLIENTBLOCK
-#  else
-#    define DEBUG_CLIENTBLOCK
-#  endif
+    #ifdef free
+        #undef free
+    #endif
+    #include <crtdbg.h>
+    #undef free
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -252,11 +204,6 @@
 #  else
 #    define SK_UNUSED SK_ATTRIBUTE(unused)
 #  endif
-#endif
-
-#if !defined(SK_ATTR_DEPRECATED)
-   // FIXME: we ignore msg for now...
-#  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
 #endif
 
 /**
@@ -321,17 +268,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#  define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 1
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
-#ifndef SK_EGL
-#  if defined(SK_BUILD_FOR_ANDROID)
-#    define SK_EGL 1
-#  else
-#    define SK_EGL 0
-#  endif
+    #define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 0
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -360,6 +297,10 @@
 
 #ifndef SK_HISTOGRAM_ENUMERATION
 #  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
+#endif
+
+#ifndef SK_DISABLE_LEGACY_SHADERCONTEXT
+#define SK_ENABLE_LEGACY_SHADERCONTEXT
 #endif
 
 #endif // SkPostConfig_DEFINED

@@ -8,9 +8,9 @@
 #ifndef SkOnce_DEFINED
 #define SkOnce_DEFINED
 
+#include "include/private/SkThreadAnnotations.h"
 #include <atomic>
 #include <utility>
-#include "SkTypes.h"
 
 // SkOnce provides call-once guarantees for Skia, much like std::once_flag/std::call_once().
 //
@@ -40,7 +40,9 @@ public:
 
         // Some other thread is calling fn().
         // We'll just spin here acquiring until it releases Done into fState.
+        SK_POTENTIALLY_BLOCKING_REGION_BEGIN;
         while (fState.load(std::memory_order_acquire) != Done) { /*spin*/ }
+        SK_POTENTIALLY_BLOCKING_REGION_END;
     }
 
 private:

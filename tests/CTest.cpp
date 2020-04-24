@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "sk_canvas.h"
-#include "sk_paint.h"
-#include "sk_general.h"
-#include "sk_shader.h"
-#include "sk_surface.h"
-#include "sk_types.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_general.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_shader.h"
+#include "include/c/sk_surface.h"
+#include "include/c/sk_types.h"
+#include "tests/Test.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "../../src/c/sk_types_priv.h"
@@ -79,6 +80,9 @@ static void test_c(skiatest::Reporter* reporter) {
     sk_surface_t* surface = sk_surface_new_raster_direct(
         &info, pixel, sizeof(uint32_t), nullptr, nullptr, props);
     REPORTER_ASSERT(reporter, surface != nullptr);
+
+    sk_paint_t* paint = sk_paint_new();
+    REPORTER_ASSERT(reporter, paint != nullptr);
 
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);
     REPORTER_ASSERT(reporter, canvas != nullptr);

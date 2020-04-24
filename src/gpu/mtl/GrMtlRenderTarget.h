@@ -8,9 +8,10 @@
 #ifndef GrMtlRenderTarget_DEFINED
 #define GrMtlRenderTarget_DEFINED
 
-#include "GrRenderTarget.h"
+#include "src/gpu/GrRenderTarget.h"
 
-#include "GrBackendSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrGpu.h"
 
 #import <Metal/Metal.h>
 
@@ -18,41 +19,34 @@ class GrMtlGpu;
 
 class GrMtlRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrMtlRenderTarget> CreateNewRenderTarget(GrMtlGpu*, const GrSurfaceDesc&,
-                                                          SkBudgeted);
-
-    static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*, const GrSurfaceDesc&);
+    static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
+                                                            const GrSurfaceDesc&,
+                                                            int sampleCnt,
+                                                            id<MTLTexture>);
 
     ~GrMtlRenderTarget() override;
-
-    // override of GrRenderTarget
-    ResolveType getResolveType() const override {
-        return kCantResolve_ResolveType;
-#if 0 // TODO figure this once we support msaa
-        if (this->numColorSamples() > 1) {
-            return kCanResolve_ResolveType;
-        }
-        return kAutoResolves_ResolveType;
-#endif
-    }
 
     bool canAttemptStencilAttachment() const override {
         return true;
     }
 
-    GrBackendRenderTarget getBackendRenderTarget() const override {
-        return GrBackendRenderTarget(); // invalid
-    }
+    id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
+    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
+
+    GrBackendRenderTarget getBackendRenderTarget() const override;
+
+    GrBackendFormat backendFormat() const override;
 
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture,
+                      int sampleCnt,
+                      id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture);
 
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture);
+                      id<MTLTexture> colorTexture);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -61,37 +55,38 @@ protected:
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
+        int numColorSamples = this->numSamples();
+        // TODO: When used as render targets certain formats may actually have a larger size than
+        // the base format size. Check to make sure we are reporting the correct value here.
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
         if (numColorSamples > 1) {
             ++numColorSamples;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                       numColorSamples, GrMipMapped::kNo);
     }
 
-    id<MTLTexture> fRenderTexture;
+    id<MTLTexture> fColorTexture;
     id<MTLTexture> fResolveTexture;
 
 private:
+    // Extra param to disambiguate from constructor used by subclasses.
+    enum Wrapped { kWrapped };
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
-                      SkBudgeted,
-                      id<MTLTexture> renderTexture,
-                      id<MTLTexture> resolveTexture);
-
+                      int sampleCnt,
+                      id<MTLTexture> colorTexture,
+                      id<MTLTexture> resolveTexture,
+                      Wrapped);
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
-                      SkBudgeted,
-                      id<MTLTexture> renderTexture);
-
-    static sk_sp<GrMtlRenderTarget> Make(GrMtlGpu*,
-                                         const GrSurfaceDesc&,
-                                         SkBudgeted,
-                                         id<MTLTexture> renderTexture,
-                                         bool isWrapped);
+                      id<MTLTexture> colorTexture,
+                      Wrapped);
 
     bool completeStencilAttachment() override;
+
+    typedef GrRenderTarget INHERITED;
 };
 
 

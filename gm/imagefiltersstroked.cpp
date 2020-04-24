@@ -5,12 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkScalar.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkImageFilters.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
 #define RESIZE_FACTOR_Y SkIntToScalar(5)
@@ -57,12 +65,10 @@ protected:
         resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);
 
         sk_sp<SkImageFilter> filters[] = {
-            SkBlurImageFilter::Make(5, 5, nullptr),
-            SkDropShadowImageFilter::Make(10, 10, 3, 3, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                nullptr),
-            SkOffsetImageFilter::Make(-16, 32, nullptr),
-            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilters::Blur(5, 5, nullptr),
+            SkImageFilters::DropShadow(10, 10, 3, 3, SK_ColorGREEN, nullptr),
+            SkImageFilters::Offset(-16, 32, nullptr),
+            SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
         };
 
         SkRect r = SkRect::MakeWH(64, 64);
@@ -72,8 +78,6 @@ protected:
         paint.setAntiAlias(true);
         paint.setStrokeWidth(10);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setTextSize(48);
-        paint.setTextAlign(SkPaint::kCenter_Align);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(drawProc); ++i) {
             canvas->translate(0, margin);

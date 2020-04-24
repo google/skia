@@ -17,6 +17,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
   def setup(self):
     """Prepare the variables."""
+    # Hack start_dir to remove the "k" directory which is added by Kitchen.
+    # Otherwise, we can't get to the CIPD packages, caches, and isolates which
+    # were put into the task workdir.
+    if self.m.path.c.base_paths['start_dir'][-1] == 'k':  # pragma: nocover
+      self.m.path.c.base_paths['start_dir'] = (
+          self.m.path.c.base_paths['start_dir'][:-1])
+
     # Setup
     self.builder_name = self.m.properties['buildername']
 
@@ -29,28 +36,25 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
-        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
+        str(self.m.bot_update.repo_resource()),
     ])
     self.cache_dir = self.slave_dir.join('cache')
 
     self.swarming_out_dir = self.slave_dir.join(
-        self.m.properties['swarm_out_dir'])
+        self.m.properties.get('swarm_out_dir', 'tmp'))
 
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
     self.role = self.builder_cfg['role']
-    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
-                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
+    if self.role == self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
       self.configuration = CONFIG_RELEASE
     else:
       self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)
     arch = (self.builder_cfg.get('arch') or self.builder_cfg.get('target_arch'))
     if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
       self.configuration += '_x64'
-
-    self.skia_out = self.build_dir.join('out', self.configuration)
 
     self.extra_tokens = []
     if len(self.builder_cfg.get('extra_config', '')) > 0:
@@ -65,7 +69,10 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.patchset = None
     self.is_trybot = False
     if (self.m.properties.get('patch_issue', '') and
-        self.m.properties.get('patch_set', '')):
+        self.m.properties['patch_issue'] != '0' and
+        self.m.properties.get('patch_set', '') and
+        self.m.properties['patch_set'] != '0' and
+        self.m.properties.get('patch_ref', '')):
       self.is_trybot = True
       self.issue = self.m.properties['patch_issue']
       self.patchset = self.m.properties['patch_set']
@@ -80,26 +87,32 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
   @property
   def is_linux(self):
-    return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
+    return (
+        'Ubuntu' in self.builder_name
+     or 'Debian' in self.builder_name
+     or 'Housekeeper' in self.builder_name
+    )
 
   @property
   def swarming_bot_id(self):
     if not self._swarming_bot_id:
-      self._swarming_bot_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming bot id',
           program='''import os
 print os.environ.get('SWARMING_BOT_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_bot_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_bot_id
 
   @property
   def swarming_task_id(self):
     if not self._swarming_task_id:
-      self._swarming_task_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming task id',
           program='''import os
 print os.environ.get('SWARMING_TASK_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_task_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_task_id

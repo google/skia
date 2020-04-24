@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkEmbossMaskFilter.h"
-#include "SkBlurMaskFilter.h"
-#include "SkBlurMask.h"
-#include "SkColorPriv.h"
-#include "SkEmbossMask.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/effects/SkEmbossMask.h"
+#include "src/effects/SkEmbossMaskFilter.h"
 
 static void normalize3(SkScalar dst[3], const SkScalar src[3]) {
     SkScalar mag = SkScalarSquare(src[0]) + SkScalarSquare(src[1]) + SkScalarSquare(src[2]);
@@ -139,23 +139,4 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     tmpLight.fPad = 0;    // for the font-cache lookup to be clean
     buffer.writeByteArray(&tmpLight, sizeof(tmpLight));
     buffer.writeScalar(fBlurSigma);
-}
-
-void SkEmbossMaskFilter::toString(SkString* str) const {
-    str->append("SkEmbossMaskFilter: (");
-
-    str->append("direction: (");
-    str->appendScalar(fLight.fDirection[0]);
-    str->append(", ");
-    str->appendScalar(fLight.fDirection[1]);
-    str->append(", ");
-    str->appendScalar(fLight.fDirection[2]);
-    str->append(") ");
-
-    str->appendf("ambient: %d specular: %d ",
-        fLight.fAmbient, fLight.fSpecular);
-
-    str->append("blurSigma: ");
-    str->appendScalar(fBlurSigma);
-    str->append(")");
 }

@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkDescriptor_DEFINED
 #define SkDescriptor_DEFINED
 
-#include "SkOpts.h"
-#include "SkTypes.h"
 #include <memory>
+
+#include "include/private/SkMacros.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/core/SkScalerContext.h"
 
 class SkDescriptor : SkNoncopyable {
 public:
@@ -20,41 +21,20 @@ public:
         return sizeof(SkDescriptor) + entryCount * sizeof(Entry);
     }
 
-    static std::unique_ptr<SkDescriptor> Alloc(size_t length) {
-        SkASSERT(SkAlign4(length) == length);
-        return std::unique_ptr<SkDescriptor>(static_cast<SkDescriptor*>(::operator new (length)));
-    }
+    static std::unique_ptr<SkDescriptor> Alloc(size_t length);
 
     // Ensure the unsized delete is called.
-    void operator delete(void* p) { ::operator delete(p); }
-
+    void operator delete(void* p);
     void init() {
         fLength = sizeof(SkDescriptor);
         fCount  = 0;
     }
-
     uint32_t getLength() const { return fLength; }
+    void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);
+    void computeChecksum();
 
-    void* addEntry(uint32_t tag, size_t length, const void* data = nullptr) {
-        SkASSERT(tag);
-        SkASSERT(SkAlign4(length) == length);
-        SkASSERT(this->findEntry(tag, nullptr) == nullptr);
-
-        Entry* entry = (Entry*)((char*)this + fLength);
-        entry->fTag = tag;
-        entry->fLen = SkToU32(length);
-        if (data) {
-            memcpy(entry + 1, data, length);
-        }
-
-        fCount += 1;
-        fLength = SkToU32(fLength + sizeof(Entry) + length);
-        return (entry + 1); // return its data
-    }
-
-    void computeChecksum() {
-        fChecksum = SkDescriptor::ComputeChecksum(this);
-    }
+    // Assumes that getLength <= capacity of this SkDescriptor.
+    bool isValid() const;
 
 #ifdef SK_DEBUG
     void assertChecksum() const {
@@ -62,45 +42,13 @@ public:
     }
 #endif
 
-    const void* findEntry(uint32_t tag, uint32_t* length) const {
-        const Entry* entry = (const Entry*)(this + 1);
-        int          count = fCount;
+    const void* findEntry(uint32_t tag, uint32_t* length) const;
 
-        while (--count >= 0) {
-            if (entry->fTag == tag) {
-                if (length) {
-                    *length = entry->fLen;
-                }
-                return entry + 1;
-            }
-            entry = (const Entry*)((const char*)(entry + 1) + entry->fLen);
-        }
-        return nullptr;
-    }
+    std::unique_ptr<SkDescriptor> copy() const;
 
-    std::unique_ptr<SkDescriptor> copy() const {
-        std::unique_ptr<SkDescriptor> desc = SkDescriptor::Alloc(fLength);
-        memcpy(desc.get(), this, fLength);
-        return desc;
-    }
-
-    bool operator==(const SkDescriptor& other) const {
-        // probe to see if we have a good checksum algo
-//        SkASSERT(a.fChecksum != b.fChecksum || memcmp(&a, &b, a.fLength) == 0);
-
-        // the first value we should look at is the checksum, so this loop
-        // should terminate early if they descriptors are different.
-        // NOTE: if we wrote a sentinel value at the end of each, we chould
-        //       remove the aa < stop test in the loop...
-        const uint32_t* aa = (const uint32_t*)this;
-        const uint32_t* bb = (const uint32_t*)&other;
-        const uint32_t* stop = (const uint32_t*)((const char*)aa + fLength);
-        do {
-            if (*aa++ != *bb++)
-                return false;
-        } while (aa < stop);
-        return true;
-    }
+    // This assumes that all memory added has a length that is a multiple of 4. This is checked
+    // by the assert in addEntry.
+    bool operator==(const SkDescriptor& other) const;
     bool operator!=(const SkDescriptor& other) const { return !(*this == other); }
 
     uint32_t getChecksum() const { return fChecksum; }
@@ -115,61 +63,43 @@ public:
 #endif
 
 private:
+    // private so no one can create one except our factories
+    SkDescriptor() = default;
+    friend class SkDescriptorTestHelper;
+
+    static uint32_t ComputeChecksum(const SkDescriptor* desc);
+
     uint32_t fChecksum;  // must be first
     uint32_t fLength;    // must be second
     uint32_t fCount;
-
-    static uint32_t ComputeChecksum(const SkDescriptor* desc) {
-        const uint32_t* ptr = (const uint32_t*)desc + 1; // skip the checksum field
-        size_t len = desc->fLength - sizeof(uint32_t);
-        return SkOpts::hash(ptr, len);
-    }
-
-    // private so no one can create one except our factories
-    SkDescriptor() {}
 };
 
-#include "SkScalerContext.h"
-
-class SkAutoDescriptor : SkNoncopyable {
+class SkAutoDescriptor {
 public:
-    SkAutoDescriptor() : fDesc(nullptr) {}
-    SkAutoDescriptor(size_t size) : fDesc(nullptr) { this->reset(size); }
-    SkAutoDescriptor(const SkDescriptor& desc) : fDesc(nullptr) {
-        size_t size = desc.getLength();
-        this->reset(size);
-        memcpy(fDesc, &desc, size);
-    }
+    SkAutoDescriptor();
+    explicit SkAutoDescriptor(size_t size);
+    explicit SkAutoDescriptor(const SkDescriptor& desc);
+    SkAutoDescriptor(const SkAutoDescriptor& ad);
+    SkAutoDescriptor& operator= (const SkAutoDescriptor& ad);
+    SkAutoDescriptor(SkAutoDescriptor&&) = delete;
+    SkAutoDescriptor& operator= (SkAutoDescriptor&&) = delete;
 
-    ~SkAutoDescriptor() { this->free(); }
+    ~SkAutoDescriptor();
 
-    void reset(size_t size) {
-        this->free();
-        if (size <= sizeof(fStorage)) {
-            fDesc = (SkDescriptor*)(void*)fStorage;
-        } else {
-            fDesc = SkDescriptor::Alloc(size).release();
-        }
-    }
-
+    void reset(size_t size);
+    void reset(const SkDescriptor& desc);
     SkDescriptor* getDesc() const { SkASSERT(fDesc); return fDesc; }
+
 private:
-    void free() {
-        if (fDesc != (SkDescriptor*)(void*)fStorage) {
-            delete fDesc;
-        }
-    }
+    void free();
+    static constexpr size_t kStorageSize
+            = sizeof(SkDescriptor)
+              + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) // for rec
+              + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
+              + 32;   // slop for occasional small extras
 
-    enum {
-        kStorageSize =  sizeof(SkDescriptor)
-                        + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) // for rec
-                        + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
-                        + 32   // slop for occational small extras
-    };
-    SkDescriptor*   fDesc;
-    uint32_t        fStorage[(kStorageSize + 3) >> 2];
+    SkDescriptor*   fDesc{nullptr};
+    std::aligned_storage<kStorageSize, alignof(uint32_t)>::type fStorage;
 };
-#define SkAutoDescriptor(...) SK_REQUIRE_LOCAL_VAR(SkAutoDescriptor)
 
-
-#endif
+#endif  //SkDescriptor_DEFINED

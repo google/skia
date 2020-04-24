@@ -8,15 +8,23 @@
 #
 # See https://skia.org/user/quick/gn for build instructions.
 
-path=$1
-name=$(basename $1)
+dst_dir=/data/local/tmp
+path="$1"
+name="$(basename "$path")"
 shift
-args=$@
+
+if ! [ -d resources ]; then
+    echo run this from the skia tree
+    exit 1
+fi
+
+dirs=''
+for dir in $(find resources -type d); do dirs="$dirs \"${dir}\""; done
 
 set -e
 set -x
 
-adb push $path //data/local/tmp/
-adb push resources //data/local/tmp/
-adb shell "chmod +x //data/local/tmp/$name"
-adb shell "cd //data/local/tmp; ./$name $args"
+adb shell "cd \"$dst_dir\"; mkdir -p $dirs"
+adb push --sync resources "${dst_dir}/"
+adb push --sync "$path" "${dst_dir}/${name}"
+adb shell "cd \"$dst_dir\"; chmod +x \"$name\"; \"./$name\" $*"

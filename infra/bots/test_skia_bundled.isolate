@@ -1,6 +1,5 @@
 {
   'includes': [
-    'android_bin.isolate',
     'assets.isolate',
     'ios_bin.isolate',
     'resources.isolate',

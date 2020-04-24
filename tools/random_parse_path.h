@@ -8,7 +8,7 @@
 #ifndef random_parse_path_DEFINED
 #define random_parse_path_DEFINED
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 class SkRandom;
 

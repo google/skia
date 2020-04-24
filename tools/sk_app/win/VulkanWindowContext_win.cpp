@@ -6,21 +6,24 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/vk/GrVkVulkan.h"
+
+#include "tools/sk_app/win/WindowContextFactory_win.h"
+
+#include "tools/sk_app/VulkanWindowContext.h"
+#include "tools/sk_app/win/Window_win.h"
+
+#include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkUtil.h"
+
+#include "tools/gpu/vk/VkTestUtils.h"
+
 #include <Windows.h>
-#include "WindowContextFactory_win.h"
-
-#include "../VulkanWindowContext.h"
-#include "Window_win.h"
-
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkUtil.h"
-
-#include "vk/VkTestUtils.h"
 
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd, const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     PFN_vkGetDeviceProcAddr devProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
@@ -66,10 +69,9 @@ WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
         return (VK_FALSE != check);
     };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
-                                                 instProc, devProc);
+    std::unique_ptr<WindowContext> ctx(
+            new VulkanWindowContext(params, createVkSurface, canPresent, instProc, devProc));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

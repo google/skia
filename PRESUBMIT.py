@@ -21,10 +21,9 @@ import traceback
 
 REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
-SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
-
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
+    'mtklein@google.com',
     'reed@chromium.org',
     'reed@google.com',
     'bsalomon@chromium.org',
@@ -36,36 +35,23 @@ PUBLIC_API_OWNERS = (
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
+RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
-DOCS_PREVIEW_URL = 'https://skia.org/?cl='
+DOCS_PREVIEW_URL = 'https://skia.org/?cl={issue}'
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
-
-# Path to CQ bots feature is described in https://bug.skia.org/4364
-PATH_PREFIX_TO_EXTRA_TRYBOTS = {
-    'src/opts/': ('skia.primary:'
-      'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD'),
-    'include/private/SkAtomics.h': ('skia.primary:'
-      'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN,'
-      'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN'
-    ),
-
-    # Below are examples to show what is possible with this feature.
-    # 'src/svg/': 'master1:abc;master2:def',
-    # 'src/svg/parser/': 'master3:ghi,jkl;master4:mno',
-    # 'src/image/SkImage_Base.h': 'master5:pqr,stu;master1:abc1;master2:def',
-}
 
 SERVICE_ACCOUNT_SUFFIX = [
     '@%s.iam.gserviceaccount.com' % project for project in [
-        'skia-buildbots.google.com', 'skia-swarming-bots']]
+        'skia-buildbots.google.com', 'skia-swarming-bots', 'skia-public',
+        'skia-corp.google.com', 'chops-service-accounts']]
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
-  """Checks that files end with atleast one \n (LF)."""
+  """Checks that files end with at least one \n (LF)."""
   eof_files = []
   for f in input_api.AffectedSourceFiles(source_file_filter):
     contents = input_api.ReadFile(f, 'rb')
-    # Check that the file ends in atleast one newline character.
+    # Check that the file ends in at least one newline character.
     if len(contents) > 1 and contents[-1:] != '\n':
       eof_files.append(f.LocalPath())
 
@@ -74,36 +60,6 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
       'These files should end in a newline character:',
       items=eof_files)]
   return []
-
-
-def _PythonChecks(input_api, output_api):
-  """Run checks on any modified Python files."""
-  pylint_disabled_files = (
-      'infra/bots/recipes.py',
-  )
-  pylint_disabled_warnings = (
-      'F0401',  # Unable to import.
-      'E0611',  # No name in module.
-      'W0232',  # Class has no __init__ method.
-      'E1002',  # Use of super on an old style class.
-      'W0403',  # Relative import used.
-      'R0201',  # Method could be a function.
-      'E1003',  # Using class name in super.
-      'W0613',  # Unused argument.
-      'W0105',  # String statement has no effect.
-  )
-  # Run Pylint on only the modified python files. Unfortunately it still runs
-  # Pylint on the whole file instead of just the modified lines.
-  affected_python_files = []
-  for affected_file in input_api.AffectedSourceFiles(None):
-    affected_file_path = affected_file.LocalPath()
-    if affected_file_path.endswith('.py'):
-      if affected_file_path not in pylint_disabled_files:
-        affected_python_files.append(affected_file_path)
-  return input_api.canned_checks.RunPylint(
-      input_api, output_api,
-      disabled_warnings=pylint_disabled_warnings,
-      white_list=affected_python_files)
 
 
 def _JsonChecks(input_api, output_api):
@@ -188,17 +144,6 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
   return results
 
 
-def _ToolFlags(input_api, output_api):
-  """Make sure `{dm,nanobench}_flags.py test` passes if modified."""
-  results = []
-  sources = lambda x: ('dm_flags.py'        in x.LocalPath() or
-                       'nanobench_flags.py' in x.LocalPath())
-  for f in input_api.AffectedSourceFiles(sources):
-    if 0 != subprocess.call(['python', f.LocalPath(), 'test']):
-      results.append(output_api.PresubmitError('`python %s test` failed' % f))
-  return results
-
-
 def _InfraTests(input_api, output_api):
   """Run the infra tests."""
   results = []
@@ -217,20 +162,93 @@ def _InfraTests(input_api, output_api):
 
 def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
-  results = []
+  files = []
   for f in input_api.AffectedFiles():
-    if (not f.LocalPath().endswith('.gn') and
-        not f.LocalPath().endswith('.gni')):
-      continue
+    if (f.LocalPath().endswith('.gn') or
+        f.LocalPath().endswith('.gni')):
+      files.append(f)
+  if not files:
+    return []
 
-    gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
+  cmd = ['python', os.path.join('bin', 'fetch-gn')]
+  try:
+    subprocess.check_output(cmd)
+  except subprocess.CalledProcessError as e:
+    return [output_api.PresubmitError(
+        '`%s` failed:\n%s' % (' '.join(cmd), e.output))]
+
+  results = []
+  for f in files:
+    gn = 'gn.exe' if 'win32' in sys.platform else 'gn'
+    gn = os.path.join(input_api.PresubmitLocalPath(), 'bin', gn)
     cmd = [gn, 'format', '--dry-run', f.LocalPath()]
     try:
       subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
-      fix = 'gn format ' + f.LocalPath()
+      fix = 'bin/gn format ' + f.LocalPath()
       results.append(output_api.PresubmitError(
           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
+  return results
+
+def _CheckIncludesFormatted(input_api, output_api):
+  """Make sure #includes in files we're changing have been formatted."""
+  files = [str(f) for f in input_api.AffectedFiles() if f.Action() != 'D']
+  cmd = ['python',
+         'tools/rewrite_includes.py',
+         '--dry-run'] + files
+  if 0 != subprocess.call(cmd):
+    return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
+  return []
+
+def _CheckCompileIsolate(input_api, output_api):
+  """Ensure that gen_compile_isolate.py does not change compile.isolate."""
+  # Only run the check if files were added or removed.
+  results = []
+  script = os.path.join('infra', 'bots', 'gen_compile_isolate.py')
+  isolate = os.path.join('infra', 'bots', 'compile.isolated')
+  for f in input_api.AffectedFiles():
+    if f.Action() in ('A', 'D', 'R'):
+      break
+    if f.LocalPath() in (script, isolate):
+      break
+  else:
+    return results
+
+  cmd = ['python', script, 'test']
+  try:
+    subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(e.output))
+  return results
+
+
+class _WarningsAsErrors():
+  def __init__(self, output_api):
+    self.output_api = output_api
+    self.old_warning = None
+  def __enter__(self):
+    self.old_warning = self.output_api.PresubmitPromptWarning
+    self.output_api.PresubmitPromptWarning = self.output_api.PresubmitError
+    return self.output_api
+  def __exit__(self, ex_type, ex_value, ex_traceback):
+    self.output_api.PresubmitPromptWarning = self.old_warning
+
+
+def _CheckDEPSValid(input_api, output_api):
+  """Ensure that DEPS contains valid entries."""
+  results = []
+  script = os.path.join('infra', 'bots', 'check_deps.py')
+  relevant_files = ('DEPS', script)
+  for f in input_api.AffectedFiles():
+    if f.LocalPath() in relevant_files:
+      break
+  else:
+    return results
+  cmd = ['python', script]
+  try:
+    subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(e.output))
   return results
 
 
@@ -246,30 +264,25 @@ def _CommonChecks(input_api, output_api):
                        x.LocalPath().endswith('.c') or
                        x.LocalPath().endswith('.cc') or
                        x.LocalPath().endswith('.cpp'))
-  results.extend(
-      _CheckChangeHasEol(
-          input_api, output_api, source_file_filter=sources))
-  results.extend(
-      input_api.canned_checks.CheckChangeHasNoCR(
-          input_api, output_api, source_file_filter=sources))
-  results.extend(
-      input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
-          input_api, output_api, source_file_filter=sources))
-  results.extend(_PythonChecks(input_api, output_api))
+  results.extend(_CheckChangeHasEol(
+      input_api, output_api, source_file_filter=sources))
+  with _WarningsAsErrors(output_api):
+    results.extend(input_api.canned_checks.CheckChangeHasNoCR(
+        input_api, output_api, source_file_filter=sources))
+    results.extend(input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
+        input_api, output_api, source_file_filter=sources))
   results.extend(_JsonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
                                   source_file_filter=sources))
-  results.extend(_ToolFlags(input_api, output_api))
+  results.extend(_CheckCompileIsolate(input_api, output_api))
+  results.extend(_CheckDEPSValid(input_api, output_api))
+  results.extend(_CheckIncludesFormatted(input_api, output_api))
   return results
 
 
 def CheckChangeOnUpload(input_api, output_api):
-  """Presubmit checks for the change on upload.
-
-  The following are the presubmit checks:
-  * Check change has one and only one EOL.
-  """
+  """Presubmit checks for the change on upload."""
   results = []
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
@@ -277,45 +290,8 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_InfraTests(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
+  results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
   return results
-
-
-def _CheckTreeStatus(input_api, output_api, json_url):
-  """Check whether to allow commit.
-
-  Args:
-    input_api: input related apis.
-    output_api: output related apis.
-    json_url: url to download json style status.
-  """
-  tree_status_results = input_api.canned_checks.CheckTreeIsOpen(
-      input_api, output_api, json_url=json_url)
-  if not tree_status_results:
-    # Check for caution state only if tree is not closed.
-    connection = input_api.urllib2.urlopen(json_url)
-    status = input_api.json.loads(connection.read())
-    connection.close()
-    if ('caution' in status['message'].lower() and
-        os.isatty(sys.stdout.fileno())):
-      # Display a prompt only if we are in an interactive shell. Without this
-      # check the commit queue behaves incorrectly because it considers
-      # prompts to be failures.
-      short_text = 'Tree state is: ' + status['general_state']
-      long_text = status['message'] + '\n' + json_url
-      tree_status_results.append(
-          output_api.PresubmitPromptWarning(
-              message=short_text, long_text=long_text))
-  else:
-    # Tree status is closed. Put in message about contacting sheriff.
-    connection = input_api.urllib2.urlopen(
-        SKIA_TREE_STATUS_URL + '/current-sheriff')
-    sheriff_details = input_api.json.loads(connection.read())
-    if sheriff_details:
-      tree_status_results[0]._message += (
-          '\n\nPlease contact the current Skia sheriff (%s) if you are trying '
-          'to submit a build fix\nand do not know how to submit because the '
-          'tree is closed') % sheriff_details['username']
-  return tree_status_results
 
 
 class CodeReview(object):
@@ -333,10 +309,6 @@ class CodeReview(object):
 
   def GetDescription(self):
     return self._gerrit.GetChangeDescription(self._issue)
-
-  def IsDryRun(self):
-    return self._gerrit.GetChangeInfo(
-        self._issue)['labels']['Commit-Queue'].get('value', 0) == 1
 
   def GetReviewers(self):
     code_review_label = (
@@ -390,6 +362,31 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
   return results
 
 
+def _CheckReleaseNotesForPublicAPI(input_api, output_api):
+  """Checks to see if release notes file is updated with public API changes."""
+  results = []
+  public_api_changed = False
+  release_file_changed = False
+  for affected_file in input_api.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
+    file_path, file_ext = os.path.splitext(affected_file_path)
+    # We only care about files that end in .h and are under the top-level
+    # include dir, but not include/private.
+    if (file_ext == '.h' and
+        file_path.split(os.path.sep)[0] == 'include' and
+        'private' not in file_path):
+      public_api_changed = True
+    elif affected_file_path == RELEASE_NOTES_FILE_NAME:
+      release_file_changed = True
+
+  if public_api_changed and not release_file_changed:
+    results.append(output_api.PresubmitPromptWarning(
+        'If this change affects a client API, please add a summary line '
+        'to the %s file.' % RELEASE_NOTES_FILE_NAME))
+  return results
+
+
+
 def _CheckLGTMsForPublicAPI(input_api, output_api):
   """Check LGTMs for public API changes.
 
@@ -417,11 +414,6 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
 
     if re.match(REVERT_CL_SUBJECT_PREFIX, cr.GetSubject(), re.I):
       # It is a revert CL, ignore the public api owners check.
-      return results
-
-    if cr.IsDryRun():
-      # Ignore public api owners check for dry run CLs since they are not
-      # going to be committed.
       return results
 
     if input_api.gerrit:
@@ -463,138 +455,74 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
-def _FooterExists(footers, key, value):
-  for k, v in footers:
-    if k == key and v == value:
-      return True
-  return False
-
-
-def PostUploadHook(cl, change, output_api):
+def PostUploadHook(gerrit, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
   * Adds 'No-Try: true' if the CL contains only docs changes.
-  * Adds 'No-Tree-Checks: true' for non master branch changes since they do not
-    need to be gated on the master branch's tree.
-  * Adds 'No-Try: true' for non master branch changes since trybots do not yet
-    work on them.
-  * Adds 'No-Presubmit: true' for non master branch changes since those don't
-    run the presubmit checks.
-  * Adds extra trybots for the paths defined in PATH_TO_EXTRA_TRYBOTS.
   """
+  if not change.issue:
+    return []
+
+  # Skip PostUploadHooks for all auto-commit service account bots. New
+  # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
+  # the "--use-commit-queue" flag to "git cl upload".
+  for suffix in SERVICE_ACCOUNT_SUFFIX:
+    if change.author_email.endswith(suffix):
+      return []
 
   results = []
-  atleast_one_docs_change = False
+  at_least_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
     affected_file_path = affected_file.LocalPath()
     file_path, _ = os.path.splitext(affected_file_path)
     if 'site' == file_path.split(os.path.sep)[0]:
-      atleast_one_docs_change = True
+      at_least_one_docs_change = True
     else:
       all_docs_changes = False
-    if atleast_one_docs_change and not all_docs_changes:
+    if at_least_one_docs_change and not all_docs_changes:
       break
 
-  issue = cl.issue
-  if issue:
-    # Skip PostUploadHooks for all auto-commit service account bots. New
-    # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
-    # the "--use-commit-queue" flag to "git cl upload".
-    for suffix in SERVICE_ACCOUNT_SUFFIX:
-      if cl.GetIssueOwner().endswith(suffix):
-        return results
+  footers = change.GitFootersFromDescription()
+  description_changed = False
 
-    original_description_lines, footers = cl.GetDescriptionFooters()
-    new_description_lines = list(original_description_lines)
+  # If the change includes only doc changes then add No-Try: true in the
+  # CL's description if it does not exist yet.
+  if all_docs_changes and 'true' not in footers.get('No-Try', []):
+    description_changed = True
+    change.AddDescriptionFooter('No-Try', 'true')
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'This change has only doc changes. Automatically added '
+            '\'No-Try: true\' to the CL\'s description'))
 
-    # If the change includes only doc changes then add No-Try: true in the
-    # CL's description if it does not exist yet.
-    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
-      new_description_lines.append('No-Try: true')
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'This change has only doc changes. Automatically added '
-              '\'No-Try: true\' to the CL\'s description'))
+  # If there is at least one docs change then add preview link in the CL's
+  # description if it does not already exist there.
+  docs_preview_link = DOCS_PREVIEW_URL.format(issue=change.issue)
+  if (at_least_one_docs_change
+      and docs_preview_link not in footers.get('Docs-Preview', [])):
+    # Automatically add a link to where the docs can be previewed.
+    description_changed = True
+    change.AddDescriptionFooter('Docs-Preview', docs_preview_link)
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'Automatically added a link to preview the docs changes to the '
+            'CL\'s description'))
 
-    # If there is atleast one docs change then add preview link in the CL's
-    # description if it does not already exist there.
-    docs_preview_link = '%s%s' % (DOCS_PREVIEW_URL, issue)
-    docs_preview_line = 'Docs-Preview: %s' % docs_preview_link
-    if (atleast_one_docs_change and
-        not _FooterExists(footers, 'Docs-Preview', docs_preview_link)):
-      # Automatically add a link to where the docs can be previewed.
-      new_description_lines.append(docs_preview_line)
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'Automatically added a link to preview the docs changes to the '
-              'CL\'s description'))
+  # If the description has changed update it.
+  if description_changed:
+    gerrit.UpdateDescription(
+        change.FullDescriptionText(), change.issue)
 
-    # If the target ref is not master then add 'No-Tree-Checks: true' and
-    # 'No-Try: true' to the CL's description if it does not already exist there.
-    target_ref = cl.GetRemoteBranch()[1]
-    if target_ref != 'refs/remotes/origin/master':
-      if not _FooterExists(footers, 'No-Tree-Checks', 'true'):
-        new_description_lines.append('No-Tree-Checks: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not need to rely on the master branch\'s '
-                'tree status. Automatically added \'No-Tree-Checks: true\' to '
-                'the CL\'s description'))
-      if not _FooterExists(footers, 'No-Try', 'true'):
-        new_description_lines.append('No-Try: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Trybots do not yet work for non-master branches. '
-                'Automatically added \'No-Try: true\' to the CL\'s '
-                'description'))
-      if not _FooterExists(footers, 'No-Presubmit', 'true'):
-        new_description_lines.append('No-Presubmit: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not run the presubmit checks.'))
-
-    # Automatically set Cq-Include-Trybots if any of the changed files here
-    # begin with the paths of interest.
-    bots_to_include = []
-    for affected_file in change.AffectedFiles():
-      affected_file_path = affected_file.LocalPath()
-      for path_prefix, extra_bots in PATH_PREFIX_TO_EXTRA_TRYBOTS.iteritems():
-        if affected_file_path.startswith(path_prefix):
-          results.append(
-              output_api.PresubmitNotifyResult(
-                  'Your CL modifies the path %s.\nAutomatically adding %s to '
-                  'the CL description.' % (affected_file_path, extra_bots)))
-          bots_to_include.append(extra_bots)
-    if bots_to_include:
-      output_api.EnsureCQIncludeTrybotsAreAdded(
-          cl, bots_to_include, new_description_lines)
-
-    # If the description has changed update it.
-    if new_description_lines != original_description_lines:
-      # Add a new line separating the new contents from the old contents.
-      new_description_lines.insert(len(original_description_lines), '')
-      cl.UpdateDescriptionFooters(new_description_lines, footers)
-
-    return results
+  return results
 
 
 def CheckChangeOnCommit(input_api, output_api):
-  """Presubmit checks for the change on commit.
-
-  The following are the presubmit checks:
-  * Check change has one and only one EOL.
-  * Ensures that the Skia tree is open in
-    http://skia-tree-status.appspot.com/. Shows a warning if it is in 'Caution'
-    state and an error if it is in 'Closed' state.
-  """
+  """Presubmit checks for the change on commit."""
   results = []
   results.extend(_CommonChecks(input_api, output_api))
-  results.extend(
-      _CheckTreeStatus(input_api, output_api, json_url=(
-          SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
   # Checks for the presence of 'DO NOT''SUBMIT' in CL description and in

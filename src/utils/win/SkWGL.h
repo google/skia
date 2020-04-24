@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
-#include "SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 /**
  * Working with WGL extensions can be a pain. Among the reasons is that You must
@@ -145,8 +145,8 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor, SkWGLConte
  */
 class SkWGLPbufferContext : public SkRefCnt {
 public:
-    static SkWGLPbufferContext* Create(HDC parentDC, SkWGLContextRequest contextType,
-                                       HGLRC shareContext);
+    static sk_sp<SkWGLPbufferContext> Create(HDC parentDC, SkWGLContextRequest contextType,
+                                             HGLRC shareContext);
 
     virtual ~SkWGLPbufferContext();
 

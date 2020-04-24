@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkKeyedImage.h"
+#include "src/pdf/SkKeyedImage.h"
 
-#include "SkImage_Base.h"
+#include "src/image/SkImage_Base.h"
 
 SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
     if (!image) {
@@ -15,7 +15,7 @@ SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
     }
     if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
         SkIPoint o = bm->pixelRefOrigin();
-        return {image->bounds().makeOffset(o.x(), o.y()), bm->getGenerationID()};
+        return {image->bounds().makeOffset(o), bm->getGenerationID()};
     }
     return {image->bounds(), image->uniqueID()};
 }
@@ -35,7 +35,7 @@ SkKeyedImage SkKeyedImage::subset(SkIRect subset) const {
     if (fImage && subset.intersect(fImage->bounds())) {
         img.fImage = fImage->makeSubset(subset);
         if (img.fImage) {
-            img.fKey = {subset.makeOffset(fKey.fSubset.x(), fKey.fSubset.y()), fKey.fID};
+            img.fKey = {subset.makeOffset(fKey.fSubset.topLeft()), fKey.fID};
         }
     }
     return img;

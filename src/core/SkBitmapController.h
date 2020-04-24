@@ -8,12 +8,13 @@
 #ifndef SkBitmapController_DEFINED
 #define SkBitmapController_DEFINED
 
-#include "SkBitmap.h"
-#include "SkBitmapCache.h"
-#include "SkFilterQuality.h"
-#include "SkMatrix.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkMatrix.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkMipMap.h"
 
-class SkBitmapProvider;
+class SkImage_Base;
 
 /**
  *  Handles request to scale, filter, and lock a bitmap to be rasterized.
@@ -22,46 +23,31 @@ class SkBitmapController : ::SkNoncopyable {
 public:
     class State : ::SkNoncopyable {
     public:
-        virtual ~State() {}
+        State(const SkImage_Base*, const SkMatrix& inv, SkFilterQuality);
 
         const SkPixmap& pixmap() const { return fPixmap; }
         const SkMatrix& invMatrix() const { return fInvMatrix; }
         SkFilterQuality quality() const { return fQuality; }
 
-    protected:
-        SkPixmap        fPixmap;
-        SkMatrix        fInvMatrix;
-        SkFilterQuality fQuality;
-
     private:
-        friend class SkBitmapController;
+        bool processHighRequest(const SkImage_Base*);
+        bool processMediumRequest(const SkImage_Base*);
+
+        SkPixmap              fPixmap;
+        SkMatrix              fInvMatrix;
+        SkFilterQuality       fQuality;
+
+        // Pixmap storage.
+        SkBitmap              fResultBitmap;
+        sk_sp<const SkMipMap> fCurrMip;
+
     };
 
-    virtual ~SkBitmapController() {}
+    static State* RequestBitmap(const SkImage_Base*, const SkMatrix& inverse, SkFilterQuality,
+                                SkArenaAlloc*);
 
-    State* requestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                         void* storage, size_t storageSize);
-
-    State* requestBitmap(const SkBitmapProvider& bp, const SkMatrix& inv, SkFilterQuality quality) {
-        return this->requestBitmap(bp, inv, quality, nullptr, 0);
-    }
-
-protected:
-    virtual State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   void* storage, size_t storageSize) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkMipMap.h"
-
-class SkDefaultBitmapController : public SkBitmapController {
-public:
-    SkDefaultBitmapController() {}
-
-protected:
-    State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                           void* storage, size_t storageSize) override;
+private:
+    SkBitmapController() = delete;
 };
 
 #endif

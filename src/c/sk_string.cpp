@@ -7,13 +7,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
-#include "sk_string.h"
+#include "include/c/sk_string.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
-sk_string_t* sk_string_new_empty() {
+sk_string_t* sk_string_new_empty(void) {
     return ToString(new SkString());
 }
 

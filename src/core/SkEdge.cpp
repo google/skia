@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkEdge.h"
 
-#include "SkEdge.h"
-#include "SkFDot6.h"
-#include "SkMathPriv.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkFDot6.h"
+#include "src/core/SkMathPriv.h"
+
+#include <utility>
 
 /*
     In setLine, setQuadratic, setCubic, the first thing we do is to convert
@@ -52,8 +55,9 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
     int winding = 1;
 
     if (y0 > y1) {
-        SkTSwap(x0, x1);
-        SkTSwap(y0, y1);
+        using std::swap;
+        swap(x0, x1);
+        swap(y0, y1);
         winding = -1;
     }
 
@@ -168,11 +172,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA = 2)
     // ... but small enough so that our curves still look smooth
     // When shift > 0, we're using AA and everything is scaled up so we can
     // lower the accuracy.
-#ifdef SK_SUPPORT_LEGACY_QUAD_SHIFT
-    dist = (dist + (1 << 4)) >> 5;
-#else
     dist = (dist + (1 << 4)) >> (3 + shiftAA);
-#endif
 
     // each subdivision (shift value) cuts this dist (error) by 1/4
     return (32 - SkCLZ(dist)) >> 1;
@@ -203,8 +203,9 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
     int winding = 1;
     if (y0 > y2)
     {
-        SkTSwap(x0, x2);
-        SkTSwap(y0, y2);
+        using std::swap;
+        swap(x0, x2);
+        swap(y0, y2);
         winding = -1;
     }
     SkASSERT(y0 <= y1 && y1 <= y2);
@@ -376,10 +377,11 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     int winding = 1;
     if (sortY && y0 > y3)
     {
-        SkTSwap(x0, x3);
-        SkTSwap(x1, x2);
-        SkTSwap(y0, y3);
-        SkTSwap(y1, y2);
+        using std::swap;
+        swap(x0, x3);
+        swap(x1, x2);
+        swap(y0, y3);
+        swap(y1, y2);
         winding = -1;
     }
 

@@ -24,15 +24,16 @@ Skia's Swarming bots are hosted in three places:
 Connecting to Swarming Bots
 ---------------------------
 
-- Machine name like “skia-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “skia-ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
+- Machine name like “skia-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
   * First determine the project for the bot:
      + skia-gce-NNN, skia-ct-gce-NNN: [skia-swarming-bots](https://console.cloud.google.com/compute/instances?project=skia-swarming-bots)
-     + skia-i-gce-NNN, ct-gce-NNN, ct-xxx-builder-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
+     + skia-i-gce-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
+     + ct-gce-NNN, ct-xxx-builder-NNN: [ct-swarming-bots](https://console.cloud.google.com/compute/instances?project=ct-swarming-bots)
   * To log in to a Linux bot in GCE, use `gcloud compute ssh --project <project> default@<machine name>`. Choose the zone listed on the VM's detail page (see links above). You may also specify the zone using the `--zone` command-line flag.
   * To log in to a Windows bot in GCE, on the VM's detail page, first click the "Set Windows password" button, then click the "RDP" button. (If it hasn't been installed, you will be instructed to install the Chrome RDP Extension for GCP.)
 
 - Machine name ends with “a9”, “m3”, "m5" -> Chrome Golo/Labs
-  * To log in to Golo bots, see [go/swarming-ssh](https://goto.google.com/swarming-ssh).
+  * To log in to Golo bots, see [go/chrome-infra-build-access](https://goto.google.com/chrome-infra-build-access).
 
 - Machine name starts with “skia-e-”, “skia-i-” (other than “skia-i-gce-NNN”), “skia-rpi-” -> Chapel Hill lab (aka Skolo)<br/>
   To log in to Skolo bots, see the [Skolo maintenance doc][remote access] remote access section. See the following for OS specific instructions:<br/>
@@ -48,7 +49,7 @@ If you need to run code on a specific machine/device to debug an issue, the simp
 run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
 [create or modify tryjobs](automated_testing#adding-new-jobs).
 
-For Googlers: If you need more control (e.g. to run GDB) and need run to directly on a swarming bot then you can use [leasing.skia.org](https://leasing.skia.org).<br/>
+For Googlers: If you need more control (e.g. to run GDB) and need to run directly on a swarming bot then you can use [leasing.skia.org](https://leasing.skia.org).<br/>
 If that does not work then the [current trooper][current trooper] can help you bring the device back to your desk and connect
 it to GoogleGuest Wifi or the [Google Test Network](http://go/gtn-criteria).
 
@@ -58,9 +59,12 @@ flashed/imaged back to a clean state, but others can not.
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
 a bug][infra bug] and assign to jcgregorio for reassignment.
 
+For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
+more info in the [Skolo maintenance doc][remote access] remote access section.
+
 [current trooper]: http://skia-tree-status.appspot.com/trooper
 [remote access]:
-    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n
+    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
 [remotely debug android]: https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/
 [vnc to skolo windows]:

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkRectPriv.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkRectPriv.h"
+#include "tests/Test.h"
 
 static bool has_green_pixels(const SkBitmap& bm) {
     for (int j = 0; j < bm.height(); ++j) {
@@ -137,5 +137,50 @@ DEF_TEST(Rect_setbounds, reporter) {
                 r.setBoundsNoCheck(pts, n);
             REPORTER_ASSERT(reporter, !r.isFinite());
         }
+    }
+}
+
+static float make_big_value(skiatest::Reporter* reporter) {
+    // need to make a big value, one that will cause rect.width() to overflow to inf.
+    // however, the windows compiler wants about this if it can see the big value inlined.
+    // hence, this stupid trick to try to fool their compiler.
+    SkASSERT(reporter);
+    return reporter ? SK_ScalarMax * 0.75f : 0;
+}
+
+DEF_TEST(Rect_center, reporter) {
+    // ensure we can compute center even when the width/height might overflow
+    const SkScalar big = make_big_value(reporter);
+    const SkRect r = { -big, -big, big, big };
+
+    REPORTER_ASSERT(reporter, r.isFinite());
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.width()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
+}
+
+#include "include/core/SkSurface.h"
+
+// Before the fix, this sequence would trigger a release_assert in the Tiler
+// in SkBitmapDevice.cpp
+DEF_TEST(big_tiled_rect_crbug_927075, reporter) {
+    // since part of the regression test allocates a huge buffer, don't bother trying on
+    // 32-bit devices (e.g. chromecast) so we avoid them failing to allocated.
+
+    if (sizeof(void*) == 8) {
+        const int w = 67108863;
+        const int h = 1;
+        const auto info = SkImageInfo::MakeN32Premul(w, h);
+
+        auto surf = SkSurface::MakeRaster(info);
+        auto canvas = surf->getCanvas();
+
+        const SkRect r = { 257, 213, 67109120, 214 };
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        canvas->translate(-r.fLeft, -r.fTop);
+        canvas->drawRect(r, paint);
     }
 }

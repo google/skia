@@ -8,11 +8,11 @@
 #ifndef GrPath_DEFINED
 #define GrPath_DEFINED
 
-#include "GrGpuResource.h"
-#include "GrPathRendering.h"
-#include "GrStyle.h"
-#include "SkPath.h"
-#include "SkRect.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrStyle.h"
 
 class GrShape;
 

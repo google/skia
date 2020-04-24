@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
 
 static int loopNo = 1;
 
@@ -36,7 +36,6 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
                     int hx = h & 0x03;
                     int hy = h >> 2;
                     SkPath path, out;
-                    path.setFillType(SkPath::kWinding_FillType);
                     path.moveTo(SkIntToScalar(ax), SkIntToScalar(ay));
                     path.lineTo(SkIntToScalar(bx), SkIntToScalar(by));
                     path.lineTo(SkIntToScalar(cx), SkIntToScalar(cy));
@@ -63,12 +62,12 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
                         pathStr.appendf("    path.close();\n");
                         pathStr.appendf("    testPathSimplify(reporter, path, filename);\n");
                         pathStr.appendf("}\n");
-                        state.outputProgress(pathStr.c_str(), SkPath::kWinding_FillType);
+                        state.outputProgress(pathStr.c_str(), SkPathFillType::kWinding);
                     }
                     testSimplify(path, false, out, state, pathStr.c_str());
-                    path.setFillType(SkPath::kEvenOdd_FillType);
+                    path.setFillType(SkPathFillType::kEvenOdd);
                     if (state.fReporter->verbose()) {
-                        state.outputProgress(pathStr.c_str(), SkPath::kEvenOdd_FillType);
+                        state.outputProgress(pathStr.c_str(), SkPathFillType::kEvenOdd);
                     }
                     testSimplify(path, true, out, state, pathStr.c_str());
                 }

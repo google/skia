@@ -8,13 +8,15 @@
 #ifndef SkAutoPixmapStorage_DEFINED
 #define SkAutoPixmapStorage_DEFINED
 
-#include "SkMalloc.h"
-#include "SkPixmap.h"
+#include "include/core/SkPixmap.h"
+#include "include/private/SkMalloc.h"
 
 class SkAutoPixmapStorage : public SkPixmap {
 public:
     SkAutoPixmapStorage();
     ~SkAutoPixmapStorage();
+
+    SkAutoPixmapStorage(SkAutoPixmapStorage&& other);
 
     /**
     * Leave the moved-from object in a free-but-valid state.

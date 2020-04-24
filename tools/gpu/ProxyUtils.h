@@ -8,33 +8,34 @@
 #ifndef ProxyUtils_DEFINED
 #define ProxyUtils_DEFINED
 
-#include "GrTextureProxy.h"
-#include "GrTypesPriv.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrTextureProxy.h"
+
+class GrProgramInfo;
 
 namespace sk_gpu_test {
 
 /** Makes a texture proxy containing the passed in color data. */
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width, int height,
-                                               GrColorType, GrSRGBEncoded, GrSurfaceOrigin,
-                                               const void* data, size_t rowBytes);
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext*,
+                                               GrRenderable,
+                                               GrSurfaceOrigin,
+                                               const GrImageInfo&,
+                                               const void* data,
+                                               size_t rowBytes);
 
-/** Version that assumes GrSRGBEncoded::kNo. */
-inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width,
-                                                      int height, GrColorType ct,
-                                                      GrSurfaceOrigin origin, const void* data,
-                                                      size_t rowBytes) {
-    return MakeTextureProxyFromData(context, isRT, width, height, ct, GrSRGBEncoded::kNo, origin,
-                                    data, rowBytes);
-}
+GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                 SkArenaAlloc*,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&&,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor*, SkBlendMode,
+                                 GrPrimitiveType,
+                                 GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone,
+                                 const GrUserStencilSettings* stencil =
+                                                                &GrUserStencilSettings::kUnused);
 
-/** Version that takes SkColorType rather than GrColorType and assumes GrSRGBEncoded::kNo. */
-inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width,
-                                                      int height, SkColorType ct,
-                                                      GrSurfaceOrigin origin, const void* data,
-                                                      size_t rowBytes) {
-    return MakeTextureProxyFromData(context, isRT, width, height, SkColorTypeToGrColorType(ct),
-                                    origin, data, rowBytes);
-}
 
 }  // namespace sk_gpu_test
 

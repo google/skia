@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "../Fuzz.h"
-#include "../FuzzCommon.h"
-#include "SkData.h"
-#include "SkPath.h"
-#include "SkRegion.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
 
 
 void FuzzRegionSetPath(Fuzz* fuzz) {
     SkPath p;
-    FuzzPath(fuzz, &p, 1000);
+    FuzzNicePath(fuzz, &p, 1000);
     SkRegion r1;
     bool initR1;
     fuzz->next(&initR1);

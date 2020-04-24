@@ -4,21 +4,62 @@
 # found in the LICENSE file.
 
 template("third_party") {
+  enabled = !defined(invoker.enabled) || invoker.enabled
   config(target_name + "_public") {
-    if (defined(invoker.public_defines)) {
-      defines = invoker.public_defines
-    }
-    include_dirs = invoker.public_include_dirs
-  }
-  source_set(target_name) {
-    forward_variables_from(invoker, "*", [ "public_include_dirs" ])
-    public_configs = [ ":" + target_name + "_public" ]
-
-    # Warnings are just noise if we're not maintaining the code.
-    if (is_win) {
-      cflags = [ "/w" ]
+    if (enabled) {
+      cflags = []
+      if (defined(invoker.public_defines)) {
+        defines = invoker.public_defines
+      }
+      if (is_win) {
+        include_dirs = invoker.public_include_dirs
+        if (is_clang) {
+          foreach(dir, invoker.public_include_dirs) {
+            cflags += [
+              "/imsvc",
+              rebase_path(dir),
+            ]
+          }
+        }
+      } else {
+        foreach(dir, invoker.public_include_dirs) {
+          if (werror) {
+            cflags += [
+              "-isystem",
+              rebase_path(dir),
+            ]
+          } else {
+            cflags += [
+              "-I",
+              rebase_path(dir),
+            ]
+          }
+        }
+      }
     } else {
-      cflags = [ "-w" ]
+      not_needed(invoker, "*")
+    }
+  }
+
+  # You can't make a static_library() without object files to archive,
+  # but we can treat targets without object files as a source_set().
+  if (defined(invoker.sources)) {
+    _mode = "static_library"
+  } else {
+    _mode = "source_set"
+  }
+
+  target(_mode, target_name) {
+    if (enabled) {
+      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      public_configs = [ ":" + target_name + "_public" ]
+
+      # Warnings are just noise if we're not maintaining the code.
+      if (is_win) {
+        cflags = [ "/w" ]
+      } else {
+        cflags = [ "-w" ]
+      }
     }
   }
 }
@@ -28,6 +69,10 @@ set_defaults("third_party") {
   if (!is_official_build) {
     # Official builds don't have warnings to begin with.
     configs -= [ "//gn:warnings" ]
+  }
+
+  if (is_debug) {
+    configs += [ "//gn:optimize" ]
   }
 }
 

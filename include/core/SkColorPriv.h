@@ -8,8 +8,9 @@
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
 
-#include "SkColor.h"
-#include "SkMath.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkTo.h"
 
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
@@ -44,8 +45,8 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
 
 /*
- *  Skia's 32bit backend only supports 1 sizzle order at a time (compile-time).
- *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
+ *  Skia's 32bit backend only supports 1 swizzle order at a time (compile-time).
+ *  This is specified by SK_R32_SHIFT=0 or SK_R32_SHIFT=16.
  *
  *  For easier compatibility with Skia's GPU backend, we further restrict these
  *  to either (in memory-byte-order) RGBA or BGRA. Note that this "order" does
@@ -55,16 +56,34 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
  *  Here we enforce this constraint.
  */
 
-#ifdef SK_CPU_BENDIAN
-    #define SK_RGBA_R32_SHIFT   24
-    #define SK_RGBA_G32_SHIFT   16
-    #define SK_RGBA_B32_SHIFT   8
-    #define SK_RGBA_A32_SHIFT   0
+#define SK_RGBA_R32_SHIFT   0
+#define SK_RGBA_G32_SHIFT   8
+#define SK_RGBA_B32_SHIFT   16
+#define SK_RGBA_A32_SHIFT   24
+
+#define SK_BGRA_B32_SHIFT   0
+#define SK_BGRA_G32_SHIFT   8
+#define SK_BGRA_R32_SHIFT   16
+#define SK_BGRA_A32_SHIFT   24
+
+#if defined(SK_PMCOLOR_IS_RGBA) || defined(SK_PMCOLOR_IS_BGRA)
+    #error "Configure PMCOLOR by setting SK_R32_SHIFT."
+#endif
+
+// Deduce which SK_PMCOLOR_IS_ to define from the _SHIFT defines
+
+#if (SK_A32_SHIFT == SK_RGBA_A32_SHIFT && \
+     SK_R32_SHIFT == SK_RGBA_R32_SHIFT && \
+     SK_G32_SHIFT == SK_RGBA_G32_SHIFT && \
+     SK_B32_SHIFT == SK_RGBA_B32_SHIFT)
+    #define SK_PMCOLOR_IS_RGBA
+#elif (SK_A32_SHIFT == SK_BGRA_A32_SHIFT && \
+       SK_R32_SHIFT == SK_BGRA_R32_SHIFT && \
+       SK_G32_SHIFT == SK_BGRA_G32_SHIFT && \
+       SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
+    #define SK_PMCOLOR_IS_BGRA
 #else
-    #define SK_RGBA_R32_SHIFT   0
-    #define SK_RGBA_G32_SHIFT   8
-    #define SK_RGBA_B32_SHIFT   16
-    #define SK_RGBA_A32_SHIFT   24
+    #error "need 32bit packing to be either RGBA or BGRA"
 #endif
 
 #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)
@@ -128,40 +147,5 @@ static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
 static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
     return src + SkAlphaMulQ(dst, SkAlpha255To256(255 - SkGetPackedA32(src)));
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-// Convert a 16bit pixel to a 32bit pixel
-
-#define SK_R16_BITS     5
-#define SK_G16_BITS     6
-#define SK_B16_BITS     5
-
-#define SK_R16_SHIFT    (SK_B16_BITS + SK_G16_BITS)
-#define SK_G16_SHIFT    (SK_B16_BITS)
-#define SK_B16_SHIFT    0
-
-#define SK_R16_MASK     ((1 << SK_R16_BITS) - 1)
-#define SK_G16_MASK     ((1 << SK_G16_BITS) - 1)
-#define SK_B16_MASK     ((1 << SK_B16_BITS) - 1)
-
-#define SkGetPackedR16(color)   (((unsigned)(color) >> SK_R16_SHIFT) & SK_R16_MASK)
-#define SkGetPackedG16(color)   (((unsigned)(color) >> SK_G16_SHIFT) & SK_G16_MASK)
-#define SkGetPackedB16(color)   (((unsigned)(color) >> SK_B16_SHIFT) & SK_B16_MASK)
-
-static inline unsigned SkR16ToR32(unsigned r) {
-    return (r << (8 - SK_R16_BITS)) | (r >> (2 * SK_R16_BITS - 8));
-}
-
-static inline unsigned SkG16ToG32(unsigned g) {
-    return (g << (8 - SK_G16_BITS)) | (g >> (2 * SK_G16_BITS - 8));
-}
-
-static inline unsigned SkB16ToB32(unsigned b) {
-    return (b << (8 - SK_B16_BITS)) | (b >> (2 * SK_B16_BITS - 8));
-}
-
-#define SkPacked16ToR32(c)      SkR16ToR32(SkGetPackedR16(c))
-#define SkPacked16ToG32(c)      SkG16ToG32(SkGetPackedG16(c))
-#define SkPacked16ToB32(c)      SkB16ToB32(SkGetPackedB16(c))
 
 #endif

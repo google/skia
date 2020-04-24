@@ -8,7 +8,7 @@
 #ifndef SKSL_SYMBOL
 #define SKSL_SYMBOL
 
-#include "SkSLIRNode.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 namespace SkSL {
 
@@ -21,7 +21,8 @@ struct Symbol : public IRNode {
         kUnresolvedFunction_Kind,
         kType_Kind,
         kVariable_Kind,
-        kField_Kind
+        kField_Kind,
+        kExternal_Kind
     };
 
     Symbol(int offset, Kind kind, StringFragment name)

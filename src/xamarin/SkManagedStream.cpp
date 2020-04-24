@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkManagedStream.h"
+#include "include/xamarin/SkManagedStream.h"
 
 // READ-ONLY MANAGED STREAM
 

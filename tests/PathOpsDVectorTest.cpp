@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsPoint.h"
-#include "Test.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static const SkDPoint tests[] = {
     {0, 0},

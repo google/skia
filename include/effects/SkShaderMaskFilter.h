@@ -8,7 +8,7 @@
 #ifndef SkShaderMaskFilter_DEFINED
 #define SkShaderMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
+#include "include/core/SkMaskFilter.h"
 
 class SkShader;
 
@@ -17,7 +17,7 @@ public:
     static sk_sp<SkMaskFilter> Make(sk_sp<SkShader> shader);
 
 private:
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
     friend class SkFlattenable;
 };
 

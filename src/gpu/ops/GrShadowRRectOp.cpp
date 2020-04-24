@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrShadowRRectOp.h"
-#include "GrDrawOpTest.h"
-#include "GrOpFlushState.h"
-#include "SkRRectPriv.h"
-#include "effects/GrShadowGeoProc.h"
+#include "src/gpu/ops/GrShadowRRectOp.h"
+
+#include "include/private/GrRecordingContext.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/effects/GrShadowGeoProc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Circle Data
@@ -151,7 +156,6 @@ static int rrect_type_to_vert_count(RRectType type) {
             return kVertsPerOverstrokeRRect;
     }
     SK_ABORT("Invalid type");
-    return 0;
 }
 
 static int rrect_type_to_index_count(RRectType type) {
@@ -164,7 +168,6 @@ static int rrect_type_to_index_count(RRectType type) {
             return kIndicesPerOverstrokeRRect;
     }
     SK_ABORT("Invalid type");
-    return 0;
 }
 
 static const uint16_t* rrect_type_to_indices(RRectType type) {
@@ -176,7 +179,6 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
             return gRRectIndices;
     }
     SK_ABORT("Invalid type");
-    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,8 +191,9 @@ public:
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
                           float devRadius, bool isCircle, float blurRadius, float insetWidth,
-                          float blurClamp)
-            : INHERITED(ClassID()) {
+                          sk_sp<GrTextureProxy> falloffProxy)
+            : INHERITED(ClassID())
+            , fFalloffProxy(falloffProxy) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
         SkScalar innerRadius = 0.0f;
@@ -200,10 +203,6 @@ public:
         RRectType type = kFill_RRectType;
         if (isCircle) {
             umbraInset = 0;
-        } else if (insetWidth > 0 && insetWidth <= outerRadius) {
-            // If the client has requested a stroke smaller than the outer radius,
-            // we will assume they want no special umbra inset (this is for ambient shadows).
-            umbraInset = outerRadius;
         } else {
             umbraInset = SkTMax(outerRadius, blurRadius);
         }
@@ -222,10 +221,10 @@ public:
             }
         }
 
-        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
 
         fGeoData.emplace_back(Geometry{color, outerRadius, umbraInset, innerRadius,
-                                       blurRadius, blurClamp, bounds, type, isCircle});
+                                       blurRadius, bounds, type, isCircle});
         if (isCircle) {
             fVertCount = circle_type_to_vert_count(kStroke_RRectType == type);
             fIndexCount = circle_type_to_index_count(kStroke_RRectType == type);
@@ -237,6 +236,7 @@ public:
 
     const char* name() const override { return "ShadowCircularRRectOp"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
@@ -251,12 +251,13 @@ public:
         string.append(INHERITED::dumpInfo());
         return string;
     }
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                GrPixelConfigIsClamped) override {
-        return RequiresDstTexture::kNo;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
+        return GrProcessorSet::EmptySetAnalysis();
     }
 
 private:
@@ -266,7 +267,6 @@ private:
         SkScalar  fUmbraInset;
         SkScalar  fInnerRadius;
         SkScalar  fBlurRadius;
-        SkScalar  fClampValue;
         SkRect    fDevBounds;
         RRectType fType;
         bool      fIsCircle;
@@ -277,7 +277,6 @@ private:
         GrColor fColor;
         SkPoint fOffset;
         SkScalar fDistanceCorrection;
-        SkScalar fClampValue;
     };
 
     void fillInCircleVerts(const Geometry& args, bool isStroked, CircleVertex** verts) const {
@@ -287,7 +286,6 @@ private:
         SkScalar innerRadius = args.fInnerRadius;
         SkScalar blurRadius = args.fBlurRadius;
         SkScalar distanceCorrection = outerRadius / blurRadius;
-        SkScalar clampValue = args.fClampValue;
 
         const SkRect& bounds = args.fDevBounds;
 
@@ -302,56 +300,48 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(-1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
-        (*verts)->fClampValue = clampValue;
         (*verts)++;
 
         if (isStroked) {
@@ -366,56 +356,48 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, -c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-s * r, c * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, -s * r);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
         } else {
             // filled
@@ -423,7 +405,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
         }
     }
@@ -474,7 +455,6 @@ private:
         SkScalar diagVal = umbraInset / (SK_ScalarSqrt2*(outerRadius - umbraInset) - outerRadius);
         SkVector diagVec = SkVector::Make(diagVal, diagVal);
         SkScalar distanceCorrection = umbraInset / blurRadius;
-        SkScalar clampValue = args.fClampValue;
 
         // build corner by corner
         for (int i = 0; i < 4; ++i) {
@@ -483,7 +463,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             // outer points
@@ -491,35 +470,30 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yMid[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = diagVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xMid[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xInner[i], yOuter[i]);
             (*verts)->fColor = color;
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
         }
 
@@ -537,7 +511,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             // TR
@@ -545,7 +518,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             // BL
@@ -553,7 +525,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
 
             // BR
@@ -561,7 +532,6 @@ private:
             (*verts)->fColor = color;
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
-            (*verts)->fClampValue = clampValue;
             (*verts)++;
         }
 
@@ -569,22 +539,22 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
+        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
+                                                             fFalloffProxy.get());
 
         int instanceCount = fGeoData.count();
-        size_t vertexStride = gp->getVertexStride();
-        SkASSERT(sizeof(CircleVertex) == vertexStride);
+        SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        CircleVertex* verts = (CircleVertex*)target->makeVertexSpace(vertexStride, fVertCount,
-                                                                     &vertexBuffer, &firstVertex);
+        CircleVertex* verts = (CircleVertex*)target->makeVertexSpace(
+                sizeof(CircleVertex), fVertCount, &vertexBuffer, &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        const GrBuffer* indexBuffer = nullptr;
+        sk_sp<const GrBuffer> indexBuffer;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
@@ -621,28 +591,37 @@ private:
             }
         }
 
-        static const uint32_t kPipelineFlags = 0;
-        const GrPipeline* pipeline = target->makePipeline(
-                kPipelineFlags, GrProcessorSet::MakeEmptySet(), target->detachAppliedClip());
+        auto fixedDynamicState = target->makeFixedDynamicState(1);
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = fFalloffProxy.get();
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
-        mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp.get(), pipeline, mesh);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
+        target->recordDraw(gp, mesh, 1, fixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                this, chainBounds, GrProcessorSet::MakeEmptySet());
+    }
+
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
-        return true;
+        return CombineResult::kMerged;
+    }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        func(fFalloffProxy.get(), GrMipMapped(false));
     }
 
     SkSTArray<1, Geometry, true> fGeoData;
     int fVertCount;
     int fIndexCount;
+    sk_sp<GrTextureProxy> fFalloffProxy;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -652,14 +631,62 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+
+static sk_sp<GrTextureProxy> create_falloff_texture(GrProxyProvider* proxyProvider) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 0, "Shadow Gaussian Falloff");
+    builder.finish();
+
+    sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
+    if (!falloffTexture) {
+        static const int kWidth = 128;
+        static const size_t kRowBytes = kWidth*GrColorTypeBytesPerPixel(GrColorType::kAlpha_8);
+        SkImageInfo ii = SkImageInfo::MakeA8(kWidth, 1);
+
+        sk_sp<SkData> data = SkData::MakeUninitialized(kRowBytes);
+        if (!data) {
+            return nullptr;
+        }
+        unsigned char* values = (unsigned char*) data->writable_data();
+        for (int i = 0; i < 128; ++i) {
+            SkScalar d = SK_Scalar1 - i/SkIntToScalar(127);
+            values[i] = SkScalarRoundToInt((SkScalarExp(-4*d*d) - 0.018f)*255);
+        }
+
+        sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), kRowBytes);
+        if (!img) {
+            return nullptr;
+        }
+
+        falloffTexture = proxyProvider->createTextureProxy(std::move(img), 1, SkBudgeted::kYes,
+                                                           SkBackingFit::kExact);
+        if (!falloffTexture) {
+            return nullptr;
+        }
+
+        SkASSERT(falloffTexture->origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, falloffTexture.get());
+    }
+
+    return falloffTexture;
+}
+
+
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+                               GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
-                               SkScalar insetWidth,
-                               SkScalar blurClamp) {
+                               SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
+
+    sk_sp<GrTextureProxy> falloffTexture = create_falloff_texture(context->priv().proxyProvider());
+    if (!falloffTexture) {
+        return nullptr;
+    }
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
@@ -672,12 +699,18 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
-    return std::unique_ptr<GrDrawOp>(new ShadowCircularRRectOp(color, bounds,
-                                                               scaledRadius,
-                                                               rrect.isOval(),
-                                                               blurWidth,
-                                                               scaledInsetWidth,
-                                                               blurClamp));
+    if (scaledInsetWidth <= 0) {
+        return nullptr;
+    }
+
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+
+    return pool->allocate<ShadowCircularRRectOp>(color, bounds,
+                                                 scaledRadius,
+                                                 rrect.isOval(),
+                                                 blurWidth,
+                                                 scaledInsetWidth,
+                                                 std::move(falloffTexture));
 }
 }
 
@@ -686,33 +719,42 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
 #if GR_TEST_UTILS
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
-    // create a similarity matrix
-    SkScalar rotate = random->nextSScalar1() * 360.f;
-    SkScalar translateX = random->nextSScalar1() * 1000.f;
-    SkScalar translateY = random->nextSScalar1() * 1000.f;
-    SkScalar scale = random->nextSScalar1() * 100.f;
-    SkMatrix viewMatrix;
-    viewMatrix.setRotate(rotate);
-    viewMatrix.postTranslate(translateX, translateY);
-    viewMatrix.postScale(scale, scale);
-    SkScalar insetWidth = random->nextSScalar1() * 72.f;
-    SkScalar blurWidth = random->nextSScalar1() * 72.f;
-    SkScalar blurClamp = random->nextSScalar1();
-    bool isCircle = random->nextBool();
-    // This op doesn't use a full GrPaint, just a color.
-    GrColor color = paint.getColor();
-    if (isCircle) {
-        SkRect circle = GrTest::TestSquare(random);
-        SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
-    } else {
-        SkRRect rrect;
-        do {
-            // This may return a rrect with elliptical corners, which we don't support.
-            rrect = GrTest::TestRRectSimple(random);
-        } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
-    }
+    // We may choose matrix and inset values that cause the factory to fail. We loop until we find
+    // an acceptable combination.
+    do {
+        // create a similarity matrix
+        SkScalar rotate = random->nextSScalar1() * 360.f;
+        SkScalar translateX = random->nextSScalar1() * 1000.f;
+        SkScalar translateY = random->nextSScalar1() * 1000.f;
+        SkScalar scale = random->nextSScalar1() * 100.f;
+        SkMatrix viewMatrix;
+        viewMatrix.setRotate(rotate);
+        viewMatrix.postTranslate(translateX, translateY);
+        viewMatrix.postScale(scale, scale);
+        SkScalar insetWidth = random->nextSScalar1() * 72.f;
+        SkScalar blurWidth = random->nextSScalar1() * 72.f;
+        bool isCircle = random->nextBool();
+        // This op doesn't use a full GrPaint, just a color.
+        GrColor color = paint.getColor4f().toBytes_RGBA();
+        if (isCircle) {
+            SkRect circle = GrTest::TestSquare(random);
+            SkRRect rrect = SkRRect::MakeOval(circle);
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        } else {
+            SkRRect rrect;
+            do {
+                // This may return a rrect with elliptical corners, which will cause an assert.
+                rrect = GrTest::TestRRectSimple(random);
+            } while (!SkRRectPriv::IsSimpleCircular(rrect));
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        }
+    } while (true);
 }
 
 #endif

@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLContext.h"
-#include "SkSLMemoryLayout.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLMemoryLayout.h"
 
-#include "Test.h"
-
-#if SK_SUPPORT_GPU
+#include "tests/Test.h"
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::Context context;
@@ -173,4 +171,3 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(array2));
     REPORTER_ASSERT(r, 16 == layout.stride(array2));
 }
-#endif

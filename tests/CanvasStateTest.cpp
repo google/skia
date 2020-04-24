@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "CanvasStateHelpers.h"
-#include "SkBitmap.h"
-#include "SkCanvasPriv.h"
-#include "SkCanvasStateUtils.h"
-#include "SkClipOpPriv.h"
-#include "SkColor.h"
-#include "SkCommandLineFlags.h"
-#include "SkDrawFilter.h"
-#include "SkImageInfo.h"
-#include "SkPaint.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkScalar.h"
-#include "SkTDArray.h"
-#include "SkTLazy.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkCanvasStateUtils.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkTLazy.h"
+#include "tests/CanvasStateHelpers.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <cstring>
-#include <memory>
 
 class SkCanvasState;
 
@@ -33,12 +33,13 @@ class SkCanvasState;
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 #include <dlfcn.h>
 
-DEFINE_string(library, "", "Support library to use for CanvasState test. If empty (the default), "
-                           "the test will be run without crossing a library boundary. Otherwise, "
-                           "it is expected to be a full path to a shared library file, which will"
-                           " be dynamically loaded. Functions from the library will be called to "
-                           "test SkCanvasState. Instructions for generating the library are in "
-                           "gyp/canvas_state_lib.gyp");
+static DEFINE_string(library, "",
+                     "Support library to use for CanvasState test. If empty (the default), "
+                     "the test will be run without crossing a library boundary. Otherwise, "
+                     "it is expected to be a full path to a shared library file, which will"
+                     " be dynamically loaded. Functions from the library will be called to "
+                     "test SkCanvasState. Instructions for generating the library are in "
+                     "gyp/canvas_state_lib.gyp");
 
 
 // This class calls dlopen on the library passed in to the command line flag library, and handles
@@ -69,6 +70,36 @@ public:
 private:
     void* fHandle;
 };
+
+static void write_image(const SkImage* img, const char path[]) {
+    auto data = img->encodeToData();
+    SkFILEWStream(path).write(data->data(), data->size());
+}
+
+static void compare(skiatest::Reporter* reporter, SkImage* img0, SkImage* img1) {
+    if (false) {
+        static int counter;
+
+        SkDebugf("---- counter %d\n", counter);
+        SkString name;
+        name.printf("no_capture_%d.png", counter);
+        write_image(img0, name.c_str());
+        name.printf("capture_%d.png", counter);
+        write_image(img1, name.c_str());
+        counter++;
+    }
+
+    SkPixmap pm[2];
+    REPORTER_ASSERT(reporter, img0->peekPixels(&pm[0]));
+    REPORTER_ASSERT(reporter, img1->peekPixels(&pm[1]));
+    // now we memcmp the two bitmaps
+    REPORTER_ASSERT(reporter, pm[0].computeByteSize() == pm[1].computeByteSize());
+    REPORTER_ASSERT(reporter, pm[0].rowBytes() == (size_t)pm[0].width() * pm[0].info().bytesPerPixel());
+    REPORTER_ASSERT(reporter, pm[1].rowBytes() == (size_t)pm[1].width() * pm[1].info().bytesPerPixel());
+    if (memcmp(pm[0].addr(0, 0), pm[1].addr(0, 0), pm[0].computeByteSize())) {
+        REPORTER_ASSERT(reporter, false);
+    }
+}
 
 DEF_TEST(CanvasState_test_complex_layers, reporter) {
     const int WIDTH = 400;
@@ -108,15 +139,14 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorTypes); ++i) {
-        SkBitmap bitmaps[2];
+        sk_sp<SkImage> images[2];
         for (int j = 0; j < 2; ++j) {
-            bitmaps[j].allocPixels(SkImageInfo::Make(WIDTH, HEIGHT,
-                                                     colorTypes[i],
-                                                     kPremul_SkAlphaType));
+            auto surf = SkSurface::MakeRaster(SkImageInfo::Make(WIDTH, HEIGHT,
+                                                                colorTypes[i],
+                                                                kPremul_SkAlphaType));
+            SkCanvas* canvas = surf->getCanvas();
 
-            SkCanvas canvas(bitmaps[j]);
-
-            canvas.drawColor(SK_ColorRED);
+            canvas->drawColor(SK_ColorRED);
 
             for (size_t k = 0; k < SK_ARRAY_COUNT(layerAlpha); ++k) {
                 SkTLazy<SkPaint> paint;
@@ -125,11 +155,11 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
                 }
 
                 // draw a rect within the layer's bounds and again outside the layer's bounds
-                canvas.saveLayer(SkCanvas::SaveLayerRec(&rect, paint.getMaybeNull(), flags[k]));
+                canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, paint.getMaybeNull(), flags[k]));
 
                 if (j) {
                     // Capture from the first Skia.
-                    SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
+                    SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(canvas);
                     REPORTER_ASSERT(reporter, state);
 
                     // And draw to it in the second Skia.
@@ -141,22 +171,19 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
                     SkCanvasStateUtils::ReleaseCanvasState(state);
                 } else {
                     // Draw in the first Skia.
-                    complex_layers_draw(&canvas, rect.fLeft, rect.fTop,
+                    complex_layers_draw(canvas, rect.fLeft, rect.fTop,
                                         rect.fRight, rect.fBottom, SPACER);
                 }
 
-                canvas.restore();
+                canvas->restore();
 
                 // translate the canvas for the next iteration
-                canvas.translate(0, 2*(rect.height() + SPACER));
+                canvas->translate(0, 2*(rect.height() + SPACER));
             }
+            images[j] = surf->makeImageSnapshot();
         }
 
-        // now we memcmp the two bitmaps
-        REPORTER_ASSERT(reporter, bitmaps[0].computeByteSize() == bitmaps[1].computeByteSize());
-        REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
-                                          bitmaps[1].getPixels(),
-                                          bitmaps[0].computeByteSize()));
+        compare(reporter, images[0].get(), images[1].get());
     }
 }
 #endif
@@ -215,13 +242,12 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
         return;
     }
 
-    SkBitmap bitmaps[2];
+    sk_sp<SkImage> images[2];
     for (int i = 0; i < 2; ++i) {
-        bitmaps[i].allocN32Pixels(WIDTH, HEIGHT);
+        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT));
+        SkCanvas* canvas = surf->getCanvas();
 
-        SkCanvas canvas(bitmaps[i]);
-
-        canvas.drawColor(SK_ColorRED);
+        canvas->drawColor(SK_ColorRED);
 
         SkRegion localRegion = clipRegion;
 
@@ -229,10 +255,10 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
         paint.setAlpha(128);
         for (size_t j = 0; j < SK_ARRAY_COUNT(flags); ++j) {
             SkRect layerBounds = SkRect::Make(layerRect);
-            canvas.saveLayer(SkCanvas::SaveLayerRec(&layerBounds, &paint, flags[j]));
+            canvas->saveLayer(SkCanvas::SaveLayerRec(&layerBounds, &paint, flags[j]));
 
             if (i) {
-                SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
+                SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(canvas);
                 REPORTER_ASSERT(reporter, state);
 
                 SkRegion::Iterator iter(localRegion);
@@ -251,55 +277,22 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
                 SkCanvasStateUtils::ReleaseCanvasState(state);
             } else {
-                complex_clips_draw(&canvas, clipRect.fLeft, clipRect.fTop,
+                complex_clips_draw(canvas, clipRect.fLeft, clipRect.fTop,
                                    clipRect.fRight, clipRect.fBottom, clipOps[j],
                                    localRegion);
             }
 
-            canvas.restore();
+            canvas->restore();
 
             // translate the canvas and region for the next iteration
-            canvas.translate(0, SkIntToScalar(2*(layerRect.height() + (SPACER))));
+            canvas->translate(0, SkIntToScalar(2*(layerRect.height() + (SPACER))));
             localRegion.translate(0, 2*(layerRect.height() + SPACER));
         }
+        images[i] = surf->makeImageSnapshot();
     }
 
-    // now we memcmp the two bitmaps
-    REPORTER_ASSERT(reporter, bitmaps[0].computeByteSize() == bitmaps[1].computeByteSize());
-    REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
-                                      bitmaps[1].getPixels(),
-                                      bitmaps[0].computeByteSize()));
+    compare(reporter, images[0].get(), images[1].get());
 }
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-
-class TestDrawFilter : public SkDrawFilter {
-public:
-    bool filter(SkPaint*, Type) override { return true; }
-};
-
-DEF_TEST(CanvasState_test_draw_filters, reporter) {
-    TestDrawFilter drawFilter;
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(10, 10);
-    SkCanvas canvas(bitmap);
-
-    canvas.setDrawFilter(&drawFilter);
-
-    SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
-    REPORTER_ASSERT(reporter, state);
-    std::unique_ptr<SkCanvas> tmpCanvas = SkCanvasStateUtils::MakeFromCanvasState(state);
-    REPORTER_ASSERT(reporter, tmpCanvas);
-
-    REPORTER_ASSERT(reporter, canvas.getDrawFilter());
-    REPORTER_ASSERT(reporter, nullptr == tmpCanvas->getDrawFilter());
-
-    SkCanvasStateUtils::ReleaseCanvasState(state);
-}
-
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

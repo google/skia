@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -15,19 +15,12 @@
 // The particular shape rendered can be controlled by clicking horizontally, thereby
 // generating an angle from 0 to 1.
 
-class StringArtView : public SampleView {
+class StringArtView : public Sample {
 public:
     StringArtView() : fAngle(0.305f) {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "StringArt");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("StringArt"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkScalar angle = fAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
@@ -57,17 +50,16 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         fAngle = x/width();
         return nullptr;
     }
 private:
 
     SkScalar fAngle;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new StringArtView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new StringArtView(); )

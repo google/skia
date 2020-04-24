@@ -18,14 +18,14 @@ Each gm specifies the typeface to use when drawing text. For now, to set the
 portable typeface on the paint, call:
 
 ~~~~
-sk_tool_utils::set_portable_typeface(SkPaint* , const char* name = nullptr,
+ToolUtils::set_portable_typeface(SkPaint* , const char* name = nullptr,
 SkFontStyle style = SkFontStyle());
 ~~~~
 
 To create a portable typeface, use:
 
 ~~~~
-SkTypeface* typeface = sk_tool_utils::create_portable_typeface(const char* name,
+SkTypeface* typeface = ToolUtils::create_portable_typeface(const char* name,
 SkFontStyle style);
 ~~~~
 

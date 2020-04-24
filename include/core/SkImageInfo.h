@@ -8,58 +8,44 @@
 #ifndef SkImageInfo_DEFINED
 #define SkImageInfo_DEFINED
 
-#include "SkColorSpace.h"
-#include "SkMath.h"
-#include "SkRect.h"
-#include "SkSize.h"
-#include "../private/SkTFitsIn.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
 
 /** \enum SkImageInfo::SkAlphaType
     Describes how to interpret the alpha component of a pixel. A pixel may
-    be opaque, or color alpha, describing multiple levels of transparency.
+    be opaque, or alpha, describing multiple levels of transparency.
 
-    In simple blending, color alpha weights the draw color and the destination
-    color to create a new color. If alpha describes a weight from zero to one:In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
+    In simple blending, alpha weights the draw color and the destination
+    color to create a new color. If alpha describes a weight from zero to one:
 
-    RGB may have color alpha included in each component value; the stored
-    value is the original RGB multiplied by color alpha. Premultiplied color
+    new color = draw color * alpha + destination color * (1 - alpha)
+
+    In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
+
+    RGB may have alpha included in each component value; the stored
+    value is the original RGB multiplied by alpha. Premultiplied color
     components improve performance.
 */
 enum SkAlphaType {
-    kUnknown_SkAlphaType,                          //!< SkAlphaType is uninitialized.
-
-    /** Pixels are opaque. The SkColorType must have no explicit alpha
-        component, or all alpha components must be set to their maximum value.
-    */
-    kOpaque_SkAlphaType,
-
-    /** Pixels have alpha premultiplied into color components.
-        SkSurface pixels must be premultiplied.
-    */
-    kPremul_SkAlphaType,
-
-    /** Pixel color component values are independent of alpha value.
-        Images generated from encoded data like PNG do not premultiply pixel color
-        components. kUnpremul_SkAlphaType is supported for SkImage pixels, but not for
-        SkSurface pixels.
-    */
-    kUnpremul_SkAlphaType,
-
-    /** Pixel color component values are independent of alpha value.
-        Images generated from encoded data like PNG do not premultiply pixel color
-        components. kUnpremul_SkAlphaType is supported for SkImage pixels, but not for
-        SkSurface pixels.
-    */
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
+    kUnknown_SkAlphaType,                          //!< uninitialized
+    kOpaque_SkAlphaType,                           //!< pixel is opaque
+    kPremul_SkAlphaType,                           //!< pixel components are premultiplied by alpha
+    kUnpremul_SkAlphaType,                         //!< pixel components are independent of alpha
+    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, //!< last valid value
 };
 
 /** Returns true if SkAlphaType equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
-    hint that the SkColorType is opaque, or that all color alpha values are set to
+    hint that the SkColorType is opaque, or that all alpha values are set to
     their 1.0 equivalent. If SkAlphaType is kOpaque_SkAlphaType, and SkColorType is not
-    opaque, then the result of drawing any pixel with a color alpha value less than
+    opaque, then the result of drawing any pixel with a alpha value less than
     1.0 is undefined.
 
     @param at  one of:
@@ -78,62 +64,45 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
 
 /** \enum SkImageInfo::SkColorType
     Describes how pixel bits encode color. A pixel may be an alpha mask, a
-    gray level, RGB, or ARGB.
+    grayscale, RGB, or ARGB.
 
-    kN32_SkColorType selects the native 32-bit ARGB format. On Little_Endian
+    kN32_SkColorType selects the native 32-bit ARGB format. On little endian
     processors, pixels containing 8-bit ARGB components pack into 32-bit
-    kBGRA_8888_SkColorType. On Big_Endian processors, pixels pack into 32-bit
+    kBGRA_8888_SkColorType. On big endian processors, pixels pack into 32-bit
     kRGBA_8888_SkColorType.
 */
 enum SkColorType {
-    /** SkColorType is uninitialized; encoding format and size is unknown. */
-    kUnknown_SkColorType,
+    kUnknown_SkColorType,      //!< uninitialized
+    kAlpha_8_SkColorType,      //!< pixel with alpha in 8-bit byte
+    kRGB_565_SkColorType,      //!< pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word
+    kARGB_4444_SkColorType,    //!< pixel with 4 bits for alpha, red, green, blue; in 16-bit word
+    kRGBA_8888_SkColorType,    //!< pixel with 8 bits for red, green, blue, alpha; in 32-bit word
+    kRGB_888x_SkColorType,     //!< pixel with 8 bits each for red, green, blue; in 32-bit word
+    kBGRA_8888_SkColorType,    //!< pixel with 8 bits for blue, green, red, alpha; in 32-bit word
+    kRGBA_1010102_SkColorType, //!< 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word
+    kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
+    kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
+    kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha; in 64-bit word
+    kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
+    kRGBA_F32_SkColorType,     //!< pixel using C float for red, green, blue, alpha; in 128-bit word
 
-    /** Encodes color alpha as alpha 8 pixel in an 8-bit byte. */
-    kAlpha_8_SkColorType,
+    // The following 6 colortypes are just for reading from - not for rendering to
+    kR8G8_unorm_SkColorType,   //<! pixel with a uint8_t for red and green
 
-    /** Encodes RGB as bgr 565 pixel in a 16-bit word. */
-    kRGB_565_SkColorType,
+    kA16_float_SkColorType,    //<! pixel with a half float for alpha
+    kR16G16_float_SkColorType, //<! pixel with a half float for red and green
 
-    /** Encodes ARGB as abgr 4444 pixel in a 16-bit word. */
-    kARGB_4444_SkColorType,
+    kA16_unorm_SkColorType,    //<! pixel with a little endian uint16_t for alpha
+    kR16G16_unorm_SkColorType, //<! pixel with a little endian uint16_t for red and green
+    kR16G16B16A16_unorm_SkColorType,//<! pixel with a little endian uint16_t for red, green, blue, and alpha
 
-    /** Encodes ARGB as rgba 8888 pixel in a 32-bit word. */
-    kRGBA_8888_SkColorType,
-
-    /** Encodes RGB as rgb 888x pixel in a 32-bit word. */
-    kRGB_888x_SkColorType,
-
-    /** Encodes ARGB as bgra 8888 pixel in a 32-bit word. */
-    kBGRA_8888_SkColorType,
-
-    /** Encodes ARGB as rgba 1010102 pixel in a 32-bit word. */
-    kRGBA_1010102_SkColorType,
-
-    /** Encodes RGB as rgb 101010x pixel in a 32-bit word. */
-    kRGB_101010x_SkColorType,
-
-    /** Encodes color gray as gray 8 in an 8-bit byte. */
-    kGray_8_SkColorType,
-
-    /** Encodes ARGB as rgba f16 in a 64-bit word. */
-    kRGBA_F16_SkColorType,
-
-    /** Encodes ARGB as rgba f16 in a 64-bit word. */
-    kLastEnum_SkColorType     = kRGBA_F16_SkColorType,
+    kLastEnum_SkColorType     = kR16G16B16A16_unorm_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    /** Encodes ARGB as either rgba 8888 or bgra 8888, whichever
-        is native to the platform.
-    */
-    kN32_SkColorType          = kBGRA_8888_SkColorType,
+    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
 
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-
-    /** Encodes ARGB as either rgba 8888 or bgra 8888, whichever
-        is native to the platform.
-    */
-    kN32_SkColorType          = kRGBA_8888_SkColorType,
+    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native ARGB 32-bit encoding
 
 #else
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
@@ -152,15 +121,15 @@ enum SkColorType {
 */
 SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
 
-/** Returns true if SkColorType always decodes color alpha to 1.0, making the pixel
-    fully opaque. If true, SkColorType does not reserve bits to encode color alpha.
+/** Returns true if SkColorType always decodes alpha to 1.0, making the pixel
+    fully opaque. If true, SkColorType does not reserve bits to encode alpha.
 
     @param ct  one of:
                kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
                kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
                kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                kGray_8_SkColorType, kRGBA_F16_SkColorType
-    @return    true if color alpha is always set to 1.0
+    @return    true if alpha is always set to 1.0
 */
 SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
 
@@ -204,55 +173,118 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     JPEG YUV values encode the full range of 0 to 255 for all three components.
     Video YUV values range from 16 to 235 for all three components. Details of
     encoding and conversion to RGB are described in YCbCr color space.
+
+    The identity colorspace exists to provide a utility mapping from Y to R, U to G and V to B.
+    It can be used to visualize the YUV planes or to explicitly post process the YUV channels.
 */
 enum SkYUVColorSpace {
-    /** Describes standard JPEG color space; */
-    kJPEG_SkYUVColorSpace,
+    kJPEG_SkYUVColorSpace,                      //!< describes full range
+    kRec601_SkYUVColorSpace,                    //!< describes SDTV range
+    kRec709_SkYUVColorSpace,                    //!< describes HDTV range
+    kBT2020_SkYUVColorSpace,                    //!< describes UHDTV range, non-constant-luminance
+    kIdentity_SkYUVColorSpace,                  //!< maps Y->R, U->G, V->B
 
-    /** Describes standard used by SDTV; */
-    kRec601_SkYUVColorSpace,
-
-    /** Describes standard used by HDTV; */
-    kRec709_SkYUVColorSpace,
-
-    /** Describes standard used by HDTV; */
-    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
+    kLastEnum_SkYUVColorSpace = kIdentity_SkYUVColorSpace, //!< last valid value
 };
 
-/** \enum SkImageInfo::SkImageSourceChannel
-    Describes different channels we could read from image source.
+/** \struct SkColorInfo
+    Describes pixel and encoding. SkImageInfo can be created from SkColorInfo by
+    providing dimensions.
+
+    It encodes how pixel bits describe alpha, transparency; color components red, blue,
+    and green; and SkColorSpace, the range and linearity of colors.
 */
-enum SkImageSourceChannel {
-    /** Describes the red channel; */
-    kR_SkImageSourceChannel,
+class SK_API SkColorInfo {
+public:
+    /** Creates an SkColorInfo with kUnknown_SkColorType, kUnknown_SkAlphaType,
+        and no SkColorSpace.
 
-    /** Describes the green channel; */
-    kG_SkImageSourceChannel,
+        @return  empty SkImageInfo
+    */
+    SkColorInfo() = default;
 
-    /** Describes the blue channel; */
-    kB_SkImageSourceChannel,
+    /** Creates SkColorInfo from SkColorType ct, SkAlphaType at, and optionally SkColorSpace cs.
 
-    /** Describes the alpha channel; */
-    kA_SkImageSourceChannel,
+        If SkColorSpace cs is nullptr and SkColorInfo is part of drawing source: SkColorSpace
+        defaults to sRGB, mapping into SkSurface SkColorSpace.
 
-    /** Describes the alpha channel; */
-    kLastEnum_SkImageSourceChannel = kA_SkImageSourceChannel,
-};
+        Parameters are not validated to see if their values are legal, or that the
+        combination is supported.
+        @return        created SkColorInfo
+    */
+    SkColorInfo(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
+            : fColorSpace(std::move(cs)), fColorType(ct), fAlphaType(at) {}
 
-/** \struct SkYUVAIndex
-    Describes from which image source and which channel to read each individual YUVA plane.
+    SkColorInfo(const SkColorInfo&) = default;
+    SkColorInfo(SkColorInfo&&) = default;
 
-    SkYUVAIndex contains a index for which image source to read from and a enum for which channel
-    to read from.
-*/
-struct SK_API SkYUVAIndex {
-    /** The index is a number between -1..3 which definies which image source to read from, where -1
-     * means the image source doesn't exist. The assumption is we will always have image sources for
-     * each of YUV planes, but optionally have image source for A plane. */
-    int fIndex;
-    /** The channel describes from which channel to read the info from. Currently we only deal with
-     * YUV and NV12 and channel info is ignored. */
-    SkImageSourceChannel fChannel;
+    SkColorInfo& operator=(const SkColorInfo&) = default;
+    SkColorInfo& operator=(SkColorInfo&&) = default;
+
+    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    SkColorType colorType() const { return fColorType; }
+    SkAlphaType alphaType() const { return fAlphaType; }
+
+    bool isOpaque() const { return SkAlphaTypeIsOpaque(fAlphaType); }
+
+    bool gammaCloseToSRGB() const { return fColorSpace && fColorSpace->gammaCloseToSRGB(); }
+
+    /** Does other represent the same color type, alpha type, and color space? */
+    bool operator==(const SkColorInfo& other) const {
+        return fColorType == other.fColorType && fAlphaType == other.fAlphaType &&
+               SkColorSpace::Equals(fColorSpace.get(), other.fColorSpace.get());
+    }
+
+    /** Does other represent a different color type, alpha type, or color space? */
+    bool operator!=(const SkColorInfo& other) const { return !(*this == other); }
+
+    /** Creates SkColorInfo with same SkColorType, SkColorSpace, with SkAlphaType set
+        to newAlphaType.
+
+        Created SkColorInfo contains newAlphaType even if it is incompatible with
+        SkColorType, in which case SkAlphaType in SkColorInfo is ignored.
+    */
+    SkColorInfo makeAlphaType(SkAlphaType newAlphaType) const {
+        return SkColorInfo(this->colorType(), newAlphaType, this->refColorSpace());
+    }
+
+    /** Creates new SkColorInfo with same SkAlphaType, SkColorSpace, with SkColorType
+        set to newColorType.
+    */
+    SkColorInfo makeColorType(SkColorType newColorType) const {
+        return SkColorInfo(newColorType, this->alphaType(), this->refColorSpace());
+    }
+
+    /** Creates SkColorInfo with same SkAlphaType, SkColorType, with SkColorSpace
+        set to cs. cs may be nullptr.
+    */
+    SkColorInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
+        return SkColorInfo(this->colorType(), this->alphaType(), std::move(cs));
+    }
+
+    /** Returns number of bytes per pixel required by SkColorType.
+        Returns zero if colorType() is kUnknown_SkColorType.
+
+        @return  bytes in pixel
+
+        example: https://fiddle.skia.org/c/@ImageInfo_bytesPerPixel
+    */
+    int bytesPerPixel() const;
+
+    /** Returns bit shift converting row bytes to row pixels.
+        Returns zero for kUnknown_SkColorType.
+
+        @return  one of: 0, 1, 2, 3, 4; left shift to convert pixels to bytes
+
+        example: https://fiddle.skia.org/c/@ImageInfo_shiftPerPixel
+    */
+    int shiftPerPixel() const;
+
+private:
+    sk_sp<SkColorSpace> fColorSpace;
+    SkColorType fColorType = kUnknown_SkColorType;
+    SkAlphaType fAlphaType = kUnknown_SkAlphaType;
 };
 
 /** \struct SkImageInfo
@@ -262,7 +294,7 @@ struct SK_API SkYUVAIndex {
     implementations may defer pixel depth, so may not completely specify SkImageInfo.
 
     SkImageInfo contains dimensions, the pixel integral width and height. It encodes
-    how pixel bits describe color alpha, transparency; color components red, blue,
+    how pixel bits describe alpha, transparency; color components red, blue,
     and green; and SkColorSpace, the range and linearity of colors.
 */
 struct SK_API SkImageInfo {
@@ -273,13 +305,7 @@ public:
 
         @return  empty SkImageInfo
     */
-    SkImageInfo()
-        : fColorSpace(nullptr)
-        , fWidth(0)
-        , fHeight(0)
-        , fColorType(kUnknown_SkColorType)
-        , fAlphaType(kUnknown_SkAlphaType)
-    {}
+    SkImageInfo() = default;
 
     /** Creates SkImageInfo from integral dimensions width and height, SkColorType ct,
         SkAlphaType at, and optionally SkColorSpace cs.
@@ -305,7 +331,28 @@ public:
     */
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             sk_sp<SkColorSpace> cs = nullptr) {
-        return SkImageInfo(width, height, ct, at, std::move(cs));
+        return SkImageInfo({width, height}, {ct, at, std::move(cs)});
+    }
+    static SkImageInfo Make(SkISize dimensions, SkColorType ct, SkAlphaType at,
+                            sk_sp<SkColorSpace> cs = nullptr) {
+        return SkImageInfo(dimensions, {ct, at, std::move(cs)});
+    }
+
+    /** Creates SkImageInfo from integral dimensions and SkColorInfo colorInfo,
+
+        Parameters are not validated to see if their values are legal, or that the
+        combination is supported.
+
+        @param dimensions   pixel column and row count; must be zeros or greater
+        @param SkColorInfo  the pixel encoding consisting of SkColorType, SkAlphaType, and
+                            SkColorSpace (which may be nullptr)
+        @return        created SkImageInfo
+    */
+    static SkImageInfo Make(SkISize dimensions, const SkColorInfo& colorInfo) {
+        return SkImageInfo(dimensions, colorInfo);
+    }
+    static SkImageInfo Make(SkISize dimensions, SkColorInfo&& colorInfo) {
+        return SkImageInfo(dimensions, std::move(colorInfo));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -328,7 +375,7 @@ public:
     */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, at, cs);
+        return Make({width, height}, kN32_SkColorType, at, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -343,6 +390,8 @@ public:
                        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                        kUnpremul_SkAlphaType
         @return        created SkImageInfo
+
+        example: https://fiddle.skia.org/c/@ImageInfo_MakeS32
     */
     static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
 
@@ -361,7 +410,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, cs);
+        return Make({width, height}, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -373,11 +422,12 @@ public:
         Parameters are not validated to see if their values are legal, or that the
         combination is supported.
 
-        @param size  width and height, each must be zero or greater
-        @return      created SkImageInfo
+        @param dimensions  width and height, each must be zero or greater
+        @param cs          range of colors; may be nullptr
+        @return            created SkImageInfo
     */
-    static SkImageInfo MakeN32Premul(const SkISize& size) {
-        return MakeN32Premul(size.width(), size.height());
+    static SkImageInfo MakeN32Premul(SkISize dimensions, sk_sp<SkColorSpace> cs = nullptr) {
+        return Make(dimensions, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kAlpha_8_SkColorType,
@@ -388,7 +438,16 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeA8(int width, int height) {
-        return Make(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+        return Make({width, height}, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+    }
+    /** Creates SkImageInfo from integral dimensions, kAlpha_8_SkColorType,
+        kPremul_SkAlphaType, with SkColorSpace set to nullptr.
+
+        @param dimensions   pixel row and column count; must be zero or greater
+        @return             created SkImageInfo
+    */
+    static SkImageInfo MakeA8(SkISize dimensions) {
+        return Make(dimensions, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kUnknown_SkColorType,
@@ -402,7 +461,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeUnknown(int width, int height) {
-        return Make(width, height, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
+        return Make({width, height}, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
     }
 
     /** Creates SkImageInfo from integral dimensions width and height set to zero,
@@ -421,13 +480,13 @@ public:
 
         @return  pixel width
     */
-    int width() const { return fWidth; }
+    int width() const { return fDimensions.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height
     */
-    int height() const { return fHeight; }
+    int height() const { return fDimensions.height(); }
 
     /** Returns SkColorType, one of:
         kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
@@ -437,7 +496,7 @@ public:
 
         @return  SkColorType
     */
-    SkColorType colorType() const { return fColorType; }
+    SkColorType colorType() const { return fColorInfo.colorType(); }
 
     /** Returns SkAlphaType, one of:
         kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
@@ -445,14 +504,14 @@ public:
 
         @return  SkAlphaType
     */
-    SkAlphaType alphaType() const { return fAlphaType; }
+    SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors. The reference count of
         SkColorSpace is unchanged. The returned SkColorSpace is immutable.
 
         @return  SkColorSpace, or nullptr
     */
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    SkColorSpace* colorSpace() const { return fColorInfo.colorSpace(); }
 
     /** Returns smart pointer to SkColorSpace, the range of colors. The smart pointer
         tracks the number of objects sharing this SkColorSpace reference so the memory
@@ -462,17 +521,22 @@ public:
 
         @return  SkColorSpace wrapped in a smart pointer
     */
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorInfo.refColorSpace(); }
 
     /** Returns if SkImageInfo describes an empty area of pixels by checking if either
         width or height is zero or smaller.
 
         @return  true if either dimension is zero or smaller
     */
-    bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
+    bool isEmpty() const { return fDimensions.isEmpty(); }
+
+    /** Returns the dimensionless SkColorInfo that represents the same color type,
+        alpha type, and color space as this SkImageInfo.
+     */
+    const SkColorInfo& colorInfo() const { return fColorInfo; }
 
     /** Returns true if SkAlphaType is set to hint that all pixels are opaque; their
-        color alpha value is implicitly or explicitly 1.0. If true, and all pixels are
+        alpha value is implicitly or explicitly 1.0. If true, and all pixels are
         not opaque, Skia may draw incorrectly.
 
         Does not check if SkColorType allows alpha, or if any pixel value has
@@ -480,21 +544,19 @@ public:
 
         @return  true if SkAlphaType is kOpaque_SkAlphaType
     */
-    bool isOpaque() const {
-        return SkAlphaTypeIsOpaque(fAlphaType);
-    }
+    bool isOpaque() const { return fColorInfo.isOpaque(); }
 
     /** Returns SkISize { width(), height() }.
 
         @return  integral size of width() and height()
     */
-    SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
+    SkISize dimensions() const { return fDimensions; }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
     */
-    SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
+    SkIRect bounds() const { return SkIRect::MakeSize(fDimensions); }
 
     /** Returns true if associated SkColorSpace is not nullptr, and SkColorSpace gamma
         is approximately the same as sRGB.
@@ -502,9 +564,7 @@ public:
 
         @return  true if SkColorSpace gamma is approximately the same as sRGB
     */
-    bool gammaCloseToSRGB() const {
-        return fColorSpace && fColorSpace->gammaCloseToSRGB();
-    }
+    bool gammaCloseToSRGB() const { return fColorInfo.gammaCloseToSRGB(); }
 
     /** Creates SkImageInfo with the same SkColorType, SkColorSpace, and SkAlphaType,
         with dimensions set to width and height.
@@ -514,7 +574,17 @@ public:
         @return           created SkImageInfo
     */
     SkImageInfo makeWH(int newWidth, int newHeight) const {
-        return Make(newWidth, newHeight, fColorType, fAlphaType, fColorSpace);
+        return Make({newWidth, newHeight}, fColorInfo);
+    }
+
+    /** Creates SkImageInfo with the same SkColorType, SkColorSpace, and SkAlphaType,
+        with dimensions set to newDimensions.
+
+        @param newSize   pixel column and row count; must be zero or greater
+        @return          created SkImageInfo
+    */
+    SkImageInfo makeDimensions(SkISize newSize) const {
+        return Make(newSize, fColorInfo);
     }
 
     /** Creates SkImageInfo with same SkColorType, SkColorSpace, width, and height,
@@ -529,7 +599,7 @@ public:
         @return              created SkImageInfo
     */
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
-        return Make(fWidth, fHeight, fColorType, newAlphaType, fColorSpace);
+        return Make(fDimensions, fColorInfo.makeAlphaType(newAlphaType));
     }
 
     /** Creates SkImageInfo with same SkAlphaType, SkColorSpace, width, and height,
@@ -538,12 +608,12 @@ public:
         @param newColorType  one of:
                              kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
                              kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                             kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                             kGray_8_SkColorType, kRGBA_F16_SkColorType
+                             kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
+                             kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType
         @return              created SkImageInfo
     */
     SkImageInfo makeColorType(SkColorType newColorType) const {
-        return Make(fWidth, fHeight, newColorType, fAlphaType, fColorSpace);
+        return Make(fDimensions, fColorInfo.makeColorType(newColorType));
     }
 
     /** Creates SkImageInfo with same SkAlphaType, SkColorType, width, and height,
@@ -553,7 +623,7 @@ public:
         @return    created SkImageInfo
     */
     SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
-        return Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
+        return Make(fDimensions, fColorInfo.makeColorSpace(std::move(cs)));
     }
 
     /** Returns number of bytes per pixel required by SkColorType.
@@ -561,28 +631,26 @@ public:
 
         @return  bytes in pixel
     */
-    int bytesPerPixel() const;
+    int bytesPerPixel() const { return fColorInfo.bytesPerPixel(); }
 
     /** Returns bit shift converting row bytes to row pixels.
         Returns zero for kUnknown_SkColorType.
 
         @return  one of: 0, 1, 2, 3; left shift to convert pixels to bytes
     */
-    int shiftPerPixel() const;
+    int shiftPerPixel() const { return fColorInfo.shiftPerPixel(); }
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
-        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must be representable
-        as a positive value in a 32-bit signed integer.
+        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
+        in 31 bits.
 
         @return  width() times bytesPerPixel() as unsigned 64-bit integer
     */
-    uint64_t minRowBytes64() const {
-        return sk_64_mul(fWidth, this->bytesPerPixel());
-    }
+    uint64_t minRowBytes64() const { return sk_64_mul(this->width(), this->bytesPerPixel()); }
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
-        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must be representable
-        as a positive value in a 32-bit signed integer.
+        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
+        in 31 bits.
 
         @return  width() times bytesPerPixel() as signed 32-bit integer
     */
@@ -603,6 +671,8 @@ public:
         @param y         row index, zero or greater, and less than height()
         @param rowBytes  size of pixel row or larger
         @return          offset within pixel array
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeOffset
     */
     size_t computeOffset(int x, int y, size_t rowBytes) const;
 
@@ -613,13 +683,11 @@ public:
         @return       true if SkImageInfo equals other
     */
     bool operator==(const SkImageInfo& other) const {
-        return fWidth == other.fWidth && fHeight == other.fHeight &&
-               fColorType == other.fColorType && fAlphaType == other.fAlphaType &&
-               SkColorSpace::Equals(fColorSpace.get(), other.fColorSpace.get());
+        return fDimensions == other.fDimensions && fColorInfo == other.fColorInfo;
     }
 
     /** Compares SkImageInfo with other, and returns true if width, height, SkColorType,
-        SkAlphaType, and SkColorSpace are equivalent.
+        SkAlphaType, and SkColorSpace are not equivalent.
 
         @param other  SkImageInfo to compare
         @return       true if SkImageInfo is not equal to other
@@ -632,10 +700,12 @@ public:
         and rowBytes. rowBytes is assumed to be at least as large as minRowBytes().
 
         Returns zero if height is zero.
-        Returns SK_MaxSizeT if answer exceeds the range of size_t.
+        Returns SIZE_MAX if answer exceeds the range of size_t.
 
         @param rowBytes  size of pixel row or larger
         @return          memory required by pixel buffer
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeByteSize
     */
     size_t computeByteSize(size_t rowBytes) const;
 
@@ -643,7 +713,7 @@ public:
         SkColorType. Uses minRowBytes() to compute bytes for pixel row.
 
         Returns zero if height is zero.
-        Returns SK_MaxSizeT if answer exceeds the range of size_t.
+        Returns SIZE_MAX if answer exceeds the range of size_t.
 
         @return  least memory required by pixel buffer
     */
@@ -651,14 +721,14 @@ public:
         return this->computeByteSize(this->minRowBytes());
     }
 
-    /** Returns true if byteSize equals SK_MaxSizeT. computeByteSize() and
-        computeMinByteSize() return SK_MaxSizeT if size_t can not hold buffer size.
+    /** Returns true if byteSize equals SIZE_MAX. computeByteSize() and
+        computeMinByteSize() return SIZE_MAX if size_t can not hold buffer size.
 
         @param byteSize  result of computeByteSize() or computeMinByteSize()
         @return          true if computeByteSize() or computeMinByteSize() result exceeds size_t
     */
     static bool ByteSizeOverflowed(size_t byteSize) {
-        return SK_MaxSizeT == byteSize;
+        return SIZE_MAX == byteSize;
     }
 
     /** Returns true if rowBytes is smaller than width times pixel size.
@@ -667,20 +737,13 @@ public:
         @return          true if rowBytes is large enough to contain pixel row
     */
     bool validRowBytes(size_t rowBytes) const {
-        uint64_t minRB = sk_64_mul(fWidth, this->bytesPerPixel());
-        return rowBytes >= minRB;
+        return rowBytes >= this->minRowBytes64();
     }
 
     /** Creates an empty SkImageInfo with kUnknown_SkColorType, kUnknown_SkAlphaType,
         a width and height of zero, and no SkColorSpace.
     */
-    void reset() {
-        fColorSpace = nullptr;
-        fWidth = 0;
-        fHeight = 0;
-        fColorType = kUnknown_SkColorType;
-        fAlphaType = kUnknown_SkAlphaType;
-    }
+    void reset() { *this = {}; }
 
     /** Asserts if internal values are illegal or inconsistent. Only available if
         SK_DEBUG is defined at compile time.
@@ -688,19 +751,14 @@ public:
     SkDEBUGCODE(void validate() const;)
 
 private:
-    sk_sp<SkColorSpace> fColorSpace;
-    int                 fWidth;
-    int                 fHeight;
-    SkColorType         fColorType;
-    SkAlphaType         fAlphaType;
+    SkColorInfo fColorInfo;
+    SkISize fDimensions = {0, 0};
 
-    SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
-        : fColorSpace(std::move(cs))
-        , fWidth(width)
-        , fHeight(height)
-        , fColorType(ct)
-        , fAlphaType(at)
-    {}
+    SkImageInfo(SkISize dimensions, const SkColorInfo& colorInfo)
+            : fColorInfo(colorInfo), fDimensions(dimensions) {}
+
+    SkImageInfo(SkISize dimensions, SkColorInfo&& colorInfo)
+            : fColorInfo(std::move(colorInfo)), fDimensions(dimensions) {}
 };
 
 #endif

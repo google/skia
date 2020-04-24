@@ -8,12 +8,12 @@
 #ifndef SkCoreBlitters_DEFINED
 #define SkCoreBlitters_DEFINED
 
-#include "SkBitmapProcShader.h"
-#include "SkBlitter.h"
-#include "SkBlitRow.h"
-#include "SkPaint.h"
-#include "SkShaderBase.h"
-#include "SkXfermodePriv.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkXfermodePriv.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkRasterBlitter : public SkBlitter {
 public:
@@ -173,5 +173,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,
                                          bool shader_is_opaque,
                                          SkArenaAlloc*);
+
+SkBlitter* SkCreateSkVMBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm, SkArenaAlloc*);
 
 #endif

@@ -6,11 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include "TestContext.h"
+#include "tools/gpu/TestContext.h"
 
-#include "GpuTimer.h"
+#include "tools/gpu/GpuTimer.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 namespace sk_gpu_test {
 TestContext::TestContext()

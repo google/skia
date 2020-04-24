@@ -7,24 +7,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkPixmap.h"
-#include "SkImageEncoder.h"
-#include "SkSwizzle.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSwizzle.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 
-#include "sk_pixmap.h"
+#include "include/c/sk_pixmap.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 void sk_pixmap_destructor(sk_pixmap_t* cpixmap) {
     delete AsPixmap(cpixmap);
 }
 
-sk_pixmap_t* sk_pixmap_new() {
+sk_pixmap_t* sk_pixmap_new(void) {
     return ToPixmap(new SkPixmap());
 }
 
@@ -107,8 +107,8 @@ bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encode
     return SkEncodeImage(AsWStream(dst), *AsPixmap(src), (SkEncodedImageFormat)encoder, quality);
 }
 
-bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_transfer_function_behavior_t behavior) {
-    return AsPixmap(cpixmap)->readPixels(AsImageInfo(dstInfo), dstPixels, dstRowBytes, srcX, srcY, (SkTransferFunctionBehavior)behavior);
+bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) {
+    return AsPixmap(cpixmap)->readPixels(AsImageInfo(dstInfo), dstPixels, dstRowBytes, srcX, srcY);
 }
 
 bool sk_pixmap_scale_pixels(const sk_pixmap_t* cpixmap, const sk_pixmap_t* dst, sk_filter_quality_t quality) {

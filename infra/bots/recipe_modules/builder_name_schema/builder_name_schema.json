@@ -11,16 +11,12 @@
         "extra_config"
       ]
     },
-    "Calmbench": {
+    "BuildStats": {
       "keys": [
         "os",
         "compiler",
-        "model",
-        "cpu_or_gpu",
-        "cpu_or_gpu_value",
-        "arch",
-        "configuration",
-        "test_filter"
+        "target_arch",
+        "configuration"
       ],
       "optional_keys": [
         "extra_config"
@@ -75,7 +71,7 @@
     "Upload": {
       "recurse_roles": [
         "Build",
-        "Calmbench",
+        "BuildStats",
         "Perf",
         "Test"
       ]

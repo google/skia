@@ -7,6 +7,7 @@
 
 import glob
 import os
+import os.path
 import re
 import shutil
 import subprocess
@@ -17,7 +18,7 @@ import tempfile
 #  pkg              path to application directory, e.g. out/Debug/dm.app
 #                   executable and plist should already be in this directory
 #  identstr         search string (regex fragment) for code signing identity
-#  profile          name of provisioning profile
+#  profile          path or name of provisioning profile
 pkg,identstr,profile = sys.argv[1:]
 
 # Find the Google signing identity.
@@ -30,11 +31,15 @@ assert identity
 
 # Find the Google mobile provisioning profile.
 mobileprovision = None
-for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
-                                'Provisioning Profiles', '*.mobileprovision')):
-  if re.search(r'''<key>Name</key>
+if os.path.isfile(profile):
+  mobileprovision = profile
+else:
+  for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
+                                  'Provisioning Profiles',
+                                  '*.mobileprovision')):
+    if re.search(r'''<key>Name</key>
 \t<string>''' + profile + r'''</string>''', open(p).read(), re.MULTILINE):
-    mobileprovision = p
+      mobileprovision = p
 assert mobileprovision
 
 # The .mobileprovision just gets copied into the package.

@@ -5,24 +5,39 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathEffect.h"
-#include "SkPath.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
-    *dst = src;
-}
-
-bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
-                    const SkStrokeRec&, const SkMatrix&, const SkRect*) const {
+bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                              const SkRect* bounds) const {
+    SkPath tmp, *tmpDst = dst;
+    if (dst == &src) {
+        tmpDst = &tmp;
+    }
+    if (this->onFilterPath(tmpDst, src, rec, bounds)) {
+        if (dst == &src) {
+            *dst = tmp;
+        }
+        return true;
+    }
     return false;
 }
 
+void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
+    *dst = this->onComputeFastBounds(src);
+}
+
+bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
+                    const SkStrokeRec& rec, const SkMatrix& mx, const SkRect* rect) const {
+    return this->onAsPoints(results, src, rec, mx, rect);
+}
+
 SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
-    return kNone_DashType;
+    return this->onAsADash(info);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,22 +66,9 @@ protected:
     sk_sp<SkPathEffect> fPE0;
     sk_sp<SkPathEffect> fPE1;
 
-    void toString(SkString* str) const override;
-
 private:
     typedef SkPathEffect INHERITED;
 };
-
-void SkPairPathEffect::toString(SkString* str) const {
-    str->appendf("first: ");
-    if (fPE0) {
-        fPE0->toString(str);
-    }
-    str->appendf(" second: ");
-    if (fPE1) {
-        fPE1->toString(str);
-    }
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,8 +94,12 @@ public:
         return sk_sp<SkPathEffect>(new SkComposePathEffect(outer, inner));
     }
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                    const SkRect* cullRect) const override {
+protected:
+    SkComposePathEffect(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner)
+        : INHERITED(outer, inner) {}
+
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                      const SkRect* cullRect) const override {
         SkPath          tmp;
         const SkPath*   ptr = &src;
 
@@ -103,19 +109,9 @@ public:
         return fPE0->filterPath(dst, *ptr, rec, cullRect);
     }
 
-
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const override { return true; }
-#endif
-
-protected:
-    SkComposePathEffect(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner)
-        : INHERITED(outer, inner) {}
-
 private:
+    SK_FLATTENABLE_HOOKS(SkComposePathEffect)
+
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
     SkComposePathEffect& operator=(const SkComposePathEffect&);
@@ -128,12 +124,6 @@ sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
-}
-
-void SkComposePathEffect::toString(SkString* str) const {
-    str->appendf("SkComposePathEffect: (");
-    this->INHERITED::toString(str);
-    str->appendf(")");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,24 +150,18 @@ public:
         return sk_sp<SkPathEffect>(new SkSumPathEffect(first, second));
     }
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                    const SkRect* cullRect) const override {
+    SK_FLATTENABLE_HOOKS(SkSumPathEffect)
+
+protected:
+    SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
+        : INHERITED(first, second) {}
+
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                      const SkRect* cullRect) const override {
         // use bit-or so that we always call both, even if the first one succeeds
         return fPE0->filterPath(dst, src, rec, cullRect) |
                fPE1->filterPath(dst, src, rec, cullRect);
     }
-
-
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const override { return true; }
-#endif
-
-protected:
-    SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
-    : INHERITED(first, second) {}
 
 private:
     // illegal
@@ -194,12 +178,6 @@ sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     return SkSumPathEffect::Make(pe0, pe1);
 }
 
-void SkSumPathEffect::toString(SkString* str) const {
-    str->appendf("SkSumPathEffect: (");
-    this->INHERITED::toString(str);
-    str->appendf(")");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkPathEffect> SkPathEffect::MakeSum(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second) {
@@ -211,7 +189,7 @@ sk_sp<SkPathEffect> SkPathEffect::MakeCompose(sk_sp<SkPathEffect> outer,
     return SkComposePathEffect::Make(std::move(outer), std::move(inner));
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+void SkPathEffect::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkComposePathEffect);
+    SK_REGISTER_FLATTENABLE(SkSumPathEffect);
+}

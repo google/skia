@@ -4,17 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkCornerPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
 
-class FillTypeView : public SampleView {
+class FillTypeView : public Sample {
     SkPath fPath;
 public:
     FillTypeView() {
@@ -26,16 +25,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FillType");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("FillType"); }
 
-    void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
+    void showPath(SkCanvas* canvas, int x, int y, SkPathFillType ft,
                   SkScalar scale, const SkPaint& paint) {
 
         const SkRect r = { 0, 0, SkIntToScalar(150), SkIntToScalar(150) };
@@ -53,13 +45,13 @@ protected:
     }
 
     void showFour(SkCanvas* canvas, SkScalar scale, const SkPaint& paint) {
-        showPath(canvas,   0,   0, SkPath::kWinding_FillType,
+        showPath(canvas,   0,   0, SkPathFillType::kWinding,
                  scale, paint);
-        showPath(canvas, 200,   0, SkPath::kEvenOdd_FillType,
+        showPath(canvas, 200,   0, SkPathFillType::kEvenOdd,
                  scale, paint);
-        showPath(canvas,  00, 200, SkPath::kInverseWinding_FillType,
+        showPath(canvas,  00, 200, SkPathFillType::kInverseWinding,
                  scale, paint);
-        showPath(canvas, 200, 200, SkPath::kInverseEvenOdd_FillType,
+        showPath(canvas, 200, 200, SkPathFillType::kInverseEvenOdd,
                  scale, paint);
     }
 
@@ -85,10 +77,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FillTypeView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new FillTypeView(); )

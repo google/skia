@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkReadBuffer.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkReadBuffer.h"
 
 void FuzzPathDeserialize(SkReadBuffer& buf) {
     SkPath path;

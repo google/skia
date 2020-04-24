@@ -8,12 +8,12 @@
 #ifndef SkOTTable_OS_2_DEFINED
 #define SkOTTable_OS_2_DEFINED
 
-#include "SkOTTable_OS_2_VA.h"
-#include "SkOTTable_OS_2_V0.h"
-#include "SkOTTable_OS_2_V1.h"
-#include "SkOTTable_OS_2_V2.h"
-#include "SkOTTable_OS_2_V3.h"
-#include "SkOTTable_OS_2_V4.h"
+#include "src/sfnt/SkOTTable_OS_2_V0.h"
+#include "src/sfnt/SkOTTable_OS_2_V1.h"
+#include "src/sfnt/SkOTTable_OS_2_V2.h"
+#include "src/sfnt/SkOTTable_OS_2_V3.h"
+#include "src/sfnt/SkOTTable_OS_2_V4.h"
+#include "src/sfnt/SkOTTable_OS_2_VA.h"
 
 #pragma pack(push, 1)
 

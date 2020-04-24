@@ -9,8 +9,8 @@
 #ifndef SkManagedStream_h
 #define SkManagedStream_h
 
-#include "SkTypes.h"
-#include "SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkStream.h"
 
 class SkManagedWStream;
 class SkManagedStream;
@@ -21,7 +21,7 @@ class SkManagedStream : public SkStreamAsset {
 public:
     SkManagedStream(void* context);
 
-    virtual ~SkManagedStream();
+    ~SkManagedStream() override;
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
@@ -89,7 +89,7 @@ class SkManagedWStream : public SkWStream {
 public:
     SkManagedWStream(void* context);
 
-    virtual ~SkManagedWStream();
+    ~SkManagedWStream() override;
 
     bool write(const void* buffer, size_t size) override;
     void flush() override;

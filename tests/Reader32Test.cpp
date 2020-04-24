@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkReader32.h"
-#include "Test.h"
+#include "src/core/SkReader32.h"
+#include "tests/Test.h"
 
 static void assert_eof(skiatest::Reporter* reporter, const SkReader32& reader) {
     REPORTER_ASSERT(reporter, reader.eof());
@@ -81,7 +81,7 @@ DEF_TEST(Reader32, reporter) {
 
     // need to handle read(null, 0) and not get undefined behavior from memcpy
     {
-        char storage[100];
+        uint32_t storage[100 / sizeof(uint32_t)];
         reader.setMemory(storage, sizeof(storage));
         char buffer[10];
         reader.read(buffer, 0);     // easy case, since we pass a ptr

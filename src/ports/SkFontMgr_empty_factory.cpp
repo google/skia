@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr.h"
+#include "include/core/SkFontMgr.h"
 
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     // Always return nullptr, an empty SkFontMgr will be used.

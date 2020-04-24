@@ -8,7 +8,9 @@
 #ifndef SKSL_PROGRAMELEMENT
 #define SKSL_PROGRAMELEMENT
 
-#include "SkSLIRNode.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+
+#include <memory>
 
 namespace SkSL {
 
@@ -31,6 +33,8 @@ struct ProgramElement : public IRNode {
     , fKind(kind) {}
 
     Kind fKind;
+
+    virtual std::unique_ptr<ProgramElement> clone() const = 0;
 
     typedef IRNode INHERITED;
 };

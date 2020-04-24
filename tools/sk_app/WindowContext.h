@@ -7,11 +7,11 @@
 #ifndef WindowContext_DEFINED
 #define WindowContext_DEFINED
 
-#include "DisplayParams.h"
-#include "GrContext.h"
-#include "GrTypes.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "tools/sk_app/DisplayParams.h"
 
 class SkSurface;
 class GrRenderTarget;
