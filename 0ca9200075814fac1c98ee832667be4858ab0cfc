@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb3ef300_0597d747",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3363,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-24T16:43:00Z",
+      "side": 1,
+      "message": "So with nstack_slots \u003d\u003d -1 this will generate an instruction the first time through, getting a conservative number of instructions? Is this the right way to think about this?",
+      "range": {
+        "startLine": 3363,
+        "startChar": 30,
+        "endLine": 3363,
+        "endChar": 48
+      },
+      "revId": "0ca9200075814fac1c98ee832667be4858ab0cfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
