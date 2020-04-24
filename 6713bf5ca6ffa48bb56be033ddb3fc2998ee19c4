@@ -22,6 +22,30 @@
       "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49ae1b18_870eec3e",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-24T14:54:17Z",
+      "side": 1,
+      "message": "Should automatically populated uniforms be excluded from the user\u0027s data blob?",
+      "parentUuid": "17d61936_da12a419",
+      "range": {
+        "startLine": 437,
+        "startChar": 15,
+        "endLine": 437,
+        "endChar": 28
+      },
+      "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
