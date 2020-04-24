@@ -210,7 +210,8 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
         case GrColorType::kRGBA_16161616:
         case GrColorType::kRG_F16:
         case GrColorType::kRGBA_8888_SRGB:
-        case GrColorType::kRGBA_1010102:
+        case GrColorType::kRGBA1_1010102:
+        case GrColorType::kBGRA_1010102:
         case GrColorType::kAlpha_F16:
         case GrColorType::kRGBA_F32:
         case GrColorType::kRGBA_F16:

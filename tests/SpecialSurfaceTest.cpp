@@ -78,7 +78,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
-    for (auto colorType : {GrColorType::kRGBA_8888, GrColorType::kRGBA_1010102}) {
+    for (auto colorType : {GrColorType::kRGBA_8888, GrColorType::kRGBA1_1010102}) {
         if (!ctxInfo.grContext()->colorTypeSupportedAsSurface(
                     GrColorTypeToSkColorType(colorType))) {
             continue;

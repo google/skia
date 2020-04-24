@@ -336,7 +336,7 @@ static bool is_format_natively_supported(GrContext* context, YUVFormat yuvFormat
                                       is_colorType_texturable(caps, GrColorType::kRG_F16);
         case kY416_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_16161616);
         case kAYUV_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_8888);
-        case kY410_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_1010102);
+        case kY410_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA1_1010102);
         case kNV12_YUVFormat:  // fall through
         case kNV21_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kGray_8) &&
                                       is_colorType_texturable(caps, GrColorType::kRG_88);

@@ -764,7 +764,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kBGRA_8888,        GR_GL_RGBA8,                SkColors::kBlue      },
         { GrColorType::kBGRA_8888,        GR_GL_BGRA8,                SkColors::kBlue      },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kRGBA1_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kBGRA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
         { GrColorType::kBGR_565,          GR_GL_RGB565,               SkColors::kRed       },
         { GrColorType::kABGR_4444,        GR_GL_RGBA4,                SkColors::kGreen     },
 
