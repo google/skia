@@ -331,7 +331,7 @@ void SkRecorder::didRestore() {
     this->append<SkRecords::Restore>(this->getTotalMatrix());
 }
 
-void SkRecorder::onMarkCTM(MarkerID id) {
+void SkRecorder::onMarkCTM(uint32_t id) {
     this->append<SkRecords::MarkCTM>(id);
 }
 

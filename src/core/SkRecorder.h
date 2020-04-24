@@ -67,7 +67,7 @@ public:
     void willRestore() override {}
     void didRestore() override;
 
-    void onMarkCTM(MarkerID) override;
+    void onMarkCTM(uint32_t) override;
     void didConcat44(const SkM44&) override;
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;

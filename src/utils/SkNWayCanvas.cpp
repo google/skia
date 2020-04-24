@@ -93,7 +93,7 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkNWayCanvas::onMarkCTM(MarkerID id) {
+void SkNWayCanvas::onMarkCTM(uint32_t id) {
     Iter iter(fList);
     while (iter.next()) {
         iter->markCTM(id);

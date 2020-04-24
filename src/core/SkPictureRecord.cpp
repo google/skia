@@ -63,7 +63,7 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onMarkCTM(MarkerID id) {
+void SkPictureRecord::onMarkCTM(uint32_t id) {
     size_t size = sizeof(kUInt32Size) + sizeof(uint32_t); // op + id
     size_t initialOffset = this->addDraw(MARK_CTM, &size);
     fWriter.write32(id);
