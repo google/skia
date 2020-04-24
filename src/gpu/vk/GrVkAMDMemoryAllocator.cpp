@@ -5,6 +5,11 @@
  * found in the LICENSE file.
  */
 
+// Need to include this to make sure we get the SK_USE_VMA define
+#include "include/core/SkTypes.h"
+
+#ifdef SK_USE_VMA
+
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 
 #include "src/core/SkTraceEvent.h"
@@ -273,3 +278,4 @@ uint64_t GrVkAMDMemoryAllocator::totalAllocatedMemory() const {
     return stats.total.usedBytes + stats.total.unusedBytes;
 }
 
+#endif // SK_USE_VMA

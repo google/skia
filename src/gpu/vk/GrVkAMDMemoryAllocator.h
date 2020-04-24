@@ -8,6 +8,7 @@
 #ifndef GrVkAMDMemoryAllocator_DEFINED
 #define GrVkAMDMemoryAllocator_DEFINED
 
+#ifdef SK_USE_VMA
 
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 
@@ -53,5 +54,7 @@ private:
 
     typedef GrVkMemoryAllocator INHERITED;
 };
+
+#endif // SK_USE_VMA
 
 #endif
