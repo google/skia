@@ -17,7 +17,7 @@ namespace SK_OPTS_NS {
 
         // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
         // We noticed quad-pumping is slower than single-pumping and both were slower than double.
-    #if defined(__AVX2__)
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
         constexpr int K = 16;
     #else
         constexpr int K = 8;
