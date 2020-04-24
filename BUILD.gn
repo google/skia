@@ -1130,9 +1130,10 @@ group("modules") {
     "modules/skottie",
     "modules/skshaper",
   ]
-  if (target_cpu == "wasm") {
-    deps += [ "modules/skparagraph" ]
-  }
+  # FIXME(kjlubick)
+  #if (target_cpu == "wasm") {
+  #  deps += [ "modules/skparagraph" ]
+  #}
 }
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
