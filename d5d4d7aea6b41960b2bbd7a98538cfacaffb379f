@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0495fa81_ba8f071c",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-24T11:59:39Z",
+      "side": 1,
+      "message": "wow, a lot of missing/todos. e.g. what is imageSeq?",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 419,
+        "endChar": 94
+      },
+      "revId": "d5d4d7aea6b41960b2bbd7a98538cfacaffb379f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
