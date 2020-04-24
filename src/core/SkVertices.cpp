@@ -9,6 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkReader32.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkSafeRange.h"
@@ -25,6 +26,15 @@ static int32_t next_id() {
         id = nextID++;
     } while (id == SK_InvalidGenID);
     return id;
+}
+
+SkVertices::Attribute::Attribute(Type t, Usage u, const char* markerName)
+        : fType(t)
+        , fUsage(u)
+        , fMarkerID((markerName && markerName[0])
+                            ? SkOpts::hash_fn(markerName, strlen(markerName), 0)
+                            : 0) {
+    SkASSERT(!markerName || fMarkerID != 0);
 }
 
 int SkVertices::Attribute::channelCount() const {
