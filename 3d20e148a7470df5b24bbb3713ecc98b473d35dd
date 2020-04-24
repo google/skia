@@ -22,6 +22,30 @@
       "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48c7bb8d_a8e5c4a5",
+        "filename": "src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-24T15:31:26Z",
+      "side": 1,
+      "message": "I think it would be cleaner, and not much (or any) more work. I\u0027d remove it from skia_vk_sources, and optionally add it in, where you already have the if(skia_use_vma) check. That puts all of the GN changes in one spot.\n\nsources +\u003d skia_vk_sources\nif (skia_use_vma) {\n  sources +\u003d [ ...GrVkAMDMemoryAllocator.cpp ]\n  deps +\u003d [ \"third_party/...\" ]\n}",
+      "parentUuid": "536f7e98_474f96fe",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 17
+      },
+      "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
