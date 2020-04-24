@@ -260,6 +260,75 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
     return width;
 }
 
+size_t SkFont::breakText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkScalar maxWidth, SkScalar* measuredWidth, const SkPaint* paint) const {
+    if (0 == byteLength || 0 >= maxWidth) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return 0;
+    }
+    if (0 == getSize()) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return byteLength;
+    }
+
+    SkASSERT(text != nullptr);
+
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
+    SkBulkGlyphMetrics metrics{strikeSpec};
+
+    SkScalar scale = strikeSpec.strikeToSourceRatio();
+
+    // adjust max instead of each glyph
+    if (scale) {
+        maxWidth /= scale;
+    }
+
+    SkScalar width = 0;
+
+    const char* start = (const char*)text;
+    const char* stop = start + byteLength;
+    while (start < stop) {
+        const char* curr = start;
+
+        // read the glyph and move the pointer
+        SkGlyphID glyphID;
+        if (encoding == SkTextEncoding::kGlyphID) {
+            auto glyphs = (const uint16_t*)start;
+            glyphID = *glyphs;
+            glyphs++;
+            start = (const char*)glyphs;
+        } else {
+            auto t = (const void*)start;
+            auto unichar = SkUTFN_Next(encoding, &t, stop);
+            start = (const char*)t;
+            glyphID = unicharToGlyph(unichar);
+        }
+
+        auto glyph = metrics.glyph(glyphID);
+
+        SkScalar x = glyph->advanceX();
+        if ((width += x) > maxWidth) {
+            width -= x;
+            start = curr;
+            break;
+        }
+    }
+
+    if (measuredWidth) {
+        if (scale) {
+            width *= scale;
+        }
+        *measuredWidth = width;
+    }
+
+    // return the number of bytes measured
+    return start - stop + byteLength;
+}
+
 void SkFont::getWidthsBounds(const SkGlyphID glyphIDs[],
                              int count,
                              SkScalar widths[],

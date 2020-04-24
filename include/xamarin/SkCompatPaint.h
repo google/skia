@@ -34,8 +34,6 @@ public:
     void setTextEncoding(SkTextEncoding encoding);
     SkTextEncoding getTextEncoding() const;
 
-    size_t breakText(const void* text, size_t length, SkScalar maxWidth, SkScalar* measuredWidth) const;
-
 private:
     SkFont fFont;
     SkTextUtils::Align fTextAlign;

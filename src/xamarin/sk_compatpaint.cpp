@@ -66,7 +66,3 @@ void sk_compatpaint_set_text_encoding(sk_compatpaint_t* paint, sk_text_encoding_
 sk_text_encoding_t sk_compatpaint_get_text_encoding(const sk_compatpaint_t* paint) {
     return (sk_text_encoding_t)AsCompatPaint(paint)->getTextEncoding();
 }
-
-size_t sk_compatpaint_break_text(const sk_compatpaint_t* paint, const void* text, int length, float maxWidth, float* measuredWidth) {
-    return AsCompatPaint(paint)->breakText(text, length, maxWidth, measuredWidth);
-}

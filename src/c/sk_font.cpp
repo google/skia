@@ -141,6 +141,10 @@ float sk_font_measure_text(const sk_font_t* font, const void* text, size_t byteL
     return AsFont(font)->measureText(text, byteLength, (SkTextEncoding)encoding, AsRect(bounds), AsPaint(paint));
 }
 
+size_t sk_font_break_text(const sk_font_t* font, const void* text, int byteLength, sk_text_encoding_t encoding, float maxWidth, float* measuredWidth, const sk_paint_t* paint) {
+    return AsFont(font)->breakText(text, byteLength, (SkTextEncoding)encoding, maxWidth, measuredWidth, AsPaint(paint));
+}
+
 void sk_font_get_widths_bounds(const sk_font_t* font, const uint16_t glyphs[], int count, float widths[], sk_rect_t bounds[], const sk_paint_t* paint) {
     AsFont(font)->getWidthsBounds(glyphs, count, widths, AsRect(bounds), AsPaint(paint));
 }

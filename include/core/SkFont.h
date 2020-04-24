@@ -371,6 +371,14 @@ public:
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds, const SkPaint* paint) const;
 
+    size_t breakText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                     SkScalar maxWidth, SkScalar* measuredWidth = nullptr) const {
+        return this->breakText(text, byteLength, encoding, maxWidth, measuredWidth, nullptr);
+    }
+
+    size_t breakText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                     SkScalar maxWidth, SkScalar* measuredWidth, const SkPaint* paint) const;
+
     /** DEPRECATED
         Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.
