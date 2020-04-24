@@ -70,6 +70,30 @@
       "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d746bf_1f23b21e",
+        "filename": "src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-24T16:06:14Z",
+      "side": 1,
+      "message": "Okay moved to a factory model and the ifdefs are all in GrVkAMDMemoryAllocator.h/cpp",
+      "parentUuid": "75836540_462d8f29",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 17
+      },
+      "revId": "3d20e148a7470df5b24bbb3713ecc98b473d35dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
