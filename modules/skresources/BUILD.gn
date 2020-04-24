@@ -15,5 +15,8 @@ static_library("skresources") {
   public = skia_skresources_public
   sources = skia_skresources_sources
   configs += [ "../../:skia_private" ]
-  deps = [ "../..:skia" ]
+  deps = [
+    "../..:skia",
+    "../../experimental/ffmpeg:video_decoder",
+  ]
 }
