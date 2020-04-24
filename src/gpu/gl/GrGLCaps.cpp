@@ -3442,8 +3442,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // perform full screen clears.
     // Update on 4/4/2018 - This appears to be fixed on driver 10.30.12 on a macOS 10.13.2 on a
     // Retina MBP Early 2015 with Iris 6100. It is possibly fixed on earlier drivers as well.
+    // crbug.com/1039912 - Crash rate in glClear spiked after OS update, affecting mostly
+    //   Broadwell on 10.13+
     if (kIntel_GrGLVendor == ctxInfo.vendor() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(10, 30, 12)) {
+        (ctxInfo.driverVersion() < GR_GL_DRIVER_VER(10, 30, 12) ||
+         ctxInfo.renderer() == kIntelBroadwell_GrGLRenderer)) {
         fPerformColorClearsAsDraws = true;
     }
     // crbug.com/969609 - NVIDIA on Mac sometimes segfaults during glClear in chrome. It seems
