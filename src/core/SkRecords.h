@@ -193,7 +193,7 @@ RECORD(SaveBehind, 0,
        Optional<SkRect> subset);
 
 RECORD(MarkCTM, 0,
-       uint32_t id);
+       SkString name);
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);
 RECORD(Concat, 0,

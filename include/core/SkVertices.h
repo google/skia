@@ -84,10 +84,7 @@ public:
             kPosition,
         };
 
-        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, uint32_t id = 0)
-            : fType(t)
-            , fUsage(u)
-            , fMarkerID(id) {}
+        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw, const char* markerName = nullptr);
 
         bool operator==(const Attribute& that) const {
             return fType == that.fType && fUsage == that.fUsage && fMarkerID == that.fMarkerID;
@@ -101,9 +98,10 @@ public:
         size_t bytesPerVertex() const;
         bool isValid() const;
 
-        Type fType;
-        Usage fUsage;
-        uint32_t fMarkerID;
+        Type        fType;
+        Usage       fUsage;
+        uint32_t    fMarkerID;
+        const char* fMarkerName;  // Preserved for serialization and debugging
     };
 
     enum BuilderFlags {
@@ -188,6 +186,7 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
+    Attribute*   fAttributes;       // [attributeCount] or null
     SkPoint*     fPositions;        // [vertexCount]
     uint16_t*    fIndices;          // [indexCount] or null
     void*        fCustomData;       // [customDataSize * vertexCount] or null
@@ -197,9 +196,7 @@ private:
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCount;
     int     fIndexCount;
-
-    Attribute fAttributes[kMaxCustomAttributes];
-    int       fAttributeCount;
+    int     fAttributeCount;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.
