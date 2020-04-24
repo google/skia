@@ -63,13 +63,14 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onMarkCTM(MarkerID id) {
-    size_t size = sizeof(kUInt32Size) + sizeof(uint32_t); // op + id
+void SkPictureRecord::onMarkCTM(const char* name) {
+    size_t nameLen = fWriter.WriteStringSize(name);
+    size_t size = sizeof(kUInt32Size) + nameLen; // op + name
     size_t initialOffset = this->addDraw(MARK_CTM, &size);
-    fWriter.write32(id);
+    fWriter.writeString(name);
     this->validate(initialOffset, size);
 
-    this->INHERITED::onMarkCTM(id);
+    this->INHERITED::onMarkCTM(name);
 }
 
 SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {
