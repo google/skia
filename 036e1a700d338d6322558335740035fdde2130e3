@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32394981_de1852fb",
+        "filename": "modules/skparagraph/include/DartTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-24T15:00:13Z",
+      "side": 1,
+      "message": "I don\u0027t think you\u0027re actually using any of this here? Maybe you started with that and found it easier to just use directional_for_each?",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 93
+      },
+      "revId": "036e1a700d338d6322558335740035fdde2130e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca56a8f7_882dd162",
+        "filename": "modules/skparagraph/include/DartTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-24T15:00:13Z",
+      "side": 1,
+      "message": "Since this is a wrapper around std::for_each and std::begin it\u0027s probably better to name these the way std::begin and for_each do, something like\n\ntemplate\u003ctypename C, typename UnaryFunction\u003e\nUnaryFunction directional_for_each(C\u0026 c, bool forwards, UnaryFunction f)\n\nIn particular I think you want to take the container type C by reference here so you don\u0027t make a copy. It\u0027s fairly cheap to make a copy of the SkSpan here, but less so for other containers.",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 56
+      },
+      "revId": "036e1a700d338d6322558335740035fdde2130e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
