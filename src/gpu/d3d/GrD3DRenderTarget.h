@@ -36,6 +36,7 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
+    //**** seems a little risky
     GrD3DTextureResource* msaaTextureResource() { return fMSAATextureResource.get(); }
 
     bool canAttemptStencilAttachment() const override {
@@ -43,6 +44,8 @@ public:
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
+
+    const GrD3DTextureResource* msaaTextureResource() const { return fMSAATextureResource.get(); }
 
     DXGI_FORMAT stencilDxgiFormat() const;
 

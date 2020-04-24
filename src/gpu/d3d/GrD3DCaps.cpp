@@ -58,8 +58,117 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     this->init(contextOptions, adapter, device);
 }
 
+namespace {
+    /**
+     * Format is (<bits>|<tag>)_<block_size>_<texels_per_block>.
+     */
+    enum class FormatCompatibilityClass {
+        k8_1_1,
+        k16_2_1,
+        k32_4_1,
+        k64_8_1,
+        k128_16_1,
+        kBC1_RGBA_8_16,
+    };
+}  // anonymous namespace
+
+static FormatCompatibilityClass format_compatibility_class(DXGI_FORMAT format) {
+    switch (format) {
+    case DXGI_FORMAT_B8G8R8A8_UNORM:
+    case DXGI_FORMAT_R8G8B8A8_UNORM:
+    case DXGI_FORMAT_R10G10B10A2_UNORM:
+    case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+    case DXGI_FORMAT_R16G16_UNORM:
+    case DXGI_FORMAT_R16G16_FLOAT:
+        return FormatCompatibilityClass::k32_4_1;
+
+    case DXGI_FORMAT_R8_UNORM:
+        return FormatCompatibilityClass::k8_1_1;
+
+    case DXGI_FORMAT_B5G6R5_UNORM:
+    case DXGI_FORMAT_R16_FLOAT:
+    case DXGI_FORMAT_R8G8_UNORM:
+    case DXGI_FORMAT_B4G4R4A4_UNORM:
+    case DXGI_FORMAT_R16_UNORM:
+        return FormatCompatibilityClass::k16_2_1;
+
+    case DXGI_FORMAT_R16G16B16A16_FLOAT:
+    case DXGI_FORMAT_R16G16B16A16_UNORM:
+        return FormatCompatibilityClass::k64_8_1;
+
+    case DXGI_FORMAT_R32G32B32A32_FLOAT:
+        return FormatCompatibilityClass::k128_16_1;  //*** we really support this?
+
+    case DXGI_FORMAT_BC1_UNORM:
+        return FormatCompatibilityClass::kBC1_RGBA_8_16;
+
+    default:
+        SK_ABORT("Unsupported DXGI_FORMAT");
+    }
+}
+
+bool GrD3DCaps::canCopyTexture(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                               DXGI_FORMAT srcFormat, int srcSampleCnt) const {
+    if ((dstSampleCnt > 1 || srcSampleCnt > 1) && dstSampleCnt != srcSampleCnt) {
+        return false;
+    }
+
+    //*** We require that all Vulkan GrSurfaces have been created with transfer_dst and transfer_src
+    // as image usage flags.
+    return format_compatibility_class(srcFormat) == format_compatibility_class(dstFormat);
+}
+
+bool GrD3DCaps::canCopyAsResolve(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                                 DXGI_FORMAT srcFormat, int srcSampleCnt) const {
+    // The src surface must be multisampled.
+    if (srcSampleCnt <= 1) {
+        return false;
+    }
+
+    // The dst must not be multisampled.
+    if (dstSampleCnt > 1) {
+        return false;
+    }
+
+    // Surfaces must have the same format.
+    if (srcFormat != dstFormat) {
+        return false;
+    }
+
+    return true;
+}
+
 bool GrD3DCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
+        return false;
+    }
+
+    // TODO: Figure out a way to track if we've wrapped a linear texture in a proxy (e.g.
+    // PromiseImage which won't get instantiated right away. Does this need a similar thing like the
+    // tracking of external or rectangle textures in GL? For now we don't create linear textures
+    // internally, and I don't believe anyone is wrapping them.
+    bool srcIsLinear = false;
+    bool dstIsLinear = false;
+
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        dstSampleCnt = rtProxy->numSamples();
+    }
+    if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        srcSampleCnt = rtProxy->numSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
+
+    DXGI_FORMAT dstFormat, srcFormat;
+    SkAssertResult(dst->backendFormat().asDxgiFormat(&dstFormat));
+    SkAssertResult(src->backendFormat().asDxgiFormat(&srcFormat));
+
+    return this->canCopyTexture(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt) ||
+        this->canCopyAsResolve(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt);
+
     return false;
 }
 

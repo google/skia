@@ -75,6 +75,16 @@ public:
         }
     }
 
+    /**
+     * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
+     * the surface is not a render target, otherwise it is the number of samples in the render
+     * target.
+     */
+    bool canCopyTexture(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                        DXGI_FORMAT srcFormat, int srcSamplecnt) const;
+
+    bool canCopyAsResolve(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                          DXGI_FORMAT srcFormat, int srcSamplecnt) const;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
