@@ -489,7 +489,7 @@ void GrTextBlob::flush(GrTextTarget* target,
                        const SkPaint& paint,
                        const SkPMColor4f& filteredColor,
                        const GrClip& clip,
-                       const SkMatrixProvider& matrixProvider,
+                       const SkMatrixProvider& deviceMatrix,
                        SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
         if (subRun->drawAsPaths()) {
@@ -500,38 +500,42 @@ void GrTextBlob::flush(GrTextTarget* target,
             // different effects.
             GrStyle style(runPaint);
 
-            bool scalePath = runPaint.getShader()
-                             || style.applies()
-                             || runPaint.getMaskFilter();
+            bool needsExactCTM = runPaint.getShader()
+                                 || style.applies()
+                                 || runPaint.getMaskFilter();
 
+            // Calculate the matrix that maps the path glyphs from their size in the strike to
+            // the graphics source space.
+            SkMatrix strikeToSource = SkMatrix::MakeScale(
+                    subRun->fStrikeSpec.strikeToSourceRatio());
+            strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+            if (!needsExactCTM) {
+                for (const auto& pathPos : subRun->fPaths) {
+                    const SkPath& path = pathPos.fPath;
+                    const SkPoint pos = pathPos.fOrigin;                    // Transform the glyph to source space.
+                    SkMatrix pathMatrix = strikeToSource;
+                    pathMatrix.postTranslate(pos.x(), pos.y());
+                    SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
 
-            for (const auto& pathGlyph : subRun->fPaths) {
-                SkMatrix preMatrix = SkMatrix::MakeTrans(drawOrigin);
-                SkMatrix pathMatrix = SkMatrix::MakeScale(
-                        subRun->fStrikeSpec.strikeToSourceRatio());
-                pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
-
-                // TmpPath must be in the same scope as GrStyledShape shape below.
-                SkTLazy<SkPath> tmpPath;
-                const SkPath* path = &pathGlyph.fPath;
-                if (!scalePath) {
-                    // Scale can be applied to CTM -- no effects.
-                    preMatrix.preConcat(pathMatrix);
-                } else {
-                    // Scale the outline into source space.
-
-                    // Transform the path form the normalized outline to source space. This
-                    // way the CTM will remain the same so it can be used by the effects.
-                    SkPath* sourceOutline = tmpPath.init();
-                    path->transform(pathMatrix, sourceOutline);
-                    sourceOutline->setIsVolatile(true);
-                    path = sourceOutline;
+                    GrStyledShape shape(path, paint);
+                    target->drawShape(clip, runPaint, strikeToDevice, shape);
                 }
+            } else {
+                // Transform the path to device because the deviceMatrix must be unchanged to
+                // draw effect, filter or shader paths.
+                for (const auto& pathPos : subRun->fPaths) {
+                    const SkPath& path = pathPos.fPath;
+                    const SkPoint pos = pathPos.fOrigin;
+                    // Transform the glyph to source space.
+                    SkMatrix pathMatrix = strikeToSource;
+                    pathMatrix.postTranslate(pos.x(), pos.y());
 
-                // TODO: we are losing the mutability of the path here
-                GrStyledShape shape(*path, paint);
-                SkPreConcatMatrixProvider preConcatMatrixProvider(matrixProvider, preMatrix);
-                target->drawShape(clip, runPaint, preConcatMatrixProvider, shape);
+                    SkPath deviceOutline;
+                    path.transform(pathMatrix, &deviceOutline);
+                    deviceOutline.setIsVolatile(true);
+                    GrStyledShape shape(deviceOutline, paint);
+                    target->drawShape(clip, runPaint, deviceMatrix, shape);
+                }
             }
         } else {
             int glyphCount = subRun->fGlyphs.count();
@@ -553,7 +557,7 @@ void GrTextBlob::flush(GrTextTarget* target,
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
                 SkRect subRunBounds;
-                this->computeSubRunBounds(&subRunBounds, *subRun, matrixProvider.localToDevice(),
+                this->computeSubRunBounds(&subRunBounds, *subRun, deviceMatrix.localToDevice(),
                                           drawOrigin, false);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
@@ -567,7 +571,7 @@ void GrTextBlob::flush(GrTextTarget* target,
             }
 
             if (submitOp) {
-                auto op = this->makeOp(*subRun, glyphCount, matrixProvider, drawOrigin, clipRect,
+                auto op = this->makeOp(*subRun, glyphCount, deviceMatrix, drawOrigin, clipRect,
                                        paint, filteredColor, props, target);
                 if (op) {
                     if (skipClip) {
