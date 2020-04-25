@@ -23,7 +23,7 @@ public:
             return processor;
         }
         SkASSERT(!processor->isSampledWithExplicitCoords());
-        SkASSERT(processor->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kNone);
+        SkASSERT(processor->sampleMatrix().fFlags == 0);
         return Make(matrix, std::move(processor));
     }
     static std::unique_ptr<GrFragmentProcessor> Make(SkMatrix matrix,
@@ -41,6 +41,7 @@ private:
             : INHERITED(kGrMatrixEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
         SkASSERT(child);
         child_index = this->numChildProcessors();
+        child->setSampleMatrix(SkSL::SampleMatrix(2, this, "matrix"));
         this->registerChildProcessor(std::move(child));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

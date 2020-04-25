@@ -27,10 +27,10 @@ public:
         (void)matrix;
         matrixVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kFloat3x3_GrSLType, "matrix");
-        SkString _input716 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample716;
-        _sample716 = this->invokeChild(_outer.child_index, _input716.c_str(), args);
-        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, _sample716.c_str());
+        SkString _input687 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample687;
+        _sample687 = this->invokeChild(_outer.child_index, _input687.c_str(), args);
+        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, _sample687.c_str());
     }
 
 private:
