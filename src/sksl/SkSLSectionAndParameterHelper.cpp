@@ -261,10 +261,10 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Expression& e, const Var
                 fc.fArguments[0]->fKind == Expression::kVariableReference_Kind &&
                 &((VariableReference&) *fc.fArguments[0]).fVariable == &fp) {
                 if (fc.fArguments.back()->isConstantOrUniform()) {
-                    return SampleMatrix(SampleMatrix::Kind::kConstantOrUniform, nullptr,
+                    return SampleMatrix(SampleMatrix::kVertex_Flag, nullptr,
                                         fc.fArguments.back()->description());
                 } else {
-                    return SampleMatrix(SampleMatrix::Kind::kVariable);
+                    return SampleMatrix(SampleMatrix::kVariable_Flag);
                 }
             }
             SampleMatrix result;
