@@ -39,6 +39,7 @@ skia_skottie_sources = [
   "$_src/animator/Vec2KeyframeAnimator.cpp",
   "$_src/animator/VectorKeyframeAnimator.cpp",
   "$_src/animator/VectorKeyframeAnimator.h",
+  "$_src/effects/BrightnessContrastEffect.cpp",
   "$_src/effects/CornerPinEffect.cpp",
   "$_src/effects/DropShadowEffect.cpp",
   "$_src/effects/Effects.cpp",
