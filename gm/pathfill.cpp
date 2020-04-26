@@ -618,3 +618,45 @@ DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
     path.close();
     canvas->drawPath(path, p);
 }
+
+#include "include/core/SkSurface.h"
+
+DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
+    SkCanvas* orig = canvas;
+    auto surf = SkSurface::MakeRasterN32Premul(25, 25);
+    canvas = surf->getCanvas();
+
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+
+    canvas->scale(4.16666651f/2, 4.16666651f/2);
+
+    SkPath path;
+
+    SkPoint pts[] = {
+    {11, 12},
+    {11, 18.0751324f},
+    {6.07513189f, 23},
+    {-4.80825292E-7f, 23},
+    {-6.07513332f, 23},
+    {-11, 18.0751324f},
+    {-11, 11.999999f},
+    {-10.999999f, 5.92486763f},
+    {-6.07513189f, 1},
+    {1.31173692E-7f, 1},
+    {6.07513141f, 1},
+    {10.9999981f, 5.92486572f},
+    {11, 11.9999971f},
+    };
+    path.moveTo(pts[0]).cubicTo(pts[1], pts[2], pts[3])
+                       .cubicTo(pts[4], pts[5], pts[6])
+                       .cubicTo(pts[7], pts[8], pts[9])
+                       .cubicTo(pts[10],pts[11],pts[12]);
+
+    canvas->drawPath(path, p);
+
+    surf->draw(orig, 0, 0, nullptr);
+}
