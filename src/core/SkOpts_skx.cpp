@@ -44,11 +44,14 @@
     #endif
 
     #define SK_OPTS_NS skx
+    #include "src/opts/SkBlitRow_opts.h"
     #include "src/opts/SkRasterPipeline_opts.h"
     #include "src/opts/SkVM_opts.h"
 
     namespace SkOpts {
         void Init_skx() {
+            blit_row_s32a_opaque = SK_OPTS_NS::blit_row_s32a_opaque;
+
         #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
             SK_RASTER_PIPELINE_STAGES(M)
             just_return_highp = (StageFn)SK_OPTS_NS::just_return;

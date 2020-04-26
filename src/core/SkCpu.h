@@ -84,6 +84,9 @@ inline bool SkCpu::Supports(uint32_t mask) {
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     features |= AVX2;
     #endif
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    features |= (AVX512F | AVX512DQ | AVX512CD | AVX512BW | AVX512VL);
+    #endif
     // FMA doesn't fit neatly into this total ordering.
     // It's available on Haswell+ just like AVX2, but it's technically a different bit.
     // TODO: circle back on this if we find ourselves limited by lack of compile-time FMA
