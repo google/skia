@@ -22,32 +22,25 @@ DEF_TEST(SkSharedMutexBasic, r) {
 
 DEF_TEST(SkSharedMutexMultiThreaded, r) {
     SkSharedMutex sm;
-    static const int kSharedSize = 10;
-    int shared[kSharedSize];
-    int value = 0;
-    for (int i = 0; i < kSharedSize; ++i) {
-        shared[i] = 0;
-    }
-    SkTaskGroup().batch(8, [&](int threadIndex) {
-        if (threadIndex % 4 != 0) {
-            for (int c = 0; c < 100000; ++c) {
-                sm.acquireShared();
-                sm.assertHeldShared();
-                int v = shared[0];
-                for (int i = 1; i < kSharedSize; ++i) {
-                    REPORTER_ASSERT(r, v == shared[i]);
-                }
-                sm.releaseShared();
-            }
-        } else {
-            for (int c = 0; c < 100000; ++c) {
+    int shared[] = {0,0,0,0, 0,0,0,0, 0,0};
+
+    SkTaskGroup().batch(8, [&](int i) {
+        for (int n = 3; n --> 0; ) {
+            const bool writer = i%4 == 0;
+            if (writer) {
                 sm.acquire();
                 sm.assertHeld();
-                value += 1;
-                for (int i = 0; i < kSharedSize; ++i) {
-                    shared[i] = value;
+                for (int& x : shared) {
+                    x++;
                 }
                 sm.release();
+            } else {
+                sm.acquireShared();
+                sm.assertHeldShared();
+                for (int x : shared) {
+                    REPORTER_ASSERT(r, x == shared[0]);
+                }
+                sm.releaseShared();
             }
         }
     });
