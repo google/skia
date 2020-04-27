@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdaad706_71bac62d",
+        "filename": "experimental/skottiekit/compile.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-27T13:42:07Z",
+      "side": 1,
+      "message": "Not in this CL, but would it make sense to externalize these options?  E.g. have a build.cfg or such to hold all config options?  Then we could add different configs as needed, and instead of inventing new flags for each we could just pass a different .cfg to build.sh.",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 38
+      },
+      "revId": "42326f223a6ef436e5aa4f65507e427a0aa0138d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
