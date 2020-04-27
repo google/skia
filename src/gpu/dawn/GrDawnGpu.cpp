@@ -110,7 +110,7 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
                      const wgpu::Device& device)
         : INHERITED(context)
         , fDevice(device)
-        , fQueue(device.CreateQueue())
+        , fQueue(device.GetDefaultQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
