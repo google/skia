@@ -22,6 +22,29 @@
       "revId": "bf46a064466229081f260be273786712bf5eb6f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dea86517_781498aa",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-27T20:18:44Z",
+      "side": 1,
+      "message": "It\u0027s ok that SkOpts::hash_fn() is not stable across devices or time, right?  Just stable within a single process?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 31,
+        "endLine": 1546,
+        "endChar": 47
+      },
+      "revId": "bf46a064466229081f260be273786712bf5eb6f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
