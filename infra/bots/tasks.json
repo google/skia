@@ -1157,6 +1157,11 @@
         "Upload-Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM"
       ]
     },
+    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver": {
+      "tasks": [
+        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver"
+      ]
+    },
     "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "tasks": [
         "Upload-Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
@@ -20787,6 +20792,42 @@
       "outputs": [
         "perf"
       ]
+    },
+    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver": {
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
+        }
+      ],
+      "command": [
+        "./perf_skottie_wasm",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver",
+        "--workdir",
+        ".",
+        "--alsologtostderr"
+      ],
+      "dependencies": [
+        "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "isolate": "skottie_wasm.isolate",
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "caches": [

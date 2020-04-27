@@ -115,8 +115,9 @@ var (
 	}
 
 	// TODO(borenet): This hacky and bad.
-	CIPD_PKGS_KITCHEN = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
-	CIPD_PKG_CPYTHON  = specs.CIPD_PKGS_PYTHON[0]
+	CIPD_PKG_LUCI_AUTH = specs.CIPD_PKGS_KITCHEN[1]
+	CIPD_PKGS_KITCHEN  = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
+	CIPD_PKG_CPYTHON   = specs.CIPD_PKGS_PYTHON[0]
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -374,26 +375,17 @@ func marshalJson(data interface{}) string {
 // recipe bundle.
 func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.cipd(CIPD_PKGS_KITCHEN...)
-	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	} else if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	}
+	b.usesPython()
 	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
-	b.cache(&specs.Cache{
-		Name: "vpython",
-		Path: "cache/vpython",
-	})
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.isolate("swarm_recipe.isolate")
 	b.timeout(time.Hour)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
-	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
 	b.Spec.ExtraTags = map[string]string{
 		"log_location": fmt.Sprintf("logdog://logs.chromium.org/%s/${SWARMING_TASK_ID}/+/annotations", b.cfg.Project),
 	}
@@ -1283,7 +1275,7 @@ func (b *taskBuilder) commonTestPerfAssets() {
 func (b *jobBuilder) test() {
 	compileTaskName := ""
 	// LottieWeb doesn't require anything in Skia to be compiled.
-	if !b.extraConfig("SkottieWASM", "LottieWeb") {
+	if !b.extraConfig("LottieWeb") {
 		compileTaskName = b.compile()
 	}
 	b.addTask(b.Name, func(b *taskBuilder) {
@@ -1389,72 +1381,92 @@ func (b *jobBuilder) perf() {
 		compileTaskName = b.compile()
 	}
 	doUpload := b.release() && b.doUpload()
-	b.addTask(b.Name, func(b *taskBuilder) {
-		recipe := "perf"
-		isolate := "perf_skia_bundled.isolate"
-		if b.extraConfig("Skpbench") {
-			recipe = "skpbench"
-			isolate = "skpbench_skia_bundled.isolate"
-		} else if b.extraConfig("PathKit") {
-			isolate = "pathkit.isolate"
-			recipe = "perf_pathkit"
-		} else if b.extraConfig("CanvasKit") {
-			isolate = "canvaskit.isolate"
-			recipe = "perf_canvaskit"
-		} else if b.extraConfig("SkottieTracing") {
-			recipe = "perf_skottietrace"
-		} else if b.extraConfig("SkottieWASM") {
-			recipe = "perf_skottiewasm_lottieweb"
-			isolate = "skottie_wasm.isolate"
-		} else if b.extraConfig("LottieWeb") {
-			recipe = "perf_skottiewasm_lottieweb"
-			isolate = "lottie_web.isolate"
-		}
-		b.recipeProps(EXTRA_PROPS)
-		if recipe == "perf" {
-			b.nanobenchFlags(doUpload)
-		}
-		b.kitchenTask(recipe, OUTPUT_PERF)
-		b.isolate(isolate)
-		b.swarmDimensions()
-		if b.extraConfig("CanvasKit", "Docker", "PathKit") {
-			b.usesDocker()
-		}
-		if compileTaskName != "" {
-			b.dep(compileTaskName)
-		}
-		b.commonTestPerfAssets()
-		b.expiration(20 * time.Hour)
-		b.timeout(4 * time.Hour)
+	if b.extraConfig("TaskDriver") {
+		doUpload = false
+		b.addTask(b.Name, func(b *taskBuilder) {
+			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+			b.isolate("skottie_wasm.isolate")
+			b.cmd(
+				"./perf_skottie_wasm",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--alsologtostderr",
+			)
+			b.serviceAccount(b.cfg.ServiceAccountCompile)
+			b.cipd(CIPD_PKG_LUCI_AUTH)
+			b.dep(b.buildTaskDrivers(), compileTaskName)
+			b.timeout(20 * time.Minute)
+		})
+	} else {
+		b.addTask(b.Name, func(b *taskBuilder) {
+			recipe := "perf"
+			isolate := "perf_skia_bundled.isolate"
+			if b.extraConfig("Skpbench") {
+				recipe = "skpbench"
+				isolate = "skpbench_skia_bundled.isolate"
+			} else if b.extraConfig("PathKit") {
+				isolate = "pathkit.isolate"
+				recipe = "perf_pathkit"
+			} else if b.extraConfig("CanvasKit") {
+				isolate = "canvaskit.isolate"
+				recipe = "perf_canvaskit"
+			} else if b.extraConfig("SkottieTracing") {
+				recipe = "perf_skottietrace"
+			} else if b.extraConfig("SkottieWASM") {
+				recipe = "perf_skottiewasm_lottieweb"
+				isolate = "skottie_wasm.isolate"
+			} else if b.extraConfig("LottieWeb") {
+				recipe = "perf_skottiewasm_lottieweb"
+				isolate = "lottie_web.isolate"
+			}
+			b.recipeProps(EXTRA_PROPS)
+			if recipe == "perf" {
+				b.nanobenchFlags(doUpload)
+			}
+			b.kitchenTask(recipe, OUTPUT_PERF)
+			b.isolate(isolate)
+			b.swarmDimensions()
+			if b.extraConfig("CanvasKit", "Docker", "PathKit") {
+				b.usesDocker()
+			}
+			if compileTaskName != "" {
+				b.dep(compileTaskName)
+			}
+			b.commonTestPerfAssets()
+			b.expiration(20 * time.Hour)
+			b.timeout(4 * time.Hour)
 
-		if b.extraConfig("Valgrind") {
-			b.timeout(9 * time.Hour)
-			b.expiration(48 * time.Hour)
-			b.asset("valgrind")
-			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-			// to ensure there are always bots free for CQ tasks.
-			b.dimension("valgrind:1")
-		} else if b.extraConfig("MSAN") {
-			b.timeout(9 * time.Hour)
-		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
-			// skia:6737
-			b.timeout(6 * time.Hour)
-		} else if b.extraConfig("LottieWeb", "SkottieWASM") {
-			b.asset("node", "lottie-samples")
-		} else if b.matchExtraConfig("Skottie") {
-			b.asset("lottie-samples")
-		}
+			if b.extraConfig("Valgrind") {
+				b.timeout(9 * time.Hour)
+				b.expiration(48 * time.Hour)
+				b.asset("valgrind")
+				// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+				// to ensure there are always bots free for CQ tasks.
+				b.dimension("valgrind:1")
+			} else if b.extraConfig("MSAN") {
+				b.timeout(9 * time.Hour)
+			} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
+				// skia:6737
+				b.timeout(6 * time.Hour)
+			} else if b.extraConfig("LottieWeb", "SkottieWASM") {
+				b.asset("node", "lottie-samples")
+			} else if b.matchExtraConfig("Skottie") {
+				b.asset("lottie-samples")
+			}
 
-		if b.os("Android") && b.cpu() {
-			b.asset("text_blob_traces")
-		}
-		b.maybeAddIosDevImage()
+			if b.os("Android") && b.cpu() {
+				b.asset("text_blob_traces")
+			}
+			b.maybeAddIosDevImage()
 
-		iid := b.internalHardwareLabel()
-		if iid != nil {
-			b.Spec.Command = append(b.Spec.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
-		}
-	})
+			iid := b.internalHardwareLabel()
+			if iid != nil {
+				b.Spec.Command = append(b.Spec.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
+			}
+		})
+	}
 
 	// Upload results if necessary.
 	if doUpload {
