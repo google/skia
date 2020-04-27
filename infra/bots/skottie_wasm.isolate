@@ -1,6 +1,7 @@
 {
   'includes': [
     'swarm_recipe.isolate',
+    'task_drivers.isolate',
   ],
   'variables': {
     'files': [
