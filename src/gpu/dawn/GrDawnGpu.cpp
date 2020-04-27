@@ -110,7 +110,7 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
                      const wgpu::Device& device)
         : INHERITED(context)
         , fDevice(device)
-        , fQueue(device.CreateQueue())
+        , fQueue(device.GetDefaultQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
@@ -369,7 +369,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         wgpu::BufferCopyView srcBuffer;
         srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(stagingBuffer.fBuffer)->buffer();
         srcBuffer.offset = stagingBuffer.fOffset;
-        srcBuffer.rowPitch = rowBytes;
+        srcBuffer.bytesPerRow = rowBytes;
         srcBuffer.imageHeight = h;
         wgpu::TextureCopyView dstTexture;
         dstTexture.texture = tex;
@@ -559,7 +559,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     wgpu::BufferCopyView dstBuffer;
     dstBuffer.buffer = buf;
     dstBuffer.offset = 0;
-    dstBuffer.rowPitch = rowBytes;
+    dstBuffer.bytesPerRow = rowBytes;
     dstBuffer.imageHeight = height;
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
