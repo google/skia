@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "040ec02b_2aeed87a",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 0,
+      "message": "Not needed anymore",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 26
+      },
+      "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85b40b68_ee5d3ac9",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 0,
+      "message": "All of this logic is handled automatically in GrShape now.",
+      "range": {
+        "startLine": 506,
+        "startChar": 9,
+        "endLine": 506,
+        "endChar": 19
+      },
+      "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ac4cb43_79208a10",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 0,
+      "message": "This has been folded into isRRect() if the shape has been simplified into a rect and we need to map from rect point indices to rrect indices.",
+      "range": {
+        "startLine": 562,
+        "startChar": 20,
+        "endLine": 562,
+        "endChar": 47
+      },
+      "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2443c34d_111e6ed6",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 0,
+      "message": "Was not needed anymore, although GrShape now just defaults to index 0. No GMs came back different with that, but will see if chrome layout tests were relying on index 6 being used for rrects.",
+      "range": {
+        "startLine": 591,
+        "startChar": 20,
+        "endLine": 591,
+        "endChar": 48
+      },
+      "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,418 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6eaad921_877f9cee",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "This is a combination of the old attemptSimplifyX functions from GrStyledShape, minus style-specific checks. The simplifications are ordered from most general shape type to simplest, so that updates automatically fall through.",
+      "range": {
+        "startLine": 46,
+        "startChar": 14,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c90aa9ab_0bfb29cf",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "From the old attemptToSimplifyArc",
+      "range": {
+        "startLine": 173,
+        "startChar": 12,
+        "endLine": 180,
+        "endChar": 13
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "39f52f5c_d2777843",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "From the old attemptToSimplifyLine",
+      "range": {
+        "startLine": 186,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 13
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42f3efab_58158ec5",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Moved from GrStyledShape",
+      "range": {
+        "startLine": 229,
+        "startChar": 14,
+        "endLine": 229,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1afdc414_289ae023",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Also moved from GrstyledShape. Because of the DrawArcIsConvex function, this accepts a simpleFill parameter. This felt better to me than having GrStyledShape have a special case in its knownToBeConvex() function for handling filled arcs and then falling back to this function in other cases.",
+      "range": {
+        "startLine": 248,
+        "startChar": 14,
+        "endLine": 248,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "456e3bf0_b0e86044",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Also moved from GrStyledShape",
+      "range": {
+        "startLine": 268,
+        "startChar": 16,
+        "endLine": 268,
+        "endChar": 22
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a874661_0c3a0f9c",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "This was pretty much moved from GrStyledShape.h",
+      "range": {
+        "startLine": 295,
+        "startChar": 18,
+        "endLine": 295,
+        "endChar": 29
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e54d6db_51971c87",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Hmm, this might need to be changed to kLine_SegmentMask for points though.",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9654659_bb46d4eb",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Also more-or-less taken from GrStyledShape.h, except that the fill/invertedness is isolated at the start more.",
+      "range": {
+        "startLine": 327,
+        "startChar": 14,
+        "endLine": 327,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9772c228_a335828b",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "It seemed better to just have a fixed flags part of the key for all geometric shapes, and then specialize their geometry writing. Most of the diff below is handling the new shape types that GrShape supports.",
+      "range": {
+        "startLine": 212,
+        "startChar": 12,
+        "endLine": 216,
+        "endChar": 49
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4eb3dec_cbfbcc15",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "This is the dynamic mapping from rect indices to rrect indices that used to be performed at construction time with DefaultRectDirAndStart. It felt better to me for GrShape to store start relative to the shape type. Since GrStyledShape is still set up to normalize to round rects, it can handle the mapping at query time. This also makes it a bit more robust to changes to the shape type during simplification.",
+      "range": {
+        "startLine": 456,
+        "startChar": 12,
+        "endLine": 482,
+        "endChar": 13
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bab2a28_6c95a1b2",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "From the end of attemptToSimplifyRRect",
+      "range": {
+        "startLine": 624,
+        "startChar": 4,
+        "endLine": 633,
+        "endChar": 5
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5eb7a537_2a9fd97f",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "From here on, this is mostly an updated version of attemptToSimplifyLine and attemptToSimplifyStrokedLineToRRect",
+      "range": {
+        "startLine": 643,
+        "startChar": 4,
+        "endLine": 643,
+        "endChar": 28
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86af1eff_0d036200",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "This block is the focus of the SVG behavior and the chat discussion held today. It\u0027s pretty easy at this point to update the degenerate behavior for points/lines/empty closed shapes, if want to modify the policy I settled on here.",
+      "range": {
+        "startLine": 685,
+        "startChar": 8,
+        "endLine": 685,
+        "endChar": 24
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b489ae25_d7140d52",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Moved to the cpp file",
+      "range": {
+        "startLine": 126,
+        "startChar": 9,
+        "endLine": 126,
+        "endChar": 16
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ed70db7_1f9bcce0",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Moved to the cpp file",
+      "range": {
+        "startLine": 132,
+        "startChar": 9,
+        "endLine": 132,
+        "endChar": 15
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67b56e5f_491e1b37",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Moved to the cpp file",
+      "range": {
+        "startLine": 135,
+        "startChar": 9,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcf05bd8_d33a783f",
+        "filename": "tests/GrStyledShapeTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T23:11:47Z",
+      "side": 1,
+      "message": "Based on the changes to empty rrect and rect stroking, these test cases become empty instead of producing cap geometry.",
+      "range": {
+        "startLine": 1583,
+        "startChar": 43,
+        "endLine": 1583,
+        "endChar": 72
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
