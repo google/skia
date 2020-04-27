@@ -1254,7 +1254,8 @@ public:
         @param y1     end of line segment on y-axis
         @param paint  stroke, blend, color, and so on, used to draw
 
-        example: https://fiddle.skia.org/c/@Canvas_drawLine
+        example: https://fiddle.skia.org/c/@Canvas_
+
     */
     void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
 

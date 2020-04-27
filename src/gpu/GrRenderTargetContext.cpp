@@ -872,41 +872,11 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         // Fills the rect, using rect as its own local coordinates
         this->fillRectToRect(clip, std::move(paint), aa, viewMatrix, rect, rect);
         return;
-    } else if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-               stroke.getStyle() == SkStrokeRec::kHairline_Style) {
-        if ((!rect.width() || !rect.height()) &&
-            SkStrokeRec::kHairline_Style != stroke.getStyle()) {
-            SkScalar r = stroke.getWidth() / 2;
-            // TODO: Move these stroke->fill fallbacks to GrStyledShape?
-            switch (stroke.getJoin()) {
-                case SkPaint::kMiter_Join:
-                    this->drawRect(
-                            clip, std::move(paint), aa, viewMatrix,
-                            {rect.fLeft - r, rect.fTop - r, rect.fRight + r, rect.fBottom + r},
-                            &GrStyle::SimpleFill());
-                    return;
-                case SkPaint::kRound_Join:
-                    // Raster draws nothing when both dimensions are empty.
-                    if (rect.width() || rect.height()){
-                        SkRRect rrect = SkRRect::MakeRectXY(rect.makeOutset(r, r), r, r);
-                        this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect,
-                                        GrStyle::SimpleFill());
-                        return;
-                    }
-                case SkPaint::kBevel_Join:
-                    if (!rect.width()) {
-                        this->drawRect(clip, std::move(paint), aa, viewMatrix,
-                                       {rect.fLeft - r, rect.fTop, rect.fRight + r, rect.fBottom},
-                                       &GrStyle::SimpleFill());
-                    } else {
-                        this->drawRect(clip, std::move(paint), aa, viewMatrix,
-                                       {rect.fLeft, rect.fTop - r, rect.fRight, rect.fBottom + r},
-                                       &GrStyle::SimpleFill());
-                    }
-                    return;
-                }
-        }
-
+    } else if ((stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+                stroke.getStyle() == SkStrokeRec::kHairline_Style) &&
+               (rect.width() && rect.height())) {
+        // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
+        // GrStyledShape to handle stroke caps and dashing properly.
         std::unique_ptr<GrDrawOp> op;
 
         GrAAType aaType = this->chooseAAType(aa);
@@ -2286,7 +2256,9 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
         }
     }
 
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape);
+    // If we get here in drawShape(), we definitely need to use path rendering
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape,
+                                     /* attempt fallback */ false);
 }
 
 bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
@@ -2376,12 +2348,21 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                        GrPaint&& paint,
                                                        GrAA aa,
                                                        const SkMatrix& viewMatrix,
-                                                       const GrStyledShape& originalShape) {
+                                                       const GrStyledShape& originalShape,
+                                                       bool attemptShapeFallback) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
     if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
+        return;
+    }
+
+    if (attemptShapeFallback && originalShape.simplified()) {
+        // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
+        // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
+        // we ought to try again instead of going right to path rendering.
+        this->drawShape(clip, std::move(paint), aa, viewMatrix, originalShape);
         return;
     }
 
