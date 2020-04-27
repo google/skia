@@ -107,6 +107,7 @@ public:
     }
     const SkFont& font() const { return fFont; }
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
+    TextDirection getTextDirection() const { return leftToRight() ? TextDirection::kLtr : TextDirection::kRtl; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
     PlaceholderStyle* placeholderStyle() const;
@@ -143,13 +144,16 @@ public:
 
     void copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector offset) const;
 
-    using ClusterVisitor = std::function<void(size_t glyphStart,
-                                              size_t glyphEnd,
-                                              size_t charStart,
-                                              size_t charEnd,
-                                              SkScalar width,
-                                              SkScalar height)>;
-    void iterateThroughClustersInTextOrder(const ClusterVisitor& visitor);
+    using ClusterTextVisitor = std::function<void(size_t glyphStart,
+                                                  size_t glyphEnd,
+                                                  size_t charStart,
+                                                  size_t charEnd,
+                                                  SkScalar width,
+                                                  SkScalar height)>;
+    void iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor);
+
+    using ClusterVisitor = std::function<void(Cluster* cluster)>;
+    void iterateThroughClusters(const ClusterVisitor& visitor);
 
     std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange text, bool onlyInnerClusters) const;
     SkSpan<const SkGlyphID> glyphs() const {

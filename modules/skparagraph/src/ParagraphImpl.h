@@ -143,6 +143,7 @@ public:
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     const SkTHashSet<size_t>& graphemes() const { return fGraphemes; }
+    SkSpan<Codepoint> codepoints(){ return SkSpan<Codepoint>(fCodePoints.begin(), fCodePoints.size()); }
     void formatLines(SkScalar maxWidth);
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
@@ -175,6 +176,7 @@ public:
     void resolveStrut();
     void buildClusterTable();
     void markLineBreaks();
+    void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
