@@ -15410,11 +15410,6 @@
           "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
-        },
-        {
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
@@ -15426,16 +15421,19 @@
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "infra",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Housekeeper-PerCommit-InfraTests_Linux\",\"repository\":\"<(REPO)\",\"swarm_out_dir\":\"output_ignored\"}",
-        "skia"
+        "./infra-tests",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-PerCommit-InfraTests_Linux",
+        "--workdir",
+        ".",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -15447,16 +15445,14 @@
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
-          "cipd_bin_packages/bin"
+          "cipd_bin_packages/bin",
+          "go/go/bin"
         ],
         "VPYTHON_VIRTUALENV_ROOT": [
           "cache/vpython"
         ]
       },
       "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "infra_tests.isolate",
@@ -15518,11 +15514,6 @@
           "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
-        },
-        {
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
@@ -15534,16 +15525,19 @@
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "infra",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Housekeeper-PerCommit-InfraTests_Win\",\"repository\":\"<(REPO)\",\"swarm_out_dir\":\"output_ignored\"}",
-        "skia"
+        "./infra-tests.exe",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-PerCommit-InfraTests_Win",
+        "--workdir",
+        ".",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -15555,16 +15549,14 @@
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
-          "cipd_bin_packages/bin"
+          "cipd_bin_packages/bin",
+          "go/go/bin"
         ],
         "VPYTHON_VIRTUALENV_ROOT": [
           "cache/vpython"
         ]
       },
       "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "infra_tests.isolate",
