@@ -46,6 +46,30 @@
       "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3be1d2e_44d0e058",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-27T13:39:58Z",
+      "side": 1,
+      "message": "I\u0027ll leave it up to you. I\u0027ve become less fond over time of adding even small amounts of complexity to support asserts. However, tracking down a bug related to this seems like it\u0027d be a PITA. But maybe it\u0027s unlikely.",
+      "parentUuid": "aadc88e8_b46ccf43",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 53
+      },
+      "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
