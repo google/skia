@@ -93,6 +93,30 @@
       "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5db9d607_7bb01e90",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T18:31:22Z",
+      "side": 1,
+      "message": "okay, that makes sense to me, I did not have a strong preference.",
+      "parentUuid": "448cfae7_21d356c0",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
