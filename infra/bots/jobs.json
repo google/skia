@@ -228,6 +228,7 @@
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM",
+  "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver",
   "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
   "Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb",
   "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All",
