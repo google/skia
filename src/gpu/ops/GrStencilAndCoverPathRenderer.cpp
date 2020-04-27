@@ -46,6 +46,15 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
         // We rely on a mixed sampled stencil buffer to implement coverage AA.
         return CanDrawPath::kNo;
     }
+    // The lack of vertex shaders means we can't move transform matrices into the vertex shader, so
+    // rendering with a transformed fragment processor is very slow.
+    if (args.fPaint) {
+        for (int i = args.fPaint->numColorFragmentProcessors() - 1; i >= 0; --i) {
+            if (args.fPaint->getColorFragmentProcessor(i)->sampleMatrix().fFlags) {
+                return CanDrawPath::kNo;
+            }
+        }
+    }
     return CanDrawPath::kYes;
 }
 

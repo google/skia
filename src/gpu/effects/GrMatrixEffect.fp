@@ -15,9 +15,9 @@ in fragmentProcessor child;
             return processor;
         }
         SkASSERT(!processor->isSampledWithExplicitCoords());
-        SkASSERT(processor->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kNone);
+        SkASSERT(processor->sampleMatrix().fFlags == 0);
         return Make(matrix, std::move(processor));
-    }    
+    }
 }
 
 void main() {
