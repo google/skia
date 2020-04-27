@@ -189,6 +189,30 @@
       "revId": "bf46a064466229081f260be273786712bf5eb6f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e53f0ab3_5e16c4fa",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-27T20:28:14Z",
+      "side": 1,
+      "message": "Weird... half my comment dropped out.  The other half was \"I would also suggest serializing the strings, so we can change our minds about this plan transparently if it should go awry.\"",
+      "parentUuid": "caa6f91b_7680ebdc",
+      "range": {
+        "startLine": 1546,
+        "startChar": 31,
+        "endLine": 1546,
+        "endChar": 47
+      },
+      "revId": "bf46a064466229081f260be273786712bf5eb6f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
