@@ -175,9 +175,7 @@ private:
         return true;
     }
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override {
-        return true;
-    }
+                       const SkIPoint& dstPoint) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
 
@@ -208,6 +206,13 @@ private:
 
     void checkForFinishedCommandLists();
     void waitForQueueCompletion();
+
+    void copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src, GrD3DTextureResource* dstResource,
+                                  GrD3DTextureResource* srcResource, const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint);
+
+    void copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                              const SkIPoint& dstPoint);
 
     bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
                          GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);
