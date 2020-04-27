@@ -175,6 +175,7 @@ public:
     void resolveStrut();
     void buildClusterTable();
     void markLineBreaks();
+    void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
