@@ -32,6 +32,18 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
     : fResourceProvider(resourceProvider) {
 }
 
+static bool has_matrix(const GrFragmentProcessor& fp) {
+    if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+        return true;
+    }
+    for (int i = fp.numChildProcessors() - 1; i >= 0; --i) {
+        if (has_matrix(fp.childProcessor(i))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 GrPathRenderer::CanDrawPath
 GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkASSERT(!args.fTargetIsWrappedVkSecondaryCB);
@@ -45,6 +57,16 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     if (GrAAType::kCoverage == args.fAAType && !args.fProxy->canUseMixedSamples(*args.fCaps)) {
         // We rely on a mixed sampled stencil buffer to implement coverage AA.
         return CanDrawPath::kNo;
+    }
+    // The lack of vertex shaders means we can't move transform matrices into the vertex shader. We
+    // could do the transform in the fragment processor, but that would be very slow, so instead we
+    // just avoid using this path renderer in the face of transformed FPs.
+    if (args.fPaint) {
+        for (int i = args.fPaint->numColorFragmentProcessors() - 1; i >= 0; --i) {
+            if (has_matrix(*args.fPaint->getColorFragmentProcessor(i))) {
+                return CanDrawPath::kNo;
+            }
+        }
     }
     return CanDrawPath::kYes;
 }
