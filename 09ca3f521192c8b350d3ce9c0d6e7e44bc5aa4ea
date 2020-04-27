@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "808e82a3_f24fbf16",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T16:49:41Z",
+      "side": 1,
+      "message": "The attribute array, and the marker names, are now stored in the single allocation block, like the vertex data. Specifically:\n\n[SkVertices][Attributes][NullTerminatedStrings][Positions][...]\n\nThe Attribute structs have their char* fMarkerName fields pointing into the block of null-terminated strings stored immediately after.\n\nThis lets us keep the previous behavior, where SkVertices is always a single heap allocation. However, it complicates the string management in several places, and we\u0027re not storing explicit lengths, so we always have to re-compute that when copying/comparing/etc...",
+      "revId": "09ca3f521192c8b350d3ce9c0d6e7e44bc5aa4ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d3ecccd_a7507dc7",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T16:49:41Z",
+      "side": 1,
+      "message": "I landed a CL on Friday that broke serialization of old SkVertices. No complaints yet, so hopefully this won\u0027t be a problem either...",
+      "revId": "09ca3f521192c8b350d3ce9c0d6e7e44bc5aa4ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86df06e2_be3a034b",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T16:49:41Z",
+      "side": 1,
+      "message": "I\u0027m not happy with this - it risks hash collisions, and it makes key generation here more costly. Normalizing the custom matrices by index at this point (and using names in the shader that aren\u0027t tied to the marker names) would help, although I\u0027d have to de-dupe them here... (Or we upload the same matrix to multiple uniforms, but that feels especially wasteful).",
+      "revId": "09ca3f521192c8b350d3ce9c0d6e7e44bc5aa4ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
