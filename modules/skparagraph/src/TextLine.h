@@ -84,6 +84,11 @@ public:
     void setMaxRunMetrics(const InternalLineMetrics& metrics) { fMaxRunMetrics = metrics; }
     InternalLineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
 
+    bool isFirstLine();
+    bool isLastLine();
+    std::vector<TextBox> getRectsForRange(TextRange textRange, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle);
+    PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx);
+
     ClipContext measureTextInsideOneRun(TextRange textRange,
                                         const Run* run,
                                         SkScalar runOffsetInLine,
