@@ -1,9 +1,9 @@
 /*
-* Copyright 2015 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 
@@ -374,6 +374,41 @@ void GrVkCommandBuffer::addingWork(const GrVkGpu* gpu) {
     this->submitPipelineBarriers(gpu);
     fHasWork = true;
 }
+
+#ifdef SK_DEBUG
+bool GrVkCommandBuffer::validateNoSharedImageResources(const GrVkCommandBuffer* other) {
+    auto resourceIsInCommandBuffer = [this](const GrManagedResource* resource) {
+        if (!resource->asVkImageResource()) {
+            return false;
+        }
+
+        for (int i = 0; i < fTrackedResources.count(); ++i) {
+            if (resource == fTrackedResources[i]->asVkImageResource()) {
+                return true;
+            }
+        }
+        for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+            if (resource == fTrackedRecycledResources[i]->asVkImageResource()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    for (int i = 0; i < other->fTrackedResources.count(); ++i) {
+        if (resourceIsInCommandBuffer(other->fTrackedResources[i])) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < other->fTrackedRecycledResources.count(); ++i) {
+        if (resourceIsInCommandBuffer(other->fTrackedRecycledResources[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrimaryCommandBuffer
