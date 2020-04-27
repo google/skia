@@ -10,8 +10,9 @@
 #include "src/gpu/glsl/GrGLSL.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
-void GrGLSLUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+void GrGLSLUniformHandler::writeUniformMappings(const GrFragmentProcessor* owner,
                                                 GrGLSLShaderBuilder* b) {
+	SkASSERT(owner);
     for (int i = this->numUniforms() - 1; i >= 0; i--) {
         UniformInfo& u = this->uniform(i);
         if (u.fOwner == owner) {
