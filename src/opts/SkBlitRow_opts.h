@@ -204,8 +204,8 @@ void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU a
         const auto alphaMask = _mm512_set1_epi32(0xFF000000);
 
         auto ORed = _mm512_or_si512(s3, _mm512_or_si512(s2, _mm512_or_si512(s1, s0)));
-        if (0 == _cvtmask64_u64(_mm512_cmpneq_epi8_mask(_mm512_and_si512(ORed, alphaMask),
-                                                        _mm512_setzero_si512()))) {
+        if (0 == _mm512_cmpneq_epi8_mask(_mm512_and_si512(ORed, alphaMask),
+                                         _mm512_setzero_si512())) {
             // All 64 source pixels are transparent.  Nothing to do.
             src += 64;
             dst += 64;
@@ -219,8 +219,8 @@ void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU a
              d3 = (__m512i*)(dst) + 3;
 
         auto ANDed = _mm512_and_si512(s3, _mm512_and_si512(s2, _mm512_and_si512(s1, s0)));
-        if (0 == _cvtmask64_u64(_mm512_cmpneq_epi8_mask(_mm512_and_si512(ANDed, alphaMask),
-                                                        alphaMask))) {
+        if (0 == _mm512_cmpneq_epi8_mask(_mm512_and_si512(ANDed, alphaMask),
+                                         alphaMask)) {
             // All 64 source pixels are opaque.  SrcOver becomes Src.
             _mm512_storeu_si512(d0, s0);
             _mm512_storeu_si512(d1, s1);
