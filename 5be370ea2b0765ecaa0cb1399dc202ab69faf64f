@@ -22,6 +22,30 @@
       "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aadc88e8_b46ccf43",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-27T13:34:49Z",
+      "side": 1,
+      "message": "It would be a little difficult. For a given command submitted to a command buffer, we store the resources all in a shared array of generic GrManagedResoures. An easy thing would be to do an nxm search of all resources to make sure none are shared. But really what we care about here is not using VkImages (and maybe some VkBuffers?) across command buffers. Like there is nothing wrong with a VkDescritporSet or VkPipeline being used in both. So we would have to either store those things we cared about separately or add a asVkImageResource virtual. The later actually probably wouldn\u0027t be too much work actually, it will just be a slowish validation check.",
+      "parentUuid": "23631795_5c55a8d1",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 53
+      },
+      "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
