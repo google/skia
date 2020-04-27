@@ -70,6 +70,30 @@
       "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ffb5832_77ce0174",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-27T15:22:06Z",
+      "side": 1,
+      "message": "Okay I added some validation.",
+      "parentUuid": "b3be1d2e_44d0e058",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 53
+      },
+      "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
