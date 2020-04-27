@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d7754b5d_11dab1f5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T20:21:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27a6b4d7_a1120317",
+      "range": {
+        "startLine": 1545,
+        "startChar": 8,
+        "endLine": 1545,
+        "endChar": 12
+      },
+      "revId": "bf46a064466229081f260be273786712bf5eb6f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dea86517_781498aa",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-27T20:18:44Z",
       "side": 1,
       "message": "It\u0027s ok that SkOpts::hash_fn() is not stable across devices or time, right?  Just stable within a single process?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 31,
+        "endLine": 1546,
+        "endChar": 47
+      },
+      "revId": "bf46a064466229081f260be273786712bf5eb6f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbf7cbdc_d96508c8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T20:21:51Z",
+      "side": 1,
+      "message": "Yes, I think so. I had one version where I was degrading to hashes for the canvas virtual, but I\u0027m preserving the strings now, so all of our serialized formats will include those. So there should never be a uint that escapes a single process.",
+      "parentUuid": "dea86517_781498aa",
       "range": {
         "startLine": 1546,
         "startChar": 31,
