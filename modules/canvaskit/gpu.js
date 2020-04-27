@@ -37,14 +37,7 @@
         }
         // GL is an enscripten provided helper
         // See https://github.com/emscripten-core/emscripten/blob/incoming/src/library_webgl.js
-        var ctx = GL.createContext(canvas, contextAttributes);
-
-        if (!ctx && contextAttributes.majorVersion > 1) {
-          contextAttributes.majorVersion = 1;  // fall back to WebGL 1.0
-          contextAttributes.minorVersion = 0;
-          ctx = GL.createContext(canvas, contextAttributes);
-        }
-        return ctx;
+        return GL.createContext(canvas, contextAttributes);
       }
 
       CanvasKit.GetWebGLContext = function(canvas, attrs) {
@@ -58,7 +51,7 @@
       //          be used directly.
       // Width and height can be provided to override those on the canvas
       // element, or specify a height for when a context is provided.
-      CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height) {
+      CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height, webGLVersion) {
         var canvas = arg;
         if (canvas.tagName !== 'CANVAS') {
           canvas = document.getElementById(arg);
@@ -66,8 +59,17 @@
             throw 'Canvas with id ' + arg + ' was not found';
           }
         }
-        // we are ok with all the defaults
-        var ctx = this.GetWebGLContext(canvas);
+        if (!webGLVersion) {
+          if (!!window['safari']) {
+            // Safari, by default, should use WebGL 1. skbug.com/10171
+            webGLVersion = 1;
+          } else {
+            webGLVersion = 2;
+          }
+        }
+
+        // we are ok with all the other defaults.
+        var ctx = this.GetWebGLContext(canvas, {majorVersion: webGLVersion});
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
