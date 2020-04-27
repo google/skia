@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23631795_5c55a8d1",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-27T13:27:25Z",
+      "side": 1,
+      "message": "How hard would it be to assert this when building or submitting the temp command buffer?",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 53
+      },
+      "revId": "5be370ea2b0765ecaa0cb1399dc202ab69faf64f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
