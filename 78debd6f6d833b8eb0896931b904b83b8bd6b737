@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7f3455d_89d57dc8",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-27T19:06:56Z",
+      "side": 1,
+      "message": "For next time we reland, this line is unnecessary.  The public_include_dirs \u003d [...] line exports this to //third_party/absl\u0027s direct dependents already.",
+      "revId": "78debd6f6d833b8eb0896931b904b83b8bd6b737",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
