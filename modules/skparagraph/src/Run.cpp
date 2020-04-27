@@ -151,7 +151,7 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
     return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
 }
 
-void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
+void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {
     // Can't figure out how to do it with one code for both cases without 100 ifs
     // Can't go through clusters because there are no cluster table yet
     if (leftToRight()) {
@@ -193,6 +193,15 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
             glyph = start;
             cluster = nextCluster;
         }
+    }
+}
+
+void Run::iterateThroughClusters(const ClusterVisitor& visitor) {
+
+    for (size_t index = 0; index < fClusterRange.width(); ++index) {
+        auto correctIndex = leftToRight() ? fClusterRange.start + index : fClusterRange.end - index - 1;
+        auto cluster = &fMaster->cluster(correctIndex);
+        visitor(cluster);
     }
 }
 

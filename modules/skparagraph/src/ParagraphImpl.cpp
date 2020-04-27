@@ -183,6 +183,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fState = kClusterized;
 
         this->markLineBreaks();
+        this->spaceGlyphs();
         fState = kMarked;
     }
 
@@ -288,6 +289,53 @@ void ParagraphImpl::buildClusterTable() {
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
+    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
+}
+
+void ParagraphImpl::spaceGlyphs() {
+
+    // Walk through all the clusters in the direction of shaped text
+    // (we have to walk through the styles in the same order, too)
+    SkScalar shift = 0;
+    for (auto& run : fRuns) {
+
+        // Skip placeholder runs
+        if (run.isPlaceholder()) {
+            continue;
+        }
+
+        bool soFarWhitespacesOnly = true;
+        run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly](Cluster* cluster) {
+            // Shift the cluster (shift collected from the previous clusters)
+            run.shift(cluster, shift);
+
+            // Synchronize styles (one cluster can be covered by few styles)
+            Block* currentStyle = this->fTextStyles.begin();
+            while (!cluster->startsIn(currentStyle->fRange)) {
+                currentStyle++;
+                SkASSERT(currentStyle != this->fTextStyles.end());
+            }
+
+            SkASSERT(!currentStyle->fStyle.isPlaceholder());
+
+            // Process word spacing
+            if (currentStyle->fStyle.getWordSpacing() != 0) {
+                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
+                    if (!soFarWhitespacesOnly) {
+                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
+                    }
+                }
+            }
+            // Process letter spacing
+            if (currentStyle->fStyle.getLetterSpacing() != 0) {
+                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
+            }
+
+            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
+                soFarWhitespacesOnly = false;
+            }
+        });
+    }
 }
 
 void ParagraphImpl::markLineBreaks() {
@@ -323,56 +371,6 @@ void ParagraphImpl::markLineBreaks() {
             ++current;
         }
     }
-
-    // Walk through all the clusters in the direction of shaped text
-    // (we have to walk through the styles in the same order, too)
-    SkScalar shift = 0;
-    for (auto& run : fRuns) {
-
-        // Skip placeholder runs
-        if (run.isPlaceholder()) {
-            continue;
-        }
-
-        bool soFarWhitespacesOnly = true;
-        for (size_t index = 0; index != run.clusterRange().width(); ++index) {
-            auto correctIndex = run.leftToRight()
-                    ? index + run.clusterRange().start
-                    : run.clusterRange().end - index - 1;
-            const auto cluster = &this->cluster(correctIndex);
-
-            // Shift the cluster (shift collected from the previous clusters)
-            run.shift(cluster, shift);
-
-            // Synchronize styles (one cluster can be covered by few styles)
-            Block* currentStyle = this->fTextStyles.begin();
-            while (!cluster->startsIn(currentStyle->fRange)) {
-                currentStyle++;
-                SkASSERT(currentStyle != this->fTextStyles.end());
-            }
-
-            SkASSERT(!currentStyle->fStyle.isPlaceholder());
-
-            // Process word spacing
-            if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
-                    if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
-                    }
-                }
-            }
-            // Process letter spacing
-            if (currentStyle->fStyle.getLetterSpacing() != 0) {
-                shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
-            }
-
-            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
-                soFarWhitespacesOnly = false;
-            }
-        }
-    }
-
-    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
@@ -806,8 +804,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 };
 
                 if (!merge(clip)) {
-                    results.emplace_back(
-                        clip, context.run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
+                    results.emplace_back(clip, context.run->getTextDirection());
                 }
                 if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
@@ -887,8 +884,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
                   clip.fRight = littleRound(clip.fRight);
                   clip.fTop = littleRound(clip.fTop);
                   clip.fBottom = littleRound(clip.fBottom);
-                  boxes.emplace_back(
-                          clip, run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
+                  boxes.emplace_back(clip, run->getTextDirection());
                   return true;
               });
   }
