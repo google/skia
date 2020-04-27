@@ -8,21 +8,30 @@
 #ifndef GrVkAMDMemoryAllocator_DEFINED
 #define GrVkAMDMemoryAllocator_DEFINED
 
-
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
-
-#include "GrVulkanMemoryAllocator.h"
 
 struct GrVkInterface;
 
+#ifndef SK_USE_VMA
+class GrVkAMDMemoryAllocator {
+public:
+    static sk_sp<GrVkMemoryAllocator> Make(VkPhysicalDevice physicalDevice, VkDevice device,
+                                           sk_sp<const GrVkInterface> interface);
+};
+
+#else
+
+#include "GrVulkanMemoryAllocator.h"
+
 class GrVkAMDMemoryAllocator : public GrVkMemoryAllocator {
 public:
-    GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice, VkDevice device,
-                           sk_sp<const GrVkInterface> interface);
+    static sk_sp<GrVkMemoryAllocator> Make(VkPhysicalDevice physicalDevice, VkDevice device,
+                                           sk_sp<const GrVkInterface> interface);
 
     ~GrVkAMDMemoryAllocator() override;
 
-    bool allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags, GrVkBackendMemory*) override;
+    bool allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags,
+                                GrVkBackendMemory*) override;
 
     bool allocateMemoryForBuffer(VkBuffer buffer, BufferUsage usage,
                                  AllocationPropertyFlags flags, GrVkBackendMemory*) override;
@@ -43,6 +52,9 @@ public:
     uint64_t totalAllocatedMemory() const override;
 
 private:
+    GrVkAMDMemoryAllocator(VmaAllocator allocator, VkDevice device,
+                           sk_sp<const GrVkInterface> interface);
+
     VmaAllocator fAllocator;
 
     // If a future version of the AMD allocator has helper functions for flushing and invalidating
@@ -53,5 +65,7 @@ private:
 
     typedef GrVkMemoryAllocator INHERITED;
 };
+
+#endif // SK_USE_VMA
 
 #endif
