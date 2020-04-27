@@ -26,6 +26,13 @@ SkScalar littleRound(SkScalar a) {
   return SkScalarRoundToScalar(a * 100.0)/100.0;
 }
 
+TextRange operator*(const TextRange& a, const TextRange& b) {
+    if (a.start == b.start && a.end == b.end) return a;
+    auto begin = std::max(a.start, b.start);
+    auto end = std::min(a.end, b.end);
+    return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
+}
+
 int compareRound(SkScalar a, SkScalar b) {
     // There is a rounding error that gets bigger when maxWidth gets bigger
     // VERY long zalgo text (> 100000) on a VERY long line (> 10000)
@@ -991,6 +998,172 @@ LineMetrics TextLine::getMetrics() const {
     });
 
     return result;
+}
+
+bool TextLine::isFirstLine() {
+    return this == &fMaster->lines().front();
+}
+
+bool TextLine::isLastLine() {
+    return this == &fMaster->lines().back();
+}
+
+std::vector<TextBox> TextLine::getRectsForRange(TextRange textRange0, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle) {
+
+    std::vector<TextBox> results;
+    const Run* lastRun = nullptr;
+    this->iterateThroughVisualRuns(true,
+        [&]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kNone,
+        [&]
+        (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& lineContext) {
+
+            auto intersect = textRange * textRange0;
+            if (intersect.empty()) {
+                return true;
+            }
+
+            auto paragraphStyle = fMaster->paragraphStyle();
+
+            // Found a run that intersects with the text
+            auto context = this->measureTextInsideOneRun(intersect, run, runOffsetInLine, 0, true, true);
+            SkRect clip = context.clip;
+            clip.offset(lineContext.fTextShift - context.fTextShift, 0);
+
+            switch (rectHeightStyle) {
+                case RectHeightStyle::kMax:
+                    // TODO: Change it once flutter rolls into google3
+                    //  (probably will break things if changed before)
+                    clip.fBottom = this->height();
+                    clip.fTop = this->sizes().delta();
+                    break;
+                case RectHeightStyle::kIncludeLineSpacingTop:
+                    if (!isFirstLine()) {
+                        clip.fTop -= this->sizes().runTop(context.run);
+                    }
+                    clip.fBottom -= this->sizes().runTop(context.run);
+                break;
+                case RectHeightStyle::kIncludeLineSpacingMiddle:
+                    if (!isFirstLine()) {
+                        clip.fTop -= this->sizes().runTop(context.run) / 2;
+                    }
+                    if (isLastLine()) {
+                        clip.fBottom -= this->sizes().runTop(context.run);
+                    } else {
+                        clip.fBottom -= this->sizes().runTop(context.run) / 2;
+                    }
+                break;
+                case RectHeightStyle::kIncludeLineSpacingBottom:
+                    if (isLastLine()) {
+                        clip.fBottom -= this->sizes().runTop(context.run);
+                    }
+                break;
+                case RectHeightStyle::kStrut: {
+                    auto strutStyle = paragraphStyle.getStrutStyle();
+                    if (strutStyle.getStrutEnabled()
+                        && strutStyle.getFontSize() > 0) {
+                        auto strutMetrics = fMaster->strutMetrics();
+                        auto top = this->baseline();
+                        clip.fTop = top + strutMetrics.ascent();
+                        clip.fBottom = top + strutMetrics.descent();
+                    }
+                }
+                break;
+                case RectHeightStyle::kTight:
+                    if (run->fHeightMultiplier > 0) {
+                        // This is a special case when we do not need to take in account this height multiplier
+                        clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
+                    }
+                break;
+                default:
+                    SkASSERT(false);
+                break;
+            }
+
+            // Separate trailing spaces and move them in the default order of the paragraph
+            // in case the run order and the paragraph order don't match
+            SkRect trailingSpaces = SkRect::MakeEmpty();
+            if (this->trimmedText().end < this->textWithSpaces().end && // Line has trailing spaces
+                this->textWithSpaces().end == intersect.end &&         // Range is at the end of the line
+                this->trimmedText().end > intersect.start)             // Range has more than just spaces
+            {
+                auto delta = this->spacesWidth();
+                trailingSpaces = SkRect::MakeXYWH(0, 0, 0, 0);
+                // There are trailing spaces in this run
+                if (paragraphStyle.getTextAlign() == TextAlign::kJustify && isLastLine())
+                {
+                    // TODO: this is just a patch. Make it right later (when it's clear what and how)
+                    trailingSpaces = clip;
+                    if(run->leftToRight()) {
+                        trailingSpaces.fLeft = this->width();
+                        clip.fRight = this->width();
+                    } else {
+                        trailingSpaces.fRight = 0;
+                        clip.fLeft = 0;
+                    }
+                } else if (paragraphStyle.getTextDirection() == TextDirection::kRtl &&
+                    !run->leftToRight())
+                {
+                    // Split
+                    trailingSpaces = clip;
+                    trailingSpaces.fLeft = - delta;
+                    trailingSpaces.fRight = 0;
+                    clip.fLeft += delta;
+                } else if (paragraphStyle.getTextDirection() == TextDirection::kLtr &&
+                    run->leftToRight())
+                {
+                    // Split
+                    trailingSpaces = clip;
+                    trailingSpaces.fLeft = this->width();
+                    trailingSpaces.fRight = trailingSpaces.fLeft + delta;
+                    clip.fRight -= delta;
+                }
+            }
+
+            clip.offset(this->offset());
+            if (trailingSpaces.width() > 0) {
+                trailingSpaces.offset(this->offset());
+            }
+
+            // Check if we can merge two boxes instead of adding a new one
+            auto merge = [&lastRun, &context, &results](SkRect clip) {
+                bool mergedBoxes = false;
+                if (!results.empty() &&
+                    lastRun != nullptr &&
+                    lastRun->placeholderStyle() == nullptr &&
+                    context.run->placeholderStyle() == nullptr &&
+                    nearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
+                    lastRun->font() == context.run->font())
+                {
+                    auto& lastBox = results.back();
+                    if (nearlyEqual(lastBox.rect.fTop, clip.fTop) &&
+                        nearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
+                            (nearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
+                             nearlyEqual(lastBox.rect.fRight, clip.fLeft)))
+                    {
+                        lastBox.rect.fLeft = std::min(lastBox.rect.fLeft, clip.fLeft);
+                        lastBox.rect.fRight = std::max(lastBox.rect.fRight, clip.fRight);
+                        mergedBoxes = true;
+                    }
+                }
+                lastRun = context.run;
+                return mergedBoxes;
+            };
+
+            if (!merge(clip)) {
+                results.emplace_back(clip, context.run->getTextDirection());
+            }
+            if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
+                results.emplace_back(trailingSpaces, paragraphStyle.getTextDirection());
+            }
+            return true;
+        });
+        return true;
+    });
+
+    return results;
 }
 }  // namespace textlayout
 }  // namespace skia
