@@ -86,13 +86,8 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords,
                           coords.c_str());
         result = coords2D;
     }
-    switch (matrix.fKind) {
-        case SkSL::SampleMatrix::Kind::kMixed:
-        case SkSL::SampleMatrix::Kind::kVariable:
-            result = SkStringPrintf("(_matrix * float3(%s, 1)).xy", result.c_str());
-            break;
-        default:
-            break;
+    if (matrix.fFlags & SkSL::SampleMatrix::kVariable_Flag) {
+        result = SkStringPrintf("(_matrix * float3(%s, 1)).xy", result.c_str());
     }
     return result;
 }
@@ -173,8 +168,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
-    bool hasVariableMatrix = args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                             args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed;
+    bool hasVariableMatrix = args.fFp.sampleMatrix().fFlags & SkSL::SampleMatrix::kVariable_Flag;
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
@@ -191,12 +185,13 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                 SkASSERT(transform.getType() == kVoid_GrSLType);
                 break;
         }
-        if (args.fFp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+        SkSL::SampleMatrix matrix = args.fFp.sampleMatrix();
+        if (matrix.fExpression != "") {
             SkASSERT(!hasVariableMatrix);
             this->codeAppend("{\n");
-            args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);
+            args.fUniformHandler->writeUniformMappings(matrix.fOwner, this);
             this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
-                              args.fFp.sampleMatrix().fExpression.c_str());
+                              matrix.fExpression.c_str());
             this->codeAppend("}\n");
         }
     }

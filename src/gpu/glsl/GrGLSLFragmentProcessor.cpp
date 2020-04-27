@@ -41,13 +41,8 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
     SkASSERT(childProc.isSampledWithExplicitCoords() == !skslCoords.empty());
 
     if (skslCoords.length() == 0) {
-        switch (childProc.sampleMatrix().fKind) {
-            case SkSL::SampleMatrix::Kind::kMixed:
-            case SkSL::SampleMatrix::Kind::kVariable:
-                skslCoords = "_matrix";
-                break;
-            default:
-                break;
+        if (childProc.sampleMatrix().fFlags & SkSL::SampleMatrix::kVariable_Flag) {
+            skslCoords = "_matrix";
         }
     }
 
