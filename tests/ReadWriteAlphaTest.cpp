@@ -31,7 +31,7 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
         for (int x = 0; x < w; ++x) {
             uint8_t a = actual[y * actualRowBytes + x];
             uint8_t e = expected[y * w + x];
-            if (GrColorType::kRGBA_1010102 == colorType) {
+            if (GrColorType::kRGBA1_1010102 == colorType) {
                 // This config only preserves two bits of alpha
                 a >>= 6;
                 e >>= 6;
@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             {GrColorType::kRGBA_8888,      kPremul_SkAlphaType},
             {GrColorType::kBGRA_8888,      kPremul_SkAlphaType},
             {GrColorType::kRGBA_8888_SRGB, kPremul_SkAlphaType},
-            {GrColorType::kRGBA_1010102,   kPremul_SkAlphaType},
+            {GrColorType::kRGBA1_1010102,   kPremul_SkAlphaType},
     };
 
     for (int y = 0; y < Y_SIZE; ++y) {

@@ -1,3 +1,5 @@
+#if 0
+
 /*
  * Copyright 2019 Google LLC
  *
@@ -1204,3 +1206,5 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
 }
+
+#endif

@@ -411,7 +411,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest, reporter, ctxInf
                      //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
-                     GrColorType::kRGBA_1010102,
+                     GrColorType::kRGBA1_1010102,
+                     GrColorType::kBGRA_1010102,
                      GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,
@@ -443,7 +444,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest, reporter, ctxI
                      //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
-                     GrColorType::kRGBA_1010102,
+                     GrColorType::kRGBA1_1010102,
+                     GrColorType::kBGRA_1010102,
                      GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,

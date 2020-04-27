@@ -1,3 +1,6 @@
+
+#if 0
+
 /*
  * Copyright 2019 Google LLC
  *
@@ -172,3 +175,4 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
     test_RuntimeEffect_Shaders(r, ctxInfo.grContext());
 }
+#endif
