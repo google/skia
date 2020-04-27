@@ -131,38 +131,30 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                 vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(), localCoordsStr.c_str());
             }
             fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
-            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix.c_str(), localCoordsStr, &fp });
-        } else {
-            SkASSERT(fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kVariable);
-            if (fp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-                matrix += " * " + fp.sampleMatrix().fExpression;
-            }
+            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix, localCoordsStr, &fp });
         }
-        handler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fsVar);
+        handler->specifyCoordsForCurrCoordTransform(transformVar, fsVar);
     }
 }
 
 void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                                                 GrGLSLUniformHandler* uniformHandler) {
     for (const auto& tr : fTransformInfos) {
-        switch (tr.fFP->sampleMatrix().fKind) {
-            case SkSL::SampleMatrix::Kind::kConstantOrUniform:
-                vb->codeAppend("{\n");
-                uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
-                if (tr.fType == kFloat2_GrSLType) {
-                    vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
-                                    tr.fLocalCoords.c_str());
-                } else {
-                    SkASSERT(tr.fType == kFloat3_GrSLType);
-                    vb->codeAppendf("%s = %s * %s * %s", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
-                                    tr.fName);
-                }
-                vb->codeAppend(";\n");
-                vb->codeAppend("}\n");
-            default:
-                break;
+        if (tr.fFP->sampleMatrix().fFlags & SkSL::SampleMatrix::kVertex_Flag) {
+            vb->codeAppend("{\n");
+            uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
+            if (tr.fType == kFloat2_GrSLType) {
+                vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
+                                tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
+                                tr.fLocalCoords.c_str());
+            } else {
+                SkASSERT(tr.fType == kFloat3_GrSLType);
+                vb->codeAppendf("%s = %s * %s * %s", tr.fName,
+                                tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
+                                tr.fName);
+            }
+            vb->codeAppend(";\n");
+            vb->codeAppend("}\n");
         }
     }
 }

@@ -287,6 +287,14 @@ void HCodeGenerator::writeConstructor() {
                 this->writef("            %s->setSampledWithExplicitCoords();",
                              String(param->fName).c_str());
             }
+            SampleMatrix matrix = fSectionAndParameterHelper.getMatrix(*param);
+            if (matrix.fFlags) {
+                this->writef("            %s->setSampleMatrix(SkSL::SampleMatrix(%d, this, "
+                                                                                "\"%s\"));",
+                             String(param->fName).c_str(),
+                             matrix.fFlags,
+                             matrix.fExpression.c_str());
+            }
             this->writef("            this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
             if (param->fType.kind() == Type::kNullable_Kind) {

@@ -12,21 +12,18 @@
 namespace SkSL {
 
 SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
-    if (fKind == Kind::kVariable || other.fKind == Kind::kVariable) {
-        *this = SampleMatrix(Kind::kVariable);
-        return *this;
+    if ((fFlags & kVariable_Flag) || (other.fFlags & kVariable_Flag)) {
+        *this = SampleMatrix(kVariable_Flag);
     }
-    if (other.fKind == Kind::kConstantOrUniform) {
-        if (fKind == other.fKind) {
-            if (fExpression == other.fExpression) {
-                return *this;
+    else if (other.fFlags & (kVertex_Flag | kFragment_Flag)) {
+        if (fFlags == other.fFlags) {
+            if (fExpression != other.fExpression) {
+                *this = SampleMatrix(kVariable_Flag);
             }
-            *this = SampleMatrix(Kind::kVariable);
-            return *this;
+        } else {
+            SkASSERT(fFlags == 0);
+            *this = other;
         }
-        SkASSERT(fKind == Kind::kNone);
-        *this = other;
-        return *this;
     }
     return *this;
 }

@@ -83,7 +83,7 @@ public:
 
     virtual UniformInfo& uniform(int idx) = 0;
 
-    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b);
+    void writeUniformMappings(const GrFragmentProcessor* owner, GrGLSLShaderBuilder* b);
 
 protected:
     struct UniformMapping {
