@@ -1745,6 +1745,7 @@ if (skia_enable_tools) {
         ":trace",
         "modules/skottie",
         "modules/skottie:utils",
+        "//third_party/absl",
       ]
     }
     test_app("dm") {

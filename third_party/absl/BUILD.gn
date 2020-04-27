@@ -69,6 +69,17 @@ third_party("absl") {
     "../externals/abseil-cpp/absl/base/port.h",
     "../externals/abseil-cpp/absl/base/thread_annotations.h",
 
+    # Debugging
+    "../externals/abseil-cpp/absl/debugging/failure_signal_handler.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/address_is_readable.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/demangle.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/elf_mem_image.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/examine_stack.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/stack_consumption.cc",
+    "../externals/abseil-cpp/absl/debugging/internal/vdso_support.cc",
+    "../externals/abseil-cpp/absl/debugging/stacktrace.cc",
+    "../externals/abseil-cpp/absl/debugging/symbolize.cc",
+
     # Hash
     "../externals/abseil-cpp/absl/hash/hash.h",
     "../externals/abseil-cpp/absl/hash/internal/city.cc",

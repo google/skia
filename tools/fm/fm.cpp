@@ -28,6 +28,8 @@
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/trace/EventTracingPriv.h"
+#include <absl/debugging/failure_signal_handler.h>
+#include <absl/debugging/symbolize.h>
 #include <chrono>
 #include <functional>
 #include <stdio.h>
@@ -377,7 +379,8 @@ extern bool gSkVMJITViaDylib;
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
-    SetupCrashHandler();
+    absl::InitializeSymbolizer(argv[0]);
+    absl::InstallFailureSignalHandler({});
 
     if (FLAGS_cpuDetect) {
         SkGraphics::Init();

@@ -3047,6 +3047,7 @@ namespace skvm {
                 } break;
 
                 case Op::gather16: {
+                    __builtin_debugtrap();
                     // Just as gather8 except vpinsrb->vpinsrw, ONE->TWO, and vpmovzxbd->vpmovzxwd.
                     a->mov(GP0, A::Mem{arg[immy], immz});
 
