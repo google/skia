@@ -1856,7 +1856,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fInternalFormatForTexImageOrStorage = bgraTexImageFormat;
         }
 
-        if (SkToBool(info.fFlags &FormatInfo::kTexturable_Flag)) {
+        if (SkToBool(info.fFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
@@ -2441,7 +2441,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGB10_A2;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_INT_2_10_10_10_REV;
-        info.fDefaultColorType = GrColorType::kRGBA_1010102;
+        info.fDefaultColorType = GrColorType::kRGBA1_1010102;
         info.fBytesPerPixel = 4;
         if (GR_IS_GR_GL(standard) ||
            (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
@@ -2450,6 +2450,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                    ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
             info.fFlags = FormatInfo::kTexturable_Flag;
         } // No WebGL support
+
         if (texStorageSupported) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_RGB10_A2;
@@ -2458,16 +2459,16 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     texImageSupportsSizedInternalFormat ? GR_GL_RGB10_A2 : GR_GL_RGBA;
         }
 
-        if (SkToBool(info.fFlags &FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
+        if (SkToBool(info.fFlags & FormatInfo::kTexturable_Flag)) {
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: RGB10_A2, Surface: kRGBA_1010102
             {
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_1010102;
+                ctInfo.fColorType = GrColorType::kRGBA1_1010102;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                this->setColorTypeFormat(GrColorType::kRGBA_1010102, GrGLFormat::kRGB10_A2);
+                this->setColorTypeFormat(GrColorType::kRGBA1_1010102, GrGLFormat::kRGB10_A2);
 
                 // External IO ColorTypes:
                 ctInfo.fExternalIOFormatCount = 2;
@@ -2477,7 +2478,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 // Format: RGB10_A2, Surface: kRGBA_1010102, Data: kRGBA_1010102
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kRGBA_1010102;
+                    ioFormat.fColorType = GrColorType::kRGBA1_1010102;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_INT_2_10_10_10_REV;
                     ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
@@ -2494,6 +2495,40 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
                 }
             }
+            //------------------------------------------------------------------
+            // Format: RGB10_A2, Surface: kBGRA_1010102
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = GrColorType::kBGRA_1010102;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(GrColorType::kBGRA_1010102, GrGLFormat::kRGB10_A2);
+
+                // External IO ColorTypes:
+                ctInfo.fExternalIOFormatCount = 2;
+                ctInfo.fExternalIOFormats.reset(
+                        new ColorTypeInfo::ExternalIOFormats[ctInfo.fExternalIOFormatCount]());
+                int ioIdx = 0;
+                // Format: RGB10_A2, Surface: kRGBA_1010102, Data: kRGBA_1010102
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kRGBA1_1010102;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_INT_2_10_10_10_REV;
+                    ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
+                    ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                    // Not guaranteed by ES/WebGL.
+                    ioFormat.fRequiresImplementationReadQuery = !GR_IS_GR_GL(standard);
+                }
+
+                // Format: RGB10_A2, Surface: kRGBA_1010102, Data: kRGBA_8888
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kRGBA_8888;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                    ioFormat.fExternalTexImageFormat = 0;
+                    ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                }
+            }
+
         }
     }
 
@@ -4394,8 +4429,10 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
           GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_88,
           GrBackendFormat::MakeGL(GR_GL_RG8, GR_GL_TEXTURE_2D) },
-        { GrColorType::kRGBA_1010102,
+        { GrColorType::kRGBA1_1010102,
           GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_2D) },
+//        { GrColorType::kBGRA_1010102,
+//          GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_2D) },
         { GrColorType::kGray_8,
           GrBackendFormat::MakeGL(GR_GL_LUMINANCE8, GR_GL_TEXTURE_2D) },
         { GrColorType::kGray_8,

@@ -65,8 +65,8 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                                                                   skColorType,
                                                                   nullptr, nullptr);
         if (!surf) {
-            ERRORF(reporter, "Couldn't make surface from backendTexture for colorType %d\n",
-                   skColorType);
+            ERRORF(reporter, "Couldn't make surface from backendTexture for %s\n",
+                   ToolUtils::colortype_name(skColorType));
         } else {
             REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
@@ -80,8 +80,8 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                                                       kPremul_SkAlphaType,
                                                       nullptr);
         if (!img) {
-            ERRORF(reporter, "Couldn't make image from backendTexture for skColorType %d\n",
-                   skColorType);
+            ERRORF(reporter, "Couldn't make image from backendTexture for %s\n",
+                   ToolUtils::colortype_name(skColorType));
         } else {
             SkImage_Base* ib = as_IB(img);
 
@@ -601,11 +601,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGB_888x_SkColorType,          SkColors::kCyan          },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },
-        // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
+        // TODO: readback is busted for *10A2 when alpha = 0.5f (perhaps premul vs. unpremul)
         { kRGBA_1010102_SkColorType,      { .25f, .5f, .75f, 1.0f }},
-        // RGB/BGR 101010x and BGRA 1010102 have no Ganesh correlate
+        { kBGRA_1010102_SkColorType,      { 0, 0.5f, 0, 1.0f }     },
+        // RGB/BGR 101010x have no Ganesh correlate
         { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
-        { kBGRA_1010102_SkColorType,      { 0, 0.5f, 0, 0.5f }     },
         { kBGR_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
         { kGray_8_SkColorType,            kGrayCol                 },
         { kRGBA_F16Norm_SkColorType,      SkColors::kLtGray        },
@@ -764,7 +764,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kBGRA_8888,        GR_GL_RGBA8,                SkColors::kBlue      },
         { GrColorType::kBGRA_8888,        GR_GL_BGRA8,                SkColors::kBlue      },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kRGBA1_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kBGRA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
         { GrColorType::kBGR_565,          GR_GL_RGB565,               SkColors::kRed       },
         { GrColorType::kABGR_4444,        GR_GL_RGBA4,                SkColors::kGreen     },
 
@@ -915,7 +916,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kBGRA_8888,        VK_FORMAT_B8G8R8A8_UNORM,           SkColors::kBlue     },
 
-        { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f }},
+        { GrColorType::kRGBA1_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f }},
+        { GrColorType::kBGRA_1010102,     VK_FORMAT_A2R10G10B10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f }},
         { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed      },
 
         { GrColorType::kABGR_4444,        VK_FORMAT_R4G4B4A4_UNORM_PACK16,    SkColors::kCyan     },
