@@ -27,11 +27,11 @@ uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
 }
 
 bool GrStyledShape::testingOnly_isPath() const {
-    return Type::kPath == fType;
+    return fShape.isPath();
 }
 
 bool GrStyledShape::testingOnly_isNonVolatilePath() const {
-    return Type::kPath == fType && !fPathData.fPath.isVolatile();
+    return fShape.isPath() && !fShape.path().isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
