@@ -56,7 +56,9 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    GrVkCommandPool* cmdPool() const { return fCmdPool; }
+    GrVkCommandPool* cmdPool() const {
+        return fTempCmdPool ? fTempCmdPool : fMainCmdPool;
+    }
     const VkPhysicalDeviceProperties& physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -67,7 +69,9 @@ public:
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
 
-    GrVkPrimaryCommandBuffer* currentCommandBuffer() { return fCurrentCmdBuffer; }
+    GrVkPrimaryCommandBuffer* currentCommandBuffer() const {
+        return fTempCmdBuffer ? fTempCmdBuffer : fMainCmdBuffer;
+    }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
 
@@ -290,6 +294,18 @@ private:
                                         GrProtected,
                                         const BackendTextureData*);
 
+    // Creates a new temporary primary command buffer that will be target of all subsequent commands
+    // until it is submitted via submitTempCommandBuffer. When the temp command buffer gets
+    // submitted the main command buffer will begin being the target of commands again. When using a
+    // a temp command buffer, the caller should not use any resources that may have been used by the
+    // unsubmitted main command buffer. The reason for this is we've already updated state, like
+    // image layout, for the resources on the main command buffer even though we haven't submitted
+    // it yet. Thus if the same resource gets used on the temp our tracking will get thosse state
+    // updates out of order. It is legal to use a resource on either the temp or main command buffer
+    // that was used on a previously submitted command buffer;
+    GrVkPrimaryCommandBuffer* getTempCommandBuffer();
+    bool submitTempCommandBuffer(SyncQueue sync);
+
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
     sk_sp<GrVkCaps>                                       fVkCaps;
@@ -303,10 +319,13 @@ private:
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
 
-    GrVkCommandPool*                                      fCmdPool;
-
+    GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool
-    GrVkPrimaryCommandBuffer*                             fCurrentCmdBuffer;
+    GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
+
+    GrVkCommandPool*                                      fTempCmdPool = nullptr;
+    // just a raw pointer; object's lifespan is managed by fCmdPool
+    GrVkPrimaryCommandBuffer*                             fTempCmdBuffer = nullptr;
 
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;

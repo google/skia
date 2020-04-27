@@ -128,6 +128,10 @@ public:
 
     bool hasWork() const { return fHasWork; }
 
+#ifdef SK_DEBUG
+    bool validateNoSharedImageResources(const GrVkCommandBuffer* other);
+#endif
+
 protected:
     GrVkCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped = false)
             : fCmdBuffer(cmdBuffer)
