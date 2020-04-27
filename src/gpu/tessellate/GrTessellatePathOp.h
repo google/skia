@@ -62,19 +62,17 @@ private:
     // triangles directly and bypass stencilling them.
     //
     // Returns false if the inner triangles do not form a simple polygon (e.g., self intersection,
-    // double winding). Non-simple polygons would need to split edges in order to avoid overlap,
-    // and this is not an option as it would introduce T-junctions with the outer cubics.
-    bool prepareNonOverlappingInnerTriangles(GrOpFlushState*, int* numCountedCurves);
+    // double winding).
+    bool prepareSimpleInnerPolygonTriangulation(GrOpFlushState*, int* numCountedCurves);
 
     // Produces a "Red Book" style triangulation of the SkPath's inner polygon(s). The inner
     // polygons connect the endpoints of each verb. (i.e., they are the path that would result from
     // collapsing all curves to single lines.) Stencilled together with the outer cubics, these
     // define the complete path.
     //
-    // This method emits the inner triangles with a "middle-out" topology. Middle-out can reduce
-    // the load on the rasterizer by a great deal as compared to a linear triangle strip or fan.
-    // See GrMiddleOutPolygonTriangulator.
-    void prepareMiddleOutInnerTriangles(GrOpFlushState*, int* numCountedCurves);
+    // This method works by recursively subdividing the path rather than emitting a linear triangle
+    // fan or strip. This can reduce the load on the rasterizer by a great deal on complex paths.
+    void prepareInnerTriangles(GrOpFlushState*, int* numCountedCurves);
 
     enum class CubicDataAlignment : bool {
         kVertexBoundary,
