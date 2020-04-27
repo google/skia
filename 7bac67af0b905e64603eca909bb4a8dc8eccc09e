@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "67722908_db428831",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-27T17:29:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c1bfefb_65800fbf",
+      "range": {
+        "startLine": 113,
+        "startChar": 8,
+        "endLine": 113,
+        "endChar": 62
+      },
+      "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "315639f5_8718fe67",
         "filename": "src/gpu/tessellate/GrTessellatePathOp.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-27T14:13:41Z",
       "side": 1,
       "message": "The rename from simple inner polygon to non-overlapping inner triangles makes sense, as it reflects the state of the geometry. Do we want to impose \"MiddleOut\" in the name of this function? If we keep it as prepareInnerTriangles, it\u0027s still valid and we can have the comment talk generically about how the triangulation is chosen to reduce load on the rasterizer relative to a simple fan. It using GrMiddleOutPolygonTriangulator seems like an implementation detail to me.",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "448cfae7_21d356c0",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-27T17:29:05Z",
+      "side": 1,
+      "message": "So as-is, onPrepare counts verbs, checks the path transformed size, etc. in order to make an educated choice about which geometry method to use. It looks kind of like:\n\n if (fullTriangulationIsWorthIt) {\n     prepeareNonOverlappingInnerTriangles();\n     prepareOuterCubics();\n     return;\n }\n\n if (middleOutIsWorthIt) {\n     prepareMiddleOutInnerTriangles();\n     prepareOuterCubics();\n     return;\n }\n\n prepareCubicWedges();\n\nSo at least for now my preference might be to leave it as-is. Both call sites for this method (onPrepare and the benchmark) fully expect it to use middle-out. onPrepare might be the more general method whose job is to make pixels happen without necessarily revealing too many implementation details. How strong of a preference is this for you?",
+      "parentUuid": "315639f5_8718fe67",
       "range": {
         "startLine": 77,
         "startChar": 9,
