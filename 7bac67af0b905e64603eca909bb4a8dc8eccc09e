@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c1bfefb_65800fbf",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T14:13:41Z",
+      "side": 1,
+      "message": "Can we add an assert that the vertex delta remains 0? That would help make it clearer that initial StackVertex is in the right state",
+      "range": {
+        "startLine": 113,
+        "startChar": 8,
+        "endLine": 113,
+        "endChar": 62
+      },
+      "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315639f5_8718fe67",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-27T14:13:41Z",
+      "side": 1,
+      "message": "The rename from simple inner polygon to non-overlapping inner triangles makes sense, as it reflects the state of the geometry. Do we want to impose \"MiddleOut\" in the name of this function? If we keep it as prepareInnerTriangles, it\u0027s still valid and we can have the comment talk generically about how the triangulation is chosen to reduce load on the rasterizer relative to a simple fan. It using GrMiddleOutPolygonTriangulator seems like an implementation detail to me.",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "7bac67af0b905e64603eca909bb4a8dc8eccc09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
