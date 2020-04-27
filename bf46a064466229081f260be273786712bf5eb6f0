@@ -117,6 +117,30 @@
       "revId": "bf46a064466229081f260be273786712bf5eb6f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f97226_12a13ab3",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-27T20:24:09Z",
+      "side": 1,
+      "message": "Actually, I guess the SkVertices serialization does end up storing the hashes, so that would make them not-so-portable. Do we have a consistent string hash already checked in?",
+      "parentUuid": "cbf7cbdc_d96508c8",
+      "range": {
+        "startLine": 1546,
+        "startChar": 31,
+        "endLine": 1546,
+        "endChar": 47
+      },
+      "revId": "bf46a064466229081f260be273786712bf5eb6f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
