@@ -26,6 +26,13 @@ SkScalar littleRound(SkScalar a) {
   return SkScalarRoundToScalar(a * 100.0)/100.0;
 }
 
+TextRange operator*(const TextRange& a, const TextRange& b) {
+    if (a.start == b.start && a.end == b.end) return a;
+    auto begin = std::max(a.start, b.start);
+    auto end = std::min(a.end, b.end);
+    return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
+}
+
 int compareRound(SkScalar a, SkScalar b) {
     // There is a rounding error that gets bigger when maxWidth gets bigger
     // VERY long zalgo text (> 100000) on a VERY long line (> 10000)
@@ -991,6 +998,336 @@ LineMetrics TextLine::getMetrics() const {
     });
 
     return result;
+}
+
+bool TextLine::isFirstLine() {
+    return this == &fMaster->lines().front();
+}
+
+bool TextLine::isLastLine() {
+    return this == &fMaster->lines().back();
+}
+
+void TextLine::getRectsForRange(TextRange textRange0,
+                                RectHeightStyle rectHeightStyle,
+                                RectWidthStyle rectWidthStyle,
+                                std::vector<TextBox>& boxes)
+{
+    const Run* lastRun = nullptr;
+    auto startBox = boxes.size();
+    this->iterateThroughVisualRuns(true,
+        [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kNone,
+        [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
+        (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& lineContext) {
+
+            auto intersect = textRange * textRange0;
+            if (intersect.empty()) {
+                return true;
+            }
+
+            auto paragraphStyle = fMaster->paragraphStyle();
+
+            // Found a run that intersects with the text
+            auto context = this->measureTextInsideOneRun(intersect, run, runOffsetInLine, 0, true, true);
+            SkRect clip = context.clip;
+            clip.offset(lineContext.fTextShift - context.fTextShift, 0);
+
+            switch (rectHeightStyle) {
+                case RectHeightStyle::kMax:
+                    // TODO: Change it once flutter rolls into google3
+                    //  (probably will break things if changed before)
+                    clip.fBottom = this->height();
+                    clip.fTop = this->sizes().delta();
+                    break;
+                case RectHeightStyle::kIncludeLineSpacingTop:
+                    if (!isFirstLine()) {
+                        clip.fTop -= this->sizes().runTop(context.run);
+                    }
+                    clip.fBottom -= this->sizes().runTop(context.run);
+                break;
+                case RectHeightStyle::kIncludeLineSpacingMiddle:
+                    if (!isFirstLine()) {
+                        clip.fTop -= this->sizes().runTop(context.run) / 2;
+                    }
+                    if (isLastLine()) {
+                        clip.fBottom -= this->sizes().runTop(context.run);
+                    } else {
+                        clip.fBottom -= this->sizes().runTop(context.run) / 2;
+                    }
+                break;
+                case RectHeightStyle::kIncludeLineSpacingBottom:
+                    if (isLastLine()) {
+                        clip.fBottom -= this->sizes().runTop(context.run);
+                    }
+                break;
+                case RectHeightStyle::kStrut: {
+                    auto strutStyle = paragraphStyle.getStrutStyle();
+                    if (strutStyle.getStrutEnabled()
+                        && strutStyle.getFontSize() > 0) {
+                        auto strutMetrics = fMaster->strutMetrics();
+                        auto top = this->baseline();
+                        clip.fTop = top + strutMetrics.ascent();
+                        clip.fBottom = top + strutMetrics.descent();
+                    }
+                }
+                break;
+                case RectHeightStyle::kTight:
+                    if (run->fHeightMultiplier > 0) {
+                        // This is a special case when we do not need to take in account this height multiplier
+                        clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
+                    }
+                break;
+                default:
+                    SkASSERT(false);
+                break;
+            }
+
+            // Separate trailing spaces and move them in the default order of the paragraph
+            // in case the run order and the paragraph order don't match
+            SkRect trailingSpaces = SkRect::MakeEmpty();
+            if (this->trimmedText().end < this->textWithSpaces().end && // Line has trailing spaces
+                this->textWithSpaces().end == intersect.end &&         // Range is at the end of the line
+                this->trimmedText().end > intersect.start)             // Range has more than just spaces
+            {
+                auto delta = this->spacesWidth();
+                trailingSpaces = SkRect::MakeXYWH(0, 0, 0, 0);
+                // There are trailing spaces in this run
+                if (paragraphStyle.getTextAlign() == TextAlign::kJustify && isLastLine())
+                {
+                    // TODO: this is just a patch. Make it right later (when it's clear what and how)
+                    trailingSpaces = clip;
+                    if(run->leftToRight()) {
+                        trailingSpaces.fLeft = this->width();
+                        clip.fRight = this->width();
+                    } else {
+                        trailingSpaces.fRight = 0;
+                        clip.fLeft = 0;
+                    }
+                } else if (paragraphStyle.getTextDirection() == TextDirection::kRtl &&
+                    !run->leftToRight())
+                {
+                    // Split
+                    trailingSpaces = clip;
+                    trailingSpaces.fLeft = - delta;
+                    trailingSpaces.fRight = 0;
+                    clip.fLeft += delta;
+                } else if (paragraphStyle.getTextDirection() == TextDirection::kLtr &&
+                    run->leftToRight())
+                {
+                    // Split
+                    trailingSpaces = clip;
+                    trailingSpaces.fLeft = this->width();
+                    trailingSpaces.fRight = trailingSpaces.fLeft + delta;
+                    clip.fRight -= delta;
+                }
+            }
+
+            clip.offset(this->offset());
+            if (trailingSpaces.width() > 0) {
+                trailingSpaces.offset(this->offset());
+            }
+
+            // Check if we can merge two boxes instead of adding a new one
+            auto merge = [&lastRun, &context, &boxes](SkRect clip) {
+                bool mergedBoxes = false;
+                if (!boxes.empty() &&
+                    lastRun != nullptr &&
+                    lastRun->placeholderStyle() == nullptr &&
+                    context.run->placeholderStyle() == nullptr &&
+                    nearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
+                    lastRun->font() == context.run->font())
+                {
+                    auto& lastBox = boxes.back();
+                    if (nearlyEqual(lastBox.rect.fTop, clip.fTop) &&
+                        nearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
+                            (nearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
+                             nearlyEqual(lastBox.rect.fRight, clip.fLeft)))
+                    {
+                        lastBox.rect.fLeft = std::min(lastBox.rect.fLeft, clip.fLeft);
+                        lastBox.rect.fRight = std::max(lastBox.rect.fRight, clip.fRight);
+                        mergedBoxes = true;
+                    }
+                }
+                lastRun = context.run;
+                return mergedBoxes;
+            };
+
+            if (!merge(clip)) {
+                boxes.emplace_back(clip, context.run->getTextDirection());
+            }
+            if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
+                boxes.emplace_back(trailingSpaces, paragraphStyle.getTextDirection());
+            }
+
+            if (rectWidthStyle == RectWidthStyle::kMax && !isLastLine()) {
+                // Align the very left/right box horizontally
+                auto lineStart = this->offset().fX;
+                auto lineEnd = this->offset().fX + this->width();
+                auto left = boxes[startBox];
+                auto right = boxes.back();
+                if (left.rect.fLeft > lineStart && left.direction == TextDirection::kRtl) {
+                    left.rect.fRight = left.rect.fLeft;
+                    left.rect.fLeft = 0;
+                    boxes.insert(boxes.begin() + startBox + 1, left);
+                }
+                if (right.direction == TextDirection::kLtr &&
+                    right.rect.fRight >= lineEnd &&  right.rect.fRight < fMaster->widthWithTrailingSpaces()) {
+                    right.rect.fLeft = right.rect.fRight;
+                    right.rect.fRight = fMaster->widthWithTrailingSpaces();
+                    boxes.emplace_back(right);
+                }
+            }
+
+            return true;
+        });
+        return true;
+    });
+    for (auto& r : boxes) {
+        r.rect.fLeft = littleRound(r.rect.fLeft);
+        r.rect.fRight = littleRound(r.rect.fRight);
+        r.rect.fTop = littleRound(r.rect.fTop);
+        r.rect.fBottom = littleRound(r.rect.fBottom);
+    }
+}
+
+PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
+
+    PositionWithAffinity result(0, Affinity::kDownstream);
+    this->iterateThroughVisualRuns(true,
+        [this, dx, &result]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            bool lookingForHit = true;
+            *runWidthInLine = this->iterateThroughSingleRunByStyles(
+            run, runOffsetInLine, textRange, StyleType::kNone,
+            [this, dx, &result, &lookingForHit]
+            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+
+                auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
+                    auto codepoints = fMaster->codepoints();
+                    auto codepoint = std::lower_bound(
+                        codepoints.begin(), codepoints.end(),
+                        clusterIndex8,
+                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+
+                    return codepoint - codepoints.begin();
+                };
+
+                auto offsetX = this->offset().fX;
+                if (dx < context.clip.fLeft + offsetX) {
+                    // All the other runs are placed right of this one
+                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
+                    result = { SkToS32(codepointIndex), kDownstream };
+                    lookingForHit = false;
+                    return false;
+                }
+
+                if (dx >= context.clip.fRight + offsetX) {
+                    // We have to keep looking ; just in case keep the last one as the closest
+                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
+                    result = { SkToS32(codepointIndex), kUpstream };
+                    return true;
+                }
+
+                // So we found the run that contains our coordinates
+                // Find the glyph position in the run that is the closest left of our point
+                // TODO: binary search
+                size_t found = context.pos;
+                for (size_t index = context.pos; index < context.pos + context.size; ++index) {
+                    // TODO: this rounding is done to match Flutter tests. Must be removed..
+                    auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
+                    if (end > dx) {
+                        break;
+                    }
+                    found = index;
+                }
+
+                auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
+                auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                auto clusterIndex8 = context.run->globalClusterIndex(found);
+                auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+
+                // Find the grapheme positions in codepoints that contains the point
+                auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
+                CodepointRange codepoints(codepointIndex, codepointIndex);
+                auto masterCodepoints = fMaster->codepoints();
+                if (context.run->leftToRight()) {
+                    for (codepoints.end = codepointIndex;
+                         codepoints.end < masterCodepoints.size(); ++codepoints.end) {
+                        auto& cp = masterCodepoints[codepoints.end];
+                        if (cp.fTextIndex >= clusterEnd8) {
+                            break;
+                        }
+                    }
+                } else {
+                    for (codepoints.end = codepointIndex;
+                         codepoints.end > 0; --codepoints.end) {
+                        auto& cp = masterCodepoints[codepoints.end];
+                        if (cp.fTextIndex <= clusterEnd8) {
+                            break;
+                        }
+                    }
+                    std::swap(codepoints.start, codepoints.end);
+                }
+
+                auto graphemeSize = codepoints.width();
+
+                // We only need to inspect one glyph (maybe not even the entire glyph)
+                SkScalar center;
+                bool insideGlyph = false;
+                if (graphemeSize > 1) {
+                    auto averageCodepointWidth = glyphWidth / graphemeSize;
+                    auto delta = dx - glyphStart;
+                    auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
+                    insideGlyph = delta > averageCodepointWidth;
+                    center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
+                    codepointIndex += insideIndex;
+                } else {
+                    center = glyphStart + glyphWidth / 2;
+                }
+                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                    result = { SkToS32(codepointIndex), kDownstream };
+                } else {
+                    result = { SkToS32(codepointIndex + 1), kUpstream };
+                }
+                // No need to continue
+                lookingForHit = false;
+                return false;
+
+            });
+          return lookingForHit;
+        }
+    );
+    return result;
+}
+
+void TextLine::getRectsForPlaceholders(std::vector<TextBox>& boxes) {
+    this->iterateThroughVisualRuns(
+        true,
+        [&boxes, this](const Run* run, SkScalar runOffset, TextRange textRange,
+                        SkScalar* width) {
+            auto context = this->measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
+            *width = context.clip.width();
+
+            if (textRange.width() == 0) {
+                return true;
+            }
+            if (!run->isPlaceholder()) {
+                return true;
+            }
+
+            SkRect clip = context.clip;
+            clip.offset(this->offset());
+
+            clip.fLeft = littleRound(clip.fLeft);
+            clip.fRight = littleRound(clip.fRight);
+            clip.fTop = littleRound(clip.fTop);
+            clip.fBottom = littleRound(clip.fBottom);
+            boxes.emplace_back(clip, run->getTextDirection());
+            return true;
+        });
 }
 }  // namespace textlayout
 }  // namespace skia
