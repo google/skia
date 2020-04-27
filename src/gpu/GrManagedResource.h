@@ -141,6 +141,13 @@ public:
     virtual void notifyFinishedWithWorkOnGpu() const {}
 
 #ifdef SK_DEBUG
+    // This is used for validating in the vulkan backend when using a main command buffer and temp
+    // command buffer at the same time. We need to validate that no images in the temp command
+    // buffer have been used in the main command buffer.
+    virtual const GrManagedResource* asVkImageResource() const { return nullptr; }
+#endif
+
+#ifdef SK_DEBUG
     void validate() const {
         SkASSERT(this->getRefCnt() > 0);
     }

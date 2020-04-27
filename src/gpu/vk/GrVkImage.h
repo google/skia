@@ -188,6 +188,10 @@ private:
         }
 #endif
 
+#ifdef SK_DEBUG
+        const GrManagedResource* asVkImageResource() const override { return this; }
+#endif
+
     private:
         void freeGPUData() const override;
 
