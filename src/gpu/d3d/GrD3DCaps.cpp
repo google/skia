@@ -493,6 +493,7 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
             }
         }
     }
+
     // Format: DXGI_FORMAT_B4G4R4A4_UNORM
     {
         constexpr DXGI_FORMAT format = DXGI_FORMAT_B4G4R4A4_UNORM;
