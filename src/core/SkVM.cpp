@@ -3521,7 +3521,11 @@ namespace skvm {
 
             // Load that dynamic library and look up skvm_jit().
             fImpl->dylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            fImpl->jit_entry.store(dlsym(fImpl->dylib, "skvm_jit"));
+            void* sym = nullptr;
+            for (const char* name : {"skvm_jit", "_skvm_jit"} ) {
+                if (!sym) { sym = dlsym(fImpl->dylib, name); }
+            }
+            fImpl->jit_entry.store(sym);
         }
     }
 #endif
