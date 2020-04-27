@@ -10,7 +10,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
-#include "tools/ToolUtils.h"
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
@@ -48,7 +47,7 @@ public:
     const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
 
-    class MiddleOutInnerTrianglesBench;
+    class InnerTrianglesBench;
     class OuterCubicsBench;
     class CubicWedgesBench;
 
@@ -72,23 +71,20 @@ private:
     SkString fName;
 };
 
-class GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench
+class GrTessellatePathOp::TestingOnly_Benchmark::InnerTrianglesBench
         : public GrTessellatePathOp::TestingOnly_Benchmark {
 public:
-    MiddleOutInnerTrianglesBench()
-            : TestingOnly_Benchmark("prepareMiddleOutInnerTriangles",
-                                    ToolUtils::make_star(SkRect::MakeWH(100, 100),
-                                                         kNumCubicsInChalkboard),
-                                    SkMatrix::I()) {
+    InnerTrianglesBench()
+            : TestingOnly_Benchmark("prepareInnerTriangles", make_cubic_path(), SkMatrix::I()) {
     }
     void runBench(GrOpFlushState* flushState, GrTessellatePathOp* op) override {
         int numBeziers;
-        op->prepareMiddleOutInnerTriangles(flushState, &numBeziers);
+        op->prepareInnerTriangles(flushState, &numBeziers);
         SkASSERT(numBeziers == kNumCubicsInChalkboard);
     }
 };
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench(););
+DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::InnerTrianglesBench(););
 
 class GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench
         : public GrTessellatePathOp::TestingOnly_Benchmark {

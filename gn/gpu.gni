@@ -426,13 +426,11 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.h",
   "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp",
   "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h",
-
-  # tessellate
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.h",
   "$_src/gpu/tessellate/GrFillPathShader.cpp",
   "$_src/gpu/tessellate/GrFillPathShader.h",
-  "$_src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+  "$_src/gpu/tessellate/GrInnerPolygonContourParser.h",
   "$_src/gpu/tessellate/GrMidpointContourParser.h",
   "$_src/gpu/tessellate/GrPathShader.h",
   "$_src/gpu/tessellate/GrStencilPathShader.cpp",
