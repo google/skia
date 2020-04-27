@@ -248,6 +248,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR16Float:        return kRed_SkColorChannelFlag;
         case MTLPixelFormatRG8Unorm:        return kRG_SkColorChannelFlags;
         case MTLPixelFormatRGB10A2Unorm:    return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatBGR10A2Unorm:    return kRGBA_SkColorChannelFlags;
 #if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatABGR4Unorm:      return kRGBA_SkColorChannelFlags;
 #endif
@@ -312,6 +313,7 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR16Float:        return "R16Float";
         case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
         case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
+        case MTLPixelFormatBGR10A2Unorm:    return "BGR10A2Unorm";
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
 #endif
