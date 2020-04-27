@@ -12,13 +12,18 @@
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
-GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
-                                               VkDevice device,
-                                               sk_sp<const GrVkInterface> interface)
-        : fAllocator(VK_NULL_HANDLE)
-        , fInterface(std::move(interface))
-        , fDevice(device) {
-#define GR_COPY_FUNCTION(NAME) functions.vk##NAME = fInterface->fFunctions.f##NAME
+#ifndef SK_USE_VMA
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physicalDevice,
+                                                        VkDevice device,
+                                                        sk_sp<const GrVkInterface> interface) {
+    return nullptr;
+}
+#else
+
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physicalDevice,
+                                                        VkDevice device,
+                                                        sk_sp<const GrVkInterface> interface) {
+#define GR_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 
     VmaVulkanFunctions functions;
     GR_COPY_FUNCTION(GetPhysicalDeviceProperties);
@@ -55,8 +60,19 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
     info.pHeapSizeLimit = nullptr;
     info.pVulkanFunctions = &functions;
 
-    vmaCreateAllocator(&info, &fAllocator);
+    VmaAllocator allocator;
+    vmaCreateAllocator(&info, &allocator);
+
+    return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(allocator, device,
+                                                                    std::move(interface)));
 }
+
+GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
+                                               VkDevice device,
+                                               sk_sp<const GrVkInterface> interface)
+        : fAllocator(allocator)
+        , fInterface(std::move(interface))
+        , fDevice(device) {}
 
 GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -273,3 +289,4 @@ uint64_t GrVkAMDMemoryAllocator::totalAllocatedMemory() const {
     return stats.total.usedBytes + stats.total.unusedBytes;
 }
 
+#endif // SK_USE_VMA
