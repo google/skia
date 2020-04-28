@@ -137,9 +137,6 @@ public:
                const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 
-    void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
-                             const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                             bool needsGlyphTransform);
 
     // Normal text mask, SDFT, or color.
     struct Mask2DVertex {
@@ -249,12 +246,11 @@ private:
     // Overall size of this struct plus vertices and glyphs at the end.
     const size_t fSize;
 
-    // The initial view matrix and its inverse. This is used for moving additional draws of this
+    // The initial view matrix. This is used for moving additional draws of this
     // same text blob. We record the initial view matrix and initial offsets(x,y), because we
     // record vertex bounds relative to these numbers.  When blobs are reused with new matrices,
     // we need to return to source space so we can update the vertex bounds appropriately.
     const SkMatrix fInitialMatrix;
-    const SkMatrix fInitialMatrixInverse;
 
     // Initial position of this blob. Used for calculating position differences when reusing this
     // blob.
@@ -357,7 +353,6 @@ public:
     char* quadStart(size_t index) const;
     size_t quadOffset(size_t index) const;
 
-    const SkRect& vertexBounds() const;
     void joinGlyphBounds(const SkRect& glyphBounds);
 
     bool drawAsDistanceFields() const;
@@ -373,6 +368,12 @@ public:
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
     void updateTexCoords(int begin, int end);
+
+    // The rectangle that surrounds all the glyph bounding boxes in device space.
+    // TODO: figure out why needsGlyphTransform is not just needsTrasnform() in
+    //  the method GrAtlasTextOp::init().
+    SkRect deviceRect(
+            const SkMatrix& drawMatrix, SkPoint drawOrigin, bool needsGlyphTransform) const;
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -395,7 +396,6 @@ public:
         bool antiAliased:1;
     } fFlags{false, false};
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
     GrColor fCurrentColor;
     SkPoint fCurrentOrigin;
@@ -403,6 +403,9 @@ public:
     std::vector<PathGlyph> fPaths;
 
 private:
+    // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
+    // source space. The bounds are the joined rectangles of all the glyphs.
+    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     bool hasW() const;
 
 };  // SubRun
