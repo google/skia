@@ -129,7 +129,7 @@ public:
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void flush(GrTextTarget*,
+    void addOp(GrTextTarget* target,
                const SkSurfaceProps& props,
                const SkPaint& paint,
                const SkPMColor4f& filteredColor,
