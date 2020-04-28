@@ -33,6 +33,23 @@
       "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f036aefd_09c6f950",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-28T18:30:03Z",
+      "side": 1,
+      "message": "I\u0027d be surprised if you didn\u0027t get optimal code with these as static helpers implemented as switch statements, which IMO is cleaner than asserting every enum value.",
+      "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
