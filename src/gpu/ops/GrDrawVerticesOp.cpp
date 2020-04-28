@@ -224,7 +224,7 @@ public:
                     case Usage::kColor: {
                         // For RGB colors, expand to RGBA with A = 1
                         if (attr.gpuType() == kFloat3_GrSLType) {
-                            varyingIn = SkStringPrintf("float4(%s, 1)", attr.name());
+                            varyingIn = SkStringPrintf("%s.rgb1", attr.name());
                         }
                         // Convert to half (as expected by the color space transform functions)
                         varyingIn = SkStringPrintf("half4(%s)", varyingIn.c_str());
@@ -244,10 +244,10 @@ public:
                     }
                     case Usage::kVector: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
-                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                            varyingIn = SkStringPrintf("%s.xy0", attr.name());
                         }
                         if (matrixHandle.isValid()) {
-                            varyingIn = SkStringPrintf("(%s * float4(%s, 0)).xyz",
+                            varyingIn = SkStringPrintf("(%s * %s.xyz0).xyz",
                                                        uniformHandler->getUniformCStr(matrixHandle),
                                                        varyingIn.c_str());
                         }
@@ -257,7 +257,7 @@ public:
                     }
                     case Usage::kNormalVector: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
-                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                            varyingIn = SkStringPrintf("%s.xy0", attr.name());
                         }
                         if (matrixHandle.isValid()) {
                             varyingIn = SkStringPrintf("(%s * %s)",
@@ -270,10 +270,10 @@ public:
                     }
                     case Usage::kPosition: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
-                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                            varyingIn = SkStringPrintf("%s.xy0", attr.name());
                         }
                         if (matrixHandle.isValid()) {
-                            vertBuilder->codeAppendf("float4 _tmp_pos_%d = %s * float4(%s, 1);",
+                            vertBuilder->codeAppendf("float4 _tmp_pos_%d = %s * %s.xyz1;",
                                                      customIdx,
                                                      uniformHandler->getUniformCStr(matrixHandle),
                                                      varyingIn.c_str());
