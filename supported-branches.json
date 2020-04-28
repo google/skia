@@ -21,6 +21,10 @@
       "owner": "hcm@google.com"
     },
     {
+      "ref": "refs/heads/chrome/m83",
+      "owner": "hcm@google.com"
+    },
+    {
       "ref": "refs/heads/skqp/dev",
       "owner": "halcanary@google.com"
     },
