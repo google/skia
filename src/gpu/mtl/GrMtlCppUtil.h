@@ -18,7 +18,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
 
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
-bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat);
+bool GrMtlFormatIsBGRA(GrMTLPixelFormat mtlFormat);
 #endif
 
 #endif

@@ -182,9 +182,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     auto error = std::function<ComparePixmapsErrorReporter>(
             [reporter, colorType](int x, int y, const float diffs[4]) {
                 ERRORF(reporter,
-                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f)",
-                       x, y, GrColorTypeToStr(colorType),
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
+                       "Error at (%d %d) in transfer, color type: %d, diffs: (%f, %f, %f, %f)", x,
+                       y, colorType, diffs[0], diffs[1], diffs[2], diffs[3]);
             });
     GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->width(),
                         tex->height());
@@ -353,9 +352,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     auto error = std::function<ComparePixmapsErrorReporter>(
             [reporter, colorType](int x, int y, const float diffs[4]) {
                 ERRORF(reporter,
-                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f)",
-                       x, y, GrColorTypeToStr(colorType),
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
+                       "Error at (%d %d) in transfer, color type: %d, diffs: (%f, %f, %f, %f)", x,
+                       y, colorType, diffs[0], diffs[1], diffs[2], diffs[3]);
             });
     GrImageInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
     ComparePixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
@@ -414,7 +412,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest, reporter, ctxInf
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
-                     GrColorType::kBGRA_1010102,
                      GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,
@@ -447,7 +444,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest, reporter, ctxI
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
-                     GrColorType::kBGRA_1010102,
                      GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,
