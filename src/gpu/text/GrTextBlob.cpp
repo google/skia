@@ -544,14 +544,14 @@ void GrTextBlob::addOp(GrTextTarget* target,
             }
 
             bool skipClip = false;
-            bool submitOp = true;
             SkIRect clipRect = SkIRect::MakeEmpty();
             SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
             SkRRect clipRRect;
             GrAA aa;
             // We can clip geometrically if we're not using SDFs or transformed glyphs,
             // and we have an axis-aligned rectangular non-AA clip
-            if (!subRun->drawAsDistanceFields() && !subRun->needsTransform() &&
+            if (!subRun->drawAsDistanceFields() &&
+                !subRun->needsTransform() &&
                 clip.isRRect(rtBounds, &clipRRect, &aa) &&
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
@@ -562,24 +562,21 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {
-                        submitOp = false;
-                    }
-                    else {
+                        continue;
+                    } else {
                         clipRRect.getBounds().round(&clipRect);
                     }
                 }
             }
 
-            if (submitOp) {
-                auto op = this->makeOp(*subRun, glyphCount, deviceMatrix, drawOrigin, clipRect,
-                                       paint, filteredColor, props, target);
-                if (op) {
-                    if (skipClip) {
-                        target->addDrawOp(GrNoClip(), std::move(op));
-                    }
-                    else {
-                        target->addDrawOp(clip, std::move(op));
-                    }
+            auto op = this->makeOp(*subRun, glyphCount, deviceMatrix, drawOrigin, clipRect,
+                                   paint, filteredColor, props, target);
+            if (op) {
+                if (skipClip) {
+                    target->addDrawOp(GrNoClip(), std::move(op));
+                }
+                else {
+                    target->addDrawOp(clip, std::move(op));
                 }
             }
         }
