@@ -23,10 +23,15 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
+        auto mode = _outer.mode;
+        (void)mode;
         fragBuilder->codeAppendf(
                 "\nhalf luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, "
-                "0.072200000286102295), %s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
-                args.fInputColor, args.fOutputColor);
+                "0.072200000286102295), %s.xyz), 0.0, 1.0);\n@switch (%d) {\n    case 0:\n        "
+                "%s = half4(0.0, 0.0, 0.0, luma);\n        break;\n    case 1:\n        %s = "
+                "half4(luma, luma, luma, %s.w);\n        break;\n}\n",
+                args.fInputColor, (int)_outer.mode, args.fOutputColor, args.fOutputColor,
+                args.fInputColor);
     }
 
 private:
@@ -37,14 +42,17 @@ GrGLSLFragmentProcessor* GrLumaColorFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLLumaColorFilterEffect();
 }
 void GrLumaColorFilterEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {}
+                                                    GrProcessorKeyBuilder* b) const {
+    b->add32((int32_t)mode);
+}
 bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrLumaColorFilterEffect& that = other.cast<GrLumaColorFilterEffect>();
     (void)that;
+    if (mode != that.mode) return false;
     return true;
 }
 GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src)
-        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {}
+        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()), mode(src.mode) {}
 std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect(*this));
 }
