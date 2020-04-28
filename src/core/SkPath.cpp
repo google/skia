@@ -1308,6 +1308,8 @@ SkPath& SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAn
     for the arc go behind pt1 and/or p2...
 */
 SkPath& SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius) {
+    this->injectMoveToIfNeeded();
+
     if (radius == 0) {
         return this->lineTo(x1, y1);
     }
