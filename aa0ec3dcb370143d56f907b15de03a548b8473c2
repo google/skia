@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b390a8d1_628cac85",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-28T13:44:45Z",
+      "side": 1,
+      "message": "Yes, these are two different options for brightness/contrast in AE, with a \"UseLegacyMode\" animatable control to switch between them.\n\nThe terminology is kind of unfortunate, but it\u0027s what AE uses.  Would have made more sense to have two separate effects (Brightness/Contrast 1 and Brightness/Contrast 2), without a switch (why in the world would one \"animate\" between these very different modes?). *shrug*\n\nFYI, here are the non-legacy graphs, with my attempts at cubic-bezier fitting:\n\nhttps://www.desmos.com/calculator/igoctzbndx\nhttps://www.desmos.com/calculator/tuqkkvjvay",
+      "parentUuid": "6c1c1653_272e857b",
+      "range": {
+        "startLine": 46,
+        "startChar": 24,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0660c257_ca415b39",
         "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c31243e_018efdab",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-28T13:44:45Z",
+      "side": 1,
+      "message": "Gah, obviously.  Done (S/B).",
+      "parentUuid": "0660c257_ca415b39",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
