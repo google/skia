@@ -402,7 +402,10 @@ struct Layout {
                fFormat               == other.fFormat &&
                fPrimitive            == other.fPrimitive &&
                fMaxVertices          == other.fMaxVertices &&
-               fInvocations          == other.fInvocations;
+               fInvocations          == other.fInvocations &&
+               fWhen                 == other.fWhen &&
+               fKey                  == other.fKey &&
+               fCType                == other.fCType;
     }
 
     bool operator!=(const Layout& other) const {
