@@ -1054,6 +1054,7 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
             case VK_FORMAT_R8G8B8A8_UNORM:           return kRGBA_8888_SkColorType;
             case VK_FORMAT_B8G8R8A8_UNORM:           return kBGRA_8888_SkColorType;
             case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return kRGBA_1010102_SkColorType;
+            case VK_FORMAT_A2R10G10B10_UNORM_PACK32: return kBGRA_1010102_SkColorType;
             case VK_FORMAT_R16_SFLOAT:               return kA16_float_SkColorType;
             case VK_FORMAT_R16G16_SFLOAT:            return kR16G16_float_SkColorType;
             case VK_FORMAT_R16_UNORM:                return kA16_unorm_SkColorType;
