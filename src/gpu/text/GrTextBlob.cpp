@@ -26,13 +26,6 @@
 #include <cstddef>
 #include <new>
 
-static SkMatrix make_inverse(const SkMatrix& matrix) {
-    SkMatrix inverseMatrix;
-    if (!matrix.invert(&inverseMatrix)) {
-        inverseMatrix = SkMatrix::I();
-    }
-    return inverseMatrix;
-}
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
 GrTextBlob::Key::Key() { sk_bzero(this, sizeof(Key)); }
@@ -149,6 +142,14 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
         packedIDCursor++;
     }
+
+    // Use the negative initial origin to make the fVertexBounds {0, 0} based.
+    SkPoint pt = fBlob->fInitialOrigin;
+    if (!this->needsTransform()) {
+        // If the box is in device space, then transform the source space origin to device space.
+        pt = fBlob->fInitialMatrix.mapXY(pt.x(), pt.y());
+    }
+    fVertexBounds.offset(-pt);
 }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -185,7 +186,6 @@ size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
     return index * kVerticesPerGlyph * this->vertexStride();
 }
 
-const SkRect& GrTextBlob::SubRun::vertexBounds() const { return fVertexBounds; }
 void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
     fVertexBounds.joinNonEmptyArg(glyphBounds);
 }
@@ -299,6 +299,24 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
         textureCoords[1] = uvs[3];
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
     }
+}
+
+SkRect GrTextBlob::SubRun::deviceRect(
+        const SkMatrix& drawMatrix, SkPoint drawOrigin, bool needsGlyphTransform) const {
+    SkRect outBounds = fVertexBounds;
+    if (needsGlyphTransform) {
+        // if the glyph needs transformation offset the by the new origin, and map to device space.
+        outBounds.offset(drawOrigin);
+        outBounds = drawMatrix.mapRect(outBounds);
+    } else {
+        SkPoint offset = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y());
+        // The vertex bounds are already {0, 0} based, so just add the new origin offset.
+        outBounds.offset(offset);
+
+        // Due to floating point numerical inaccuracies, we have to round out here
+        outBounds.roundOut();
+    }
+    return outBounds;
 }
 
 
@@ -556,9 +574,8 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
-                SkRect subRunBounds;
-                this->computeSubRunBounds(&subRunBounds, *subRun, deviceMatrix.localToDevice(),
-                                          drawOrigin, false);
+                SkRect subRunBounds = subRun->deviceRect(
+                        deviceMatrix.localToDevice(), drawOrigin, false);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {
@@ -580,37 +597,6 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 }
             }
         }
-    }
-}
-
-void GrTextBlob::computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
-                                     const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                                     bool needsGlyphTransform) {
-    // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
-    // into device space.
-    // We handle vertex bounds differently for distance field text and bitmap text because
-    // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
-    // from one blob then we are going to pay the price here of mapping the rect for each run.
-    *outBounds = subRun.vertexBounds();
-    if (needsGlyphTransform) {
-        // Distance field text is positioned with the (X,Y) as part of the glyph position,
-        // and currently the view matrix is applied on the GPU
-        outBounds->offset(drawOrigin - fInitialOrigin);
-        drawMatrix.mapRect(outBounds);
-    } else {
-        // Bitmap text is fully positioned on the CPU, and offset by an (X,Y) translate in
-        // device space.
-        SkMatrix boundsMatrix = fInitialMatrixInverse;
-
-        boundsMatrix.postTranslate(-fInitialOrigin.x(), -fInitialOrigin.y());
-
-        boundsMatrix.postTranslate(drawOrigin.x(), drawOrigin.y());
-
-        boundsMatrix.postConcat(drawMatrix);
-        boundsMatrix.mapRect(outBounds);
-
-        // Due to floating point numerical inaccuracies, we have to round out here
-        outBounds->roundOut(outBounds);
     }
 }
 
@@ -716,7 +702,6 @@ GrTextBlob::GrTextBlob(size_t allocSize,
                        bool forceWForDistanceFields)
         : fSize{allocSize}
         , fInitialMatrix{drawMatrix}
-        , fInitialMatrixInverse{make_inverse(drawMatrix)}
         , fInitialOrigin{origin}
         , fForceWForDistanceFields{forceWForDistanceFields}
         , fColor{color}

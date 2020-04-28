@@ -103,9 +103,9 @@ void GrAtlasTextOp::init() {
         }
     }
 
-    SkRect bounds;
-    geo.fBlob->computeSubRunBounds(
-            &bounds, *geo.fSubRunPtr, geo.fDrawMatrix, geo.fDrawOrigin, fNeedsGlyphTransform);
+    // TODO: Why is fNeedsGlyphTransform only set for SDF, and not for transformed masks?
+    SkRect bounds = geo.fSubRunPtr->deviceRect(
+            geo.fDrawMatrix, geo.fDrawOrigin, fNeedsGlyphTransform);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
