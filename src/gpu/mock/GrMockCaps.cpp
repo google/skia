@@ -48,6 +48,8 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kRGBA_1010102,   GrBackendFormat::MakeMock(GrColorType::kRGBA_1010102,
                                                                   SkImage::CompressionType::kNone)},
+        { GrColorType::kBGRA_1010102,   GrBackendFormat::MakeMock(GrColorType::kBGRA_1010102,
+                                                                  SkImage::CompressionType::kNone)},
         { GrColorType::kGray_8,         GrBackendFormat::MakeMock(GrColorType::kGray_8,
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kAlpha_F16,      GrBackendFormat::MakeMock(GrColorType::kAlpha_F16,
