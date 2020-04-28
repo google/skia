@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c29bb60_837ed68f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-28T16:05:16Z",
+      "side": 1,
+      "message": "move this up to be \"} else {\" ?",
+      "revId": "9283bb27d84c64854bb6f7e84913dd05f09680ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
