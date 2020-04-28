@@ -8,6 +8,7 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/core/SkColorFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -17,13 +18,45 @@ namespace skottie::internal {
 
 namespace  {
 
+static constexpr char CONTRAST_EFFECT[] = R"(
+    uniform float a;
+    uniform float b;
+    uniform float c;
+
+    void main(inout half4 color) {
+        const half alpha = color.a;
+
+        const float4 c4f  = float4(color);
+        const float4 c4f2 = c4f * c4f;
+
+        color = half4(c4f2 * c4f * a + c4f2 * b + c4f * c);
+        color.a = alpha;
+    }
+)";
+
+static sk_sp<SkData> MakeContrastCoeffs(float c) {
+    float coeffs[3];
+
+    coeffs[1] = SK_ScalarPI * c;
+    coeffs[0] = -2 * coeffs[1] / 3;
+    coeffs[2] =  1 - coeffs[1] / 3;
+
+    return SkData::MakeWithCopy(coeffs, sizeof(coeffs));
+}
+
 class BrightnessContrastAdapter final : public DiscardableAdapterBase<BrightnessContrastAdapter,
                                                                       sksg::ExternalColorFilter> {
 public:
     BrightnessContrastAdapter(const skjson::ArrayValue& jprops,
                               const AnimationBuilder& abuilder,
                               sk_sp<sksg::RenderNode> layer)
-        : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer))) {
+        : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer)))
+        , fContrastEffect(std::get<0>(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT)))) {
+        if (1 && !fContrastEffect) {
+            printf("%s\n", std::get<1>(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT))).c_str());
+        }
+        SkASSERT(fContrastEffect);
+
         enum : size_t {
             kBrightness_Index = 0,
               kContrast_Index = 1,
@@ -96,9 +129,17 @@ private:
     }
 
     sk_sp<SkColorFilter> makeCF() const {
-        // TODO: lots of non-linear curve fitting fun
-        return nullptr;
+        const auto contrast = SkTPin(fContrast, -50.0f, 100.0f) / 100; // [-1 .. 1]
+        // TODO: brightness
+
+        if (SkScalarNearlyZero(fContrast)) {
+            return nullptr;
+        }
+
+        return fContrastEffect->makeColorFilter(MakeContrastCoeffs(contrast));
     }
+
+    const sk_sp<SkRuntimeEffect> fContrastEffect;
 
     ScalarValue fBrightness = 0,
                 fContrast   = 0,
