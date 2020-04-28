@@ -58,9 +58,44 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     this->init(contextOptions, adapter, device);
 }
 
+bool GrD3DCaps::canCopyTexture(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                               DXGI_FORMAT srcFormat, int srcSampleCnt) const {
+    if ((dstSampleCnt > 1 || srcSampleCnt > 1) && dstSampleCnt != srcSampleCnt) {
+        return false;
+    }
+
+    return srcFormat == dstFormat;
+}
+
+bool GrD3DCaps::canCopyAsResolve(DXGI_FORMAT dstFormat, int dstSampleCnt,
+                                 DXGI_FORMAT srcFormat, int srcSampleCnt) const {
+    // TODO
+    return false;
+}
+
 bool GrD3DCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    return false;
+    if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
+        return false;
+    }
+
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        dstSampleCnt = rtProxy->numSamples();
+    }
+    if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        srcSampleCnt = rtProxy->numSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
+
+    DXGI_FORMAT dstFormat, srcFormat;
+    SkAssertResult(dst->backendFormat().asDxgiFormat(&dstFormat));
+    SkAssertResult(src->backendFormat().asDxgiFormat(&srcFormat));
+
+    return this->canCopyTexture(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt) ||
+           this->canCopyAsResolve(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt);
 }
 
 void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adapter,
@@ -249,7 +284,6 @@ static constexpr DXGI_FORMAT kDxgiFormats[] = {
     DXGI_FORMAT_R8G8_UNORM,
     DXGI_FORMAT_R10G10B10A2_UNORM,
     DXGI_FORMAT_B4G4R4A4_UNORM,
-    DXGI_FORMAT_R32G32B32A32_FLOAT,
     DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
     DXGI_FORMAT_BC1_UNORM,
     DXGI_FORMAT_R16_UNORM,

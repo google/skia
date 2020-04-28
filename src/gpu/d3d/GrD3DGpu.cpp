@@ -255,11 +255,113 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     return nullptr;
 }
 
-static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
-    if (!info.fResource.get()) {
+static int get_surface_sample_cnt(GrSurface* surf) {
+    if (const GrRenderTarget* rt = surf->asRenderTarget()) {
+        return rt->numSamples();
+    }
+    return 0;
+}
+
+bool GrD3DGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                   const SkIPoint& dstPoint) {
+
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
         return false;
     }
-    return true;
+
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+
+    GrD3DTextureResource* dstTexResource;
+    GrD3DTextureResource* srcTexResource;
+    GrRenderTarget* dstRT = dst->asRenderTarget();
+    if (dstRT) {
+        GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(dstRT);
+        dstTexResource = d3dRT->numSamples() > 1 ? d3dRT->msaaTextureResource() : d3dRT;
+    } else {
+        SkASSERT(dst->asTexture());
+        dstTexResource = static_cast<GrD3DTexture*>(dst->asTexture());
+    }
+    GrRenderTarget* srcRT = src->asRenderTarget();
+    if (srcRT) {
+        GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(srcRT);
+        srcTexResource = d3dRT->numSamples() > 1 ? d3dRT->msaaTextureResource() : d3dRT;
+    } else {
+        SkASSERT(src->asTexture());
+        srcTexResource = static_cast<GrD3DTexture*>(src->asTexture());
+    }
+
+    DXGI_FORMAT dstFormat = dstTexResource->dxgiFormat();
+    DXGI_FORMAT srcFormat = srcTexResource->dxgiFormat();
+
+    if (this->d3dCaps().canCopyAsResolve(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt)) {
+        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+        return true;
+    }
+
+    if (this->d3dCaps().canCopyTexture(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt)) {
+        this->copySurfaceAsCopyTexture(dst, src, dstTexResource, srcTexResource, srcRect, dstPoint);
+        return true;
+    }
+
+    return false;
+}
+
+void GrD3DGpu::copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src,
+                                        GrD3DTextureResource* dstResource,
+                                        GrD3DTextureResource* srcResource,
+                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
+#ifdef SK_DEBUG
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+    DXGI_FORMAT dstFormat = dstResource->dxgiFormat();
+    DXGI_FORMAT srcFormat;
+    SkAssertResult(dst->backendFormat().asDxgiFormat(&srcFormat));
+    SkASSERT(this->d3dCaps().canCopyTexture(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt));
+#endif
+    if (src->isProtected() && !dst->isProtected()) {
+        SkDebugf("Can't copy from protected memory to non-protected");
+        return;
+    }
+
+    dstResource->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+    srcResource->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
+    dstLocation.pResource = dstResource->d3dResource();
+    dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+    dstLocation.SubresourceIndex = 0;
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
+    srcLocation.pResource = srcResource->d3dResource();
+    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+    srcLocation.SubresourceIndex = 0;
+
+    D3D12_BOX srcBox = {};
+    srcBox.left = srcRect.fLeft;
+    srcBox.top = srcRect.fTop;
+    srcBox.right = srcRect.fRight;
+    srcBox.bottom = srcRect.fBottom;
+    srcBox.front = 0;
+    srcBox.back = 1;
+    // TODO: use copyResource if copying full resource and sizes match
+    fCurrentDirectCommandList->copyTextureRegion(dstResource->resource(),
+                                                 &dstLocation,
+                                                 dstPoint.fX, dstPoint.fY,
+                                                 srcResource->resource(),
+                                                 &srcLocation,
+                                                 &srcBox);
+
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                        srcRect.width(), srcRect.height());
+    // The rect is already in device space so we pass in kTopLeft so no flip is done.
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+}
+
+void GrD3DGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                    const SkIPoint& dstPoint) {
+    // TODO
 }
 
 bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
@@ -456,6 +558,13 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
         tex->texturePriv().markMipMapsDirty();
     }
 
+    return true;
+}
+
+static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
+    if (!info.fResource.get()) {
+        return false;
+    }
     return true;
 }
 
