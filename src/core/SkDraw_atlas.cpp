@@ -116,7 +116,8 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
         mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
         mx.postConcat(*fMatrix);
 
-        updator->update(mx, nullptr);
-        fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
+        if (updator->update(mx, nullptr)) {
+            fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
+        }
     }
 }
