@@ -234,6 +234,30 @@
     },
     {
       "key": {
+        "uuid": "0900151f_f18caef2",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-28T16:42:12Z",
+      "side": 1,
+      "message": "I see.. yeah if move+close works, then i\u0027d favor that.",
+      "parentUuid": "184452de_04eeb09b",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9654659_bb46d4eb",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 15
