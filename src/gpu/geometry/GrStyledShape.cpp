@@ -664,7 +664,7 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
     // reflect the fact that it doesn't actually produce caps.
     if (originallyClosed) {
         SkPaint::Cap cap;
-        if (fShape.isLine() && fStyle.strokeRec().getJoin()) {
+        if (fShape.isLine() && fStyle.strokeRec().getJoin() == SkPaint::kRound_Join) {
             // As a closed shape, the line moves from a to b and back to a, producing a 180 degree
             // turn. With round joins, this would make a semi-circle at each end, which is visually
             // identical to a round cap on the reduced line geometry.
