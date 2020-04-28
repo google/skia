@@ -137,9 +137,8 @@ public:
                const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 
-    void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
-                             const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                             bool needsGlyphTransform);
+    SkRect subrunDeviceBounds(const SubRun& subRun, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+                              bool needsGlyphTransform);
 
     // Normal text mask, SDFT, or color.
     struct Mask2DVertex {
@@ -395,7 +394,6 @@ public:
         bool antiAliased:1;
     } fFlags{false, false};
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
     GrColor fCurrentColor;
     SkPoint fCurrentOrigin;
@@ -403,6 +401,7 @@ public:
     std::vector<PathGlyph> fPaths;
 
 private:
+    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     bool hasW() const;
 
 };  // SubRun
