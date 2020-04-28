@@ -22,6 +22,30 @@
       "revId": "e2bf4f26b1e615b695bb030a1abe43cea201a3fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "041e2882_bbac2804",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-28T13:00:40Z",
+      "side": 1,
+      "message": "Yeah, I added a comment to clarify that this isn\u0027t copied immediately, but is copied once you create a Builder from an Attribute.",
+      "parentUuid": "2914a344_a860bc5d",
+      "range": {
+        "startLine": 87,
+        "startChar": 64,
+        "endLine": 87,
+        "endChar": 98
+      },
+      "revId": "e2bf4f26b1e615b695bb030a1abe43cea201a3fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
