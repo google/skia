@@ -301,10 +301,9 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
     }
 }
 
-SkRect GrTextBlob::SubRun::deviceRect(
-        const SkMatrix& drawMatrix, SkPoint drawOrigin, bool needsGlyphTransform) const {
+SkRect GrTextBlob::SubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
     SkRect outBounds = fVertexBounds;
-    if (needsGlyphTransform) {
+    if (this->needsTransform()) {
         // if the glyph needs transformation offset the by the new origin, and map to device space.
         outBounds.offset(drawOrigin);
         outBounds = drawMatrix.mapRect(outBounds);
@@ -318,7 +317,6 @@ SkRect GrTextBlob::SubRun::deviceRect(
     }
     return outBounds;
 }
-
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
 bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
@@ -574,8 +572,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
-                SkRect subRunBounds = subRun->deviceRect(
-                        deviceMatrix.localToDevice(), drawOrigin, false);
+                SkRect subRunBounds = subRun->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {
