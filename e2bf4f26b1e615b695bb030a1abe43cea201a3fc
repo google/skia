@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2914a344_a860bc5d",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-28T12:49:36Z",
+      "side": 1,
+      "message": "Worth mentioning somewhere that this is not copied?",
+      "range": {
+        "startLine": 87,
+        "startChar": 64,
+        "endLine": 87,
+        "endChar": 98
+      },
+      "revId": "e2bf4f26b1e615b695bb030a1abe43cea201a3fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
