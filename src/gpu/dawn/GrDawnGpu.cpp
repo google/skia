@@ -369,8 +369,8 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         wgpu::BufferCopyView srcBuffer;
         srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(stagingBuffer.fBuffer)->buffer();
         srcBuffer.offset = stagingBuffer.fOffset;
-        srcBuffer.rowPitch = rowBytes;
-        srcBuffer.imageHeight = h;
+        srcBuffer.bytesPerRow = rowBytes;
+        srcBuffer.rowsPerImage = h;
         wgpu::TextureCopyView dstTexture;
         dstTexture.texture = tex;
         dstTexture.mipLevel = i;
@@ -559,8 +559,8 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     wgpu::BufferCopyView dstBuffer;
     dstBuffer.buffer = buf;
     dstBuffer.offset = 0;
-    dstBuffer.rowPitch = rowBytes;
-    dstBuffer.imageHeight = height;
+    dstBuffer.bytesPerRow = rowBytes;
+    dstBuffer.rowsPerImage = height;
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
