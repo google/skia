@@ -1,0 +1,123 @@
+<!-- This benchmark aims to accurately measure the time it takes for Skottie to load the JSON and
+turn it into an animation, as well as the times for the first hundred frames (and, as a subcomponent
+of that, the seek times of the first hundred frames). This is set to mimic how a real-world user
+would display the animation (e.g. using clock time to determine where to seek, not frame numbers).
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skottie-WASM Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 1000;
+    const HEIGHT = 1000;
+    const LOTTIE_JSON_PATH = '/static/lottie.json';
+    (function() {
+
+      const loadKit = CanvasKitInit({
+        locateFile: (file) => '/static/' + file,
+      }).ready();
+
+      const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
+        return resp.text()
+      });
+
+      Promise.all([loadKit, loadLottie]).then((values) => {
+        const [CanvasKit, json] = values;
+        const loadStart = performance.now();
+        const animation = CanvasKit.MakeManagedAnimation(json, null);
+        const loadTime = performance.now() - loadStart;
+
+        const duration = animation.duration() * 1000;
+        const bounds = {fLeft: 0, fTop: 0, fRight: WIDTH, fBottom: HEIGHT};
+
+        const surface = getSurface(CanvasKit);
+        if (!surface) {
+          console.error('Could not make surface', window._error);
+          return;
+        }
+        const canvas = surface.getCanvas();
+
+        document.getElementById('start_bench').addEventListener('click', () => {
+          const clearColor = CanvasKit.WHITE;
+          const frames = new Float32Array(100);
+          const seeks = new Float32Array(100);
+          let idx = 0;
+          const firstFrame = Date.now();
+          function drawFrame() {
+            const now = performance.now();
+            // Actually draw stuff.
+            const seek = ((Date.now() - firstFrame) / duration) % 1.0;
+            const damage = animation.seek(seek);
+            const afterSeek = performance.now();
+
+            if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+              canvas.clear(clearColor);
+              animation.render(canvas, bounds);
+            }
+            surface.flush();
+            // FPS measurement
+            frames[idx] = performance.now() - now;
+            seeks[idx] = afterSeek - now;
+            idx++;
+            if (idx >= frames.length) {
+              window._perfData = {
+                frames_ms: Array.from(frames),
+                seeks_ms: Array.from(seeks),
+                jsonLoad_ms: loadTime,
+              };
+              window._perfDone = true;
+              return;
+            }
+            window.requestAnimationFrame(drawFrame);
+          }
+          window.requestAnimationFrame(drawFrame);
+        });
+        console.log('Perf is ready');
+        window._perfReady = true;
+      });
+    })();
+
+  function getSurface(CanvasKit) {
+    let surface;
+    if (window.location.hash.indexOf('gpu') !== -1) {
+      surface = CanvasKit.MakeWebGLCanvasSurface('anim', WIDTH, HEIGHT);
+      if (!surface) {
+        window._error = 'Could not make GPU surface';
+        return null;
+      }
+      let c = document.getElementById('anim');
+      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+      // to CPU and add a ck-replaced class to the canvas element.
+      if (c.classList.contains('ck-replaced')) {
+        window._error = 'fell back to CPU';
+        return null;
+      }
+    } else {
+      surface = CanvasKit.MakeSWCanvasSurface('anim', WIDTH, HEIGHT);
+      if (!surface) {
+        window._error = 'Could not make CPU surface';
+        return null;
+      }
+    }
+    return surface;
+  }
+  </script>
+</body>
+</html>
