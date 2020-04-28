@@ -258,6 +258,30 @@
     },
     {
       "key": {
+        "uuid": "9b3ff1a0_c2baf639",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:35:51Z",
+      "side": 1,
+      "message": "Is an unclosed moveTo supposed to be capped per the SVG spec? Now I\u0027m curious.",
+      "parentUuid": "0900151f_f18caef2",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9654659_bb46d4eb",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 15
@@ -278,6 +302,92 @@
       "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61fc2fc3_5149c2c5",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:35:51Z",
+      "side": 1,
+      "message": "nit: Missing a word in between?",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd908af0_91d22f98",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:35:51Z",
+      "side": 1,
+      "message": "Do you know if any path renderers prefer kEvenOdd? It\u0027s not a big deal, but I\u0027m curious why GrShape has historically chosen kEvenOdd. Obviously not for this CL, but I might consider going with whichever fill type is most common (for the sake of maybe batching better).",
+      "range": {
+        "startLine": 56,
+        "startChar": 56,
+        "endLine": 56,
+        "endChar": 80
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2067df70_ceaae679",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:35:51Z",
+      "side": 1,
+      "message": "Question for the future: Once your new clip stack is finished can we get rid of inverted-ness? Can we accomplish the same thing by just flipping between kIntersect and kDifference if the source path wants inverted fill? (Then never considering whether it is inverted it in GrShape?)",
+      "range": {
+        "startLine": 86,
+        "startChar": 9,
+        "endLine": 86,
+        "endChar": 17
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60ff5a78_28263356",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:35:51Z",
+      "side": 1,
+      "message": "Could this not lead to a collision with other types of shapes now or later, if things change?\n\nIs there a reason to not just put fType at the top of the key and use 3 bits instead of 2?",
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
