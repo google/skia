@@ -258,3 +258,19 @@ func (b *taskBuilder) getRecipeProps() string {
 	b.recipeProperties = nil
 	return marshalJson(props)
 }
+
+// usesPython adds attributes to tasks which use python.
+func (b *taskBuilder) usesPython() {
+	// TODO(borenet): This is hacky and bad.
+	b.cipd(specs.CIPD_PKGS_PYTHON[1])
+	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
+		b.cipd(CIPD_PKG_CPYTHON)
+	} else if b.os("Mac10.15") && b.model("VMware7.1") {
+		b.cipd(CIPD_PKG_CPYTHON)
+	}
+	b.cache(&specs.Cache{
+		Name: "vpython",
+		Path: "cache/vpython",
+	})
+	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+}

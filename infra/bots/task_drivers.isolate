@@ -1,10 +1,11 @@
 {
   'variables': {
     'files': [
-      'build_task_drivers.sh',
+      '../../../.gclient',
       '../../go.mod',
       '../../go.sum',
-      '../../../.gclient',
+      './build_task_drivers.sh',
+      './task_drivers/',
     ],
   },
 }
