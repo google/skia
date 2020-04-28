@@ -2336,12 +2336,16 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     clip.getConservativeBounds(fRenderTargetContext->width(), fRenderTargetContext->height(),
                                &clipConservativeBounds, nullptr);
 
+    GrPaint paint;
+    paint.setCoverageSetOpXPFactory(op, invert);
+
     GrStyledShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->caps();
     canDrawArgs.fProxy = fRenderTargetContext->asRenderTargetProxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
+    canDrawArgs.fPaint = &paint;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
     SkASSERT(!fRenderTargetContext->wrapsVkSecondaryCB());
@@ -2354,9 +2358,6 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     if (!pr) {
         return false;
     }
-
-    GrPaint paint;
-    paint.setCoverageSetOpXPFactory(op, invert);
 
     GrPathRenderer::DrawPathArgs args{fRenderTargetContext->drawingManager()->getContext(),
                                       std::move(paint),
@@ -2408,6 +2409,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     canDrawArgs.fProxy = this->asRenderTargetProxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
+    canDrawArgs.fPaint = &paint;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;

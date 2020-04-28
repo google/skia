@@ -163,28 +163,23 @@ public:
 };
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
-                                         const char* name, sk_sp<SkData> inputs,
-                                         const SkMatrix* matrix) {
+                                         const char* name, sk_sp<SkData> inputs) {
     if (inputs->size() != effect->inputSize()) {
         return nullptr;
     }
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(
             context->priv().caps()->refShaderCaps(), context->priv().getShaderErrorHandler(),
-            std::move(effect), name, std::move(inputs), matrix));
+            std::move(effect), name, std::move(inputs)));
 }
 
 GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
-                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
-                   const SkMatrix* matrix)
+                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fShaderCaps(std::move(shaderCaps))
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
         , fInputs(std::move(inputs)) {
-    if (matrix) {
-        fCoordTransform = GrCoordTransform(*matrix);
-    }
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -195,8 +190,6 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fInputs(other.fInputs) {
-    SkASSERT(other.numCoordTransforms() == 1);
-    fCoordTransform = other.fCoordTransform;
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -291,7 +284,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
             auto result = GrSkSLFP::Make(d->context(), effect, "Arithmetic",
                                          SkData::MakeWithCopy(&inputs, sizeof(inputs)));
             result->addChild(GrConstColorProcessor::Make(
-                    SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
+                                     SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 2: {

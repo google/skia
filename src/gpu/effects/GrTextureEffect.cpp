@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/effects/generated/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -148,12 +149,58 @@ bool GrTextureEffect::Sampling::hasBorderAlpha() const {
     return false;
 }
 
+static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view,
+                       SkMatrix* outMatrix, bool* outLazyProxyNormalization) {
+    SkMatrix combined = preMatrix;
+    bool normalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
+    if (normalize) {
+        if (view.proxy()->isFullyLazy()) {
+            *outLazyProxyNormalization = true;
+        } else {
+            SkMatrixPriv::PostIDiv(&combined, view.proxy()->backingStoreDimensions().fWidth,
+                                              view.proxy()->backingStoreDimensions().fHeight);
+            *outLazyProxyNormalization = false;
+        }
+    } else {
+        *outLazyProxyNormalization = false;
+    }
+    if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
+        if (normalize) {
+            // combined.postScale(1,-1);
+            // combined.postTranslate(0,1);
+            combined.set(SkMatrix::kMSkewY,
+                         combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+            combined.set(SkMatrix::kMScaleY,
+                         combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+            combined.set(SkMatrix::kMTransY,
+                         combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        } else {
+            // combined.postScale(1, -1);
+            // combined.postTranslate(0,1);
+            SkScalar h = view.proxy()->backingStoreDimensions().fHeight;
+            combined.set(SkMatrix::kMSkewY,
+                         h * combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+            combined.set(SkMatrix::kMScaleY,
+                         h * combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+            combined.set(SkMatrix::kMTransY,
+                         h * combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        }
+    }
+    *outMatrix = combined;
+}
+
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
                                                            Filter filter) {
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, Sampling(filter)));
+    SkMatrix final;
+    bool lazyProxyNormalization;
+    get_matrix(matrix, view, &final, &lazyProxyNormalization);
+    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+                                                      new GrTextureEffect(std::move(view),
+                                                                          alphaType,
+                                                                          Sampling(filter),
+                                                                          lazyProxyNormalization)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
@@ -164,8 +211,14 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
                                                            const float border[4]) {
     Sampling sampling(*view.proxy(), sampler, SkRect::Make(view.proxy()->dimensions()), nullptr,
                       border, caps);
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
+    SkMatrix final;
+    bool lazyProxyNormalization;
+    get_matrix(matrix, view, &final, &lazyProxyNormalization);
+    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+                                                      new GrTextureEffect(std::move(view),
+                                                                          alphaType,
+                                                                          sampling,
+                                                                          lazyProxyNormalization)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyView view,
@@ -176,8 +229,14 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const GrCaps& caps,
                                                                  const float border[4]) {
     Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps);
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
+    SkMatrix final;
+    bool lazyProxyNormalization;
+    get_matrix(matrix, view, &final, &lazyProxyNormalization);
+    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+                                                      new GrTextureEffect(std::move(view),
+                                                                          alphaType,
+                                                                          sampling,
+                                                                          lazyProxyNormalization)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyView view,
@@ -189,8 +248,14 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const GrCaps& caps,
                                                                  const float border[4]) {
     Sampling sampling(*view.proxy(), sampler, subset, &domain, border, caps);
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
+    SkMatrix final;
+    bool lazyProxyNormalization;
+    get_matrix(matrix, view, &final, &lazyProxyNormalization);
+    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+                                                      new GrTextureEffect(std::move(view),
+                                                                          alphaType,
+                                                                          sampling,
+                                                                          lazyProxyNormalization)));
 }
 
 GrTextureEffect::FilterLogic GrTextureEffect::GetFilterLogic(ShaderMode mode,
@@ -227,28 +292,41 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
     public:
         void emitCode(EmitArgs& args) override {
             auto& te = args.fFp.cast<GrTextureEffect>();
+            SkString coords;
+            if (args.fFp.isSampledWithExplicitCoords()) {
+                coords = "_coords";
+            } else {
+                coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
+            }
             auto* fb = args.fFragBuilder;
+            if (te.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed) {
+                args.fUniformHandler->writeUniformMappings(te.sampleMatrix().fOwner, fb);
+                coords = SkStringPrintf("(%s * _matrix * float3(%s, 1)).xy",
+                                        te.sampleMatrix().fExpression.c_str(),
+                                        coords.c_str());
+            }
             if (te.fShaderModes[0] == ShaderMode::kNone &&
                 te.fShaderModes[1] == ShaderMode::kNone) {
-                SkString coords;
-                if (args.fFp.isSampledWithExplicitCoords()) {
-                    coords = "_coords";
-                } else {
-                    coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
-                }
-                switch (te.sampleMatrix().fKind) {
-                    case SkSL::SampleMatrix::Kind::kMixed:
-                    case SkSL::SampleMatrix::Kind::kVariable:
-                        coords = SkStringPrintf("(_matrix * float3(%s, 1)).xy", coords.c_str());
-                        break;
-                    default:
-                        break;
-                }
                 fb->codeAppendf("%s = ", args.fOutputColor);
-                fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                args.fTexSamplers[0], coords.c_str());
+                if (te.fLazyProxyNormalization) {
+                    const char* norm = nullptr;
+                    fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
+                                                                kFloat4_GrSLType, "norm", &norm);
+                    fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
+                                                    args.fTexSamplers[0],
+                                                    SkStringPrintf("%s * %s.zw", coords.c_str(),
+                                                                   norm).c_str());
+                } else {
+                    fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
+                                                    args.fTexSamplers[0], coords.c_str());
+                }
                 fb->codeAppendf(";");
             } else {
+                // Tripping this assert means we have a normalized fully lazy proxy with a
+                // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
+                // it hasn't been tested and this code path probably won't handle normalization
+                // properly in that case.
+                SkASSERT(!te.fLazyProxyNormalization);
                 // Here is the basic flow of the various ShaderModes are implemented in a series of
                 // steps. Not all the steps apply to all the modes. We try to emit only the steps
                 // that are necessary for the given x/y shader modes.
@@ -653,14 +731,15 @@ bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 
 GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
-                                 const SkMatrix& matrix, const Sampling& sampling)
+                                 const Sampling& sampling, bool lazyProxyNormalization)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, sampling.hasBorderAlpha()))
-        , fCoordTransform(matrix, view.proxy(), view.origin())
+        , fCoordTransform(SkMatrix::I())
         , fSampler(std::move(view), sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
         , fClamp(sampling.fShaderClamp)
-        , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]} {
+        , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]}
+        , fLazyProxyNormalization(lazyProxyNormalization) {
     // We always compare the range even when it isn't used so assert we have canonical don't care
     // values.
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
@@ -676,7 +755,8 @@ GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         , fSampler(src.fSampler)
         , fSubset(src.fSubset)
         , fClamp(src.fClamp)
-        , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]} {
+        , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]}
+        , fLazyProxyNormalization(src.fLazyProxyNormalization) {
     std::copy_n(src.fBorder, 4, fBorder);
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fCoordTransform);
