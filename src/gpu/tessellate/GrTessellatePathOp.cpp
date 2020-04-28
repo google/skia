@@ -124,25 +124,28 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushSta
 
     GrMiddleOutPolygonTriangulator middleOut(vertexData, maxVertices);
     int localCurveCount = 0;
-    const SkPoint* pts = SkPathPriv::PointData(fPath);
-    for (SkPath::Verb verb : SkPathPriv::Verbs(fPath)) {
-        switch ((uint8_t)verb) {
-            case SkPath::kMove_Verb:
+    for (auto [verb, pts] : SkPathPriv::WalkPath(fPath)) {
+        switch (verb) {
+            case SkPathVerb::kMove:
                 middleOut.closeAndMove(*pts++);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kLine:
+                middleOut.pushVertex(pts[1]);
+                break;
+            case SkPathVerb::kQuad:
+                middleOut.pushVertex(pts[2]);
+                ++localCurveCount;
+                break;
+            case SkPathVerb::kCubic:
+                middleOut.pushVertex(pts[3]);
+                ++localCurveCount;
+                break;
+            case SkPathVerb::kClose:
                 middleOut.close();
                 break;
-            static_assert(SkPath::kLine_Verb  == 1); case 1:
-            static_assert(SkPath::kQuad_Verb  == 2); case 2:
-            static_assert(SkPath::kConic_Verb == 3); case 3:
-            static_assert(SkPath::kCubic_Verb == 4); case 4:
-                constexpr static int kPtsAdvance[] = {0, 1, 2, 2, 3};
-                constexpr static int kCurveCountAdvance[] = {0, 0, 1, 1, 1};
-                pts += kPtsAdvance[verb];
-                middleOut.pushVertex(pts[-1]);
-                localCurveCount += kCurveCountAdvance[verb];
-                break;
+            case SkPathVerb::kConic:
+            case SkPathVerb::kDone:
+                SkUNREACHABLE;
         }
     }
     fTriangleVertexCount = middleOut.close();
@@ -208,21 +211,20 @@ void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numC
     fBaseCubicVertex = (instanceAligned) ? baseInstanceOrVertex * 4 : baseInstanceOrVertex;
     fCubicVertexCount = 0;
 
-    SkPath::Iter iter(fPath, false);
-    SkPath::Verb verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        if (SkPath::kQuad_Verb == verb) {
-            SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-            write_quadratic_as_cubic(vertexData + fCubicVertexCount, pts[0], pts[1], pts[2]);
-            fCubicVertexCount += 4;
-            continue;
-        }
-        if (SkPath::kCubic_Verb == verb) {
-            SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-            memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
-            fCubicVertexCount += 4;
-            continue;
+    for (auto [verb, pts] : SkPathPriv::WalkPath(fPath)) {
+        switch (verb) {
+            case SkPathVerb::kQuad:
+                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
+                write_quadratic_as_cubic(vertexData + fCubicVertexCount, pts[0], pts[1], pts[2]);
+                fCubicVertexCount += 4;
+                break;
+            case SkPathVerb::kCubic:
+                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
+                memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
+                fCubicVertexCount += 4;
+                break;
+            default:
+                break;
         }
     }
     SkASSERT(fCubicVertexCount == numCountedCurves * 4);

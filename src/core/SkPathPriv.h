@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkNoncopyable.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");
@@ -141,6 +142,65 @@ public:
         Verbs(const Verbs&) = delete;
         Verbs& operator=(const Verbs&) = delete;
         SkPathRef* fPathRef;
+    };
+
+    /**
+     * Returns a C++11-iterable object that traverses a path's verbs and points in order. e.g:
+     *
+     *   for (auto [verb, pts] : SkPathPriv::WalkPath(path)) {
+     *       ...
+     *   }
+     */
+    struct WalkPath : public SkNoncopyable {
+    public:
+        WalkPath(const SkPath& path) : WalkPath(
+                path.fPathRef->verbsBegin(), path.fPathRef->verbsEnd(), path.fPathRef->points()) {}
+        WalkPath(const uint8_t* verbsBegin, const uint8_t* verbsEnd, const SkPoint* points)
+                : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points) {
+#ifdef SK_DEBUG
+            // Ensure the path does not have an implicit "moveTo(0, 0)" at the beginning.
+            // (SkPath::injectMoveToIfNeeded should have made sure of this.)
+            // We provide the starting point for beziers by peeking backwards from the current
+            // point, which works fine as long as there is always a kMove before any lines.
+            for (const uint8_t* verb = fVerbsBegin; verb != fVerbsEnd; ++verb) {
+                if (*verb == SkPath::kMove_Verb) {
+                    break;
+                }
+                SkASSERT(kPtsIdxBacksetForVerb[*verb] >= 0);
+            }
+#endif
+        }
+        struct Iter {
+            Iter(const uint8_t* verb, const SkPoint* points) : fVerb(verb), fPoints(points) {}
+            void operator++() {
+                fPoints += kPtsAdvanceAfterVerb[*fVerb];
+                ++fVerb;
+            }
+            bool operator!=(const Iter& b) { return fVerb != b.fVerb; }
+            std::tuple<SkPathVerb, const SkPoint*> operator*() {
+                SkASSERT(*fVerb >= 0 && *fVerb < (int)SkPathVerb::kDone);
+                return {(SkPathVerb)*fVerb, fPoints + kPtsIdxBacksetForVerb[*fVerb]};
+            }
+            const uint8_t* fVerb;
+            const SkPoint* fPoints;
+        };
+        Iter begin() { return {fVerbsBegin, fPoints}; }
+        Iter end() { return {fVerbsEnd, nullptr}; }
+
+    private:
+        static_assert((int)SkPathVerb::kMove == 0);
+        static_assert((int)SkPathVerb::kLine == 1);
+        static_assert((int)SkPathVerb::kQuad == 2);
+        static_assert((int)SkPathVerb::kConic == 3);
+        static_assert((int)SkPathVerb::kCubic == 4);
+        static_assert((int)SkPathVerb::kClose == 5);
+        static_assert((int)SkPathVerb::kDone == 6);
+        constexpr static int kPtsAdvanceAfterVerb[(int)SkPathVerb::kDone] = {1, 1, 2, 2, 3, 0};
+        constexpr static int kPtsIdxBacksetForVerb[(int)SkPathVerb::kDone] = {0, -1, -1, -1, -1, 0};
+
+        const uint8_t* fVerbsBegin;
+        const uint8_t* fVerbsEnd;
+        const SkPoint* fPoints;
     };
 
     /**
