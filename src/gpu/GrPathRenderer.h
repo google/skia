@@ -83,6 +83,7 @@ public:
         const SkIRect*              fClipConservativeBounds;
         const SkMatrix*             fViewMatrix;
         const GrStyledShape*        fShape;
+        const GrPaint*              fPaint;
         GrAAType                    fAAType;
         bool                        fTargetIsWrappedVkSecondaryCB;
 
