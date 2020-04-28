@@ -91,6 +91,30 @@
       "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "760f24a1_1f27c7b3",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 0,
+      "message": "No layout tests failed, so I\u0027m going to assume for now we don\u0027t need the legacy index anymore.",
+      "parentUuid": "2443c34d_111e6ed6",
+      "range": {
+        "startLine": 591,
+        "startChar": 20,
+        "endLine": 591,
+        "endChar": 48
+      },
+      "revId": "0f9ebd100e9127e61c7aa39d4b60079497644817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

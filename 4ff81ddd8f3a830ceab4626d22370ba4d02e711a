@@ -282,6 +282,30 @@
     },
     {
       "key": {
+        "uuid": "4bdd8238_769c4bf5",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "I believe when I was reading yesterday, that an unclosed moveTo would not be capped.\n\nUnfortunately, it looks like moveTo+close doesn\u0027t get dashed as expected by SkDashPath. Maybe it should, but looking into its code, it handles points as moveTo+lineTo as well. I\u0027ll leave this asPath() as-is, and update the segmentMask to report kLine.",
+      "parentUuid": "9b3ff1a0_c2baf639",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9654659_bb46d4eb",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 15
@@ -328,6 +352,30 @@
     },
     {
       "key": {
+        "uuid": "1d1accf3_251092d1",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61fc2fc3_5149c2c5",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd908af0_91d22f98",
         "filename": "src/gpu/geometry/GrShape.h",
         "patchSetId": 15
@@ -348,6 +396,30 @@
       "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef17f699_f1171df6",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "I have no idea in that regard, I would defer to your knowledge.",
+      "parentUuid": "fd908af0_91d22f98",
+      "range": {
+        "startLine": 56,
+        "startChar": 56,
+        "endLine": 56,
+        "endChar": 80
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -374,6 +446,30 @@
     },
     {
       "key": {
+        "uuid": "c96a2c94_d0fce3c0",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "The new clip stack does normalize the GrShape so that it\u0027s never reported and swaps the clip op to account for it. I don\u0027t think we could get rid of inverted() from GrShape, though, since inverse-filled draws are still a thing.",
+      "parentUuid": "2067df70_ceaae679",
+      "range": {
+        "startLine": 86,
+        "startChar": 9,
+        "endLine": 86,
+        "endChar": 17
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60ff5a78_28263356",
         "filename": "src/gpu/geometry/GrStyledShape.cpp",
         "patchSetId": 15
@@ -388,6 +484,24 @@
       "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4860ba99_6e41a1a3",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "Initially I\u0027d been hesitant to put any key logic in GrShape, but having it return an int value that combines type + start/dir/inverse makes this logic a lot simpler, so I went with that.",
+      "parentUuid": "60ff5a78_28263356",
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -503,6 +617,30 @@
       "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a9484c_3f3107ae",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-28T18:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86af1eff_0d036200",
+      "range": {
+        "startLine": 685,
+        "startChar": 8,
+        "endLine": 685,
+        "endChar": 24
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
