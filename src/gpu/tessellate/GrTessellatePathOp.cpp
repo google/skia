@@ -12,7 +12,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrTriangulator.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
-#include "src/gpu/tessellate/GrInnerPolygonContourParser.h"
+#include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
 
@@ -48,7 +48,7 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
         int numCountedCurves;
         // This will fail if the inner triangles do not form a simple polygon (e.g., self
         // intersection, double winding).
-        if (this->prepareSimpleInnerPolygonTriangulation(state, &numCountedCurves)) {
+        if (this->prepareNonOverlappingInnerTriangles(state, &numCountedCurves)) {
             // Prepare cubics on an instance boundary so we can use the buffer to fill local convex
             // hulls as well.
             this->prepareOuterCubics(state, numCountedCurves,
@@ -65,7 +65,7 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     float rasterEdgeWork = (bounds.height() + bounds.width()) * scales[1] * fPath.countVerbs();
     if (rasterEdgeWork > 1000 * 1000) {
         int numCountedCurves;
-        this->prepareInnerTriangles(state, &numCountedCurves);
+        this->prepareMiddleOutInnerTriangles(state, &numCountedCurves);
         // We will fill the path with a bounding box instead local cubic convex hulls, so there is
         // no need to prepare the cubics on an instance boundary.
         this->prepareOuterCubics(state, numCountedCurves, CubicDataAlignment::kVertexBoundary);
@@ -76,8 +76,8 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     this->prepareCubicWedges(state);
 }
 
-bool GrTessellatePathOp::prepareSimpleInnerPolygonTriangulation(GrOpFlushState* flushState,
-                                                                int* numCountedCurves) {
+bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrOpFlushState* flushState,
+                                                             int* numCountedCurves) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(!fDoStencilTriangleBuffer);
     SkASSERT(!fDoFillTriangleBuffer);
@@ -106,12 +106,13 @@ bool GrTessellatePathOp::prepareSimpleInnerPolygonTriangulation(GrOpFlushState* 
     return true;
 }
 
-void GrTessellatePathOp::prepareInnerTriangles(GrOpFlushState* flushState, int* numCountedCurves) {
+void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushState,
+                                                        int* numCountedCurves) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(!fDoStencilTriangleBuffer);
     SkASSERT(!fDoFillTriangleBuffer);
 
-    // No initial moveTo, plus an implicit close at the end; n-2 trianles fill an n-gon.
+    // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
     // Each triangle has 3 vertices.
     int maxVertices = (fPath.countVerbs() - 1) * 3;
 
@@ -120,13 +121,32 @@ void GrTessellatePathOp::prepareInnerTriangles(GrOpFlushState* flushState, int* 
     if (!vertexData) {
         return;
     }
-    fTriangleVertexCount = 0;
 
-    GrInnerPolygonContourParser parser(fPath, maxVertices);
-    while (parser.parseNextContour()) {
-        fTriangleVertexCount += parser.emitInnerPolygon(vertexData + fTriangleVertexCount);
+    GrMiddleOutPolygonTriangulator middleOut(vertexData, maxVertices);
+    int localCurveCount = 0;
+    const SkPoint* pts = SkPathPriv::PointData(fPath);
+    for (SkPath::Verb verb : SkPathPriv::Verbs(fPath)) {
+        switch ((uint8_t)verb) {
+            case SkPath::kMove_Verb:
+                middleOut.closeAndMove(*pts++);
+                break;
+            case SkPath::kClose_Verb:
+                middleOut.close();
+                break;
+            static_assert(SkPath::kLine_Verb  == 1); case 1:
+            static_assert(SkPath::kQuad_Verb  == 2); case 2:
+            static_assert(SkPath::kConic_Verb == 3); case 3:
+            static_assert(SkPath::kCubic_Verb == 4); case 4:
+                constexpr static int kPtsAdvance[] = {0, 1, 2, 2, 3};
+                constexpr static int kCurveCountAdvance[] = {0, 0, 1, 1, 1};
+                pts += kPtsAdvance[verb];
+                middleOut.pushVertex(pts[-1]);
+                localCurveCount += kCurveCountAdvance[verb];
+                break;
+        }
     }
-    *numCountedCurves = parser.numCountedCurves();
+    fTriangleVertexCount = middleOut.close();
+    *numCountedCurves = localCurveCount;
 
     vertexAlloc.unlock(fTriangleVertexCount);
 
