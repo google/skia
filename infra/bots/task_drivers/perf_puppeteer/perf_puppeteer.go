@@ -17,11 +17,13 @@ func main() {
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 		taskId    = flag.String("task_id", "", "ID of this task.")
 		taskName  = flag.String("task_name", "", "Name of the task.")
+		benchmarkPath = flag.String("benchmark_path", "", "Path to location of the benchmark files")
 		workdir   = flag.String("workdir", ".", "Working directory")
 
 		// Optional flags.
 		local  = flag.Bool("local", false, "True if running locally (as opposed to on the bots)")
 		output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
+		canvaskitBin = flag.String("canvaskit_bin", "", "The location of a canvaskit.js and canvaskit.wasm")
 	)
 
 	// Setup.
@@ -29,8 +31,10 @@ func main() {
 	defer td.EndRun(ctx)
 
 	// Run the infra tests.
-	// TODO(kjlubick) finish this implementation.
+	// FIXME(kjlubick) Remove this when done.
 	if _, err := exec.RunCwd(ctx, *workdir, "ls", "-ahl"); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+
 }
