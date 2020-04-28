@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "384017fa_38be6093",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-28T14:50:00Z",
+      "side": 1,
+      "message": "Not sure it really matters but d3d already has the idea of different formats belong to same typeless format groups. For example, DXGI_FORMAT_R32G32B32A32_TYPELESS and DXGI_FORMAT_BC1_TYPELESS. We could just use those typeless formats instead.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 23
+      },
+      "revId": "c4bfeeb0e5e3f76c242a51a27f3f8e1cc8015e35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d0e68b1_00d06ebe",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-28T14:50:00Z",
+      "side": 1,
+      "message": "In the spec for CopyTextureRegion it describes the copy like \"CopyTextureRegion performs the copy on the GPU (similar to a memcpy by the CPU).\" So I\u0027m not sure how much conversions are actually being done, but instead just moving bytes directly as is. In that case I don\u0027t think we ever want to support the compatibility things in d3d. Vulkan has them for blits which can do format conversions, but as far as I know d3d doesn\u0027t have a blit equivalent.\n\nNow if I\u0027m wrong the spec says that for copy all things must be in the same \"type group\", but they never give a good explanation of what a type group is. The closest I can get to some description is that things that have the same component order and size are in the same group (i.e. the part of the name like R32G32B32 matches). Usually if there is more than one format that matches in that part and only differs in the \"Format Modifier\" are part of the same group and there is usually a _TYPELESS modifier that defines the group.\n\nSo I feel like I would form groups by just passing the first part of the format name",
+      "range": {
+        "startLine": 76,
+        "startChar": 1,
+        "endLine": 81,
+        "endChar": 34
+      },
+      "revId": "c4bfeeb0e5e3f76c242a51a27f3f8e1cc8015e35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78372d40_77e04587",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-28T14:50:00Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 349,
+        "startChar": 49,
+        "endLine": 354,
+        "endChar": 41
+      },
+      "revId": "c4bfeeb0e5e3f76c242a51a27f3f8e1cc8015e35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
