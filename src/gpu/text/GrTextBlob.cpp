@@ -484,7 +484,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     return false;
 }
 
-void GrTextBlob::flush(GrTextTarget* target,
+void GrTextBlob::addOp(GrTextTarget* target,
                        const SkSurfaceProps& props,
                        const SkPaint& paint,
                        const SkPMColor4f& filteredColor,
