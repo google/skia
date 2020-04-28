@@ -17,24 +17,35 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrLumaColorFilterEffect : public GrFragmentProcessor {
 public:
+    enum class OutputMode { kLumaAsAlpha = 0, kLumaAsRGB = 1 };
+
 #include "include/private/SkColorData.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR + SK_ITU_BT709_LUM_COEFF_G * input.fG +
                      SK_ITU_BT709_LUM_COEFF_B * input.fB;
-        return {0, 0, 0, SkTPin(luma, 0.0f, 1.0f)};
+        luma = SkTPin(luma, 0.0f, 1.0f);
+        switch (mode) {
+            case OutputMode::kLumaAsAlpha:
+                return {0, 0, 0, luma};
+            case OutputMode::kLumaAsRGB:
+                return {luma, luma, luma, input.fA};
+        }
+        SkUNREACHABLE;
     }
-    static std::unique_ptr<GrFragmentProcessor> Make() {
-        return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect());
+    static std::unique_ptr<GrFragmentProcessor> Make(OutputMode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect(mode));
     }
     GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LumaColorFilterEffect"; }
+    OutputMode mode;
 
 private:
-    GrLumaColorFilterEffect()
+    GrLumaColorFilterEffect(OutputMode mode)
             : INHERITED(kGrLumaColorFilterEffect_ClassID,
-                        (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag) {}
+                        (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag)
+            , mode(mode) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
