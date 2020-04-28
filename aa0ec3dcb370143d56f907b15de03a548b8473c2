@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c1c1653_272e857b",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-28T12:31:33Z",
+      "side": 1,
+      "message": "What legacy are we preserving?  Is legacy a term from AE or lottie?  Or is this more like makeCheapCF() / makeApproximateCF()?\n\nOne day in the future with makeCF() implemented, we\u0027ll still need both?",
+      "range": {
+        "startLine": 46,
+        "startChar": 24,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0660c257_ca415b39",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-28T12:31:33Z",
+      "side": 1,
+      "message": "Might want to name these S and B (or M and B)?\n\nIt\u0027s easy to miss the column of O,O,O,0.",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
