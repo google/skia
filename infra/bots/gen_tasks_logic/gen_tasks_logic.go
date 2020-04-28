@@ -37,10 +37,11 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
-	DEFAULT_OS_MAC       = "Mac-10.14.6"
-	DEFAULT_OS_WIN       = "Windows-Server-17763"
+	DEFAULT_OS_DEBIAN          = "Debian-10.3"
+	DEFAULT_OS_LINUX_GCE       = "Debian-10.3"
+	COMPILE_TASK_NAME_OS_LINUX = "Debian10"
+	DEFAULT_OS_MAC             = "Mac-10.14.6"
+	DEFAULT_OS_WIN             = "Windows-Server-17763"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -461,10 +462,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -475,7 +476,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// version to compile as to test.
 			ec = append(ec, "Docker")
 		} else if b.matchOs("Ubuntu", "Debian") {
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
@@ -534,7 +535,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
 			"Debian9":  DEFAULT_OS_DEBIAN,
-			"Debian10": DEFAULT_OS_DEBIAN, // Runs in Docker.
+			"Debian10": DEFAULT_OS_LINUX_GCE,
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
 			"Mac10.14": "Mac-10.14.3",
@@ -729,7 +730,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_DEBIAN {
+		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 				return
