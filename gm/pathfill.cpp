@@ -660,3 +660,21 @@ DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
 
     surf->draw(orig, 0, 0, nullptr);
 }
+
+DEF_SIMPLE_GM(path_arcto_skbug_9077, canvas, 200, 200) {
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+
+    SkPath path;
+    SkPoint pts[] = { {20, 20}, {100, 20}, {100, 60}, {130, 150}, {180, 160} };
+    SkScalar radius = 60;
+    path.moveTo(pts[0]);
+    path.lineTo(pts[1]);
+    path.lineTo(pts[2]);
+    path.close();
+    path.arcTo(pts[3], pts[4], radius);
+    canvas->drawPath(path, p);
+}
