@@ -202,7 +202,7 @@ void GrD3DBuffer::internalUnmap(size_t size) {
     SkASSERT(fResource);
     SkASSERT(fMappedResource);
     SkASSERT(this->isMapped());
-    SkASSERT(fMappedResource->size() == size);
+    SkASSERT(fMappedResource->size() >= size);
     VALIDATE();
 
 #ifdef SK_BUILD_FOR_MAC
