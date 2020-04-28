@@ -1167,7 +1167,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     sk_sp<SkBaseDevice> newDevice;
     {
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
-        const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
+        const bool preserveLCDText = saveLayerFlags & kPreserveLCDText_PrivateSaveLayerFlag;
+        const SkBaseDevice::TileUsage usage = preserveLCDText ? SkBaseDevice::kPossible_TileUsage
+                                                              : SkBaseDevice::kNever_TileUsage;
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
@@ -1206,12 +1208,14 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
+    SaveLayerRec rec(bounds, nullptr, kPreserveLCDText_PrivateSaveLayerFlag);
     if (0xFF == alpha) {
-        return this->saveLayer(bounds, nullptr);
+        return this->saveLayer(rec);
     } else {
         SkPaint tmpPaint;
         tmpPaint.setAlpha(alpha);
-        return this->saveLayer(bounds, &tmpPaint);
+        rec.fPaint = &tmpPaint;
+        return this->saveLayer(rec);
     }
 }
 

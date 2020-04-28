@@ -80,7 +80,8 @@ class SkVertices;
 */
 class SK_API SkCanvas {
     enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
+        kPreserveLCDText_PrivateSaveLayerFlag = 1U << 30,
+        kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31,
     };
 
 public:
@@ -612,6 +613,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
+        LCD text will be preserved.
+
         @param bounds  hint to limit the size of layer; may be nullptr
         @param alpha   opacity of layer
         @return        depth of saved stack
@@ -626,7 +629,6 @@ public:
         kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
     */
     enum SaveLayerFlagsSet {
-        // kPreserveLCDText_SaveLayerFlag  = 1 << 1, (no longer used)
         kInitWithPrevious_SaveLayerFlag = 1 << 2, //!< initializes with previous contents
         kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
                                           1 << 3, //!< experimental: do not use
