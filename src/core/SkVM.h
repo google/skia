@@ -637,7 +637,7 @@ namespace skvm {
         F32 lerp(F32  lo, F32  hi, F32  t) { return mad(sub(hi, lo), t, lo); }
         F32 lerp(F32a lo, F32a hi, F32a t) { return lerp(_(lo), _(hi), _(t)); }
 
-        F32 clamp(F32  x, F32  lo, F32  hi) { return max(lo, min(x, hi)); }
+        F32 clamp(F32  x, F32  lo, F32  hi) { return max(lo, min(hi, x)); }
         F32 clamp(F32a x, F32a lo, F32a hi) { return clamp(_(x), _(lo), _(hi)); }
         F32 clamp01(F32 x) { return clamp(x, 0.0f, 1.0f); }
 

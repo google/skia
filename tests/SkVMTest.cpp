@@ -2164,4 +2164,29 @@ DEF_TEST(SkVM_min_max, r) {
             }
         });
     }
+
+    // Test clamp always produces values in range.
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg src = b.varying<float>(),
+                      dst = b.varying<float>();
+            b.storeF(dst, b.clamp(b.loadF(src), -0.125f, 2.0f));
+        }
+
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            float clamped[8];
+            program.eval(8, f,clamped);
+            for (int j = 0; j < 8; j++) {
+                REPORTER_ASSERT(r, sk_float_isfinite(clamped[j]));
+                REPORTER_ASSERT(r, clamped[j] >= -0.125f);
+                REPORTER_ASSERT(r, clamped[j] <=  2.0f);
+
+                // We don't care exactly what happens to NaN as long as it's in range.
+                if (!sk_float_isnan(f[j])) {
+                    REPORTER_ASSERT(r, clamped[j] == std::max(-0.125f, std::min(f[j], 2.0f)));
+                }
+            }
+        });
+    }
 }
