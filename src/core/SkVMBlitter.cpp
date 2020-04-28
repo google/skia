@@ -92,7 +92,7 @@ namespace {
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
     #if 1 && defined(SKVM_JIT)
-        thread_local static SkLRUCache<Key, skvm::Program> cache{8};
+        thread_local static SkLRUCache<Key, skvm::Program> cache{64};
         return &cache;
     #else
         // iOS in particular does not support thread_local until iOS 9.0.
