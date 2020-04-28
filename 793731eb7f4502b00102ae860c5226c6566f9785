@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7323991_e156db6f",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:44:41Z",
+      "side": 1,
+      "message": "Does this need to stay in SkPathPriv? What if we just put this iterable object on SkPath?\n\n for (auto [verb, pts] : skPath) {\n     ...\n }",
+      "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11767ced_2f3df3cc",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-28T17:44:41Z",
+      "side": 1,
+      "message": "Question: Is an assert sufficient here? Or do you think we should run this check even in release builds and take measures to make 100% certain we never read behind fPoints? (One possible solution would be to copy the entire fPoints array somewhere else; it really doesn\u0027t have to be fast because SkPath *should* be guaranteeing this won\u0027t happen anyway.)",
+      "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
