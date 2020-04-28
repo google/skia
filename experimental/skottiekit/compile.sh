@@ -119,6 +119,7 @@ echo "Compiling bitcode"
   skia_use_freetype=false \
   skia_use_harfbuzz=false \
   skia_use_icu=false \
+  skia_use_libgifcodec=false \
   skia_use_libheif=false \
   skia_use_libjpeg_turbo_decode=true \
   skia_use_libjpeg_turbo_encode=false \
