@@ -722,8 +722,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 #ifdef SK_DEBUG
                     {
-                        auto format =
-                                context->defaultBackendFormat(srcData[0].colorType(), renderable);
+                        auto format = context->defaultBackendFormat(srcData[0].colorType(),
+                                                                    renderable);
                         SkASSERT(format == result.getBackendFormat());
                     }
 #endif
@@ -763,7 +763,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kBGRA_8888,        GR_GL_RGBA8,                SkColors::kBlue      },
         { GrColorType::kBGRA_8888,        GR_GL_BGRA8,                SkColors::kBlue      },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
+        { GrColorType::kBGRA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
+
         { GrColorType::kBGR_565,          GR_GL_RGB565,               SkColors::kRed       },
         { GrColorType::kABGR_4444,        GR_GL_RGBA4,                SkColors::kGreen     },
 
@@ -914,7 +916,11 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kBGRA_8888,        VK_FORMAT_B8G8R8A8_UNORM,           SkColors::kBlue     },
 
-        { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f }},
+        { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+                                                                      { 0.25f, 0.5f, 0.75f, 1.0f }},
+        { GrColorType::kBGRA_1010102,     VK_FORMAT_A2R10G10B10_UNORM_PACK32,
+                                                                      { 0.25f, 0.5f, 0.75f, 1.0f }},
+
         { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed      },
 
         { GrColorType::kABGR_4444,        VK_FORMAT_R4G4B4A4_UNORM_PACK16,    SkColors::kCyan     },
