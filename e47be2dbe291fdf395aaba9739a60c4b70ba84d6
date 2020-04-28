@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa3c3c8_513a6073",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-28T13:30:12Z",
+      "side": 1,
+      "message": "I don\u0027t really care about this but these were aligned with the above \u003ds and now they have one more space before.",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 50
+      },
+      "revId": "e47be2dbe291fdf395aaba9739a60c4b70ba84d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
