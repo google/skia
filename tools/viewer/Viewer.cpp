@@ -132,6 +132,7 @@ static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 static DEFINE_bool(skvm, false, "Try to use skvm blitters for raster.");
+static DEFINE_bool(dylib, false, "JIT via dylib (much slower compile but easier to debug/profile)");
 
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
@@ -254,6 +255,7 @@ const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
 
 extern bool gUseSkVMBlitter;
+extern bool gSkVMJITViaDylib;
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
@@ -304,6 +306,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     gUseSkVMBlitter = FLAGS_skvm;
+    gSkVMJITViaDylib = FLAGS_dylib;
 
     ToolUtils::SetDefaultFontMgr();
 
