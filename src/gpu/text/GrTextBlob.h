@@ -370,10 +370,7 @@ public:
     void updateTexCoords(int begin, int end);
 
     // The rectangle that surrounds all the glyph bounding boxes in device space.
-    // TODO: figure out why needsGlyphTransform is not just needsTrasnform() in
-    //  the method GrAtlasTextOp::init().
-    SkRect deviceRect(
-            const SkMatrix& drawMatrix, SkPoint drawOrigin, bool needsGlyphTransform) const;
+    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     // df properties
     void setUseLCDText(bool useLCDText);
