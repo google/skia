@@ -27,11 +27,11 @@ uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
 }
 
 bool GrStyledShape::testingOnly_isPath() const {
-    return Type::kPath == fType;
+    return fShape.isPath();
 }
 
 bool GrStyledShape::testingOnly_isNonVolatilePath() const {
-    return Type::kPath == fType && !fPathData.fPath.isVolatile();
+    return fShape.isPath() && !fShape.path().isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
@@ -1569,9 +1569,9 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
     dashAndStrokeInvertexEmptyCase.compare(reporter, fillEmptyCase,
                                            TestCase::kAllSame_ComparisonExpecation);
 
-    // A shape made from an empty rrect should behave the same as an empty path when filled but not
-    // when stroked. However, dashing an empty rrect produces an empty path leaving nothing to
-    // stroke - so equivalent to filling an empty path.
+    // A shape made from an empty rrect should behave the same as an empty path when filled and
+    // when stroked. The shape is closed so it does not produce caps when stroked. When dashed there
+    // is no path to dash along, making it equivalent as well.
     SkRRect emptyRRect = SkRRect::MakeEmpty();
     REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
 
@@ -1580,7 +1580,7 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
 
     TestCase strokeEmptyRRectCase(reporter, emptyRRect, stroke);
     strokeEmptyRRectCase.compare(reporter, strokeEmptyCase,
-                                 TestCase::kAllDifferent_ComparisonExpecation);
+                                 TestCase::kAllSame_ComparisonExpecation);
 
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
@@ -1596,7 +1596,7 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
     TestCase strokeInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true,
                                           GrStyle(stroke));
     strokeInvertedEmptyRRectCase.compare(reporter, strokeInvertedEmptyCase,
-                                         TestCase::kAllDifferent_ComparisonExpecation);
+                                         TestCase::kAllSame_ComparisonExpecation);
 
     TestCase dashAndStrokeEmptyInvertedRRectCase(reporter, emptyRRect, kDir, kStart, true,
                                                  GrStyle(dashAndStroke));
