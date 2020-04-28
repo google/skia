@@ -868,6 +868,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
             canDrawArgs.fClipConservativeBounds = &stencilClip.fixedClip().scissorRect();
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
+            canDrawArgs.fPaint = nullptr;
             canDrawArgs.fAAType = pathAAType;
             canDrawArgs.fHasUserStencilSettings = false;
             canDrawArgs.fTargetIsWrappedVkSecondaryCB = renderTargetContext->wrapsVkSecondaryCB();
