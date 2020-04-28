@@ -186,6 +186,30 @@
     },
     {
       "key": {
+        "uuid": "216f8788_71eb6d49",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-28T14:00:13Z",
+      "side": 1,
+      "message": "Isn\u0027t a point in a path just a kMove?",
+      "parentUuid": "7e54d6db_51971c87",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 20
+      },
+      "revId": "4ff81ddd8f3a830ceab4626d22370ba4d02e711a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9654659_bb46d4eb",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 15
