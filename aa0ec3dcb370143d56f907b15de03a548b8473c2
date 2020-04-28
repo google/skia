@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "34b33aff_deb23a52",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-28T13:47:26Z",
+      "side": 1,
+      "message": "Oof all around.",
+      "parentUuid": "b390a8d1_628cac85",
+      "range": {
+        "startLine": 46,
+        "startChar": 24,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "aa0ec3dcb370143d56f907b15de03a548b8473c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0660c257_ca415b39",
         "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
         "patchSetId": 2
