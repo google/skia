@@ -22,6 +22,30 @@
       "revId": "fd9f53279bc806783446677809ca2ccc6dfd6895",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d4e7b39_f9854446",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-29T15:56:07Z",
+      "side": 1,
+      "message": "You will (now) get an InputBuilderVar with fVar \u003d\u003d nullptr. Trying to assign to it will trigger an SkDEBUGFAIL, but safely skip doing anything in release builds. I was working on handling these cases when you wrote this. ;)",
+      "parentUuid": "831d666c_dfbd6ff8",
+      "range": {
+        "startLine": 152,
+        "startChar": 17,
+        "endLine": 152,
+        "endChar": 35
+      },
+      "revId": "fd9f53279bc806783446677809ca2ccc6dfd6895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
