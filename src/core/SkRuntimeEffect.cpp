@@ -382,7 +382,7 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
 
         switch (inst) {
             default:
-                #if 0
+                #if 1
                     fn.disassemble();
                     SkDebugf("inst %04x unimplemented\n", inst);
                     __builtin_debugtrap();

@@ -73,7 +73,8 @@ static constexpr char CONTRAST_EFFECT[] = R"(
 
     void main(inout half4 color) {
         // C' = a*C^3 + b*C^2 + c*C
-        color.rgb = ((a*color.rgb + b)*color.rgb + c)*color.rgb;
+        // color.rgb = ((a*color.rgb + b)*color.rgb + c)*color.rgb;
+        color.rgb = color.rgb + a*(sin(6.28*color.rgb)*0.159);
     }
 )";
 
