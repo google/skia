@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ea025a3_51d3cbd6",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-29T20:13:20Z",
+      "side": 1,
+      "message": "I had to set this to be able to run at all.  Does that make sense?",
+      "revId": "6d5c5c9316b40dc19606bba10c2056b00d0e6ce2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
