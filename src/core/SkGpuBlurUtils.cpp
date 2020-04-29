@@ -128,7 +128,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
     auto wm = SkTileModeToWrapMode(mode);
-    auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(srcView), srcBounds, size, 1.0,
+    auto conv = GrMatrixConvolutionEffect::MakeGaussian(context, std::move(srcView), srcBounds, size, 1.0,
                                                         0.0, kernelOffset, wm, true, sigmaX, sigmaY,
                                                         *renderTargetContext->caps());
     paint.addColorFragmentProcessor(std::move(conv));
@@ -444,10 +444,11 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
 
     auto localSrcBounds = srcBounds;
 
+    static constexpr int kMaxKernelSizeForSinglePass = 25;
     if (scaleFactorX == 1 && scaleFactorY == 1) {
         // For really small blurs (certainly no wider than 5x5 on desktop GPUs) it is faster to just
         // launch a single non separable kernel vs two launches.
-        if (sigmaX > 0 && sigmaY > 0 && (2 * radiusX + 1) * (2 * radiusY + 1) <= MAX_KERNEL_SIZE) {
+        if (sigmaX > 0 && sigmaY > 0 && (2 * radiusX + 1) * (2 * radiusY + 1) <= kMaxKernelSizeForSinglePass) {
             // Apply the proxy offset to src bounds and offset directly
             return convolve_gaussian_2d(context, std::move(srcView), srcColorType, srcBounds,
                                         dstBounds, radiusX, radiusY, sigmaX, sigmaY, mode,
