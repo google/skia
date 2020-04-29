@@ -491,6 +491,7 @@ public:
     TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
 
     TextureSampler& operator=(const TextureSampler&) = delete;
+    TextureSampler& operator=(TextureSampler&&) = default;
 
     bool operator==(const TextureSampler& that) const {
         return fView == that.fView && fSamplerState == that.fSamplerState;
