@@ -8,6 +8,7 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/core/SkColorFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -17,13 +18,68 @@ namespace skottie::internal {
 
 namespace  {
 
+// The contrast effect transfer function can be approximated with the following
+// 3rd degree polynomial:
+//
+//   f(x) = -2πC/3 * x³ + πC * x² + (1 - πC/3) * x
+//
+// where C is the normalized contrast value [-1..1].
+//
+// Derivation:
+//
+//   - start off with sampling the AE contrast effect for various contrast/input values [1]
+//
+//   - apply cubic polynomial curve fitting to determine best-fit coefficients for given
+//     contrast values [2]
+//
+//   - observations:
+//       * negative contrast appears clamped at -0.5 (-50)
+//       * a,b coefficients vary linearly vs. contrast
+//       * the b coefficient for max contrast (1.0) looks kinda familiar: 3.14757 - coincidence?
+//         probably not.  let's run with it: b == πC
+//
+//   - additionally, we expect the following to hold:
+//       * f(0  ) = 0   \     | d = 0
+//       * f(1  ) = 1    | => | a = -2b/3
+//       * f(0.5) = 0.5 /     | c = 1 - b/3
+//
+//   - this yields a pretty decent approximation: [3]
+//
+// [1] https://www.desmos.com/calculator/oksptqpo8z
+// [2] https://www.desmos.com/calculator/oukrf6yahn
+// [3] https://www.desmos.com/calculator/ehem0vy3ft
+
+static sk_sp<SkData> make_contrast_coeffs(float contrast) {
+    struct { float a, b, c; } coeffs;
+
+    coeffs.b = SK_ScalarPI * contrast;
+    coeffs.a = -2 * coeffs.b / 3;
+    coeffs.c =  1 - coeffs.b / 3;
+
+    return SkData::MakeWithCopy(&coeffs, sizeof(coeffs));
+}
+
+static constexpr char CONTRAST_EFFECT[] = R"(
+    uniform half a;
+    uniform half b;
+    uniform half c;
+
+    void main(inout half4 color) {
+        // C' = a*C^3 + b*C^2 + c*C
+        color.rgb = ((a*color.rgb + b)*color.rgb + c)*color.rgb;
+    }
+)";
+
 class BrightnessContrastAdapter final : public DiscardableAdapterBase<BrightnessContrastAdapter,
                                                                       sksg::ExternalColorFilter> {
 public:
     BrightnessContrastAdapter(const skjson::ArrayValue& jprops,
                               const AnimationBuilder& abuilder,
                               sk_sp<sksg::RenderNode> layer)
-        : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer))) {
+        : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer)))
+        , fContrastEffect(std::get<0>(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT)))) {
+        SkASSERT(fContrastEffect);
+
         enum : size_t {
             kBrightness_Index = 0,
               kContrast_Index = 1,
@@ -96,9 +152,17 @@ private:
     }
 
     sk_sp<SkColorFilter> makeCF() const {
-        // TODO: lots of non-linear curve fitting fun
-        return nullptr;
+        // TODO: brightness
+        const auto contrast = SkTPin(fContrast, -50.0f, 100.0f) / 100; // [-0.5 .. 1]
+
+        if (SkScalarNearlyZero(fContrast)) {
+            return nullptr;
+        }
+
+        return fContrastEffect->makeColorFilter(make_contrast_coeffs(contrast));
     }
+
+    const sk_sp<SkRuntimeEffect> fContrastEffect;
 
     ScalarValue fBrightness = 0,
                 fContrast   = 0,
