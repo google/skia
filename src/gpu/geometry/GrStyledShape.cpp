@@ -602,7 +602,9 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
     // The simplest case is a stroke+fill, mitered rect. This simply becomes a filled style with
     // a larger rect shape.
     if (!fStyle.hasPathEffect() && fShape.isRect() &&
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style &&
+#endif
         fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
         fStyle.strokeRec().getMiter() >= SK_ScalarSqrt2) {
         // A mitered stroke + fill on a rect is equivalent to a larger fill-only rect.
@@ -653,7 +655,11 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
     if (fStyle.isSimpleFill()) {
         fShape.reset();
         return;
-    } else if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+    } else
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style)
+#endif
+    {
         // Stroke only
         SkStrokeRec rec = fStyle.strokeRec();
         rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);

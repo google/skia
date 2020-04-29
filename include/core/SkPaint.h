@@ -216,12 +216,17 @@ public:
     enum Style : uint8_t {
         kFill_Style,          //!< set to fill geometry
         kStroke_Style,        //!< set to stroke geometry
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         kStrokeAndFill_Style, //!< sets to stroke and fill geometry
+        kLast_Style = kStrokeAndFill_Style
+#else
+        kLast_Style = kStroke_Style
+#endif
     };
 
     /** May be used to verify that SkPaint::Style is a legal value.
     */
-    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
+    static constexpr int kStyleCount = kLast_Style + 1;
 
     /** Returns whether the geometry is filled, stroked, or filled and stroked.
     */
@@ -234,6 +239,9 @@ public:
         example: https://fiddle.skia.org/c/@Stroke_Width
     */
     void setStyle(Style style);
+
+    void setFillStyle() { this->setStyle(kFill_Style); }
+    void setStrokeStyle() { this->setStyle(kStroke_Style); }
 
     /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract

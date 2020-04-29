@@ -967,7 +967,10 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         SkScalar extra = font.getSize() * fakeBoldScale;
 
         if (style == SkPaint::kFill_Style) {
+            // STROKEANDFILL TODO
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             style = SkPaint::kStrokeAndFill_Style;
+#endif
             strokeWidth = extra;    // ignore paint's strokeWidth if it was "fill"
         } else {
             strokeWidth += extra;
@@ -981,9 +984,11 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         rec->fStrokeJoin = SkToU8(paint.getStrokeJoin());
         rec->fStrokeCap = SkToU8(paint.getStrokeCap());
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         if (style == SkPaint::kStrokeAndFill_Style) {
             flags |= SkScalerContext::kFrameAndFill_Flag;
         }
+#endif
     } else {
         rec->fFrameWidth = 0;
         rec->fMiterLimit = 0;

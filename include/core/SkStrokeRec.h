@@ -28,10 +28,15 @@ public:
         kHairline_Style,
         kFill_Style,
         kStroke_Style,
-        kStrokeAndFill_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        kStrokeAndFill_Style,
+        kLast_Style = kStrokeAndFill_Style
+#else
+        kLast_Style = kStroke_Style
+#endif
     };
 
-    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
+    static constexpr int kStyleCount = kLast_Style + 1;
 
     Style getStyle() const;
     SkScalar getWidth() const { return fWidth; }
@@ -78,7 +83,11 @@ public:
      */
     bool needToApply() const {
         Style style = this->getStyle();
-        return (kStroke_Style == style) || (kStrokeAndFill_Style == style);
+        return (kStroke_Style == style)
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || (kStrokeAndFill_Style == style)
+#endif
+        ;
     }
 
     /**
@@ -126,11 +135,13 @@ public:
         if (!this->needToApply()) {
             return this->getStyle() == other.getStyle();
         }
-        return fWidth == other.fWidth &&
-               fMiterLimit == other.fMiterLimit &&
-               fCap == other.fCap &&
-               fJoin == other.fJoin &&
-               fStrokeAndFill == other.fStrokeAndFill;
+        return fWidth == other.fWidth
+               && fMiterLimit == other.fMiterLimit
+               && fCap == other.fCap
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+               && fStrokeAndFill == other.fStrokeAndFill
+#endif
+               && fJoin == other.fJoin;
     }
 
 private:

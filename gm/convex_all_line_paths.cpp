@@ -292,21 +292,24 @@ protected:
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
         const SkPathDirection dirs[2] = { SkPathDirection::kCW, SkPathDirection::kCCW };
         const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
                                          SkPaint::kBevel_Join,
                                          SkPaint::kMiter_Join };
+#endif
 
         SkPaint paint;
         paint.setAntiAlias(true);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(scales); ++i) {
             SkPath path = GetPath(index, dirs[i%2]);
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             if (fDoStrokeAndFill) {
                 paint.setStyle(SkPaint::kStrokeAndFill_Style);
                 paint.setStrokeJoin(joins[i%3]);
                 paint.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }
-
+#endif
             canvas->save();
                 canvas->translate(center.fX, center.fY);
                 canvas->scale(scales[i], scales[i]);
@@ -333,12 +336,13 @@ protected:
 
             SkPaint p;
             p.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             if (fDoStrokeAndFill) {
                 p.setStyle(SkPaint::kStrokeAndFill_Style);
                 p.setStrokeJoin(SkPaint::kMiter_Join);
                 p.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }
-
+#endif
             SkPath p1;
             p1.moveTo(60.8522949f, 364.671021f);
             p1.lineTo(59.4380493f, 364.671021f);

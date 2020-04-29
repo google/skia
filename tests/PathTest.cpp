@@ -1041,9 +1041,10 @@ static void test_strokerec(skiatest::Reporter* reporter) {
     rec.setStrokeStyle(SK_Scalar1, false);
     REPORTER_ASSERT(reporter, SkStrokeRec::kStroke_Style == rec.getStyle());
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     rec.setStrokeStyle(SK_Scalar1, true);
     REPORTER_ASSERT(reporter, SkStrokeRec::kStrokeAndFill_Style == rec.getStyle());
-
+#endif
     rec.setStrokeStyle(0, false);
     REPORTER_ASSERT(reporter, SkStrokeRec::kHairline_Style == rec.getStyle());
 
@@ -5128,7 +5129,10 @@ DEF_TEST(HugeGeometry, reporter) {
 
     const bool aas[] = { false, true };
     const SkPaint::Style styles[] = {
-        SkPaint::kFill_Style, SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
+        SkPaint::kFill_Style, SkPaint::kStroke_Style,
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        SkPaint::kStrokeAndFill_Style
+#endif
     };
     const SkScalar values[] = {
         0, 1, 1000, 1000 * 1000, 1000.f * 1000 * 10000, SK_ScalarMax / 2, SK_ScalarMax,
