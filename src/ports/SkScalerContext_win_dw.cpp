@@ -22,6 +22,7 @@
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkSharedMutex.h"
 #include "src/ports/SkScalerContext_win_dw.h"
 #include "src/ports/SkTypeface_win_dw.h"
 #include "src/sfnt/SkOTTable_EBLC.h"
@@ -37,21 +38,19 @@
 #include <dwrite.h>
 #include <dwrite_1.h>
 #include <dwrite_3.h>
-#include <mutex>
-#include <shared_mutex>
 
 /* Note:
  * In versions 8 and 8.1 of Windows, some calls in DWrite are not thread safe.
  * The mutex returned from get_dwrite_factory_mutex() protects the calls that are
  * problematic.
  */
-static std::shared_mutex& get_dwrite_factory_mutex() {
-    static std::shared_mutex mutex;
+static SkSharedMutex& get_dwrite_factory_mutex() {
+    static SkSharedMutex mutex;
     return mutex;
 }
 
-typedef std::unique_lock<std::shared_mutex> Exclusive;
-typedef std::shared_lock<std::shared_mutex> Shared;
+typedef SkAutoSharedMutexExclusive Exclusive;
+typedef SkAutoSharedMutexShared Shared;
 
 static bool isLCD(const SkScalerContextRec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
