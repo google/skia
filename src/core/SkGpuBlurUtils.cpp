@@ -337,14 +337,12 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
 // original input.
 static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* context,
                                                        std::unique_ptr<GrRenderTargetContext> src,
-                                                       const SkIRect& srcBounds,
                                                        int scaleFactorX,
                                                        int scaleFactorY,
                                                        SkISize dstSize,
                                                        sk_sp<SkColorSpace> colorSpace,
                                                        SkBackingFit fit) {
-    const SkIRect srcRect = SkIRect::MakeWH(src->width(), src->height());
-
+    auto srcRect = SkIRect::MakeSize(src->dimensions());
     GrSurfaceProxyView srcView = src->readSurfaceView();
     if (!srcView.asTextureProxy()) {
         return nullptr;
@@ -365,14 +363,14 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
     GrPaint paint;
     const auto& caps = *context->priv().caps();
     auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
-                                          GrSamplerState::Filter::kBilerp, SkRect::Make(srcBounds),
+                                          GrSamplerState::Filter::kBilerp, SkRect::Make(srcRect),
                                           caps);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrFixedClip clip(SkIRect::MakeSize(dstSize));
 
     // TODO: using dstII as dstRect results in some image diffs - why?
-    SkIRect dstRect(srcRect);
+    auto dstRect = srcRect;
     scale_irect(&dstRect, scaleFactorX, scaleFactorY);
 
     dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
@@ -386,7 +384,7 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
                                                                 GrColorType srcColorType,
                                                                 SkAlphaType srcAlphaType,
                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                SkIRect* srcBounds,
+                                                                SkIRect srcBounds,
                                                                 SkIRect dstBounds,
                                                                 float sigmaX,
                                                                 float sigmaY,
@@ -398,7 +396,7 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
     if (sigmaX > 0.0f) {
         SkBackingFit xFit = sigmaY > 0 ? SkBackingFit::kApprox : fit;
         dstRenderTargetContext = convolve_gaussian(
-                context, std::move(srcView), srcColorType, srcAlphaType, srcBounds, dstBounds,
+                context, std::move(srcView), srcColorType, srcAlphaType, &srcBounds, dstBounds,
                 Direction::kX, radiusX, sigmaX, mode, colorSpace, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
@@ -411,7 +409,7 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
         return dstRenderTargetContext;
     }
 
-    return convolve_gaussian(context, std::move(srcView), srcColorType, srcAlphaType, srcBounds,
+    return convolve_gaussian(context, std::move(srcView), srcColorType, srcAlphaType, &srcBounds,
                              dstBounds, Direction::kY, radiusY, sigmaY, mode, colorSpace, fit);
 }
 
@@ -442,8 +440,6 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     sigmaY = adjust_sigma(sigmaY, maxTextureSize, &scaleFactorY, &radiusY);
     SkASSERT(sigmaX || sigmaY);
 
-    auto localSrcBounds = srcBounds;
-
     if (scaleFactorX == 1 && scaleFactorY == 1) {
         // For really small blurs (certainly no wider than 5x5 on desktop GPUs) it is faster to just
         // launch a single non separable kernel vs two launches.
@@ -454,10 +450,11 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                         colorSpace, fit);
         }
         return two_pass_gaussian(context, std::move(srcView), srcColorType, srcAlphaType,
-                                 std::move(colorSpace), &localSrcBounds, dstBounds, sigmaX, sigmaY,
+                                 std::move(colorSpace), srcBounds, dstBounds, sigmaX, sigmaY,
                                  radiusX, radiusY, mode, fit);
     }
 
+    auto localSrcBounds = srcBounds;
     auto srcOffset = -dstBounds.topLeft();
     srcView = decimate(context, std::move(srcView), srcColorType, srcAlphaType, srcOffset,
                        &localSrcBounds, scaleFactorX, scaleFactorY, mode, colorSpace);
@@ -468,13 +465,13 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     auto scaledDstBounds = SkIRect::MakeWH(sk_float_ceil(dstBounds.width()  / (float)scaleFactorX),
                                            sk_float_ceil(dstBounds.height() / (float)scaleFactorY));
     auto rtc = two_pass_gaussian(context, std::move(srcView), srcColorType, srcAlphaType,
-                                 colorSpace, &localSrcBounds, scaledDstBounds, sigmaX, sigmaY,
+                                 colorSpace, localSrcBounds, scaledDstBounds, sigmaX, sigmaY,
                                  radiusX, radiusY, mode, SkBackingFit::kApprox);
     if (!rtc) {
         return nullptr;
     }
-    return reexpand(context, std::move(rtc), localSrcBounds, scaleFactorX, scaleFactorY,
-                    dstBounds.size(), std::move(colorSpace), fit);
+    return reexpand(context, std::move(rtc), scaleFactorX, scaleFactorY, dstBounds.size(),
+                    std::move(colorSpace), fit);
 }
 
 }
