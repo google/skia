@@ -22,6 +22,30 @@
       "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12ba19ae_493aa248",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-29T13:31:22Z",
+      "side": 1,
+      "message": "Yeah, coeffs.a, with a value of -2/3 * contrast AFAICT (~ -0.66 for max contrast).",
+      "parentUuid": "3178a9b9_f8fb4a8f",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
