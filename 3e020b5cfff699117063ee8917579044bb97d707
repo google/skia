@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51fd8c3d_b051ab19",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-29T15:24:14Z",
+      "side": 1,
+      "message": "Insert // 4 horizontal lines at 1/8, 1/4, 3/4 and 7/8",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 37
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3ae8d53_20b6a002",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-29T15:24:14Z",
+      "side": 1,
+      "message": "I\u0027m assuming this is just for alignment?",
+      "range": {
+        "startLine": 32,
+        "startChar": 42,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21b94997_3c6d2c1a",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-29T15:24:14Z",
+      "side": 1,
+      "message": "Newline and // 4 vertical lines",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 37
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de2a4215_8cf2a94f",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-29T15:24:14Z",
+      "side": 1,
+      "message": "we will add new src rects once the present bugs are resolved?",
+      "range": {
+        "startLine": 78,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 48
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42459463_7650c5c8",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-29T15:24:14Z",
+      "side": 1,
+      "message": "Would it also be valuable to draw the dstRect outline in a different color? It\u0027s somewhat redundant with tile modes that don\u0027t introduce transparency and the blurred image has a clear edge, but it could be for the bottom row, and for clamp-to-border.",
+      "range": {
+        "startLine": 119,
+        "startChar": 17,
+        "endLine": 120,
+        "endChar": 54
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
