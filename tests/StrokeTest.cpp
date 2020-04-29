@@ -106,8 +106,8 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
         s1.setFillStyle();
         s2.setFillStyle();
         REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));
-        s1.setStrokeStyle(1.0f, false);
-        s2.setStrokeStyle(1.0f, false);
+        s1.setStrokeStyle(1.0f);
+        s2.setStrokeStyle(1.0f);
         s1.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.9f);
         s2.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.9f);
         REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));
@@ -136,15 +136,17 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
         SkStrokeRec s2(SkStrokeRec::kFill_InitStyle);
         s1.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.9f);
         s2.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.9f);
-        s1.setStrokeStyle(1.0f, false);
+        s1.setStrokeStyle(1.0f);
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         s2.setStrokeStyle(1.0f, true);
         REPORTER_ASSERT(reporter, !s1.hasEqualEffect(s2));
+#endif
 
-        s2.setStrokeStyle(2.1f, false);
+        s2.setStrokeStyle(2.1f);
         REPORTER_ASSERT(reporter, !s1.hasEqualEffect(s2));
 
-        s2.setStrokeStyle(1.0f, false);
+        s2.setStrokeStyle(1.0f);
         REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));
 
         s2.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.1f);
@@ -154,17 +156,19 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
         s2.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kRound_Join, 2.9f);
         REPORTER_ASSERT(reporter, !s1.hasEqualEffect(s2));
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         // Sets fill.
         s1.setStrokeStyle(0.0f, true);
         s2.setStrokeStyle(0.0f, true);
         REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));
+#endif
     }
 }
 
 // From skbug.com/6491. The large stroke width can cause numerical instabilities.
 static void test_big_stroke(skiatest::Reporter* reporter) {
     SkPaint paint;
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setStrokeStyle();
     paint.setStrokeWidth(1.49679073e+10f);
 
     SkPath path;
@@ -175,8 +179,8 @@ static void test_big_stroke(skiatest::Reporter* reporter) {
     path.lineTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
     path.close();
 
-    SkPath strokeAndFillPath;
-    paint.getFillPath(path, &strokeAndFillPath);
+    SkPath fillPath;
+    paint.getFillPath(path, &fillPath);
 }
 
 DEF_TEST(Stroke, reporter) {

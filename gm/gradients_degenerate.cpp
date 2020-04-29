@@ -69,7 +69,9 @@ static void draw_row(SkCanvas* canvas, const char* desc, GradientFactory factory
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
+#endif
     paint.setStrokeWidth(2.0f);
 
     for (int i = 0; i < TILE_MODE_CT; ++i) {
