@@ -9,14 +9,13 @@
 #define GrMatrixConvolutionEffect_DEFINED
 
 #include "src/gpu/GrFragmentProcessor.h"
-
-// A little bit less than the minimum # uniforms required by DX9SM2 (32).
-// Allows for a 5x5 kernel (or 25x1, for that matter).
-#define MAX_KERNEL_SIZE 25
+#include <array>
+#include <variant>
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView srcView,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext *context,
+                                                     GrSurfaceProxyView srcView,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -27,7 +26,8 @@ public:
                                                      bool convolveAlpha,
                                                      const GrCaps&);
 
-    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrSurfaceProxyView srcView,
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrRecordingContext *context,
+                                                             GrSurfaceProxyView srcView,
                                                              const SkIRect& srcBounds,
                                                              const SkISize& kernelSize,
                                                              SkScalar gain,
@@ -40,9 +40,12 @@ public:
                                                              const GrCaps&);
 
     const SkIRect& bounds() const { return fBounds; }
-    const SkISize& kernelSize() const { return fKernelSize; }
+    const SkISize& kernelSize() const { return fKernel.fSize; }
     const SkV2 kernelOffset() const { return fKernelOffset; }
-    const float* kernel() const { return fKernel; }
+    bool kernelIsSampled() const { return fKernel.isSampled(); }
+    const float *kernel() const { return fKernel.array().data(); }
+    float kernelSampleGain() const { return fKernel.scalableSampler().fGain; }
+    float kernelSampleBias() const { return fKernel.scalableSampler().fBias; }
     float gain() const { return fGain; }
     float bias() const { return fBias; }
     bool convolveAlpha() const { return fConvolveAlpha; }
@@ -52,11 +55,40 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    // srcProxy is the texture that is going to be convolved
-    // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
-    GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor>,
-                              const SkISize& kernelSize,
-                              const SkScalar* kernel,
+    /**
+     * Small kernels are represented as float-arrays and are shaded using
+     * uniforms. Large kernels go over the argument limit and are sampled.
+     */
+    struct KernelWrapper {
+        // A little bit less than the minimum # uniforms required by DX9SM2 (32).
+        // Allows for a 5x5 kernel (or 25x1, for that matter).
+        static constexpr int kMaxUniformSize = 25;
+        struct ScalableSampler {
+            TextureSampler fSampler;
+            // Applied before any other math.
+            float fBias = 0.0f;
+            // Premultiplied in with user gain to save time.
+            float fGain = 1.0f;
+            bool operator==(const ScalableSampler &) const;
+        };
+
+        SkISize fSize = {};
+        std::variant<std::array<float, kMaxUniformSize>, ScalableSampler> fData;
+
+        // Fails only if texture creation fails – returns empty wrapper.
+        static KernelWrapper TryMake(GrRecordingContext *context, const SkISize &size, const float *values);
+        bool isSampled() const { return fData.index() == 1; }
+        const std::array<float, kMaxUniformSize> &array() const {
+            return SkASSERT(!isSampled()), std::get<0>(fData);
+        }
+        const ScalableSampler &scalableSampler() const {
+            return SkASSERT(isSampled()), std::get<1>(fData);
+        }
+        bool operator==(const KernelWrapper &) const;
+    };
+
+    GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor> child,
+                              KernelWrapper kernel,
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
@@ -64,18 +96,21 @@ private:
 
     explicit GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect&);
 
+    static KernelWrapper TryWrapKernel(GrRecordingContext *context, const SkISize &size, const float *values);
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    const GrFragmentProcessor::TextureSampler& onTextureSampler(int index) const override;
+
     // We really just want the unaltered local coords, but the only way to get that right now is
     // an identity coord transform.
     GrCoordTransform fCoordTransform = {};
     SkIRect          fBounds;
-    SkISize          fKernelSize;
-    float            fKernel[MAX_KERNEL_SIZE];
+    KernelWrapper    fKernel;
     float            fGain;
     float            fBias;
     SkV2             fKernelOffset;
