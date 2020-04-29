@@ -22,6 +22,29 @@
       "revId": "098503ee97ac8e46f43508864a3a19adaeda6fd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4afdfac6_c82262a2",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-29T00:17:02Z",
+      "side": 1,
+      "message": "gotta love the swizzle syntax magic.xyz",
+      "range": {
+        "startLine": 69,
+        "startChar": 24,
+        "endLine": 69,
+        "endChar": 29
+      },
+      "revId": "098503ee97ac8e46f43508864a3a19adaeda6fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
