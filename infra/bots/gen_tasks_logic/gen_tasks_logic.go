@@ -1385,18 +1385,24 @@ func (b *jobBuilder) perf() {
 		doUpload = false
 		b.addTask(b.Name, func(b *taskBuilder) {
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.isolate("skottie_wasm.isolate")
+			b.isolate("perf_puppeteer.isolate")
 			b.cmd(
-				"./perf_skottie_wasm",
+				"./perf_puppeteer",
 				"--project_id", "skia-swarming-bots",
 				"--task_id", specs.PLACEHOLDER_TASK_ID,
 				"--task_name", b.Name,
+				"--canvaskit_bin", "./build",
+				"--lotties_path", "./TODO",
+				"--benchmark_path", "./skia/tools/perf-puppeteer",
+				"--output_path", OUTPUT_PERF,
 				"--workdir", ".",
 				"--alsologtostderr",
 			)
+			// TODO(kjlubick) CIPD for lotties
 			b.serviceAccount(b.cfg.ServiceAccountCompile)
 			b.cipd(CIPD_PKG_LUCI_AUTH)
 			b.dep(b.buildTaskDrivers(), compileTaskName)
+			b.output(OUTPUT_PERF)
 			b.timeout(20 * time.Minute)
 		})
 	} else {
