@@ -46,6 +46,30 @@
       "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e7d65ea_66a9dd0d",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-29T13:52:10Z",
+      "side": 1,
+      "message": "Quick test, interpreted-only: cubic ~11ms, sin ~19ms.  Definitely slower, I expect that\u0027s also true when jitted?",
+      "parentUuid": "12ba19ae_493aa248",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
