@@ -94,6 +94,30 @@
       "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85c40ff9_74e226f7",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-29T16:35:00Z",
+      "side": 1,
+      "message": "I think I like that one too.\n\nreed@ mentioned not wanting to make it public, but SkPath should probably expose a standard iterator, and if I had to choose a standard, this one would be it.",
+      "parentUuid": "e65dbe9e_b9228701",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 166,
+        "endChar": 20
+      },
+      "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
