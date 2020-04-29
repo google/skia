@@ -22,6 +22,30 @@
       "revId": "9ab608a68d1ed7080726669317607c59208ae0cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa905aaa_2c324d1a",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-29T15:48:02Z",
+      "side": 1,
+      "message": "Yeah, I was pretty happy with this. I\u0027m just cleaning up the helper API to make it easy for clients to get their data where they want it. It\u0027s a more robust version of what I built for the unit tests, and makes things very straightforward.",
+      "parentUuid": "968739b5_d73da68c",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 88
+      },
+      "revId": "9ab608a68d1ed7080726669317607c59208ae0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
