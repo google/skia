@@ -523,6 +523,32 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(a*x);
             } break;
 
+            case Inst::kSin: {
+                skvm::F32 x = pop();
+                push(approx_sin(x));
+            } break;
+
+            case Inst::kSin2: {
+                skvm::F32 x = pop(), y = pop();
+                push(approx_sin(y));
+                push(approx_sin(x));
+            } break;
+
+            case Inst::kSin3: {
+                skvm::F32 x = pop(), y = pop(), z = pop();
+                push(approx_sin(z));
+                push(approx_sin(y));
+                push(approx_sin(x));
+            } break;
+
+            case Inst::kSin4: {
+                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop();
+                push(approx_sin(w));
+                push(approx_sin(z));
+                push(approx_sin(y));
+                push(approx_sin(x));
+            } break;
+
             // Baby steps... just leaving test conditions on the stack for now.
             case Inst::kMaskPush:   break;
             case Inst::kMaskNegate: break;
