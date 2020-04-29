@@ -73,6 +73,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                                : kGrayscaleDistanceField_MaskType;
         op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
         op->fLuminanceColor = luminanceColor;
+        op->fNeedsGlyphTransform = true;
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         return op;
@@ -100,8 +101,6 @@ void GrAtlasTextOp::init() {
             fDFGPFlags |=
                     (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
         }
-
-        fNeedsGlyphTransform = true;
     }
 
     SkRect bounds;
