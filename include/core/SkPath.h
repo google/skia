@@ -1387,9 +1387,7 @@ public:
     };
 
     /** \class SkPath::Iter
-        Iterates through verb array, and associated SkPoint array and conic weight.
-        Provides options to treat open contours as closed, and to ignore
-        degenerate data.
+        This class is now a temporary adapter for IterPriv.
     */
     class SK_API Iter {
     public:
@@ -1493,6 +1491,64 @@ public:
         Verb autoClose(SkPoint pts[2]);
     };
 
+private:
+    /** \class SkPath::RawIterImpl
+        Iterates through raw arrays of path verbs and points. All values are returned unaltered.
+
+        NOTE: This class only resides in SkPath temporarily. Its definition will be moved to
+        SkPathPriv once all users of RawIter have been updated to use SkPathPriv::ParsePath.
+    */
+    class RawIterImpl {
+    public:
+        RawIterImpl(const uint8_t* verbs, const SkPoint* points) : fVerb(verbs), fPoints(points) {
+            SkDEBUGCODE(fInitialPoints = fPoints;)
+        }
+        void operator++() {
+            fPoints += pts_advance_after_verb((SkPathVerb)*fVerb);
+            ++fVerb;
+        }
+        bool operator!=(const RawIterImpl& that) const {
+            return fVerb != that.fVerb;
+        }
+        std::tuple<SkPathVerb, const SkPoint*> operator*() const {
+            SkASSERT((SkPathVerb)*fVerb != SkPathVerb::kDone);
+            int backset = pts_backset_for_verb((SkPathVerb)*fVerb);
+            // We provide the starting point for beziers by peeking backwards from the current
+            // point, which works fine as long as there is always a kMove before any geometry.
+            // (SkPath::injectMoveToIfNeeded should have guaranteed this to be the case.)
+            SkASSERT(fPoints + backset >= fInitialPoints);
+            return {(SkPathVerb)*fVerb, fPoints + backset};
+        }
+
+    private:
+        constexpr static int pts_advance_after_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 1;
+                case SkPathVerb::kLine: return 1;
+                case SkPathVerb::kQuad: return 2;
+                case SkPathVerb::kConic: return 2;
+                case SkPathVerb::kCubic: return 3;
+                case SkPathVerb::kClose: return 0;
+                case SkPathVerb::kDone: return 0;
+            }
+        }
+        constexpr static int pts_backset_for_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 0;
+                case SkPathVerb::kLine: return -1;
+                case SkPathVerb::kQuad: return -1;
+                case SkPathVerb::kConic: return -1;
+                case SkPathVerb::kCubic: return -1;
+                case SkPathVerb::kClose: return 0;
+                case SkPathVerb::kDone: return 0;
+            }
+        }
+        const uint8_t* fVerb;
+        const SkPoint* fPoints;
+        SkDEBUGCODE(const SkPoint* fInitialPoints;)
+    };
+
+public:
     /** \class SkPath::RawIter
         Iterates through verb array, and associated SkPoint array and conic weight.
         verb array, SkPoint array, and conic weight are returned unaltered.
@@ -1516,14 +1572,11 @@ public:
             setPath(path);
         }
 
-        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
-            path.
+        /** Sets RawIter to return elements of verb array, SkPoint array, and conic weight in path.
 
             @param path  SkPath to iterate
         */
-        void setPath(const SkPath& path) {
-            fRawIter.setPathRef(*path.fPathRef.get());
-        }
+        void setPath(const SkPath& path);
 
         /** Returns next SkPath::Verb in verb array, and advances RawIter.
             When verb array is exhausted, returns kDone_Verb.
@@ -1532,17 +1585,13 @@ public:
             @param pts  storage for SkPoint data describing returned SkPath::Verb
             @return     next SkPath::Verb from verb array
         */
-        Verb next(SkPoint pts[4]) {
-            return (Verb) fRawIter.next(pts);
-        }
+        Verb next(SkPoint pts[4]);
 
         /** Returns next SkPath::Verb, but does not advance RawIter.
 
             @return  next SkPath::Verb from verb array
         */
-        Verb peek() const {
-            return (Verb) fRawIter.peek();
-        }
+        Verb peek() const;
 
         /** Returns conic weight if next() returned kConic_Verb.
 
@@ -1552,11 +1601,15 @@ public:
             @return  conic weight for conic SkPoint returned by next()
         */
         SkScalar conicWeight() const {
-            return fRawIter.conicWeight();
+            return fConicWeight;
         }
 
     private:
-        SkPathRef::Iter fRawIter;
+        RawIterImpl fIter{nullptr, nullptr};
+        RawIterImpl fEnd{nullptr, nullptr};
+        const SkScalar* fConicWeights = nullptr;
+        SkScalar fConicWeight = 0;
+        SkDEBUGCODE(const SkScalar* fEndConicWeights = nullptr;)
         friend class SkPath;
 
     };
