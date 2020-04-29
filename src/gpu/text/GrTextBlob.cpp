@@ -583,7 +583,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 }
             }
 
-            auto op = this->makeOp(*subRun, glyphCount, deviceMatrix, drawOrigin, clipRect,
+            auto op = this->makeOp(*subRun, deviceMatrix, drawOrigin, clipRect,
                                    paint, filteredColor, props, target);
             if (op) {
                 if (skipClip) {
@@ -600,8 +600,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
-std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(int glyphCount,
-                                                  const SkMatrixProvider& matrixProvider,
+std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkPaint& paint,
                                                   const SkPMColor4f& filteredColor,
@@ -609,7 +608,7 @@ std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(int glyphCount,
                                                   GrTextTarget* target) {
     SubRun* info = fFirstSubRun;
     SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(*info, glyphCount, matrixProvider, drawOrigin, emptyRect, paint,
+    return this->makeOp(*info, matrixProvider, drawOrigin, emptyRect, paint,
                         filteredColor, props, target);
 }
 
@@ -716,7 +715,6 @@ void GrTextBlob::insertSubRun(SubRun* subRun) {
 }
 
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
-                                                  int glyphCount,
                                                   const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkIRect& clipRect,
@@ -724,30 +722,29 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
                                                   const SkPMColor4f& filteredColor,
                                                   const SkSurfaceProps& props,
                                                   GrTextTarget* target) {
-    GrMaskFormat format = info.maskFormat();
-
     GrPaint grPaint;
     target->makeGrPaint(info.maskFormat(), paint, matrixProvider, &grPaint);
-    std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
-        op = GrAtlasTextOp::MakeDistanceField(
-                target->getContext(), std::move(grPaint), glyphCount,
-                target->colorInfo().isLinearlyBlended(), SkPaintPriv::ComputeLuminanceColor(paint),
-                props, info.isAntiAliased(), info.hasUseLCDText());
+        return GrAtlasTextOp::MakeDistanceField(target->getContext(),
+                                                std::move(grPaint),
+                                                &info,
+                                                matrixProvider.localToDevice(),
+                                                drawOrigin,
+                                                clipRect,
+                                                filteredColor,
+                                                target->colorInfo().isLinearlyBlended(),
+                                                SkPaintPriv::ComputeLuminanceColor(paint),
+                                                props);
     } else {
-        op = GrAtlasTextOp::MakeBitmap(target->getContext(), std::move(grPaint), format, glyphCount,
-                                       info.needsTransform());
+        return GrAtlasTextOp::MakeBitmap(target->getContext(),
+                                         std::move(grPaint),
+                                         &info,
+                                         matrixProvider.localToDevice(),
+                                         drawOrigin,
+                                         clipRect,
+                                         filteredColor);
     }
-    GrAtlasTextOp::Geometry& geometry = op->geometry();
-    geometry.fDrawMatrix = matrixProvider.localToDevice();
-    geometry.fClipRect = clipRect;
-    geometry.fBlob = SkRef(this);
-    geometry.fSubRunPtr = &info;
-    geometry.fColor = info.maskFormat() == kARGB_GrMaskFormat ? SK_PMColor4fWHITE : filteredColor;
-    geometry.fDrawOrigin = drawOrigin;
-    op->init();
-    return op;
 }
 
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
