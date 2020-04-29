@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "968739b5_d73da68c",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T15:44:59Z",
+      "side": 1,
+      "message": "this is nice!",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 88
+      },
+      "revId": "9ab608a68d1ed7080726669317607c59208ae0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

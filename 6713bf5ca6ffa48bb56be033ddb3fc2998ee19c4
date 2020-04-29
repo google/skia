@@ -94,6 +94,30 @@
       "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cad85fc4_1168788e",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T15:44:59Z",
+      "side": 1,
+      "message": "I\u0027m convinced that having a unified blob and requiring the client to use the API to put their data in the right place is the cleanest approach.",
+      "parentUuid": "bfbc8829_9fafe467",
+      "range": {
+        "startLine": 437,
+        "startChar": 15,
+        "endLine": 437,
+        "endChar": 28
+      },
+      "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
