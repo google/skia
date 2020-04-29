@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "454c333c_e0073216",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T16:06:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51fd8c3d_b051ab19",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 37
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3ae8d53_20b6a002",
         "filename": "gm/gpu_blur_utils.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "3e020b5cfff699117063ee8917579044bb97d707",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5efaae0e_ff654c42",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T16:06:00Z",
+      "side": 1,
+      "message": "Yes, and makes it tiny tiny bit easier to edit to play with the fractions.",
+      "parentUuid": "d3ae8d53_20b6a002",
+      "range": {
+        "startLine": 32,
+        "startChar": 42,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "94644fab_6814339b",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T16:06:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21b94997_3c6d2c1a",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 37
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de2a4215_8cf2a94f",
         "filename": "gm/gpu_blur_utils.cpp",
         "patchSetId": 8
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f5378184_6c2acc98",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T16:06:00Z",
+      "side": 1,
+      "message": "Yes, that\u0027s the plan.",
+      "parentUuid": "de2a4215_8cf2a94f",
+      "range": {
+        "startLine": 78,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 48
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42459463_7650c5c8",
         "filename": "gm/gpu_blur_utils.cpp",
         "patchSetId": 8
@@ -114,6 +210,30 @@
       "revId": "3e020b5cfff699117063ee8917579044bb97d707",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85fa6af5_c0b63c81",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-29T16:06:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42459463_7650c5c8",
+      "range": {
+        "startLine": 119,
+        "startChar": 17,
+        "endLine": 120,
+        "endChar": 54
+      },
+      "revId": "3e020b5cfff699117063ee8917579044bb97d707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
