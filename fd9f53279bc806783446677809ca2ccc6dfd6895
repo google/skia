@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "831d666c_dfbd6ff8",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-29T15:52:54Z",
+      "side": 1,
+      "message": "what happens if I mistype the string?",
+      "range": {
+        "startLine": 152,
+        "startChar": 17,
+        "endLine": 152,
+        "endChar": 35
+      },
+      "revId": "fd9f53279bc806783446677809ca2ccc6dfd6895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
