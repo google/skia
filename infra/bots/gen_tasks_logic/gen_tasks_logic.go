@@ -433,7 +433,7 @@ func (b *taskBuilder) linuxGceDimensions(machineType string) {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
-	if b.role("Test", "Perf") {
+	if b.role("Test", "Perf", "FM") {
 		task_os := b.parts["os"]
 		ec := []string{}
 		if val := b.parts["extra_config"]; val != "" {
@@ -1371,6 +1371,21 @@ func (b *jobBuilder) test() {
 			b.dep(depName)
 		})
 	}
+}
+
+func (b *jobBuilder) fm() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.isolate("test_skia_bundled.isolate")
+		b.dep(b.buildTaskDrivers(), b.compile())
+		b.cmd("./fm_driver",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.swarmDimensions()
+		b.expiration(1 * time.Hour)
+	})
 }
 
 // perf generates a Perf task.
