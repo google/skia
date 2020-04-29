@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkNoncopyable.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");
@@ -141,6 +142,45 @@ public:
         Verbs(const Verbs&) = delete;
         Verbs& operator=(const Verbs&) = delete;
         SkPathRef* fPathRef;
+    };
+
+    /**
+     *  Iterates through raw arrays of path verbs and points. All values are returned unaltered.
+     *  See SkPathPriv::ParsePath for usage.
+     *
+     *  NOTE: SkPath::RawIterImpl only resides in SkPath temporarily. Its definition will be moved
+     *  to SkPathPriv once all users of RawIter have been updated to use SkPathPriv::ParsePath.
+     */
+    using Iter = SkPath::RawIterImpl;
+
+    /**
+     * Iterable object for parsing verbs and points in a path:
+     *
+     *   for (auto [verb, pts] : SkPathPriv::ParsePath(skPath)) {
+     *       ...
+     *   }
+     *
+     * For conic weights, the caller must use SkPathPriv::ConicWeightData and take care to increment
+     * the pointer on their own.
+     */
+    struct ParsePath : public SkNoncopyable {
+    public:
+        ParsePath(const SkPath& path)
+                : ParsePath(path.fPathRef->verbsBegin(),
+                            // Don't allow iteration through non-finite points.
+                            (!path.isFinite()) ? path.fPathRef->verbsBegin()
+                                               : path.fPathRef->verbsEnd(),
+                            path.fPathRef->points()) {
+        }
+        ParsePath(const uint8_t* verbsBegin, const uint8_t* verbsEnd, const SkPoint* points)
+                : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points) {}
+        Iter begin() { return {fVerbsBegin, fPoints}; }
+        Iter end() { return {fVerbsEnd, nullptr}; }
+
+    private:
+        const uint8_t* fVerbsBegin;
+        const uint8_t* fVerbsEnd;
+        const SkPoint* fPoints;
     };
 
     /**

@@ -1845,6 +1845,47 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
     return (Verb)verb;
 }
 
+void SkPath::RawIter::setPath(const SkPath& path) {
+    SkPathPriv::ParsePath parsePath(path);
+    fIter = parsePath.begin();
+    fEnd = parsePath.end();
+    fConicWeights = path.fPathRef->conicWeights();
+    SkDEBUGCODE(fEndConicWeights = path.fPathRef->conicWeightsEnd();)
+}
+
+SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
+    if (!(fIter != fEnd)) {
+        SkASSERT(fConicWeights == fEndConicWeights);
+        return kDone_Verb;
+    }
+    auto [verb, iterPts] = *fIter;
+    ++fIter;
+    int numPts;
+    switch (verb) {
+        case SkPathVerb::kMove: numPts = 1; break;
+        case SkPathVerb::kLine: numPts = 2; break;
+        case SkPathVerb::kQuad: numPts = 3; break;
+        case SkPathVerb::kConic:
+            numPts = 3;
+            fConicWeight = *fConicWeights++;
+            break;
+        case SkPathVerb::kCubic: numPts = 4; break;
+        case SkPathVerb::kClose: numPts = 0; break;
+        case SkPathVerb::kDone: SkUNREACHABLE;
+    }
+    memcpy(pts, iterPts, sizeof(SkPoint) * numPts);
+    return (Verb) verb;
+}
+
+SkPath::Verb SkPath::RawIter::peek() const {
+    if (!(fIter != fEnd)) {
+        SkASSERT(fConicWeights == fEndConicWeights);
+        return kDone_Verb;
+    }
+    SkPathVerb verb = std::get<0>(*fIter);
+    return (Verb) verb;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkStream.h"
