@@ -22,6 +22,30 @@
       "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97850972_12765f4b",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-29T14:09:14Z",
+      "side": 1,
+      "message": "Yeah, this type definitely wants to be `Iter`!  We can demote the other guy to a weird name while it\u0027s still around.",
+      "parentUuid": "a4ea8c39_a4144b6b",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 166,
+        "endChar": 20
+      },
+      "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
