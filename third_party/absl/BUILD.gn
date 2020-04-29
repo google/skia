@@ -1,0 +1,35 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("absl") {
+  public_include_dirs = [ "../externals/abseil-cpp" ]
+
+  # We have been bitten by blindly adding parts of Abseil in the past,
+  # so please vet each new source file you add here carefully.  If you're
+  # not sure what you're looking for, please R += mtklein@google.com.
+  #
+  # In particular, please do not use absl::Mutex.
+  sources = [
+    "../externals/abseil-cpp/absl/base/internal/raw_logging.cc",
+    "../externals/abseil-cpp/absl/base/internal/throw_delegate.cc",
+    "../externals/abseil-cpp/absl/hash/internal/city.cc",
+    "../externals/abseil-cpp/absl/hash/internal/hash.cc",
+    "../externals/abseil-cpp/absl/numeric/int128.cc",
+    "../externals/abseil-cpp/absl/strings/ascii.cc",
+    "../externals/abseil-cpp/absl/strings/charconv.cc",
+    "../externals/abseil-cpp/absl/strings/escaping.cc",
+    "../externals/abseil-cpp/absl/strings/internal/charconv_bigint.cc",
+    "../externals/abseil-cpp/absl/strings/internal/charconv_parse.cc",
+    "../externals/abseil-cpp/absl/strings/internal/escaping.cc",
+    "../externals/abseil-cpp/absl/strings/internal/memutil.cc",
+    "../externals/abseil-cpp/absl/strings/internal/utf8.cc",
+    "../externals/abseil-cpp/absl/strings/match.cc",
+    "../externals/abseil-cpp/absl/strings/numbers.cc",
+    "../externals/abseil-cpp/absl/strings/str_cat.cc",
+    "../externals/abseil-cpp/absl/strings/substitute.cc",
+  ]
+}
