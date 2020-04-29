@@ -366,19 +366,6 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
     case ByteCodeInstruction::base:       sp[ 0] = fn(sp[ 0].field); \
                       continue;
 
-#define VECTOR_UNARY_FN_VEC(base, fn)                                 \
-    case ByteCodeInstruction::base ## 4:                              \
-    case ByteCodeInstruction::base ## 3:                              \
-    case ByteCodeInstruction::base ## 2:                              \
-    case ByteCodeInstruction::base: {                                 \
-        int count = (int)inst - (int)(ByteCodeInstruction::base) + 1; \
-        float* v = (float*)sp - count + 1;                            \
-        for (int i = VecWidth * count; i > 0; --i, ++v) {             \
-            *v = fn(*v);                                              \
-        }                                                             \
-        continue;                                                     \
-    }
-
 union VValue {
     VValue() {}
     VValue(F32 f) : fFloat(f) {}
@@ -648,7 +635,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kConvertUtoF:  sp[ 0] = skvx::cast<float>(sp[ 0].fUnsigned);
                                                      continue;
 
-            VECTOR_UNARY_FN_VEC(kCos, cosf)
+            VECTOR_UNARY_FN(kCos, skvx::cos, fFloat)
 
             VECTOR_BINARY_MASKED_OP(kDivideS, fSigned, /)
             VECTOR_BINARY_MASKED_OP(kDivideU, fUnsigned, /)
@@ -951,7 +938,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp[0] = sp[0].fUnsigned >> READ8();
                 continue;
 
-            VECTOR_UNARY_FN_VEC(kSin, sinf)
+            VECTOR_UNARY_FN(kSin, skvx::sin, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
 
             case ByteCodeInstruction::kStore4:
@@ -1075,7 +1062,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 continue;
             }
 
-            VECTOR_UNARY_FN_VEC(kTan, tanf)
+            VECTOR_UNARY_FN(kTan, skvx::tan, fFloat)
 
             case ByteCodeInstruction::kWriteExternal4:
             case ByteCodeInstruction::kWriteExternal3:

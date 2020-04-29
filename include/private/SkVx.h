@@ -287,6 +287,9 @@ SIT Vec<1,T> trunc(const Vec<1,T>& x) { return std::trunc(x.val); }
 SIT Vec<1,T> round(const Vec<1,T>& x) { return std::round(x.val); }
 SIT Vec<1,T>  sqrt(const Vec<1,T>& x) { return std:: sqrt(x.val); }
 SIT Vec<1,T>   abs(const Vec<1,T>& x) { return std::  abs(x.val); }
+SIT Vec<1,T>   sin(const Vec<1,T>& x) { return std::  sin(x.val); }
+SIT Vec<1,T>   cos(const Vec<1,T>& x) { return std::  cos(x.val); }
+SIT Vec<1,T>   tan(const Vec<1,T>& x) { return std::  tan(x.val); }
 
 SIT Vec<1,int> lrint(const Vec<1,T>& x) { return (int)std::lrint(x.val); }
 
@@ -317,6 +320,9 @@ SINT Vec<N,T> trunc(const Vec<N,T>& x) { return join(trunc(x.lo), trunc(x.hi)); 
 SINT Vec<N,T> round(const Vec<N,T>& x) { return join(round(x.lo), round(x.hi)); }
 SINT Vec<N,T>  sqrt(const Vec<N,T>& x) { return join( sqrt(x.lo),  sqrt(x.hi)); }
 SINT Vec<N,T>   abs(const Vec<N,T>& x) { return join(  abs(x.lo),   abs(x.hi)); }
+SINT Vec<N,T>   sin(const Vec<N,T>& x) { return join(  sin(x.lo),   sin(x.hi)); }
+SINT Vec<N,T>   cos(const Vec<N,T>& x) { return join(  cos(x.lo),   cos(x.hi)); }
+SINT Vec<N,T>   tan(const Vec<N,T>& x) { return join(  tan(x.lo),   tan(x.hi)); }
 
 SINT Vec<N,int> lrint(const Vec<N,T>& x) { return join(lrint(x.lo), lrint(x.hi)); }
 
