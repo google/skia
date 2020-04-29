@@ -70,6 +70,30 @@
       "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a46de0e_c60a8958",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-29T13:58:41Z",
+      "side": 1,
+      "message": "5 -\u003e 6.5, roughly",
+      "parentUuid": "5e7d65ea_66a9dd0d",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
