@@ -94,6 +94,30 @@
       "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54438f5c_f7764b78",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-29T14:02:38Z",
+      "side": 1,
+      "message": "I should note that I\u0027m doing all this in -Os Debug builds.  Release builds are faster, dropping the asserts in the JIT\u0027d code.",
+      "parentUuid": "9a46de0e_c60a8958",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "2ff0b31afc279b4b5dd0c79bdc9eba34c799454c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
