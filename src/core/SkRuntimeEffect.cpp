@@ -400,6 +400,21 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(stack[ix + 1]);
             } break;
 
+            case Inst::kLoad3: {
+                int ix = u8();
+                push(stack[ix + 0]);
+                push(stack[ix + 1]);
+                push(stack[ix + 2]);
+            } break;
+
+            case Inst::kLoad4: {
+                int ix = u8();
+                push(stack[ix + 0]);
+                push(stack[ix + 1]);
+                push(stack[ix + 2]);
+                push(stack[ix + 3]);
+            } break;
+
             case Inst::kLoadUniform: {
                 int ix = u8();
                 push(uniform[ix]);
@@ -420,6 +435,13 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
 
             case Inst::kStore2: {
                 int ix = u8();
+                stack[ix + 1] = pop();
+                stack[ix + 0] = pop();
+            } break;
+
+            case Inst::kStore3: {
+                int ix = u8();
+                stack[ix + 2] = pop();
                 stack[ix + 1] = pop();
                 stack[ix + 0] = pop();
             } break;
@@ -447,6 +469,30 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(a+x);
             } break;
 
+            case Inst::kAddF2: {
+                skvm::F32 x = pop(), y = pop(),
+                          a = pop(), b = pop();
+                push(b+y);
+                push(a+x);
+            } break;
+
+            case Inst::kAddF3: {
+                skvm::F32 x = pop(), y = pop(), z = pop(),
+                          a = pop(), b = pop(), c = pop();
+                push(c+z);
+                push(b+y);
+                push(a+x);
+            } break;
+
+            case Inst::kAddF4: {
+                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
+                          a = pop(), b = pop(), c = pop(), d = pop();
+                push(d+w);
+                push(c+z);
+                push(b+y);
+                push(a+x);
+            } break;
+
             case Inst::kMultiplyF: {
                 skvm::F32 x = pop(),
                           a = pop();
@@ -456,6 +502,23 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kMultiplyF2: {
                 skvm::F32 x = pop(), y = pop(),
                           a = pop(), b = pop();
+                push(b*y);
+                push(a*x);
+            } break;
+
+            case Inst::kMultiplyF3: {
+                skvm::F32 x = pop(), y = pop(), z = pop(),
+                          a = pop(), b = pop(), c = pop();
+                push(c*z);
+                push(b*y);
+                push(a*x);
+            } break;
+
+            case Inst::kMultiplyF4: {
+                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
+                          a = pop(), b = pop(), c = pop(), d = pop();
+                push(d*w);
+                push(c*z);
                 push(b*y);
                 push(a*x);
             } break;
