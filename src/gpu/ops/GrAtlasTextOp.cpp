@@ -25,88 +25,114 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
+                             GrPaint&& paint,
+                             GrTextBlob::SubRun* subrun,
+                             const SkMatrix& drawMatrix,
+                             SkPoint drawOrigin,
+                             const SkIRect& clipRect,
+                             const SkPMColor4f& filteredColor,
+                             SkColor luminanceColor,
+                             bool useGammaCorrectDistanceTable,
+                             uint32_t DFGPFlags)
+        : INHERITED(ClassID())
+        , fMaskType{maskType}
+        , fNeedsGlyphTransform{subrun->needsTransform()}
+        , fLuminanceColor{luminanceColor}
+        , fUseGammaCorrectDistanceTable{useGammaCorrectDistanceTable}
+        , fDFGPFlags{DFGPFlags}
+        , fGeoDataAllocSize{kMinGeometryAllocated}
+        , fProcessors{std::move(paint)}
+        , fNumGlyphs{SkTo<int>(subrun->fGlyphs.size())} {
+    GrAtlasTextOp::Geometry& geometry = fGeoData[0];
+
+    // Unref handled in ~GrAtlasTextOp().
+    geometry.fBlob = SkRef(subrun->fBlob);
+    geometry.fSubRunPtr = subrun;
+    geometry.fDrawMatrix = drawMatrix;
+    geometry.fDrawOrigin = drawOrigin;
+    geometry.fClipRect = clipRect;
+    geometry.fColor = subrun->maskFormat() == kARGB_GrMaskFormat ? SK_PMColor4fWHITE
+                                                                 : filteredColor;
+    fGeoCount = 1;
+
+    SkRect bounds = subrun->deviceRect(drawMatrix, drawOrigin);
+    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
+    // we treat this as a set of non-AA rects rendered with a texture.
+    this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
+}
+
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
                                                          GrPaint&& paint,
-                                                         GrMaskFormat maskFormat,
-                                                         int glyphCount,
-                                                         bool needsTransform) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+                                                         GrTextBlob::SubRun* subrun,
+                                                         const SkMatrix& drawMatrix,
+                                                         SkPoint drawOrigin,
+                                                         const SkIRect& clipRect,
+                                                         const SkPMColor4f& filteredColor) {
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
-
-        switch (maskFormat) {
-            case kA8_GrMaskFormat:
-                op->fMaskType = kGrayscaleCoverageMask_MaskType;
-                break;
-            case kA565_GrMaskFormat:
-                op->fMaskType = kLCDCoverageMask_MaskType;
-                break;
-            case kARGB_GrMaskFormat:
-                op->fMaskType = kColorBitmapMask_MaskType;
-                break;
+    MaskType maskType = [&]() {
+        switch (subrun->maskFormat()) {
+            case kA8_GrMaskFormat: return kGrayscaleCoverageMask_MaskType;
+            case kA565_GrMaskFormat: return kLCDCoverageMask_MaskType;
+            case kARGB_GrMaskFormat: return kColorBitmapMask_MaskType;
+            // Needed to placate some compilers.
+            default: return kGrayscaleCoverageMask_MaskType;
         }
-        op->fNumGlyphs = glyphCount;
-        op->fGeoCount = 1;
-        op->fLuminanceColor = 0;
-        op->fNeedsGlyphTransform = needsTransform;
-        return op;
-    }
+    }();
+
+    return pool->allocate<GrAtlasTextOp>(maskType,
+                                         std::move(paint),
+                                         subrun,
+                                         drawMatrix,
+                                         drawOrigin,
+                                         clipRect,
+                                         filteredColor,
+                                         0,
+                                         false,
+                                         0);
+}
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                             GrRecordingContext* context,
                                             GrPaint&& paint,
-                                            int glyphCount,
+                                            GrTextBlob::SubRun* subrun,
+                                            const SkMatrix& drawMatrix,
+                                            SkPoint drawOrigin,
+                                            const SkIRect& clipRect,
+                                            const SkPMColor4f& filteredColor,
                                             bool useGammaCorrectDistanceTable,
                                             SkColor luminanceColor,
-                                            const SkSurfaceProps& props,
-                                            bool isAntiAliased,
-                                            bool useLCD) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+                                            const SkSurfaceProps& props) {
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+    bool isLCD = subrun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
+    MaskType maskType = !subrun->isAntiAliased() ? kAliasedDistanceField_MaskType
+                                                 : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
+                                                                  : kLCDDistanceField_MaskType)
+                                                         : kGrayscaleDistanceField_MaskType;
 
-        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
+    uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= kAliasedDistanceField_MaskType == maskType ? kAliased_DistanceFieldEffectFlag : 0;
 
-        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());
-        op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
-                                       : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
-                                                        : kLCDDistanceField_MaskType)
-                                               : kGrayscaleDistanceField_MaskType;
-        op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
-        op->fLuminanceColor = luminanceColor;
-        op->fNeedsGlyphTransform = true;
-        op->fNumGlyphs = glyphCount;
-        op->fGeoCount = 1;
-        return op;
+    if (isLCD) {
+        DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
+        DFGPFlags |= kLCDBGRDistanceField_MaskType == maskType ? kBGR_DistanceFieldEffectFlag : 0;
     }
 
-static const int kDistanceAdjustLumShift = 5;
-
-void GrAtlasTextOp::init() {
-    const Geometry& geo = fGeoData[0];
-    if (this->usesDistanceFields()) {
-        bool isLCD = this->isLCD();
-
-        const SkMatrix& drawMatrix = geo.fDrawMatrix;
-
-        fDFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-        fDFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-        fDFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
-        fDFGPFlags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-        fDFGPFlags |= (kAliasedDistanceField_MaskType == fMaskType)
-                              ? kAliased_DistanceFieldEffectFlag
-                              : 0;
-
-        if (isLCD) {
-            fDFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-            fDFGPFlags |=
-                    (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
-        }
-    }
-
-    SkRect bounds = geo.fSubRunPtr->deviceRect(geo.fDrawMatrix, geo.fDrawOrigin);
-    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
-    // we treat this as a set of non-AA rects rendered with a texture.
-    this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
+    return pool->allocate<GrAtlasTextOp>(maskType,
+                                         std::move(paint),
+                                         subrun,
+                                         drawMatrix,
+                                         drawOrigin,
+                                         clipRect,
+                                         filteredColor,
+                                         luminanceColor,
+                                         useGammaCorrectDistanceTable,
+                                         DFGPFlags);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
@@ -589,6 +615,8 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
 
     return CombineResult::kMerged;
 }
+
+static const int kDistanceAdjustLumShift = 5;
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrTextContext::ComputeCanonicalColor)

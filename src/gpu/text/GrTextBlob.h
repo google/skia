@@ -166,8 +166,7 @@ public:
     size_t size() const;
 
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount,
-                                          const SkMatrixProvider& matrixProvider,
+    std::unique_ptr<GrDrawOp> test_makeOp(const SkMatrixProvider& matrixProvider,
                                           SkPoint drawOrigin,
                                           const SkPaint& paint,
                                           const SkPMColor4f& filteredColor,
@@ -220,7 +219,6 @@ private:
     void insertSubRun(SubRun* subRun);
 
     std::unique_ptr<GrAtlasTextOp> makeOp(SubRun& info,
-                                          int glyphCount,
                                           const SkMatrixProvider& matrixProvider,
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,

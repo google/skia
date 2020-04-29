@@ -402,7 +402,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    return blob->test_makeOp(textLen, mtxProvider, drawOrigin, skPaint, filteredColor, surfaceProps,
+    return blob->test_makeOp(mtxProvider, drawOrigin, skPaint, filteredColor, surfaceProps,
                              rtc->textTarget());
 }
 
