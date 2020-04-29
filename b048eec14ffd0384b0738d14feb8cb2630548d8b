@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5bbee9a_7647f639",
+        "filename": "src/gpu/tessellate/GrMidpointContourParser.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-29T17:52:46Z",
+      "side": 1,
+      "message": "This was mostly just copied in from SkPathPriv. Since \"middle out\" got upgraded to using a stack, wedges are the only thing that needs this now.",
+      "revId": "b048eec14ffd0384b0738d14feb8cb2630548d8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9556f543_0b22a3d8",
+        "filename": "src/gpu/tessellate/GrMidpointContourParser.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-29T17:52:46Z",
+      "side": 1,
+      "message": "The main difference is that now it configures a SkPathPriv::Iterate instead of making the caller handle iteration logic.",
+      "revId": "b048eec14ffd0384b0738d14feb8cb2630548d8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
