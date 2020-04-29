@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c1a833c_eb01c403",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-29T20:11:15Z",
+      "side": 1,
+      "message": "Hmm, looks like in PS 4 I was getting an error here, fixed as of PS 5.  The logs in PS 5 look great to me, but the PS 4 ones still seem to think the task is still running (at time of writing).\n\nIs there something I should be doing here instead of td.Fatal()?  I want to mark that step as failing without interrupting the rest.  Next step is to detect these failures and break the batch up with retries to isolate the failures (and make sure that everything that doesn\u0027t fail does get to run).",
+      "revId": "e349652a815efd92cf25c818d9e237f63e5c9e73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
