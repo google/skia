@@ -183,6 +183,10 @@ func (b *jobBuilder) genTasksForJob() {
 		b.test()
 		return
 	}
+	if b.role("FM") {
+		b.fm()
+		return
+	}
 
 	// Perf bots.
 	if b.role("Perf") {
