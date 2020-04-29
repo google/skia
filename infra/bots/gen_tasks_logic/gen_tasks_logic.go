@@ -433,7 +433,7 @@ func (b *taskBuilder) linuxGceDimensions(machineType string) {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
-	if b.role("Test", "Perf") {
+	if b.role("Test", "Perf", "FM") {
 		task_os := b.parts["os"]
 		ec := []string{}
 		if val := b.parts["extra_config"]; val != "" {
@@ -1272,7 +1272,7 @@ func (b *taskBuilder) commonTestPerfAssets() {
 }
 
 // test generates a Test task.
-func (b *jobBuilder) test() {
+func (b *jobBuilder) dm() {
 	compileTaskName := ""
 	// LottieWeb doesn't require anything in Skia to be compiled.
 	if !b.extraConfig("LottieWeb") {
@@ -1371,6 +1371,23 @@ func (b *jobBuilder) test() {
 			b.dep(depName)
 		})
 	}
+}
+
+func (b *jobBuilder) fm() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.isolate("test_skia_bundled.isolate")
+		b.dep(b.buildTaskDrivers(), b.compile())
+		b.cmd("./fm_driver",
+			"--local=false",
+			"--resources=skia/resources",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.swarmDimensions()
+		b.expiration(15 * time.Minute)
+		b.attempts(1)
+	})
 }
 
 // perf generates a Perf task.

@@ -727,6 +727,11 @@
       ],
       "trigger": "master"
     },
+    "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "tasks": [
         "Housekeeper-Nightly-RecreateSKPs_Canary"
@@ -14618,6 +14623,34 @@
       "outputs": [
         "perf"
       ]
+    },
+    "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "command": [
+        "./fm_driver",
+        "--local=false",
+        "--resources=skia/resources",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "caches": [
