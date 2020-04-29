@@ -1881,6 +1881,7 @@ if (skia_enable_tools) {
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
+      "//third_party/absl",
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",
