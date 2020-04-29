@@ -70,6 +70,30 @@
       "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfbc8829_9fafe467",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-29T14:10:20Z",
+      "side": 1,
+      "message": "PS8 separates the inputs into two blobs, one that the user provides, and one that\u0027s automatically generated. I\u0027m struggling with a few things, though:\n\n1) The code ended up being more complex than I anticipated, particularly compared to the version where all uniforms are in a single blob. Now several more places need to know about it (including the FP). We could add more logic to the runtime effect to hide that, and reconstruct a single blob for the FP, but...\n\n2) I realize that we (probably) want late-bound data transformation of data, not just generation of data. The obvious example is uniform (sRGB) colors that should be converted to the destination color space. (Imagine someone making a new kind of gradient.) In that case, the user data blob still needs the input data. I don\u0027t want the rules about how much data you need to provide, and the layout of that data, to get even more complicated (pure uniforms, uniforms that get transformed, uniforms that get generated). Note that we already rearrange \u0027in\u0027 vs. \u0027uniform\u0027, with the idea that clients shouldn\u0027t be trying to guess the layout of the SkData (even though that\u0027s what we do in several GMs and internal uses). Instead, clients should just make a blob of SkData::inputSize(), and use inputs() to ask where to put their data.\n\nThe runtime effect unit tests have a tiny helper that makes this pattern easy, and I\u0027m tempted to lean on that more heavily, while going back to a single data blob, even though it means some of that input data is never initialized by the user (and we need to copy the whole blob if any of it is dynamic).",
+      "parentUuid": "644fb6fc_2c7079e1",
+      "range": {
+        "startLine": 437,
+        "startChar": 15,
+        "endLine": 437,
+        "endChar": 28
+      },
+      "revId": "6713bf5ca6ffa48bb56be033ddb3fc2998ee19c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
