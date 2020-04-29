@@ -443,7 +443,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
 				"BonusConfigs", "SkottieTracing", "SkottieWASM", "GpuTess", "NonNVPR", "Mskp",
-				"Docker", "PDF", "SkVM"}
+				"Docker", "PDF", "SkVM", "Puppeteer", "SkottieFrames", "TaskDriver"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -488,7 +488,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if b.extraConfig("PathKit") {
 			ec = []string{"PathKit"}
 		}
-		if b.extraConfig("CanvasKit", "SkottieWASM") {
+		if b.extraConfig("CanvasKit", "SkottieWASM", "SkottieFrames") {
 			if b.cpu() {
 				ec = []string{"CanvasKit_CPU"}
 			} else {
@@ -1384,19 +1384,35 @@ func (b *jobBuilder) perf() {
 	if b.extraConfig("TaskDriver") {
 		doUpload = false
 		b.addTask(b.Name, func(b *taskBuilder) {
-			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.isolate("skottie_wasm.isolate")
+			b.defaultSwarmDimensions()
+			b.isolate("perf_puppeteer.isolate")
 			b.cmd(
-				"./perf_skottie_wasm",
+				"./perf_puppeteer",
 				"--project_id", "skia-swarming-bots",
 				"--task_id", specs.PLACEHOLDER_TASK_ID,
 				"--task_name", b.Name,
+				"--canvaskit_bin", "./build",
+				"--lotties_path", "./lotties_with_assets",
+				"--benchmark_path", "./skia/tools/perf-puppeteer",
+				"--output_path", OUTPUT_PERF,
 				"--workdir", ".",
 				"--alsologtostderr",
 			)
 			b.serviceAccount(b.cfg.ServiceAccountCompile)
+			// TODO(kjlubick) this CIPD package was made by hand with the following invocation:
+			//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
+			//
+			//   This is not how we normally do things, but we don't have the infrastructure in place
+			//   for internal CIPD packages yet.
+			b.cipd(&specs.CipdPackage{
+				Name:    "skia/internal/lotties_with_assets",
+				Path:    "lotties_with_assets",
+				Version: "version:0",
+			})
 			b.cipd(CIPD_PKG_LUCI_AUTH)
+			b.asset("node")
 			b.dep(b.buildTaskDrivers(), compileTaskName)
+			b.output(OUTPUT_PERF)
 			b.timeout(20 * time.Minute)
 		})
 	} else {
