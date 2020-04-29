@@ -633,7 +633,9 @@ void GrStyledShape::attemptToSimplifyRRect() {
     }
     // Turn a stroke-and-filled miter rect into a filled rect. TODO: more rrect stroke shortcuts.
     if (!fStyle.hasPathEffect() &&
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style &&
+#endif
         fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
         fStyle.strokeRec().getMiter() >= SK_ScalarSqrt2 &&
         fRRectData.fRRect.isRect()) {
@@ -660,10 +662,14 @@ void GrStyledShape::attemptToSimplifyLine() {
     } else if (fStyle.hasPathEffect()) {
         return;
     }
-    if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
-        // Make stroke + fill be stroke since the fill is empty.
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+    if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style)
+#endif
+    // Make stroke + fill be stroke since the fill is empty.
+    {
+        // Stroke only
         SkStrokeRec rec = fStyle.strokeRec();
-        rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);
+        rec.setStrokeStyle(fStyle.strokeRec().getWidth());
         fStyle = GrStyle(rec, nullptr);
     }
     if (fStyle.isSimpleFill()) {

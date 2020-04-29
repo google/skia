@@ -269,7 +269,9 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
         { SkPaint::kFill_Style, 0.0f},
         { SkPaint::kStroke_Style, 0.0f},
         { SkPaint::kStroke_Style, 0.5f},
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         { SkPaint::kStrokeAndFill_Style, 1.0f},
+#endif
     };
 
     constexpr bool fakeBoldTypes[] = { false, true };

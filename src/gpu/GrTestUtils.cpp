@@ -239,9 +239,15 @@ const SkPath& TestPathConvex(SkRandom* random) {
 }
 
 static void randomize_stroke_rec(SkStrokeRec* rec, SkRandom* random) {
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     bool strokeAndFill = random->nextBool();
+#endif
     SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
-    rec->setStrokeStyle(strokeWidth, strokeAndFill);
+    rec->setStrokeStyle(strokeWidth
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                        , strokeAndFill
+#endif
+                        );
 
     SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
     SkPaint::Join join = SkPaint::Join(random->nextULessThan(SkPaint::kJoinCount));

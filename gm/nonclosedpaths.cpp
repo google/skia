@@ -80,7 +80,10 @@ protected:
         int numWidths = SK_ARRAY_COUNT(kStrokeWidth);
 
         constexpr SkPaint::Style kStyle[] = {
-            SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
+            SkPaint::kStroke_Style,
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+            SkPaint::kStrokeAndFill_Style
+#endif
         };
 
         constexpr SkPaint::Cap kCap[] = {

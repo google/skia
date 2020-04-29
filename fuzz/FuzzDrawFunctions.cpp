@@ -62,7 +62,7 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
     fuzz->next(&sc);
     p->setStrokeWidth(sc);
 
-    fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kStrokeAndFill_Style);
+    fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kStyleCount);
     p->setStyle(static_cast<SkPaint::Style>(tmp_u8));
 }
 
