@@ -50,6 +50,24 @@
       "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e2d7ee2_a93e771d",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-29T01:26:26Z",
+      "side": 1,
+      "message": "Done. Yep, checked perf and no difference. I\u0027m surprised -- I thought the switch would have to check bounds before going to an internal lookup table.",
+      "parentUuid": "f036aefd_09c6f950",
+      "revId": "793731eb7f4502b00102ae860c5226c6566f9785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
