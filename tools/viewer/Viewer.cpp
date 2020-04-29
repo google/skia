@@ -133,6 +133,7 @@ static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 static DEFINE_bool(skvm, false, "Try to use skvm blitters for raster.");
 static DEFINE_bool(dylib, false, "JIT via dylib (much slower compile but easier to debug/profile)");
+static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
@@ -328,7 +329,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fRefresh = FLAGS_redraw;
 
     // Configure timers
-    fStatsLayer.setActive(false);
+    fStatsLayer.setActive(FLAGS_stats);
     fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
     fPaintTimer = fStatsLayer.addTimer("Paint", SK_ColorGREEN);
     fFlushTimer = fStatsLayer.addTimer("Flush", SK_ColorRED, 0xffff6666);
