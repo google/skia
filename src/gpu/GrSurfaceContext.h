@@ -114,6 +114,19 @@ public:
 
     virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
 
+    /**
+     * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
+     * RescaleGamma. It is always in the original gamut. The result is converted to the color type
+     * and color space of info after rescaling. Note: this currently requires that the info have a
+     * different size than srcRect. Though, it could be relaxed to allow non-scaling color
+     * conversions.
+     */
+    std::unique_ptr<GrRenderTargetContext> rescale(const GrImageInfo& info,
+                                                   GrSurfaceOrigin,
+                                                   const SkIRect& srcRect,
+                                                   SkSurface::RescaleGamma,
+                                                   SkFilterQuality);
+
     GrAuditTrail* auditTrail();
 
     // Provides access to functions that aren't part of the public API.
@@ -143,11 +156,6 @@ protected:
     GrRecordingContext* fContext;
 
     GrSurfaceProxyView fReadView;
-
-    // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
-    std::unique_ptr<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
-                                                   SkSurface::RescaleGamma rescaleGamma,
-                                                   SkFilterQuality rescaleQuality);
 
     // Inserts a transfer, part of the implementation of asyncReadPixels and
     // asyncRescaleAndReadPixelsYUV420().
