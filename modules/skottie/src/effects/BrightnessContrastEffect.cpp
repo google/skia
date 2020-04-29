@@ -45,10 +45,17 @@ namespace  {
 //
 //   - this yields a pretty decent approximation: [3]
 //
+//
+// Note (courtesy of mtklein, reed): [4] seems to yield a closer approximation, but requires
+// a more expensive sin
+//
+//   f(x) = x + a * sin(2πx)/2π
+//
 // [1] https://www.desmos.com/calculator/oksptqpo8z
 // [2] https://www.desmos.com/calculator/oukrf6yahn
 // [3] https://www.desmos.com/calculator/ehem0vy3ft
-
+// [4] https://www.desmos.com/calculator/5t4xi10q4v
+//
 static sk_sp<SkData> make_contrast_coeffs(float contrast) {
     struct { float a, b, c; } coeffs;
 
