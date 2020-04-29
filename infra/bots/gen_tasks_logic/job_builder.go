@@ -180,7 +180,11 @@ func (b *jobBuilder) genTasksForJob() {
 
 	// Test bots.
 	if b.role("Test") {
-		b.test()
+		b.dm()
+		return
+	}
+	if b.role("FM") {
+		b.fm()
 		return
 	}
 
