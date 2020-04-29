@@ -1545,6 +1545,9 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     #define RESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
                                                                        leftVal op rightVal))
+    #define URESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
+                                                                        (uint32_t) leftVal op   \
+                                                                        (uint32_t) rightVal))
     if (left.fKind == Expression::kIntLiteral_Kind && right.fKind == Expression::kIntLiteral_Kind) {
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
@@ -1575,13 +1578,13 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::Kind::TK_LTEQ:       return RESULT(Bool, <=);
             case Token::Kind::TK_SHL:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return RESULT(Int,  <<);
+                    return URESULT(Int,  <<);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return RESULT(Int,  >>);
+                    return URESULT(Int,  >>);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
