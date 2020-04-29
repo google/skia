@@ -46,6 +46,30 @@
       "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e41c5b5f_62e5855a",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-29T15:55:31Z",
+      "side": 1,
+      "message": "This is simply an object meant to provide begin() and end() Iters to the range-for loop.\n\nIf it weren\u0027t private, I would just suggest adding begin() and end() methods to SkPath itself:\n\n for (auto [verb, pts, w] : skPath) {\n     ...\n }\n\nOther options could be:\n\n for (auto [verb, pts, w] : skPath.priv()) // (Requires converting SkPathPriv to non-static)\n for (auto [verb, pts, w] : SkPathPriv::WalkPath(skPath))\n for (auto [verb, pts, w] : SkPathPriv::Iterate(skPath))\n for (auto [verb, pts, w] : SkPathPriv::Visit(skPath))\n\nAny preferences? I kind of like \"Iterate\".\n\nHowever, I think the name \"Iter\" should be reserved for the object returned by begin()/end().",
+      "parentUuid": "97850972_12765f4b",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 166,
+        "endChar": 20
+      },
+      "revId": "815b260fd9e55d1d4f71f924250882e963418e09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
