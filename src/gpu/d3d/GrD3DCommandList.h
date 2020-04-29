@@ -10,6 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/private/SkColorData.h"
 #include "src/gpu/GrManagedResource.h"
 
 #include <memory>
@@ -17,7 +18,10 @@
 class GrD3DGpu;
 class GrD3DBuffer;
 class GrD3DPipelineState;
+class GrD3DRenderTarget;
 class GrD3DTextureResource;
+
+class GrFixedClip;
 
 class GrD3DCommandList {
 public:
@@ -57,6 +61,9 @@ public:
                            sk_sp<GrManagedResource> src,
                            const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                            const D3D12_BOX* srcBox);
+
+    void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
+                               const GrFixedClip& clip);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution

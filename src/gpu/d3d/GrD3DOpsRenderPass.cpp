@@ -154,3 +154,8 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
 
     return true;
 }
+
+
+void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+    fGpu->clear(clip, color, fRenderTarget);
+}

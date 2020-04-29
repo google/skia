@@ -44,6 +44,14 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
+    D3D12_CPU_DESCRIPTOR_HANDLE colorRTV() {
+        if (this->numSamples() > 1) {
+            return fMSAARtvDescriptor.fHandle;
+        } else {
+            return fRtvDescriptor.fHandle;
+        }
+    }
+
     DXGI_FORMAT stencilDxgiFormat() const;
 
 protected:
@@ -53,12 +61,15 @@ protected:
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
-                      sk_sp<GrD3DResourceState> msaaState);
+                      sk_sp<GrD3DResourceState> msaaState,
+                      const GrD3DCpuDescriptor& rtvDescriptor,
+                      const GrD3DCpuDescriptor& msaaRtvDescriptor);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
-                      sk_sp<GrD3DResourceState> state);
+                      sk_sp<GrD3DResourceState> state,
+                      const GrD3DCpuDescriptor& rtvDescriptor);
 
     void onAbandon() override;
     void onRelease() override;
@@ -85,12 +96,15 @@ private:
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
                       sk_sp<GrD3DResourceState> msaaState,
+                      const GrD3DCpuDescriptor& rtvDescriptor,
+                      const GrD3DCpuDescriptor& msaaRtvDescriptor,
                       Wrapped);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
+                      const GrD3DCpuDescriptor& rtvDescriptor,
                       Wrapped);
 
     GrD3DGpu* getD3DGpu() const;
@@ -107,6 +121,9 @@ private:
     void releaseInternalObjects();
 
     std::unique_ptr<GrD3DTextureResource> fMSAATextureResource;
+
+    GrD3DCpuDescriptor fRtvDescriptor;
+    GrD3DCpuDescriptor fMSAARtvDescriptor;
 };
 
 #endif
