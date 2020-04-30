@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2019 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -43,8 +43,10 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     , fContext(*context)
     , fOutput(output)
     , fIntrinsics {
+        { "atan",    ByteCodeInstruction::kATan },
         { "cos",     ByteCodeInstruction::kCos },
         { "dot",     SpecialIntrinsic::kDot },
+        { "fract",   ByteCodeInstruction::kFract },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
         { "sin",     ByteCodeInstruction::kSin },
         { "sqrt",    ByteCodeInstruction::kSqrt },
@@ -217,7 +219,9 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_UNARY_OP(kConvertStoF)
         VECTOR_UNARY_OP(kConvertUtoF)
 
+        VECTOR_UNARY_OP(kATan)
         VECTOR_UNARY_OP(kCos)
+        VECTOR_UNARY_OP(kFract)
         VECTOR_UNARY_OP(kSin)
         VECTOR_UNARY_OP(kSqrt)
         VECTOR_UNARY_OP(kTan)
@@ -994,7 +998,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         }
     } else {
         switch (found->second.fValue.fInstruction) {
+            case ByteCodeInstruction::kATan:
             case ByteCodeInstruction::kCos:
+            case ByteCodeInstruction::kFract:
             case ByteCodeInstruction::kSin:
             case ByteCodeInstruction::kSqrt:
             case ByteCodeInstruction::kTan:
