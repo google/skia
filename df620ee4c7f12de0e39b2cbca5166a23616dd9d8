@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3006dc5_94138cf4",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T19:56:12Z",
+      "side": 1,
+      "message": "I think you can go even a step further if you like, passing in `int extra` and making N \u003d extra+1.\n\nThen you\u0027d call them all like\n\n  case Inst::kATan:\n  case Inst::kATan2:\n  case Inst::kATan3:\n  case Inst::kATan4: apply(inst-Inst::kATan, skvm::approx_atan); break;",
+      "range": {
+        "startLine": 415,
+        "startChar": 25,
+        "endLine": 415,
+        "endChar": 30
+      },
+      "revId": "df620ee4c7f12de0e39b2cbca5166a23616dd9d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be835d56_adedf267",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T19:56:12Z",
+      "side": 1,
+      "message": "I think this tends to be clearer as (int i \u003d N; i --\u003e 0;), mostly for never mentioning +1 or -1.  \n\nThis approach is also better in that it\u0027s always correct, even for unsigned types, so you don\u0027t have to artificially make the index you\u0027re counting down signed if you don\u0027t want to.  You can just use it blindly without thinking, the best kind of idiom.",
+      "range": {
+        "startLine": 421,
+        "startChar": 12,
+        "endLine": 421,
+        "endChar": 44
+      },
+      "revId": "df620ee4c7f12de0e39b2cbca5166a23616dd9d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
