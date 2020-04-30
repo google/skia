@@ -253,6 +253,8 @@ void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
 sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
+    SkDebugf("finding for %d,%d\n", proxy->width(), proxy->height());
+
     if (proxy->asTextureProxy() && proxy->asTextureProxy()->getUniqueKey().isValid()) {
         // First try to reattach to a cached version if the proxy is uniquely keyed
         if (sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(
