@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "0ee87d22_882a3e30",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 28
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "I think this is yet another justification for ensuring that the host machines have only the bare minimum of dependencies installed.  I\u0027d much rather the task fail outright because it couldn\u0027t find the tool rather than silently use the wrong version.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 13
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "604b492b_6f8c477e",
         "filename": "/COMMIT_MSG",
         "patchSetId": 28
@@ -42,6 +65,162 @@
     },
     {
       "key": {
+        "uuid": "ed4834a2_9002ae73",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "+1. It\u0027d probably be even better to split out jobBuilder.perfPuppeteer() at the top level, maybe with a new role name.  I think the ideal naming schema would have role 1:1 with recipe or task driver name.",
+      "parentUuid": "ca5ed270_c13f7acf",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea262cb9_9dcd4361",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "If this package contains things that are truly private, then we need to go ahead and get this working and ensure that it cannot be accessed by external bots.",
+      "range": {
+        "startLine": 1402,
+        "startChar": 3,
+        "endLine": 1413,
+        "endChar": 5
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b348565_6d7972c7",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Probably want to check that this isn\u0027t empty.",
+      "range": {
+        "startLine": 56,
+        "startChar": 72,
+        "endLine": 56,
+        "endChar": 100
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "525cdac1_f9a848f0",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "I\u0027d like to keep all of the logic based on task name contained in gen_tasks.  If possible, let\u0027s pass these options in as flags.  If the behavior is going to change entirely based on task name (ie. not running benchSkottieFrames and processSkottieFramesData), then we should write different task drivers, with any shared code in a package.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 2
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d496041_45fa789b",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "I think we do this in a lot of places. Maybe we could add it as common.NewAbsPathFlag along common.NewMultiStringFlag?",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 1
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ad8abfa_6d7b7651",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Seems like we could \"go generate\" and import it?",
+      "range": {
+        "startLine": 130,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 25
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a6a8cfb_8b57ae83",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "I think this brings up an interesting question; should td.FailStep maybe do skerr.Wrap for you?",
+      "range": {
+        "startLine": 158,
+        "startChar": 9,
+        "endLine": 158,
+        "endChar": 42
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72939a66_918ad525",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -59,6 +238,190 @@
     },
     {
       "key": {
+        "uuid": "8f77bb66_02b6c111",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Nit: os_steps.ReadFile",
+      "range": {
+        "startLine": 273,
+        "startChar": 3,
+        "endLine": 273,
+        "endChar": 36
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a3a019_84f6ef37",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Note: FailStep is not necessary with td.Do()",
+      "range": {
+        "startLine": 275,
+        "startChar": 11,
+        "endLine": 275,
+        "endChar": 44
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ba8a50b_a7cbe2e5",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "nit: os_steps.MkdirAll",
+      "range": {
+        "startLine": 292,
+        "startChar": 12,
+        "endLine": 292,
+        "endChar": 23
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1e74764_79c04c87",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Maybe we should add a task_driver/go/lib/json_steps package?",
+      "range": {
+        "startLine": 295,
+        "startChar": 17,
+        "endLine": 295,
+        "endChar": 30
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f78049a9_01436842",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "nit: os_steps.WriteFile",
+      "range": {
+        "startLine": 299,
+        "startChar": 11,
+        "endLine": 299,
+        "endChar": 27
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71e8cfd7_a56551a5",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Any reason this shouldn\u0027t be a step?",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 317,
+        "endChar": 70
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d751f7be_85c82984",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Why not use the task ID, which is unique as long as one task doesn\u0027t need multiple files?",
+      "range": {
+        "startLine": 397,
+        "startChar": 5,
+        "endLine": 397,
+        "endChar": 24
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc0a6526_e8e288b3",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer_test.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "Any reason not to generate the file name outside of processSkottieFramesData and pass it in?  The seeding dance seems hacky.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 13
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35d8a0d6_a8062784",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 28
@@ -70,6 +433,30 @@
       "writtenOn": "2020-04-30T18:07:38Z",
       "side": 1,
       "message": "Maybe this is a question for Eric: Our existing task drivers in both repos do not have this suffix, we probably do not need it?",
+      "range": {
+        "startLine": 1160,
+        "startChar": 77,
+        "endLine": 1160,
+        "endChar": 88
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae035cb4_23f5dc98",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T19:05:55Z",
+      "side": 1,
+      "message": "I think it depends on whether we have task driver and recipe versions of \"the same\" task running in parallel.  If not, there\u0027s no need since the task name implies which recipe or task driver to use.",
+      "parentUuid": "35d8a0d6_a8062784",
       "range": {
         "startLine": 1160,
         "startChar": 77,
