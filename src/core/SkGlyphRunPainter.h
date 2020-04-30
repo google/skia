@@ -32,7 +32,13 @@ class SkStrikeSpec;
 // where mask is either 0 or ~0, and rounding is either
 // 1/2 for non-subpixel or 1/8 for subpixel.
 struct SkGlyphPositionRoundingSpec {
+    SkGlyphPositionRoundingSpec()
+        : halfAxisSampleFreq{}
+        , ignorePositionMask{}
+        , ignorePositionFieldMask{} {}
     SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
+    SkGlyphPositionRoundingSpec(const SkGlyphPositionRoundingSpec&) = default;
+
     const SkVector halfAxisSampleFreq;
     const SkIPoint ignorePositionMask;
     const SkIPoint ignorePositionFieldMask;
@@ -70,7 +76,8 @@ public:
         virtual ~BitmapDevicePainter() = default;
 
         virtual void paintPaths(
-                SkDrawableGlyphBuffer* drawables, SkScalar scale, const SkPaint& paint) const = 0;
+                SkDrawableGlyphBuffer* drawables, SkScalar scale, SkPoint origin,
+                const SkPaint& paint) const = 0;
 
         virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
     };
