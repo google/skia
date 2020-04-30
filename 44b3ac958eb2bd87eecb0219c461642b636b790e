@@ -16,6 +16,24 @@
       "revId": "44b3ac958eb2bd87eecb0219c461642b636b790e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "275046d6_68bc00d4",
+        "filename": "src/core/SkCanvasPriv.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-30T17:35:57Z",
+      "side": 1,
+      "message": "Yeah, I never used the C++ version of locale before, but it seems like one place where things are actually simpler/better.",
+      "parentUuid": "707bc097_c079f835",
+      "revId": "44b3ac958eb2bd87eecb0219c461642b636b790e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
