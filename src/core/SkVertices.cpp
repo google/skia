@@ -9,6 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkReader32.h"
 #include "src/core/SkSafeMath.h"
@@ -31,7 +32,7 @@ static int32_t next_id() {
 SkVertices::Attribute::Attribute(Type t, Usage u, const char* markerName)
         : fType(t)
         , fUsage(u)
-        , fMarkerName((markerName && markerName[0]) ? markerName : nullptr) {
+        , fMarkerName(markerName) {
     fMarkerID = fMarkerName ? SkOpts::hash_fn(fMarkerName, strlen(fMarkerName), 0) : 0;
     SkASSERT(!fMarkerName || fMarkerID != 0);
 }
@@ -67,6 +68,9 @@ size_t SkVertices::Attribute::bytesPerVertex() const {
 }
 
 bool SkVertices::Attribute::isValid() const {
+    if (fMarkerName && !SkCanvasPriv::ValidateMarker(fMarkerName)) {
+        return false;
+    }
     switch (fUsage) {
         case Usage::kRaw:
             return fMarkerID == 0;
