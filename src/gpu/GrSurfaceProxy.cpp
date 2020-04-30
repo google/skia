@@ -408,6 +408,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         fProxy->fDimensions = surface->dimensions();
     }
 
+    SkDebugf("proxy %d,%d surface %d,%d\n",
+             fProxy->width(), fProxy->height(),
+             surface->width(), surface->height());
+
     SkASSERT(fProxy->width() <= surface->width());
     SkASSERT(fProxy->height() <= surface->height());
 
