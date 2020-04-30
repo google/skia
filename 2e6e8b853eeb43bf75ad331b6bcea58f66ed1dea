@@ -214,6 +214,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "730686c3_b700b9b1",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T22:02:20Z",
+      "side": 1,
+      "message": "Yeah, I think I reluctantly agree.  If there are parts of Abseil we don\u0027t want present, I don\u0027t see a way to enforce that.  They could certainly refactor dynamic_annotations.cc to some other file that we\u0027re building and then we\u0027d be horked again.\n\nThis is largely why we don\u0027t require third_party dependencies.  We cannot trust them and have no control over their future behavior.",
+      "parentUuid": "d9f56951_3afb5be2",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
