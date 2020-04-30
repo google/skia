@@ -72,6 +72,7 @@ public:
         WHEN,
         KEY,
         TRACKED,
+        COLOR_TRANSFORM,
         CTYPE,
         SKPMCOLOR4F,
         SKV4,

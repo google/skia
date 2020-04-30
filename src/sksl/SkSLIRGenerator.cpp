@@ -299,6 +299,21 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             fErrors.error(decls.fOffset, "'marker' is only permitted on float4x4 variables");
         }
     }
+    if (modifiers.fLayout.fFlags & Layout::kColorTransform_Flag) {
+        if (fKind != Program::kPipelineStage_Kind) {
+            fErrors.error(decls.fOffset, "'color_transform' is only permitted in runtime effects");
+        }
+        if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
+            fErrors.error(decls.fOffset,
+                          "'color_transform' is only permitted on 'uniform' variables");
+        }
+        if (*baseType != *fContext.fHalf3_Type && *baseType != *fContext.fFloat3_Type &&
+            *baseType != *fContext.fHalf4_Type && *baseType != *fContext.fFloat4_Type) {
+            fErrors.error(decls.fOffset,
+                          "'color_transform' is only permitted on half3, half4, float3, or float4 "
+                          "variables");
+        }
+    }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         if (fKind != Program::kPipelineStage_Kind) {
             fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");
