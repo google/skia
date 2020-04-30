@@ -184,8 +184,8 @@ class SpiralRT : public skiagm::GM {
         const char code[] = R"(
             uniform float rad_scale;
             uniform float2 in_center;
-            uniform float4 in_colors0;
-            uniform float4 in_colors1;
+            layout(srgb_unpremul) uniform float4 in_colors0;
+            layout(srgb_unpremul) uniform float4 in_colors1;
 
             void main(float2 p, inout half4 color) {
                 float2 pp = p - in_center;

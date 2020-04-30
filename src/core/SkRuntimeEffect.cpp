@@ -232,6 +232,11 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                             }
                         }
 
+                        if (var.fModifiers.fLayout.fFlags &
+                            SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
+                            v.fFlags |= Variable::kSRGBUnpremul_Flag;
+                        }
+
                         if (v.fType != Variable::Type::kBool) {
                             offset = SkAlign4(offset);
                         }
@@ -879,20 +884,26 @@ public:
         }
         // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
         sk_sp<SkData> inputs = fInputs;
+        auto copyOnWrite = [&]() {
+            if (inputs == fInputs) {
+                inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
+            }
+        };
 
+        using Flags = SkRuntimeEffect::Variable::Flags;
+        using Type = SkRuntimeEffect::Variable::Type;
         for (const auto& v : fEffect->inputs()) {
-            if (v.hasMarker()) {
-                if (inputs == fInputs) {
-                    inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
-                }
-                SkASSERT(v.fType == SkRuntimeEffect::Variable::Type::kFloat4x4);
+            if (v.fFlags & Flags::kMarker_Flag) {
+                copyOnWrite();
+
+                SkASSERT(v.fType == Type::kFloat4x4);
                 SkM44* localToMarker = SkTAddOffset<SkM44>(inputs->writable_data(), v.fOffset);
                 if (!args.fMatrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
                     // We couldn't provide a matrix that was requested by the SkSL
                     SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
                     return nullptr;
                 }
-                if (v.hasNormalsMarker()) {
+                if (v.fFlags & Flags::kMarkerNormals_Flag) {
                     // Normals need to be transformed by the inverse-transpose of the upper-left
                     // 3x3 portion (scale + rotate) of the matrix.
                     localToMarker->setRow(3, {0, 0, 0, 1});
@@ -901,6 +912,33 @@ public:
                         return nullptr;
                     }
                     *localToMarker = localToMarker->transpose();
+                }
+            } else if (v.fFlags & Flags::kSRGBUnpremul_Flag) {
+                SkASSERT(v.fType == Type::kFloat3 || v.fType == Type::kFloat4);
+                if (auto xform = args.fDstColorInfo->colorSpaceXformFromSRGB()) {
+                    copyOnWrite();
+
+                    const SkColorSpaceXformSteps& steps(xform->steps());
+                    float* color = SkTAddOffset<float>(inputs->writable_data(), v.fOffset);
+                    if (v.fType == Type::kFloat4) {
+                        // RGBA, easy case
+                        for (int i = 0; i < v.fCount; ++i) {
+                            steps.apply(color);
+                            color += 4;
+                        }
+                    } else {
+                        // RGB, need to pad out to include alpha. Technically, this isn't necessary,
+                        // because steps shouldn't include unpremul or premul, and thus shouldn't
+                        // read or write the fourth element. But let's be safe.
+                        float rgba[4];
+                        for (int i = 0; i < v.fCount; ++i) {
+                            memcpy(rgba, color, 3 * sizeof(float));
+                            rgba[3] = 1.0f;
+                            steps.apply(rgba);
+                            memcpy(color, rgba, 3 * sizeof(float));
+                            color += 3;
+                        }
+                    }
                 }
             }
         }

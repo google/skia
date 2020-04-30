@@ -89,6 +89,7 @@ void Parser::InitLayoutMap() {
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
     TOKEN(TRACKED,                      "tracked");
+    TOKEN(SRGB_UNPREMUL,                "srgb_unpremul");
     TOKEN(CTYPE,                        "ctype");
     TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
     TOKEN(SKV4,                         "SkV4");
@@ -868,6 +869,9 @@ Layout Parser::layout() {
                         break;
                     case LayoutToken::TRACKED:
                         flags |= Layout::kTracked_Flag;
+                        break;
+                    case LayoutToken::SRGB_UNPREMUL:
+                        flags |= Layout::kSRGBUnpremul_Flag;
                         break;
                     case LayoutToken::POINTS:
                         primitive = Layout::kPoints_Primitive;

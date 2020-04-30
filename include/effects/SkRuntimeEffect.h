@@ -60,6 +60,7 @@ public:
             kArray_Flag         = 0x1,
             kMarker_Flag        = 0x2,
             kMarkerNormals_Flag = 0x4,
+            kSRGBUnpremul_Flag  = 0x8,
         };
 
         SkString  fName;
@@ -75,8 +76,6 @@ public:
 #endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
-        bool hasMarker() const { return SkToBool(fFlags & kMarker_Flag); }
-        bool hasNormalsMarker() const { return SkToBool(fFlags & kMarkerNormals_Flag); }
         size_t sizeInBytes() const;
     };
 
