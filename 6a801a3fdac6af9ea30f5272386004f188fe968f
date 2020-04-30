@@ -22,6 +22,30 @@
       "revId": "6a801a3fdac6af9ea30f5272386004f188fe968f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad489959_9a04cdf8",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T13:32:17Z",
+      "side": 1,
+      "message": "No, I like this how it is.\n\nWe do propagate the errors up to the top.  Have a look at patch set 8.",
+      "parentUuid": "cea728c4_b8da5de3",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "6a801a3fdac6af9ea30f5272386004f188fe968f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
