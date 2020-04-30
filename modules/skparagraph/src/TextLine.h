@@ -103,6 +103,8 @@ public:
 
     SkRect extendHeight(const ClipContext& context) const;
 
+    SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
