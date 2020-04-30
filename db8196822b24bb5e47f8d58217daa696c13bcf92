@@ -1,0 +1,250 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "604b492b_6f8c477e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 28
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "I wish I thought of this during skottie-wasm-perf",
+      "range": {
+        "startLine": 36,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 21
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca5ed270_c13f7acf",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "IIUC, perf_puppetter will be used for any perf tasks with TaskDriver in extra config, seems like we want SkottieFrames + TaskDriver instead ? (or as in my other builder naming comment maybe just SkottieFrames)",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d8a0d6_a8062784",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "Maybe this is a question for Eric: Our existing task drivers in both repos do not have this suffix, we probably do not need it?",
+      "range": {
+        "startLine": 1160,
+        "startChar": 77,
+        "endLine": 1160,
+        "endChar": 88
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e34b569_9032e74c",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "Maybe one day we should name this to Puppeteer_SkottieTracing to follow the above naming convention",
+      "range": {
+        "startLine": 1165,
+        "startChar": 54,
+        "endLine": 1165,
+        "endChar": 65
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88c1977c_12c88237",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "This uses performance.now() and measures timings here. This is what the first iteration of skottie-was-perf.html did as well (but used frame numbers not clock time).\nThis was changed to use chrome tracing instead because of the reasons in https://bugs.chromium.org/p/skia/issues/detail?id\u003d9237\nYou probably do not care about this right now, but something to keep in mind if we want to ever compare this approach with other frameworks that might use SVG backend (like lottie-web).",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ad12bd9_bbce89d8",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "This is an interesting approach, have you chatted with Florin about this? (just to get another perspective).\nI also remember frames being particularly noisy at start (during setup) and at the end (during teardown) so we ran multiple loops and took data from the middle.",
+      "range": {
+        "startLine": 4,
+        "startChar": 34,
+        "endLine": 4,
+        "endChar": 96
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e4c285b_cbe91afc",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "In skottie-wasm-perf.html I had \"1000\" width and height all over the place, very likely did not need them specified everywhere but never investigated what could be removed.",
+      "range": {
+        "startLine": 25,
+        "startChar": 26,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfc8b245_2c652865",
+        "filename": "tools/perf-puppeteer/package.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "Update name",
+      "range": {
+        "startLine": 2,
+        "startChar": 11,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e80c1c9d_987d6dc7",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "I understand the desire to try to make this generic, but I suspect that things would be simpler if we just call this canvaskit-perf-puppeteer. †hen do not need the \"if (options.bench_html.startsWith(\u0027canvaskit\u0027))\" stuff.\nThere is also mentions of lottie files all over the place, so not really generic.\nAlso the name perf-puppeteer without thinking of canvaskit is confusing because we overload the word \"perf\" so much.\n\nIf we ever need to test puppeteer perf on something other than canvaskit then we can worry about which conditionals to add.",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "823613aa_0e50b61e",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "Just curious, have you tested to see what happens if you pass in skottie-wasm-perf.html here?",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b01c032_d9fd7406",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "skottie-wasm-perf.html will not automatically work because of this (and the missing start bench button below).",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b7adef6_469dc6cf",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:07:38Z",
+      "side": 1,
+      "message": "Just curious, why is this 1100 (vs 1000) ?",
+      "range": {
+        "startLine": 150,
+        "startChar": 25,
+        "endLine": 150,
+        "endChar": 29
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
