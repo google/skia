@@ -8,6 +8,8 @@
 #ifndef SkStrikeInterface_DEFINED
 #define SkStrikeInterface_DEFINED
 
+#define SkDirectTextVertex
+
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
