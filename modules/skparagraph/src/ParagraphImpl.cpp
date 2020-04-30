@@ -430,6 +430,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
 
                 fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
             });
+
     fHeight = textWrapper.height();
     fWidth = maxWidth;
     fMaxIntrinsicWidth = textWrapper.maxIntrinsicWidth();
@@ -437,6 +438,26 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     fAlphabeticBaseline = fLines.empty() ? fEmptyMetrics.alphabeticBaseline() : fLines.front().alphabeticBaseline();
     fIdeographicBaseline = fLines.empty() ? fEmptyMetrics.ideographicBaseline() : fLines.front().ideographicBaseline();
     fExceededMaxLines = textWrapper.exceededMaxLines();
+
+    // Correct the first and the last line ascents/descents if required
+    if ((fParagraphStyle.getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) != 0) {
+        auto& firstLine = fLines.front();
+        auto delta = firstLine.metricsWithoutMultiplier(TextHeightBehavior::kDisableFirstAscent);
+        if (!SkScalarNearlyZero(delta)) {
+            fHeight += delta;
+            // Shift all the lines up
+            for (auto& line : fLines) {
+                line.shiftVertically(delta);
+            }
+        }
+    }
+
+    if ((fParagraphStyle.getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent) != 0) {
+        auto& lastLine = fLines.back();
+        auto delta = lastLine.metricsWithoutMultiplier(TextHeightBehavior::kDisableLastDescent);
+        // It's the last line. There is nothing below to shift
+        fHeight += delta;
+    }
 }
 
 void ParagraphImpl::formatLines(SkScalar maxWidth) {
