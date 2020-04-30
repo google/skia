@@ -46,6 +46,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc86b49_b9d3fe68",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-30T15:01:11Z",
+      "side": 1,
+      "message": "I totally agree that we don\u0027t want an explosion of mutex types, but I don\u0027t think anyone expects that would be the goal or end state. Ideally we could choose our ideal/canonical mutex types and then refactor out the ones that don\u0027t work for us.\n\nI\u0027m unfamiliar with the Sk synchronization types; are you saying they are not interchangeable with absl\u0027s types? Are they implemented in terms of OS primitives? std:: synchronization primitives? Something else?\n\n\u003c\u003c\nYes, if the containers depend on absl::Mutex or dynamic_annotations, then this is fatal.  I\u0027d double check that, because if a container data structure really depends on absl::Mutex or dynamic_annotations, then that\u0027s an indication of poor design and a second reason to not use absl.\n\u003e\u003e\nThe container itself doesn\u0027t use locks. The container headers reference other headers which pull in locks. (The \"other header\" that comes to mind is for hashtablez. Hashtablez is for hashtable debugging/optimization info that we are unlikely to need, but that\u0027s how the reference is formed.)\n\nI think it\u0027s premature to point to absl as poorly designed. It\u0027s got some of the brightest minds in Google working on it and has benchmarks to back up its claims. \n\n\u003c\u003c\nabsl::Mutex is a crutch for Google3 developers used to its pre-standard behavior.  \n\u003e\u003e\nThis is the first I\u0027ve heard anyone complain about absl::Mutex. Could you explain your concern?  I am pretty sure the absl::Mutex design choices were quite intentional. They deviate from std:: but not simply because they are \"pre-standard\" but as a thoughtful choice.",
+      "parentUuid": "6c396795_0a15c4f5",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
