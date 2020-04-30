@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90797a57_d3158e5d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:29:51Z",
+      "side": 1,
+      "message": "I think it\u0027s probably better to implement fract generically at the bottom, continued below...",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b786c6fa_d0146fcf",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:29:51Z",
+      "side": 1,
+      "message": "... e.g.\n  template \u003cint N\u003e\n  static inline Vec\u003cN,float\u003e fract(const Vec\u003cN,float\u003e\u0026 x) {\n      return x - floor(x);\n  }",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02611e73_88b53a6c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:29:51Z",
+      "side": 1,
+      "message": "Might as well fill in all the 2,3,4 variants of all these new ops?  I know they\u0027re not used yet, but I think we\u0027ve got enough examples of the pattern now that it\u0027s pretty safe to add them blindly.  Don\u0027t mind if you want to wait until they\u0027re needed, of course.",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
