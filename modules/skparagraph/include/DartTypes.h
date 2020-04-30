@@ -126,6 +126,13 @@ enum class TextBaseline {
     kIdeographic,
 };
 
+enum TextHeightBehavior {
+    kAll = 0x0,
+    kDisableFirstAscent = 0x1,
+    kDisableLastDescent = 0x2,
+    kDisableAll = 0x1 | 0x2,
+};
+
 }  // namespace textlayout
 }  // namespace skia
 
