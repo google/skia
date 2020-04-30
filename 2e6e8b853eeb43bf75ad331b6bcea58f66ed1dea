@@ -94,6 +94,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd16630a_162b4001",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-30T15:28:42Z",
+      "side": 1,
+      "message": "This is definitely a lot more complex than I thought it would be at first. I appreciate your assistance in getting over the biggest speed bumps so far, but if you think tabling it for a while is the right choice, I am fine with that. The ratio of benefit:effort is definitely starting to skew in the wrong direction :)",
+      "parentUuid": "d5d7553e_02ee2f0f",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
