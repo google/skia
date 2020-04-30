@@ -8,7 +8,6 @@
 #include "src/gpu/GrOpsTask.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
@@ -273,7 +272,7 @@ bool GrOpsTask::OpChain::tryConcat(
                 SkASSERT(first);
                 return false;
             case GrOp::CombineResult::kMayChain:
-                fList = DoConcat(std::move(fList), skstd::exchange(*list, List()), caps, arenas,
+                fList = DoConcat(std::move(fList), std::exchange(*list, List()), caps, arenas,
                                  auditTrail);
                 // The above exchange cleared out 'list'. The list needs to be empty now for the
                 // loop to terminate.

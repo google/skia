@@ -10,7 +10,6 @@
 
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTHash.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
@@ -89,14 +88,14 @@ public:
     public:
         static OnFlushEntryRef OnFlushRef(GrCCPathCacheEntry*);
         OnFlushEntryRef() = default;
-        OnFlushEntryRef(OnFlushEntryRef&& ref) : fEntry(skstd::exchange(ref.fEntry, nullptr)) {}
+        OnFlushEntryRef(OnFlushEntryRef&& ref) : fEntry(std::exchange(ref.fEntry, nullptr)) {}
         ~OnFlushEntryRef();
 
         GrCCPathCacheEntry* get() const { return fEntry; }
         GrCCPathCacheEntry* operator->() const { return fEntry; }
         GrCCPathCacheEntry& operator*() const { return *fEntry; }
         explicit operator bool() const { return fEntry; }
-        void operator=(OnFlushEntryRef&& ref) { fEntry = skstd::exchange(ref.fEntry, nullptr); }
+        void operator=(OnFlushEntryRef&& ref) { fEntry = std::exchange(ref.fEntry, nullptr); }
 
     private:
         OnFlushEntryRef(GrCCPathCacheEntry* entry) : fEntry(entry) {}
@@ -359,7 +358,7 @@ inline GrCCPathCache::HashNode::~HashNode() {
 
 inline void GrCCPathCache::HashNode::operator=(HashNode&& node) {
     SkASSERT(!fEntry || fEntry->hasBeenEvicted());  // Should have called GrCCPathCache::evict().
-    fEntry = skstd::exchange(node.fEntry, nullptr);
+    fEntry = std::exchange(node.fEntry, nullptr);
 }
 
 inline void GrCCPathProcessor::Instance::set(

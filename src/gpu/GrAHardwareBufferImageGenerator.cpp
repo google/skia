@@ -20,7 +20,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrContextPriv.h"
@@ -126,7 +125,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
         ~AutoAHBRelease() { fAhb ? AHardwareBuffer_release(fAhb) : void(); }
 
         AutoAHBRelease& operator=(AutoAHBRelease&& that) {
-            fAhb = skstd::exchange(that.fAhb, nullptr);
+            fAhb = std::exchange(that.fAhb, nullptr);
             return *this;
         }
         AutoAHBRelease& operator=(const AutoAHBRelease&) = delete;

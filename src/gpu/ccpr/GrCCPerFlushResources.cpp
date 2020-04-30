@@ -559,7 +559,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
         for (sk_sp<GrTexture>& texture : fRecyclableAtlasTextures) {
             if (texture && atlas.currentHeight() == texture->height() &&
                     atlas.currentWidth() == texture->width()) {
-                backingTexture = skstd::exchange(texture, nullptr);
+                backingTexture = std::exchange(texture, nullptr);
                 break;
             }
         }

@@ -8,7 +8,6 @@
 #include "tests/Test.h"
 
 #include "include/gpu/mock/GrMockTypes.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
@@ -261,7 +260,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 ~TestCallback() { fValue ? (void)(*fValue = -1) : void(); }
 
                 TestCallback& operator=(TestCallback&& that) {
-                    fValue = skstd::exchange(that.fValue, nullptr);
+                    fValue = std::exchange(that.fValue, nullptr);
                     return *this;
                 }
                 TestCallback& operator=(const TestCallback& that) = delete;
