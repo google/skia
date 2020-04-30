@@ -16,6 +16,7 @@
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -997,9 +998,9 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
     }
 
-    GrBackendTexture backendTex =
-        ctx->createBackendTexture(100, 100, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                                  GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    GrBackendTexture backendTex;
+    CreateBackendTexture(ctx, &backendTex, 100, 100, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
 
     GrXferProcessor::DstProxyView fakeDstProxyView;
     {

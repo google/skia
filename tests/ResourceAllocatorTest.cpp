@@ -16,6 +16,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 struct ProxyParams {
     int             fSize;
@@ -41,10 +42,9 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
     SkColorType skColorType = GrColorTypeToSkColorType(p.fColorType);
     SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
 
-    *backendTex = context->createBackendTexture(p.fSize, p.fSize, skColorType,
-                                                SkColors::kTransparent,
-                                                GrMipMapped::kNo, GrRenderable::kNo,
-                                                GrProtected::kNo);
+    CreateBackendTexture(context, backendTex, p.fSize, p.fSize, skColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+
     if (!backendTex->isValid()) {
         return nullptr;
     }
