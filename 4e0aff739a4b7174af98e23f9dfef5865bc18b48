@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f734b5ec_139b0163",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:47:04Z",
+      "side": 1,
+      "message": "I assume these all have 2,3,4 as well?",
+      "range": {
+        "startLine": 631,
+        "startChar": 0,
+        "endLine": 645,
+        "endChar": 0
+      },
+      "revId": "4e0aff739a4b7174af98e23f9dfef5865bc18b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
