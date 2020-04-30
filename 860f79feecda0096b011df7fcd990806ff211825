@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "534ce66f_fd002add",
+        "filename": "src/gpu/tessellate/GrMidpointContourParser.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-30T21:41:06Z",
+      "side": 1,
+      "message": "Copy-paste, trying to minimize changes :-)\n\nUpdated!",
+      "parentUuid": "5582a275_4382a05c",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 49
+      },
+      "revId": "860f79feecda0096b011df7fcd990806ff211825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6669fa31_2beddf7e",
         "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bd7438f6_96fdfb16",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-30T21:41:06Z",
+      "side": 1,
+      "message": "Yeah, I changed it to \"w\". I made it plural because this value is a pointer type.",
+      "parentUuid": "6669fa31_2beddf7e",
+      "range": {
+        "startLine": 202,
+        "startChar": 26,
+        "endLine": 202,
+        "endChar": 33
+      },
+      "revId": "860f79feecda0096b011df7fcd990806ff211825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61ac5e2f_f869b3c0",
         "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
         "patchSetId": 9
@@ -68,6 +116,30 @@
       "revId": "860f79feecda0096b011df7fcd990806ff211825",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb8bbc1b_bcca6b39",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-30T21:41:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61ac5e2f_f869b3c0",
+      "range": {
+        "startLine": 243,
+        "startChar": 30,
+        "endLine": 243,
+        "endChar": 37
+      },
+      "revId": "860f79feecda0096b011df7fcd990806ff211825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
