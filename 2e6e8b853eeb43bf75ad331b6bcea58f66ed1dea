@@ -70,6 +70,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d7553e_02ee2f0f",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:21:33Z",
+      "side": 1,
+      "message": "We cannot use flat_hash_map as long as it depends on hashtablez.  btree_map looks fine.\n\nThe absl::Mutex reflects the design of Google\u0027s pre-Abseil, pre-C++11 Mutex.  It\u0027s true that it\u0027s design was intentional and ended up different from std::mutex and std::shared_mutex, better in some ways, worse in others.  But the reason it still exists is because code can not be easily ported away from it; anything else you read is a doublethink post-hoc justification.  It\u0027s similar to why exceptions are not used in Google3.  Google3 is trapped and we need not trap ourselves.\n\nIt absolutely is poor design to require a data structure to depend on a global statistic sampling system.  This whole feature is ancillary and requiring it and its dependencies will hurt the adoption of what is otherwise a very good data structure.\n\nI think you may want to table this for a year or so until you become more familiar with Skia through active feature work?  This sort of refactoring and support work is not a good way to learn the meat of the system.",
+      "parentUuid": "3cc86b49_b9d3fe68",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
