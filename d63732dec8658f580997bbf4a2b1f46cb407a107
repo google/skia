@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a3d869e_83c1f5b8",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-30T19:34:35Z",
+      "side": 1,
+      "message": "I really like how this looks at the call site",
+      "range": {
+        "startLine": 415,
+        "startChar": 15,
+        "endLine": 415,
+        "endChar": 16
+      },
+      "revId": "d63732dec8658f580997bbf4a2b1f46cb407a107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
