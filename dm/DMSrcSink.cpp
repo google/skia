@@ -1384,9 +1384,9 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrContext* context, SkISize size,
                                                   &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            *backendTexture = context->createBackendTexture(
-                info.width(), info.height(), info.colorType(), SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+            CreateBackendTexture(context, backendTexture, info.width(), info.height(),
+                                 info.colorType(), SkColors::kTransparent, GrMipMapped::kNo,
+                                 GrRenderable::kYes, GrProtected::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, *backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                         fColorType, info.refColorSpace(), &props);

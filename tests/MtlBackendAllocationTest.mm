@@ -17,7 +17,8 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                    std::function<GrBackendTexture (GrContext*,
                                                    GrMipMapped,
                                                    GrRenderable)> create,
-                   GrColorType colorType, GrMipMapped mipMapped, GrRenderable renderable);
+                   GrColorType colorType, GrMipMapped mipMapped, GrRenderable renderable,
+                   bool* finishedBackendCreation);
 
 void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                      std::function<GrBackendTexture (GrContext*,
@@ -25,7 +26,12 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                                                      GrMipMapped,
                                                      GrRenderable)> create,
                      GrColorType colorType, const SkColor4f& color,
-                     GrMipMapped mipMapped, GrRenderable renderable);
+                     GrMipMapped mipMapped, GrRenderable renderable,
+                     bool* finishedBackendCreation);
+
+static void mark_signaled(void* context) {
+    *(bool*)context = true;
+}
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -113,7 +119,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     };
 
                     test_wrapping(context, reporter, uninitCreateMtd,
-                                  combo.fColorType, mipMapped, renderable);
+                                  combo.fColorType, mipMapped, renderable, nullptr);
                 }
 
                 {
@@ -139,13 +145,18 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                         default:
                             break;
                     }
-                    auto createWithColorMtd = [format, swizzle](GrContext* context,
-                                                                const SkColor4f& color,
-                                                                GrMipMapped mipMapped,
-                                                                GrRenderable renderable) {
+
+                    bool finishedBackendCreation = false;
+                    bool* finishedPtr = &finishedBackendCreation;
+
+                    auto createWithColorMtd = [format, swizzle, finishedPtr](
+                            GrContext* context, const SkColor4f& color, GrMipMapped mipMapped,
+                            GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
                         return context->createBackendTexture(32, 32, format, swizzledColor,
-                                                             mipMapped, renderable);
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo,
+                                                             mark_signaled, finishedPtr);
                     };
                     // We make our comparison color using SkPixmap::erase(color) on a pixmap of
                     // combo.fColorType and then calling SkPixmap::readPixels(). erase() will premul
@@ -160,7 +171,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                             1.f};
                     }
                     test_color_init(context, reporter, createWithColorMtd, combo.fColorType, color,
-                                    mipMapped, renderable);
+                                    mipMapped, renderable, finishedPtr);
                 }
             }
         }
