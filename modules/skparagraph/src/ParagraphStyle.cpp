@@ -21,6 +21,7 @@ ParagraphStyle::ParagraphStyle() {
     fTextDirection = TextDirection::kLtr;
     fLinesLimit = std::numeric_limits<size_t>::max();
     fHeight = 1;
+    fTextHeightBehavior = TextHeightBehavior::kAll;
     fHintingIsOn = true;
 }
 
