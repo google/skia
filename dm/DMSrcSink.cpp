@@ -1609,15 +1609,15 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1, false)) {
+    , fRecordingThreadPool1(SkExecutor::MakeLIFOThreadPool(1, false)) // TODO: this should be at least 2
+    , fGPUThread1(SkExecutor::MakeFIFOThreadPool(1, false)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
                            sk_sp<SkSurface> dstSurface,
                            SkTaskGroup* recordingTaskGroup,
                            SkTaskGroup* gpuTaskGroup,
-                           sk_gpu_test::TestContext* gpuTestCtx,
+                           sk_gpu_test::TestContext* gpuTestCtx1,
                            GrContext* gpuThreadCtx) const {
 
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
@@ -1628,18 +1628,18 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
     // thread w/o a context.
-    gpuTestCtx->makeNotCurrent();
+//    gpuTestCtx->makeNotCurrent();
 
     // Job one for the GPU thread is to make 'gpuTestCtx' current!
-    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeCurrent(); });
+//    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeCurrent(); });
 
     auto size = src.size();
     SkPictureRecorder recorder;
     Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
                                                      SkIntToScalar(size.height())));
     if (!result.isOk()) {
-        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
-        gpuTaskGroup->wait();
+//        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+//        gpuTaskGroup->wait();
         return result;
     }
     sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
@@ -1650,8 +1650,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
-        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
-        gpuTaskGroup->wait();
+//        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+//        gpuTaskGroup->wait();
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
     }
 
@@ -1709,7 +1709,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
     // textures so it is safe to schedule making 'gpuTestCtx' not current on the gpuThread.
-    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+//    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
 
     // All the work is scheduled on the gpu thread, we just need to wait
     gpuTaskGroup->wait();
@@ -1749,8 +1749,8 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     SkASSERT(otherCtx->priv().getGpu());
 #endif
 
-    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
-    SkTaskGroup gpuTaskGroup(*fGPUThread);
+//    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
+//    SkTaskGroup gpuTaskGroup(*fGPUThread);
 
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
@@ -1763,7 +1763,7 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
         return Result::Fatal("Could not create a surface.");
     }
 
-    Result result = this->ddlDraw(src, surface, &recordingTaskGroup, &gpuTaskGroup,
+    Result result = this->ddlDraw(src, surface, nullptr, nullptr,
                                   mainTestCtx, mainCtx);
     if (!result.isOk()) {
         return result;
