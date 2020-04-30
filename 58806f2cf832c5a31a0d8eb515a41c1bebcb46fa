@@ -140,6 +140,30 @@
       "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8043f032_bfff4e7b",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T13:19:19Z",
+      "side": 1,
+      "message": "Hrm, sorry, I forgot about that behavior.  We also have util.NamedErrGroup, which is used similarly but does not stop after the first error: https://skia.googlesource.com/buildbot/+/master/go/util/errgroup.go\n\ng :\u003d util.NewNamedErrGroup()\n_ \u003d util.ChunkIter(len(gms), batchSize, func(start, end int) error {\n  g.Go(\"blah\", func() error {\n    ...\n  })\n  return nil\n}\nif err :\u003d g.Wait(); err !\u003d nil {\n  td.Fatal(ctx, err)\n}\n\nRe: parent steps, you can create a step using td.StartStep/EndStep, or via td.Do().  It\u0027s idiomatic to do this for functions which do interesting things, eg. \n\nfunc doAThing(ctx context.Context) {\n  ctx \u003d td.StartStep(ctx, td.Props(\"do a thing\"))\n  defer td.EndStep(ctx)\n\n  // do a thing\n}\n\ntd.Do() is a helper which automatically calls FailStep if the passed-in function returns an error:\n\nif err :\u003d td.Do(ctx, td.Props(\"do a thing\"), func (ctx context.Context) error {\n  // do a thing\n}); err !\u003d nil {\n  td.Fatal(err)\n}\n\nIf you wanted to wrap the fm calls into a \"run fm\" parent step, I\u0027d recommend something like:\n\nif err :\u003d td.Do(ctx, td.Props(\"run fm\"), func (ctx context.Context) error {\n  g :\u003d util.NewNamedErrGroup()\n  _ \u003d util.ChunkIter(len(gms), batchSize, func(start, end int) error {\n    g.Go(\"blah\", func() error {\n      ...\n    })\n    return nil\n  }\n  return g.Wait()\n}); err !\u003d nil {\n  td.Fatal(err)\n}",
+      "parentUuid": "a6e72b01_8aca1235",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
