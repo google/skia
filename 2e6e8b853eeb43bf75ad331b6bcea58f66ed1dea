@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ccba309_f7029d1e",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-30T14:35:17Z",
+      "side": 1,
+      "message": "I\u0027m not sure this is going to be a usable long-term approach. Containers are probably the biggest reason to adopt absl (IMO), and internally they reference mutexes, which will pull in dynamic annotations. (They don\u0027t use mutexes for basic operations. It\u0027s for things like hashtablez/, which we don\u0027t need, but unfortunately they still pull in the #includes.)\n\nI would try adding flat_hash_map to your example CL. When I tried it, the dependency graph got much larger in a hurry.\n\nIf this prevents us from using the containers entirely, I\u0027d think that\u0027s a fatal blow for absl adoption. At least for me, I don\u0027t see it as worth all this effort if we\u0027re not going to get the containers.\n\nBTW, what\u0027s the rationale specifically for calling out \"absl::Mutex\" as a type to avoid? Does it break something too?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
