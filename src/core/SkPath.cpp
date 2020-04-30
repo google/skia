@@ -1850,7 +1850,8 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
 void SkPath::RawIter::setPath(const SkPath& path) {
     SkPathPriv::Iterate iterate(path);
     fIter = iterate.begin();
-    fEnd = iterate.end();
+    // Don't allow iteration through non-finite points.
+    fEnd = (path.isFinite()) ? iterate.end() : fIter;
 }
 
 SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
