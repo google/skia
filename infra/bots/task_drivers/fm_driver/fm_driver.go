@@ -18,6 +18,11 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
+type work struct {
+	Sources []string
+	Flags   []string
+}
+
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -26,61 +31,151 @@ func main() {
 		local     = flag.Bool("local", true, "True if running locally (as opposed to on the bots)")
 		output    = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
 
-		workdir   = flag.String("workdir", ".", "Working directory")
-		fm        = flag.String("fm", "build/fm", "FM binary to run, relative to -workdir")
-		resources = flag.String("resources", "resources", "Passed to fm -i, relative to -workdir")
+		resources = flag.String("resources", "resources", "Passed to fm -i.")
 	)
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
 
-	// Run fm --listTests to find the names of all linked GMs.
-	stdout, err := exec.RunCwd(ctx, *workdir, *fm, "--listGMs", "-i", *resources)
-	if err != nil {
-		td.Fatal(ctx, err)
+	if flag.NArg() < 1 {
+		td.Fatalf(ctx, "Please pass an fm binary.")
+	}
+	fm := flag.Arg(0)
+
+	// Run fm --flag to find the names of all linked GMs or tests.
+	query := func(flag string) []string {
+		stdout, err := exec.RunCwd(ctx, ".", fm, flag, "-i", *resources)
+		if err != nil {
+			td.Fatal(ctx, err)
+		}
+
+		lines := []string{}
+		scanner := bufio.NewScanner(strings.NewReader(stdout))
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			td.Fatal(ctx, err)
+		}
+		return lines
+	}
+	gms := query("--listGMs")
+	tests := query("--listTests")
+
+	parse := func(job []string) *work {
+		w := &work{}
+
+		for _, token := range job {
+			// Everything after # is a comment.
+			if strings.HasPrefix(token, "#") {
+				break
+			}
+
+			// Treat "gm" or "gms" as a shortcut for all known GMs.
+			if token == "gm" || token == "gms" {
+				w.Sources = append(w.Sources, gms...)
+				continue
+			}
+			// Same for tests.
+			if token == "test" || token == "tests" {
+				w.Sources = append(w.Sources, tests...)
+				continue
+			}
+
+			// Is this a flag to pass through to FM?
+			if parts := strings.Split(token, "="); len(parts) == 2 {
+				f := "-"
+				if len(parts[0]) > 1 {
+					f += "-"
+				}
+				f += parts[0]
+
+				w.Flags = append(w.Flags, f, parts[1])
+				continue
+			}
+
+			// Anything else must be the name of a source for FM to run.
+			w.Sources = append(w.Sources, token)
+		}
+
+		return w
 	}
 
-	gms := []string{}
-	scanner := bufio.NewScanner(strings.NewReader(stdout))
+	// TODO: this doesn't have to be hard coded, of course.
+	// TODO: add some .skps or images to demo that.
+	script := `
+	b=cpu tests
+	b=cpu gms
+	b=cpu gms skvm=true
+
+	#b=cpu gms skvm=true gamut=p3
+	#b=cpu gms skvm=true ct=565
+	`
+	jobs := [][]string{}
+	scanner := bufio.NewScanner(strings.NewReader(script))
 	for scanner.Scan() {
-		gms = append(gms, scanner.Text())
+		jobs = append(jobs, strings.Fields(scanner.Text()))
 	}
 	if err := scanner.Err(); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	// Shuffle the GMs randomly as a cheap way to approximate evenly expensive batches.
-	rand.Shuffle(len(gms), func(i, j int) {
-		gms[i], gms[j] = gms[j], gms[i]
-	})
-
-	// Round up so there's at least one GM per batch.
-	limit := runtime.NumCPU()
-	batch := (len(gms) + limit - 1) / limit
-
 	var failures int32 = 0
 	wg := &sync.WaitGroup{}
-	util.ChunkIter(len(gms), batch, func(start, end int) error {
-		cmd := []string{}
-		cmd = append(cmd, *fm)
-		cmd = append(cmd, "-i", *resources)
-		cmd = append(cmd, "-b", "cpu")
-		cmd = append(cmd, "-s")
-		cmd = append(cmd, gms[start:end]...)
 
-		wg.Add(1)
-		go func(cmd []string) {
-			if _, err := exec.RunCwd(ctx, *workdir, cmd...); err != nil {
-				atomic.AddInt32(&failures, 1);
-				td.FailStep(ctx, err)
+	worker := func(queue chan work) {
+		for w := range queue {
+			cmd := []string{}
+			cmd = append(cmd, fm)
+			cmd = append(cmd, "-i", *resources)
+			cmd = append(cmd, w.Flags...)
+			cmd = append(cmd, "-s")
+			cmd = append(cmd, w.Sources...)
+
+			if _, err := exec.RunCwd(ctx, ".", cmd...); err != nil {
+				if len(w.Sources) == 1 {
+					// If a source ran alone and failed, that's just a failure.
+					atomic.AddInt32(&failures, 1)
+					td.FailStep(ctx, err)
+				} else {
+					// If a batch of sources ran and failed, split them up and try again.
+					for _, source := range w.Sources {
+						wg.Add(1)
+						queue <- work{[]string{source}, w.Flags}
+					}
+				}
 			}
 			wg.Done()
-		}(cmd)
+		}
+	}
 
-		return nil
-	})
+	workers := runtime.NumCPU()
+	queue := make(chan work, 1<<20)
+	for i := 0; i < workers; i++ {
+		go worker(queue)
+	}
+
+	for _, job := range jobs {
+		w := parse(job)
+		if len(w.Sources) == 0 {
+			continue
+		}
+
+		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
+		rand.Shuffle(len(w.Sources), func(i, j int) {
+			w.Sources[i], w.Sources[j] = w.Sources[j], w.Sources[i]
+		})
+
+		// Round up so there's at least one source per batch.
+		batch := (len(w.Sources) + workers - 1) / workers
+		util.ChunkIter(len(w.Sources), batch, func(start, end int) error {
+			wg.Add(1)
+			queue <- work{w.Sources[start:end], w.Flags}
+			return nil
+		})
+	}
 	wg.Wait()
 
 	if failures > 0 {
-		td.Fatalf(ctx, "%v runs of %v failed.", failures, *fm)
+		td.Fatalf(ctx, "%v runs of %v failed after retries.", failures, fm)
 	}
 }

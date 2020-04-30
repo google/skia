@@ -1382,7 +1382,8 @@ func (b *jobBuilder) fm() {
 			"--resources=skia/resources",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name)
+			"--task_name", b.Name,
+			"build/fm")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
