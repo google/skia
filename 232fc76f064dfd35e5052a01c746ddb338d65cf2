@@ -22,6 +22,30 @@
       "revId": "232fc76f064dfd35e5052a01c746ddb338d65cf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4332be2a_b0482baa",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-30T13:44:23Z",
+      "side": 1,
+      "message": "In SkSL no - it follows normal identifier rules. We\u0027ve got a lot of flexibility here (the front end allows this string to be anything up to a comma or unmatched close paren). I\u0027m going to do a follow up CL to move the pattern match into another file, and verify it everywhere that we take these strings. I\u0027ll impose identifier rules, too.",
+      "parentUuid": "ffc3c08c_ae1a384b",
+      "range": {
+        "startLine": 56,
+        "startChar": 18,
+        "endLine": 56,
+        "endChar": 61
+      },
+      "revId": "232fc76f064dfd35e5052a01c746ddb338d65cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
