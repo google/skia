@@ -1493,9 +1493,74 @@ public:
         Verb autoClose(SkPoint pts[2]);
     };
 
+private:
+    /** \class SkPath::RangeIter
+        Iterates through a raw range of path verbs, points, and conics. All values are returned
+        unaltered.
+
+        NOTE: This class will be moved into SkPathPriv once RangeIter is removed.
+    */
+    class RangeIter {
+    public:
+        RangeIter() = default;
+        RangeIter(const uint8_t* verbs, const SkPoint* points, const SkScalar* weights)
+                : fVerb(verbs), fPoints(points), fWeights(weights) {
+            SkDEBUGCODE(fInitialPoints = fPoints;)
+        }
+        void operator++() {
+            auto verb = static_cast<SkPathVerb>(*fVerb++);
+            fPoints += pts_advance_after_verb(verb);
+            if (verb == SkPathVerb::kConic) {
+                ++fWeights;
+            }
+        }
+        bool operator!=(const RangeIter& that) const {
+            return fVerb != that.fVerb;
+        }
+        std::tuple<SkPathVerb, const SkPoint*, const SkScalar*> operator*() const {
+            auto verb = static_cast<SkPathVerb>(*fVerb);
+            SkASSERT(verb != SkPathVerb::kDone);
+            // We provide the starting point for beziers by peeking backwards from the current
+            // point, which works fine as long as there is always a kMove before any geometry.
+            // (SkPath::injectMoveToIfNeeded should have guaranteed this to be the case.)
+            int backset = pts_backset_for_verb(verb);
+            SkASSERT(fPoints + backset >= fInitialPoints);
+            return {verb, fPoints + backset, fWeights};
+        }
+    private:
+        constexpr static int pts_advance_after_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 1;
+                case SkPathVerb::kLine: return 1;
+                case SkPathVerb::kQuad: return 2;
+                case SkPathVerb::kConic: return 2;
+                case SkPathVerb::kCubic: return 3;
+                case SkPathVerb::kClose: return 0;
+                case SkPathVerb::kDone: return 0;
+            }
+            SkUNREACHABLE;
+        }
+        constexpr static int pts_backset_for_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 0;
+                case SkPathVerb::kLine: return -1;
+                case SkPathVerb::kQuad: return -1;
+                case SkPathVerb::kConic: return -1;
+                case SkPathVerb::kCubic: return -1;
+                case SkPathVerb::kClose: return 0;
+                case SkPathVerb::kDone: return 0;
+            }
+            SkUNREACHABLE;
+        }
+        const uint8_t* fVerb = nullptr;
+        const SkPoint* fPoints = nullptr;
+        const SkScalar* fWeights = nullptr;
+        SkDEBUGCODE(const SkPoint* fInitialPoints = nullptr;)
+    };
+public:
+
     /** \class SkPath::RawIter
-        Iterates through verb array, and associated SkPoint array and conic weight.
-        verb array, SkPoint array, and conic weight are returned unaltered.
+        Use Iter instead. This class will soon be removed and RangeIter will be made private.
     */
     class SK_API RawIter {
     public:
@@ -1521,9 +1586,7 @@ public:
 
             @param path  SkPath to iterate
         */
-        void setPath(const SkPath& path) {
-            fRawIter.setPathRef(*path.fPathRef.get());
-        }
+        void setPath(const SkPath&);
 
         /** Returns next SkPath::Verb in verb array, and advances RawIter.
             When verb array is exhausted, returns kDone_Verb.
@@ -1532,16 +1595,14 @@ public:
             @param pts  storage for SkPoint data describing returned SkPath::Verb
             @return     next SkPath::Verb from verb array
         */
-        Verb next(SkPoint pts[4]) {
-            return (Verb) fRawIter.next(pts);
-        }
+        Verb next(SkPoint[4]);
 
         /** Returns next SkPath::Verb, but does not advance RawIter.
 
             @return  next SkPath::Verb from verb array
         */
         Verb peek() const {
-            return (Verb) fRawIter.peek();
+            return (fIter != fEnd) ? static_cast<Verb>(std::get<0>(*fIter)) : kDone_Verb;
         }
 
         /** Returns conic weight if next() returned kConic_Verb.
@@ -1552,11 +1613,13 @@ public:
             @return  conic weight for conic SkPoint returned by next()
         */
         SkScalar conicWeight() const {
-            return fRawIter.conicWeight();
+            return fConicWeight;
         }
 
     private:
-        SkPathRef::Iter fRawIter;
+        RangeIter fIter;
+        RangeIter fEnd;
+        SkScalar fConicWeight = 0;
         friend class SkPath;
 
     };

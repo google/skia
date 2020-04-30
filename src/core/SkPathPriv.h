@@ -144,6 +144,35 @@ public:
     };
 
     /**
+     * Iterable object for traversing verbs, points, and conic weights in a path:
+     *
+     *   for (auto [verb, pts, weights] : SkPathPriv::Iterate(skPath)) {
+     *       ...
+     *   }
+     */
+    struct Iterate {
+    public:
+        Iterate(const SkPath& path)
+                : Iterate(path.fPathRef->verbsBegin(),
+                          // Don't allow iteration through non-finite points.
+                          (!path.isFinite()) ? path.fPathRef->verbsBegin()
+                                             : path.fPathRef->verbsEnd(),
+                          path.fPathRef->points(), path.fPathRef->conicWeights()) {
+        }
+        Iterate(const uint8_t* verbsBegin, const uint8_t* verbsEnd, const SkPoint* points,
+                const SkScalar* weights)
+                : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points), fWeights(weights) {
+        }
+        SkPath::RangeIter begin() { return {fVerbsBegin, fPoints, fWeights}; }
+        SkPath::RangeIter end() { return {fVerbsEnd, nullptr, nullptr}; }
+    private:
+        const uint8_t* fVerbsBegin;
+        const uint8_t* fVerbsEnd;
+        const SkPoint* fPoints;
+        const SkScalar* fWeights;
+    };
+
+    /**
      * Returns a pointer to the verb data.
      */
     static const uint8_t* VerbData(const SkPath& path) {
