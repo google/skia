@@ -166,6 +166,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0a930f0_7cf90dfd",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T16:08:46Z",
+      "side": 1,
+      "message": "I think maybe we\u0027re just misunderstanding each other\u0027s vocabulary.  Bottom line, any need to build hashtablez, absl::Mutex, or dynamic_annotations.cc is a deal breaker.  (dynamic_annotations.cc you can fix externally with #defines, but without doing that, it\u0027s no good.)\n\nThe Google3 style guide also often offers bad advice and is not always definitive when writing Skia code.  In this case of the article on forward declarations, I agree on almost everything they say except perhaps the likelihood and severity of the cons.  I don\u0027t read that decisions section as frowning on forward declarations at all... it\u0027s a very practical balance that allows lots of sensible forward declaration and steers you away from places where it makes more of a mess than it helps.\n\nBreaking the dependency via refactoring, whether a forward declaration, a #define flag, or something else sounds great to me.  Do you want to try this?  If you are afraid to ask Abseil I don\u0027t mind.\n\nIf by using Abseil we\u0027re exposing ourselves to future breakage, we need to undo this now and drop the idea forever.  We do follow the rules here (https://abseil.io/about/compatibility) right?  and are thus covered by their 5 year support and API compatibility?",
+      "parentUuid": "6a71834e_e3c327bb",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
