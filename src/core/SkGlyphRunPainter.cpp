@@ -106,7 +106,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateStrike();
 
-            fDrawable.startSource(fRejects.source(), drawOrigin);
+            fDrawable.startSource(fRejects.source());
             strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
@@ -123,7 +123,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateStrike();
 
-            fDrawable.startDevice(
+            fDrawable.startBitmapDevice(
                     fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
             strike->prepareForDrawingMasksCPU(&fDrawable);
             bitmapDevice->paintMasks(&fDrawable, runPaint);
@@ -167,7 +167,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
+                fDrawable.startSource(fRejects.source());
                 strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
 
@@ -188,7 +188,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            fDrawable.startDevice(fRejects.source(), origin, drawMatrix, strike->roundingSpec());
+            fDrawable.startGPUDevice(fRejects.source(), origin, drawMatrix, strike->roundingSpec());
             strike->prepareForMaskDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
@@ -235,7 +235,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
+                fDrawable.startSource(fRejects.source());
                 strike->prepareForMaskDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
                 SkASSERT(fRejects.source().empty());
