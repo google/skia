@@ -51,6 +51,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         VECTOR_MATRIX_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
         case ByteCodeInstruction::kAndB: printf("andb"); break;
+        VECTOR_DISASSEMBLE(kATan, "atan")
         case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
         case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
@@ -85,6 +86,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
         VECTOR_MATRIX_DISASSEMBLE(kDup, "dup")
+        VECTOR_DISASSEMBLE(kFract, "fract")
         case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
         case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
         case ByteCodeInstruction::kInverse4x4: printf("inverse4x4"); break;
@@ -499,6 +501,8 @@ static void Inverse4x4(VValue* sp) {
     spf(  0) = a20 * b03 - a21 * b01 + a22 * b00;
 }
 
+static float fract(float x) { return x - floorf(x); }
+
 static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
                      float* outReturn[], VValue globals[], const float uniforms[],
                      bool stripedOutput, int N, int baseIndex) {
@@ -653,6 +657,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp += count;
                 continue;
             }
+
+            VECTOR_UNARY_FN(kFract, skvx::fract, fFloat)
 
             case ByteCodeInstruction::kInverse2x2:
                 Inverse2x2(sp);
@@ -1062,6 +1068,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 continue;
             }
 
+            VECTOR_UNARY_FN(kATan, skvx::atan, fFloat)
             VECTOR_UNARY_FN(kTan, skvx::tan, fFloat)
 
             case ByteCodeInstruction::kWriteExternal4:
