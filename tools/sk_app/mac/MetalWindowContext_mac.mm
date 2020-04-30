@@ -64,6 +64,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
     fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
     fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
     fMetalLayer.contentsGravity = kCAGravityTopLeft;
+    fMetalLayer.magnificationFilter = kCAFilterNearest;
 
     fMainView.layer = fMetalLayer;
     fMainView.wantsLayer = YES;
