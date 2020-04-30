@@ -39,6 +39,16 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         : fPath(path)
         , fOrigin(origin) {}
 
+static SkGlyphPositionRoundingSpec direct_rounding_spec(
+        GrTextBlob::SubRunType type, const SkStrikeSpec& strikeSpec) {
+    if (type == GrTextBlob::kDirectMask) {
+        auto strike = strikeSpec.findOrCreateStrike();
+        return strike->roundingSpec();
+    } else {
+        return SkGlyphPositionRoundingSpec();
+    }
+}
+
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
                            GrMaskFormat format, const SkSpan<PackedGlyphIDorGrGlyph>& glyphs,
@@ -49,10 +59,11 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fGlyphs{glyphs}
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
+        , fRoundingSpec{direct_rounding_spec(fType, fStrikeSpec)}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
-    SkASSERT(type != kTransformedPath);
+    SkASSERT(fType != kTransformedPath);
     textBlob->insertSubRun(this);
 }
 
@@ -76,12 +87,8 @@ static SkRect dest_rect(const SkGlyph& g, SkPoint origin) {
             SkIntToScalar(g.height()));
 }
 
-static bool is_SDF(const SkGlyph& skGlyph) {
-    return skGlyph.maskFormat() == SkMask::kSDF_Format;
-}
-
 static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
-    if (!is_SDF(g)) {
+    if (g.maskFormat() != SkMask::kSDF_Format) {
         return SkRect::MakeXYWH(
                 SkIntToScalar(g.left())   * textScale + origin.x(),
                 SkIntToScalar(g.top())    * textScale + origin.y(),
@@ -97,8 +104,30 @@ static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
 }
 
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
-    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     SkASSERT(!this->isPrepared());
+
+    PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
+    for (auto [variant, pos] : drawables) {
+        SkGlyph* skGlyph = variant;
+        int16_t l = skGlyph->left();
+        int16_t t = skGlyph->top();
+        int16_t r = l + skGlyph->width();
+        int16_t b = t + skGlyph->height();
+        fVertexBounds.joinNonEmptyArg(SkRect::MakeLTRB(l, t, r, b));
+        fRects.push_back({l, t, r, b});
+        packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
+        packedIDCursor++;
+    }
+
+    for (SkPoint pt : drawables.get<1>()) {
+        fSourcePos.push_back(pt);
+    }
+
+
+    //memcpy(rectCursor, drawables.get<1>().data(), drawables.size() * sizeof(SkPoint));
+
+    #if 0
+    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
     char* vertexCursor = fVertexData.data();
     size_t vertexStride = this->vertexStride();
@@ -117,7 +146,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
             dstRect = dest_rect(*skGlyph, pos, strikeToSource);
         }
 
-        this->joinGlyphBounds(dstRect);
+        fVertexBounds.joinNonEmptyArg(dstRect);
 
         // V0
         *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fLeft, dstRect.fTop, 1.f};
@@ -142,6 +171,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
         packedIDCursor++;
     }
+    #endif
 
     // Use the negative initial origin to make the fVertexBounds {0, 0} based.
     SkPoint pt = fBlob->fInitialOrigin;
@@ -186,9 +216,85 @@ size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
     return index * kVerticesPerGlyph * this->vertexStride();
 }
 
-void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
-    fVertexBounds.joinNonEmptyArg(glyphBounds);
+auto GrTextBlob::SubRun::glyphRects() const -> SkSpan<const SmallRect> {
+    return SkSpan<const SmallRect>{(const SmallRect*)fVertexData.data(), fGlyphs.size()};
 }
+
+SkSpan<const SkPoint> GrTextBlob::SubRun::sourcePos() const {
+    return SkSpan<const SkPoint>{
+        (const SkPoint*)fVertexData.data() + fGlyphs.size() * sizeof(SmallRect), fGlyphs.size()};
+}
+void GrTextBlob::SubRun::fillVertexData(
+        void *dst, int offset, int count,
+        GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
+    switch (fType) {
+        case kDirectMask: {
+            // Rectangles in device space
+            // Map the positions including subpixel position.
+
+            SkMatrix matrix = drawMatrix;
+            matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+            SkPoint halfSampleFreq = fRoundingSpec.halfAxisSampleFreq;
+            matrix.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
+            auto map = [&] (SkPoint p) {
+                return matrix.mapXY(p.x(), p.y());
+            };
+            if (this->maskFormat() != kARGB_GrMaskFormat) {
+                using Quad = Mask2DVertex;
+                Quad* cursor = (Quad*)dst;
+                for (int i = offset; i < offset + count; i++) {
+                    const auto [l, t, r, b] = fRects[i];
+                    const auto [fx, fy] = map(fSourcePos[i]);
+                    SkScalar dx = SkScalarFloorToInt(fx),
+                             dy = SkScalarFloorToInt(fy);
+                    auto devPt = [&](int x, int y) -> SkPoint {
+                        return SkPoint::Make(x + dx, y + dy);
+                    };
+                    auto [al, at, ar, ab] = fGlyphs[i].fGrGlyph->fAtlasLocator.getUVs(0);
+                    cursor[0] = {devPt(l, t), color, {al, at}};  // L,T
+                    cursor[1] = {devPt(l, b), color, {al, ab}};  // L,B
+                    cursor[2] = {devPt(r, t), color, {ar, at}};  // R,T
+                    cursor[3] = {devPt(r, b), color, {ar, ab}};  // R,B
+                    cursor += 4;
+                }
+            } else {
+                using Quad = ARGB2DVertex;
+                Quad* cursor = (Quad*)dst;
+                for (int i = offset; i < offset + count; i++) {
+                    const auto [l, t, r, b] = fRects[i];
+                    const auto [fx, fy] = map(fSourcePos[i]);
+                    SkScalar dx = SkScalarFloorToInt(fx),
+                             dy = SkScalarFloorToInt(fy);
+                    auto devPt = [&](int x, int y) -> SkPoint {
+                        return SkPoint::Make(x + dx, y + dy);
+                    };
+                    auto [al, at, ar, ab] = fGlyphs[i].fGrGlyph->fAtlasLocator.getUVs(0);
+                    cursor[0] = {devPt(l, t), {al, at}};  // L,T
+                    cursor[1] = {devPt(l, b), {al, ab}};  // L,B
+                    cursor[2] = {devPt(r, t), {ar, at}};  // R,T
+                    cursor[3] = {devPt(r, b), {ar, ab}};  // R,B
+                    cursor += 4;
+                }
+            }
+
+        }
+        break;
+        case kTransformedMask: {
+            // Rectangles in source space
+
+        }
+        break;
+        case kTransformedSDFT: {
+            // Rectangles in source space
+
+        }
+        break;
+        case kTransformedPath:
+            SK_ABORT("Paths don't generate vertex data.");
+    }
+}
+
+
 
 bool GrTextBlob::SubRun::drawAsDistanceFields() const { return fType == kTransformedSDFT; }
 
