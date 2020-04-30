@@ -56,6 +56,8 @@ namespace  {
 // [3] https://www.desmos.com/calculator/ehem0vy3ft
 // [4] https://www.desmos.com/calculator/5t4xi10q4v
 //
+
+#ifndef SKOTTIE_ACCURATE_CONTRAST_APPROXIMATION
 static sk_sp<SkData> make_contrast_coeffs(float contrast) {
     struct { float a, b, c; } coeffs;
 
@@ -76,6 +78,28 @@ static constexpr char CONTRAST_EFFECT[] = R"(
         color.rgb = ((a*color.rgb + b)*color.rgb + c)*color.rgb;
     }
 )";
+#else
+// More accurate (but slower) approximation:
+//
+//   f(x) = x + a * sin(2πx)
+//
+//   a = -contrast/3π
+//
+static sk_sp<SkData> make_contrast_coeffs(float contrast) {
+    const auto coeff_a = -contrast / (3 * SK_ScalarPI);
+
+    return SkData::MakeWithCopy(&coeff_a, sizeof(coeff_a));
+}
+
+static constexpr char CONTRAST_EFFECT[] = R"(
+    uniform half a;
+
+    void main(inout half4 color) {
+        color.rgb += a * sin(color.rgb * 6.283185);
+    }
+)";
+
+#endif
 
 class BrightnessContrastAdapter final : public DiscardableAdapterBase<BrightnessContrastAdapter,
                                                                       sksg::ExternalColorFilter> {
