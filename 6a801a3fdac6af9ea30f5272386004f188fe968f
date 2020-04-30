@@ -118,6 +118,30 @@
       "revId": "6a801a3fdac6af9ea30f5272386004f188fe968f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00c67cf4_c834d786",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T13:50:26Z",
+      "side": 1,
+      "message": "Please don\u0027t worry about that future until it exists.  All these errors do display at the top  level of the linked UI I see now, with a final summary from td.Fatalf().  If you change what\u0027s displayed, we can change what\u0027s reported and how then.",
+      "parentUuid": "25fe2cc0_986e5262",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "6a801a3fdac6af9ea30f5272386004f188fe968f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
