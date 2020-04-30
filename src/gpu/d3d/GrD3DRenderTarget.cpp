@@ -24,12 +24,16 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
                                      sk_sp<GrD3DResourceState> msaaState,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor,
                                      Wrapped)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
         , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
-        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState))) {
+        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
+        , fRtvDescriptor(rtvDescriptor)
+        , fMSAARtvDescriptor(msaaRtvDescriptor) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -43,12 +47,16 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
-                                     sk_sp<GrD3DResourceState> msaaState)
+                                     sk_sp<GrD3DResourceState> msaaState,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
         , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
-        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState))) {
+        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
+        , fRtvDescriptor(rtvDescriptor)
+        , fMSAARtvDescriptor(msaaRtvDescriptor) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
 }
@@ -59,11 +67,13 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
                                      Wrapped)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
-        , fMSAATextureResource(nullptr) {
+        , fMSAATextureResource(nullptr)
+        , fRtvDescriptor(rtvDescriptor) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -72,11 +82,13 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
                                      const GrD3DTextureResourceInfo& info,
-                                     sk_sp<GrD3DResourceState> state)
+                                     sk_sp<GrD3DResourceState> state,
+                                     const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
-        , fMSAATextureResource(nullptr) {}
+        , fMSAATextureResource(nullptr)
+        , fRtvDescriptor(rtvDescriptor) {}
 
 sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
             GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
@@ -85,6 +97,9 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 
     SkASSERT(1 == info.fLevelCount);
     DXGI_FORMAT dxgiFormat = info.fFormat;
+
+    const D3D12_CPU_DESCRIPTOR_HANDLE rtv =
+            gpu->resourceProvider().createRenderTargetView(info.fResource.get());
 
     // create msaa surface if necessary
     GrD3DRenderTarget* d3dRT;
@@ -114,10 +129,13 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         msState.reset(new GrD3DResourceState(
                                   static_cast<D3D12_RESOURCE_STATES>(msInfo.fResourceState)));
 
+        D3D12_CPU_DESCRIPTOR_HANDLE msaaRtv =
+                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
+
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
-                                      std::move(msState), kWrapped);
+                                      std::move(msState), rtv, msaaRtv, kWrapped);
     } else {
-        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), kWrapped);
+        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), rtv, kWrapped);
     }
 
     return sk_sp<GrD3DRenderTarget>(d3dRT);
@@ -134,7 +152,10 @@ void GrD3DRenderTarget::releaseInternalObjects() {
     if (fMSAATextureResource) {
         fMSAATextureResource->releaseResource(gpu);
         fMSAATextureResource.reset();
+        gpu->resourceProvider().recycleRenderTargetView(&fMSAARtvDescriptor);
     }
+
+    gpu->resourceProvider().recycleRenderTargetView(&fRtvDescriptor);
 }
 
 void GrD3DRenderTarget::onRelease() {

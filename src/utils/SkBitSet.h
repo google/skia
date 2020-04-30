@@ -9,6 +9,7 @@
 #define SkBitSet_DEFINED
 
 #include "include/private/SkTemplates.h"
+#include "src/core/SkMathPriv.h"
 
 class SkBitSet {
 public:
@@ -26,6 +27,14 @@ public:
         uint32_t* chunk = this->internalGet(index);
         SkASSERT(chunk);
         *chunk |= mask;
+    }
+
+    /** Set the value of the index-th bit to false.  */
+    void clear(int index) {
+        uint32_t mask = ~(1 << (index & 31));
+        uint32_t* chunk = this->internalGet(index);
+        SkASSERT(chunk);
+        *chunk &= mask;
     }
 
     bool has(int index) const {
@@ -48,6 +57,19 @@ public:
                 }
             }
         }
+    }
+
+    // Returns the index of the first set bit
+    // Returns -1 if no bits are set
+    int leadingBitIndex() {
+        const uint32_t* data = fBitData.get();
+        for (unsigned i = 0; i < fDwordCount; ++i) {
+            if (uint32_t value = data[i]) {  // There are set bits
+                int index = SkPrevLog2(value);
+                return index + i * 32;
+            }
+        }
+        return -1;
     }
 
 private:

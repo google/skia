@@ -44,6 +44,14 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
+    D3D12_CPU_DESCRIPTOR_HANDLE colorRTV() {
+        if (this->numSamples() > 1) {
+            return fMSAARtvDescriptor;
+        } else {
+            return fRtvDescriptor;
+        }
+    }
+
     DXGI_FORMAT stencilDxgiFormat() const;
 
 protected:
@@ -53,12 +61,15 @@ protected:
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
-                      sk_sp<GrD3DResourceState> msaaState);
+                      sk_sp<GrD3DResourceState> msaaState,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
-                      sk_sp<GrD3DResourceState> state);
+                      sk_sp<GrD3DResourceState> state,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor);
 
     void onAbandon() override;
     void onRelease() override;
@@ -85,12 +96,15 @@ private:
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
                       sk_sp<GrD3DResourceState> msaaState,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor,
                       Wrapped);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
+                      const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
                       Wrapped);
 
     GrD3DGpu* getD3DGpu() const;
@@ -107,6 +121,9 @@ private:
     void releaseInternalObjects();
 
     std::unique_ptr<GrD3DTextureResource> fMSAATextureResource;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE fRtvDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE fMSAARtvDescriptor;
 };
 
 #endif
