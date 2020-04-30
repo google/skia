@@ -36,6 +36,40 @@
     },
     {
       "key": {
+        "uuid": "c8237e86_59650b01",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:53:09Z",
+      "side": 1,
+      "message": "We usually have some \"isValid\" method. Maybe that could be if the returned kernel\u0027s size is zero.",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ca34041_9458b378",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:53:09Z",
+      "side": 1,
+      "message": "Maybe SkAutoMalloc instead of a std::vector\nfwiw, there is also SkAutoSMalloc",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6b896014_d9b1cddc",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 23
