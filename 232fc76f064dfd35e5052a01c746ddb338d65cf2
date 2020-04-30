@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffc3c08c_ae1a384b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-30T13:24:22Z",
+      "side": 1,
+      "message": "Do we in general allow names that start with digits?",
+      "range": {
+        "startLine": 56,
+        "startChar": 18,
+        "endLine": 56,
+        "endChar": 61
+      },
+      "revId": "232fc76f064dfd35e5052a01c746ddb338d65cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
