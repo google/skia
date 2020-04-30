@@ -12,7 +12,6 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
@@ -171,7 +170,7 @@ public:
             return;
         }
 
-        CCPRPathDrawer ccpr(skstd::exchange(mockContext, nullptr), reporter, doStroke);
+        CCPRPathDrawer ccpr(std::exchange(mockContext, nullptr), reporter, doStroke);
         if (!ccpr.valid()) {
             return;
         }
