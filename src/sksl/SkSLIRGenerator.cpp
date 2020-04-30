@@ -1563,21 +1563,29 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
         switch (op) {
-            case Token::Kind::TK_PLUS:       return RESULT(Int, +);
-            case Token::Kind::TK_MINUS:      return RESULT(Int, -);
-            case Token::Kind::TK_STAR:       return RESULT(Int, *);
+            case Token::Kind::TK_PLUS:       return URESULT(Int, +);
+            case Token::Kind::TK_MINUS:      return URESULT(Int, -);
+            case Token::Kind::TK_STAR:       return URESULT(Int, *);
             case Token::Kind::TK_SLASH:
-                if (rightVal) {
-                    return RESULT(Int, /);
+                if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                    fErrors.error(right.fOffset, "arithmetic overflow");
+                    return nullptr;
                 }
-                fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+                if (!rightVal) {
+                    fErrors.error(right.fOffset, "division by zero");
+                    return nullptr;
+                }
+                return RESULT(Int, /);
             case Token::Kind::TK_PERCENT:
-                if (rightVal) {
-                    return RESULT(Int, %);
+                if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                    fErrors.error(right.fOffset, "arithmetic overflow");
+                    return nullptr;
                 }
-                fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+                if (!rightVal) {
+                    fErrors.error(right.fOffset, "division by zero");
+                    return nullptr;
+                }
+                return RESULT(Int, %);
             case Token::Kind::TK_BITWISEAND: return RESULT(Int,  &);
             case Token::Kind::TK_BITWISEOR:  return RESULT(Int,  |);
             case Token::Kind::TK_BITWISEXOR: return RESULT(Int,  ^);
