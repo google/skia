@@ -20,6 +20,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.6.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
+	github.com/stretchr/testify v1.5.1
 	go.chromium.org/luci v0.0.0-20200429015048-333ada2a350e // indirect
 	go.skia.org/infra v0.0.0-20200428170256-e70b0c95609d
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc // indirect
