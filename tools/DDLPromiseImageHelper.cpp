@@ -144,6 +144,8 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
             SkASSERT(callbackContext);
 
             // DDL TODO: what should we do with mipmapped YUV images
+            //SkDebugf("creating YUV BETexture %d,%d\n", yuvPixmap.width(), yuvPixmap.height());
+
             callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
                                                                    info->yuvaIndices(), j));
             SkASSERT(callbackContext->promiseImageTexture());
@@ -157,6 +159,7 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
 
         std::unique_ptr<SkPixmap[]> mipLevels = info->normalMipLevels();
 
+        //SkDebugf("creating BETexture %d,%d\n", mipLevels.get()->width(), mipLevels.get()->height());
         GrBackendTexture backendTex = context->createBackendTexture(mipLevels.get(),
                                                                     info->numMipLevels(),
                                                                     GrRenderable::kNo,
@@ -328,6 +331,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
             sizes[i] = SkISize::MakeEmpty();
         }
 
+        for (int i = textureCount; i < SkYUVASizeInfo::kMaxCount; ++i) {
+            SkDebugf("Creating YUV %d promiseImage %d,%d\n", i, sizes[i].width(), sizes[i].height());
+        }
+
         image = recorder->makeYUVAPromiseTexture(
                 curImage.yuvColorSpace(),
                 backendFormats,
@@ -361,6 +368,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.
+        SkDebugf("Creating promiseImage %d,%d\n",
+                 curImage.overallWidth(),
+                 curImage.overallHeight());
         image = recorder->makePromiseTexture(
                 backendFormat,
                 curImage.overallWidth(),

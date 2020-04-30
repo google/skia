@@ -359,6 +359,8 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 namespace {
 
 template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const char* name) {
+    return 0 != strcmp(name, "contour_start");
+#if 0
     int    count      = strings.count();
     size_t testLen    = strlen(name);
     bool   anyExclude = count == 0;
@@ -388,6 +390,7 @@ template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const ch
         }
     }
     return !anyExclude;
+#endif
 }
 
 }  // namespace
