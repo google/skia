@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9dbc180a_14a32315",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T12:27:05Z",
+      "side": 1,
+      "message": "Sure thing.  I don\u0027t really know what an isolate is, or even really how it\u0027s pronounced.  Just aped this.",
+      "parentUuid": "a2e9a211_d0fe382a",
+      "range": {
+        "startLine": 1378,
+        "startChar": 0,
+        "endLine": 1378,
+        "endChar": 40
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be79d765_d2e30f11",
         "filename": "infra/bots/gen_tasks_logic/job_builder.go",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d9505e4c_b50486ca",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T12:27:05Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "be79d765_d2e30f11",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 8
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ab5fb90_bdff9b60",
         "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
         "patchSetId": 9
@@ -59,6 +107,30 @@
       "writtenOn": "2020-04-30T11:49:11Z",
       "side": 1,
       "message": "I think you want something like:\n\nvar g errgroup.Group\n_ \u003d util.ChunkIter(len(gms), batchSize, func(start, end int) error {\n  g.Go(func() error {\n    ...\n  })\n  return nil\n})\nif err :\u003d g.Wait(); err !\u003d nil {\n  td.Fatal(ctx, err)\n}\n\nWe do have util.ChunkIterParallel, but it\u0027ll try to stop after the first error, which I don\u0027t think is what you want here: https://skia.googlesource.com/buildbot/+/master/go/util/util.go#446\n\nIt might also be nice to wrap this up in a parent step, but that comes down to personal preference of what you want to see on the UI.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6e72b01_8aca1235",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T12:27:05Z",
+      "side": 1,
+      "message": "Is that errgroup.Group this https://godoc.org/golang.org/x/sync/errgroup ?\n\nI\u0027m reading there\n\n   func (g *Group) Go(f func() error)\n   Go calls the given function in a new goroutine.\n\n   The first call to return a non-nil error cancels the group; its error will be returned by Wait.\n\nThat\u0027s not what I want, right?  What does it mean to cancel the group?  That also doesn\u0027t let me count the failures right?  It\u0027d just be Fatal()ing with an arbitrary one of the subprocess failures?\n\nCan you explain what you mean about parent steps?",
+      "parentUuid": "0ab5fb90_bdff9b60",
       "range": {
         "startLine": 57,
         "startChar": 0,
