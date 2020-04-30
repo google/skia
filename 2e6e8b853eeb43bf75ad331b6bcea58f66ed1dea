@@ -190,6 +190,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9f56951_3afb5be2",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-30T21:58:47Z",
+      "side": 1,
+      "message": "\u003c\u003c We do follow the rules here (https://abseil.io/about/compatibility) right? \u003e\u003e\n\nWell, there is a big caveat in the rules:\n\n\"We may make changes to the internal #include graph for Abseil headers - if you use an API, please include the relevant header file directly.\"\n\nHypothetically, this exposes us to the hypothetical risk that at any time, their include graph may expose us to the Mutex header, the dynamic-annotations header, or some other header that we did not intend to use.\n\nIf we have hard lines on Abseil headers which we must not include, and these rules are not agreed upon by the Abseil team, then it seems like we\u0027d potentially be at risk at all times. It seems precarious to me.\n\nThe hashtablez case is a great example of this kind of concern IMO. What if the btree_map suddenly gets similar diagnostic abilities? We can\u0027t guarantee that this won\u0027t happen. We could certainly work around it if it happens--it\u0027s not a showstopper--but in general it seems like a not-great position to be in.",
+      "parentUuid": "c0a930f0_7cf90dfd",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
