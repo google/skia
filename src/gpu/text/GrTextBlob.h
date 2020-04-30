@@ -137,27 +137,35 @@ public:
                const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 
+    struct AtlasPt {
+        uint16_t u;
+        uint16_t v;
+    };
+
+    struct AtlasRect {
+        uint16_t l, t, r, b;
+    };
 
     // Normal text mask, SDFT, or color.
     struct Mask2DVertex {
         SkPoint devicePos;
         GrColor color;
-        SkIPoint16 atlasPos;
+        AtlasPt atlasPos;
     };
     struct ARGB2DVertex {
         SkPoint devicePos;
-        SkIPoint16 atlasPos;
+        AtlasPt atlasPos;
     };
 
     // Perspective SDFT or SDFT forced to 3D or perspective color.
     struct SDFT3DVertex {
         SkPoint3 devicePos;
         GrColor color;
-        SkIPoint16 atlasPos;
+        AtlasPt atlasPos;
     };
     struct ARGB3DVertex {
         SkPoint3 devicePos;
-        SkIPoint16 atlasPos;
+        AtlasPt atlasPos;
     };
 
     static const int kVerticesPerGlyph = 4;
@@ -325,6 +333,13 @@ public:
         GrGlyph*        fGrGlyph;
     };
 
+    struct SmallRect {
+        int16_t l;
+        int16_t t;
+        int16_t r;
+        int16_t b;
+    };
+
     // SubRun for masks
     SubRun(SubRunType type,
            GrTextBlob* textBlob,
@@ -350,8 +365,12 @@ public:
     size_t texCoordOffset() const;
     char* quadStart(size_t index) const;
     size_t quadOffset(size_t index) const;
-
-    void joinGlyphBounds(const SkRect& glyphBounds);
+    SkSpan<const SmallRect> glyphRects() const;
+    SkSpan<const SkPoint> sourcePos() const;
+    void fillVertexData(
+            void* vertexDst, int offset, int count,
+            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+            SkIRect clip) const;
 
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
@@ -385,6 +404,7 @@ public:
     const SkSpan<PackedGlyphIDorGrGlyph> fGlyphs;
     const SkSpan<char> fVertexData;
     const SkStrikeSpec fStrikeSpec;
+    const SkGlyphPositionRoundingSpec fRoundingSpec;
     sk_sp<GrTextStrike> fStrike;
     struct {
         bool useLCDText:1;
@@ -396,6 +416,8 @@ public:
     SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
+    std::vector<SmallRect> fRects;
+    std::vector<SkPoint> fSourcePos;
 
 private:
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
