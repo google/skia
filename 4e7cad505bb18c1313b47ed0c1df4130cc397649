@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba109eb3_0902f146",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b15ed583_ca75e461",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e66770ca_4b0aaee3",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
         "patchSetId": 23
@@ -30,6 +48,24 @@
       "writtenOn": "2020-04-30T19:44:39Z",
       "side": 1,
       "message": "This key has to reflect everything that could cause different code to be generate",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3322f434_d848d26b",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "I think the kernel size is the only thing that will affect code generation (same as before). We can bind a different texture to the same code and if the sizes match it\u0027ll work. Agree?",
+      "parentUuid": "e66770ca_4b0aaee3",
       "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d0f091c9_c57d9671",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8237e86_59650b01",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ca34041_9458b378",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
         "patchSetId": 23
@@ -67,6 +121,24 @@
       "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b170c5c9_3e95ed64",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ca34041_9458b378",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -90,6 +162,30 @@
       "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c737545e_75accaf1",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b896014_d9b1cddc",
+      "range": {
+        "startLine": 59,
+        "startChar": 61,
+        "endLine": 59,
+        "endChar": 73
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +235,54 @@
     },
     {
       "key": {
+        "uuid": "1b9eb789_3d8e2933",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c308c7e6_928b60df",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 51
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7d6480b_ef2e2353",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62d78381_6c881ed6",
+      "range": {
+        "startLine": 60,
+        "startChar": 66,
+        "endLine": 60,
+        "endChar": 73
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c156e7b7_60173b45",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 23
@@ -150,6 +294,30 @@
       "writtenOn": "2020-04-30T19:44:39Z",
       "side": 1,
       "message": "We now have this defined in two locations - can there just be one place?",
+      "range": {
+        "startLine": 65,
+        "startChar": 29,
+        "endLine": 65,
+        "endChar": 45
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4990cda6_6ccdfa9e",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "I think this number is different than kMaxSizeForSinglePass from BlurUtils. This is the uniform limit, whereas that is the threshold past which we should separate the kernel. The way it was before was a mistake. This number shouldn\u0027t be public anymore, now that users don\u0027t need to worry about kernel sizes. Seem right?",
+      "parentUuid": "c156e7b7_60173b45",
       "range": {
         "startLine": 65,
         "startChar": 29,
@@ -208,6 +376,54 @@
     },
     {
       "key": {
+        "uuid": "3a6db872_198b5f5d",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "164c372f_f9914649",
+      "range": {
+        "startLine": 79,
+        "startChar": 57,
+        "endLine": 79,
+        "endChar": 64
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c6b02e1_5f320d15",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4a231e8_d6dba698",
+      "range": {
+        "startLine": 79,
+        "startChar": 29,
+        "endLine": 79,
+        "endChar": 36
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d2848d1_0b90b3cf",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 23
@@ -225,6 +441,24 @@
     },
     {
       "key": {
+        "uuid": "3331fd1c_532718f4",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d2848d1_0b90b3cf",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "691a7016_7bcc78f6",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 23
@@ -239,6 +473,24 @@
       "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19760ed6_5f7e1a9f",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-04-30T20:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "691a7016_7bcc78f6",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
