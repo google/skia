@@ -492,18 +492,18 @@ private:
         }
     }
 
-    template <bool E = MEM_MOVE> SK_WHEN(E, void) move(int dst, int src) {
+    template <bool E = MEM_MOVE> std::enable_if_t<E, void> move(int dst, int src) {
         memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
     }
-    template <bool E = MEM_MOVE> SK_WHEN(E, void) move(void* dst) {
+    template <bool E = MEM_MOVE> std::enable_if_t<E, void> move(void* dst) {
         sk_careful_memcpy(dst, fItemArray, fCount * sizeof(T));
     }
 
-    template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(int dst, int src) {
+    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(int dst, int src) {
         new (&fItemArray[dst]) T(std::move(fItemArray[src]));
         fItemArray[src].~T();
     }
-    template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(void* dst) {
+    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
         for (int i = 0; i < fCount; ++i) {
             new (static_cast<char*>(dst) + sizeof(T) * i) T(std::move(fItemArray[i]));
             fItemArray[i].~T();

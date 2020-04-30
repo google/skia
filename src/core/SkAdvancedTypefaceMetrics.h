@@ -65,7 +65,7 @@ struct SkAdvancedTypefaceMetrics {
     SkIRect fBBox = {0, 0, 0, 0};  // The bounding box of all glyphs (in font units).
 };
 
-namespace skstd {
+namespace sknonstd {
 template <> struct is_bitmask_enum<SkAdvancedTypefaceMetrics::FontFlags> : std::true_type {};
 template <> struct is_bitmask_enum<SkAdvancedTypefaceMetrics::StyleFlags> : std::true_type {};
 }

@@ -80,7 +80,7 @@ struct ParsingContext {
     }
 
     SkXMLParser* fParser;
-    SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree> fXMLParser;
+    SkAutoTCallVProc<std::remove_pointer_t<XML_Parser>, XML_ParserFree> fXMLParser;
 
 private:
     SkString fBufferedText;
