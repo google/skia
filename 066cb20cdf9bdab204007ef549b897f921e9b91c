@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fcf6a14_743908df",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-30T15:39:47Z",
+      "side": 1,
+      "message": "WDYT about defaulting these to nullptr in RangeIter and giving it a default constructor?",
+      "range": {
+        "startLine": 1615,
+        "startChar": 0,
+        "endLine": 1615,
+        "endChar": 51
+      },
+      "revId": "066cb20cdf9bdab204007ef549b897f921e9b91c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15061849_49a43641",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-30T15:39:47Z",
+      "side": 1,
+      "message": "Is this something we always want to do?",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 77
+      },
+      "revId": "066cb20cdf9bdab204007ef549b897f921e9b91c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
