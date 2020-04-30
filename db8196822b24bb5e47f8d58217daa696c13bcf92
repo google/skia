@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "72939a66_918ad525",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-30T18:10:47Z",
+      "side": 1,
+      "message": "FYI: I ran into occasional flakiness due to timeouts for skottie-wasm-perf.js (skbug.com/9207) so put in retries here. Just a note incase you run into this in the future.",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35d8a0d6_a8062784",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 28
