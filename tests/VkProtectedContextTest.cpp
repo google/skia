@@ -145,19 +145,31 @@ void VulkanTestHelper::cleanup() {
     delete fFeatures;
 }
 
+static void finished_be_creation(void* context) {
+    *(bool*)context = true;
+}
+
 sk_sp<SkSurface> VulkanTestHelper::createSkSurface(skiatest::Reporter* reporter) {
     const int kW = 8;
     const int kH = 8;
-    GrBackendTexture backendTex = grContext()->createBackendTexture(
+    bool finishedBECreation = false;
+    GrBackendTexture backendTex = this->grContext()->createBackendTexture(
         kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
-        fIsProtected ? GrProtected::kYes : GrProtected::kNo);
+        fIsProtected ? GrProtected::kYes : GrProtected::kNo, finished_be_creation,
+        &finishedBECreation);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected() == fIsProtected);
+
+    // Just do a hard cpu sync to make sure creation has completed so users don't need to worry
+    // about it.
+    while (!finishedBECreation) {
+        this->grContext()->checkAsyncWorkCompletion();
+    }
 
     SkSurfaceProps surfaceProps =
         SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-        grContext(), backendTex, kTopLeft_GrSurfaceOrigin, 1,
+        this->grContext(), backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
     return surface;
@@ -185,10 +197,11 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
 
     const int kW = 8;
     const int kH = 8;
+    bool finishedBECreate = false;
     GrBackendTexture backendTex =
         protectedTestHelper->grContext()->createBackendTexture(
             kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
-            GrProtected::kYes);
+            GrProtected::kYes, finished_be_creation, &finishedBECreate);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
@@ -199,6 +212,9 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
 
+    while (!finishedBECreate) {
+        protectedTestHelper->grContext()->checkAsyncWorkCompletion();
+    }
     protectedTestHelper->grContext()->deleteBackendTexture(backendTex);
 }
 

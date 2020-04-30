@@ -197,11 +197,13 @@ private:
                                             GrRenderable,
                                             GrMipMapped,
                                             GrProtected,
+                                            sk_sp<GrRefCntedCallback> finishedCallback,
                                             const BackendTextureData*) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                                       const BackendTextureData*) override;
 
     bool submitDirectCommandList(SyncQueue sync);
@@ -219,6 +221,7 @@ private:
                                                 GrMipMapped mipMapped,
                                                 GrD3DTextureResourceInfo* info,
                                                 GrProtected isProtected,
+                                                sk_sp<GrRefCntedCallback> finishedCallback,
                                                 const BackendTextureData* data);
 
     gr_cp<ID3D12Device> fDevice;

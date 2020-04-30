@@ -121,8 +121,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
                             colorType, can, SkToBool(surf));
 
             surf.reset();
-            context->flush();
-            context->deleteBackendTexture(backendTex);
+            DeleteBackendTexture(context, backendTex);
         }
 
         // The MSAA test only makes sense if the colorType is renderable to begin with.
@@ -175,8 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             }
 
             surf.reset();
-            context->flush();
-            context->deleteBackendTexture(backendTex);
+            DeleteBackendTexture(context, backendTex);
         }
 
         {
@@ -218,7 +216,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
             continue;
         }
         SkScopeExit freeTex([&backendTex, context] {
-            context->deleteBackendTexture(backendTex);
+            DeleteBackendTexture(context, backendTex);
         });
 
         if (!context->colorTypeSupportedAsSurface(colorType)) {
@@ -827,7 +825,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         test_surface_context_clear(reporter, rtc, kOrigColor.toSkColor());
         auto imageSurfaceCtx = makeImageSurfaceContext(surface.get());
         test_surface_context_clear(reporter, imageSurfaceCtx.get(), kOrigColor.toSkColor());
-        context->deleteBackendTexture(backendTex);
+        DeleteBackendTexture(context, backendTex);
     }
 }
 
@@ -898,7 +896,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor.toSkColor());
             surface.reset();
-            context->deleteBackendTexture(backendTex);
+            DeleteBackendTexture(context, backendTex);
         }
     }
 }
@@ -1002,7 +1000,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             GrRenderTarget* rt = surface->getCanvas()
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt, sampleCnt));
-            context->deleteBackendTexture(backendTex);
+            DeleteBackendTexture(context, backendTex);
         }
     }
 }

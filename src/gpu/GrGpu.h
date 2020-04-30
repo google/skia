@@ -598,6 +598,8 @@ public:
                                           GrRenderable,
                                           GrMipMapped,
                                           GrProtected,
+                                          GrGpuFinishedProc finishedProc,
+                                          GrGpuFinishedContext finishedContext,
                                           const BackendTextureData*);
 
     /**
@@ -608,6 +610,8 @@ public:
                                                     const GrBackendFormat&,
                                                     GrMipMapped,
                                                     GrProtected,
+                                                    GrGpuFinishedProc finishedProc,
+                                                    GrGpuFinishedContext finishedContext,
                                                     const BackendTextureData*);
 
     /**
@@ -627,8 +631,8 @@ public:
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 
-    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                       GrColorType) = 0;
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(
+            int w, int h, GrColorType) = 0;
 
     virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
 
@@ -716,13 +720,12 @@ private:
                                                     GrRenderable,
                                                     GrMipMapped,
                                                     GrProtected,
+                                                    sk_sp<GrRefCntedCallback> finishedCallback,
                                                     const BackendTextureData*) = 0;
 
-    virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
-                                                              const GrBackendFormat&,
-                                                              GrMipMapped,
-                                                              GrProtected,
-                                                              const BackendTextureData*) = 0;
+    virtual GrBackendTexture onCreateCompressedBackendTexture(
+            SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected,
+            sk_sp<GrRefCntedCallback> finishedCallback, const BackendTextureData*) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.

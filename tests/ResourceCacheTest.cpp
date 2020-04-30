@@ -25,6 +25,7 @@
 #include "src/core/SkMipMap.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 #include <thread>
 
@@ -234,10 +235,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
     if (borrowedIsAlive) {
-        context->deleteBackendTexture(backendTextures[0]);
+        DeleteBackendTexture(context, backendTextures[0]);
     }
     if (adoptedIsAlive) {
-        context->deleteBackendTexture(backendTextures[1]);
+        DeleteBackendTexture(context, backendTextures[1]);
     }
 
     context->resetContext();
@@ -1589,7 +1590,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
 
     // We must delete the backend texture before abandoning the context in vulkan. We just do it
     // for all the backends for consistency.
-    context->deleteBackendTexture(backend);
+    DeleteBackendTexture(context, backend);
     context->abandonContext();
 
     REPORTER_ASSERT(reporter, 1 == freed);

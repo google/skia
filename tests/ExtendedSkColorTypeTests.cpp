@@ -280,7 +280,9 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
         }
 
         img.reset();
-        context->flush();
+        GrFlushInfo info;
+        info.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(info);
         context->deleteBackendTexture(backendTex);
     }
 }

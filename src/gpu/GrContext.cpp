@@ -394,7 +394,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -405,14 +407,17 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      mipMapped, isProtected, nullptr);
+                                      mipMapped, isProtected, finishedProc, finishedContext,
+                                      nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  SkColorType skColorType,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -423,10 +428,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     const GrBackendFormat format = this->defaultBackendFormat(skColorType, renderable);
 
-    return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
+    return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected,
+                                      finishedProc, finishedContext);
 }
 
-GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
+GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     if (!this->asDirectContext() || !c.isValid()) {
         return GrBackendTexture();
     }
@@ -452,13 +460,16 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
     GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format,
                                                          GrMipMapped(c.isMipMapped()),
                                                          GrRenderable::kYes,
-                                                         c.isProtected());
+                                                         c.isProtected(), finishedProc,
+                                                         finishedContext);
     SkASSERT(c.isCompatible(result));
     return result;
 }
 
 GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c,
-                                                 const SkColor4f& color) {
+                                                 const SkColor4f& color,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     if (!this->asDirectContext() || !c.isValid()) {
         return GrBackendTexture();
     }
@@ -484,7 +495,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
     GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format, color,
                                                          GrMipMapped(c.isMipMapped()),
                                                          GrRenderable::kYes,
-                                                         c.isProtected());
+                                                         c.isProtected(), finishedProc,
+                                                         finishedContext);
     SkASSERT(c.isCompatible(result));
     return result;
 }
@@ -494,7 +506,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -506,7 +520,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     GrGpu::BackendTextureData data(color);
     return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      mipMapped, isProtected, &data);
+                                      mipMapped, isProtected, finishedProc, finishedContext, &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -514,7 +528,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const SkColor4f& color,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -532,11 +548,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     SkColor4f swizzledColor = this->caps()->getWriteSwizzle(format, grColorType).applyTo(color);
 
     return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
-                                      isProtected);
+                                      isProtected, finishedProc, finishedContext);
 }
 
 GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numProvidedLevels,
-                                                 GrRenderable renderable, GrProtected isProtected) {
+                                                 GrRenderable renderable, GrProtected isProtected,
+                                                 GrGpuFinishedProc finishedProc,
+                                                 GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     if (!this->asDirectContext()) {
@@ -570,7 +588,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
 
     GrGpu::BackendTextureData data(srcData);
     return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable,
-                                      mipMapped, isProtected, &data);
+                                      mipMapped, isProtected, finishedProc, finishedContext, &data);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -579,7 +597,9 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
                                                            const GrBackendFormat& backendFormat,
                                                            const SkColor4f& color,
                                                            GrMipMapped mipMapped,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           GrGpuFinishedProc finishedProc,
+                                                           GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -591,14 +611,17 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
 
     GrGpu::BackendTextureData data(color);
     return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
-                                                mipMapped, isProtected, &data);
+                                                mipMapped, isProtected, finishedProc,
+                                                finishedContext, &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
                                                            SkImage::CompressionType compression,
                                                            const SkColor4f& color,
                                                            GrMipMapped mipMapped,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           GrGpuFinishedProc finishedProc,
+                                                           GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -610,7 +633,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
 
     GrBackendFormat format = this->compressedBackendFormat(compression);
     return this->createCompressedBackendTexture(width, height, format, color,
-                                                mipMapped, isProtected);
+                                                mipMapped, isProtected, finishedProc,
+                                                finishedContext);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
@@ -618,7 +642,9 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
                                                            const void* compressedData,
                                                            size_t dataSize,
                                                            GrMipMapped mipMapped,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           GrGpuFinishedProc finishedProc,
+                                                           GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -630,14 +656,17 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
 
     GrGpu::BackendTextureData data(compressedData, dataSize);
     return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
-                                                mipMapped, isProtected, &data);
+                                                mipMapped, isProtected, finishedProc,
+                                                finishedContext, &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
                                                            SkImage::CompressionType compression,
                                                            const void* data, size_t dataSize,
                                                            GrMipMapped mipMapped,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           GrGpuFinishedProc finishedProc,
+                                                           GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
@@ -649,7 +678,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
 
     GrBackendFormat format = this->compressedBackendFormat(compression);
     return this->createCompressedBackendTexture(width, height, format, data, dataSize,
-                                                mipMapped, isProtected);
+                                                mipMapped, isProtected, finishedProc,
+                                                finishedContext);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {

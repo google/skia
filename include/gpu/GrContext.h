@@ -432,7 +432,9 @@ public:
                                           const GrBackendFormat&,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create an uninitialized backend texture. The client should ensure that the
     // returned backend texture is valid.
@@ -444,7 +446,9 @@ public:
                                           SkColorType,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
 
     // If possible, create an uninitialized backend texture that is compatible with the
@@ -452,7 +456,9 @@ public:
     // is valid.
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_UNDEFINED.
-    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization);
+    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
@@ -464,7 +470,9 @@ public:
                                           const SkColor4f& color,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create a backend texture initialized to a particular color. The client should
     // ensure that the returned backend texture is valid.
@@ -478,7 +486,9 @@ public:
                                           const SkColor4f& color,
                                           GrMipMapped,
                                           GrRenderable,
-                                          GrProtected = GrProtected::kNo);
+                                          GrProtected = GrProtected::kNo,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create a backend texture initialized to a particular color that is
     // compatible with the provided characterization. The client should ensure that the
@@ -486,7 +496,9 @@ public:
     // For the Vulkan backend the layout of the created VkImage will be:
     //      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
     GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization,
-                                          const SkColor4f& color);
+                                          const SkColor4f& color,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create a backend texture initialized with the provided pixmap data. The client
     // should ensure that the returned backend texture is valid.
@@ -502,12 +514,16 @@ public:
     //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     // regardless of the renderability setting
     GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
-                                          GrRenderable, GrProtected);
+                                          GrRenderable, GrProtected,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr);
 
     // Helper version of above for a single level.
     GrBackendTexture createBackendTexture(const SkPixmap& srcData,
                                           GrRenderable renderable,
-                                          GrProtected isProtected) {
+                                          GrProtected isProtected,
+                                          GrGpuFinishedProc finishedProc = nullptr,
+                                          GrGpuFinishedContext finishedContext = nullptr) {
         return this->createBackendTexture(&srcData, 1, renderable, isProtected);
     }
 
@@ -529,13 +545,17 @@ public:
                                                     const GrBackendFormat&,
                                                     const SkColor4f& color,
                                                     GrMipMapped,
-                                                    GrProtected = GrProtected::kNo);
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
 
     GrBackendTexture createCompressedBackendTexture(int width, int height,
                                                     SkImage::CompressionType,
                                                     const SkColor4f& color,
                                                     GrMipMapped,
-                                                    GrProtected = GrProtected::kNo);
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
 
     // If possible, create a backend texture initialized with the provided raw data. The client
     // should ensure that the returned backend texture is valid.
@@ -548,13 +568,17 @@ public:
                                                     const GrBackendFormat&,
                                                     const void* data, size_t dataSize,
                                                     GrMipMapped,
-                                                    GrProtected = GrProtected::kNo);
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
 
     GrBackendTexture createCompressedBackendTexture(int width, int height,
                                                     SkImage::CompressionType,
                                                     const void* data, size_t dataSize,
                                                     GrMipMapped,
-                                                    GrProtected = GrProtected::kNo);
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
 
     void deleteBackendTexture(GrBackendTexture);
 

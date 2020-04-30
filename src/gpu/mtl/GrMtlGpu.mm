@@ -945,7 +945,6 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
 
     [blitCmdEncoder endEncoding];
     [cmdBuffer commit];
-    [cmdBuffer waitUntilCompleted];
     transferBuffer = nil;
 
     info->fTexture.reset(GrRetainPtrFromId(testTexture));
@@ -957,6 +956,7 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
                                                   GrRenderable renderable,
                                                   GrMipMapped mipMapped,
                                                   GrProtected isProtected,
+                                                  sk_sp<GrRefCntedCallback> finishedCallback,
                                                   const BackendTextureData* data) {
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
@@ -970,11 +970,10 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
     return backendTex;
 }
 
-GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                            const GrBackendFormat& format,
-                                                            GrMipMapped mipMapped,
-                                                            GrProtected isProtected,
-                                                            const BackendTextureData* data) {
+GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
+        SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
+        const BackendTextureData* data) {
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
     GrMtlTextureInfo info;
