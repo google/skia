@@ -1157,14 +1157,14 @@
         "Upload-Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"
       ]
     },
+    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver": {
+      "tasks": [
+        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver"
+      ]
+    },
     "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM": {
       "tasks": [
         "Upload-Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM"
-      ]
-    },
-    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver": {
-      "tasks": [
-        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver"
       ]
     },
     "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
@@ -1270,6 +1270,11 @@
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "tasks": [
         "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+      ]
+    },
+    "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver": {
+      "tasks": [
+        "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver"
       ]
     },
     "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM": {
@@ -20786,6 +20791,64 @@
         "perf"
       ]
     },
+    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver": {
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
+        },
+        {
+          "name": "skia/bots/node",
+          "path": "node",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/internal/lotties_with_assets",
+          "path": "lotties_with_assets",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "./perf_puppeteer",
+        "--project_id",
+        "skia-swarming-bots",
+        "--git_hash",
+        "<(REVISION)",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver",
+        "--canvaskit_bin",
+        "./build",
+        "--lotties_path",
+        "./lotties_with_assets",
+        "--node_bin_path",
+        "./node/node/bin",
+        "--benchmark_path",
+        "./tools/perf-puppeteer",
+        "--output_path",
+        "perf",
+        "--alsologtostderr"
+      ],
+      "dependencies": [
+        "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "isolate": "perf_puppeteer.isolate",
+      "outputs": [
+        "perf"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM": {
       "caches": [
         {
@@ -20874,42 +20937,6 @@
       "outputs": [
         "perf"
       ]
-    },
-    "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver": {
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
-        }
-      ],
-      "command": [
-        "./perf_skottie_wasm",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM_TaskDriver",
-        "--workdir",
-        ".",
-        "--alsologtostderr"
-      ],
-      "dependencies": [
-        "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
-      "isolate": "skottie_wasm.isolate",
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "caches": [
@@ -22491,6 +22518,63 @@
       "outputs": [
         "perf"
       ]
+    },
+    "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver": {
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:79ed202093167f909833b190999ed44cd3088a84"
+        },
+        {
+          "name": "skia/bots/node",
+          "path": "node",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/internal/lotties_with_assets",
+          "path": "lotties_with_assets",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "./perf_puppeteer",
+        "--project_id",
+        "skia-swarming-bots",
+        "--git_hash",
+        "<(REVISION)",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_TaskDriver",
+        "--canvaskit_bin",
+        "./build",
+        "--lotties_path",
+        "./lotties_with_assets",
+        "--node_bin_path",
+        "./node/node/bin",
+        "--benchmark_path",
+        "./tools/perf-puppeteer",
+        "--output_path",
+        "perf",
+        "--alsologtostderr"
+      ],
+      "dependencies": [
+        "Build-Debian10-EMCC-wasm-Release-CanvasKit",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "isolate": "perf_puppeteer.isolate",
+      "outputs": [
+        "perf"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM": {
       "caches": [
