@@ -118,6 +118,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f8a9b95_d4e6602f",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T15:31:26Z",
+      "side": 1,
+      "message": "Yeah, now that said, many of us are eager to use parts of Abseil that are viable, like btree_map, the hash framework, or all that absl/debugging stuff for testing code.  I don\u0027t think this is a complete wash, just that certain parts of Abseil must stay carved out.",
+      "parentUuid": "fd16630a_162b4001",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
