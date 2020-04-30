@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "706c38e1_7cb2aac4",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-30T16:25:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fcf6a14_743908df",
+      "range": {
+        "startLine": 1615,
+        "startChar": 0,
+        "endLine": 1615,
+        "endChar": 51
+      },
+      "revId": "066cb20cdf9bdab204007ef549b897f921e9b91c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15061849_49a43641",
         "filename": "src/core/SkPathPriv.h",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-30T15:39:47Z",
       "side": 1,
       "message": "Is this something we always want to do?",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 77
+      },
+      "revId": "066cb20cdf9bdab204007ef549b897f921e9b91c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a282bf58_664304e9",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-30T16:25:38Z",
+      "side": 1,
+      "message": "The purpose of this was to behave the same as SkPathRef::Iter:\n\nhttps://github.com/google/skia/blob/master/src/core/SkPathRef.cpp#L560\n\nI don\u0027t know why that was added originally, but it seemed like a good idea to not change functionality yet while refactoring RawIter away.",
+      "parentUuid": "15061849_49a43641",
       "range": {
         "startLine": 157,
         "startChar": 0,
