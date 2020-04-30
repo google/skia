@@ -18,12 +18,14 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    sk_sp<GrD3DResourceState> state,
                                                    const GrD3DTextureResourceInfo& msaaInfo,
                                                    sk_sp<GrD3DResourceState> msaaState,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor,
                                                    GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, state)
         , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
         , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
-                            std::move(msaaState)) {
+                            std::move(msaaState), rtvDescriptor, msaaRtvDescriptor) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCache(budgeted);
 }
@@ -33,11 +35,12 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    SkISize dimensions,
                                                    const GrD3DTextureResourceInfo& info,
                                                    sk_sp<GrD3DResourceState> state,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
                                                    GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, state)
         , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
-        , GrD3DRenderTarget(gpu, dimensions, info, state) {
+        , GrD3DRenderTarget(gpu, dimensions, info, state, rtvDescriptor) {
     this->registerWithCache(budgeted);
 }
 
@@ -48,13 +51,15 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    sk_sp<GrD3DResourceState> state,
                                                    const GrD3DTextureResourceInfo& msaaInfo,
                                                    sk_sp<GrD3DResourceState> msaaState,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& msaaRtvDescriptor,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, state)
         , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
         , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
-                            std::move(msaaState)) {
+                            std::move(msaaState), rtvDescriptor, msaaRtvDescriptor) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCacheWrapped(cacheable);
 }
@@ -63,12 +68,13 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    SkISize dimensions,
                                                    const GrD3DTextureResourceInfo& info,
                                                    sk_sp<GrD3DResourceState> state,
+                                                   const D3D12_CPU_DESCRIPTOR_HANDLE& rtvDescriptor,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, state)
         , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
-        , GrD3DRenderTarget(gpu, dimensions, info, state) {
+        , GrD3DRenderTarget(gpu, dimensions, info, state, rtvDescriptor) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -123,19 +129,25 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(
                                           static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
 
+    const D3D12_CPU_DESCRIPTOR_HANDLE rtv =
+        gpu->resourceProvider().createRenderTargetView(info.fResource.get());
+
     if (sampleCnt > 1) {
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
 
         std::tie(msInfo, msState) = create_msaa_resource(gpu, dimensions, sampleCnt, info);
 
+        const D3D12_CPU_DESCRIPTOR_HANDLE msaaRtv =
+            gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
+
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(state),
-                msInfo, std::move(msState), mipMapsStatus);
+                msInfo, std::move(msState), rtv, msaaRtv, mipMapsStatus);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
-                gpu, budgeted, dimensions, info, std::move(state), mipMapsStatus);
+                gpu, budgeted, dimensions, info, std::move(state), rtv, mipMapsStatus);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }
@@ -155,18 +167,24 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
     GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kDirty
                                                          : GrMipMapsStatus::kNotAllocated;
 
+    const D3D12_CPU_DESCRIPTOR_HANDLE rtv =
+        gpu->resourceProvider().createRenderTargetView(info.fResource.get());
+
     if (sampleCnt > 1) {
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
 
         std::tie(msInfo, msState) = create_msaa_resource(gpu, dimensions, sampleCnt, info);
+        const D3D12_CPU_DESCRIPTOR_HANDLE msaaRtv =
+                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
+
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, dimensions, sampleCnt, info, std::move(state), msInfo, std::move(msState),
-                mipMapsStatus, cacheable);
+                rtv, msaaRtv, mipMapsStatus, cacheable);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
-                gpu, dimensions, info, std::move(state), mipMapsStatus, cacheable));
+                gpu, dimensions, info, std::move(state), rtv, mipMapsStatus, cacheable));
     }
 }
 
