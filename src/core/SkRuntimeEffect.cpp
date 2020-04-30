@@ -389,6 +389,21 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 #endif
                 return {};
 
+            case Inst::kATan: {
+                skvm::F32 x = pop();
+                push(approx_atan(x));
+            } break;
+
+            case Inst::kFract: {
+                skvm::F32 x = pop();
+                push(fract(x));
+            } break;
+
+            case Inst::kSqrt: {
+                skvm::F32 x = pop();
+                push(sqrt(x));
+            } break;
+
             case Inst::kLoad: {
                 int ix = u8();
                 push(stack[ix + 0]);
@@ -418,6 +433,12 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kLoadUniform: {
                 int ix = u8();
                 push(uniform[ix]);
+            } break;
+
+            case Inst::kLoadUniform2: {
+                int ix = u8();
+                push(uniform[ix + 0]);
+                push(uniform[ix + 1]);
             } break;
 
             case Inst::kLoadUniform4: {
@@ -493,6 +514,19 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(a+x);
             } break;
 
+            case Inst::kSubtractF: {
+                skvm::F32 x = pop(),
+                          a = pop();
+                push(a-x);
+            } break;
+
+            case Inst::kSubtractF2: {
+                skvm::F32 x = pop(), y = pop(),
+                          a = pop(), b = pop();
+                push(b-y);
+                push(a-x);
+            } break;
+
             case Inst::kMultiplyF: {
                 skvm::F32 x = pop(),
                           a = pop();
@@ -521,6 +555,12 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(c*z);
                 push(b*y);
                 push(a*x);
+            } break;
+
+            case Inst::kDivideF: {
+                skvm::F32 x = pop(),
+                          a = pop();
+                push(a/x);
             } break;
 
             // Baby steps... just leaving test conditions on the stack for now.
