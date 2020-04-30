@@ -188,7 +188,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            fDrawable.startDevice(fRejects.source(), origin, drawMatrix, strike->roundingSpec());
+            fDrawable.startGPUDevice(fRejects.source(), origin, drawMatrix, strike->roundingSpec());
             strike->prepareForMaskDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 

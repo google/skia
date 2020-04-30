@@ -39,6 +39,16 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         : fPath(path)
         , fOrigin(origin) {}
 
+static SkGlyphPositionRoundingSpec direct_rounding_spec(
+        GrTextBlob::SubRunType type, const SkStrikeSpec& strikeSpec) {
+    if (type == GrTextBlob::kDirectMask) {
+        auto strike = strikeSpec.findOrCreateStrike();
+        return strike->roundingSpec();
+    } else {
+        return SkGlyphPositionRoundingSpec();
+    }
+}
+
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
                            GrMaskFormat format, const SkSpan<PackedGlyphIDorGrGlyph>& glyphs,
@@ -49,10 +59,11 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fGlyphs{glyphs}
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
+        , fRoundingSpec{direct_rounding_spec(fType, fStrikeSpec)}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
-    SkASSERT(type != kTransformedPath);
+    SkASSERT(fType != kTransformedPath);
     textBlob->insertSubRun(this);
 }
 
@@ -68,88 +79,26 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
-static SkRect dest_rect(const SkGlyph& g, SkPoint origin) {
-    return SkRect::MakeXYWH(
-            SkIntToScalar(g.left()) + origin.x(),
-            SkIntToScalar(g.top())  + origin.y(),
-            SkIntToScalar(g.width()),
-            SkIntToScalar(g.height()));
-}
-
-static bool is_SDF(const SkGlyph& skGlyph) {
-    return skGlyph.maskFormat() == SkMask::kSDF_Format;
-}
-
-static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
-    if (!is_SDF(g)) {
-        return SkRect::MakeXYWH(
-                SkIntToScalar(g.left())   * textScale + origin.x(),
-                SkIntToScalar(g.top())    * textScale + origin.y(),
-                SkIntToScalar(g.width())  * textScale,
-                SkIntToScalar(g.height()) * textScale);
-    } else {
-        return SkRect::MakeXYWH(
-                (SkIntToScalar(g.left()) + SK_DistanceFieldInset) * textScale + origin.x(),
-                (SkIntToScalar(g.top())  + SK_DistanceFieldInset) * textScale + origin.y(),
-                (SkIntToScalar(g.width())  - 2 * SK_DistanceFieldInset) * textScale,
-                (SkIntToScalar(g.height()) - 2 * SK_DistanceFieldInset) * textScale);
-    }
-}
-
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
-    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     SkASSERT(!this->isPrepared());
+    fSourcePos.reserve(drawables.size());
+    fRects.reserve(drawables.size());
     PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
-    char* vertexCursor = fVertexData.data();
-    size_t vertexStride = this->vertexStride();
-    // We always write the third position component used by SDFs. If it is unused it gets
-    // overwritten. Similarly, we always write the color and the blob will later overwrite it
-    // with texture coords if it is unused.
-    size_t colorOffset = this->colorOffset();
+    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     for (auto [variant, pos] : drawables) {
+        fSourcePos.push_back(pos);
         SkGlyph* skGlyph = variant;
-        // Only floor the device coordinates.
-        SkRect dstRect;
-        if (!this->needsTransform()) {
-            pos = {SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y())};
-            dstRect = dest_rect(*skGlyph, pos);
-        } else {
-            dstRect = dest_rect(*skGlyph, pos, strikeToSource);
-        }
-
-        this->joinGlyphBounds(dstRect);
-
-        // V0
-        *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fLeft, dstRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
-        vertexCursor += vertexStride;
-
-        // V1
-        *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fLeft, dstRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
-        vertexCursor += vertexStride;
-
-        // V2
-        *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fRight, dstRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
-        vertexCursor += vertexStride;
-
-        // V3
-        *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fRight, dstRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
-        vertexCursor += vertexStride;
-
+        int16_t l = skGlyph->left();
+        int16_t t = skGlyph->top();
+        int16_t r = l + skGlyph->width();
+        int16_t b = t + skGlyph->height();
+        fRects.push_back({l, t, r, b});
+        SkPoint lt = SkPoint::Make(l, t) * strikeToSource + pos,
+                rb = SkPoint::Make(r, b) * strikeToSource + pos;
+        fVertexBounds.joinNonEmptyArg(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
         packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
         packedIDCursor++;
     }
-
-    // Use the negative initial origin to make the fVertexBounds {0, 0} based.
-    SkPoint pt = fBlob->fInitialOrigin;
-    if (!this->needsTransform()) {
-        // If the box is in device space, then transform the source space origin to device space.
-        pt = fBlob->fInitialMatrix.mapXY(pt.x(), pt.y());
-    }
-    fVertexBounds.offset(-pt);
 }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -160,23 +109,6 @@ GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
     return GetVertexStride(this->maskFormat(), this->hasW());
 }
-size_t GrTextBlob::SubRun::colorOffset() const {
-    return this->hasW() ? offsetof(SDFT3DVertex, color) : offsetof(Mask2DVertex, color);
-}
-
-size_t GrTextBlob::SubRun::texCoordOffset() const {
-    switch (fMaskFormat) {
-        case kA8_GrMaskFormat:
-            return this->hasW() ? offsetof(SDFT3DVertex, atlasPos)
-                                : offsetof(Mask2DVertex, atlasPos);
-        case kARGB_GrMaskFormat:
-            return this->hasW() ? offsetof(ARGB3DVertex, atlasPos)
-                                : offsetof(ARGB2DVertex, atlasPos);
-        default:
-            SkASSERT(!this->hasW());
-            return offsetof(Mask2DVertex, atlasPos);
-    }
-}
 
 char* GrTextBlob::SubRun::quadStart(size_t index) const {
     return SkTAddOffset<char>(fVertexData.data(), this->quadOffset(index));
@@ -186,8 +118,191 @@ size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
     return index * kVerticesPerGlyph * this->vertexStride();
 }
 
-void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
-    fVertexBounds.joinNonEmptyArg(glyphBounds);
+template <typename T>
+static void assign2D(T& dst, SkPoint pt, GrColor color, GrTextBlob::AtlasPt uv) {
+    if constexpr (std::is_same<T, GrTextBlob::ARGB2DVertex>::value) {
+        dst = {pt, uv};
+    } else {
+        dst = {pt, color, uv};
+    }
+}
+
+template <typename T>
+static void assign3D(T& dst, SkPoint3 pt, GrColor color, GrTextBlob::AtlasPt uv) {
+    if constexpr (std::is_same<T, GrTextBlob::ARGB3DVertex>::value) {
+        dst = {pt, uv};
+    } else {
+        dst = {pt, color, uv};
+    }
+}
+
+template <typename Rect>
+static auto comp(const Rect& r) {
+    return std::make_tuple(r.left(), r.top(), r.right(), r.bottom());
+}
+
+void GrTextBlob::SubRun::fillVertexData(
+        void *vertexDst, int offset, int count,
+        GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin, SkIRect clip) const {
+
+    SkMatrix matrix = drawMatrix;
+    matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+
+    SkSpan<const SkPoint> glyphPos = SkMakeSpan(fSourcePos).subspan(offset, count);
+    SkSpan<const SmallRect> rects = SkMakeSpan(fRects).subspan(offset, count);
+    auto glyphs = fGlyphs.subspan(offset, count);
+
+    auto transformed2D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
+        SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
+        SkPoint inset = {dstPadding, dstPadding};
+        for (auto [dst, pos, rect, glyph] : SkMakeZip(dst, glyphPos, rects, glyphs)) {
+            SkPoint sLT = (SkPoint::Make(rect.l, rect.t) + inset) * strikeToSource + pos,
+                    sRB = (SkPoint::Make(rect.r, rect.b) - inset) * strikeToSource + pos;
+            SkPoint lt = matrix.mapXY(sLT.x(), sLT.y()),
+                    lb = matrix.mapXY(sLT.x(), sRB.y()),
+                    rt = matrix.mapXY(sRB.x(), sLT.y()),
+                    rb = matrix.mapXY(sRB.x(), sRB.y());
+            auto [al, at, ar, ab] = glyph.fGrGlyph->fAtlasLocator.getUVs(srcPadding);
+            assign2D(dst[0], lt, color, {al, at});  // L,T
+            assign2D(dst[1], lb, color, {al, ab});  // L,B
+            assign2D(dst[2], rt, color, {ar, at});  // R,T
+            assign2D(dst[3], rb, color, {ar, ab});  // R,B
+        }
+    };
+
+    auto transformed3D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
+        SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
+        SkPoint inset = {dstPadding, dstPadding};
+        auto mapXYZ = [&](SkScalar x, SkScalar y) {
+            SkPoint pt{x, y};
+            SkPoint3 result;
+            matrix.mapHomogeneousPoints(&result, &pt, 1);
+            return result;
+        };
+        for (auto [dst, pos, rect, glyph] : SkMakeZip(dst, glyphPos, rects, glyphs)) {
+            SkPoint sLT = (SkPoint::Make(rect.l, rect.t) + inset) * strikeToSource + pos,
+                    sRB = (SkPoint::Make(rect.r, rect.b) - inset) * strikeToSource + pos;
+            SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
+                     lb = mapXYZ(sLT.x(), sRB.y()),
+                     rt = mapXYZ(sRB.x(), sLT.y()),
+                     rb = mapXYZ(sRB.x(), sRB.y());
+            auto [al, at, ar, ab] =
+            glyph.fGrGlyph->fAtlasLocator.getUVs(srcPadding);
+            assign3D(dst[0], lt, color, {al, at});  // L,T
+            assign3D(dst[1], lb, color, {al, ab});  // L,B
+            assign3D(dst[2], rt, color, {ar, at});  // R,T
+            assign3D(dst[3], rb, color, {ar, ab});  // R,B
+        }
+    };
+
+    auto direct2D = [&](auto dst, SkIRect* clip) {
+        // Rectangles in device space
+        SkPoint zeroZero = matrix.mapXY(0, 0);
+        for (auto[dst, pos, rect, glyph] : SkMakeZip(dst, glyphPos, rects, glyphs)) {
+            const auto[l, t, r, b] = rect;
+            const auto[fx, fy] = pos + zeroZero;
+            auto [al, at, ar, ab] = glyph.fGrGlyph->fAtlasLocator.getUVs(0);
+            if (clip == nullptr) {
+                SkScalar dx = SkScalarRoundToScalar(fx),
+                         dy = SkScalarRoundToScalar(fy);
+                auto [dl, dt, dr, db] = SkRect::MakeLTRB(l+dx, t+dy, r+dx, b+dy);
+                assign2D(dst[0], {dl, dt}, color, {al, at});  // L,T
+                assign2D(dst[1], {dl, db}, color, {al, ab});  // L,B
+                assign2D(dst[2], {dr, dt}, color, {ar, at});  // R,T
+                assign2D(dst[3], {dr, db}, color, {ar, ab});  // R,B
+            } else {
+                int dx = SkScalarRoundToInt(fx),
+                    dy = SkScalarRoundToInt(fy);
+                SkIRect devIRect = SkIRect::MakeLTRB(l+dx, t+dy, r+dx, b+dy);
+                SkScalar dl, dt, dr, db;
+                uint16_t tl, tt, tr, tb;
+                if (!clip->containsNoEmptyCheck(devIRect)) {
+                    if (SkIRect clipped; clipped.intersect(devIRect, *clip)) {
+                        int lD = clipped.left() - devIRect.left();
+                        int tD = clipped.top() - devIRect.top();
+                        int rD = clipped.right() - devIRect.right();
+                        int bD = clipped.bottom() - devIRect.bottom();
+                        int indexLT, indexRB;
+                        std::tie(dl, dt, dr, db) = comp(clipped);
+                        std::tie(tl, tt, indexLT) =
+                                GrDrawOpAtlas::UnpackIndexFromTexCoords(al, at);
+                        std::tie(tr, tb, indexRB) =
+                                GrDrawOpAtlas::UnpackIndexFromTexCoords(ar, ab);
+                        std::tie(tl, tt) =
+                                GrDrawOpAtlas::PackIndexInTexCoords(tl+lD, tt+tD, indexLT);
+                        std::tie(tr, tb) =
+                                GrDrawOpAtlas::PackIndexInTexCoords(tr+rD, tb+bD, indexRB);
+                    } else {
+                        std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
+                        std::tie(tl, tt, tr, tb) = std::make_tuple(0, 0, 0, 0);
+                    }
+
+                } else {
+                    std::tie(dl, dt, dr, db) = comp(devIRect);
+                    std::tie(tl, tt, tr, tb) = std::tie(al, at, ar, ab);
+                }
+                assign2D(dst[0], {dl, dt}, color, {tl, tt});  // L,T
+                assign2D(dst[1], {dl, db}, color, {tl, tb});  // L,B
+                assign2D(dst[2], {dr, dt}, color, {tr, tt});  // R,T
+                assign2D(dst[3], {dr, db}, color, {tr, tb});  // R,B
+            }
+        }
+    };
+
+    switch (fType) {
+        case kDirectMask: {
+            if (clip.isEmpty()) {
+                if (this->maskFormat() != kARGB_GrMaskFormat) {
+                    using Quad = Mask2DVertex[4];
+                    direct2D((Quad*) vertexDst, nullptr);
+                } else {
+                    using Quad = ARGB2DVertex[4];
+                    direct2D((Quad*) vertexDst, nullptr);
+                }
+            } else {
+                if (this->maskFormat() != kARGB_GrMaskFormat) {
+                    using Quad = Mask2DVertex[4];
+                    direct2D((Quad*) vertexDst, &clip);
+                } else {
+                    using Quad = ARGB2DVertex[4];
+                    direct2D((Quad*) vertexDst, &clip);
+                }
+            }
+        }
+        break;
+        case kTransformedMask: {
+            if (!matrix.hasPerspective()) {
+                if (this->maskFormat() == GrMaskFormat::kARGB_GrMaskFormat) {
+                    using Quad = ARGB2DVertex[4];
+                    transformed2D((Quad*)vertexDst, 0, 1);
+                } else {
+                    using Quad = Mask2DVertex[4];
+                    transformed2D((Quad*)vertexDst, 0, 1);
+                }
+            } else {
+                if (this->maskFormat() == GrMaskFormat::kARGB_GrMaskFormat) {
+                    using Quad = ARGB3DVertex[4];
+                    transformed3D((Quad*)vertexDst, 0, 1);
+                } else {
+                    using Quad = SDFT3DVertex[4];
+                    transformed3D((Quad*)vertexDst, 0, 1);
+                }
+            }
+        }
+        break;
+        case kTransformedSDFT: {
+            if (!matrix.hasPerspective()) {
+                using Quad = Mask2DVertex[4];
+                transformed2D((Quad*)vertexDst, SK_DistanceFieldInset, SK_DistanceFieldInset);
+            } else {
+                using Quad = SDFT3DVertex[4];
+                transformed3D((Quad*)vertexDst, SK_DistanceFieldInset, SK_DistanceFieldInset);
+            }
+        }
+        break;
+        case kTransformedPath:
+            SK_ABORT("Paths don't generate vertex data.");
+    }
 }
 
 bool GrTextBlob::SubRun::drawAsDistanceFields() const { return fType == kTransformedSDFT; }
@@ -217,87 +332,6 @@ void GrTextBlob::SubRun::prepareGrGlyphs(GrStrikeCache* strikeCache) {
 
     for (auto& tmp : fGlyphs) {
         tmp.fGrGlyph = fStrike->getGlyph(tmp.fPackedGlyphID);
-    }
-}
-
-void GrTextBlob::SubRun::translateVerticesIfNeeded(
-        const SkMatrix& drawMatrix, SkPoint drawOrigin) {
-    SkVector translation;
-    if (this->needsTransform()) {
-        // If transform is needed, then the vertices are in source space, calculate the source
-        // space translation.
-        translation = drawOrigin - fCurrentOrigin;
-    } else {
-        // Calculate the translation in source space to a translation in device space. Calculate
-        // the translation by mapping (0, 0) through both the current matrix, and the draw
-        // matrix, and taking the difference.
-        SkMatrix currentMatrix{fCurrentMatrix};
-        currentMatrix.preTranslate(fCurrentOrigin.x(), fCurrentOrigin.y());
-        SkPoint currentDeviceOrigin{0, 0};
-        currentMatrix.mapPoints(&currentDeviceOrigin, 1);
-        SkMatrix completeDrawMatrix{drawMatrix};
-        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-        SkPoint drawDeviceOrigin{0, 0};
-        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
-        translation = drawDeviceOrigin - currentDeviceOrigin;
-    }
-
-    if (translation != SkPoint{0, 0}) {
-        size_t vertexStride = this->vertexStride();
-        for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
-            SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
-            for (int i = 0; i < 4; ++i) {
-                *vertexCursor += translation;
-                vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
-            }
-        }
-        fCurrentMatrix = drawMatrix;
-        fCurrentOrigin = drawOrigin;
-    }
-}
-
-void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
-    if (this->maskFormat() != kARGB_GrMaskFormat && fCurrentColor != newColor) {
-        size_t vertexStride = this->vertexStride();
-        size_t colorOffset = this->colorOffset();
-        for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
-            GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart(quad), colorOffset);
-            for (int i = 0; i < 4; ++i) {
-                *colorCursor = newColor;
-                colorCursor = SkTAddOffset<GrColor>(colorCursor, vertexStride);
-            }
-        }
-        this->fCurrentColor = newColor;
-    }
-}
-
-void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
-    SkASSERT(this->isPrepared());
-
-    const size_t vertexStride = this->vertexStride();
-    const size_t texCoordOffset = this->texCoordOffset();
-    char* vertex = this->quadStart(begin);
-    uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-    for (int i = begin; i < end; i++) {
-        GrGlyph* glyph = this->fGlyphs[i].fGrGlyph;
-        SkASSERT(glyph != nullptr);
-
-        int pad = this->drawAsDistanceFields() ? SK_DistanceFieldInset
-                                               : (this->needsPadding() ? 1 : 0);
-        std::array<uint16_t, 4> uvs = glyph->fAtlasLocator.getUVs(pad);
-
-        textureCoords[0] = uvs[0];
-        textureCoords[1] = uvs[1];
-        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = uvs[0];
-        textureCoords[1] = uvs[3];
-        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = uvs[2];
-        textureCoords[1] = uvs[1];
-        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = uvs[2];
-        textureCoords[1] = uvs[3];
-        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
     }
 }
 
@@ -969,7 +1003,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     int glyphsPlacedInAtlas = i - begin;
 
     // Update the quads with the new atlas coordinates.
-    fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
+    //fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
 
     return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
 }
@@ -989,6 +1023,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
             // updateTextureCoordinates may have changed it.
             fSubRun->fAtlasGeneration = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
         }
+
         return {success, glyphsPlacedInAtlas};
     } else {
         // The atlas hasn't changed, so our texture coordinates are still valid.

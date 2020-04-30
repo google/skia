@@ -17,7 +17,7 @@ void SkSourceGlyphBuffer::reset() {
 void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     if (size > fMaxSize) {
         fMultiBuffer.reset(size);
-        fPositions.reset(size);
+        fMappedPositions.reset(size);
         fMaxSize = size;
     }
 
@@ -30,10 +30,8 @@ void SkDrawableGlyphBuffer::startSource(
     fInputSize = source.size();
     fDrawableSize = 0;
 
-    // Map all the positions.
     auto positions = source.get<1>();
-    SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
-            fPositions, positions.data(), positions.size());
+    memcpy(fMappedPositions, positions.data(), positions.size() * sizeof(SkPoint));
 
     // Convert from SkGlyphIDs to SkPackedGlyphIDs.
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
@@ -48,7 +46,7 @@ void SkDrawableGlyphBuffer::startPaths(const SkZip<const SkGlyphID, const SkPoin
     fDrawableSize = 0;
 
     auto positions = source.get<1>();
-    memcpy(fPositions, positions.data(), positions.size() * sizeof(SkPoint));
+    memcpy(fMappedPositions, positions.data(), positions.size() * sizeof(SkPoint));
 
     // Convert from SkGlyphIDs to SkPackedGlyphIDs.
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
@@ -71,14 +69,14 @@ void SkDrawableGlyphBuffer::startDevice(
     matrix.preTranslate(origin.x(), origin.y());
     SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
     matrix.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
-    matrix.mapPoints(fPositions, positions.data(), positions.size());
+    matrix.mapPoints(fMappedPositions, positions.data(), positions.size());
 
     // Mask for controlling axis alignment.
     SkIPoint mask = roundingSpec.ignorePositionFieldMask;
 
     // Convert glyph ids and positions to packed glyph ids.
     SkZip<const SkGlyphID, const SkPoint> withMappedPos =
-            SkMakeZip(source.get<0>(), fPositions.get());
+            SkMakeZip(source.get<0>(), fMappedPositions.get());
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
     for (auto [glyphID, pos] : withMappedPos) {
         *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
@@ -86,11 +84,49 @@ void SkDrawableGlyphBuffer::startDevice(
     SkDEBUGCODE(fPhase = kInput);
 }
 
+void SkDrawableGlyphBuffer::startGPUDevice(
+        const SkZip<const SkGlyphID, const SkPoint>& source,
+        SkPoint origin, const SkMatrix& viewMatrix,
+        const SkGlyphPositionRoundingSpec& roundingSpec) {
+    fInputSize = source.size();
+    fDrawableSize = 0;
+
+    // Map the positions including subpixel position.
+    auto positions = source.get<1>();
+    SkMatrix matrix = viewMatrix;
+    matrix.preTranslate(origin.x(), origin.y());
+    SkPoint zeroZero = matrix.mapXY(0, 0);
+    SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
+    matrix.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
+    matrix.mapPoints(fMappedPositions, positions.data(), positions.size());
+
+    // Mask for controlling axis alignment.
+    SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+
+    // Convert glyph ids and positions to packed glyph ids.
+    SkZip<const SkGlyphID, const SkPoint> withMappedPos =
+            SkMakeZip(source.get<0>(), fMappedPositions.get());
+    SkGlyphVariant* packedIDCursor = fMultiBuffer;
+    for (auto [glyphID, pos] : withMappedPos) {
+        *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
+
+    }
+
+    for (SkPoint& pos : SkSpan<SkPoint>(fMappedPositions, source.size())) {
+        SkPoint sampled = SkPoint::Make(
+                SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y()));
+        pos = sampled - zeroZero;
+    }
+
+    SkDEBUGCODE(fPhase = kInput);
+}
+
+
 void SkDrawableGlyphBuffer::reset() {
     SkDEBUGCODE(fPhase = kReset);
     if (fMaxSize > 200) {
         fMultiBuffer.reset();
-        fPositions.reset();
+        fMappedPositions.reset();
         fMaxSize = 0;
     }
     fInputSize = 0;

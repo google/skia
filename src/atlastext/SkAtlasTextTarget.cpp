@@ -242,8 +242,8 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         auto subRun = fGeoData[i].fSubRunPtr;
         subRun->prepareGrGlyphs(context.grContext()->priv().getGrStrikeCache());
         // TODO4F: Preserve float colors
-        subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
-        subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
+        //subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
+        //subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
         GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun, &context, atlasManager);
         int subRunEnd = subRun->fGlyphs.count();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
