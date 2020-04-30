@@ -381,8 +381,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         SkASSERT((int)subRun->vertexStride() == vertexStride);
 
         subRun->prepareGrGlyphs(target->strikeCache());
-        subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
-        subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
+        //subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
+        //subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
 
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun,
@@ -408,10 +408,18 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
             // Update all the vertices for glyphsRegenerate glyphs.
             if (glyphsRegenerated > 0) {
-                int quadBufferIndex = totalGlyphsRegened - quadBufferBegin;
                 int subRunIndex = totalGlyphsRegened - subRunBegin;
+                int quadBufferIndex = totalGlyphsRegened - quadBufferBegin;
                 auto regeneratedQuadBuffer =
                         SkTAddOffset<char>(vertices, subRun->quadOffset(quadBufferIndex));
+                #if defined(SkDirectTextVertex)
+                subRun->fillVertexData(
+                        regeneratedQuadBuffer, subRunIndex, glyphsRegenerated,
+                        args.fColor.toBytes_RGBA(), args.fDrawMatrix, args.fDrawOrigin,
+                        args.fClipRect);
+
+                #else
+
                 if (args.fClipRect.isEmpty()) {
                     memcpy(regeneratedQuadBuffer,
                            subRun->quadStart(subRunIndex),
@@ -424,6 +432,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                                vertexStride,
                                glyphsRegenerated);
                 }
+
                 if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
                     // We always do the distance field view matrix transformation after copying
                     // rather than during blob vertex generation time in the blob as handling
@@ -442,6 +451,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                                                           glyphsRegenerated * kVerticesPerGlyph);
                     }
                 }
+                #endif
             }
 
             totalGlyphsRegened += glyphsRegenerated;
@@ -548,6 +558,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
 
 GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                                        const GrCaps& caps) {
+    return CombineResult::kCannotCombine;
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
         return CombineResult::kCannotCombine;
