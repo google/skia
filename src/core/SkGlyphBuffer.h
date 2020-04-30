@@ -155,11 +155,16 @@ public:
             SkPoint origin, const SkMatrix& viewMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
 
+    void startGPUDevice(
+            const SkZip<const SkGlyphID, const SkPoint>& source,
+            SkPoint origin, const SkMatrix& viewMatrix,
+            const SkGlyphPositionRoundingSpec& roundingSpec);
+
     // The input of SkPackedGlyphIDs
     SkZip<SkGlyphVariant, SkPoint> input() {
         SkASSERT(fPhase == kInput);
         SkDEBUGCODE(fPhase = kProcess);
-        return SkZip<SkGlyphVariant, SkPoint>{fInputSize, fMultiBuffer, fPositions};
+        return SkZip<SkGlyphVariant, SkPoint>{fInputSize, fMultiBuffer, fMappedPositions};
     }
 
     // Store the glyph in the next drawable slot, using the position information located at index
@@ -167,7 +172,7 @@ public:
     void push_back(SkGlyph* glyph, size_t from) {
         SkASSERT(fPhase == kProcess);
         SkASSERT(fDrawableSize <= from);
-        fPositions[fDrawableSize] = fPositions[from];
+        fMappedPositions[fDrawableSize] = fMappedPositions[from];
         fMultiBuffer[fDrawableSize] = glyph;
         fDrawableSize++;
     }
@@ -177,7 +182,7 @@ public:
     void push_back(const SkPath* path, size_t from) {
         SkASSERT(fPhase == kProcess);
         SkASSERT(fDrawableSize <= from);
-        fPositions[fDrawableSize] = fPositions[from];
+        fMappedPositions[fDrawableSize] = fMappedPositions[from];
         fMultiBuffer[fDrawableSize] = path;
         fDrawableSize++;
     }
@@ -186,7 +191,7 @@ public:
     SkZip<SkGlyphVariant, SkPoint> drawable() {
         SkASSERT(fPhase == kProcess);
         SkDEBUGCODE(fPhase = kDraw);
-        return SkZip<SkGlyphVariant, SkPoint>{fDrawableSize, fMultiBuffer, fPositions};
+        return SkZip<SkGlyphVariant, SkPoint>{fDrawableSize, fMultiBuffer, fMappedPositions};
     }
 
     void reset();
@@ -203,7 +208,8 @@ private:
     size_t fInputSize{0};
     size_t fDrawableSize{0};
     SkAutoTMalloc<SkGlyphVariant> fMultiBuffer;
-    SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<SkPoint> fMappedPositions;
+    SkAutoTMalloc<SkPoint> fSourcePositions;
 
 #ifdef SK_DEBUG
     enum {
