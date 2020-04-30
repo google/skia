@@ -142,6 +142,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a71834e_e3c327bb",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-30T15:49:41Z",
+      "side": 1,
+      "message": "BTW re\n\u003c\u003c\nIt absolutely is poor design to require a data structure to depend on a global statistic sampling system.  This whole feature is ancillary and requiring it and its dependencies will hurt the adoption of what is otherwise a very good data structure.\n\u003e\u003e\nThat is not the case.\n\nThe data structure can POTENTIALLY use a global statistic sampling system, which results in a #include which ends up #including Mutex.\n\nGoogle3 frowns on forward declarations for Reasons. (http://go/cstyle#Forward_Declarations) In absence of this guidance, the easy fix here would be to break the #include chain via forward declaration. \n\nI am not sure we would get traction with the argument of \"we want to use bits and pieces of absl, so please accept this patch which replaces an #include with a forward declaration\" because fundamentally I expect they would not be supportive of partial adoption. (At least, it is unlikely that they would want to support it, and we would be exposed to the possibility of future breakage at any time.)",
+      "parentUuid": "4f8a9b95_d4e6602f",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
