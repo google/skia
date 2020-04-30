@@ -408,6 +408,18 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
       //auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
         auto u32 = [&]{ auto x = sk_unaligned_load<uint32_t>(ip); ip += sizeof(x); return x; };
 
+        auto apply = [&](SkSL::ByteCodeInstruction instBase, skvm::F32 (*func)(skvm::F32)) {
+            const int N = (int)inst - (int)instBase + 1;
+            SkASSERT(N <= 4);
+            skvm::F32 args[4];
+            for (int i = 0; i < N; ++i) {
+                args[i] = pop();
+            }
+            for (int i = N; i --> 0;) {
+                push(func(args[i]));
+            }
+        };
+
         switch (inst) {
             default:
                 #if 0
@@ -624,46 +636,25 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(a/x);
             } break;
 
-            case Inst::kATan: {
-                skvm::F32 x = pop();
-                push(approx_atan(x));
-            } break;
+            case Inst::kATan:
+            case Inst::kATan2:
+            case Inst::kATan3:
+            case Inst::kATan4: apply(Inst::kATan, skvm::approx_atan); break;
 
-            case Inst::kFract: {
-                skvm::F32 x = pop();
-                push(fract(x));
-            } break;
+            case Inst::kFract:
+            case Inst::kFract2:
+            case Inst::kFract3:
+            case Inst::kFract4: apply(Inst::kFract, skvm::fract); break;
 
-            case Inst::kSqrt: {
-                skvm::F32 x = pop();
-                push(sqrt(x));
-            } break;
+            case Inst::kSqrt:
+            case Inst::kSqrt2:
+            case Inst::kSqrt3:
+            case Inst::kSqrt4: apply(Inst::kSqrt, skvm::sqrt); break;
 
-            case Inst::kSin: {
-                skvm::F32 x = pop();
-                push(approx_sin(x));
-            } break;
-
-            case Inst::kSin2: {
-                skvm::F32 x = pop(), y = pop();
-                push(approx_sin(y));
-                push(approx_sin(x));
-            } break;
-
-            case Inst::kSin3: {
-                skvm::F32 x = pop(), y = pop(), z = pop();
-                push(approx_sin(z));
-                push(approx_sin(y));
-                push(approx_sin(x));
-            } break;
-
-            case Inst::kSin4: {
-                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop();
-                push(approx_sin(w));
-                push(approx_sin(z));
-                push(approx_sin(y));
-                push(approx_sin(x));
-            } break;
+            case Inst::kSin:
+            case Inst::kSin2:
+            case Inst::kSin3:
+            case Inst::kSin4: apply(Inst::kSin, skvm::approx_sin); break;
 
             // Baby steps... just leaving test conditions on the stack for now.
             case Inst::kMaskPush:   break;
