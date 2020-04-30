@@ -150,7 +150,12 @@ public:
     void startPaths(const SkZip<const SkGlyphID, const SkPoint>& source);
 
     // Load the buffer with SkPackedGlyphIDs and positions using the device transform.
-    void startDevice(
+    void startBitmapDevice(
+            const SkZip<const SkGlyphID, const SkPoint>& source,
+            SkPoint origin, const SkMatrix& viewMatrix,
+            const SkGlyphPositionRoundingSpec& roundingSpec);
+
+    void startGPUDevice(
             const SkZip<const SkGlyphID, const SkPoint>& source,
             SkPoint origin, const SkMatrix& viewMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
