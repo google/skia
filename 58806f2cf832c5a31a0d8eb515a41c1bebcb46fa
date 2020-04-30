@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2e9a211_d0fe382a",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T11:49:11Z",
+      "side": 1,
+      "message": "At some point we\u0027ll want to look into whether tasks are pulling in unnecessary inputs.  I don\u0027t know that this needs the asset directories or the recipe stuff, but there\u0027s not currently an alternative isolate to use.",
+      "range": {
+        "startLine": 1378,
+        "startChar": 0,
+        "endLine": 1378,
+        "endChar": 40
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be79d765_d2e30f11",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T11:49:11Z",
+      "side": 1,
+      "message": "I guess at some point this should be renamed explicitly to DM.",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 8
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ab5fb90_bdff9b60",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T11:49:11Z",
+      "side": 1,
+      "message": "I think you want something like:\n\nvar g errgroup.Group\n_ \u003d util.ChunkIter(len(gms), batchSize, func(start, end int) error {\n  g.Go(func() error {\n    ...\n  })\n  return nil\n})\nif err :\u003d g.Wait(); err !\u003d nil {\n  td.Fatal(ctx, err)\n}\n\nWe do have util.ChunkIterParallel, but it\u0027ll try to stop after the first error, which I don\u0027t think is what you want here: https://skia.googlesource.com/buildbot/+/master/go/util/util.go#446\n\nIt might also be nice to wrap this up in a parent step, but that comes down to personal preference of what you want to see on the UI.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
