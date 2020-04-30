@@ -25,7 +25,8 @@ void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     fDrawableSize = 0;
 }
 
-void SkDrawableGlyphBuffer::startSource(const SkZip<const SkGlyphID, const SkPoint>& source) {
+void SkDrawableGlyphBuffer::startSource(
+        const SkZip<const SkGlyphID, const SkPoint>& source) {
     fInputSize = source.size();
     fDrawableSize = 0;
 
@@ -104,7 +105,6 @@ void SkDrawableGlyphBuffer::startGPUDevice(
 
     SkDEBUGCODE(fPhase = kInput);
 }
-
 
 void SkDrawableGlyphBuffer::reset() {
     SkDEBUGCODE(fPhase = kReset);
