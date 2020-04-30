@@ -129,13 +129,13 @@ private:
     };
 
     template <typename T>
-    SK_WHEN(std::is_empty<T>::value, T*) allocCommand() {
+    std::enable_if_t<std::is_empty<T>::value, T*> allocCommand() {
         static T singleton = {};
         return &singleton;
     }
 
     template <typename T>
-    SK_WHEN(!std::is_empty<T>::value, T*) allocCommand() { return this->alloc<T>(); }
+    std::enable_if_t<!std::is_empty<T>::value, T*> allocCommand() { return this->alloc<T>(); }
 
     void grow();
 

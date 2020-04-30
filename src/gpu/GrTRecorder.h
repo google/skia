@@ -83,7 +83,7 @@ public:
      * operating on TItem*. Multiple inheritance may make this not true. It is runtime asserted.
      */
     template <typename TItem, typename... Args>
-    SK_WHEN((std::is_base_of<TBase, TItem>::value), TItem&)
+    std::enable_if_t<(std::is_base_of<TBase, TItem>::value), TItem&>
     emplaceWithData(size_t extraDataSize, Args... args);
 
 private:
@@ -103,7 +103,7 @@ private:
 
 template <typename TBase>
 template <typename TItem, typename... Args>
-inline SK_WHEN((std::is_base_of<TBase, TItem>::value), TItem&)
+inline std::enable_if_t<(std::is_base_of<TBase, TItem>::value), TItem&>
 GrTRecorder<TBase>::emplaceWithData(size_t extraDataSize, Args... args) {
     static constexpr size_t kTAlign = alignof(TItem);
     static constexpr size_t kHeaderAlign = alignof(Header);
