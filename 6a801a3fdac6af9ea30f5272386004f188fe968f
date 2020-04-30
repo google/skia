@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cea728c4_b8da5de3",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-30T13:30:49Z",
+      "side": 1,
+      "message": "I\u0027d prefer that we fixed this not to use atomic, and to propagate the errors to the top so that we can display a usable error string on the UI.",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "6a801a3fdac6af9ea30f5272386004f188fe968f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
