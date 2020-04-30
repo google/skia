@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "707bc097_c079f835",
+        "filename": "src/core/SkCanvasPriv.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-30T17:34:12Z",
+      "side": 1,
+      "message": "Cool! I didn\u0027t know there were versions that took the locale explicitly without changing the thread state.",
+      "revId": "44b3ac958eb2bd87eecb0219c461642b636b790e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
