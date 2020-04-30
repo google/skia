@@ -281,6 +281,7 @@ SIT T max(const Vec<1,T>& x) { return x.val; }
 SIT Vec<1,T> min(const Vec<1,T>& x, const Vec<1,T>& y) { return std::min(x.val, y.val); }
 SIT Vec<1,T> max(const Vec<1,T>& x, const Vec<1,T>& y) { return std::max(x.val, y.val); }
 
+SIT Vec<1,T>  atan(const Vec<1,T>& x) { return std:: atan(x.val); }
 SIT Vec<1,T>  ceil(const Vec<1,T>& x) { return std:: ceil(x.val); }
 SIT Vec<1,T> floor(const Vec<1,T>& x) { return std::floor(x.val); }
 SIT Vec<1,T> trunc(const Vec<1,T>& x) { return std::trunc(x.val); }
@@ -314,6 +315,7 @@ SINT T max(const Vec<N,T>& x) { return std::max(max(x.lo), max(x.hi)); }
 SINT Vec<N,T> min(const Vec<N,T>& x, const Vec<N,T>& y) { return join(min(x.lo, y.lo), min(x.hi, y.hi)); }
 SINT Vec<N,T> max(const Vec<N,T>& x, const Vec<N,T>& y) { return join(max(x.lo, y.lo), max(x.hi, y.hi)); }
 
+SINT Vec<N,T>  atan(const Vec<N,T>& x) { return join( atan(x.lo),  atan(x.hi)); }
 SINT Vec<N,T>  ceil(const Vec<N,T>& x) { return join( ceil(x.lo),  ceil(x.hi)); }
 SINT Vec<N,T> floor(const Vec<N,T>& x) { return join(floor(x.lo), floor(x.hi)); }
 SINT Vec<N,T> trunc(const Vec<N,T>& x) { return join(trunc(x.lo), trunc(x.hi)); }
@@ -439,6 +441,12 @@ static inline Vec<N,float> fma(const Vec<N,float>& x,
     return join(fma(x.lo, y.lo, z.lo),
                 fma(x.hi, y.hi, z.hi));
 }
+
+template <int N>
+static inline Vec<N,float> fract(const Vec<N,float>& x) {
+    return x - floor(x);
+}
+
 
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
 template <int N>

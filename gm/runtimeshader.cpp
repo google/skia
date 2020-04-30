@@ -175,3 +175,65 @@ class ThresholdRT : public skiagm::GM {
     }
 };
 DEF_GM(return new ThresholdRT;)
+
+class SpiralRT : public skiagm::GM {
+    sk_sp<SkRuntimeEffect> fEffect;
+    float                  fSecs = 4;    // so we get something interested when we're not animated
+
+    void onOnceBeforeDraw() override {
+        const char code[] = R"(
+            uniform float rad_scale;
+            uniform float2 in_center;
+            uniform float4 in_colors0;
+            uniform float4 in_colors1;
+
+            void main(float2 p, inout half4 color) {
+                float2 pp = p - in_center;
+                float radius = sqrt(dot(pp, pp));
+                radius = sqrt(radius);
+                float angle = atan(pp.y / pp.x);
+                float t = (angle + 3.1415926/2) / (3.1415926);
+                t += radius * rad_scale;
+                t = fract(t);
+                float4 m = in_colors0 * (1-t) + in_colors1 * t;
+                color = half4(m);
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    bool runAsBench() const override { return true; }
+
+    SkString onShortName() override { return SkString("spiral_rt"); }
+
+    SkISize onISize() override { return {512, 512}; }
+
+    void onDraw(SkCanvas* canvas) override {
+        struct {
+            float rad_scale;
+            SkV2  in_center;
+            SkV4  in_colors0;
+            SkV4  in_colors1;
+        } uni {
+            std::sin(fSecs / 2) / 5,
+            {256, 256},       // center
+            {1, 0, 0, 1},     // color0
+            {0, 1, 0, 1},    // color1
+        };
+
+        SkPaint paint;
+        paint.setShader(fEffect->makeShader(SkData::MakeWithCopy(&uni, sizeof(uni)),
+                                            nullptr, 0, nullptr, true));
+        canvas->drawRect({0, 0, 512, 512}, paint);
+    }
+
+    bool onAnimate(double nanos) override {
+        fSecs = nanos / (1000 * 1000 * 1000);
+        return true;
+    }
+};
+DEF_GM(return new SpiralRT;)

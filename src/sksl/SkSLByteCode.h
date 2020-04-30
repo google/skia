@@ -27,6 +27,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR_MATRIX(kAddF),
     VECTOR(kAddI),
     kAndB,
+    VECTOR(kATan),
     kBranch,
     // Followed by a byte indicating the index of the function to call
     kCall,
@@ -60,6 +61,7 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kDivideU),
     // Duplicates the top stack value
     VECTOR_MATRIX(kDup),
+    VECTOR(kFract),
     kInverse2x2,
     kInverse3x3,
     kInverse4x4,
