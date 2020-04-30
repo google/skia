@@ -14634,7 +14634,8 @@
         "--task_id",
         "<(TASK_ID)",
         "--task_name",
-        "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "build/fm"
       ],
       "dependencies": [
         "Build-Debian10-Clang-x86_64-Debug",
