@@ -164,6 +164,30 @@
       "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2901ea6_14a74057",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-30T13:24:52Z",
+      "side": 1,
+      "message": "Gotcha.  I don\u0027t see any reason for more nesting now, but it might make sense to group individual retries with the job that ran them as a batch.  Will keep this stuff in mind for the future.",
+      "parentUuid": "8043f032_bfff4e7b",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "58806f2cf832c5a31a0d8eb515a41c1bebcb46fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
