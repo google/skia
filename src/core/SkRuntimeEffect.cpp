@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
@@ -60,13 +61,8 @@ static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint3
         *flags |= SkRuntimeEffect::Variable::kMarkerNormals_Flag;
         s.set(marker.fChars + 8, marker.fLength - 9);
     }
-    if (s.isEmpty()) {
+    if (!SkCanvasPriv::ValidateMarker(s.c_str())) {
         return false;
-    }
-    for (size_t i = 0; i < s.size(); ++i) {
-        if (!std::isalnum(s[i]) && s[i] != '_') {
-            return false;
-        }
     }
     *id = SkOpts::hash_fn(s.c_str(), s.size(), 0);
     return true;

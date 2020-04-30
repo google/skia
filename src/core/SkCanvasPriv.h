@@ -53,6 +53,9 @@ public:
     // computes the minimum length for these arrays that would provide index access errors.
     static void GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[], int count,
                                           int* totalDstClipCount, int* totalMatrixCount);
+
+    // Checks that the marker name is an identifier ([a-zA-Z_][a-zA-Z0-9_]*)
+    static bool ValidateMarker(const char*);
 };
 
 #endif

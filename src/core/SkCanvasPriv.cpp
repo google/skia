@@ -10,6 +10,8 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriter32.h"
 
+#include <cctype>
+
 SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
                                                  const SkPaint* paint, const SkRect& bounds)
 : fCanvas(canvas)
@@ -96,4 +98,19 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
 
     *totalDstClipCount = dstClipCount;
     *totalMatrixCount = maxMatrixIndex + 1;
+}
+
+bool SkCanvasPriv::ValidateMarker(const char* name) {
+    if (!name) {
+        return false;
+    }
+    if (!std::isalpha(*name) && *name != '_') {
+        return false;
+    }
+    while (*(++name)) {
+        if (!std::isalnum(*name) && *name != '_') {
+            return false;
+        }
+    }
+    return true;
 }

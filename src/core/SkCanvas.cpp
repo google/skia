@@ -1542,7 +1542,7 @@ void SkCanvas::resetMatrix() {
 }
 
 void SkCanvas::markCTM(const char* name) {
-    if (name && name[0]) {
+    if (SkCanvasPriv::ValidateMarker(name)) {
         fMarkerStack->setMarker(SkOpts::hash_fn(name, strlen(name), 0),
                                 this->getLocalToDevice(), fMCRec);
         this->onMarkCTM(name);
