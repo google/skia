@@ -355,6 +355,10 @@ config("warnings") {
       # It'd be nice to fix these and turn this on:
       "/wd5041",  # out-of-line definition for constexpr static data member is
                   # not needed and is deprecated in C++17
+
+      # warning C4996: 'std::result_of_t': warning STL4014: std::result_of and std::result_of_t are
+      # deprecated in C++17. They are superseded by std::invoke_result and std::invoke_result_t.
+      "/wd4996",
     ]
   } else {
     cflags += [

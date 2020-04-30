@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <memory>
 #include <new>
+#include <type_traits>
 #include <utility>
 
 /** \file SkTemplates.h
@@ -64,10 +65,10 @@ template <typename T, T* P> struct SkFunctionWrapper {
     function.
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallVProc
-    : public std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>> {
+    : public std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>> {
 public:
     SkAutoTCallVProc(T* obj)
-        : std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>>(obj) {}
+        : std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>>(obj) {}
 
     operator T*() const { return this->get(); }
 };
@@ -442,14 +443,14 @@ private:
 using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;
 
 template<typename C, std::size_t... Is>
-constexpr auto SkMakeArrayFromIndexSequence(C c, skstd::index_sequence<Is...>)
--> std::array<skstd::result_of_t<C(std::size_t)>, sizeof...(Is)> {
+constexpr auto SkMakeArrayFromIndexSequence(C c, std::index_sequence<Is...>)
+-> std::array<std::result_of_t<C(std::size_t)>, sizeof...(Is)> {
     return {{ c(Is)... }};
 }
 
 template<size_t N, typename C> constexpr auto SkMakeArray(C c)
--> std::array<skstd::result_of_t<C(std::size_t)>, N> {
-    return SkMakeArrayFromIndexSequence(c, skstd::make_index_sequence<N>{});
+-> std::array<std::result_of_t<C(std::size_t)>, N> {
+    return SkMakeArrayFromIndexSequence(c, std::make_index_sequence<N>{});
 }
 
 #endif
