@@ -299,6 +299,25 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             fErrors.error(decls.fOffset, "'marker' is only permitted on float4x4 variables");
         }
     }
+    if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
+        if (fKind != Program::kPipelineStage_Kind) {
+            fErrors.error(decls.fOffset, "'srgb_unpremul' is only permitted in runtime effects");
+        }
+        if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
+            fErrors.error(decls.fOffset,
+                          "'srgb_unpremul' is only permitted on 'uniform' variables");
+        }
+        auto validColorXformType = [](const Type& t) {
+            return t.kind() == Type::kVector_Kind && t.componentType().isFloat() &&
+                   (t.columns() == 3 || t.columns() == 4);
+        };
+        if (!validColorXformType(*baseType) && !(baseType->kind() == Type::kArray_Kind &&
+                                                 validColorXformType(baseType->componentType()))) {
+            fErrors.error(decls.fOffset,
+                          "'srgb_unpremul' is only permitted on half3, half4, float3, or float4 "
+                          "variables");
+        }
+    }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         if (fKind != Program::kPipelineStage_Kind) {
             fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");

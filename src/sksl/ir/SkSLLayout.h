@@ -39,7 +39,8 @@ struct Layout {
         kBlendSupportHSLSaturation_Flag  = 1 << 16,
         kBlendSupportHSLColor_Flag       = 1 << 17,
         kBlendSupportHSLLuminosity_Flag  = 1 << 18,
-        kTracked_Flag                    = 1 << 19
+        kTracked_Flag                    = 1 << 19,
+        kSRGBUnpremul_Flag               = 1 << 20,
     };
 
     enum Primitive {
@@ -225,166 +226,136 @@ struct Layout {
 
     String description() const {
         String result;
-        String separator;
+        auto separator = [firstSeparator = true]() mutable -> String {
+            if (firstSeparator) {
+                firstSeparator = false;
+                return "";
+            } else {
+                return ", ";
+            }};
         if (fLocation >= 0) {
-            result += separator + "location = " + to_string(fLocation);
-            separator = ", ";
+            result += separator() + "location = " + to_string(fLocation);
         }
         if (fOffset >= 0) {
-            result += separator + "offset = " + to_string(fOffset);
-            separator = ", ";
+            result += separator() + "offset = " + to_string(fOffset);
         }
         if (fBinding >= 0) {
-            result += separator + "binding = " + to_string(fBinding);
-            separator = ", ";
+            result += separator() + "binding = " + to_string(fBinding);
         }
         if (fIndex >= 0) {
-            result += separator + "index = " + to_string(fIndex);
-            separator = ", ";
+            result += separator() + "index = " + to_string(fIndex);
         }
         if (fSet >= 0) {
-            result += separator + "set = " + to_string(fSet);
-            separator = ", ";
+            result += separator() + "set = " + to_string(fSet);
         }
         if (fBuiltin >= 0) {
-            result += separator + "builtin = " + to_string(fBuiltin);
-            separator = ", ";
+            result += separator() + "builtin = " + to_string(fBuiltin);
         }
         if (fInputAttachmentIndex >= 0) {
-            result += separator + "input_attachment_index = " + to_string(fInputAttachmentIndex);
-            separator = ", ";
+            result += separator() + "input_attachment_index = " + to_string(fInputAttachmentIndex);
         }
         if (Format::kUnspecified != fFormat) {
-            result += separator + FormatToStr(fFormat);
-            separator = ", ";
+            result += separator() + FormatToStr(fFormat);
         }
         if (fFlags & kOriginUpperLeft_Flag) {
-            result += separator + "origin_upper_left";
-            separator = ", ";
+            result += separator() + "origin_upper_left";
         }
         if (fFlags & kOverrideCoverage_Flag) {
-            result += separator + "override_coverage";
-            separator = ", ";
+            result += separator() + "override_coverage";
         }
         if (fFlags & kBlendSupportAllEquations_Flag) {
-            result += separator + "blend_support_all_equations";
-            separator = ", ";
+            result += separator() + "blend_support_all_equations";
         }
         if (fFlags & kBlendSupportMultiply_Flag) {
-            result += separator + "blend_support_multiply";
-            separator = ", ";
+            result += separator() + "blend_support_multiply";
         }
         if (fFlags & kBlendSupportScreen_Flag) {
-            result += separator + "blend_support_screen";
-            separator = ", ";
+            result += separator() + "blend_support_screen";
         }
         if (fFlags & kBlendSupportOverlay_Flag) {
-            result += separator + "blend_support_overlay";
-            separator = ", ";
+            result += separator() + "blend_support_overlay";
         }
         if (fFlags & kBlendSupportDarken_Flag) {
-            result += separator + "blend_support_darken";
-            separator = ", ";
+            result += separator() + "blend_support_darken";
         }
         if (fFlags & kBlendSupportLighten_Flag) {
-            result += separator + "blend_support_lighten";
-            separator = ", ";
+            result += separator() + "blend_support_lighten";
         }
         if (fFlags & kBlendSupportColorDodge_Flag) {
-            result += separator + "blend_support_colordodge";
-            separator = ", ";
+            result += separator() + "blend_support_colordodge";
         }
         if (fFlags & kBlendSupportColorBurn_Flag) {
-            result += separator + "blend_support_colorburn";
-            separator = ", ";
+            result += separator() + "blend_support_colorburn";
         }
         if (fFlags & kBlendSupportHardLight_Flag) {
-            result += separator + "blend_support_hardlight";
-            separator = ", ";
+            result += separator() + "blend_support_hardlight";
         }
         if (fFlags & kBlendSupportSoftLight_Flag) {
-            result += separator + "blend_support_softlight";
-            separator = ", ";
+            result += separator() + "blend_support_softlight";
         }
         if (fFlags & kBlendSupportDifference_Flag) {
-            result += separator + "blend_support_difference";
-            separator = ", ";
+            result += separator() + "blend_support_difference";
         }
         if (fFlags & kBlendSupportExclusion_Flag) {
-            result += separator + "blend_support_exclusion";
-            separator = ", ";
+            result += separator() + "blend_support_exclusion";
         }
         if (fFlags & kBlendSupportHSLHue_Flag) {
-            result += separator + "blend_support_hsl_hue";
-            separator = ", ";
+            result += separator() + "blend_support_hsl_hue";
         }
         if (fFlags & kBlendSupportHSLSaturation_Flag) {
-            result += separator + "blend_support_hsl_saturation";
-            separator = ", ";
+            result += separator() + "blend_support_hsl_saturation";
         }
         if (fFlags & kBlendSupportHSLColor_Flag) {
-            result += separator + "blend_support_hsl_color";
-            separator = ", ";
+            result += separator() + "blend_support_hsl_color";
         }
         if (fFlags & kBlendSupportHSLLuminosity_Flag) {
-            result += separator + "blend_support_hsl_luminosity";
-            separator = ", ";
+            result += separator() + "blend_support_hsl_luminosity";
         }
         if (fFlags & kPushConstant_Flag) {
-            result += separator + "push_constant";
-            separator = ", ";
+            result += separator() + "push_constant";
         }
         if (fFlags & kTracked_Flag) {
-            result += separator + "tracked";
-            separator = ", ";
+            result += separator() + "tracked";
+        }
+        if (fFlags & kSRGBUnpremul_Flag) {
+            result += separator() + "srgb_unpremul";
         }
         switch (fPrimitive) {
             case kPoints_Primitive:
-                result += separator + "points";
-                separator = ", ";
+                result += separator() + "points";
                 break;
             case kLines_Primitive:
-                result += separator + "lines";
-                separator = ", ";
+                result += separator() + "lines";
                 break;
             case kLineStrip_Primitive:
-                result += separator + "line_strip";
-                separator = ", ";
+                result += separator() + "line_strip";
                 break;
             case kLinesAdjacency_Primitive:
-                result += separator + "lines_adjacency";
-                separator = ", ";
+                result += separator() + "lines_adjacency";
                 break;
             case kTriangles_Primitive:
-                result += separator + "triangles";
-                separator = ", ";
+                result += separator() + "triangles";
                 break;
             case kTriangleStrip_Primitive:
-                result += separator + "triangle_strip";
-                separator = ", ";
+                result += separator() + "triangle_strip";
                 break;
             case kTrianglesAdjacency_Primitive:
-                result += separator + "triangles_adjacency";
-                separator = ", ";
+                result += separator() + "triangles_adjacency";
                 break;
             case kUnspecified_Primitive:
                 break;
         }
         if (fMaxVertices >= 0) {
-            result += separator + "max_vertices = " + to_string(fMaxVertices);
-            separator = ", ";
+            result += separator() + "max_vertices = " + to_string(fMaxVertices);
         }
         if (fInvocations >= 0) {
-            result += separator + "invocations = " + to_string(fInvocations);
-            separator = ", ";
+            result += separator() + "invocations = " + to_string(fInvocations);
         }
         if (fMarker.fLength) {
-            result += separator + "marker = " + fMarker;
-            separator = ", ";
+            result += separator() + "marker = " + fMarker;
         }
         if (fWhen.fLength) {
-            result += separator + "when = " + fWhen;
-            separator = ", ";
+            result += separator() + "when = " + fWhen;
         }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
