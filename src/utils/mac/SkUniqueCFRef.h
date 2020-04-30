@@ -11,14 +11,14 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <memory>
+#include <type_traits>
 
 template <typename CFRef> using SkUniqueCFRef =
-    std::unique_ptr<skstd::remove_pointer_t<CFRef>,
+    std::unique_ptr<std::remove_pointer_t<CFRef>,
                     SkFunctionWrapper<decltype(CFRelease), CFRelease>>;
 
 #endif
