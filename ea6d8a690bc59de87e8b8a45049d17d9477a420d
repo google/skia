@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a91629b_c445a798",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-30T20:34:21Z",
+      "side": 1,
+      "message": "I\u0027m going to leave this for now. I don\u0027t think reffing the text blob should be part of the API, but the API should have a SubRun return a geometry.",
+      "parentUuid": "083c6177_76b112e4",
+      "range": {
+        "startLine": 50,
+        "startChar": 21,
+        "endLine": 50,
+        "endChar": 41
+      },
+      "revId": "ea6d8a690bc59de87e8b8a45049d17d9477a420d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af10d1bf_97097afc",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 5
@@ -39,6 +63,24 @@
       "revId": "ea6d8a690bc59de87e8b8a45049d17d9477a420d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5618ee2e_1817cbad",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-30T20:34:21Z",
+      "side": 1,
+      "message": "I don\u0027t think this should be part of the interface of subrun. This calculation is only ever made here.",
+      "parentUuid": "af10d1bf_97097afc",
+      "revId": "ea6d8a690bc59de87e8b8a45049d17d9477a420d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
