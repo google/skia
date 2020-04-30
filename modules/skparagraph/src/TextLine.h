@@ -103,6 +103,9 @@ public:
 
     SkRect extendHeight(const ClipContext& context) const;
 
+    SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
+    void shiftVertically(SkScalar shift) { fOffset.fY += shift; }
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);
