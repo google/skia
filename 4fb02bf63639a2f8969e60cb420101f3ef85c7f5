@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ff036880_9c4903c4",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-30T15:44:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90797a57_d3158e5d",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b786c6fa_d0146fcf",
         "filename": "include/private/SkVx.h",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "25f522b0_e0b8ed4b",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-30T15:44:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b786c6fa_d0146fcf",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02611e73_88b53a6c",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 6
@@ -50,6 +86,24 @@
       "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a91f9e3_15821fd1",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-30T15:44:13Z",
+      "side": 1,
+      "message": "Done\n\nApplied same to subtracts and divides",
+      "parentUuid": "02611e73_88b53a6c",
+      "revId": "4fb02bf63639a2f8969e60cb420101f3ef85c7f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
