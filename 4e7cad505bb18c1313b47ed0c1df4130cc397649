@@ -1,0 +1,210 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b15ed583_ca75e461",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "Probably tab this line over one more to separate it from the body",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e66770ca_4b0aaee3",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "This key has to reflect everything that could cause different code to be generate",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b896014_d9b1cddc",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "Is \"uploaded as\" any clearer ?",
+      "range": {
+        "startLine": 59,
+        "startChar": 61,
+        "endLine": 59,
+        "endChar": 73
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62d78381_6c881ed6",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "uploaded as a texture and sampled ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 66,
+        "endLine": 60,
+        "endChar": 73
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c308c7e6_928b60df",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "uniform ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 51
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c156e7b7_60173b45",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "We now have this defined in two locations - can there just be one place?",
+      "range": {
+        "startLine": 65,
+        "startChar": 29,
+        "endLine": 65,
+        "endChar": 45
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4a231e8_d6dba698",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "We usually assume any \"Make\" method can fail so maybe just \"Make\" ?",
+      "range": {
+        "startLine": 79,
+        "startChar": 29,
+        "endLine": 79,
+        "endChar": 36
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "164c372f_f9914649",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "We normally omit parameter names if they don\u0027t add anything. I would put \u0027context\u0027 and \u0027size\u0027 in that category.",
+      "range": {
+        "startLine": 79,
+        "startChar": 57,
+        "endLine": 79,
+        "endChar": 64
+      },
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d2848d1_0b90b3cf",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "Normally, we would have two lines. One for the assert and one for the return.",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "691a7016_7bcc78f6",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-30T19:44:39Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "4e7cad505bb18c1313b47ed0c1df4130cc397649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
