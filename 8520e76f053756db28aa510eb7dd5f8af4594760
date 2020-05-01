@@ -94,6 +94,30 @@
       "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdbe0195_fa9e3322",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-01T13:38:45Z",
+      "side": 1,
+      "message": "Ah, bummer.  Well, anyway, still need to implement length() eventually.... that\u0027d be a SpecialIntrinsic like dot(), right?",
+      "parentUuid": "477da10e_fc32acad",
+      "range": {
+        "startLine": 192,
+        "startChar": 36,
+        "endLine": 192,
+        "endChar": 47
+      },
+      "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
