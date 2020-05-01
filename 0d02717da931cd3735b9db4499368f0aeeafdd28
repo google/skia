@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fefa00b_cdef8df1",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "nit: don\u0027t prefix the C++ names with underscore",
+      "range": {
+        "startLine": 639,
+        "startChar": 13,
+        "endLine": 639,
+        "endChar": 32
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44bbcfa5_4a4e34cf",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "Same as below, I think this array is allocated on the stack and thus we should not return a pointer to it. Since we are passing in two float pointers already, how about return the computed values in those?",
+      "range": {
+        "startLine": 657,
+        "startChar": 16,
+        "endLine": 657,
+        "endChar": 24
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ec50be0_2910059c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "I didn\u0027t notice this the first time, but this could be potentially dangerous. array is declared on the stack, not the heap. So when this function returns we are pointing to an old stackframe.\n\nI think a better solution is to mimic what we do for getTotalMatrix, where the client allocates memory, passes the pointer into getColor and then frees it after copying it into a typed array.",
+      "range": {
+        "startLine": 1247,
+        "startChar": 24,
+        "endLine": 1247,
+        "endChar": 29
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39008be1_e651f8a7",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "nit: debugging?",
+      "range": {
+        "startLine": 1242,
+        "startChar": 4,
+        "endLine": 1242,
+        "endChar": 11
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d59984a_9a4c0920",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why we need to copy textStyle. Can you say more?",
+      "range": {
+        "startLine": 114,
+        "startChar": 6,
+        "endLine": 115,
+        "endChar": 36
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f4a94a7_386b6dd3",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "nullptr (which \u003d\u003d 0, but is more explicit)",
+      "range": {
+        "startLine": 118,
+        "startChar": 28,
+        "endLine": 118,
+        "endChar": 29
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "420f5351_b3c92fce",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "I would expect foregroundColor to be a length 4 typed array - is that not the case?",
+      "range": {
+        "startLine": 121,
+        "startChar": 35,
+        "endLine": 121,
+        "endChar": 37
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfecda99_1aca9c4e",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "You can remove this check. CanvasKit._free(0) is safe",
+      "range": {
+        "startLine": 132,
+        "startChar": 20,
+        "endLine": 132,
+        "endChar": 35
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b137884_21f42e66",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why we need to copy paragraphStyle. Can you say more?",
+      "range": {
+        "startLine": 141,
+        "startChar": 6,
+        "endLine": 142,
+        "endChar": 41
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe331c30_b0354e16",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "dead code if this goes here after return.",
+      "range": {
+        "startLine": 146,
+        "startChar": 6,
+        "endLine": 146,
+        "endChar": 16
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32ddbd5e_40305ff0",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T18:10:27Z",
+      "side": 1,
+      "message": "suggestion: call these fields colorPtr or something. If the reason you were copying the objects was because you were overwriting the fields, renaming these fields to be different than what the user provides can possibly help avoid making the copy.",
+      "range": {
+        "startLine": 43,
+        "startChar": 27,
+        "endLine": 43,
+        "endChar": 32
+      },
+      "revId": "0d02717da931cd3735b9db4499368f0aeeafdd28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
