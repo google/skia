@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "113b2575_d0744408",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-01T13:16:17Z",
+      "side": 1,
+      "message": "This comment seems wrong - saveLayerAlpha always disables LCD text, right?",
+      "range": {
+        "startLine": 615,
+        "startChar": 8,
+        "endLine": 615,
+        "endChar": 35
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6639f60a_d1f4b18a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-01T13:16:17Z",
+      "side": 1,
+      "message": "Do you care about this case (should kPreserveLCDText_SaveLayerFlag override this logic)?",
+      "range": {
+        "startLine": 1151,
+        "startChar": 0,
+        "endLine": 1153,
+        "endChar": 9
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df3badbf_4c5ddcb2",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-01T13:16:17Z",
+      "side": 1,
+      "message": "Changing the device tile usage based on this flag seems unnecessary.  I believe the two properties are orthogonal and should not interfere with each other.  I.e., I think what we want is:\n\n1) geo \u003d (saveLayerFlags \u0026 kPreserveLCDText_SaveLayerFlag) ? geo : kUnknown_SkPixelGeometry;\n\n2) delete SkBaseDevice::CreateInfo::AdjustGeometry()",
+      "range": {
+        "startLine": 1171,
+        "startChar": 0,
+        "endLine": 1172,
+        "endChar": 95
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
