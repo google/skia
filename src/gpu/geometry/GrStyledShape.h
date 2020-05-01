@@ -107,6 +107,9 @@ public:
 
     const GrStyle& style() const { return fStyle; }
 
+    // True if the shape and/or style were modified into a simpler, equivalent pairing
+    bool simplified() const { return fSimplified; }
+
     /**
      * Returns a shape that has either applied the path effect or path effect and stroking
      * information from this shape's style to its geometry. Scale is used when approximating the
@@ -262,17 +265,18 @@ private:
     void simplify();
     // As part of the simplification process, some shapes can have stroking trivially evaluated
     // and form a new geometry with just a fill.
-    void simplifyStroke(bool originallyClosed);
+    bool simplifyStroke(bool originallyClosed);
 
     /** Gets the path that gen id listeners should be added to. */
     const SkPath* originalPathForListeners() const;
 
-    GrShape         fShape;
-    GrStyle         fStyle;
+    GrShape fShape;
+    GrStyle fStyle;
     // Gen ID of the original path (path may be modified or simplified away).
-    int32_t         fGenID      = 0;
+    int32_t fGenID      = 0;
+    bool    fSimplified = false;
 
-    SkTLazy<SkPath> fInheritedPathForListeners;
-    SkAutoSTArray<8, uint32_t>  fInheritedKey;
+    SkTLazy<SkPath>            fInheritedPathForListeners;
+    SkAutoSTArray<8, uint32_t> fInheritedKey;
 };
 #endif

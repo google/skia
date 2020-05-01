@@ -671,8 +671,10 @@ private:
                           DrawQuad* quad,
                           const SkRect* subset = nullptr);
 
+    // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
+    // will re-route through drawShape() to see if we can avoid path rendering one more time.
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrStyledShape&);
+                                    const GrStyledShape&, bool attemptShapeFallback = true);
 
     void addOp(std::unique_ptr<GrOp>);
 

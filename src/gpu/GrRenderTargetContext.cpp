@@ -2268,7 +2268,9 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
         }
     }
 
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape);
+    // If we get here in drawShape(), we definitely need to use path rendering
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape,
+                                     /* attempt fallback */ false);
 }
 
 bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
@@ -2359,12 +2361,21 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                        GrPaint&& paint,
                                                        GrAA aa,
                                                        const SkMatrix& viewMatrix,
-                                                       const GrStyledShape& originalShape) {
+                                                       const GrStyledShape& originalShape,
+                                                       bool attemptShapeFallback) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
     if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
+        return;
+    }
+
+    if (attemptShapeFallback && originalShape.simplified()) {
+        // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
+        // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
+        // we ought to try again instead of going right to path rendering.
+        this->drawShape(clip, std::move(paint), aa, viewMatrix, originalShape);
         return;
     }
 

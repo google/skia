@@ -15,6 +15,7 @@ GrStyledShape& GrStyledShape::operator=(const GrStyledShape& that) {
     fShape      = that.fShape;
     fStyle      = that.fStyle;
     fGenID      = that.fGenID;
+    fSimplified = that.fSimplified;
 
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
@@ -63,6 +64,10 @@ GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInver
         // closing an open rect that wasn't closed in the original shape because it had
         // stroke style).
         result.simplify();
+        // The above simplify() call only sets simplified to true if its geometry was changed,
+        // since it already sees its style as a simple fill. Since the original style was not a
+        // simple fill, MakeFilled always simplifies.
+        result.fSimplified = true;
     }
 
     // Sanity check that lines/points were converted to empty by the style change
@@ -311,7 +316,8 @@ GrStyledShape GrStyledShape::MakeArc(const SkRect& oval, SkScalar startAngleDegr
 GrStyledShape::GrStyledShape(const GrStyledShape& that)
         : fShape(that.fShape)
         , fStyle(that.fStyle)
-        , fGenID(that.fGenID) {
+        , fGenID(that.fGenID)
+        , fSimplified(that.fSimplified) {
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
                       sizeof(uint32_t) * fInheritedKey.count());
@@ -572,7 +578,9 @@ void GrStyledShape::simplify() {
 
     // Remember if the original shape was closed; in the event we simplify to a point or line
     // because of degenerate geometry, we need to update joins and caps.
+    GrShape::Type oldType = fShape.type();
     bool wasClosed = fShape.simplify(simplifyFlags);
+    fSimplified = oldType != fShape.type();
 
     if (fShape.isPath()) {
         // The shape remains a path, so configure the gen ID and canonicalize fill type if possible
@@ -598,7 +606,7 @@ void GrStyledShape::simplify() {
         fInheritedPathForListeners.reset();
 
         // Further simplifications to the shape based on the style
-        this->simplifyStroke(wasClosed);
+        fSimplified |= this->simplifyStroke(wasClosed);
     }
 
     // Restore invertedness after any modifications were made to the shape type
@@ -606,7 +614,7 @@ void GrStyledShape::simplify() {
     SkASSERT(!fShape.isPath() || inverted == fShape.path().isInverseFillType());
 }
 
-void GrStyledShape::simplifyStroke(bool originallyClosed) {
+bool GrStyledShape::simplifyStroke(bool originallyClosed) {
     // For stroke+filled rects, a mitered shape becomes a larger rect and a rounded shape
     // becomes a round rect.
     if (!fStyle.hasPathEffect() && fShape.isRect() &&
@@ -615,7 +623,7 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
             (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
              fStyle.strokeRec().getMiter() < SK_ScalarSqrt2)) {
             // Bevel-stroked rect needs path rendering
-            return;
+            return false;
         }
 
         SkScalar r = fStyle.strokeRec().getWidth() / 2;
@@ -626,16 +634,18 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
             fShape.setRRect(SkRRect::MakeRectXY(fShape.rect(), r, r));
         }
         fStyle = GrStyle::SimpleFill();
-        return;
+        return true;
     }
 
     // Otherwise, if we're a point or a line, we might be able to explicitly apply some of the
     // stroking (and even some of the dashing). Any other shape+style is too complicated to reduce.
     if ((!fShape.isPoint() && !fShape.isLine()) || fStyle.hasNonDashPathEffect() ||
         fStyle.strokeRec().isHairlineStyle()) {
-        return;
+        return false;
     }
 
+    // Tracks style simplifications, even if the geometry can't be further simplified.
+    bool styleSimplified = false;
     if (fStyle.isDashed()) {
         // For dashing a point, if the first interval is on, we can drop the dash and just draw
         // the caps. For dashing a line, if every off interval is 0 length, its a stroke.
@@ -655,13 +665,14 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
         }
 
         if (!dropDash) {
-            return;
+            return false;
         }
         // Fall through to modifying the shape to respect the new stroke geometry
         fStyle = GrStyle(fStyle.strokeRec(), nullptr);
         // Since the reduced the line or point after dashing is dependent on the caps of the dashes,
         // we reset to be unclosed so we don't override the style based on joins later.
         originallyClosed = false;
+        styleSimplified = true;
     }
 
     // At this point, we're a line or point with no path effects. Any fill portion of the style
@@ -669,12 +680,13 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
     bool strokeAndFilled = false;
     if (fStyle.isSimpleFill()) {
         fShape.reset();
-        return;
+        return true;
     } else if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         // Stroke only
         SkStrokeRec rec = fStyle.strokeRec();
         rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);
         fStyle = GrStyle(rec, nullptr);
+        styleSimplified = true;
         strokeAndFilled = true;
     }
 
@@ -704,9 +716,13 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
             cap = SkPaint::kButt_Cap;
         }
 
-        SkStrokeRec rec = fStyle.strokeRec();
-        rec.setStrokeParams(cap, SkPaint::kDefault_Join, fStyle.strokeRec().getMiter());
-        fStyle = GrStyle(rec, nullptr);
+        if (cap != fStyle.strokeRec().getCap() ||
+            SkPaint::kDefault_Join != fStyle.strokeRec().getJoin()) {
+            SkStrokeRec rec = fStyle.strokeRec();
+            rec.setStrokeParams(cap, SkPaint::kDefault_Join, fStyle.strokeRec().getMiter());
+            fStyle = GrStyle(rec, nullptr);
+            styleSimplified = true;
+        }
     }
 
     if (fShape.isPoint()) {
@@ -743,7 +759,9 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
             outset.fX = fStyle.strokeRec().getWidth() / 2.f;
             outset.fY = SkPaint::kButt_Cap == fStyle.strokeRec().getCap() ? 0.f : outset.fX;
         } else {
-            return;
+            // Geometrically can't apply the style and turn into a fill, but might still be simpler
+            // than before based solely on changes to fStyle.
+            return styleSimplified;
         }
         rect.outset(outset.fX, outset.fY);
         if (rect.isEmpty()) {
@@ -757,4 +775,5 @@ void GrStyledShape::simplifyStroke(bool originallyClosed) {
     }
     // If we made it here, the stroke was fully applied to the new shape so we can become a fill.
     fStyle = GrStyle::SimpleFill();
+    return true;
 }
