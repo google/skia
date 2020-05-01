@@ -643,10 +643,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_BINARY_MASKED_OP(kDivideU, fUnsigned, /)
             VECTOR_MATRIX_BINARY_OP(kDivideF, fFloat, /)
 
-            case ByteCodeInstruction::kDup4: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup3: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup2: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup : PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
+            case ByteCodeInstruction::kDup4: PUSH(sp[(int)inst - (int)ByteCodeInstruction::kDup]);
+            case ByteCodeInstruction::kDup3: PUSH(sp[(int)inst - (int)ByteCodeInstruction::kDup]);
+            case ByteCodeInstruction::kDup2: PUSH(sp[(int)inst - (int)ByteCodeInstruction::kDup]);
+            case ByteCodeInstruction::kDup : PUSH(sp[(int)inst - (int)ByteCodeInstruction::kDup]);
                                              continue;
 
             case ByteCodeInstruction::kDupN: {

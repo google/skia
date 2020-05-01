@@ -530,6 +530,24 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(stack[stack.size() - 1]);
             } break;
 
+            case Inst::kDup2: {
+                push(stack[stack.size() - 2]);
+                push(stack[stack.size() - 2]);
+            } break;
+
+            case Inst::kDup3: {
+                push(stack[stack.size() - 3]);
+                push(stack[stack.size() - 3]);
+                push(stack[stack.size() - 3]);
+            } break;
+
+            case Inst::kDup4: {
+                push(stack[stack.size() - 4]);
+                push(stack[stack.size() - 4]);
+                push(stack[stack.size() - 4]);
+                push(stack[stack.size() - 4]);
+            } break;
+
             case Inst::kAddF: {
                 skvm::F32 x = pop(),
                           a = pop();

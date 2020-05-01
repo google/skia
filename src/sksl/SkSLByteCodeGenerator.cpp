@@ -48,6 +48,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "dot",     SpecialIntrinsic::kDot },
         { "fract",   ByteCodeInstruction::kFract },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
+        { "length",  SpecialIntrinsic::kLength },
         { "sin",     ByteCodeInstruction::kSin },
         { "sqrt",    ByteCodeInstruction::kSqrt },
         { "tan",     ByteCodeInstruction::kTan },
@@ -980,24 +981,35 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                                                 String(c.fFunction.fName).c_str()));
         return;
     }
+    Intrinsic intrin = found->second;
+
     int count = SlotCount(c.fArguments[0]->fType);
-    if (found->second.fIsSpecial) {
-        SpecialIntrinsic special = found->second.fValue.fSpecial;
-        switch (special) {
+    if (intrin.is_special) {
+        switch (intrin.special) {
             case SpecialIntrinsic::kDot: {
                 SkASSERT(c.fArguments.size() == 2);
                 SkASSERT(count == SlotCount(c.fArguments[1]->fType));
                 this->write(vector_instruction(ByteCodeInstruction::kMultiplyF, count));
-                for (int i = count; i > 1; --i) {
+                for (int i = count-1; i --> 0;) {
                     this->write(ByteCodeInstruction::kAddF);
                 }
-                break;
-            }
+            } break;
+
+            case SpecialIntrinsic::kLength: {
+                SkASSERT(c.fArguments.size() == 1);
+                this->write(vector_instruction(ByteCodeInstruction::kDup      , count));
+                this->write(vector_instruction(ByteCodeInstruction::kMultiplyF, count));
+                for (int i = count-1; i --> 0;) {
+                    this->write(ByteCodeInstruction::kAddF);
+                }
+                this->write(ByteCodeInstruction::kSqrt);
+            } break;
+
             default:
                 SkASSERT(false);
         }
     } else {
-        switch (found->second.fValue.fInstruction) {
+        switch (intrin.instruction) {
             case ByteCodeInstruction::kATan:
             case ByteCodeInstruction::kCos:
             case ByteCodeInstruction::kFract:
@@ -1005,8 +1017,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case ByteCodeInstruction::kSqrt:
             case ByteCodeInstruction::kTan:
                 SkASSERT(c.fArguments.size() > 0);
-                this->write(vector_instruction(found->second.fValue.fInstruction, count));
+                this->write(vector_instruction(intrin.instruction, count));
                 break;
+
             case ByteCodeInstruction::kInverse2x2: {
                 SkASSERT(c.fArguments.size() > 0);
                 auto op = ByteCodeInstruction::kInverse2x2;
@@ -1019,6 +1032,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 this->write(op);
                 break;
             }
+
             default:
                 SkASSERT(false);
         }
