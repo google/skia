@@ -52,3 +52,16 @@ CanvasKit.MakeManagedAnimation = function(json, assets) {
 
   return anim;
 };
+
+(function(CanvasKit){
+  CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
+  CanvasKit._extraInitializations.push(function() {
+
+  CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
+    var cPtr = copy1dArray(color, CanvasKit.HEAPF32);
+    this._setColor(key, cPtr);
+    CanvasKit._free(cPtr);
+  }
+
+});
+}(Module)); // When this file is loaded in, the high level object is "Module";

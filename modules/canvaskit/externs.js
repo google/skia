@@ -60,7 +60,6 @@ var CanvasKit = {
   MakeWebGLCanvasSurface: function() {},
   /** @return {TypedArray} */
   Malloc: function() {},
-  /** @return {TonalColors} */
   computeTonalColors: function() {},
   currentContext: function() {},
   getColorComponents: function() {},
@@ -74,6 +73,7 @@ var CanvasKit = {
 
   // private API (i.e. things declared in the bindings that we use
   // in the pre-js file)
+  _computeTonalColors: function() {},
   _MakeImage: function() {},
   _MakeLinearGradientShader: function() {},
   _MakePathFromCmds: function() {},
@@ -122,6 +122,18 @@ var CanvasKit = {
     /** @return {Float32Array} */
     _getRectsForRange: function() {},
   },
+
+  // ParagraphBuilder: {
+  //   Make: function() {},
+  //   addText: function() {},
+  //   build: function() {},
+  //   pop: function() {},
+  //   pushStyle: function() {},
+
+  //   // private API
+  //   _Make: function() {},
+  //   _pushStyle: function() {},
+  // },
 
   SkRuntimeEffect: {
     // public API (from C++ bindings)
@@ -192,9 +204,12 @@ var CanvasKit = {
     translate: function() {},
 
     // private API
+    _clear: function() {},
     _concat: function() {},
     _drawAtlas: function() {},
+    _drawColor: function() {},
     _drawPoints: function() {},
+    _drawShadow: function() {},
     _drawSimpleText: function() {},
     _getLocalToCamera: function() {},
     _getLocalToDevice: function() {},
@@ -214,6 +229,7 @@ var CanvasKit = {
     MakeMatrix: function() {},
     MakeSRGBToLinearGamma: function() {},
     // private API (from C++ bindings)
+    _MakeBlend: function() {},
     _makeMatrix: function() {},
   },
 
@@ -343,6 +359,7 @@ var CanvasKit = {
 
     // Private API
     delete: function() {},
+    _setColor: function() {},
   },
 
   SkPathEffect: {
@@ -472,6 +489,9 @@ var CanvasKit = {
     MakeRadialGradient: function() {},
     MakeTwoPointConicalGradient: function() {},
     MakeSweepGradient: function() {},
+
+    // private API (from C++ bindings)
+    _Color: function() {},
   },
 
   SkSurface: {
