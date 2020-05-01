@@ -238,6 +238,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0810999_aeb5b52b",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-01T12:27:25Z",
+      "side": 1,
+      "message": "\u003c\u003c If there are parts of Abseil we don\u0027t want present, I don\u0027t see a way to enforce that. \u003e\u003e\n\nThere are a couple of different ways to approach it. \n\nOne way that I don\u0027t recommend but will list for completeness\u0027 sake--make an Skia-specific absl fork, and remove the stuff we don\u0027t like. This is an ironclad guarantee that we get what we want and nothing else, but also deprives us of improvements and bugfixes going forward. Again, I am not advocating for this as in the long term I think it ends up being a boondoggle.\n\nAnother way that seems plausible to me: fix dynamic_annotations properly with the appropriate defines (this one seems like a particularly deep-rooted special case), and simply allow absl to internally include its own headers like Mutex as needed. Disallow direct usage of absl::Mutex anywhere within Skia; potentially, disallow any absl feature which internally leverages Mutex (if such a ban is beneficial to us--not sure about this point). \"Disallow\" can be as simple as a written-down policy enforced by vigorous code review, or can be as thorough as a Gerrit presubmit check (https://gerrit-review.googlesource.com/Documentation/dev-plugins.html#pre-submit-evaluator) that prevents the string \"absl::Mutex\" from appearing in the code. \n\nI am the rookie here for sure, but it seems to me that a policy document on the Skia website saying \"Skia only allows the following absl modules to be used\" (or the inverse, \"Skia disallows the following absl modules\") would be sufficient to keep us on the straight and narrow. If absl internally #includes the mutex header in some deep chain of #includes, that shouldn\u0027t affect us directly; it\u0027ll get dead-stripped as long as it\u0027s not used anyway. In the event that someone accidentally adds absl::Mutex to our code base, AND it slips past a reviewer, we can just revert it or convert to SkMutex.\n\nIf we are willing to do macro shenanigans in our absl build files, we might even be able to rename Mutex within absl to \"BANNED_Mutex\" or something. This would make it extraordinarily unlikely to leak into Skia, but I also think it\u0027s probably overkill and might cause its own set of problems to solve. Personally I think review vigilance should be sufficient.\n\nThere are probably other ways to approach the problem as well. This seems like a very solvable problem to me, as long as the team is on board and code reviewers know what to look for, and we assume good intentions from all involved.",
+      "parentUuid": "730686c3_b700b9b1",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
