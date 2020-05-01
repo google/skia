@@ -49,11 +49,35 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "fract",   ByteCodeInstruction::kFract },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
         { "length",  SpecialIntrinsic::kLength },
+        { "mix",     SpecialIntrinsic::kMix },
         { "pow",     ByteCodeInstruction::kPow },
         { "sin",     ByteCodeInstruction::kSin },
         { "sqrt",    ByteCodeInstruction::kSqrt },
         { "tan",     ByteCodeInstruction::kTan },
-      } {}
+
+        { "lessThan",         { ByteCodeInstruction::kCompareFLT,
+                                ByteCodeInstruction::kCompareSLT,
+                                ByteCodeInstruction::kCompareULT } },
+        { "lessThanEqual",    { ByteCodeInstruction::kCompareFLTEQ,
+                                ByteCodeInstruction::kCompareSLTEQ,
+                                ByteCodeInstruction::kCompareULTEQ } },
+        { "greaterThan",      { ByteCodeInstruction::kCompareFGT,
+                                ByteCodeInstruction::kCompareSGT,
+                                ByteCodeInstruction::kCompareUGT } },
+        { "greaterThanEqual", { ByteCodeInstruction::kCompareFGTEQ,
+                                ByteCodeInstruction::kCompareSGTEQ,
+                                ByteCodeInstruction::kCompareUGTEQ } },
+        { "equal",            { ByteCodeInstruction::kCompareFEQ,
+                                ByteCodeInstruction::kCompareIEQ,
+                                ByteCodeInstruction::kCompareIEQ } },
+        { "notEqual",         { ByteCodeInstruction::kCompareFNEQ,
+                                ByteCodeInstruction::kCompareINEQ,
+                                ByteCodeInstruction::kCompareINEQ } },
+
+        { "any", SpecialIntrinsic::kAny },
+        { "all", SpecialIntrinsic::kAll },
+        { "not", ByteCodeInstruction::kNotB },
+    } {}
 
 
 int ByteCodeGenerator::SlotCount(const Type& type) {
@@ -230,13 +254,13 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         VECTOR_UNARY_OP(kNegateF)
         VECTOR_UNARY_OP(kNegateI)
+        VECTOR_UNARY_OP(kNotB)
 
         case ByteCodeInstruction::kInverse2x2:
         case ByteCodeInstruction::kInverse3x3:
         case ByteCodeInstruction::kInverse4x4: return 0;
 
         case ByteCodeInstruction::kClampIndex: return 0;
-        case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
         case ByteCodeInstruction::kShiftLeft: return 0;
         case ByteCodeInstruction::kShiftRightS: return 0;
@@ -384,6 +408,18 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
             return count;
 
         // Miscellaneous
+
+        // kMix does a 3 -> 1 reduction (A, B, M -> A -or- B) for each component
+        case ByteCodeInstruction::kMix:  return -2;
+        case ByteCodeInstruction::kMix2: return -4;
+        case ByteCodeInstruction::kMix3: return -6;
+        case ByteCodeInstruction::kMix4: return -8;
+
+        // kLerp works the same way (producing lerp(A, B, T) for each component)
+        case ByteCodeInstruction::kLerp:  return -2;
+        case ByteCodeInstruction::kLerp2: return -4;
+        case ByteCodeInstruction::kLerp3: return -6;
+        case ByteCodeInstruction::kLerp4: return -8;
 
         // kCall is net-zero. Max stack depth is adjusted in writeFunctionCall.
         case ByteCodeInstruction::kCall:             return 0;
@@ -621,6 +657,7 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
                                               ByteCodeInstruction u, ByteCodeInstruction f,
                                               int count) {
     switch (type_category(type)) {
+        case TypeCategory::kBool:
         case TypeCategory::kSigned:
             this->write(vector_instruction(s, count));
             break;
@@ -976,6 +1013,11 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(float_to_bits(f.fValue));
 }
 
+static bool is_generic_type(const Type* type, const Type* generic) {
+    const std::vector<const Type*>& concrete(generic->coercibleTypes());
+    return std::find(concrete.begin(), concrete.end(), type) != concrete.end();
+}
+
 void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto found = fIntrinsics.find(c.fFunction.fName);
     if (found == fIntrinsics.end()) {
@@ -988,6 +1030,18 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     int count = SlotCount(c.fArguments[0]->fType);
     if (intrin.is_special) {
         switch (intrin.special) {
+            case SpecialIntrinsic::kAll: {
+                for (int i = count-1; i --> 0;) {
+                    this->write(ByteCodeInstruction::kAndB);
+                }
+            } break;
+
+            case SpecialIntrinsic::kAny: {
+                for (int i = count-1; i --> 0;) {
+                    this->write(ByteCodeInstruction::kOrB);
+                }
+            } break;
+
             case SpecialIntrinsic::kDot: {
                 SkASSERT(c.fArguments.size() == 2);
                 SkASSERT(count == SlotCount(c.fArguments[1]->fType));
@@ -1007,22 +1061,31 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 this->write(ByteCodeInstruction::kSqrt);
             } break;
 
+            case SpecialIntrinsic::kMix: {
+                // Two main variants of mix to handle
+                SkASSERT(c.fArguments.size() == 3);
+                SkASSERT(count == SlotCount(c.fArguments[1]->fType));
+                int selectorCount = SlotCount(c.fArguments[2]->fType);
+
+                if (is_generic_type(&c.fArguments[2]->fType, fContext.fGenBType_Type.get())) {
+                    // mix(genType, genType, genBoolType)
+                    SkASSERT(selectorCount == count);
+                    this->write(vector_instruction(ByteCodeInstruction::kMix, count));
+                } else {
+                    // mix(genType, genType, genType) or mix(genType, genType, float)
+                    SkASSERT(selectorCount == 1 || selectorCount == count);
+                    for (int i = selectorCount; i < count; ++i) {
+                        this->write(ByteCodeInstruction::kDup);
+                    }
+                    this->write(vector_instruction(ByteCodeInstruction::kLerp, count));
+                }
+            } break;
+
             default:
                 SkASSERT(false);
         }
     } else {
-        switch (intrin.instruction) {
-            case ByteCodeInstruction::kATan:
-            case ByteCodeInstruction::kCos:
-            case ByteCodeInstruction::kFract:
-            case ByteCodeInstruction::kPow:
-            case ByteCodeInstruction::kSin:
-            case ByteCodeInstruction::kSqrt:
-            case ByteCodeInstruction::kTan:
-                SkASSERT(c.fArguments.size() > 0);
-                this->write(vector_instruction(intrin.instruction, count));
-                break;
-
+        switch (intrin.inst_f) {
             case ByteCodeInstruction::kInverse2x2: {
                 SkASSERT(c.fArguments.size() > 0);
                 auto op = ByteCodeInstruction::kInverse2x2;
@@ -1037,7 +1100,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             }
 
             default:
-                SkASSERT(false);
+                this->writeTypedInstruction(c.fArguments[0]->fType, intrin.inst_s, intrin.inst_u,
+                                            intrin.inst_f, count);
+                break;
         }
     }
 }
