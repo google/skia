@@ -140,15 +140,23 @@ private:
     enum class SpecialIntrinsic {
         kDot,
         kLength,
+        kMix,
     };
 
     struct Intrinsic {
-        Intrinsic(ByteCodeInstruction i) : is_special(false), instruction(i) {}
         Intrinsic(SpecialIntrinsic    s) : is_special(true ), special(s) {}
+        Intrinsic(ByteCodeInstruction i) : is_special(false), inst{i, i, i} {}
+        Intrinsic(ByteCodeInstruction f,
+                  ByteCodeInstruction s,
+                  ByteCodeInstruction u) : is_special(false), inst{f, s, u} {}
 
         bool is_special;
         union {
-            ByteCodeInstruction instruction;
+            struct {
+                ByteCodeInstruction f;
+                ByteCodeInstruction s;
+                ByteCodeInstruction u;
+            } inst;
             SpecialIntrinsic    special;
         };
     };
