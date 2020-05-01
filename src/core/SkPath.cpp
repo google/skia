@@ -1377,49 +1377,45 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
 
     SkPathRef::Editor(&fPathRef, src->countVerbs(), src->countPoints());
 
-    RawIter iter(*src);
-    SkPoint pts[4];
-    Verb    verb;
-
-    SkMatrixPriv::MapPtsProc proc = SkMatrixPriv::GetMapPtsProc(matrix);
+    SkMatrixPriv::MapPtsProc mapPtsProc = SkMatrixPriv::GetMapPtsProc(matrix);
     bool firstVerb = true;
-    while ((verb = iter.next(pts)) != kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(*src)) {
         switch (verb) {
-            case kMove_Verb:
-                proc(matrix, &pts[0], &pts[0], 1);
+            SkPoint mappedPts[3];
+            case SkPathVerb::kMove:
+                mapPtsProc(matrix, mappedPts, &pts[0], 1);
                 if (firstVerb && !isEmpty()) {
                     SkASSERT(mode == kExtend_AddPathMode);
                     injectMoveToIfNeeded(); // In case last contour is closed
                     SkPoint lastPt;
                     // don't add lineTo if it is degenerate
-                    if (fLastMoveToIndex < 0 || !this->getLastPt(&lastPt) || lastPt != pts[0]) {
-                        this->lineTo(pts[0]);
+                    if (fLastMoveToIndex < 0 || !this->getLastPt(&lastPt) ||
+                        lastPt != mappedPts[0]) {
+                        this->lineTo(mappedPts[0]);
                     }
                 } else {
-                    this->moveTo(pts[0]);
+                    this->moveTo(mappedPts[0]);
                 }
                 break;
-            case kLine_Verb:
-                proc(matrix, &pts[1], &pts[1], 1);
-                this->lineTo(pts[1]);
+            case SkPathVerb::kLine:
+                mapPtsProc(matrix, mappedPts, &pts[1], 1);
+                this->lineTo(mappedPts[0]);
                 break;
-            case kQuad_Verb:
-                proc(matrix, &pts[1], &pts[1], 2);
-                this->quadTo(pts[1], pts[2]);
+            case SkPathVerb::kQuad:
+                mapPtsProc(matrix, mappedPts, &pts[1], 2);
+                this->quadTo(mappedPts[0], mappedPts[1]);
                 break;
-            case kConic_Verb:
-                proc(matrix, &pts[1], &pts[1], 2);
-                this->conicTo(pts[1], pts[2], iter.conicWeight());
+            case SkPathVerb::kConic:
+                mapPtsProc(matrix, mappedPts, &pts[1], 2);
+                this->conicTo(mappedPts[0], mappedPts[1], *w);
                 break;
-            case kCubic_Verb:
-                proc(matrix, &pts[1], &pts[1], 3);
-                this->cubicTo(pts[1], pts[2], pts[3]);
+            case SkPathVerb::kCubic:
+                mapPtsProc(matrix, mappedPts, &pts[1], 3);
+                this->cubicTo(mappedPts[0], mappedPts[1], mappedPts[2]);
                 break;
-            case kClose_Verb:
+            case SkPathVerb::kClose:
                 this->close();
                 break;
-            default:
-                SkDEBUGFAIL("unknown verb");
         }
         firstVerb = false;
     }
@@ -3073,34 +3069,33 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPathDire
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
         return false;
     }
-    SkPath::RawIter iter(path);
-    SkPoint verbPts[4];
-    SkPath::Verb v;
     SkPoint rectPts[5];
     int rectPtCnt = 0;
-    while ((v = iter.next(verbPts)) != SkPath::kDone_Verb) {
+    for (auto [v, verbPts, w] : SkPathPriv::Iterate(path)) {
         switch (v) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 if (0 != rectPtCnt) {
                     return false;
                 }
                 rectPts[0] = verbPts[0];
                 ++rectPtCnt;
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (5 == rectPtCnt) {
                     return false;
                 }
                 rectPts[rectPtCnt] = verbPts[1];
                 ++rectPtCnt;
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 if (4 == rectPtCnt) {
                     rectPts[4] = rectPts[0];
                     rectPtCnt = 5;
                 }
                 break;
-            default:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kCubic:
                 return false;
         }
     }
@@ -3269,36 +3264,32 @@ SkRect SkPath::computeTightBounds() const {
     }
 
     SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
-    SkPoint pts[4];
-    SkPath::RawIter iter(*this);
 
     // initial with the first MoveTo, so we don't have to check inside the switch
     Sk2s min, max;
     min = max = from_point(this->getPoint(0));
-    for (;;) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(*this)) {
         int count = 0;
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
+        switch (verb) {
+            case SkPathVerb::kMove:
                 extremas[0] = pts[0];
                 count = 1;
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 extremas[0] = pts[1];
                 count = 1;
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 count = compute_quad_extremas(pts, extremas);
                 break;
-            case SkPath::kConic_Verb:
-                count = compute_conic_extremas(pts, iter.conicWeight(), extremas);
+            case SkPathVerb::kConic:
+                count = compute_conic_extremas(pts, *w, extremas);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 count = compute_cubic_extremas(pts, extremas);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 break;
-            case SkPath::kDone_Verb:
-                goto DONE;
         }
         for (int i = 0; i < count; ++i) {
             Sk2s tmp = from_point(extremas[i]);
@@ -3306,7 +3297,6 @@ SkRect SkPath::computeTightBounds() const {
             max = Sk2s::Max(max, tmp);
         }
     }
-DONE:
     SkRect bounds;
     min.store((SkPoint*)&bounds.fLeft);
     max.store((SkPoint*)&bounds.fRight);
