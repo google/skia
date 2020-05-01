@@ -408,7 +408,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         fProxy->fDimensions = surface->dimensions();
     }
 
-    SkASSERT(fProxy->width() <= surface->width());
+    xSkASSERT(fProxy->width() <= surface->width());
     SkASSERT(fProxy->height() <= surface->height());
 
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
