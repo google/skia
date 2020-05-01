@@ -154,8 +154,7 @@ DEF_GM( return new TypefaceStylesGM(true); )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
-                                       char character = 'A') {
+static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face, SkGlyphID glyph) {
     struct AliasType {
         SkFont::Edging edging;
         bool inLayer;
@@ -245,12 +244,12 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8,
+                            canvas->drawSimpleText(&glyph, sizeof(glyph), SkTextEncoding::kGlyphID,
                                                    x + subpixel.offset.x(),
                                                    y + subpixel.offset.y(), font, paint);
 
-                            SkScalar dx = SkScalarCeilToScalar(
-                                    font.measureText(&character, 1, SkTextEncoding::kUTF8)) + 5;
+                            SkScalar dx = SkScalarCeilToScalar(font.measureText(
+                                    &glyph, sizeof(glyph), SkTextEncoding::kGlyphID)) + 5;
                             x += dx;
                             xMax = std::max(x, xMax);
                         }
@@ -295,10 +294,11 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 for (const StyleTests& style : styleTypes) {
                     paint.setStyle(style.style);
                     paint.setStrokeWidth(style.strokeWidth);
-                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
+                    canvas->drawSimpleText(&glyph, sizeof(glyph), SkTextEncoding::kGlyphID,
+                                           x, y, font, paint);
 
-                    SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        SkTextEncoding::kUTF8)) + 5;
+                    SkScalar dx = SkScalarCeilToScalar(font.measureText(
+                            &glyph, sizeof(glyph), SkTextEncoding::kGlyphID)) + 5;
                     x += dx;
                 }
             }
@@ -345,10 +345,11 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 }
                 for (const MaskTests& mask : maskTypes) {
                     paint.setMaskFilter(SkMaskFilter::MakeBlur(mask.style, mask.sigma));
-                    canvas->drawSimpleText(&character, 1, SkTextEncoding::kUTF8, x, y, font, paint);
+                    canvas->drawSimpleText(&glyph, sizeof(glyph), SkTextEncoding::kGlyphID,
+                                           x, y, font, paint);
 
-                    SkScalar dx = SkScalarCeilToScalar(font.measureText(&character, 1,
-                                                                        SkTextEncoding::kUTF8)) + 5;
+                    SkScalar dx = SkScalarCeilToScalar(font.measureText(
+                            &glyph, sizeof(glyph), SkTextEncoding::kGlyphID)) + 5;
                     x += dx;
                 }
                 paint.setMaskFilter(nullptr);
@@ -360,7 +361,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 
 DEF_SIMPLE_GM(typefacerendering, canvas, 640, 840) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf")) {
-        draw_typeface_rendering_gm(canvas, std::move(face));
+        draw_typeface_rendering_gm(canvas, face, face->unicharToGlyph('A'));
+
+        // Should draw nothing and not do anything undefined.
+        draw_typeface_rendering_gm(canvas, face, 0xFFFF);
     }
 }
 
@@ -369,14 +373,13 @@ DEF_SIMPLE_GM(typefacerendering, canvas, 640, 840) {
 
 DEF_SIMPLE_GM(typefacerendering_pfa, canvas, 640, 840) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa")) {
-        // This subsetted typeface doesn't have the character 'A'.
-        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+        draw_typeface_rendering_gm(canvas, face, face->unicharToGlyph('O'));
     }
 }
 
 DEF_SIMPLE_GM(typefacerendering_pfb, canvas, 640, 840) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb")) {
-        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+        draw_typeface_rendering_gm(canvas, face, face->unicharToGlyph('O'));
     }
 }
 
