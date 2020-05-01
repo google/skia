@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c4666af_4e4492a6",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-01T16:15:43Z",
+      "side": 1,
+      "message": "Remove this?",
+      "range": {
+        "startLine": 1068,
+        "startChar": 4,
+        "endLine": 1070,
+        "endChar": 46
+      },
+      "revId": "61f74098537f807f84e261f2e6b9ca3668b7abf3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7f77ae6_32021768",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-01T16:15:43Z",
+      "side": 1,
+      "message": "Direct3D",
+      "range": {
+        "startLine": 1079,
+        "startChar": 7,
+        "endLine": 1079,
+        "endChar": 13
+      },
+      "revId": "61f74098537f807f84e261f2e6b9ca3668b7abf3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
