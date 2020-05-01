@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "252df6a7_44f0eb90",
+        "filename": "src/sksl/ir/SkSLLayout.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-01T16:12:29Z",
+      "side": 1,
+      "message": "You can make this wholly self-contained like this:\n    auto separator \u003d [firstSeparator \u003d true]() mutable  -\u003e std::string {\n      if (firstSeparator) {\n          firstSeparator \u003d false;\n          return \"\";\n      } else {\n          return \", \";\n      }};",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 15
+      },
+      "revId": "faed1d5d33490530e55437b1ff2450cbe2b3a186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
