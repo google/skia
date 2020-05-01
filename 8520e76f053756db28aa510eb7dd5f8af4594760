@@ -22,6 +22,30 @@
       "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9cb6028a_1b5eb17a",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-01T13:24:19Z",
+      "side": 1,
+      "message": "Is this the sort of thing where we swap this to\n\n   float radius \u003d length(pp);\n\nand the problem goes away?",
+      "parentUuid": "812b4c4c_3e7add51",
+      "range": {
+        "startLine": 192,
+        "startChar": 36,
+        "endLine": 192,
+        "endChar": 47
+      },
+      "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
