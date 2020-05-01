@@ -34,6 +34,24 @@
       "revId": "825c0bd2c6e6afac054f5cb981aea621d30b7636",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c644aa0e_ac7b2530",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T14:33:11Z",
+      "side": 1,
+      "message": "Ah,I think the subtraction is backwards? I may have messed this up when I switched back to the stack based interpreter. The order of vector instructions got flipped around, and I thought I corrected everything, but this one is wrong.",
+      "parentUuid": "20ee5a8f_7b78a2d3",
+      "revId": "825c0bd2c6e6afac054f5cb981aea621d30b7636",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
