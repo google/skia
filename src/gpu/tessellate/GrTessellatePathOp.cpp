@@ -144,7 +144,6 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushSta
                 middleOut.close();
                 break;
             case SkPathVerb::kConic:
-            case SkPathVerb::kDone:
                 SkUNREACHABLE;
         }
     }
@@ -260,7 +259,6 @@ void GrTessellatePathOp::prepareCubicWedges(GrOpFlushState* flushState) {
                     lastPoint = pts[3];
                     break;
                 case SkPathVerb::kConic:
-                case SkPathVerb::kDone:
                     SkUNREACHABLE;
             }
             vertexData[fCubicVertexCount + 4] = midpoint;

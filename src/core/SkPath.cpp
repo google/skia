@@ -1869,7 +1869,6 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
             break;
         case SkPathVerb::kCubic: numPts = 4; break;
         case SkPathVerb::kClose: numPts = 0; break;
-        case SkPathVerb::kDone: SkUNREACHABLE;
     }
     memcpy(pts, iterPts, sizeof(SkPoint) * numPts);
     ++fIter;

@@ -1383,7 +1383,7 @@ public:
         kConic_Verb = static_cast<int>(SkPathVerb::kConic),
         kCubic_Verb = static_cast<int>(SkPathVerb::kCubic),
         kClose_Verb = static_cast<int>(SkPathVerb::kClose),
-        kDone_Verb  = static_cast<int>(SkPathVerb::kDone),
+        kDone_Verb  = kClose_Verb + 1
     };
 
     /** \class SkPath::Iter
@@ -1519,7 +1519,6 @@ private:
         }
         std::tuple<SkPathVerb, const SkPoint*, const SkScalar*> operator*() const {
             auto verb = static_cast<SkPathVerb>(*fVerb);
-            SkASSERT(verb != SkPathVerb::kDone);
             // We provide the starting point for beziers by peeking backwards from the current
             // point, which works fine as long as there is always a kMove before any geometry.
             // (SkPath::injectMoveToIfNeeded should have guaranteed this to be the case.)
@@ -1536,7 +1535,6 @@ private:
                 case SkPathVerb::kConic: return 2;
                 case SkPathVerb::kCubic: return 3;
                 case SkPathVerb::kClose: return 0;
-                case SkPathVerb::kDone: return 0;
             }
             SkUNREACHABLE;
         }
@@ -1548,7 +1546,6 @@ private:
                 case SkPathVerb::kConic: return -1;
                 case SkPathVerb::kCubic: return -1;
                 case SkPathVerb::kClose: return 0;
-                case SkPathVerb::kDone: return 0;
             }
             SkUNREACHABLE;
         }
