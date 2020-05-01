@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8eb8ea27_3afc9207",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-01T15:57:08Z",
+      "side": 1,
+      "message": "ah! I wondered how you got rid of the casts...",
+      "range": {
+        "startLine": 390,
+        "startChar": 11,
+        "endLine": 390,
+        "endChar": 19
+      },
+      "revId": "fe8ba007c87fa099ef5bc448232b5bce6cde6b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a9fdbb_d3e356d4",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-01T15:57:08Z",
+      "side": 1,
+      "message": "I find this *more* readable, since you\u0027re naming the sides, etc.!",
+      "range": {
+        "startLine": 432,
+        "startChar": 16,
+        "endLine": 432,
+        "endChar": 21
+      },
+      "revId": "fe8ba007c87fa099ef5bc448232b5bce6cde6b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
