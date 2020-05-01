@@ -46,6 +46,30 @@
       "revId": "1a5b715ad3e53a8b53be33aeb6d3b524679dea6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baf3d872_ad317aeb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T18:54:50Z",
+      "side": 1,
+      "message": "Yeah, the key thing is that they\u0027re sRGB. If you happen to supply 3 channels, I figured I\u0027d take that as RGB, 1. But if you have 4 channels, we just want to be clear that it means unpremul.",
+      "parentUuid": "613fe0cc_d79026c4",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 5
+      },
+      "revId": "1a5b715ad3e53a8b53be33aeb6d3b524679dea6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
