@@ -16,20 +16,36 @@
 
 class MatrixConvolutionBench : public Benchmark {
 public:
-    MatrixConvolutionBench(SkTileMode tileMode, bool convolveAlpha)
-        : fName(SkStringPrintf("matrixconvolution_%s%s",
+    MatrixConvolutionBench(bool bigKernel, SkTileMode tileMode, bool convolveAlpha)
+        : fName(SkStringPrintf("matrixconvolution_%s%s%s",
+                               bigKernel ? "bigKernel_" : "",
                                ToolUtils::tilemode_name(tileMode),
                                convolveAlpha ? "" : "_noConvolveAlpha")) {
-        SkISize kernelSize = SkISize::Make(3, 3);
-        SkScalar kernel[9] = {
-            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
-            SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
-            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
-        };
-        SkScalar gain = 0.3f, bias = SkIntToScalar(100);
-        SkIPoint kernelOffset = SkIPoint::Make(1, 1);
-        fFilter = SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
-                                                    kernelOffset, tileMode, convolveAlpha, nullptr);
+        if (bigKernel) {
+            SkISize kernelSize = SkISize::Make(9, 9);
+            SkScalar kernel[81];
+            for (int i = 0; i < 81; i++) {
+                kernel[i] = SkIntToScalar(1);
+            }
+            kernel[40] = SkIntToScalar(-79);
+            SkScalar gain = 0.3f, bias = SkIntToScalar(100);
+            SkIPoint kernelOffset = SkIPoint::Make(4, 4);
+            fFilter = SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
+                                                        kernelOffset, tileMode, convolveAlpha,
+                                                        nullptr);
+        } else {
+            SkISize kernelSize = SkISize::Make(3, 3);
+            SkScalar kernel[9] = {
+                SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+                SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
+                SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+            };
+            SkScalar gain = 0.3f, bias = SkIntToScalar(100);
+            SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+            fFilter = SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
+                                                        kernelOffset, tileMode, convolveAlpha,
+                                                        nullptr);
+        }
     }
 
 protected:
@@ -58,8 +74,14 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kClamp, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kRepeat, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kMirror, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, true); )
-DEF_BENCH( return new MatrixConvolutionBench(SkTileMode::kDecal, false); )
+DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kClamp, true); )
+DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kRepeat, true); )
+DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kMirror, true); )
+DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kDecal, true); )
+DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kDecal, false); )
+
+DEF_BENCH( return new MatrixConvolutionBench(true, SkTileMode::kClamp, true); )
+DEF_BENCH( return new MatrixConvolutionBench(true, SkTileMode::kRepeat, true); )
+DEF_BENCH( return new MatrixConvolutionBench(true, SkTileMode::kMirror, true); )
+DEF_BENCH( return new MatrixConvolutionBench(true, SkTileMode::kDecal, true); )
+DEF_BENCH( return new MatrixConvolutionBench(true, SkTileMode::kDecal, false); )
