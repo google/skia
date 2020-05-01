@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7c6bc360_a4db8b05",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 28
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "0ee87d22_882a3e30",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 13
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "604b492b_6f8c477e",
         "filename": "/COMMIT_MSG",
         "patchSetId": 28
@@ -83,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "7b5ae49e_bab6b5c6",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done. TODO for the new role.",
+      "parentUuid": "ed4834a2_9002ae73",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea262cb9_9dcd4361",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 28
@@ -103,6 +145,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ca01fc5_aafc813b",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "As discussed offline, I acknowledge your objections and believe this is sufficient for now.",
+      "parentUuid": "ea262cb9_9dcd4361",
+      "range": {
+        "startLine": 1402,
+        "startChar": 3,
+        "endLine": 1413,
+        "endChar": 5
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -129,6 +195,30 @@
     },
     {
       "key": {
+        "uuid": "5976f810_3d8cf681",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "This is a \"nice to have\", not a must have. if taskID is provided, we could look up the machine ID anyway.",
+      "parentUuid": "9b348565_6d7972c7",
+      "range": {
+        "startLine": 56,
+        "startChar": 72,
+        "endLine": 56,
+        "endChar": 100
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "525cdac1_f9a848f0",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -149,6 +239,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12323b59_78111b28",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "525cdac1_f9a848f0",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 2
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -175,6 +289,30 @@
     },
     {
       "key": {
+        "uuid": "962b3e70_1b150d62",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Sure. Sounds like a great followup CL.",
+      "parentUuid": "5d496041_45fa789b",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 1
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ad8abfa_6d7b7651",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -195,6 +333,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c459461_db055eae",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "This is going away because everything gets passed in via command line args.",
+      "parentUuid": "7ad8abfa_6d7b7651",
+      "range": {
+        "startLine": 130,
+        "startChar": 1,
+        "endLine": 132,
+        "endChar": 25
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -221,6 +383,30 @@
     },
     {
       "key": {
+        "uuid": "b2a94860_12aa1f8e",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Sure, I wouldn\u0027t mind",
+      "parentUuid": "9a6a8cfb_8b57ae83",
+      "range": {
+        "startLine": 158,
+        "startChar": 9,
+        "endLine": 158,
+        "endChar": 42
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72939a66_918ad525",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -232,6 +418,24 @@
       "writtenOn": "2020-04-30T18:10:47Z",
       "side": 1,
       "message": "FYI: I ran into occasional flakiness due to timeouts for skottie-wasm-perf.js (skbug.com/9207) so put in retries here. Just a note incase you run into this in the future.",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecc1e981_62ef8490",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Ack.",
+      "parentUuid": "72939a66_918ad525",
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -261,6 +465,30 @@
     },
     {
       "key": {
+        "uuid": "ef75856e_0fea5771",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f77bb66_02b6c111",
+      "range": {
+        "startLine": 273,
+        "startChar": 3,
+        "endLine": 273,
+        "endChar": 36
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7a3a019_84f6ef37",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -281,6 +509,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c36ad69e_2acdad8d",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7a3a019_84f6ef37",
+      "range": {
+        "startLine": 275,
+        "startChar": 11,
+        "endLine": 275,
+        "endChar": 44
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -307,6 +559,30 @@
     },
     {
       "key": {
+        "uuid": "1865940f_a67ff72a",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "As discussed offline, going to hold off unless I find it necessary",
+      "parentUuid": "2ba8a50b_a7cbe2e5",
+      "range": {
+        "startLine": 292,
+        "startChar": 12,
+        "endLine": 292,
+        "endChar": 23
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1e74764_79c04c87",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -327,6 +603,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d0bb2a_5386b31a",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Maybe.",
+      "parentUuid": "a1e74764_79c04c87",
+      "range": {
+        "startLine": 295,
+        "startChar": 17,
+        "endLine": 295,
+        "endChar": 30
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -353,6 +653,30 @@
     },
     {
       "key": {
+        "uuid": "0f268ccd_77c96da9",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "As discussed offline, going to hold off unless I find it necessary",
+      "parentUuid": "f78049a9_01436842",
+      "range": {
+        "startLine": 299,
+        "startChar": 11,
+        "endLine": 299,
+        "endChar": 27
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e8cfd7_a56551a5",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
         "patchSetId": 28
@@ -373,6 +697,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdedb8fe_5093b0b0",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "It doesn\u0027t really seem to be a step to me. :shrug:",
+      "parentUuid": "71e8cfd7_a56551a5",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 317,
+        "endChar": 70
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -399,6 +747,30 @@
     },
     {
       "key": {
+        "uuid": "d77235bf_7c47fa23",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d751f7be_85c82984",
+      "range": {
+        "startLine": 397,
+        "startChar": 5,
+        "endLine": 397,
+        "endChar": 24
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc0a6526_e8e288b3",
         "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer_test.go",
         "patchSetId": 28
@@ -419,6 +791,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fadf4b1_7613149f",
+        "filename": "infra/bots/task_drivers/perf_puppeteer/perf_puppeteer_test.go",
+        "patchSetId": 28
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc0a6526_e8e288b3",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 13
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -469,6 +865,30 @@
     },
     {
       "key": {
+        "uuid": "19946700_4bfa9d55",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae035cb4_23f5dc98",
+      "range": {
+        "startLine": 1160,
+        "startChar": 77,
+        "endLine": 1160,
+        "endChar": 88
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e34b569_9032e74c",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 28
@@ -480,6 +900,30 @@
       "writtenOn": "2020-04-30T18:07:38Z",
       "side": 1,
       "message": "Maybe one day we should name this to Puppeteer_SkottieTracing to follow the above naming convention",
+      "range": {
+        "startLine": 1165,
+        "startChar": 54,
+        "endLine": 1165,
+        "endChar": 65
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9f7a7ef_58aa7f3a",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "4e34b569_9032e74c",
       "range": {
         "startLine": 1165,
         "startChar": 54,
@@ -509,6 +953,24 @@
     },
     {
       "key": {
+        "uuid": "3050d437_95f39a5f",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "The metrics I am measuring here are not intended to replace the existing SkottieWASM benchmarks. Nor is the goal for these metrics to compare against LottieWeb. The goal is to get realistic numbers for specifically CanvasKit.",
+      "parentUuid": "88c1977c_12c88237",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ad12bd9_bbce89d8",
         "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
         "patchSetId": 28
@@ -520,6 +982,30 @@
       "writtenOn": "2020-04-30T18:07:38Z",
       "side": 1,
       "message": "This is an interesting approach, have you chatted with Florin about this? (just to get another perspective).\nI also remember frames being particularly noisy at start (during setup) and at the end (during teardown) so we ran multiple loops and took data from the middle.",
+      "range": {
+        "startLine": 4,
+        "startChar": 34,
+        "endLine": 4,
+        "endChar": 96
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fbe221dc_18096220",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Yes, I ran this approach by him already. Here, the noisy frames at the beginning (e.g. the first frame regularly takes a long time) are an intentional thing we are trying to capture.",
+      "parentUuid": "0ad12bd9_bbce89d8",
       "range": {
         "startLine": 4,
         "startChar": 34,
@@ -555,6 +1041,30 @@
     },
     {
       "key": {
+        "uuid": "c8f133cb_42b4c819",
+        "filename": "tools/perf-puppeteer/canvaskit-skottie-frames-load.html",
+        "patchSetId": 28
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Strictly speaking, the width/height setting on the canvas is redundant with the Make*Surface calls; specifically the passed in parameters override the setting here. I don\u0027t care too much about that though.",
+      "parentUuid": "2e4c285b_cbe91afc",
+      "range": {
+        "startLine": 25,
+        "startChar": 26,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dfc8b245_2c652865",
         "filename": "tools/perf-puppeteer/package.json",
         "patchSetId": 28
@@ -578,6 +1088,30 @@
     },
     {
       "key": {
+        "uuid": "e39baed9_949ee902",
+        "filename": "tools/perf-puppeteer/package.json",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfc8b245_2c652865",
+      "range": {
+        "startLine": 2,
+        "startChar": 11,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e80c1c9d_987d6dc7",
         "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
         "patchSetId": 28
@@ -592,6 +1126,24 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244f7e7c_33185ece",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Done - as discussed made sure this focused on canvaskit.",
+      "parentUuid": "e80c1c9d_987d6dc7",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -612,6 +1164,24 @@
     },
     {
       "key": {
+        "uuid": "41440757_e8319018",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Not yet. The goal is that it will work with slight modifications (e.g. clicking the button).",
+      "parentUuid": "823613aa_0e50b61e",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b01c032_d9fd7406",
         "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
         "patchSetId": 28
@@ -623,6 +1193,24 @@
       "writtenOn": "2020-04-30T18:07:38Z",
       "side": 1,
       "message": "skottie-wasm-perf.html will not automatically work because of this (and the missing start bench button below).",
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1881134e_33ce1c30",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "I\u0027m aware. I was planning on adapting that script in the future.",
+      "parentUuid": "7b01c032_d9fd7406",
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -649,6 +1237,30 @@
       "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ccad9f8_b7993fbb",
+        "filename": "tools/perf-puppeteer/perf-with-puppeteer.js",
+        "patchSetId": 28
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-01T14:00:45Z",
+      "side": 1,
+      "message": "Moved back to 1000 since I had no good reason for 1100.",
+      "parentUuid": "6b7adef6_469dc6cf",
+      "range": {
+        "startLine": 150,
+        "startChar": 25,
+        "endLine": 150,
+        "endChar": 29
+      },
+      "revId": "db8196822b24bb5e47f8d58217daa696c13bcf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
