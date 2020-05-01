@@ -383,16 +383,25 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     sk_sp<GrSurface> surface;
     if (fProxy->asTextureProxy() && fProxy->asTextureProxy()->getUniqueKey().isValid()) {
+        fProxy->asTextureProxy()->getUniqueKey().dump("unique key: ");
+
         // First try to reattach to a cached version if the proxy is uniquely keyed
         surface = resourceProvider->findByUniqueKey<GrSurface>(
                                                         fProxy->asTextureProxy()->getUniqueKey());
+        if (surface) {
+            SkDebugf("cached surface %d,%d\n", surface->width(), surface->height());
+        }
     }
 
     bool syncKey = true;
     bool releaseCallback = false;
     if (!surface) {
-        auto result = fProxy->fLazyInstantiateCallback(resourceProvider, fProxy->callbackDesc());
+        GrSurfaceProxy::LazySurfaceDesc foo = fProxy->callbackDesc();
+        auto result = fProxy->fLazyInstantiateCallback(resourceProvider, foo);
         surface = std::move(result.fSurface);
+        SkDebugf("instantiated surface %d,%d %s -> %d,%d\n", foo.fDimensions.width(), foo.fDimensions.height(),
+                 foo.fFit == SkBackingFit::kExact ? "exact" : "approx",
+                 surface->width(), surface->height());
         syncKey = result.fKeyMode == GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
         releaseCallback = surface && result.fReleaseCallback;
     }
@@ -407,6 +416,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         // the content area.
         fProxy->fDimensions = surface->dimensions();
     }
+
+    SkDebugf("proxy %d,%d surface %d,%d\n",
+             fProxy->width(), fProxy->height(),
+             surface->width(), surface->height());
 
     SkASSERT(fProxy->width() <= surface->width());
     SkASSERT(fProxy->height() <= surface->height());
