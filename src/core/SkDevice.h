@@ -339,17 +339,14 @@ protected:
     virtual bool onAccessPixels(SkPixmap*) { return false; }
 
     struct CreateInfo {
-        static SkPixelGeometry AdjustGeometry(TileUsage, SkPixelGeometry);
-
-        // The constructor may change the pixel geometry based on other parameters.
         CreateInfo(const SkImageInfo& info,
-                   TileUsage tileUsage,
                    SkPixelGeometry geo,
+                   TileUsage tileUsage,
                    bool trackCoverage,
                    SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
-            , fPixelGeometry(AdjustGeometry(tileUsage, geo))
+            , fPixelGeometry(geo)
             , fTrackCoverage(trackCoverage)
             , fAllocator(allocator)
         {}
