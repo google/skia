@@ -22,6 +22,30 @@
       "revId": "faed1d5d33490530e55437b1ff2450cbe2b3a186",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9111e202_53c6c0f3",
+        "filename": "src/sksl/ir/SkSLLayout.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T17:29:31Z",
+      "side": 1,
+      "message": "Aha, I wanted something like that, didn\u0027t know about mutable on lambda.",
+      "parentUuid": "252df6a7_44f0eb90",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 15
+      },
+      "revId": "faed1d5d33490530e55437b1ff2450cbe2b3a186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
