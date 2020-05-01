@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "36349aa9_4912d2dc",
+        "filename": "gm/typeface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-01T19:59:03Z",
+      "side": 1,
+      "message": "Ack, yes. Done.",
+      "parentUuid": "9ee3a743_7314ff71",
+      "range": {
+        "startLine": 352,
+        "startChar": 67,
+        "endLine": 352,
+        "endChar": 72
+      },
+      "revId": "0b596c0f433e0d2ccaac4cf968df5d5ca7c1663f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ff8e107_930d89f8",
         "filename": "src/utils/SkBitSet.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-01T14:44:25Z",
       "side": 1,
       "message": "Perhaps spell this function \"reset\" to match std::bitset?",
+      "range": {
+        "startLine": 44,
+        "startChar": 9,
+        "endLine": 44,
+        "endChar": 14
+      },
+      "revId": "0b596c0f433e0d2ccaac4cf968df5d5ca7c1663f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbab89f6_d1a65ae2",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-01T19:59:03Z",
+      "side": 1,
+      "message": "This function was recently added by Jim (not added here). How about I change that next CL. (This is already a bit big for what I want, may even split it out.)",
+      "parentUuid": "0ff8e107_930d89f8",
       "range": {
         "startLine": 44,
         "startChar": 9,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "317afd03_c4ab3da0",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-01T19:59:03Z",
+      "side": 1,
+      "message": "To keep the same behavior. I\u0027d actually like to change the behavior (and make this more like std::bitset in general) but I figured I\u0027d leave it alone for now (change implementation here, behavior later). Note that set() and clear() looked like they used to crash in release on nullptr, but they actually didn\u0027t in practice (clang and its UB propagation removed it).",
+      "parentUuid": "5e6d2001_b7329720",
+      "range": {
+        "startLine": 50,
+        "startChar": 15,
+        "endLine": 50,
+        "endChar": 30
+      },
+      "revId": "0b596c0f433e0d2ccaac4cf968df5d5ca7c1663f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "69960036_d08c9f9d",
         "filename": "src/utils/SkBitSet.h",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "0b596c0f433e0d2ccaac4cf968df5d5ca7c1663f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "115a188c_e30c2515",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-01T19:59:03Z",
+      "side": 1,
+      "message": "The one line I didn\u0027t touch in this function...\n\nI suppose with add and a bit of finesse elsewhere, I don\u0027t even care if there are a power of two bits in Chunk, nor that all the bits are even used. I\u0027ll do that. Done.\n\nNote that before Jim\u0027s recent addition of leadingBitIndex it didn\u0027t matter at all what size Chunk was. Now it wants to be as big as possible (at least machine native size) but also needs to be passed to SkPrevLog2 which seems to be limited to uint32_t for some reason.",
+      "parentUuid": "69960036_d08c9f9d",
+      "range": {
+        "startLine": 67,
+        "startChar": 32,
+        "endLine": 67,
+        "endChar": 33
+      },
+      "revId": "0b596c0f433e0d2ccaac4cf968df5d5ca7c1663f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
