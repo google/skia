@@ -184,6 +184,12 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
+	if b.extraConfig("Puppeteer") {
+		// TODO(kjlubick) make this a new role
+		b.puppeteer()
+		return
+	}
+
 	// Perf bots.
 	if b.role("Perf") {
 		b.perf()
