@@ -105,3 +105,39 @@ class LcdTextSizeGM : public skiagm::GM {
 };
 DEF_GM( return new LcdTextGM; )
 DEF_GM( return new LcdTextSizeGM; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+    paint.setTextSize(20);
+
+    canvas->drawString("Hamburgefons", 30, 30, paint);
+
+    const bool gPreserveLCDText[] = {false, true};
+
+    canvas->translate(0, 20);
+    for (auto preserve : gPreserveLCDText) {
+        SkCanvas::SaveLayerRec rec(nullptr, nullptr);
+        if (preserve)
+            rec.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;
+        canvas->saveLayer(rec);
+        if (preserve && !canvas->imageInfo().colorSpace()) {
+            SkPaint noLCD = paint;
+            noLCD.setLCDRenderText(false);
+            canvas->drawString("LCD not supported", 30, 60, noLCD);
+        } else {
+            canvas->drawString("Hamburgefons", 30, 60, paint);
+        }
+
+        SkPaint p;
+        p.setColor(0xFFCCCCCC);
+        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
+        canvas->drawString("Hamburgefons", 30, 90, paint);
+
+        canvas->restore();
+        canvas->translate(0, 80);
+    }
+}
