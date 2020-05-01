@@ -1513,7 +1513,11 @@ ASTNode::ID Parser::expression() {
         return ASTNode::ID::Invalid();
     }
     Token t;
+    AutoDepth depth(this);
     while (this->checkNext(Token::Kind::TK_COMMA, &t)) {
+        if (!depth.increase()) {
+            return ASTNode::ID::Invalid();
+        }
         ASTNode::ID right = this->assignmentExpression();
         if (!right) {
             return ASTNode::ID::Invalid();

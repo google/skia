@@ -348,7 +348,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         memset(defaultStorage.get(), 0, baseLayerSize);
     }
     wgpu::Device device = this->device();
-    wgpu::CommandEncoder copyEncoder = fDevice.CreateCommandEncoder();
+    wgpu::CommandEncoder copyEncoder = this->getCopyEncoder();
     int w = dimensions.width(), h = dimensions.height();
     for (uint32_t i = 0; i < desc.mipLevelCount; i++) {
         size_t origRowBytes = bpp * w;
@@ -380,8 +380,6 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         w = std::max(1, w / 2);
         h = std::max(1, h / 2);
     }
-    wgpu::CommandBuffer cmdBuf = copyEncoder.Finish();
-    fQueue.Submit(1, &cmdBuf);
     GrDawnTextureInfo info;
     info.fTexture = tex;
     info.fFormat = desc.format;

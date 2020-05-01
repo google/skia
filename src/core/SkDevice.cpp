@@ -106,20 +106,6 @@ bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
     return false;
 }
 
-SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {
-    switch (tileUsage) {
-        case kPossible_TileUsage:
-            // (we think) for compatibility with old clients, we assume this layer can support LCD
-            // even though they may not have marked it as opaque... seems like we should update
-            // our callers (reed/robertphilips).
-            break;
-        case kNever_TileUsage:
-            geo = kUnknown_SkPixelGeometry;
-            break;
-    }
-    return geo;
-}
-
 static inline bool is_int(float x) {
     return x == (float) sk_float_round2int(x);
 }
