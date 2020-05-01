@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2850c1ce_5c2607f5",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-01T21:07:32Z",
+      "side": 1,
+      "message": "I assume all the external user are still using kDone_Verb?",
+      "range": {
+        "startLine": 1386,
+        "startChar": 8,
+        "endLine": 1386,
+        "endChar": 19
+      },
+      "revId": "ab05c0c7775477d9b10105cc7f4c3df24084fb78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
