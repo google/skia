@@ -1146,8 +1146,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
 
     SkPixelGeometry geo = fProps.pixelGeometry();
-    if (paint) {
-        // TODO: perhaps add a query to filters so we might preserve opaqueness...
+    if (!(saveLayerFlags & kPreserveLCDText_SaveLayerFlag)) {
+        geo = kUnknown_SkPixelGeometry;
+    } else if (paint) {
+        // Filters may move pixels, or change colors or opaqueness, which may break LCD text.
         if (paint->getImageFilter() || paint->getColorFilter()) {
             geo = kUnknown_SkPixelGeometry;
         }
@@ -1167,9 +1169,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     sk_sp<SkBaseDevice> newDevice;
     {
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
-
-        // TODO: reinstate kPreserveLCDText_SaveLayerFlag
-        geo = kUnknown_SkPixelGeometry;
 
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
