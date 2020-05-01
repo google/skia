@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "feccbfa2_30e14047",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-01T13:56:32Z",
+      "side": 1,
+      "message": "Do we want a static assert that T is trivially copyable? Maybe that\u0027d just be being pedantic since the values are all meant to be floats and ints anyways.",
+      "range": {
+        "startLine": 217,
+        "startChar": 16,
+        "endLine": 218,
+        "endChar": 43
+      },
+      "revId": "d63732dec8658f580997bbf4a2b1f46cb407a107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a3d869e_83c1f5b8",
         "filename": "samplecode/Sample3D.cpp",
         "patchSetId": 5
@@ -13,6 +36,30 @@
       "writtenOn": "2020-04-30T19:34:35Z",
       "side": 1,
       "message": "I really like how this looks at the call site",
+      "range": {
+        "startLine": 415,
+        "startChar": 15,
+        "endLine": 415,
+        "endChar": 16
+      },
+      "revId": "d63732dec8658f580997bbf4a2b1f46cb407a107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b58319d_22918a6e",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-01T13:56:32Z",
+      "side": 1,
+      "message": "agreed!",
+      "parentUuid": "0a3d869e_83c1f5b8",
       "range": {
         "startLine": 415,
         "startChar": 15,
