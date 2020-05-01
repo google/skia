@@ -70,6 +70,30 @@
       "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "477da10e_fc32acad",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T13:36:06Z",
+      "side": 1,
+      "message": "Probably not - unless the GPU had instructions that could do the whole thing with higher precision intermediates, which they generally won\u0027t. (So you\u0027ll get the same microcode). We actually have this problem in a few spots, and include workarounds for it: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/effects/GrRRectEffect.cpp;l\u003d167",
+      "parentUuid": "9cb6028a_1b5eb17a",
+      "range": {
+        "startLine": 192,
+        "startChar": 36,
+        "endLine": 192,
+        "endChar": 47
+      },
+      "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
