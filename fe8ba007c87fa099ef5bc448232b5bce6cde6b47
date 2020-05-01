@@ -45,6 +45,23 @@
       "revId": "fe8ba007c87fa099ef5bc448232b5bce6cde6b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de261da0_16cfb309",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T16:53:19Z",
+      "side": 1,
+      "message": "My read is that the unary ones are wrong for N \u003e 1, because all of the vector instructions are ordered 4, 3, 2, Base.",
+      "revId": "fe8ba007c87fa099ef5bc448232b5bce6cde6b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
