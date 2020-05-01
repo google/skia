@@ -11,6 +11,8 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu) : fGpu(gpu) {
+    fRTVDescriptorHeap = GrD3DDescriptorHeap::Make(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 128,
+                                                   D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
@@ -42,4 +44,15 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
     }
     fRootSignatures.push_back(rootSig);
     return rootSig;
+}
+
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createRenderTargetView(ID3D12Resource* textureResource) {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fRTVDescriptorHeap->allocateCPUHandle();
+    fGpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor);
+    return descriptor;
+}
+
+void GrD3DResourceProvider::recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
+    fRTVDescriptorHeap->freeCPUHandle(rtvDescriptor);
 }
