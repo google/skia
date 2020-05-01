@@ -847,7 +847,7 @@ namespace skvm {
      *  By swapping y,x to ensure the ratio is <= 1, we can safely call atan_unit()
      *  which avoids a 2nd divide instruction if we had instead called atan().
      */
-    F32 Builder::approx_atan(F32 y0, F32 x0) {
+    F32 Builder::approx_atan2(F32 y0, F32 x0) {
 
         I32 flip = (abs(y0) > abs(x0));
         F32 y = select(flip, x0, y0);

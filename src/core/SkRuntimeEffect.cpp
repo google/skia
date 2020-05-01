@@ -427,15 +427,31 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
       //auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
         auto u32 = [&]{ auto x = sk_unaligned_load<uint32_t>(ip); ip += sizeof(x); return x; };
 
-        auto apply = [&](SkSL::ByteCodeInstruction instBase, skvm::F32 (*func)(skvm::F32)) {
-            const int N = (int)inst - (int)instBase + 1;
-            SkASSERT(N <= 4);
+        auto unary = [&](Inst base, auto&& fn) {
+            const int N = (int)base - (int)inst + 1;
+            SkASSERT(0 < N && N <= 4);
             skvm::F32 args[4];
             for (int i = 0; i < N; ++i) {
                 args[i] = pop();
             }
             for (int i = N; i --> 0;) {
-                push(func(args[i]));
+                push(fn(args[i]));
+            }
+        };
+
+        auto binary = [&](Inst base, auto&& fn) {
+            const int N = (int)base - (int)inst + 1;
+            SkASSERT(0 < N && N <= 4);
+            skvm::F32 right[4];
+            for (int i = 0; i < N; ++i) {
+                right[i] = pop();
+            }
+            skvm::F32 left[4];
+            for (int i = 0; i < N; ++i) {
+                left[i] = pop();
+            }
+            for (int i = N; i --> 0;) {
+                push(fn(left[i], right[i]));
             }
         };
 
@@ -553,145 +569,45 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(stack[stack.size() - 4]);
             } break;
 
-            case Inst::kAddF: {
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(a+x);
-            } break;
+            case Inst::kAddF:
+            case Inst::kAddF2:
+            case Inst::kAddF3:
+            case Inst::kAddF4: binary(Inst::kAddF, std::plus<>{}); break;
 
-            case Inst::kAddF2: {
-                skvm::F32 x = pop(), y = pop(),
-                          a = pop(), b = pop();
-                push(b+y);
-                push(a+x);
-            } break;
+            case Inst::kSubtractF:
+            case Inst::kSubtractF2:
+            case Inst::kSubtractF3:
+            case Inst::kSubtractF4: binary(Inst::kSubtractF, std::minus<>{}); break;
 
-            case Inst::kAddF3: {
-                skvm::F32 x = pop(), y = pop(), z = pop(),
-                          a = pop(), b = pop(), c = pop();
-                push(c+z);
-                push(b+y);
-                push(a+x);
-            } break;
+            case Inst::kMultiplyF:
+            case Inst::kMultiplyF2:
+            case Inst::kMultiplyF3:
+            case Inst::kMultiplyF4: binary(Inst::kMultiplyF, std::multiplies<>{}); break;
 
-            case Inst::kAddF4: {
-                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
-                          a = pop(), b = pop(), c = pop(), d = pop();
-                push(d+w);
-                push(c+z);
-                push(b+y);
-                push(a+x);
-            } break;
-
-            case Inst::kSubtractF: {
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(a-x);
-            } break;
-
-            case Inst::kSubtractF2: {
-                skvm::F32 x = pop(), y = pop(),
-                          a = pop(), b = pop();
-                push(b-y);
-                push(a-x);
-            } break;
-
-            case Inst::kSubtractF3: {
-                skvm::F32 x = pop(), y = pop(), z = pop(),
-                          a = pop(), b = pop(), c = pop();
-                push(c-z);
-                push(b-y);
-                push(a-x);
-            } break;
-
-            case Inst::kSubtractF4: {
-                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
-                          a = pop(), b = pop(), c = pop(), d = pop();
-                push(d-w);
-                push(c-z);
-                push(b-y);
-                push(a-x);
-            } break;
-
-            case Inst::kMultiplyF: {
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(a*x);
-            } break;
-
-            case Inst::kMultiplyF2: {
-                skvm::F32 x = pop(), y = pop(),
-                          a = pop(), b = pop();
-                push(b*y);
-                push(a*x);
-            } break;
-
-            case Inst::kMultiplyF3: {
-                skvm::F32 x = pop(), y = pop(), z = pop(),
-                          a = pop(), b = pop(), c = pop();
-                push(c*z);
-                push(b*y);
-                push(a*x);
-            } break;
-
-            case Inst::kMultiplyF4: {
-                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
-                          a = pop(), b = pop(), c = pop(), d = pop();
-                push(d*w);
-                push(c*z);
-                push(b*y);
-                push(a*x);
-            } break;
-
-            case Inst::kDivideF: {
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(a/x);
-            } break;
-
-            case Inst::kDivideF2: {
-                skvm::F32 x = pop(), y = pop(),
-                          a = pop(), b = pop();
-                push(b/y);
-                push(a/x);
-            } break;
-
-            case Inst::kDivideF3: {
-                skvm::F32 x = pop(), y = pop(), z = pop(),
-                          a = pop(), b = pop(), c = pop();
-                push(c/z);
-                push(b/y);
-                push(a/x);
-            } break;
-
-            case Inst::kDivideF4: {
-                skvm::F32 x = pop(), y = pop(), z = pop(), w = pop(),
-                          a = pop(), b = pop(), c = pop(), d = pop();
-                push(d/w);
-                push(c/z);
-                push(b/y);
-                push(a/x);
-            } break;
+            case Inst::kDivideF:
+            case Inst::kDivideF2:
+            case Inst::kDivideF3:
+            case Inst::kDivideF4: binary(Inst::kDivideF, std::divides<>{}); break;
 
             case Inst::kATan:
             case Inst::kATan2:
             case Inst::kATan3:
-            case Inst::kATan4: apply(Inst::kATan, skvm::approx_atan); break;
+            case Inst::kATan4: unary(Inst::kATan, skvm::approx_atan); break;
 
             case Inst::kFract:
             case Inst::kFract2:
             case Inst::kFract3:
-            case Inst::kFract4: apply(Inst::kFract, skvm::fract); break;
+            case Inst::kFract4: unary(Inst::kFract, skvm::fract); break;
 
             case Inst::kSqrt:
             case Inst::kSqrt2:
             case Inst::kSqrt3:
-            case Inst::kSqrt4: apply(Inst::kSqrt, skvm::sqrt); break;
+            case Inst::kSqrt4: unary(Inst::kSqrt, skvm::sqrt); break;
 
             case Inst::kSin:
             case Inst::kSin2:
             case Inst::kSin3:
-            case Inst::kSin4: apply(Inst::kSin, skvm::approx_sin); break;
+            case Inst::kSin4: unary(Inst::kSin, skvm::approx_sin); break;
 
             // Baby steps... just leaving test conditions on the stack for now.
             case Inst::kMaskPush:   break;
