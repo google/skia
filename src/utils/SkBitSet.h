@@ -8,41 +8,61 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
+#include <memory>
 
 class SkBitSet {
 public:
-    explicit SkBitSet(int numberOfBits) {
-        SkASSERT(numberOfBits >= 0);
-        fDwordCount = (numberOfBits + 31) / 32;  // Round up size to 32-bit boundary.
-        if (fDwordCount > 0) {
-            fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
-        }
-    }
+    explicit SkBitSet(size_t size)
+        : fSize(size)
+        , fChunks((Chunk*)sk_calloc_throw(numChunksFor(fSize) * sizeof(Chunk)))
+    {}
 
-    /** Set the value of the index-th bit to true.  */
-    void set(int index) {
-        uint32_t mask = 1 << (index & 31);
-        uint32_t* chunk = this->internalGet(index);
-        SkASSERT(chunk);
+    SkBitSet(const SkBitSet&) = delete;
+    SkBitSet& operator=(const SkBitSet&) = delete;
+    SkBitSet(SkBitSet&& that) : fSize(that.fSize), fChunks(std::move(that.fChunks)) {
+        that.fSize = 0;
+    }
+    SkBitSet& operator=(SkBitSet&& that) {
+        this->fSize = that.fSize;
+        this->fChunks = std::move(that.fChunks);
+        that.fSize = 0;
+        return *this;
+    }
+    ~SkBitSet() = default;
+
+    /** Set the value of the index-th bit to true. */
+    void set(size_t index) {
+        SkASSERT(index < fSize);
+        const Chunk mask = 1 << (index & (ChunkBits-1));
+        Chunk* chunk = this->chunkFor(index);
         *chunk |= mask;
     }
 
-    bool has(int index) const {
-        const uint32_t* chunk = this->internalGet(index);
-        uint32_t mask = 1 << (index & 31);
-        return chunk && SkToBool(*chunk & mask);
+    bool has(size_t index) const {
+        if (!(index < fSize)) {
+            return false;
+        }
+        const Chunk mask = 1 << (index & (ChunkBits-1));
+        const Chunk* chunk = this->chunkFor(index);
+        return SkToBool(*chunk & mask);
+    }
+
+    size_t size() const {
+        return fSize;
     }
 
     // Calls f(unsigned) for each set value.
     template<typename FN>
     void getSetValues(FN f) const {
-        const uint32_t* data = fBitData.get();
-        for (unsigned i = 0; i < fDwordCount; ++i) {
-            if (uint32_t value = data[i]) {  // There are set bits
-                unsigned index = i * 32;
-                for (unsigned j = 0; j < 32; ++j) {
-                    if (0x1 & (value >> j)) {
+        const Chunk* chunks = fChunks.get();
+        const size_t numChunks = numChunksFor(fSize);
+        for (size_t i = 0; i < numChunks; ++i) {
+            if (Chunk chunk = chunks[i]) {  // There are set bits
+                size_t index = i * ChunkBits;
+                for (unsigned j = 0; j < ChunkBits; ++j) {
+                    if (0x1 & (chunk >> j)) {
                         f(index | j);
                     }
                 }
@@ -51,15 +71,19 @@ public:
     }
 
 private:
-    std::unique_ptr<uint32_t, SkFunctionWrapper<void(void*), sk_free>> fBitData;
-    size_t fDwordCount;  // Dword (32-bit) count of the bitset.
+    size_t fSize;
 
-    uint32_t* internalGet(int index) const {
-        size_t internalIndex = index / 32;
-        if (internalIndex >= fDwordCount) {
-            return nullptr;
-        }
-        return fBitData.get() + internalIndex;
+    using Chunk = unsigned char; // unsigned char has no trap, may alias, has radix 2
+    static constexpr size_t ChunkBits = sizeof(Chunk) * CHAR_BIT;
+    static_assert(ChunkBits && !(ChunkBits & (ChunkBits - 1)), "ChunkBits must be power of 2.");
+    std::unique_ptr<Chunk, SkFunctionWrapper<void(void*), sk_free>> fChunks;
+
+    Chunk* chunkFor(size_t index) const {
+        return fChunks.get() + (index / ChunkBits);
+    }
+
+    constexpr size_t numChunksFor(size_t size) const {
+        return (size + (ChunkBits-1)) / ChunkBits;
     }
 };
 
