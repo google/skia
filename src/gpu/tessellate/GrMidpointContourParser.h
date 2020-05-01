@@ -10,39 +10,85 @@
 
 #include "src/core/SkPathPriv.h"
 
-// SkTPathContourParser specialization that also calculates each contour's midpoint.
-class GrMidpointContourParser : public SkTPathContourParser<GrMidpointContourParser> {
+// Parses out each contour in a path and tracks the midpoint. Example usage:
+//
+//   SkTPathContourParser parser;
+//   while (parser.parseNextContour()) {
+//       SkPoint midpoint = parser.currentMidpoint();
+//       for (auto [verb, pts] : parser.currentContour()) {
+//           ...
+//       }
+//   }
+//
+class GrMidpointContourParser {
 public:
-    GrMidpointContourParser(const SkPath& path) : SkTPathContourParser(path) {}
-
+    GrMidpointContourParser(const SkPath& path)
+            : fPath(path)
+            , fVerbs(SkPathPriv::VerbData(fPath))
+            , fNumRemainingVerbs(fPath.countVerbs())
+            , fPoints(SkPathPriv::PointData(fPath)) {}
+    // Advances the internal state to the next contour in the path. Returns false if there are no
+    // more contours.
     bool parseNextContour() {
-        if (!this->SkTPathContourParser::parseNextContour()) {
-            return false;
+        bool hasGeometry = false;
+        for (; fVerbsIdx < fNumRemainingVerbs; ++fVerbsIdx) {
+            switch (fVerbs[fVerbsIdx]) {
+                case SkPath::kMove_Verb:
+                    if (!hasGeometry) {
+                        fMidpoint = fPoints[fPtsIdx];
+                        fMidpointWeight = 1;
+                        this->advance();
+                        ++fPtsIdx;
+                        continue;
+                    }
+                    return true;
+                default:
+                    continue;
+                case SkPath::kLine_Verb:
+                    ++fPtsIdx;
+                    break;
+                case SkPath::kQuad_Verb:
+                case SkPath::kConic_Verb:
+                    fPtsIdx += 2;
+                    break;
+                case SkPath::kCubic_Verb:
+                    fPtsIdx += 3;
+                    break;
+            }
+            fMidpoint += fPoints[fPtsIdx - 1];
+            ++fMidpointWeight;
+            hasGeometry = true;
         }
-        if (fMidpointWeight > 1) {
-            fMidpoint *= 1.f / fMidpointWeight;
-            fMidpointWeight = 1;
-        }
-        return true;
+        return hasGeometry;
     }
 
-    SkPoint midpoint() const { SkASSERT(1 == fMidpointWeight); return fMidpoint; }
+    // Allows for iterating the current contour using a range-for loop.
+    SkPathPriv::Iterate currentContour() {
+        return SkPathPriv::Iterate(fVerbs, fVerbs + fVerbsIdx, fPoints, nullptr);
+    }
+
+    SkPoint currentMidpoint() { return fMidpoint * (1.f / fMidpointWeight); }
 
 private:
-    void resetGeometry(const SkPoint& startPoint) {
-        fMidpoint = startPoint;
-        fMidpointWeight = 1;
+    void advance() {
+        fVerbs += fVerbsIdx;
+        fNumRemainingVerbs -= fVerbsIdx;
+        fVerbsIdx = 0;
+        fPoints += fPtsIdx;
+        fPtsIdx = 0;
     }
 
-    void geometryTo(SkPathVerb, const SkPoint& endpoint) {
-        fMidpoint += endpoint;
-        ++fMidpointWeight;
-    }
+    const SkPath& fPath;
+
+    const uint8_t* fVerbs;
+    int fNumRemainingVerbs = 0;
+    int fVerbsIdx = 0;
+
+    const SkPoint* fPoints;
+    int fPtsIdx = 0;
 
     SkPoint fMidpoint;
     int fMidpointWeight;
-
-    friend class SkTPathContourParser<GrMidpointContourParser>;
 };
 
- #endif
+#endif

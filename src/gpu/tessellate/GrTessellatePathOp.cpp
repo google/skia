@@ -124,25 +124,28 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushSta
 
     GrMiddleOutPolygonTriangulator middleOut(vertexData, maxVertices);
     int localCurveCount = 0;
-    const SkPoint* pts = SkPathPriv::PointData(fPath);
-    for (SkPath::Verb verb : SkPathPriv::Verbs(fPath)) {
-        switch ((uint8_t)verb) {
-            case SkPath::kMove_Verb:
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
+        switch (verb) {
+            case SkPathVerb::kMove:
                 middleOut.closeAndMove(*pts++);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kLine:
+                middleOut.pushVertex(pts[1]);
+                break;
+            case SkPathVerb::kQuad:
+                middleOut.pushVertex(pts[2]);
+                ++localCurveCount;
+                break;
+            case SkPathVerb::kCubic:
+                middleOut.pushVertex(pts[3]);
+                ++localCurveCount;
+                break;
+            case SkPathVerb::kClose:
                 middleOut.close();
                 break;
-            static_assert(SkPath::kLine_Verb  == 1); case 1:
-            static_assert(SkPath::kQuad_Verb  == 2); case 2:
-            static_assert(SkPath::kConic_Verb == 3); case 3:
-            static_assert(SkPath::kCubic_Verb == 4); case 4:
-                constexpr static int kPtsAdvance[] = {0, 1, 2, 2, 3};
-                constexpr static int kCurveCountAdvance[] = {0, 0, 1, 1, 1};
-                pts += kPtsAdvance[verb];
-                middleOut.pushVertex(pts[-1]);
-                localCurveCount += kCurveCountAdvance[verb];
-                break;
+            case SkPathVerb::kConic:
+            case SkPathVerb::kDone:
+                SkUNREACHABLE;
         }
     }
     fTriangleVertexCount = middleOut.close();
@@ -160,30 +163,18 @@ static SkPoint lerp(const SkPoint& a, const SkPoint& b, float T) {
     return (b - a) * T + a;
 }
 
-static SkPoint write_line_as_cubic(SkPoint* data, const SkPoint& p0, const SkPoint& p1) {
-    data[0] = p0;
-    data[1] = lerp(p0, p1, 1/3.f);
-    data[2] = lerp(p0, p1, 2/3.f);
-    data[3] = p1;
-    return data[3];
+static void line2cubic(const SkPoint& p0, const SkPoint& p1, SkPoint* out) {
+    out[0] = p0;
+    out[1] = lerp(p0, p1, 1/3.f);
+    out[2] = lerp(p0, p1, 2/3.f);
+    out[3] = p1;
 }
 
-static SkPoint write_quadratic_as_cubic(SkPoint* data, const SkPoint& p0, const SkPoint& p1,
-                                        const SkPoint& p2) {
-    data[0] = p0;
-    data[1] = lerp(p0, p1, 2/3.f);
-    data[2] = lerp(p1, p2, 1/3.f);
-    data[3] = p2;
-    return data[3];
-}
-
-static SkPoint write_cubic(SkPoint* data, const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
-                           const SkPoint& p3) {
-    data[0] = p0;
-    data[1] = p1;
-    data[2] = p2;
-    data[3] = p3;
-    return data[3];
+static void quad2cubic(const SkPoint pts[], SkPoint* out) {
+    out[0] = pts[0];
+    out[1] = lerp(pts[0], pts[1], 2/3.f);
+    out[2] = lerp(pts[1], pts[2], 1/3.f);
+    out[3] = pts[2];
 }
 
 void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numCountedCurves,
@@ -208,21 +199,20 @@ void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numC
     fBaseCubicVertex = (instanceAligned) ? baseInstanceOrVertex * 4 : baseInstanceOrVertex;
     fCubicVertexCount = 0;
 
-    SkPath::Iter iter(fPath, false);
-    SkPath::Verb verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        if (SkPath::kQuad_Verb == verb) {
-            SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-            write_quadratic_as_cubic(vertexData + fCubicVertexCount, pts[0], pts[1], pts[2]);
-            fCubicVertexCount += 4;
-            continue;
-        }
-        if (SkPath::kCubic_Verb == verb) {
-            SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-            memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
-            fCubicVertexCount += 4;
-            continue;
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
+        switch (verb) {
+            case SkPathVerb::kQuad:
+                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
+                quad2cubic(pts, vertexData + fCubicVertexCount);
+                fCubicVertexCount += 4;
+                break;
+            case SkPathVerb::kCubic:
+                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
+                memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
+                fCubicVertexCount += 4;
+                break;
+            default:
+                break;
         }
     }
     SkASSERT(fCubicVertexCount == numCountedCurves * 4);
@@ -247,41 +237,38 @@ void GrTessellatePathOp::prepareCubicWedges(GrOpFlushState* flushState) {
 
     GrMidpointContourParser parser(fPath);
     while (parser.parseNextContour()) {
-        int ptsIdx = 0;
-        SkPoint lastPoint = parser.startPoint();
-        for (int i = 0; i < parser.countVerbs(); ++i) {
-            switch (parser.atVerb(i)) {
-                case SkPathVerb::kClose:
-                case SkPathVerb::kDone:
-                    if (parser.startPoint() != lastPoint) {
-                        lastPoint = write_line_as_cubic(vertexData + fCubicVertexCount,
-                                                        lastPoint, parser.startPoint());
-                        break;
-                    }  // fallthru
-                default:
+        SkPoint midpoint = parser.currentMidpoint();
+        SkPoint startPoint = {0, 0};
+        SkPoint lastPoint = startPoint;
+        for (auto [verb, pts, w] : parser.currentContour()) {
+            switch (verb) {
+                case SkPathVerb::kMove:
+                    startPoint = lastPoint = pts[0];
                     continue;
-
+                case SkPathVerb::kClose:
+                    continue;  // Ignore. We can assume an implicit close at the end.
                 case SkPathVerb::kLine:
-                    lastPoint = write_line_as_cubic(vertexData + fCubicVertexCount,
-                                                    lastPoint, parser.atPoint(ptsIdx));
-                    ++ptsIdx;
+                    line2cubic(pts[0], pts[1], vertexData + fCubicVertexCount);
+                    lastPoint = pts[1];
                     break;
                 case SkPathVerb::kQuad:
-                    lastPoint = write_quadratic_as_cubic(vertexData + fCubicVertexCount,
-                                                         lastPoint, parser.atPoint(ptsIdx),
-                                                         parser.atPoint(ptsIdx + 1));
-                    ptsIdx += 2;
+                    quad2cubic(pts, vertexData + fCubicVertexCount);
+                    lastPoint = pts[2];
                     break;
                 case SkPathVerb::kCubic:
-                    lastPoint = write_cubic(vertexData + fCubicVertexCount, lastPoint,
-                                            parser.atPoint(ptsIdx), parser.atPoint(ptsIdx + 1),
-                                            parser.atPoint(ptsIdx + 2));
-                    ptsIdx += 3;
+                    memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
+                    lastPoint = pts[3];
                     break;
                 case SkPathVerb::kConic:
+                case SkPathVerb::kDone:
                     SkUNREACHABLE;
             }
-            vertexData[fCubicVertexCount + 4] = parser.midpoint();
+            vertexData[fCubicVertexCount + 4] = midpoint;
+            fCubicVertexCount += 5;
+        }
+        if (lastPoint != startPoint) {
+            line2cubic(lastPoint, startPoint, vertexData + fCubicVertexCount);
+            vertexData[fCubicVertexCount + 4] = midpoint;
             fCubicVertexCount += 5;
         }
     }
