@@ -437,7 +437,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         // instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
         // api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
         // since that is the highest vulkan version.
-        apiVersion = VK_MAKE_VERSION(1, 1, 0);
+      //  apiVersion = VK_MAKE_VERSION(1, 1, 0);
     }
 
     instanceVersion = std::min(instanceVersion, apiVersion);
@@ -456,6 +456,11 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         apiVersion,                         // apiVersion
     };
 
+    SkDebugf("vulkan apiVersion: %d, 1.0 is: %d, 1.1 is: %d\n",
+             apiVersion, VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 1, 0));
+    SkDebugf("vulkan instanceVersion: %d, 1.2 is: %d\n",
+             instanceVersion, VK_MAKE_VERSION(1, 2, 0));
+
     SkTArray<VkLayerProperties> instanceLayers;
     SkTArray<VkExtensionProperties> instanceExtensions;
 
@@ -472,8 +477,17 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     }
     for (int i = 0; i < instanceExtensions.count(); ++i) {
         if (strncmp(instanceExtensions[i].extensionName, "VK_KHX", 6)) {
-            instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
+            if (strncmp(instanceExtensions[i].extensionName, "VK_EXT_d", 8)) {
+            //    instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
+            }
         }
+    }
+
+    for (int i = 0; i < instanceLayerNames.count(); ++i) {
+        SkDebugf("instance layer[%d]: %s\n", i, instanceLayerNames[i]);
+    }
+    for (int i = 0; i < instanceExtensionNames.count(); ++i) {
+        SkDebugf("instance extension[%d]: %s\n", i, instanceExtensionNames[i]);
     }
 
     const VkInstanceCreateInfo instance_create = {
@@ -491,12 +505,14 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
 
     ACQUIRE_VK_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
     err = grVkCreateInstance(&instance_create, nullptr, &inst);
+    SkDebugf("createInstance err: %d, vk_success: %d\n", err, VK_SUCCESS);
     if (err < 0) {
         SkDebugf("vkCreateInstance failed: %d\n", err);
         return false;
     }
 
 #ifdef SK_ENABLE_VK_LAYERS
+    SkDebugf("enable vk layers define is true\n");
     *debugCallback = VK_NULL_HANDLE;
     for (int i = 0; i < instanceExtensionNames.count() && !hasDebugExtension; ++i) {
         if (!strcmp(instanceExtensionNames[i], VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
@@ -504,6 +520,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     }
     if (hasDebugExtension) {
+        SkDebugf("has debug extension\n");
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
         callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -532,7 +549,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ACQUIRE_VK_PROC(DestroyDevice, inst, VK_NULL_HANDLE);
 
     uint32_t gpuCount;
-    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
+    err = vkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
+    SkDebugf("enumerate device err: %d\n", err);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
