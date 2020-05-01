@@ -6,8 +6,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
+	"fmt"
 	"math/rand"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -36,6 +39,18 @@ func main() {
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
 
+	actualStderr := os.Stderr
+	if *local {
+		// Task Driver echoes every exec.Run() stdout and stderr to the console,
+		// which makes it hard to find failures (especially stdout).  Send them to /dev/null.
+		f, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+		if err != nil {
+			td.Fatal(ctx, err)
+		}
+		os.Stdout = f
+		os.Stderr = f
+	}
+
 	if flag.NArg() < 1 {
 		td.Fatalf(ctx, "Please pass an fm binary.")
 	}
@@ -43,13 +58,16 @@ func main() {
 
 	// Run fm --flag to find the names of all linked GMs or tests.
 	query := func(flag string) []string {
-		stdout, err := exec.RunCwd(ctx, ".", fm, flag, "-i", *resources)
-		if err != nil {
+		stdout := &bytes.Buffer{}
+		cmd := &exec.Command{Name: fm, Stdout: stdout}
+		cmd.Args = append(cmd.Args, "-i", *resources)
+		cmd.Args = append(cmd.Args, flag)
+		if err := exec.Run(ctx, cmd); err != nil {
 			td.Fatal(ctx, err)
 		}
 
 		lines := []string{}
-		scanner := bufio.NewScanner(strings.NewReader(stdout))
+		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			lines = append(lines, scanner.Text())
 		}
@@ -124,18 +142,33 @@ func main() {
 
 	worker := func(queue chan work) {
 		for w := range queue {
-			cmd := []string{}
-			cmd = append(cmd, fm)
-			cmd = append(cmd, "-i", *resources)
-			cmd = append(cmd, w.Flags...)
-			cmd = append(cmd, "-s")
-			cmd = append(cmd, w.Sources...)
-
-			if _, err := exec.RunCwd(ctx, ".", cmd...); err != nil {
+			stdout := &bytes.Buffer{}
+			stderr := &bytes.Buffer{}
+			cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
+			cmd.Args = append(cmd.Args, "-i", *resources)
+			cmd.Args = append(cmd.Args, w.Flags...)
+			cmd.Args = append(cmd.Args, "-s")
+			cmd.Args = append(cmd.Args, w.Sources...)
+			if err := exec.Run(ctx, cmd); err != nil {
 				if len(w.Sources) == 1 {
 					// If a source ran alone and failed, that's just a failure.
 					atomic.AddInt32(&failures, 1)
 					td.FailStep(ctx, err)
+					if *local {
+						lines := []string{}
+						scanner := bufio.NewScanner(stderr)
+						for scanner.Scan() {
+							lines = append(lines, scanner.Text())
+						}
+						if err := scanner.Err(); err != nil {
+							td.Fatal(ctx, err)
+						}
+
+						fmt.Fprintf(actualStderr, "%v %v #failed:\n\t%v\n",
+							cmd.Name,
+							strings.Join(cmd.Args, " "),
+							strings.Join(lines, "\n\t"))
+					}
 				} else {
 					// If a batch of sources ran and failed, split them up and try again.
 					for _, source := range w.Sources {
@@ -176,6 +209,12 @@ func main() {
 	wg.Wait()
 
 	if failures > 0 {
-		td.Fatalf(ctx, "%v runs of %v failed after retries.", failures, fm)
+		if *local {
+			// td.Fatalf() would work fine, but barfs up a panic that we don't need to see.
+			fmt.Fprintf(actualStderr, "%v runs of %v failed after retries.\n", failures, fm)
+			os.Exit(1)
+		} else {
+			td.Fatalf(ctx, "%v runs of %v failed after retries.", failures, fm)
+		}
 	}
 }
