@@ -274,3 +274,10 @@ func (b *taskBuilder) usesPython() {
 	})
 	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
 }
+
+func (b *taskBuilder) usesNode() {
+	// It is very important when including node via CIPD to also add it to the PATH of the
+	// taskdriver or mysterious things can happen when subprocesses try to resolve node/npm.
+	b.asset("node")
+	b.addToPATH("node/node/bin")
+}

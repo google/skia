@@ -1,0 +1,197 @@
+<!-- This benchmark aims to accurately measure the time it takes for Skottie to load the JSON and
+turn it into an animation, as well as the times for the first hundred frames (and, as a subcomponent
+of that, the seek times of the first hundred frames). This is set to mimic how a real-world user
+would display the animation (e.g. using clock time to determine where to seek, not frame numbers).
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skottie-WASM Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 1000;
+    const HEIGHT = 1000;
+    // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
+    const MAX_FRAMES = 600; // ~10s at 60fps
+    const MAX_SAMPLE_MS = 30 * 1000; // in case something takes a while, stop after 30 seconds.
+    const LOTTIE_JSON_PATH = '/static/lottie.json';
+    const ASSETS_PATH = '/static/assets/';
+    (function() {
+
+      const loadKit = CanvasKitInit({
+        locateFile: (file) => '/static/' + file,
+      }).ready();
+
+      const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
+        return resp.text()
+      });
+
+      const loadFontsAndAssets = loadLottie.then((jsonStr) => {
+        const lottie = JSON.parse(jsonStr);
+        const promises = [];
+        promises.push(...loadFonts(lottie.fonts));
+        promises.push(...loadAssets(lottie.assets));
+        return Promise.all(promises);
+      });
+
+      Promise.all([loadKit, loadLottie, loadFontsAndAssets]).then((values) => {
+        const [CanvasKit, json, externalAssets] = values;
+        console.log(externalAssets);
+        const assets = {};
+        for (const asset of externalAssets) {
+          if (asset) {
+            assets[asset.name] = asset.bytes;
+          }
+        }
+        const loadStart = performance.now();
+        const animation = CanvasKit.MakeManagedAnimation(json, assets);
+        const loadTime = performance.now() - loadStart;
+
+        const duration = animation.duration() * 1000;
+        const bounds = {fLeft: 0, fTop: 0, fRight: WIDTH, fBottom: HEIGHT};
+
+        const surface = getSurface(CanvasKit);
+        if (!surface) {
+          console.error('Could not make surface', window._error);
+          return;
+        }
+        const canvas = surface.getCanvas();
+
+        document.getElementById('start_bench').addEventListener('click', () => {
+          const clearColor = CanvasKit.WHITE;
+          const frames = new Float32Array(MAX_FRAMES);
+          const seeks = new Float32Array(MAX_FRAMES);
+          let idx = 0;
+          const firstFrame = Date.now();
+          function drawFrame() {
+            const now = performance.now();
+            // Actually draw stuff.
+            const seek = ((Date.now() - firstFrame) / duration) % 1.0;
+            const damage = animation.seek(seek);
+            const afterSeek = performance.now();
+
+            if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+              canvas.clear(clearColor);
+              animation.render(canvas, bounds);
+            }
+            surface.flush();
+            // FPS measurement
+            frames[idx] = performance.now() - now;
+            seeks[idx] = afterSeek - now;
+            idx++;
+            // If we have maxed out the frames we are measuring or have completed the animation,
+            // we stop benchmarking.
+            if (idx >= frames.length || (Date.now() - firstFrame) > MAX_SAMPLE_MS) {
+              window._perfData = {
+                frames_ms: Array.from(frames).slice(0, idx),
+                seeks_ms: Array.from(seeks).slice(0, idx),
+                json_load_ms: loadTime,
+              };
+              window._perfDone = true;
+              return;
+            }
+            window.requestAnimationFrame(drawFrame);
+          }
+          window.requestAnimationFrame(drawFrame);
+        });
+        console.log('Perf is ready');
+        window._perfReady = true;
+      });
+    })();
+
+  function getSurface(CanvasKit) {
+    let surface;
+    if (window.location.hash.indexOf('gpu') !== -1) {
+      surface = CanvasKit.MakeWebGLCanvasSurface('anim', WIDTH, HEIGHT);
+      if (!surface) {
+        window._error = 'Could not make GPU surface';
+        return null;
+      }
+      let c = document.getElementById('anim');
+      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+      // to CPU and add a ck-replaced class to the canvas element.
+      if (c.classList.contains('ck-replaced')) {
+        window._error = 'fell back to CPU';
+        return null;
+      }
+    } else {
+      surface = CanvasKit.MakeSWCanvasSurface('anim', WIDTH, HEIGHT);
+      if (!surface) {
+        window._error = 'Could not make CPU surface';
+        return null;
+      }
+    }
+    return surface;
+  }
+
+  function loadFonts(fonts) {
+    const promises = [];
+    if (!fonts || !fonts.list) {
+      return promises;
+    }
+    for (const font of fonts.list) {
+      if (font.fName) {
+        promises.push(fetch(`${ASSETS_PATH}/${font.fName}.ttf`).then((resp) => {
+            // fetch does not reject on 404
+            if (!resp.ok) {
+              console.error(`Could not load ${font.fName}.ttf: status ${resp.status}`);
+              return null;
+            }
+            return resp.arrayBuffer().then((buffer) => {
+              return {
+                'name': font.fName,
+                'bytes': buffer
+              };
+            });
+          })
+        );
+      }
+    }
+    return promises;
+  }
+
+  function loadAssets(assets) {
+    const promises = [];
+    for (const asset of assets) {
+      // asset.p is the filename, if it's an image.
+      // Don't try to load inline/dataURI images.
+      const should_load = asset.p && asset.p.startsWith && !asset.p.startsWith('data:');
+      if (should_load) {
+        promises.push(fetch(`${ASSETS_PATH}/${asset.p}`)
+          .then((resp) => {
+            // fetch does not reject on 404
+            if (!resp.ok) {
+              console.error(`Could not load ${asset.p}: status ${resp.status}`);
+              return null;
+            }
+            return resp.arrayBuffer().then((buffer) => {
+              return {
+                'name': asset.p,
+                'bytes': buffer
+              };
+            });
+          })
+        );
+      }
+    }
+    return promises;
+  }
+  </script>
+</body>
+</html>

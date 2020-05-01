@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      '../../tools/perf-canvaskit-puppeteer/',
+    ],
+  },
+}

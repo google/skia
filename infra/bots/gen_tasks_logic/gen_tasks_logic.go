@@ -443,7 +443,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
 				"BonusConfigs", "SkottieTracing", "SkottieWASM", "GpuTess", "NonNVPR", "Mskp",
-				"Docker", "PDF", "SkVM"}
+				"Docker", "PDF", "SkVM", "Puppeteer", "SkottieFrames"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -488,7 +488,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if b.extraConfig("PathKit") {
 			ec = []string{"PathKit"}
 		}
-		if b.extraConfig("CanvasKit", "SkottieWASM") {
+		if b.extraConfig("CanvasKit", "SkottieWASM", "Puppeteer") {
 			if b.cpu() {
 				ec = []string{"CanvasKit_CPU"}
 			} else {
@@ -1271,7 +1271,7 @@ func (b *taskBuilder) commonTestPerfAssets() {
 	}
 }
 
-// test generates a Test task.
+// dm generates a Test task using dm.
 func (b *jobBuilder) dm() {
 	compileTaskName := ""
 	// LottieWeb doesn't require anything in Skia to be compiled.
@@ -1391,6 +1391,69 @@ func (b *jobBuilder) fm() {
 	})
 }
 
+// puppeteer generates a task that uses TaskDrivers combined with a node script and puppeteer to
+// benchmark something using Chromium (e.g. CanvasKit, LottieWeb).
+func (b *jobBuilder) puppeteer() {
+	compileTaskName := b.compile()
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.defaultSwarmDimensions()
+		b.isolate("perf_puppeteer.isolate")
+		b.cmd(
+			"./perf_puppeteer_skottie_frames",
+			"--project_id", "skia-swarming-bots",
+			"--git_hash", specs.PLACEHOLDER_REVISION,
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--canvaskit_bin_path", "./build",
+			"--lotties_path", "./lotties_with_assets",
+			"--node_bin_path", "./node/node/bin",
+			"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
+			"--output_path", OUTPUT_PERF,
+			"--os_trace", b.parts["os"],
+			"--model_trace", b.parts["model"],
+			"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
+			"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+			"--alsologtostderr",
+		)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		// This CIPD package was made by hand with the following invocation:
+		//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
+		//   cipd acl-edit skia/internal/lotties_with_assets -reader group:project-skia-external-task-accounts
+		//   cipd acl-edit skia/internal/lotties_with_assets -reader user:pool-skia@chromium-swarm.iam.gserviceaccount.com
+		// Where lotties is a hand-selected set of lottie animations and (optionally) assets used in
+		// them (e.g. fonts, images).
+		b.cipd(&specs.CipdPackage{
+			Name:    "skia/internal/lotties_with_assets",
+			Path:    "lotties_with_assets",
+			Version: "version:0",
+		})
+		b.usesNode()
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.dep(b.buildTaskDrivers(), compileTaskName)
+		b.output(OUTPUT_PERF)
+		b.timeout(20 * time.Minute)
+	})
+
+	// Upload results to Perf after.
+	// TODO(kjlubick,borenet) deduplicate this with the logic in perf().
+	uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
+	depName := b.Name
+	b.addTask(uploadName, func(b *taskBuilder) {
+		b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
+		b.recipeProps(EXTRA_PROPS)
+		// TODO(borenet): I'm not sure why the upload task is
+		// using the Perf task name, but I've done this to
+		// maintain existing behavior.
+		b.Name = depName
+		b.kitchenTask("upload_nano_results", OUTPUT_NONE)
+		b.Name = uploadName
+		b.serviceAccount(b.cfg.ServiceAccountUploadNano)
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.dep(depName)
+	})
+}
+
 // perf generates a Perf task.
 func (b *jobBuilder) perf() {
 	compileTaskName := ""
@@ -1399,92 +1462,72 @@ func (b *jobBuilder) perf() {
 		compileTaskName = b.compile()
 	}
 	doUpload := b.release() && b.doUpload()
-	if b.extraConfig("TaskDriver") {
-		doUpload = false
-		b.addTask(b.Name, func(b *taskBuilder) {
-			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.isolate("skottie_wasm.isolate")
-			b.cmd(
-				"./perf_skottie_wasm",
-				"--project_id", "skia-swarming-bots",
-				"--task_id", specs.PLACEHOLDER_TASK_ID,
-				"--task_name", b.Name,
-				"--workdir", ".",
-				"--alsologtostderr",
-			)
-			b.serviceAccount(b.cfg.ServiceAccountCompile)
-			b.cipd(CIPD_PKG_LUCI_AUTH)
-			b.dep(b.buildTaskDrivers(), compileTaskName)
-			b.timeout(20 * time.Minute)
-		})
-	} else {
-		b.addTask(b.Name, func(b *taskBuilder) {
-			recipe := "perf"
-			isolate := "perf_skia_bundled.isolate"
-			if b.extraConfig("Skpbench") {
-				recipe = "skpbench"
-				isolate = "skpbench_skia_bundled.isolate"
-			} else if b.extraConfig("PathKit") {
-				isolate = "pathkit.isolate"
-				recipe = "perf_pathkit"
-			} else if b.extraConfig("CanvasKit") {
-				isolate = "canvaskit.isolate"
-				recipe = "perf_canvaskit"
-			} else if b.extraConfig("SkottieTracing") {
-				recipe = "perf_skottietrace"
-			} else if b.extraConfig("SkottieWASM") {
-				recipe = "perf_skottiewasm_lottieweb"
-				isolate = "skottie_wasm.isolate"
-			} else if b.extraConfig("LottieWeb") {
-				recipe = "perf_skottiewasm_lottieweb"
-				isolate = "lottie_web.isolate"
-			}
-			b.recipeProps(EXTRA_PROPS)
-			if recipe == "perf" {
-				b.nanobenchFlags(doUpload)
-			}
-			b.kitchenTask(recipe, OUTPUT_PERF)
-			b.isolate(isolate)
-			b.swarmDimensions()
-			if b.extraConfig("CanvasKit", "Docker", "PathKit") {
-				b.usesDocker()
-			}
-			if compileTaskName != "" {
-				b.dep(compileTaskName)
-			}
-			b.commonTestPerfAssets()
-			b.expiration(20 * time.Hour)
-			b.timeout(4 * time.Hour)
+	b.addTask(b.Name, func(b *taskBuilder) {
+		recipe := "perf"
+		isolate := "perf_skia_bundled.isolate"
+		if b.extraConfig("Skpbench") {
+			recipe = "skpbench"
+			isolate = "skpbench_skia_bundled.isolate"
+		} else if b.extraConfig("PathKit") {
+			isolate = "pathkit.isolate"
+			recipe = "perf_pathkit"
+		} else if b.extraConfig("CanvasKit") {
+			isolate = "canvaskit.isolate"
+			recipe = "perf_canvaskit"
+		} else if b.extraConfig("SkottieTracing") {
+			recipe = "perf_skottietrace"
+		} else if b.extraConfig("SkottieWASM") {
+			recipe = "perf_skottiewasm_lottieweb"
+			isolate = "skottie_wasm.isolate"
+		} else if b.extraConfig("LottieWeb") {
+			recipe = "perf_skottiewasm_lottieweb"
+			isolate = "lottie_web.isolate"
+		}
+		b.recipeProps(EXTRA_PROPS)
+		if recipe == "perf" {
+			b.nanobenchFlags(doUpload)
+		}
+		b.kitchenTask(recipe, OUTPUT_PERF)
+		b.isolate(isolate)
+		b.swarmDimensions()
+		if b.extraConfig("CanvasKit", "Docker", "PathKit") {
+			b.usesDocker()
+		}
+		if compileTaskName != "" {
+			b.dep(compileTaskName)
+		}
+		b.commonTestPerfAssets()
+		b.expiration(20 * time.Hour)
+		b.timeout(4 * time.Hour)
 
-			if b.extraConfig("Valgrind") {
-				b.timeout(9 * time.Hour)
-				b.expiration(48 * time.Hour)
-				b.asset("valgrind")
-				// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-				// to ensure there are always bots free for CQ tasks.
-				b.dimension("valgrind:1")
-			} else if b.extraConfig("MSAN") {
-				b.timeout(9 * time.Hour)
-			} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
-				// skia:6737
-				b.timeout(6 * time.Hour)
-			} else if b.extraConfig("LottieWeb", "SkottieWASM") {
-				b.asset("node", "lottie-samples")
-			} else if b.matchExtraConfig("Skottie") {
-				b.asset("lottie-samples")
-			}
+		if b.extraConfig("Valgrind") {
+			b.timeout(9 * time.Hour)
+			b.expiration(48 * time.Hour)
+			b.asset("valgrind")
+			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+			// to ensure there are always bots free for CQ tasks.
+			b.dimension("valgrind:1")
+		} else if b.extraConfig("MSAN") {
+			b.timeout(9 * time.Hour)
+		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
+			// skia:6737
+			b.timeout(6 * time.Hour)
+		} else if b.extraConfig("LottieWeb", "SkottieWASM") {
+			b.asset("node", "lottie-samples")
+		} else if b.matchExtraConfig("Skottie") {
+			b.asset("lottie-samples")
+		}
 
-			if b.os("Android") && b.cpu() {
-				b.asset("text_blob_traces")
-			}
-			b.maybeAddIosDevImage()
+		if b.os("Android") && b.cpu() {
+			b.asset("text_blob_traces")
+		}
+		b.maybeAddIosDevImage()
 
-			iid := b.internalHardwareLabel()
-			if iid != nil {
-				b.Spec.Command = append(b.Spec.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
-			}
-		})
-	}
+		iid := b.internalHardwareLabel()
+		if iid != nil {
+			b.Spec.Command = append(b.Spec.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
+		}
+	})
 
 	// Upload results if necessary.
 	if doUpload {
