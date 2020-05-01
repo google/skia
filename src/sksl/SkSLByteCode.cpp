@@ -643,11 +643,25 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_BINARY_MASKED_OP(kDivideU, fUnsigned, /)
             VECTOR_MATRIX_BINARY_OP(kDivideF, fFloat, /)
 
-            case ByteCodeInstruction::kDup4: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup3: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup2: PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-            case ByteCodeInstruction::kDup : PUSH(sp[(int)ByteCodeInstruction::kDup - (int)inst]);
-                                             continue;
+            // Notice each of these PUSHs moves sp.
+            case ByteCodeInstruction::kDup4:
+                PUSH(sp[-3]);
+                PUSH(sp[-3]);
+                PUSH(sp[-3]);
+                PUSH(sp[-3]);
+                continue;
+            case ByteCodeInstruction::kDup3:
+                PUSH(sp[-2]);
+                PUSH(sp[-2]);
+                PUSH(sp[-2]);
+                continue;
+            case ByteCodeInstruction::kDup2:
+                PUSH(sp[-1]);
+                PUSH(sp[-1]);
+                continue;
+            case ByteCodeInstruction::kDup:
+                PUSH(sp[0]);
+                continue;
 
             case ByteCodeInstruction::kDupN: {
                 int count = READ8();

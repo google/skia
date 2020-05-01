@@ -189,7 +189,7 @@ class SpiralRT : public skiagm::GM {
 
             void main(float2 p, inout half4 color) {
                 float2 pp = p - in_center;
-                float radius = sqrt(dot(pp, pp));
+                float radius = length(pp);
                 radius = sqrt(radius);
                 float angle = atan(pp.y / pp.x);
                 float t = (angle + 3.1415926/2) / (3.1415926);
