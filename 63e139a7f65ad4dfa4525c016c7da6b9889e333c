@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "1dcde00d_54c3fc3f",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-01T18:20:15Z",
+      "side": 1,
+      "message": "ATM, the heap asserts if you call allocate and it has no descriptors left. To handle growing the heap that\u0027ll have to change obviously, but it\u0027s there for now.",
+      "parentUuid": "4ff9f2fe_0ec8e9af",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "563cb5fa_cecd29c9",
         "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
         "patchSetId": 1
@@ -93,6 +117,30 @@
       "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87d18942_3ab180c4",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-01T18:20:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "563cb5fa_cecd29c9",
+      "range": {
+        "startLine": 53,
+        "startChar": 87,
+        "endLine": 53,
+        "endChar": 108
+      },
+      "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
