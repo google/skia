@@ -81,6 +81,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     fTranslate = {-SkIntToScalar(resultBounds.fLeft), -SkIntToScalar(resultBounds.fTop)};
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(), resultBounds.height());
 
+    SkDebugf("SW %d,%d\n", bounds.width(), bounds.height());
     const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(bounds.width(), bounds.height());
     if (!fPixels->tryAlloc(bmImageInfo)) {
         return false;
