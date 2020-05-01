@@ -8,51 +8,65 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
+#include <climits>
+#include <limits>
+#include <memory>
 
 class SkBitSet {
 public:
-    explicit SkBitSet(int numberOfBits) {
-        SkASSERT(numberOfBits >= 0);
-        fDwordCount = (numberOfBits + 31) / 32;  // Round up size to 32-bit boundary.
-        if (fDwordCount > 0) {
-            fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
-        }
-    }
+    explicit SkBitSet(size_t size)
+        : fSize(size)
+        // May http://wg21.link/p0593 be accepted.
+        , fChunks((Chunk*)sk_calloc_throw(numChunksFor(fSize) * sizeof(Chunk)))
+    {}
 
-    /** Set the value of the index-th bit to true.  */
-    void set(int index) {
-        uint32_t mask = 1 << (index & 31);
-        uint32_t* chunk = this->internalGet(index);
-        SkASSERT(chunk);
-        *chunk |= mask;
+    SkBitSet(const SkBitSet&) = delete;
+    SkBitSet& operator=(const SkBitSet&) = delete;
+    SkBitSet(SkBitSet&& that) : fSize(that.fSize), fChunks(std::move(that.fChunks)) {
+        that.fSize = 0;
+    }
+    SkBitSet& operator=(SkBitSet&& that) {
+        this->fSize = that.fSize;
+        this->fChunks = std::move(that.fChunks);
+        that.fSize = 0;
+        return *this;
+    }
+    ~SkBitSet() = default;
+
+    /** Set the value of the index-th bit to true. */
+    void set(size_t index) {
+        SkASSERT(index < fSize);
+        *this->chunkFor(index) |= chunkMaskFor(index);
     }
 
     /** Set the value of the index-th bit to false.  */
-    void clear(int index) {
-        uint32_t mask = ~(1 << (index & 31));
-        uint32_t* chunk = this->internalGet(index);
-        SkASSERT(chunk);
-        *chunk &= mask;
+    void clear(size_t index) {
+        SkASSERT(index < fSize);
+        *this->chunkFor(index) &= ~chunkMaskFor(index);
     }
 
-    bool has(int index) const {
-        const uint32_t* chunk = this->internalGet(index);
-        uint32_t mask = 1 << (index & 31);
-        return chunk && SkToBool(*chunk & mask);
+    bool has(size_t index) const {
+        return (index < fSize) && SkToBool(*this->chunkFor(index) & chunkMaskFor(index));
     }
 
-    // Calls f(unsigned) for each set value.
+    size_t size() const {
+        return fSize;
+    }
+
+    // Calls f(size_t) for each set value.
     template<typename FN>
     void getSetValues(FN f) const {
-        const uint32_t* data = fBitData.get();
-        for (unsigned i = 0; i < fDwordCount; ++i) {
-            if (uint32_t value = data[i]) {  // There are set bits
-                unsigned index = i * 32;
-                for (unsigned j = 0; j < 32; ++j) {
-                    if (0x1 & (value >> j)) {
-                        f(index | j);
+        const Chunk* chunks = fChunks.get();
+        const size_t numChunks = numChunksFor(fSize);
+        for (size_t i = 0; i < numChunks; ++i) {
+            if (Chunk chunk = chunks[i]) {  // There are set bits
+                const size_t index = i * ChunkBits;
+                for (size_t j = 0; j < ChunkBits; ++j) {
+                    if (0x1 & (chunk >> j)) {
+                        f(index + j);
                     }
                 }
             }
@@ -62,26 +76,36 @@ public:
     // Returns the index of the first set bit
     // Returns -1 if no bits are set
     int leadingBitIndex() {
-        const uint32_t* data = fBitData.get();
-        for (unsigned i = 0; i < fDwordCount; ++i) {
-            if (uint32_t value = data[i]) {  // There are set bits
-                int index = SkPrevLog2(value);
-                return index + i * 32;
+        const Chunk* chunks = fChunks.get();
+        const size_t numChunks = numChunksFor(fSize);
+        for (size_t i = 0; i < numChunks; ++i) {
+            if (Chunk chunk = chunks[i]) {  // There are set bits
+                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkPrevLog2");
+                return i * ChunkBits + SkPrevLog2(chunk);
             }
         }
         return -1;
     }
 
 private:
-    std::unique_ptr<uint32_t, SkFunctionWrapper<void(void*), sk_free>> fBitData;
-    size_t fDwordCount;  // Dword (32-bit) count of the bitset.
+    size_t fSize;
 
-    uint32_t* internalGet(int index) const {
-        size_t internalIndex = index / 32;
-        if (internalIndex >= fDwordCount) {
-            return nullptr;
-        }
-        return fBitData.get() + internalIndex;
+    using Chunk = uint32_t;
+    static_assert(std::numeric_limits<Chunk>::radix == 2);
+    static constexpr size_t ChunkBits = std::numeric_limits<Chunk>::digits;
+    static_assert(ChunkBits == sizeof(Chunk)*CHAR_BIT, "It would work, but don't waste bits.");
+    std::unique_ptr<Chunk, SkFunctionWrapper<void(void*), sk_free>> fChunks;
+
+    Chunk* chunkFor(size_t index) const {
+        return fChunks.get() + (index / ChunkBits);
+    }
+
+    static constexpr Chunk chunkMaskFor(size_t index) {
+        return (Chunk)1 << (index & (ChunkBits-1));
+    }
+
+    static constexpr size_t numChunksFor(size_t size) {
+        return (size + (ChunkBits-1)) / ChunkBits;
     }
 };
 

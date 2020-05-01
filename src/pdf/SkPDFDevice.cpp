@@ -868,7 +868,7 @@ void SkPDFDevice::internalDrawGlyphRun(
 
     ScopedOutputMarkedContentTags mark(fNodeId, fDocument, out);
 
-    const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
+    const int numGlyphs = typeface->countGlyphs();
 
     if (clusterator.reversedChars()) {
         out->writeText("/ReversedChars BMC\n");
@@ -920,7 +920,7 @@ void SkPDFDevice::internalDrawGlyphRun(
         }
         for (; index < glyphLimit; ++index) {
             SkGlyphID gid = glyphIDs[index];
-            if (gid > maxGlyphID) {
+            if (numGlyphs <= gid) {
                 continue;
             }
             SkPoint xy = glyphRun.positions()[index];

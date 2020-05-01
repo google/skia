@@ -386,7 +386,6 @@ skia_core_sources = [
   "$_src/core/SkTypeface.cpp",
   "$_src/core/SkTypefaceCache.cpp",
   "$_src/core/SkTypefaceCache.h",
-  "$_src/core/SkTypefacePriv.h",
   "$_src/core/SkTypeface_remote.cpp",
   "$_src/core/SkTypeface_remote.h",
   "$_src/core/SkUnPreMultiply.cpp",

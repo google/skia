@@ -44,7 +44,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkTypefacePriv.h"
 #include "src/core/SkUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sfnt/SkSFNTHeader.h"
@@ -1715,7 +1714,7 @@ HRESULT SkXPSDevice::clipToPath(IXpsOMVisual* xpsVisual,
 
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
                                        TypefaceUse** typefaceUse) {
-    SkAutoResolveDefaultTypeface typeface(font.getTypeface());
+    SkTypeface* typeface = font.getTypefaceOrDefault();
 
     //Check cache.
     const SkFontID typefaceID = typeface->uniqueID();
@@ -1909,15 +1908,24 @@ void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
         // (XPS Spec 5.1.3).
         FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
         SkAutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
+        size_t numGlyphs = typeface->glyphsUsed.size();
+        size_t actualGlyphCount = 0;
 
         for (size_t i = 0; i < glyphCount; ++i) {
+            if (numGlyphs <= glyphIDs[i]) {
+                continue;
+            }
             const SkPoint& position = run.positions()[i];
-            XPS_GLYPH_INDEX& xpsGlyph = xpsGlyphs[i];
+            XPS_GLYPH_INDEX& xpsGlyph = xpsGlyphs[actualGlyphCount++];
             xpsGlyph.index = glyphIDs[i];
             xpsGlyph.advanceWidth = 0.0f;
             xpsGlyph.horizontalOffset = (SkScalarToFloat(position.fX) * centemPerUnit);
             xpsGlyph.verticalOffset = (SkScalarToFloat(position.fY) * -centemPerUnit);
             typeface->glyphsUsed.set(xpsGlyph.index);
+        }
+
+        if (actualGlyphCount == 0) {
+            return;
         }
 
         XPS_POINT origin = {
@@ -1929,7 +1937,7 @@ void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
                       this->fCurrentXpsCanvas.get(),
                       typeface,
                       nullptr,
-                      xpsGlyphs.get(), glyphCount,
+                      xpsGlyphs.get(), actualGlyphCount,
                       &origin,
                       SkScalarToFLOAT(font.getSize()),
                       XPS_STYLE_SIMULATION_NONE,
