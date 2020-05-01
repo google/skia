@@ -2054,7 +2054,7 @@ DEF_TEST(SkVM_approx_math, r) {
         for (float y = -3; y <= 3; y += 1) {
             for (float x = -3; x <= 3; x += 1) {
                 err += test2(y, x, atan2(y,x), tol, [](skvm::F32 y, skvm::F32 x) {
-                    return approx_atan(y,x);
+                    return approx_atan2(y,x);
                 });
             }
         }
