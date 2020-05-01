@@ -217,9 +217,9 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc)
         : SkScalerContext(std::move(typefaceRef), effects, desc)
-        , fGlyphCount(-1) {
-
+{
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
+    fGlyphCount = typeface->fDWriteFontFace->GetGlyphCount();
     fIsColorFont = typeface->fFactory2 &&
                    typeface->fDWriteFontFace2 &&
                    typeface->fDWriteFontFace2->IsColorFont();
@@ -373,9 +373,6 @@ SkScalerContext_DW::~SkScalerContext_DW() {
 }
 
 unsigned SkScalerContext_DW::generateGlyphCount() {
-    if (fGlyphCount < 0) {
-        fGlyphCount = this->getDWriteTypeface()->fDWriteFontFace->GetGlyphCount();
-    }
     return fGlyphCount;
 }
 
@@ -384,6 +381,13 @@ bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceY = 0;
 
     uint16_t glyphId = glyph->getGlyphID();
+
+    // DirectWrite treats all out of bounds glyph ids as having the same data as glyph 0.
+    // For consistency with all other backends, treat out of range glyph ids as an error.
+    if (fGlyphCount <= glyphId) {
+        return false;
+    }
+
     DWRITE_GLYPH_METRICS gm;
 
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
@@ -653,7 +657,6 @@ void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
-
 
      // GetAlphaTextureBounds succeeds but sometimes returns empty bounds like
      // { 0x80000000, 0x80000000, 0x80000000, 0x80000000 }
@@ -1164,8 +1167,13 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 
 bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
-
     path->reset();
+
+    // DirectWrite treats all out of bounds glyph ids as having the same data as glyph 0.
+    // For consistency with all other backends, treat out of range glyph ids as an error.
+    if (fGlyphCount <= glyph) {
+        return false;
+    }
 
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
     HRBM(SkDWriteGeometrySink::Create(path, &geometryToPath),
