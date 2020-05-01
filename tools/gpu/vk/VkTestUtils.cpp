@@ -456,6 +456,11 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         apiVersion,                         // apiVersion
     };
 
+    SkDebugf("vulkan apiVersion: %d, 1.0 is: %d, 1.1 is: %d\n",
+             apiVersion, VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 1, 0));
+    SkDebugf("vulkan instanceVersion: %d, 1.2 is: %d\n",
+             instanceVersion, VK_MAKE_VERSION(1, 2, 0));
+
     SkTArray<VkLayerProperties> instanceLayers;
     SkTArray<VkExtensionProperties> instanceExtensions;
 
@@ -474,6 +479,13 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         if (strncmp(instanceExtensions[i].extensionName, "VK_KHX", 6)) {
             instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
         }
+    }
+
+    for (int i = 0; i < instanceLayerNames.count(); ++i) {
+        SkDebugf("instance layer[%d]: %s\n", i, instanceLayerNames[i]);
+    }
+    for (int i = 0; i < instanceExtensionNames.count(); ++i) {
+        SkDebugf("instance extension[%d]: %s\n", i, instanceExtensionNames[i]);
     }
 
     const VkInstanceCreateInfo instance_create = {
@@ -497,6 +509,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     }
 
 #ifdef SK_ENABLE_VK_LAYERS
+    SkDebugf("enable vk layers define is true\n");
     *debugCallback = VK_NULL_HANDLE;
     for (int i = 0; i < instanceExtensionNames.count() && !hasDebugExtension; ++i) {
         if (!strcmp(instanceExtensionNames[i], VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
@@ -504,6 +517,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     }
     if (hasDebugExtension) {
+        SkDebugf("has debug extension\n");
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
         callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
