@@ -561,6 +561,14 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     return true;
 }
 
+void GrD3DGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color, GrRenderTarget* rt) {
+    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(rt);
+
+    d3dRT->setResourceState(this, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    fCurrentDirectCommandList->clearRenderTargetView(d3dRT, color, clip);
+}
+
 static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     if (!info.fResource.get()) {
         return false;
@@ -823,11 +831,23 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 
+    D3D12_CLEAR_VALUE* clearValuePtr = nullptr;
+    D3D12_CLEAR_VALUE clearValue = {};
+    if (renderable == GrRenderable::kYes) {
+        clearValue.Format = dxgiFormat;
+        // Assume transparent black
+        clearValue.Color[0] = 0;
+        clearValue.Color[1] = 0;
+        clearValue.Color[2] = 0;
+        clearValue.Color[3] = 0;
+        clearValuePtr = &clearValue;
+    }
+
     D3D12_RESOURCE_STATES initialState =
         (renderable == GrRenderable::kYes) && !data ? D3D12_RESOURCE_STATE_RENDER_TARGET :
                                                       D3D12_RESOURCE_STATE_COPY_DEST;
     if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, initialState,
-                                                       isProtected, info)) {
+                                                       isProtected, clearValuePtr, info)) {
         SkDebugf("Failed to init texture resource info\n");
         return false;
     }
