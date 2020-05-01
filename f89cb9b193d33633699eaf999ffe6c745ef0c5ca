@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e73c434_26b89ed8",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-01T15:12:03Z",
+      "side": 1,
+      "message": "Same here - you can just pass it as \"SkISize\"",
+      "range": {
+        "startLine": 43,
+        "startChar": 37,
+        "endLine": 43,
+        "endChar": 52
+      },
+      "revId": "f89cb9b193d33633699eaf999ffe6c745ef0c5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d7448d6_535d8a5d",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-01T15:12:03Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 118,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 21
+      },
+      "revId": "f89cb9b193d33633699eaf999ffe6c745ef0c5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4f20a54_ad4ec47b",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-01T15:12:03Z",
+      "side": 1,
+      "message": "I think we\u0027ve decided to just return this as \"SkISize\"",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 23
+      },
+      "revId": "f89cb9b193d33633699eaf999ffe6c745ef0c5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52014329_ee4646df",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-01T15:12:03Z",
+      "side": 1,
+      "message": "this-\u003eisSampled() due to the \"Method calls within method calls should be prefixed with dereference of the \u0027this\u0027 pointer\" rule",
+      "range": {
+        "startLine": 80,
+        "startChar": 22,
+        "endLine": 80,
+        "endChar": 31
+      },
+      "revId": "f89cb9b193d33633699eaf999ffe6c745ef0c5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
