@@ -11,9 +11,12 @@
 
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
@@ -1060,7 +1063,20 @@ GrProgramDesc GrD3DCaps::makeDesc(const GrRenderTarget* rt,
 
     GrProcessorKeyBuilder b(&desc.key());
 
-    // TODO: add D3D-specific information
+    GrD3DRenderTarget* d3dRT = (GrD3DRenderTarget*) rt;
+    d3dRT->genKey(&b);
+
+    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
+    stencil.genKey(&b, false);
+
+    programInfo.pipeline().genKey(&b, *this);
+    // The num samples is already added in the render target key so we don't need to add it here.
+    SkASSERT(programInfo.numRasterSamples() == rt->numSamples());
+
+    // D3D requires the full primitive type as part of its key
+    b.add32(programInfo.primitiveTypeKey());
+
+    SkASSERT(!this->mixedSamplesSupport());
 
     return desc;
 }

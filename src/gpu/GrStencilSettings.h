@@ -68,7 +68,7 @@ public:
     bool usesWrapOp() const { SkASSERT(this->isValid());
                               return !(fFlags & kNoWrapOps_StencilFlag); }
 
-    void genKey(GrProcessorKeyBuilder* b) const;
+    void genKey(GrProcessorKeyBuilder* b, bool includeRefsAndMasks) const;
 
     bool operator!=(const GrStencilSettings& that) const { return !(*this == that); }
     bool operator==(const GrStencilSettings&) const;
