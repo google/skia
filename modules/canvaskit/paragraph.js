@@ -68,6 +68,7 @@
       if (!isCanvasKitColor(s['color'])) {
         s['color'] = CanvasKit.BLACK;
       }
+
       s['foregroundColor'] = s['foregroundColor'] || CanvasKit.TRANSPARENT;
       s['backgroundColor'] = s['backgroundColor'] || CanvasKit.TRANSPARENT;
       s['decoration'] = s['decoration'] || 0;
@@ -107,6 +108,48 @@
         sPtrs.push(strPtr);
       }
       return copy1dArray(sPtrs, CanvasKit.HEAPU32);
+    }
+
+    function copyColors(textStyle) {
+      var tmp = {};
+      Object.assign(tmp, textStyle);
+
+      tmp.color = copy1dArray(textStyle.color, CanvasKit.HEAPF32);
+      tmp.foregroundColor = 0;
+      tmp.backgroundColor = 0;
+
+      if (textStyle.foregroundColor.a > 0) {
+        tmp.foregroundColor = copy1dArray(textStyle.foregroundColor, CanvasKit.HEAPF32);
+      }
+      if (textStyle.backgroundColor.a > 0) {
+        tmp.backgroundColor = copy1dArray(textStyle.backgroundColor, CanvasKit.HEAPF32);
+      }
+      return tmp;
+    }
+
+    function freeColors(textStyle) {
+      CanvasKit._free(textStyle.color);
+      if (textStyle.foregroundColor !== 0) {
+        CanvasKit._free(textStyle.foregroundColor);
+      }
+      if (textStyle.backgroundColor !== 0) {
+        CanvasKit._free(textStyle.backgroundColor);
+      }
+    }
+
+    CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
+      var tmp = {};
+      Object.assign(tmp, paragraphStyle);
+      tmp.textStyle = copyColors(paragraphStyle.textStyle);
+
+      return CanvasKit.ParagraphBuilder._Make(tmp, fontManager);
+      freeColors(tmp.textStyle);
+    }
+
+    CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
+      var tmpStyle = copyColors(textStyle);
+      this._pushStyle(tmpStyle);
+      freeColors(tmpStyle);
     }
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";
