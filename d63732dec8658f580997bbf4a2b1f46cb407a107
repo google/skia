@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5538867c_a6a37691",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T14:19:04Z",
+      "side": 1,
+      "message": "Yes, worth adding the check.",
+      "parentUuid": "feccbfa2_30e14047",
+      "range": {
+        "startLine": 217,
+        "startChar": 16,
+        "endLine": 218,
+        "endChar": 43
+      },
+      "revId": "d63732dec8658f580997bbf4a2b1f46cb407a107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a3d869e_83c1f5b8",
         "filename": "samplecode/Sample3D.cpp",
         "patchSetId": 5
