@@ -1167,12 +1167,17 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     sk_sp<SkBaseDevice> newDevice;
     {
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
-        const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
+
+        // TODO: reinstate kPreserveLCDText_SaveLayerFlag
+        geo = kUnknown_SkPixelGeometry;
+
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
-        const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
-                                                                             trackCoverage,
-                                                                             fAllocator.get());
+        const auto createInfo = SkBaseDevice::CreateInfo(info,
+                                                         geo,
+                                                         SkBaseDevice::kNever_TileUsage,
+                                                         trackCoverage,
+                                                         fAllocator.get());
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
             return;
