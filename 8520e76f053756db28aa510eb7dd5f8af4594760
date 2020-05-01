@@ -118,6 +118,30 @@
       "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8b10d0f_a21330cc",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T13:42:29Z",
+      "side": 1,
+      "message": "Yeah. It\u0027s one of those that\u0027s easy to implement in SkSL. I\u0027d like to have a simple way of describing the more complex intrinsics using the (planned but not yet started) DSL or similar. But just implementing length() in the generator wouldn\u0027t be too hard.",
+      "parentUuid": "bdbe0195_fa9e3322",
+      "range": {
+        "startLine": 192,
+        "startChar": 36,
+        "endLine": 192,
+        "endChar": 47
+      },
+      "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
