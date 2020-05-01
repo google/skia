@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84a3d8a2_660c444f",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-01T15:04:17Z",
+      "side": 1,
+      "message": "Curious why the change from tuple to pair? I\u0027ve developed the habit of always typing tuple rather than making 2 elements a special case. But if there\u0027s a good reason to use pair I\u0027d like to know.",
+      "range": {
+        "startLine": 90,
+        "startChar": 30,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "3c5b5a0f1a5ed4b963a662764f9cf3f726cbfaa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52b55f11_8c5824e4",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-01T15:04:17Z",
+      "side": 1,
+      "message": "Alternative could be to use std::enable_if so the function doesn\u0027t exist for non-trivially-copyable.",
+      "revId": "3c5b5a0f1a5ed4b963a662764f9cf3f726cbfaa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
