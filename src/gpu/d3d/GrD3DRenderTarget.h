@@ -50,6 +50,9 @@ public:
 
     DXGI_FORMAT stencilDxgiFormat() const;
 
+    // Key used for the program desc
+    void genKey(GrProcessorKeyBuilder* b) const;
+
 protected:
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,

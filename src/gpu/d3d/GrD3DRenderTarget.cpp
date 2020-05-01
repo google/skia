@@ -189,3 +189,15 @@ DXGI_FORMAT GrD3DRenderTarget::stencilDxgiFormat() const {
     }
     return DXGI_FORMAT_UNKNOWN;
 }
+
+void GrD3DRenderTarget::genKey(GrProcessorKeyBuilder* b) const {
+    b->add32(this->dxgiFormat());
+    b->add32(this->numSamples());
+    b->add32(this->stencilDxgiFormat());
+#ifdef SK_DEBUG
+    if (const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+        SkASSERT(stencil->numSamples() == this->numSamples());
+    }
+#endif
+    b->add32(this->sampleQualityLevel());
+}
