@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "908bec09_308bcf12",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-01T17:03:05Z",
+      "side": 1,
+      "message": "why cap this? Can\u0027t we just make multiple heaps if we use too many? Seems like then we could start with a smaller heap like say 32 and grow if need be? I\u0027m not really sure what the max number of render targets alive at the same time is but 32 seems like a large number to me.",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "563cb5fa_cecd29c9",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-01T17:03:05Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 53,
+        "startChar": 87,
+        "endLine": 53,
+        "endChar": 108
+      },
+      "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
