@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bfd57fcc_cbb59fe5",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-01T17:24:22Z",
+      "side": 1,
+      "message": "I was hoping to push it off a bit, but I\u0027ll see if I can come up with something more flexible.",
+      "parentUuid": "908bec09_308bcf12",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "63e139a7f65ad4dfa4525c016c7da6b9889e333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "563cb5fa_cecd29c9",
         "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
         "patchSetId": 1
