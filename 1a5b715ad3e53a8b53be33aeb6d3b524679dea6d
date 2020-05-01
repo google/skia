@@ -22,6 +22,30 @@
       "revId": "1a5b715ad3e53a8b53be33aeb6d3b524679dea6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "613fe0cc_d79026c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-01T18:51:17Z",
+      "side": 1,
+      "message": "Oh, is it that it\u0027s still meaningful to tag them as sRGB?",
+      "parentUuid": "a6f576e8_4874b21d",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 5
+      },
+      "revId": "1a5b715ad3e53a8b53be33aeb6d3b524679dea6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
