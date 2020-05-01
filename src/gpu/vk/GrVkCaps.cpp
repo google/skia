@@ -1721,7 +1721,7 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     vkRT->getSimpleRenderPass()->genKey(&b);
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-    stencil.genKey(&b);
+    stencil.genKey(&b, true);
 
     programInfo.pipeline().genKey(&b, *this);
     b.add32(programInfo.numRasterSamples());
