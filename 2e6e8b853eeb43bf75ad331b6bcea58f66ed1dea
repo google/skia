@@ -262,6 +262,30 @@
       "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdb3dca3_7668ccbf",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-01T12:44:08Z",
+      "side": 1,
+      "message": "These all sound complicated, and I\u0027m no longer clear what benefit merits this work.  I think for now I would prefer we give up on Abseil.  If there\u0027s an idea you like from Abseil, for now please just replicate it in Skia?",
+      "parentUuid": "a0810999_aeb5b52b",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 69
+      },
+      "revId": "2e6e8b853eeb43bf75ad331b6bcea58f66ed1dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
