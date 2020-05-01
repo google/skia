@@ -22,6 +22,30 @@
       "revId": "ab05c0c7775477d9b10105cc7f4c3df24084fb78",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08c94fd1_1ef8fc79",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-01T21:26:43Z",
+      "side": 1,
+      "message": "A git grep in chrome reveals nothing. As you pointed out, all the iterators are still using SkPath::Verb.",
+      "parentUuid": "2850c1ce_5c2607f5",
+      "range": {
+        "startLine": 1386,
+        "startChar": 8,
+        "endLine": 1386,
+        "endChar": 19
+      },
+      "revId": "ab05c0c7775477d9b10105cc7f4c3df24084fb78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
