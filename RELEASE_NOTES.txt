@@ -8,6 +8,8 @@ Milestone 84
 
   * <insert new release note here>
 
+  * SkCanvas::saveLayerAlpha() now preserves LCD text.
+
   * Add the new directory client_utils/ for code that is specific to a single client and
     should be considered separate from Skia proper. Move SkFrontBufferedStream into the
     subdir android/.
