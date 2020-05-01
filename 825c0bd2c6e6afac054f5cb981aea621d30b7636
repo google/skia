@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ace37bfe_d58e8c8f",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T14:26:59Z",
+      "side": 1,
+      "message": "This is just for legibility, right? (Should be equivalent to the previous code?)",
+      "revId": "825c0bd2c6e6afac054f5cb981aea621d30b7636",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
