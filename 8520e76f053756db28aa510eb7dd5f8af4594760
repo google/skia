@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "812b4c4c_3e7add51",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-01T13:20:23Z",
+      "side": 1,
+      "message": "FYI: I\u0027m pretty sure this is where you\u0027re hitting precision problems on the Mali-400. It doesn\u0027t have fp32, at all, and this is going to overflow near the corners of your GM (2^8 * 2^8) * 2 -\u003e 2^17.\n\nProbably not important as this is just a demo.",
+      "range": {
+        "startLine": 192,
+        "startChar": 36,
+        "endLine": 192,
+        "endChar": 47
+      },
+      "revId": "8520e76f053756db28aa510eb7dd5f8af4594760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
