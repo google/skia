@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "337ee1df_ab414dc1",
+        "filename": "src/gpu/tessellate/GrMidpointContourParser.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-01T14:57:29Z",
+      "side": 1,
+      "message": "That\u0027s nicer!",
+      "parentUuid": "534ce66f_fd002add",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 49
+      },
+      "revId": "860f79feecda0096b011df7fcd990806ff211825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6669fa31_2beddf7e",
         "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
         "patchSetId": 9
