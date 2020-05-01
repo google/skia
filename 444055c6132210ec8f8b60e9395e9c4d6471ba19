@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "66ce43e4_17f055f5",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2020-05-01T16:17:17Z",
+      "side": 1,
+      "message": "Done.\n\nI had a version that hardcoded kPreserveLCDText_SaveLayerFlag in saveLayerAlpha(). Forgot to remove this comment from the latest version.",
+      "parentUuid": "113b2575_d0744408",
+      "range": {
+        "startLine": 615,
+        "startChar": 8,
+        "endLine": 615,
+        "endChar": 35
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6639f60a_d1f4b18a",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ec43e5af_502d8fc0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2020-05-01T16:17:17Z",
+      "side": 1,
+      "message": "I think we still need this to prevent pixel-moving or color changing (not only opaqueness changing) filters from breaking LCD text.\n\nMoved check of kPreserveLCDText_SaveLayerFlag together with this, and modified the comment.",
+      "parentUuid": "6639f60a_d1f4b18a",
+      "range": {
+        "startLine": 1151,
+        "startChar": 0,
+        "endLine": 1153,
+        "endChar": 9
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df3badbf_4c5ddcb2",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43df1f6e_9fdbd06b",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2020-05-01T16:17:17Z",
+      "side": 1,
+      "message": "Thanks for creating https://skia-review.googlesource.com/c/skia/+/286876! Rebased this CL on it.\n\nThe above code was copied from the Firefox version of Skia :)",
+      "parentUuid": "df3badbf_4c5ddcb2",
+      "range": {
+        "startLine": 1171,
+        "startChar": 0,
+        "endLine": 1172,
+        "endChar": 95
+      },
+      "revId": "444055c6132210ec8f8b60e9395e9c4d6471ba19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
