@@ -359,6 +359,8 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 namespace {
 
 template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const char* name) {
+    // DONT LAND. Testing.
+//    return 0 != strncmp(name, "matrixconvolution", strlen("matrixconvolution"));
     int    count      = strings.count();
     size_t testLen    = strlen(name);
     bool   anyExclude = count == 0;
