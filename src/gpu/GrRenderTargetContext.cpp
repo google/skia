@@ -383,7 +383,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask) {
     if (fOpsTask) {
-        fOpsTask->setClosedObserver(this);
+        fOpsTask->addClosedObserver(this);
     }
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
     SkASSERT(this->origin() == fWriteView.origin());
@@ -403,7 +403,7 @@ void GrRenderTargetContext::onValidate() const {
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
     if (fOpsTask) {
-        fOpsTask->setClosedObserver(nullptr);
+        fOpsTask->removeClosedObserver(this);
     }
 }
 
@@ -441,7 +441,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
             // values?
             newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
         }
-        newOpsTask->setClosedObserver(this);
+        newOpsTask->addClosedObserver(this);
         fOpsTask = std::move(newOpsTask);
     }
     SkASSERT(!fOpsTask->isClosed());
