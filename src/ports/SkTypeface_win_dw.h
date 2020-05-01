@@ -101,11 +101,19 @@ public:
 
 protected:
     void weak_dispose() const override {
-        if (fDWriteFontCollectionLoader.get()) {
-            HRV(fFactory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get()));
-        }
+        // Don't return if these fail, just keep going so this gets disposed.
+        HRESULT hr;
         if (fDWriteFontFileLoader.get()) {
-            HRV(fFactory->UnregisterFontFileLoader(fDWriteFontFileLoader.get()));
+            hr = fFactory->UnregisterFontFileLoader(fDWriteFontFileLoader.get());
+            if (FAILED(hr)) {
+                SK_TRACEHR(hr, "FontFileLoader");
+            }
+        }
+        if (fDWriteFontCollectionLoader.get()) {
+            hr = fFactory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get());
+            if (FAILED(hr)) {
+                SK_TRACEHR(hr, "FontCollectionLoader");
+            }
         }
 
         //SkTypefaceCache::Remove(this);
