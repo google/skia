@@ -2328,6 +2328,10 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
             fSymbolTable = ((Enum&) *e).fSymbols;
             result = convertIdentifier(ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier,
                                                field));
+            if (!result) {
+                fSymbolTable = old;
+                return nullptr;
+            }
             SkASSERT(result->fKind == Expression::kVariableReference_Kind);
             const Variable& v = ((VariableReference&) *result).fVariable;
             SkASSERT(v.fInitialValue);
