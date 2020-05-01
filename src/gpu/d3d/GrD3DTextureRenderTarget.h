@@ -61,6 +61,8 @@ private:
                              sk_sp<GrD3DResourceState> state,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& resolveRenderTargetView,
                              GrMipMapsStatus);
 
     // non-MSAA, not-wrapped
@@ -69,6 +71,7 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
                              GrMipMapsStatus);
 
     // MSAA, wrapped
@@ -79,6 +82,8 @@ private:
                              sk_sp<GrD3DResourceState> state,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& resolveRenderTargetView,
                              GrMipMapsStatus,
                              GrWrapCacheable);
 
@@ -87,6 +92,7 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
                              GrMipMapsStatus,
                              GrWrapCacheable);
 
