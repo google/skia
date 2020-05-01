@@ -378,7 +378,15 @@ GrOpsTask::~GrOpsTask() {
     this->deleteOps();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+void GrOpsTask::removeClosedObserver(GrOpsTaskClosedObserver* observer) {
+    SkASSERT(observer);
+    for (int i = 0; i < fClosedObservers.count(); ++i) {
+        if (fClosedObservers[i] == observer) {
+            fClosedObservers.removeShuffle(i);
+            --i;
+        }
+    }
+}
 
 void GrOpsTask::endFlush() {
     fLastClipStackGenID = SK_InvalidUniqueID;
@@ -877,11 +885,11 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
 GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
         const GrCaps& caps, SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
-    SkScopeExit triggerObserver([&] {
-        if (fClosedObserver) {
-            fClosedObserver->wasClosed(*this);
-            fClosedObserver = nullptr;
+    SkScopeExit triggerObservers([&] {
+        for (const auto& o : fClosedObservers) {
+            o->wasClosed(*this);
         }
+        fClosedObservers.reset();
     });
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
