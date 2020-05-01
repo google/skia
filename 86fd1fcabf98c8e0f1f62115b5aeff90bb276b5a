@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e01fadc_7e6929a7",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-01T19:56:53Z",
+      "side": 1,
+      "message": "Per Rob, we will switch to full precision (most GPUs only support full precision anyway) and look at perf numbers we get. We\u0027ll land Monday morning.\n\nI left the output color as half, lmk if that should change.",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 8
+      },
+      "revId": "86fd1fcabf98c8e0f1f62115b5aeff90bb276b5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
