@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7ba3139_2425f56d",
+        "filename": "bench/MatrixConvolutionBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-01T18:38:05Z",
+      "side": 1,
+      "message": "Can this just be: \"SkScalar kernel[81];\"?",
+      "revId": "7d532ebf3e067c2a459539dffa6e7b8cf68f07a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
