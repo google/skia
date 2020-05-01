@@ -561,6 +561,14 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     return true;
 }
 
+void GrD3DGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color, GrRenderTarget* rt) {
+    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(rt);
+
+    d3dRT->setResourceState(this, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    fCurrentDirectCommandList->clearRenderTargetView(d3dRT, color, clip);
+}
+
 static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     if (!info.fResource.get()) {
         return false;

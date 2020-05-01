@@ -10,6 +10,7 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/d3d/GrD3DDescriptorHeap.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -27,11 +28,16 @@ public:
 
     sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers);
 
+    D3D12_CPU_DESCRIPTOR_HANDLE createRenderTargetView(ID3D12Resource* textureResource);
+    void recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+
 private:
     GrD3DGpu* fGpu;
 
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
+
+    sk_sp<GrD3DDescriptorHeap> fRTVDescriptorHeap;
 };
 
 #endif

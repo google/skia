@@ -45,6 +45,23 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
 
     ID3D12Resource* resource = nullptr;
 
+    D3D12_CLEAR_VALUE* clearValuePtr = nullptr;
+    D3D12_CLEAR_VALUE clearValue = {};
+    if (desc.Flags & (D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL |
+                      D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)) {
+        clearValue.Format = desc.Format;
+        if (desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) {
+            clearValue.DepthStencil.Depth = 0;
+            clearValue.DepthStencil.Stencil = 0;
+        } else if (desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+            clearValue.Color[0] = 1;
+            clearValue.Color[1] = 1;
+            clearValue.Color[2] = 1;
+            clearValue.Color[3] = 1;
+        }
+        clearValuePtr = &clearValue;
+    }
+
     D3D12_HEAP_PROPERTIES heapProperties = {};
     heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
     heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -56,7 +73,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
         D3D12_HEAP_FLAG_NONE,
         &desc,
         initialState,
-        nullptr,  // TODO: might want to set pOptimizedClearValue for rendertarget and stencil
+        clearValuePtr,
         IID_PPV_ARGS(&resource));
     if (!SUCCEEDED(hr)) {
         return false;
