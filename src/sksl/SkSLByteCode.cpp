@@ -90,6 +90,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
         case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
         case ByteCodeInstruction::kInverse4x4: printf("inverse4x4"); break;
+        VECTOR_DISASSEMBLE(kLerp, "lerp")
         case ByteCodeInstruction::kLoad: printf("load %d", READ8()); break;
         case ByteCodeInstruction::kLoad2: printf("load2 %d", READ8()); break;
         case ByteCodeInstruction::kLoad3: printf("load3 %d", READ8()); break;
@@ -149,11 +150,12 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
+        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE(kNegateF, "negatef")
         VECTOR_DISASSEMBLE(kNegateI, "negatei")
-        case ByteCodeInstruction::kNotB: printf("notb"); break;
+        VECTOR_DISASSEMBLE(kNotB, "notb")
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
         VECTOR_DISASSEMBLE(kPow, "pow")
@@ -555,8 +557,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp[-1] = sp[-1].fSigned & sp[0].fSigned;
                 POP();
                 continue;
-            case ByteCodeInstruction::kNotB:
-                sp[0] = ~sp[0].fSigned;
+            case ByteCodeInstruction::kNotB4: sp[-3] = ~sp[-3].fSigned;
+            case ByteCodeInstruction::kNotB3: sp[-2] = ~sp[-2].fSigned;
+            case ByteCodeInstruction::kNotB2: sp[-1] = ~sp[-1].fSigned;
+            case ByteCodeInstruction::kNotB:  sp[ 0] = ~sp[ 0].fSigned;
                 continue;
             case ByteCodeInstruction::kOrB:
                 sp[-1] = sp[-1].fSigned | sp[0].fSigned;
@@ -668,6 +672,21 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kInverse4x4:
                 Inverse4x4(sp);
                 continue;
+
+            case ByteCodeInstruction::kLerp4:
+            case ByteCodeInstruction::kLerp3:
+            case ByteCodeInstruction::kLerp2:
+            case ByteCodeInstruction::kLerp: {
+                int count = (int)ByteCodeInstruction::kLerp - (int)inst + 1;
+                VValue* T = sp - count + 1,
+                      * B = T - count,
+                      * A = B - count;
+                for (int i = count; i --> 0; ) {
+                    A[i].fFloat += (B[i].fFloat - A[i].fFloat) * T[i].fFloat;
+                }
+                sp -= 2 * count;
+                continue;
+            }
 
             case ByteCodeInstruction::kLoad4: sp[4] = stack[*ip + 3];
             case ByteCodeInstruction::kLoad3: sp[3] = stack[*ip + 2];
@@ -811,6 +830,21 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp -= (lCols * lRows) + (rCols * rRows);
                 memcpy(sp + 1, tmp, rCols * lRows * sizeof(VValue));
                 sp += (rCols * lRows);
+                continue;
+            }
+
+            case ByteCodeInstruction::kMix4:
+            case ByteCodeInstruction::kMix3:
+            case ByteCodeInstruction::kMix2:
+            case ByteCodeInstruction::kMix: {
+                int count = (int)ByteCodeInstruction::kMix - (int)inst + 1;
+                for (int i = count; i --> 0; ) {
+                    // GLSL's arguments are mix(else, true, cond)
+                    sp[-(2*count + i)] = skvx::if_then_else(sp[-(          i)].fSigned,
+                                                            sp[-(  count + i)].fFloat,
+                                                            sp[-(2*count + i)].fFloat);
+                }
+                sp -= 2 * count;
                 continue;
             }
 

@@ -65,6 +65,8 @@ enum class ByteCodeInstruction : uint16_t {
     kInverse2x2,
     kInverse3x3,
     kInverse4x4,
+    // A1, A2, .., B1, B2, .., T1, T2, .. -> lerp(A1, B1, T1), lerp(A2, B2, T2), ..
+    VECTOR(kLerp),
     // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
@@ -85,11 +87,14 @@ enum class ByteCodeInstruction : uint16_t {
     kMatrixToMatrix,
     // Followed by three bytes: leftCols (== rightRows), leftRows, rightCols
     kMatrixMultiply,
+    // Masked selection: Stack is ... A1, A2, A3, B1, B2, B3, M1, M2, M3
+    //                   Result:      M1 ? B1 : A1, M2 ? B2 : A2, M3 ? B3 : A3
+    VECTOR(kMix),
     VECTOR_MATRIX(kNegateF),
     VECTOR(kNegateI),
     VECTOR_MATRIX(kMultiplyF),
     VECTOR(kMultiplyI),
-    kNotB,
+    VECTOR(kNotB),
     kOrB,
     VECTOR_MATRIX(kPop),
     VECTOR(kPow),
