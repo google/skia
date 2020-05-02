@@ -22,16 +22,17 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.6.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	go.chromium.org/luci v0.0.0-20200501022719-17242f68b20f // indirect
-	go.skia.org/infra v0.0.0-20200430185047-3ccc19b46660
+	github.com/stretchr/testify v1.5.1
+	go.chromium.org/luci v0.0.0-20200502041843-0b2779a88016 // indirect
+	go.skia.org/infra v0.0.0-20200501203151-eb0a288b018e
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
-	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0 // indirect
+	golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200430202703-d923437fa56d // indirect
-	golang.org/x/tools v0.0.0-20200501005904-d351ea090f9b // indirect
+	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
+	golang.org/x/tools v0.0.0-20200501205727-542909fd9944 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.22.0
 	google.golang.org/appengine v1.6.6 // indirect
