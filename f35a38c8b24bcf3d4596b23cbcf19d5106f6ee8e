@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "698411f7_b47d15f1",
+        "filename": "src/ports/SkTypeface_win_dw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-02T15:50:04Z",
+      "side": 1,
+      "message": "Line wrap",
+      "revId": "f35a38c8b24bcf3d4596b23cbcf19d5106f6ee8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
