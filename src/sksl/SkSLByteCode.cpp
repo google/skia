@@ -156,6 +156,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kNotB: printf("notb"); break;
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE(kPop, "pop")
+        VECTOR_DISASSEMBLE(kPow, "pow")
         case ByteCodeInstruction::kPushImmediate: {
             uint32_t v = READ32();
             union { uint32_t u; float f; } pun = { v };
@@ -845,6 +846,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             case ByteCodeInstruction::kPopN:
                 sp -= READ8();
                 continue;
+
+            VECTOR_BINARY_FN(kPow, fFloat, skvx::pow)
 
             case ByteCodeInstruction::kPushImmediate:
                 PUSH(U32(READ32()));
