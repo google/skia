@@ -179,7 +179,7 @@ public:
 
 private:
     bool apply(GrRecordingContext* ctx, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
-               SkRect* bounds) const override {
+               SkRect* bounds, GrClipStack::ApplyState*) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
         auto m = SkMatrix::MakeTrans(-fX, -fY);

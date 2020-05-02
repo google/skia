@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include <iostream>
+#include <fstream>
+
 #include "src/gpu/GrRenderTargetContext.h"
+
+#include "src/gpu/GrReducedClip.h"
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
@@ -2485,6 +2490,300 @@ void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
             std::move(op), GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
+static void dump_state(const GrClipStack::ApplyState& s, std::ofstream& f, bool printHeader) {
+    if (printHeader) {
+        f << "total, valid, considered, drawn, rect, rrect, convex, mask, cached, empty, iior, is_rrect" << std::endl;
+    }
+    f << s.fTotalElements << ", " << s.fValidElementCount << ", " << s.fConsideredElements << ", " << s.fDrawElementCount << ", "
+      << s.fRectCount << ", " << s.fRRectCount << ", " << s.fConvexPolyCount << ", " << (int) s.fNeedsMask << ", "
+      << (int) s.fUsedCacheMask << ", " << (int) s.fIsEmpty << ", " << (int) s.fIIOR << ", " << (int) s.fIsRRect << std::endl;
+}
+
+struct Hist {
+    // Deltas 0 and up are accumulated here, indexed as i
+    std::vector<int> posDeltaCounts;
+    // Deltas -1 and down are accumulated here, indexed as (-i - 1)
+    std::vector<int> negDeltaCounts;
+
+    void update(int delta) {
+        std::vector<int>* histogram = delta < 0 ? &negDeltaCounts : &posDeltaCounts;
+        int index = delta < 0 ? (-delta - 1) : delta;
+        if (index >= (int) histogram->size()) {
+            histogram->resize(index + 1, 0);
+        }
+        (*histogram)[index] += 1;
+    }
+
+    void dump(std::ostream& o) const {
+        int zeroSpanDelta = -1;
+        bool zeroSpanValid = false;
+        for (int i = (int) negDeltaCounts.size() - 1; i >= 0; --i) {
+            int delta = -i - 1;
+            int count = negDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        for (int i = 0; i < (int) posDeltaCounts.size(); ++i) {
+            int delta = i;
+            int count = posDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        // even if we're in a zero span at the end, we don't really care,
+    }
+};
+
+struct AggStats {
+    // Total draw count
+    int drawCount = 0;
+    // Draws that had 0 clip elements ever (not that the draw itself could skip the existing clip)
+    int wideOpenCount = 0;
+    // Draws that had a non-wide open clip, but could be unclipped
+    int oldUnclippedCount = 0;
+    int newUnclippedCount = 0;
+    // Draws that were skipped because of the clip (includes empty clips)
+    int oldClippedCount = 0;
+    int newClippedCount = 0;
+    // Draws identified as a rect
+    int oldRectCount = 0;
+    int newRectCount = 0;
+    // Draws identified as an rrect
+    int oldRRectCount = 0;
+    int newRRectCount = 0;
+    // Draws identified as just analytic
+    int oldAnalyticCount = 0;
+    int newAnalyticCount = 0;
+
+    int degradedRRectCount = 0;
+
+    // Draws needing a mask
+    int oldMaskCount = 0;
+    int newMaskCount = 0;
+
+    int oldMaskElementCount = 0;
+    int newMaskElementCount = 0;
+    int oldMaskMaxCount = 0;
+    int newMaskMaxCount = 0;
+    int oldMaskPathCount = 0;
+    int newMaskPathCount = 0;
+
+    // Draws finding a cached mask
+    int oldCachedCount = 0;
+    int newCachedCount = 0;
+
+    // Clip size
+    int oldElementsCount = 0;
+    int newElementsCount = 0;
+    int oldElementsConsidered = 0;
+    int newElementsConsidered = 0;
+
+    Hist countDeltas;
+    Hist consideredDeltas;
+
+    Hist oldMaskComplexities;
+    Hist newMaskComplexities;
+    Hist oldPathComplexities;
+    Hist newpathComplexities;
+
+    ~AggStats() {
+        std::ofstream f("aggregate.txt");
+        f << "draw count:      " << drawCount << std::endl;
+        f << "wide open count: " << wideOpenCount << std::endl;
+        f << "unclipped count: " << oldUnclippedCount << " old vs. " << newUnclippedCount << " new" << std::endl;
+        f << "clipped count:   " << oldClippedCount << " old vs. " << newClippedCount << " new" << std::endl;
+        f << "rect count:      " << oldRectCount << " old vs. " << newRectCount << " new" << std::endl;
+        f << "rrect count:     " << oldRRectCount << " old vs. " << newRRectCount << " new" << std::endl;
+        f << "analytic count:  " << oldAnalyticCount << " old vs. " << newAnalyticCount << " new" << std::endl;
+        f << "mask count:      " << oldMaskCount << " old vs. " << newMaskCount << " new" << std::endl;
+        f << "mask complexity: " << oldMaskElementCount << " old vs. " << newMaskElementCount << " new" << std::endl;
+        f << "max complexity:  " << oldMaskMaxCount << " old vs. " << newMaskMaxCount << std::endl;
+        f << "max paths/mask:  " << oldMaskPathCount << " old vs. " << newMaskPathCount << std::endl;
+        f << "cached count:    " << oldCachedCount << " old vs. " << newCachedCount << " new" <<std::endl;
+        f << "total elements:  " << oldElementsCount << " old vs. " << newElementsCount << " new" << std::endl;
+        f << "considered:      " << oldElementsConsidered << " old vs. " << newElementsConsidered << " new" << std::endl;
+        f << "degraded rrects: " << degradedRRectCount << " (new only)" << std::endl;
+        f << "Element count deltas (old - new):" << std::endl;
+        countDeltas.dump(f);
+        f << "Considered count deltas (old - new):" << std::endl;
+        consideredDeltas.dump(f);
+
+        f << std::endl << "Old mask complexities:" << std::endl;
+        oldMaskComplexities.dump(f);
+        f << "New mask complexities:" << std::endl;
+        newMaskComplexities.dump(f);
+
+        f << std::endl << "Old mask paths complexities:" << std::endl;
+        oldPathComplexities.dump(f);
+        f << "New mask paths complexities:" << std::endl;
+        newpathComplexities.dump(f);
+
+        f.close();
+    }
+
+    static bool wideOpen(const GrClipStack::ApplyState& state) {
+        return !state.fIsEmpty && state.fRectCount == 0 && state.fRRectCount == 0 && state.fConvexPolyCount == 0 && state.fDrawElementCount == 0;
+    }
+
+    void update(const GrClipStack::ApplyState& oldState,
+                const GrClipStack::ApplyState& newState,
+                const GrClipStack* stack, const SkClipStack* oldStack,
+                GrRecordingContext* ctx, int width, int height,
+                const SkRect& drawBounds) {
+        drawCount++;
+
+        oldElementsCount += oldState.fTotalElements;
+        newElementsCount += newState.fTotalElements; //fValidElementCount;
+        oldElementsConsidered += oldState.fConsideredElements;
+        newElementsConsidered += newState.fConsideredElements;
+
+        countDeltas.update(oldState.fTotalElements - newState.fTotalElements);
+        consideredDeltas.update(oldState.fConsideredElements - newState.fConsideredElements);
+
+        if (oldState.fValidElementCount == 0 && newState.fValidElementCount == 0 &&
+            !oldState.fIsEmpty && !newState.fIsEmpty) {
+            wideOpenCount++;
+            return;
+        }
+
+        if (wideOpen(oldState) && !wideOpen(newState)) {
+            SkDebugf("Debug more\n");
+            // SkTArray<GrClipStack::DebugElement> elements;
+            // stack->apply(drawBounds, &elements);
+
+            SkRect devBounds = SkRect::MakeIWH(width, height);
+            SkAssertResult(devBounds.intersect(drawBounds));
+            GrReducedClip reduced(*oldStack, devBounds, ctx->priv().caps(), 0, 4, 4);
+        }
+
+        if ((!oldState.fNeedsMask && newState.fNeedsMask)) {
+            SkDebugf("Debug more B\n");
+            // SkTArray<GrClipStack::DebugElement> elements;
+            // stack->apply(drawBounds, &elements);
+        }
+
+        if (wideOpen(oldState)) {
+            oldUnclippedCount++;
+        } else if (oldState.fIsEmpty) {
+            oldClippedCount++;
+        } else if (oldState.fIIOR) {
+            oldRectCount++;
+        } else if (oldState.fIsRRect) {
+            oldRRectCount++;
+        } else if (oldState.fNeedsMask) {
+            oldMaskCount++;
+            if (oldState.fUsedCacheMask) {
+                oldCachedCount++;
+            } else {
+                oldMaskElementCount += oldState.fDrawElementCount;
+                oldMaskComplexities.update(oldState.fDrawElementCount);
+
+                int pathCount = oldState.fDrawElementCount - (oldState.fRectCount + oldState.fRRectCount + oldState.fConvexPolyCount);
+                oldPathComplexities.update(pathCount);
+
+                oldMaskMaxCount = std::max(oldMaskMaxCount, oldState.fDrawElementCount);
+                oldMaskPathCount = std::max(oldMaskPathCount, pathCount);
+            }
+        } else {
+            SkASSERT(oldState.fRectCount > 0 || oldState.fRRectCount > 0 || oldState.fConvexPolyCount > 0);
+            oldAnalyticCount++;
+        }
+
+        degradedRRectCount += newState.fDegradedRRects;
+
+        if (wideOpen(newState)) {
+            newUnclippedCount++;
+        } else if (newState.fIsEmpty) {
+            newClippedCount++;
+        } else if (newState.fIIOR) {
+            newRectCount++;
+        } else if (newState.fIsRRect) {
+            newRRectCount++;
+        } else if (newState.fNeedsMask) {
+            newMaskCount++;
+            if (newState.fUsedCacheMask) {
+                newCachedCount++;
+            } else {
+                newMaskElementCount += newState.fDrawElementCount;
+                newMaskComplexities.update(newState.fDrawElementCount);
+
+                int pathCount =newState.fDrawElementCount - (newState.fRectCount + newState.fRRectCount + newState.fConvexPolyCount);
+                newpathComplexities.update(pathCount);
+
+                newMaskMaxCount = std::max(newMaskMaxCount, newState.fDrawElementCount);
+                newMaskPathCount = std::max(newMaskPathCount, pathCount);
+            }
+        } else {
+            SkASSERT(newState.fRectCount > 0 || newState.fRRectCount > 0 || newState.fConvexPolyCount > 0);
+            newAnalyticCount++;
+        }
+    }
+};
+
+static void dump_state(const GrClipStack::ApplyState& oldState,
+                       const GrClipStack::ApplyState& newState,
+                       const GrClipStack* newStack, const SkClipStack* oldStack,
+                        GrRecordingContext* ctx, int width, int height,
+                        const SkRect& drawBounds) {
+    static std::unique_ptr<std::ofstream> oldStateFile = nullptr;
+    static std::unique_ptr<std::ofstream> newStateFile = nullptr;
+    static std::unique_ptr<AggStats> agg = nullptr;
+
+    if (!agg) {
+        agg = std::make_unique<AggStats>();
+    }
+    agg->update(oldState, newState, newStack, oldStack, ctx, width, height, drawBounds);
+
+    if (oldState.fTotalElements == 0 && newState.fTotalElements == 0) {
+        // Don't bother with wide open clips
+        return;
+    }
+
+    bool printHeader = false;
+    if (!oldStateFile) {
+        oldStateFile = std::make_unique<std::ofstream>("old_clip_state.txt");
+        newStateFile = std::make_unique<std::ofstream>("new_clip_state.txt");
+        printHeader = true;
+    }
+
+    std::ofstream& of = *oldStateFile;
+    std::ofstream& nf = *newStateFile;
+
+    SkASSERT(of.is_open() && nf.is_open());
+
+    dump_state(oldState, of, printHeader);
+    dump_state(newState, nf, printHeader);
+}
+
 void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
@@ -2508,9 +2807,30 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         this->setNeedsStencil(usesHWAA);
     }
 
-    if (!clip.apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds)) {
+    GrClipStack::ApplyState oldState;
+    GrClipStack::ApplyState newState;
+    bool printState = false;
+    if (clip.handlesApplyState()) {
+        // SkTArray<GrClipStack::DebugElement> elements;
+        // newState = clip.newStack()->apply(bounds, &elements);
+        // printState = true;
+    }
+
+    SkRect drawBounds = bounds;
+    bool skipDraw = (clip.handlesApplyState()
+            ? !clip.newStack()->apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds, &newState)
+            : !clip.apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds, &oldState));
+
+    if (skipDraw) {
         fContext->priv().opMemoryPool()->release(std::move(op));
+        if (printState) {
+            dump_state(oldState, newState, clip.newStack(), clip.oldStack(),
+                        fContext, this->width(), this->height(), drawBounds);
+        }
         return;
+    } else if (printState) {
+        dump_state(oldState, newState, clip.newStack(), clip.oldStack(),
+                    fContext, this->width(), this->height(), drawBounds);
     }
 
     bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();

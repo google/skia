@@ -125,10 +125,13 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
-        , fRenderTargetContext(std::move(renderTargetContext)) {
+        , fRenderTargetContext(std::move(renderTargetContext))
+        , fClip(SkIRect::MakeWH(fRenderTargetContext->width(),
+                                fRenderTargetContext->height())) {
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
+    fClip.save();
 }
 
 std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(

@@ -178,7 +178,7 @@ public:
 
     private:
         bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
-                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds, GrClipStack::ApplyState*) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
             return true;

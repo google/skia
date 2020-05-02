@@ -20,16 +20,30 @@ class GrTextureProxy;
  */
 class GrClipStackClip final : public GrClip {
 public:
-    GrClipStackClip(const SkClipStack* stack = nullptr) { this->reset(stack); }
+    GrClipStackClip(const SkClipStack* stack = nullptr,
+                   const GrClipStack* newStack = nullptr) { this->reset(stack, newStack); }
 
-    void reset(const SkClipStack* stack) { fStack = stack; }
+    void reset(const SkClipStack* stack, const GrClipStack* newStack) {
+        fStack = stack;
+        fNewStack = newStack;
+        // SkDebugf("SkClipStack::Element size: %d\n", sizeof(SkClipStack::Element));
+        // SkDebugf("GrClipStack::Element size: %d\n", sizeof(GrClipStack::Element));
+        // SkDebugf("GrClipStack::SaveRecord size: %d\n", sizeof(GrClipStack::SaveRecord));
+    }
 
     bool quickContains(const SkRect&) const final;
     bool quickContains(const SkRRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
     bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds,
+               GrClipStack::ApplyState* state) const final;
+
+    bool handlesApplyState() const override { return fNewStack != nullptr && fStack != nullptr; }
+
+    const GrClipStack* newStack() const override { return fNewStack; }
+
+    const SkClipStack* oldStack() const override { return fStack; }
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override;
 
@@ -47,15 +61,15 @@ private:
                                     bool needsStencil);
 
     bool applyClipMask(GrRecordingContext*, GrRenderTargetContext*, const GrReducedClip&,
-                       bool hasUserStencilSettings, GrAppliedClip*) const;
+                       bool hasUserStencilSettings, GrAppliedClip*, bool* cached) const;
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    GrSurfaceProxyView createAlphaClipMask(GrRecordingContext*, const GrReducedClip&) const;
+    GrSurfaceProxyView createAlphaClipMask(GrRecordingContext*, const GrReducedClip&, bool* cached) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     GrSurfaceProxyView createSoftwareClipMask(GrRecordingContext*, const GrReducedClip&,
-                                              GrRenderTargetContext*) const;
+                                              GrRenderTargetContext*, bool* cached) const;
 
     static bool UseSWOnlyPath(GrRecordingContext*,
                               bool hasUserStencilSettings,
@@ -63,6 +77,7 @@ private:
                               const GrReducedClip&);
 
     const SkClipStack*  fStack;
+    const GrClipStack* fNewStack;
 };
 
 #endif // GrClipStackClip_DEFINED

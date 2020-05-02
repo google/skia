@@ -417,6 +417,17 @@ public:
     */
     bool contains(const SkRect& rect) const;
 
+    /** Returns true if point is inside the bounds and corner radii, and if
+        the SkRRect is not empty.
+
+        @param point Coordinate tested for containment
+        @return      true if SkRRect contains point
+    */
+   bool contains(const SkPoint& point) const {
+       return fRect.contains(point.fX, point.fY) &&
+              this->checkCornerContainment(point.fX, point.fY);
+    }
+
     /** Returns true if bounds and radii values are finite and describe a SkRRect
         SkRRect::Type that matches getType(). All SkRRect methods construct valid types,
         even if the input values are not valid. Invalid SkRRect data can only

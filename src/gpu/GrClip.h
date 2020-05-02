@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrClipStack.h"
 
 class GrContext;
 
@@ -36,7 +37,13 @@ public:
      * skipped as it is fully clipped out.
      */
     virtual bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
-                       bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
+                       bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds,
+                       GrClipStack::ApplyState* state) const = 0;
+
+    virtual const GrClipStack* newStack() const { return nullptr; }
+    virtual const SkClipStack* oldStack() const { return nullptr; }
+
+    virtual bool handlesApplyState() const { return false; }
 
     virtual ~GrClip() {}
 
@@ -148,7 +155,8 @@ public:
 
 private:
     bool apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds,
+               GrClipStack::ApplyState*) const final {
         return this->apply(rtc->width(), rtc->height(), &out->hardClip(), bounds);
     }
 };

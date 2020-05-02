@@ -36,7 +36,8 @@
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
                              const GrCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
                              int maxCCPRClipPaths)
-        : fCaps(caps)
+        : fApplyState()
+        , fCaps(caps)
         , fMaxWindowRectangles(maxWindowRectangles)
         , fMaxAnalyticFPs(maxAnalyticFPs)
         , fMaxCCPRClipPaths(maxCCPRClipPaths) {
@@ -45,6 +46,23 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     SkASSERT(fMaxCCPRClipPaths <= fMaxAnalyticFPs);
     fHasScissor = false;
     fAAClipRectGenID = SK_InvalidGenID;
+
+    // Collect preliminary counts from the stack
+    SkClipStack::Iter debugIter(stack, SkClipStack::Iter::kTop_IterStart);
+
+    const Element* element;
+    bool hitReplace = false;
+    while ((element = debugIter.prev()) != nullptr) {
+        if (element->fOp == kReplace_SkClipOp) {
+            hitReplace = true;
+        }
+
+        // There isn't invalidated elements per se in the old system.
+        fApplyState.fTotalElements++;
+        if (!hitReplace) {
+            fApplyState.fValidElementCount++;
+        }
+    }
 
     if (stack.isWideOpen()) {
         fInitialState = InitialState::kAllIn;
@@ -59,6 +77,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     if (GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
         fInitialState = insideOut ? InitialState::kAllIn : InitialState::kAllOut;
+        fApplyState.fIsEmpty = fInitialState == InitialState::kAllOut;
         return;
     }
 
@@ -72,13 +91,18 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
             return;
         }
 
-        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
 
+        fApplyState.fIIOR = true;
+        fApplyState.fRectCount++;
+        fApplyState.fConsideredElements++;
+
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. Here we just implement the entire thing using fScissor.
             stackBounds.round(&fScissor);
             fHasScissor = true;
             fInitialState = fScissor.isEmpty() ? InitialState::kAllOut : InitialState::kAllIn;
+            fApplyState.fIsEmpty = fScissor.isEmpty();
             return;
         }
 
@@ -87,6 +111,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fScissor = GrClip::GetPixelIBounds(tightBounds);
         if (fScissor.isEmpty()) {
             fInitialState = InitialState::kAllOut;
+            fApplyState.fIsEmpty = true;
             return;
         }
         fHasScissor = true;
@@ -107,6 +132,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fScissor = GrClip::GetPixelIBounds(tighterQuery);
         if (fScissor.isEmpty()) {
             fInitialState = InitialState::kAllOut;
+            fApplyState.fIsEmpty = true;
             return;
         }
         fHasScissor = true;
@@ -127,6 +153,21 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         }
         fMaskRequiresAA = true;
         fMaskGenID = fAAClipRectGenID;
+    }
+
+    if (fApplyState.fRRectCount == 1 && fApplyState.fDrawElementCount == 1) {
+        fApplyState.fIsRRect = true;
+    }
+    if (fInitialState == InitialState::kAllOut && fMaskElements.isEmpty()) {
+        fApplyState.fIsEmpty = true;
+    }
+    if (fHasScissor && fMaskElements.isEmpty() && fAnalyticFPs.empty() && fCCPRClipPaths.empty()) {
+        // Must disambiguate between the scissor being the clip, and the scissor being pessimistic
+        // and all elements actually got skipped.
+        if (!GrClip::IsInsideClip(fScissor, queryBounds)) {
+            // The scissor is acting as a clip
+            fApplyState.fRectCount++;
+        }
     }
 }
 
@@ -159,6 +200,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     int numAAElements = 0;
     while (InitialTriState::kUnknown == initialTriState) {
         const Element* element = iter.prev();
+        fApplyState.fConsideredElements++;
+
         if (nullptr == element) {
             initialTriState = InitialTriState::kAllIn;
             break;
@@ -365,6 +408,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 break;
         }
         if (!skippable) {
+            fApplyState.fDrawElementCount++;
             if (fMaskElements.isEmpty()) {
                 // This will be the last element. Record the stricter genID.
                 fMaskGenID = element->getGenID();
@@ -473,6 +517,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         }
     }
     fMaskRequiresAA = numAAElements > 0;
+    fApplyState.fNeedsMask = !fMaskElements.isEmpty() || !fCCPRClipPaths.empty();
 
     SkASSERT(InitialTriState::kUnknown != initialTriState);
     fInitialState = static_cast<GrReducedClip::InitialState>(initialTriState);
@@ -488,11 +533,13 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
     SkASSERT(fHasScissor);
     if (!fScissor.intersect(elementIBounds)) {
         this->makeEmpty();
+        fApplyState.fIsEmpty = true;
         return ClipResult::kMadeEmpty;
     }
 
     switch (element->getDeviceSpaceType()) {
         case Element::DeviceSpaceType::kEmpty:
+            fApplyState.fIsEmpty = true;
             return ClipResult::kMadeEmpty;
 
         case Element::DeviceSpaceType::kRect:
@@ -509,9 +556,12 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
                     SkASSERT(SK_InvalidGenID != fAAClipRectGenID);
                 } else if (!fAAClipRect.intersect(element->getDeviceSpaceRect())) {
                     this->makeEmpty();
+                    fApplyState.fIsEmpty = true;
                     return ClipResult::kMadeEmpty;
                 }
             }
+            fApplyState.fRectCount++;
+            fApplyState.fDrawElementCount++;
             return ClipResult::kClipped;
 
         case Element::DeviceSpaceType::kRRect:
@@ -530,6 +580,7 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
 GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* element) {
     switch (element->getDeviceSpaceType()) {
         case Element::DeviceSpaceType::kEmpty:
+            fApplyState.fIsEmpty = true;
             return ClipResult::kMadeEmpty;
 
         case Element::DeviceSpaceType::kRect:
@@ -539,6 +590,8 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
                 // but it saves processing time.
                 this->addWindowRectangle(element->getDeviceSpaceRect(), element->isAA());
                 if (!element->isAA()) {
+                    fApplyState.fRectCount++;
+                    fApplyState.fDrawElementCount++;
                     return ClipResult::kClipped;
                 }
             }
@@ -615,18 +668,21 @@ GrClipEdgeType GrReducedClip::GetClipEdgeType(Invert invert, GrAA aa) {
 
 GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpaceRect,
                                                        Invert invert, GrAA aa) {
+    fApplyState.fRectCount++;
     if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
         return ClipResult::kNotClipped;
     }
 
     fAnalyticFPs.push_back(GrAARectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRect));
     SkASSERT(fAnalyticFPs.back());
+    fApplyState.fDrawElementCount++;
 
     return ClipResult::kClipped;
 }
 
 GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpaceRRect,
                                                        Invert invert, GrAA aa) {
+    fApplyState.fRRectCount++;
     if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
         return ClipResult::kNotClipped;
     }
@@ -634,6 +690,7 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
     if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect,
                                       *fCaps->shaderCaps())) {
         fAnalyticFPs.push_back(std::move(fp));
+        fApplyState.fDrawElementCount++;
         return ClipResult::kClipped;
     }
 
@@ -649,8 +706,11 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
         return ClipResult::kNotClipped;
     }
 
+    fApplyState.fDrawElementCount++;
+
     if (auto fp = GrConvexPolyEffect::Make(GetClipEdgeType(invert, aa), deviceSpacePath)) {
         fAnalyticFPs.push_back(std::move(fp));
+        fApplyState.fConvexPolyCount++;
         return ClipResult::kClipped;
     }
 
@@ -661,6 +721,7 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
         if (Invert::kYes == invert) {
             ccprClipPath.toggleInverseFillType();
         }
+        fApplyState.fNeedsMask = true;
         return ClipResult::kClipped;
     }
 
@@ -673,6 +734,7 @@ void GrReducedClip::makeEmpty() {
     fWindowRects.reset();
     fMaskElements.reset();
     fInitialState = InitialState::kAllOut;
+    fApplyState.fIsEmpty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -973,7 +1035,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
 }
 
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
-        GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
+        GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID, bool* ccprUsed) {
     // Make sure finishAndDetachAnalyticFPs hasn't been called already.
     SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
 
@@ -985,7 +1047,10 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
             auto fp = ccpr->makeClipProcessor(opsTaskID, ccprClipPath, fScissor, *fCaps);
             fAnalyticFPs.push_back(std::move(fp));
         }
+        *ccprUsed = true;
         fCCPRClipPaths.reset();
+    } else {
+        *ccprUsed = false;
     }
 
     return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());

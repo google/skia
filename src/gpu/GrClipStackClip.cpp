@@ -203,7 +203,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 // scissor, or entirely software
 bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                             bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
-                            SkRect* bounds) const {
+                            SkRect* bounds, GrClipStack::ApplyState* state) const {
     SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
     if (!devBounds.intersect(*bounds)) {
         return false;
@@ -233,6 +233,7 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
 
     GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(),
                               maxWindowRectangles, maxAnalyticFPs, ccpr ? maxAnalyticFPs : 0);
+    *state = reducedClip.applyState();
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return false;
@@ -249,7 +250,7 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
 
     if (!reducedClip.maskElements().isEmpty()) {
         if (!this->applyClipMask(context, renderTargetContext, reducedClip, hasUserStencilSettings,
-                                 out)) {
+                                 out, &state->fUsedCacheMask)) {
             return false;
         }
     }
@@ -257,8 +258,12 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = renderTargetContext->getOpsTask()->uniqueID();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, opsTaskID)) {
+    bool ccprUsed;
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, opsTaskID, &ccprUsed)) {
         out->addCoverageFP(std::move(clipFPs));
+    }
+    if (ccprUsed && !state->fNeedsMask) {
+        SkDebugf("ANOTHER SANITY POINT!?\n");
     }
 
     return true;
@@ -267,7 +272,8 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
 bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
                                     GrRenderTargetContext* renderTargetContext,
                                     const GrReducedClip& reducedClip, bool hasUserStencilSettings,
-                                    GrAppliedClip* out) const {
+                                    GrAppliedClip* out,
+                                    bool* cached) const {
 #ifdef SK_DEBUG
     SkASSERT(reducedClip.hasScissor());
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
@@ -284,9 +290,9 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext);
+            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext, cached);
         } else {
-            result = this->createAlphaClipMask(context, reducedClip);
+            result = this->createAlphaClipMask(context, reducedClip, cached);
         }
 
         if (result) {
@@ -315,6 +321,8 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         reducedClip.drawStencilClipMask(context, renderTargetContext);
         renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
                                                 reducedClip.numAnalyticFPs());
+    } else {
+        *cached = true;
     }
     // GrAppliedClip doesn't need to figure numAnalyticFPs into its key (used by operator==) because
     // it verifies the FPs are also equal.
@@ -360,13 +368,15 @@ static GrSurfaceProxyView find_mask(GrProxyProvider* provider, const GrUniqueKey
 }
 
 GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* context,
-                                                        const GrReducedClip& reducedClip) const {
+                                                        const GrReducedClip& reducedClip,
+                                                        bool* cached) const {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
     if (auto cachedView = find_mask(context->priv().proxyProvider(), key)) {
+        *cached = true;
         return cachedView;
     }
 
@@ -470,7 +480,8 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 
 GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
         GrRecordingContext* context, const GrReducedClip& reducedClip,
-        GrRenderTargetContext* renderTargetContext) const {
+        GrRenderTargetContext* renderTargetContext,
+        bool* cached) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
@@ -478,6 +489,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     if (auto cachedView = find_mask(proxyProvider, key)) {
+        *cached = true;
         return cachedView;
     }
 

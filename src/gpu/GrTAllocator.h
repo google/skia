@@ -152,9 +152,9 @@ public:
         return *(GetItem(fAllocator->currentBlock(), blockCount - 1));
     }
 
-    template<bool Const>
+    template<bool Forward, bool Const>
     class Iterator {
-        using BlockIter = typename GrBlockAllocator::BlockIter<true, Const>;
+        using BlockIter = typename GrBlockAllocator::BlockIter<Forward, Const>;
         using C = typename std::conditional<Const, const T, T>::type;
         using AllocatorT = typename std::conditional<Const, const GrTAllocator, GrTAllocator>::type;
     public:
@@ -184,12 +184,22 @@ public:
 
             Item& operator++() {
                 const auto* block = *fBlock;
-                fItem++;
-                fIndex += sizeof(T);
-                if (fItem >= block->metadata()) {
+
+                bool nextBlock;
+                if (Forward) {
+                    fItem++;
+                    fIndex += sizeof(T);
+                    nextBlock = fItem >= block->metadata();
+                } else {
+                    fItem--;
+                    fIndex -= sizeof(T);
+                    nextBlock = fItem < 0;
+                }
+
+                if (nextBlock) {
                     ++fBlock;
-                    fItem = 0;
-                    fIndex = StartingIndex(fBlock);
+                    fItem = StartingItem(fBlock);
+                    fIndex = StartingIndex(fBlock, fItem);
                 }
                 return *this;
             }
@@ -198,10 +208,23 @@ public:
             friend Iterator;
             using BlockItem = typename BlockIter::Item;
 
-            Item(BlockItem block) : fBlock(block), fItem(0), fIndex(StartingIndex(block)) {}
+            Item(BlockItem block)
+                    : fBlock(block)
+                    , fItem(StartingItem(block))
+                    , fIndex(StartingIndex(block, fItem)) {}
 
-            static int StartingIndex(const BlockItem& block) {
-                return *block ? (*block)->template firstAlignedOffset<alignof(T)>() : 0;
+            static int StartingItem(const BlockItem& block) {
+                if (!(*block)) {
+                    return 0;
+                }
+                return Forward ? 0 : (*block)->metadata() - 1;
+            }
+
+            static int StartingIndex(const BlockItem& block, int item) {
+                if (!(*block)) {
+                    return 0;
+                }
+                return (*block)->template firstAlignedOffset<alignof(T)>() + item * sizeof(T);
             }
 
             BlockItem fBlock;
@@ -216,14 +239,18 @@ public:
         const BlockIter fBlockIter;
     };
 
-    using Iter = Iterator<false>;
-    using CIter = Iterator<true>;
-
+    using Iter = Iterator<true, false>;
+    using CIter = Iterator<true, true>;
+    using RIter = Iterator<false, false>;
+    using CRIter = Iterator<false, true>;
     /**
      * Prefer using a for-range loop when iterating over all allocated items, vs. index access.
      */
     Iter items() { return Iter(this); }
     CIter items() const { return CIter(this); }
+
+    RIter ritems() { return RIter(this); }
+    CRIter ritems() const { return CRIter(this); }
 
     /**
      * Access item by index. Not an operator[] since it should not be considered constant time.

@@ -12,6 +12,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrWindowRectangles.h"
+#include "src/gpu/GrClipStack.h"
 
 class GrCoverageCountingPathRenderer;
 class GrRecordingContext;
@@ -33,6 +34,8 @@ public:
         kAllIn,
         kAllOut
     };
+
+    GrClipStack::ApplyState applyState() const { return fApplyState; }
 
     InitialState initialState() const { return fInitialState; }
 
@@ -97,7 +100,8 @@ public:
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
     std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(
-            GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
+            GrCoverageCountingPathRenderer*, uint32_t opsTaskID,
+            bool* addedCCPR);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
@@ -130,6 +134,7 @@ private:
 
     void makeEmpty();
 
+    GrClipStack::ApplyState fApplyState;
     const GrCaps* fCaps;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;

@@ -15,10 +15,12 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkClipStackDevice.h"
+#include "src/gpu/GrClipStack.h"
 #include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
+
 
 class GrAccelData;
 class GrTextureMaker;
@@ -125,10 +127,51 @@ protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
 
+    // Forward these on to the temp GrClipStack as well
+    void onSave() override {
+        this->INHERITED::onSave();
+        fClip.save();
+    }
+    void onRestore() override {
+        this->INHERITED::onRestore();
+        fClip.restore();
+    }
+    void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
+        if (op == SkClipOp::kIntersect || op == SkClipOp::kDifference) {
+            fClip.clipRect(this->localToDevice(), rect, aa, op);
+            this->INHERITED::onClipRect(rect, op, aa);
+        }
+    }
+    void onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) override {
+        if (op == SkClipOp::kIntersect || op == SkClipOp::kDifference) {
+            fClip.clipRRect(this->localToDevice(), rrect, aa, op);
+            this->INHERITED::onClipRRect(rrect, op, aa);
+        }
+    }
+    void onClipPath(const SkPath& path, SkClipOp op, bool aa) override {
+        if (op == SkClipOp::kIntersect || op == SkClipOp::kDifference) {
+            fClip.clipPath(this->localToDevice(), path, aa, op);
+            this->INHERITED::onClipPath(path, op, aa);
+        }
+    }
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp op) override {
+        if (op == SkClipOp::kIntersect || op == SkClipOp::kDifference) {
+            SkIPoint origin = this->getOrigin();
+            SkPath path;
+            deviceRgn.getBoundaryPath(&path);
+            fClip.clipPath(SkMatrix::MakeTrans(-origin), path, false, op);
+            this->INHERITED::onClipRegion(deviceRgn, op);
+        }
+    }
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {
+        // do nothing
+    }
+
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
     sk_sp<GrContext> fContext;
     std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
+    GrClipStack fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
@@ -148,7 +191,7 @@ private:
 
     bool forceConservativeRasterClip() const override { return true; }
 
-    GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
+    GrClipStackClip clip() const { return GrClipStackClip(&this->cs(), &fClip); }
 
     sk_sp<SkSpecialImage> filterTexture(SkSpecialImage*,
                                         int left, int top,
