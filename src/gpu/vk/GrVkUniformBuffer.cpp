@@ -12,12 +12,13 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size) {
+GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size, bool makeExactSize) {
     if (0 == size) {
         return nullptr;
     }
     const GrManagedResource* resource = nullptr;
-    if (size <= GrVkUniformBuffer::kStandardSize) {
+    if (size <= GrVkUniformBuffer::kStandardSize &&
+        (!makeExactSize || size == GrVkUniformBuffer::kStandardSize)) {
         resource = gpu->resourceProvider().findOrCreateStandardUniformBufferResource();
     } else {
         resource = CreateResource(gpu, size);
@@ -124,7 +125,7 @@ const GrVkBuffer::Resource* GrVkUniformBuffer::createResource(GrVkGpu* gpu,
 }
 
 void GrVkUniformBuffer::Resource::onRecycle() const {
-    if (fAlloc.fSize <= GrVkUniformBuffer::kStandardSize) {
+    if (fAlloc.fSize == GrVkUniformBuffer::kStandardSize) {
         fGpu->resourceProvider().recycleStandardUniformBufferResource(this);
     } else {
         this->unref();

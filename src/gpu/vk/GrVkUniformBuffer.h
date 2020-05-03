@@ -17,7 +17,7 @@ class GrVkGpu;
 class GrVkUniformBuffer : public GrVkBuffer {
 
 public:
-    static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size);
+    static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size, bool makeExactSize = false);
     static const GrManagedResource* CreateResource(GrVkGpu* gpu, size_t size);
     static const size_t kStandardSize = 256;
 

@@ -140,11 +140,18 @@ public:
     // the caller.
     const GrVkDescriptorSet* getSamplerDescriptorSet(const GrVkDescriptorSetManager::Handle&);
 
-
     // Signals that the descriptor set passed it, which is compatible with the passed in handle,
     // can be reused by the next allocation request.
     void recycleDescriptorSet(const GrVkDescriptorSet* descSet,
                               const GrVkDescriptorSetManager::Handle&);
+
+    // Returns the default pipelineLayout to use for the rtAdjust uniform buffer descriptor set.
+    // This is used to bind the rtAdjust uniform descriptor set at the start of a render pass since
+    // we don't have a real pipeline with a VkPipelineLayout yet. All other VkPipelineLayouts used
+    // in our code will be compatible with this default layout through set 0.
+    VkPipelineLayout defaultRTAdjustLayout();
+
+    const GrVkUniformBuffer* findOrCreateRTAdjustUniformBuffer(SkISize, GrSurfaceOrigin);
 
     // Creates or finds free uniform buffer resources of size GrVkUniformBuffer::kStandardSize.
     // Anything larger will need to be created and released by the client.
@@ -239,12 +246,34 @@ private:
         int                           fLastReturnedIndex;
     };
 
+    class RTAdjustUniformInfo {
+    public:
+        RTAdjustUniformInfo(SkISize dimensions, GrSurfaceOrigin origin,
+            GrVkUniformBuffer* buffer)
+            : fDimensions(dimensions)
+            , fOrigin(origin)
+            , fBuffer(buffer) {}
+
+        void release();
+
+        bool isCompatible(SkISize dimensions, GrSurfaceOrigin origin) const {
+            return fDimensions == dimensions && fOrigin == origin;
+        }
+
+        const GrVkUniformBuffer* buffer() const { return fBuffer; }
+
+    private:
+        SkISize fDimensions;
+        GrSurfaceOrigin fOrigin;
+        GrVkUniformBuffer* fBuffer;
+    };
+
     VkPipelineCache pipelineCache();
 
     GrVkGpu* fGpu;
 
     // Central cache for creating pipelines
-    VkPipelineCache fPipelineCache;
+    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
@@ -259,6 +288,8 @@ private:
     // Array of available uniform buffer resources
     SkSTArray<16, const GrManagedResource*, true> fAvailableUniformBufferResources;
 
+    SkSTArray<8, RTAdjustUniformInfo> fRTAdjustUniformInfos;
+
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates
     SkTDynamicHash<GrVkSampler, GrVkSampler::Key> fSamplers;
@@ -267,11 +298,13 @@ private:
     SkTDynamicHash<GrVkSamplerYcbcrConversion, GrVkSamplerYcbcrConversion::Key> fYcbcrConversions;
 
     // Cache of GrVkPipelineStates
-    PipelineStateCache* fPipelineStateCache;
+    PipelineStateCache* fPipelineStateCache = VK_NULL_HANDLE;
 
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+
+    VkPipelineLayout fDefaultRTAjustPipelineLayout = VK_NULL_HANDLE;
 
     std::recursive_mutex fBackgroundMutex;
 };

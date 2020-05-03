@@ -241,7 +241,6 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
-                                           GrVkPipelineState* pipelineState,
                                            VkPipelineLayout layout,
                                            uint32_t firstSet,
                                            uint32_t setCount,

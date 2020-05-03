@@ -24,6 +24,7 @@
 #include "src/gpu/vk/GrVkResourceProvider.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkTexture.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +59,34 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
 }
 
 GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
+
+bool GrVkOpsRenderPass::bindRTAdjustUniform() {
+    if (!fCurrentRTAdjustBuffer) {
+        fCurrentRTAdjustBuffer = fGpu->resourceProvider().findOrCreateRTAdjustUniformBuffer(
+                fRenderTarget->dimensions(), fOrigin);
+        if (!fCurrentRTAdjustBuffer) {
+            return false;
+        }
+        SkASSERT(fCurrentRTAdjustBuffer->resource());
+    }
+    SkASSERT(fCurrentRTAdjustBuffer);
+    SkASSERT(fCurrentRTAdjustBuffer->resource());
+    static const int kUniformDSIdx = GrVkUniformHandler::kRTAdjustUniformBufferDescSet;
+    // We want to make this this is our first set since we will be bind other sets for each draw and
+    // we don't want those to invalide this set.
+    SkASSERT(kUniformDSIdx == 0);
+
+    VkPipelineLayout layout = fGpu->resourceProvider().defaultRTAdjustLayout();
+    if (layout == VK_NULL_HANDLE) {
+        return false;
+    }
+
+    this->currentCommandBuffer()->bindDescriptorSets(fGpu, layout, kUniformDSIdx, 1,
+                                                     fCurrentRTAdjustBuffer->descriptorSet(), 0,
+                                                     nullptr);
+    this->currentCommandBuffer()->addRecycledResource(fCurrentRTAdjustBuffer->resource());
+    return true;
+}
 
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
@@ -121,6 +150,8 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     vkClearColor.color.float32[2] = clearColor[2];
     vkClearColor.color.float32[3] = clearColor[3];
 
+    this->bindRTAdjustUniform();
+
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
         SkASSERT(fGpu->cmdPool());
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
@@ -155,6 +186,7 @@ bool GrVkOpsRenderPass::initWrapped() {
         return false;
     }
     fCurrentSecondaryCommandBuffer->begin(fGpu, nullptr, fCurrentRenderPass);
+    this->bindRTAdjustUniform();
     return true;
 }
 
@@ -201,6 +233,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const Sk
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     SkASSERT(!fRenderTarget);
+    SkASSERT(!fCurrentRTAdjustBuffer);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
 #ifdef SK_DEBUG
@@ -244,6 +277,8 @@ void GrVkOpsRenderPass::reset() {
     fCurrentCBIsEmpty = true;
 
     fRenderTarget = nullptr;
+
+    fCurrentRTAdjustBuffer = nullptr;
 
 #ifdef SK_DEBUG
     fIsActive = false;
@@ -403,6 +438,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
             return;
         }
         fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(), fCurrentRenderPass);
+        this->bindRTAdjustUniform();
     }
 
     // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the

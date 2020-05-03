@@ -19,14 +19,15 @@
 #include "src/gpu/vk/GrVkUtil.h"
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
-    : fGpu(gpu)
-    , fPipelineCache(VK_NULL_HANDLE) {
+    : fGpu(gpu) {
     fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fRenderPassArray.count());
     SkASSERT(0 == fExternalRenderPasses.count());
+    SkASSERT(0 == fRTAdjustUniformInfos.count());
+    SkASSERT(fDefaultRTAjustPipelineLayout == VK_NULL_HANDLE);
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
 }
@@ -78,6 +79,32 @@ VkPipelineCache GrVkResourceProvider::pipelineCache() {
     }
     return fPipelineCache;
 }
+
+VkPipelineLayout GrVkResourceProvider::defaultRTAdjustLayout() {
+    if (fDefaultRTAjustPipelineLayout == VK_NULL_HANDLE) {
+        VkDescriptorSetLayout dsLayout = this->getUniformDSLayout();
+
+        VkPipelineLayoutCreateInfo layoutCreateInfo;
+        memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
+        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.pNext = 0;
+        layoutCreateInfo.flags = 0;
+        layoutCreateInfo.setLayoutCount = 1;
+        layoutCreateInfo.pSetLayouts = &dsLayout;
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+
+        VkResult result;
+        GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo,
+                                                             nullptr,
+                                                             &fDefaultRTAjustPipelineLayout));
+        if (VK_SUCCESS != result) {
+            fDefaultRTAjustPipelineLayout = VK_NULL_HANDLE;
+        }
+    }
+    return fDefaultRTAjustPipelineLayout;
+}
+
 
 void GrVkResourceProvider::init() {
     // Init uniform descriptor objects
@@ -352,6 +379,47 @@ void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
     }
 }
 
+static void get_rtAdjustment_vec(SkISize dimensions, GrSurfaceOrigin origin, float* destVec) {
+    destVec[0] = 2.f / dimensions.fWidth;
+    destVec[1] = -1.f;
+    if (kBottomLeft_GrSurfaceOrigin == origin) {
+        destVec[2] = -2.f / dimensions.fHeight;
+        destVec[3] = 1.f;
+    } else {
+        destVec[2] = 2.f / dimensions.fHeight;
+        destVec[3] = -1.f;
+    }
+}
+
+const GrVkUniformBuffer* GrVkResourceProvider::findOrCreateRTAdjustUniformBuffer(
+        SkISize dimensions, GrSurfaceOrigin origin) {
+    for (int i = 0; i < fRTAdjustUniformInfos.count(); ++i) {
+        const auto& info = fRTAdjustUniformInfos[i];
+        if (info.isCompatible(dimensions, origin)) {
+            SkASSERT(info.buffer()->resource());
+            return info.buffer();
+        }
+    }
+    static constexpr size_t kAdjDataSize = 4 * sizeof(float);
+    GrVkUniformBuffer* buffer = GrVkUniformBuffer::Create(fGpu, kAdjDataSize);
+    if (!buffer) {
+        return nullptr;
+    }
+
+    float uniformData[4];
+    get_rtAdjustment_vec(dimensions, origin, uniformData);
+    bool* boolPtr = nullptr;
+#ifdef SK_DEBUG
+    bool createdNewBuffer = false;
+    boolPtr = &createdNewBuffer;
+#endif
+    buffer->updateData(fGpu, uniformData, kAdjDataSize, boolPtr);
+    SkASSERT(!createdNewBuffer);
+
+    fRTAdjustUniformInfos.emplace_back(dimensions, origin, buffer);
+    return buffer;
+}
+
 const GrManagedResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
     const GrManagedResource* resource = nullptr;
     int count = fAvailableUniformBufferResources.count();
@@ -394,7 +462,11 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 
     fPipelineStateCache->release();
 
-    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineCache(fGpu->device(), fPipelineCache, nullptr));
+    // This shouldn't be required but some nvidia drivers crash if you call destroy on a null cache.
+    if (fPipelineCache != VK_NULL_HANDLE) {
+        GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineCache(fGpu->device(), fPipelineCache,
+                                                             nullptr));
+    }
     fPipelineCache = VK_NULL_HANDLE;
 
     for (GrVkCommandPool* pool : fActiveCommandPools) {
@@ -408,6 +480,17 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
         pool->unref();
     }
     fAvailableCommandPools.reset();
+
+    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(),
+        fDefaultRTAjustPipelineLayout,
+        nullptr));
+    fDefaultRTAjustPipelineLayout = VK_NULL_HANDLE;
+
+    for (int i = 0; i < fRTAdjustUniformInfos.count(); ++i) {
+        SkASSERT(fRTAdjustUniformInfos[i].buffer()->resource()->unique());
+        fRTAdjustUniformInfos[i].release();
+    }
+    fRTAdjustUniformInfos.reset();
 
     // release our uniform buffers
     for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
@@ -521,3 +604,11 @@ void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void GrVkResourceProvider::RTAdjustUniformInfo::release() {
+    SkASSERT(fBuffer);
+    fBuffer->release();
+    delete fBuffer;
+    fBuffer = nullptr;
+}
