@@ -358,7 +358,7 @@ public:
                 GrSurfaceProxy::UseAllocator::kNo);
 
         GrSwizzle readSwizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
-        fAtlasView = {std::move(proxy), kBottomLeft_GrSurfaceOrigin, readSwizzle};
+        fAtlasView = {std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle};
         return fAtlasView;
     }
 

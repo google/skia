@@ -35,7 +35,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
     auto info = SkImageInfo::MakeN32Premul(256, 256);
     for (auto allocateMips : {false, true}) {
         auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0,
-                                                 kBottomLeft_GrSurfaceOrigin, nullptr,
+                                                 kTopLeft_GrSurfaceOrigin, nullptr,
                                                  allocateMips);
         auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization

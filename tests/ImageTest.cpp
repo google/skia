@@ -151,7 +151,7 @@ static sk_sp<SkImage> create_gpu_image(GrContext* context,
                                        SkBudgeted budgeted = SkBudgeted::kYes) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface = SkSurface::MakeRenderTarget(context, budgeted, info, 0,
-                                               kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
+                                               kTopLeft_GrSurfaceOrigin, nullptr, withMips);
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -829,7 +829,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     }
 
     TextureReleaseChecker releaseChecker;
-    GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
         SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kRGBA_8888_SkColorType,
                                  kPremul_SkAlphaType, nullptr,

@@ -1397,7 +1397,7 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrContext* context, SkISize size,
                 *backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
                     info.width(), info.height(), colorType);
                 surface = SkSurface::MakeFromBackendRenderTarget(
-                    context, *backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
+                    context, *backendRT, kTopLeft_GrSurfaceOrigin, info.colorType(),
                     info.refColorSpace(), &props);
             }
             break;

@@ -47,7 +47,7 @@ uniform half blurRadius;
         }
         builder.finish();
 
-        static constexpr auto kMaskOrigin = kBottomLeft_GrSurfaceOrigin;
+        static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         if (auto view = proxyProvider->findCachedProxyWithColorTypeFallback(
@@ -94,7 +94,7 @@ uniform half blurRadius;
             return {};
         }
         SkASSERT(mask.asTextureProxy());
-        SkASSERT(mask.origin() == kBottomLeft_GrSurfaceOrigin);
+        SkASSERT(mask.origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
 
         return mask;

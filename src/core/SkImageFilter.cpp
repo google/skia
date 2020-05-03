@@ -578,7 +578,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
             SkBackingFit::kApprox, bounds.size(), 1, GrMipMapped::kNo, isProtected,
-            kBottomLeft_GrSurfaceOrigin);
+            kTopLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }

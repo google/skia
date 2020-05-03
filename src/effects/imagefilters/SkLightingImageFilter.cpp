@@ -491,7 +491,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
             offsetBounds.size(), 1, GrMipMapped::kNo, inputView.proxy()->isProtected(),
-            kBottomLeft_GrSurfaceOrigin);
+            kTopLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }
