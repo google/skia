@@ -21,13 +21,36 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
     int i = 0;
     for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
+#if 0
+        if (count == 1) {
+            static int totalOneOffCnt = 0;
+            static int atlasSizeInvCnt = 0;
+            static int atlasAdjCC = 0;
+            static int atlasAdjDA = 0;
+            totalOneOffCnt++;
+            if (!strcmp(uniformInfo.fVariable.getName().c_str(), "uAtlasSizeInv_Stage0")) {
+                atlasSizeInvCnt++;
+            }
+            int result = strcmp(uniformInfo.fVariable.getName().c_str(), "uatlas_adjustCC_Stage0");
+            if (!result) {
+                atlasAdjCC++;
+            }
+            if (!strcmp(uniformInfo.fVariable.getName().c_str(), "uatlas_adjustDA_Stage0")) {
+                atlasAdjDA++;
+            }
+            SkDebugf("Single uniform name: %s, type: %d\n",
+                uniformInfo.fVariable.getName().c_str(), uniformInfo.fVariable.getType());
+            SkDebugf("Total one cnt: %d, sizeInv: %d, adjustCC: %d, adjustDA: %d\n",
+                totalOneOffCnt, atlasSizeInvCnt, atlasAdjCC, atlasAdjDA);
+        }
+#endif
         SkASSERT(GrShaderVar::kNonArray == uniformInfo.fVariable.getArrayCount() ||
                  uniformInfo.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
             uniform.fType = uniformInfo.fVariable.getType();
-        )
-
+            )
+        uniform.fName = uniformInfo.fVariable.getName();
         uniform.fOffset = uniformInfo.fUBOffset;
         ++i;
     }
@@ -336,6 +359,85 @@ template<> struct set_uniform_matrix<4> {
 bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
                                                         GrVkUniformBuffer* buffer) const {
     bool updatedBuffer = false;
+
+    static int kTotalCalls = 0;
+    static int kHasBuffer = 0;
+    static int kIsClean = 0;
+    static int kIsCleanSizeOne = 0;
+    static int kOneCount = 0;
+    static int kTwoCount = 0;
+
+    kTotalCalls++;
+    if (buffer) {
+        kHasBuffer++;
+        if (!fUniformsDirty) {
+            kIsClean++;
+        }
+        if (fUniforms.count() == 1) {
+            kOneCount++;
+            if (!fUniformsDirty) {
+                kIsCleanSizeOne++;
+            }
+        }
+        if (fUniforms.count() == 2) {
+            kTwoCount++;
+        }
+    }
+#if 1
+    SkDebugf("Total calls: %d, hasBuffer: %d, isClean: %d, isCleanSizeOne: %d, uniform count: %d, one count: %d, two count: %d\n",
+        kTotalCalls, kHasBuffer, kIsClean, kIsCleanSizeOne, fUniforms.count(), kOneCount, kTwoCount);
+#endif
+
+    if (fUniforms.count() == 1) {
+        static int atlasSizeInvCnt = 0;
+        static int atlasAdjCC = 0;
+        static int atlasAdjDA = 0;
+
+        if (!strcmp(fUniforms[0].fName.c_str(), "uAtlasSizeInv_Stage0")) {
+            atlasSizeInvCnt++;
+        }
+        int result = strcmp(fUniforms[0].fName.c_str(), "uatlas_adjustCC_Stage0");
+        if (!result) {
+            atlasAdjCC++;
+        }
+        if (!strcmp(fUniforms[0].fName.c_str(), "uatlas_adjustDA_Stage0")) {
+            atlasAdjDA++;
+        }
+
+        static int float2 = 0;
+        static int float2Clean = 0;
+        static int float3x3 = 0;
+        static int float3x3Clean = 0;
+        static int half4 = 0;
+        static int half4Clean = 0;
+        if (fUniforms[0].fType == 19) {
+            float2++;
+            if (!fUniformsDirty) {
+                float2Clean++;
+            }
+        }
+        if (fUniforms[0].fType == 23) {
+            float3x3++;
+            if (!fUniformsDirty) {
+                float3x3Clean++;
+            }
+        }
+        if (fUniforms[0].fType == 28) {
+            half4++;
+            if (!fUniformsDirty) {
+                half4Clean++;
+            }
+        }
+#if 1
+        SkDebugf("One uniform! Type: %d, name: %s total float2: %d, total float3x3: %d, total half4: %d\n",
+            fUniforms[0].fType, fUniforms[0].fName.c_str(), float2, float3x3, half4);
+        SkDebugf("float2 clean: %d, float3x3 clean: %d, half4 clean: %d\n",
+            float2Clean, float3x3Clean, half4Clean);
+        SkDebugf("sizeInv: %d, adjustCC: %d, adjustDA: %d\n",
+            atlasSizeInvCnt, atlasAdjCC, atlasAdjDA);
+#endif
+    }
+
     if (buffer && fUniformsDirty) {
         SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
                                           fUniformSize, &updatedBuffer));

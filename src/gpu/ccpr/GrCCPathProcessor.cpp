@@ -158,7 +158,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     const char* atlasAdjust;
     fAtlasAdjustUniform = uniHandler->addUniform(
-            nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
+            nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjustCC", &atlasAdjust);
 
     varyingHandler->emitAttributes(proc);
 

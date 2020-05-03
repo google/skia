@@ -63,6 +63,7 @@ public:
 private:
     struct Uniform {
         uint32_t fOffset;
+        SkString fName;
         SkDEBUGCODE(
             GrSLType    fType;
             int         fArrayCount;
