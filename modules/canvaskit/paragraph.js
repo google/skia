@@ -68,6 +68,7 @@
       if (!isCanvasKitColor(s['color'])) {
         s['color'] = CanvasKit.BLACK;
       }
+
       s['foregroundColor'] = s['foregroundColor'] || CanvasKit.TRANSPARENT;
       s['backgroundColor'] = s['backgroundColor'] || CanvasKit.TRANSPARENT;
       s['decoration'] = s['decoration'] || 0;
@@ -107,6 +108,50 @@
         sPtrs.push(strPtr);
       }
       return copy1dArray(sPtrs, CanvasKit.HEAPU32);
+    }
+
+    function copyColors(textStyle) {
+      // Make a copy of textStyle, to keep the function pure (don't alter the caller's arguments)
+      var tmp = {};
+      Object.assign(tmp, textStyle);
+
+      // these two color fields were arrays, but will set to WASM pointers before we pass this
+      // object over the WASM interface.
+      tmp['colorPtr'] = copy1dArray(textStyle['color'], CanvasKit.HEAPF32);
+      tmp['foregroundColorPtr'] = nullptr; // nullptr is 0, from helper.js
+      tmp['backgroundColorPtr'] = nullptr;
+
+      // 
+      if (isCanvasKitColor(textStyle['foregroundColor']) && textStyle['foregroundColor'][3] > 0) {
+        tmp['foregroundColorPtr'] = copy1dArray(textStyle['foregroundColor'], CanvasKit.HEAPF32);
+      }
+      if (isCanvasKitColor(textStyle['backgroundColor']) && textStyle['backgroundColor'][3] > 0) {
+        tmp['backgroundColorPtr'] = copy1dArray(textStyle['backgroundColor'], CanvasKit.HEAPF32);
+      }
+      return tmp;
+    }
+
+    function freeColors(textStyle) {
+      CanvasKit._free(textStyle['colorPtr']);
+      CanvasKit._free(textStyle['foregroundColorPtr']);
+      CanvasKit._free(textStyle['backgroundColorPtr']);
+    }
+
+    CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
+      // Make a copy of textStyle, to keep the function pure (don't alter the caller's arguments)
+      var tmp = {};
+      Object.assign(tmp, paragraphStyle);
+      tmp['textStyle'] = copyColors(paragraphStyle['textStyle']);
+
+      var result =  CanvasKit.ParagraphBuilder._Make(tmp, fontManager);
+      freeColors(tmp['textStyle']);
+      return result;
+    }
+
+    CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
+      var tmpStyle = copyColors(textStyle);
+      this._pushStyle(tmpStyle);
+      freeColors(tmpStyle);
     }
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";
