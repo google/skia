@@ -15,6 +15,7 @@ TextStyle::TextStyle() : fFontStyle() {
     // value to indicate no decoration color was set.
     fDecoration.fColor = SK_ColorTRANSPARENT;
     fDecoration.fStyle = TextDecorationStyle::kSolid;
+    fDecoration.fMode = TextDecorationMode::kGaps;
     // Thickness is applied as a multiplier to the default thickness of the font.
     fDecoration.fThicknessMultiplier = 1.0;
     fFontSize = 14.0;
