@@ -139,6 +139,18 @@ private:
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
+#if GR_GPU_STATS
+    struct Stats {
+#if GR_TEST_UTILS
+        void dump(SkString*);
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+#endif
+
+        int fNumPathMasksGenerated{0};
+        int fNumPathMaskCacheHits{0};
+    } fStats;
+#endif
+
 #ifdef GR_TEST_UTILS
     int fSuppressWarningMessages = 0;
 #endif

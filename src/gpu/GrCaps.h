@@ -36,7 +36,7 @@ class GrCaps : public SkRefCnt {
 public:
     GrCaps(const GrContextOptions&);
 
-    void dumpJSON(SkJSONWriter*) const;
+    void dumpJSON1(SkJSONWriter*) const;
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
     sk_sp<const GrShaderCaps> refShaderCaps() const { return fShaderCaps; }
@@ -539,7 +539,7 @@ private:
     void applyOptionsOverrides(const GrContextOptions& options);
 
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
-    virtual void onDumpJSON(SkJSONWriter*) const {}
+    virtual void onDumpJSON1(SkJSONWriter*) const {}
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
