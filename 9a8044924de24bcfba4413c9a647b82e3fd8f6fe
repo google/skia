@@ -16,6 +16,24 @@
       "revId": "9a8044924de24bcfba4413c9a647b82e3fd8f6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94268cb8_bc680619",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:28:50Z",
+      "side": 1,
+      "message": "Expanded the comment. Hoping that as we close the gap, we can rearrange the set of .inc files to avoid this entirely.",
+      "parentUuid": "7aba3973_c7f7d48d",
+      "revId": "9a8044924de24bcfba4413c9a647b82e3fd8f6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
