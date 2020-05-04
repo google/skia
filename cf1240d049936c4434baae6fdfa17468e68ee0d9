@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c16bcae_64bf1518",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T15:40:19Z",
+      "side": 1,
+      "message": "^",
+      "revId": "cf1240d049936c4434baae6fdfa17468e68ee0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ec988b7_a259e28f",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T15:40:19Z",
+      "side": 1,
+      "message": "^",
+      "revId": "cf1240d049936c4434baae6fdfa17468e68ee0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6248d20b_fa15cf02",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T15:40:19Z",
+      "side": 1,
+      "message": "^",
+      "revId": "cf1240d049936c4434baae6fdfa17468e68ee0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
