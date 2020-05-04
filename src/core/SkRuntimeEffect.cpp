@@ -591,6 +591,13 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kDivideF3:
             case Inst::kDivideF4: binary(Inst::kDivideF, std::divides<>{}); break;
 
+            case Inst::kPow:
+            case Inst::kPow2:
+            case Inst::kPow3:
+            case Inst::kPow4:
+                binary(Inst::kPow, [](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x,y); });
+                break;
+
             case Inst::kATan:
             case Inst::kATan2:
             case Inst::kATan3:
