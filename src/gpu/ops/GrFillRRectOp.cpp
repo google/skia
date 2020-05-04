@@ -890,6 +890,7 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                                        gp, std::move(fProcessors), flags);
 }
 
+// TODO: It seems odd that we're ignoring chainBounds here
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
