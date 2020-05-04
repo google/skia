@@ -101,6 +101,28 @@ static constexpr char CONTRAST_EFFECT[] = R"(
 
 #endif
 
+// Brightness transfer function approximation:
+//
+//   f(x) = 1 - (1 - x)^(2^(1.8*B))
+//
+// where B is the normalized [-1..1] brightness value
+//
+// Visualization: https://www.desmos.com/calculator/wuyqa2wtol
+//
+static sk_sp<SkData> make_brightness_coeffs(float brightness) {
+    const float coeff_a = std::pow(2.0f, brightness * 1.8f);
+
+    return SkData::MakeWithCopy(&coeff_a, sizeof(coeff_a));
+}
+
+static constexpr char BRIGHTNESS_EFFECT[] = R"(
+    uniform half a;
+
+    void main(inout half4 color) {
+        color.rgb = 1 - pow(1 - color.rgb, half3(a));
+    }
+)";
+
 class BrightnessContrastAdapter final : public DiscardableAdapterBase<BrightnessContrastAdapter,
                                                                       sksg::ExternalColorFilter> {
 public:
@@ -108,7 +130,9 @@ public:
                               const AnimationBuilder& abuilder,
                               sk_sp<sksg::RenderNode> layer)
         : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer)))
+        , fBrightnessEffect(std::get<0>(SkRuntimeEffect::Make(SkString(BRIGHTNESS_EFFECT))))
         , fContrastEffect(std::get<0>(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT)))) {
+        SkASSERT(fBrightnessEffect);
         SkASSERT(fContrastEffect);
 
         enum : size_t {
@@ -183,17 +207,22 @@ private:
     }
 
     sk_sp<SkColorFilter> makeCF() const {
-        // TODO: brightness
-        const auto contrast = SkTPin(fContrast, -50.0f, 100.0f) / 100; // [-0.5 .. 1]
+        const auto brightness = SkTPin(fBrightness, -150.0f, 150.0f) / 150, // [-1.0 .. 1]
+                     contrast = SkTPin(fContrast  ,  -50.0f, 100.0f) / 100; // [-0.5 .. 1]
 
-        if (SkScalarNearlyZero(fContrast)) {
-            return nullptr;
-        }
 
-        return fContrastEffect->makeColorFilter(make_contrast_coeffs(contrast));
+        auto b_eff = SkScalarNearlyZero(brightness)
+                   ? nullptr
+                   : fBrightnessEffect->makeColorFilter(make_brightness_coeffs(brightness)),
+             c_eff = SkScalarNearlyZero(fContrast)
+                   ? nullptr
+                   : fContrastEffect->makeColorFilter(make_contrast_coeffs(contrast));
+
+        return SkColorFilters::Compose(std::move(c_eff), std::move(b_eff));
     }
 
-    const sk_sp<SkRuntimeEffect> fContrastEffect;
+    const sk_sp<SkRuntimeEffect> fBrightnessEffect,
+                                   fContrastEffect;
 
     ScalarValue fBrightness = 0,
                 fContrast   = 0,
