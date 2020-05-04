@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "630bb658_ff22f74f",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 39
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T18:39:32Z",
+      "side": 1,
+      "message": "As a reminder of exciting follow-up work: SkSpecialImage::getROPixels can basically become peekPixels, and (I think) can now just fail on the GPU backend. SkSpecialImage_GPU::onGetROPixels can be deleted, along with the field/logic for fAddedRasterVersionToCache.",
+      "revId": "98859578040dd4ef053cc7aface4c51bff287cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
