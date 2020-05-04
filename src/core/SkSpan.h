@@ -50,6 +50,12 @@ public:
         if (postfixLen == 0) { return SkSpan{}; }
         return SkSpan{fPtr + (this->size() - postfixLen), postfixLen};
     }
+    constexpr SkSpan<T> subspan(size_t offset, size_t count) const {
+        SkASSERT(offset <= this->size());
+        SkASSERT(count <= this->size - offset);
+        if (count == 0) { return SkSpan{}; }
+        return SkSpan{fPtr + offset, count};
+    }
 
 private:
     T* fPtr;
