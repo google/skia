@@ -87,6 +87,10 @@ enum class ByteCodeInstruction : uint16_t {
     kMatrixToMatrix,
     // Followed by three bytes: leftCols (== rightRows), leftRows, rightCols
     kMatrixMultiply,
+    VECTOR(kMaxF),
+    VECTOR(kMaxS),  // SkSL only declares signed versions of min/max
+    VECTOR(kMinF),
+    VECTOR(kMinS),
     // Masked selection: Stack is ... A1, A2, A3, B1, B2, B3, M1, M2, M3
     //                   Result:      M1 ? B1 : A1, M2 ? B2 : A2, M3 ? B3 : A3
     VECTOR(kMix),

@@ -140,9 +140,13 @@ private:
     enum class SpecialIntrinsic {
         kAll,
         kAny,
+        kClamp,
         kDot,
         kLength,
+        kMax,
+        kMin,
         kMix,
+        kSaturate,
     };
 
     struct Intrinsic {

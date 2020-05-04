@@ -25,6 +25,27 @@ $genHType sqrt($genHType x);
 $genType tan($genType x);
 $genHType tan($genHType x);
 
+$genType min($genType x, $genType y);
+$genType min($genType x, float y);
+$genHType min($genHType x, $genHType y);
+$genHType min($genHType x, half y);
+$genIType min($genIType x, $genIType y);
+$genIType min($genIType x, int y);
+$genType max($genType x, $genType y);
+$genType max($genType x, float y);
+$genHType max($genHType x, $genHType y);
+$genHType max($genHType x, half y);
+$genIType max($genIType x, $genIType y);
+$genIType max($genIType x, int y);
+$genType clamp($genType x, $genType minVal, $genType maxVal);
+$genType clamp($genType x, float minVal, float maxVal);
+$genHType clamp($genHType x, $genHType minVal, $genHType maxVal);
+$genHType clamp($genHType x, half minVal, half maxVal);
+$genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
+$genIType clamp($genIType x, int minVal, int maxVal);
+$genType saturate($genType x);
+$genHType saturate($genHType x);
+
 $genType  mix($genType  x, $genType  y, $genBType a);
 $genHType mix($genHType x, $genHType y, $genBType a);
 $genIType mix($genIType x, $genIType y, $genBType a);
