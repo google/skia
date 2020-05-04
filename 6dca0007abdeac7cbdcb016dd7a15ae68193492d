@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6580eca5_250204fe",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T16:53:43Z",
+      "side": 1,
+      "message": "This was pre-existing code, but ... isn\u0027t this wrong (even if it doesn\u0027t matter because we\u0027re just drawing masks). SkColor is unpremul, this should be SkColorSetARGB(alpha, 255, 255, 255).",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eef8105_1aed9c58",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T16:53:43Z",
+      "side": 1,
+      "message": "In the old code, this wouldn\u0027t have set blend mode, so this is a behavior change. But with the assert that alpha is 0xFF, I guess it doesn\u0027t matter (SrcOver \u003d\u003d Src)?",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
