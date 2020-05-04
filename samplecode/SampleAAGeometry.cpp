@@ -12,6 +12,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
@@ -1585,7 +1586,7 @@ public:
                 SkPoint pt = fPath.getPoint((int) myClick->fControl);
                 pt.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
                         SkIntToScalar(click->fCurr.fY - click->fPrev.fY));
-                ToolUtils::set_path_pt(fActivePt, pt, &fPath);
+                SkPathPriv::UpdatePathPoint(&fPath, fActivePt, pt);
                 validatePath();
                 return true;
                 }

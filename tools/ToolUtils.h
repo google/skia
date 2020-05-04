@@ -144,8 +144,6 @@ void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
 void make_big_path(SkPath& path);
 
-void set_path_pt(int index, const SkPoint&, SkPath* path);
-
 // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
 class TopoTestNode : public SkRefCnt {
 public:

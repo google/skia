@@ -364,6 +364,13 @@ public:
      * at some point during the execution of the function.
      */
     static int GenIDChangeListenersCount(const SkPath&);
+
+    static void UpdatePathPoint(SkPath* path, int index, const SkPoint& pt) {
+        SkASSERT(index < path->countPoints());
+        SkPathRef::Editor ed(&path->fPathRef);
+        ed.writablePoints()[index] = pt;
+        path->dirtyAfterEdit();
+    }
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
