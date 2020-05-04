@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "41f5ad42_0f83ecf3",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-04T15:07:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49654264_24b2c435",
+      "range": {
+        "startLine": 451,
+        "startChar": 8,
+        "endLine": 451,
+        "endChar": 61
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11b225a0_4eab496d",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 32
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e1a11168_ec9ad154",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-04T15:07:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11b225a0_4eab496d",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 49
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f7f34f0_d6edfb8a",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
         "patchSetId": 32
@@ -68,6 +116,30 @@
       "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1ca0933_5a0c75c2",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-04T15:07:00Z",
+      "side": 1,
+      "message": "Done – the union required some more boilerplate in the header. Let me know if in your opinion it\u0027s worth moving them into the impl, despite some long type names.",
+      "parentUuid": "3f7f34f0_d6edfb8a",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 41
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
