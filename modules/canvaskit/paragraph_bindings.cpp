@@ -27,6 +27,12 @@ using namespace emscripten;
 
 namespace para = skia::textlayout;
 
+SkColor4f toSkColor4f(uintptr_t /* float* */ cPtr) {
+    float* fourFloats = reinterpret_cast<float*>(cPtr);
+    SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
+    return color;
+}
+
 struct SimpleFontStyle {
     SkFontStyle::Slant  slant;
     SkFontStyle::Weight weight;
@@ -34,9 +40,9 @@ struct SimpleFontStyle {
 };
 
 struct SimpleTextStyle {
-    SimpleColor4f color;
-    SimpleColor4f foregroundColor;
-    SimpleColor4f backgroundColor;
+    uintptr_t /* float* */ colorPtr;
+    uintptr_t /* float* */ foregroundColorPtr;
+    uintptr_t /* float* */ backgroundColorPtr;
     uint8_t decoration;
     SkScalar decorationThickness;
     SkScalar fontSize;
@@ -50,20 +56,18 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
     para::TextStyle ts;
 
     // textstyle.color doesn't support a 4f color, however the foreground and background fields below do.
-    ts.setColor(s.color.toSkColor());
+    ts.setColor(toSkColor4f(s.colorPtr).toSkColor());
 
-    // Emscripten will not allow a value_object to have an unset field, however
     // It is functionally important that these paints be unset when no value was provided.
-    // paragraph.js defaults these colors to transparent in that case and we use that signal here.
-    if (s.foregroundColor.a > 0) {
+    if (s.foregroundColorPtr) {
         SkPaint p1;
-        p1.setColor4f(s.foregroundColor.toSkColor4f());
+        p1.setColor4f(toSkColor4f(s.foregroundColorPtr));
         ts.setForegroundColor(p1);
     }
 
-    if (s.backgroundColor.a > 0) {
+    if (s.backgroundColorPtr) {
         SkPaint p2;
-        p2.setColor4f(s.backgroundColor.toSkColor4f());
+        p2.setColor4f(toSkColor4f(s.backgroundColorPtr));
         ts.setBackgroundColor(p2);
     }
 
@@ -178,7 +182,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("layout", &para::ParagraphImpl::layout);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
-        .class_function("Make", optional_override([](SimpleParagraphStyle style,
+        .class_function("_Make", optional_override([](SimpleParagraphStyle style,
                                                      sk_sp<SkFontMgr> fontMgr)-> para::ParagraphBuilderImpl {
             auto fc = sk_make_sp<para::FontCollection>();
             fc->setDefaultFontManager(fontMgr);
@@ -191,7 +195,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         }))
         .function("build", &para::ParagraphBuilderImpl::Build, allow_raw_pointers())
         .function("pop", &para::ParagraphBuilderImpl::pop)
-        .function("pushStyle",  optional_override([](para::ParagraphBuilderImpl& self,
+        .function("_pushStyle",  optional_override([](para::ParagraphBuilderImpl& self,
                                                      SimpleTextStyle textStyle) {
             auto ts = toTextStyle(textStyle);
             self.pushStyle(ts);
@@ -275,9 +279,9 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textStyle",         &SimpleParagraphStyle::textStyle);
 
     value_object<SimpleTextStyle>("TextStyle")
-        .field("color",               &SimpleTextStyle::color)
-        .field("foregroundColor",     &SimpleTextStyle::foregroundColor)
-        .field("backgroundColor",     &SimpleTextStyle::backgroundColor)
+        .field("colorPtr",            &SimpleTextStyle::colorPtr)
+        .field("foregroundColorPtr",  &SimpleTextStyle::foregroundColorPtr)
+        .field("backgroundColorPtr",  &SimpleTextStyle::backgroundColorPtr)
         .field("decoration",          &SimpleTextStyle::decoration)
         .field("decorationThickness", &SimpleTextStyle::decorationThickness)
         .field("_fontFamilies",       &SimpleTextStyle::fontFamilies)
