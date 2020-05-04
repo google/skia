@@ -186,7 +186,7 @@ static SkString map_flags_to_string(uint32_t flags) {
     return str;
 }
 
-void GrCaps::dumpJSON(SkJSONWriter* writer) const {
+void GrCaps::dumpJSON1(SkJSONWriter* writer) const {
     writer->beginObject();
 
     writer->appendBool("MIP Map Support", fMipMapSupport);
@@ -270,7 +270,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                          kBlendEquationSupportNames[fBlendEquationSupport]);
     writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
 
-    this->onDumpJSON(writer);
+    this->onDumpJSON1(writer);
 
     writer->appendName("shaderCaps");
     this->shaderCaps()->dumpJSON(writer);

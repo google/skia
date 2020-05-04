@@ -1461,8 +1461,8 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     surface->flush();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->priv().dumpCacheStats(log);
-        canvas->getGrContext()->priv().dumpGpuStats(log);
+        canvas->getGrContext()->priv().dumpCacheStats1(log);
+        canvas->getGrContext()->priv().dumpGpuStats1(log);
     }
 
     this->readBack(surface.get(), dst);
@@ -1773,8 +1773,8 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     mainTestCtx->makeCurrent();
 
     if (FLAGS_gpuStats) {
-        mainCtx->priv().dumpCacheStats(log);
-        mainCtx->priv().dumpGpuStats(log);
+        mainCtx->priv().dumpCacheStats1(log);
+        mainCtx->priv().dumpGpuStats1(log);
 
 #if 0
         otherCtx->priv().dumpCacheStats(log);

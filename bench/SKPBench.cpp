@@ -142,12 +142,12 @@ void SKPBench::drawPicture() {
 #include "src/gpu/GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values) {
-    context->priv().resetGpuStats();
+    context->priv().resetGpuStats1();
     canvas->drawPicture(picture);
     canvas->flush();
 
-    context->priv().dumpGpuStatsKeyValuePairs(keys, values);
-    context->priv().dumpCacheStatsKeyValuePairs(keys, values);
+    context->priv().dumpGpuStatsKeyValuePairs1(keys, values);
+    context->priv().dumpCacheStatsKeyValuePairs1(keys, values);
 }
 
 void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<double>* values) {

@@ -1118,7 +1118,7 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
-void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
+void GrGLCaps::onDumpJSON1(SkJSONWriter* writer) const {
 
     // We are called by the base class, which has already called beginObject(). We choose to nest
     // all of our caps information in a named sub-object.
@@ -1247,7 +1247,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->endObject();
 }
 #else
-void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const { }
+void GrGLCaps::onDumpJSON1(SkJSONWriter* writer) const { }
 #endif
 
 void GrGLCaps::getTexImageExternalFormatAndType(GrGLFormat surfaceFormat, GrGLenum* externalFormat,

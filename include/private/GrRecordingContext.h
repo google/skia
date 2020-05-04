@@ -130,6 +130,41 @@ protected:
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
+    class Stats {
+    public:
+        Stats() = default;
+
+        void reset() { *this = {}; }
+
+#if GR_CONTEXT_STATS
+        int numPathMasksGenerated() const { return fNumPathMasksGenerated; }
+        void incNumPathMasksGenerated() { fNumPathMasksGenerated++; }
+
+        int numPathMasksCacheHits() const { return fNumPathMaskCacheHits; }
+        void incNumPathMasksCacheHits() { fNumPathMaskCacheHits++; }
+
+#if GR_TEST_UTILS
+        void dump(SkString*);
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+#endif
+
+    private:
+        int fNumPathMasksGenerated{0};
+        int fNumPathMaskCacheHits{0};
+
+#else // GR_CONTEXT_STATS
+        void incNumPathMasksGenerated() {}
+        void incNumPathMasksCacheHits() {}
+
+#if GR_TEST_UTILS
+        void dump(SkString*) {}
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {}
+#endif
+#endif // GR_CONTEXT_STATS
+    } fStats;
+
+    Stats* stats() { return &fStats; }
+
 private:
     OwnedArenas                       fArenas;
 

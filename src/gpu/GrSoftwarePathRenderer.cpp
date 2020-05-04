@@ -321,6 +321,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             GrSwizzle swizzle = args.fRenderTargetContext->caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);
             view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+            args.fContext->priv().stats()->incNumPathMasksCacheHits();
         }
     }
     if (!view) {
@@ -378,6 +379,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             fProxyProvider->assignUniqueKeyToProxy(maskKey, view.asTextureProxy());
             args.fShape->addGenIDChangeListener(std::move(listener));
         }
+
+        args.fContext->priv().stats()->incNumPathMasksGenerated();
     }
     SkASSERT(view);
     if (inverseFilled) {

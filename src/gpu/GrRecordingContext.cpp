@@ -190,3 +190,21 @@ GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if GR_TEST_UTILS
+
+#if GR_GPU_STATS
+
+void GrRecordingContext::Stats::dump(SkString* string) {
+
+}
+
+void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
+                                                  SkTArray<double>* values) {
+
+}
+
+#endif // GR_GPU_STATS
+#endif // GR_TEST_UTILS
+
