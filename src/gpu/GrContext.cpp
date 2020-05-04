@@ -670,7 +670,7 @@ bool GrContext::precompileShader(const SkData& key, const SkData& data) {
 #ifdef SK_ENABLE_DUMP_GPU
 #include "include/core/SkString.h"
 #include "src/utils/SkJSONWriter.h"
-SkString GrContext::dump() const {
+SkString GrContext::dump1() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
@@ -682,6 +682,9 @@ SkString GrContext::dump() const {
 
     writer.appendName("gpu");
     this->fGpu->dumpJSON(&writer);
+
+    writer.appendName("context");
+    this->dumpJSON(&writer);
 
     // Flush JSON to the memory stream
     writer.endObject();
