@@ -21,6 +21,8 @@ public:
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
+    using GrSimpleMeshDrawOpHelper::createProgramInfo;
+    using GrSimpleMeshDrawOpHelper::processors;
 
     const GrPipeline* createPipelineWithStencil(const GrCaps*,
                                                 SkArenaAlloc*,

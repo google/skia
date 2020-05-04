@@ -1255,6 +1255,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 }
 
 void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+<<<<<<< HEAD
     this->createProgramInfo(flushState);
 
     for (int i = 0; i < 3; ++i) {
@@ -1265,6 +1266,22 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
             flushState->drawMesh(*fMeshes[i]);
         }
     }
+=======
+    auto pipeline = fHelper.createPipelineWithStencil(flushState);
+#if 0
+    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+#else
+    for (int i = 0; i < 3; ++i) {
+        if (fMeshes[i]) {
+            SkASSERT(fProgramInfos[i]);
+
+            // TODO: update this
+            //flushState->opsRenderPass()->draw(*fProgramInfos[i], fMeshes[i], 1, chainBounds);
+        }
+    }
+#endif
+>>>>>>> git squash commit for more-programInfo.
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
