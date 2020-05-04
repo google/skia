@@ -16,6 +16,24 @@
       "revId": "3d919c5301957d3a78db6466b37af43a088cc7d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0fb16a6_f814d1d3",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T16:36:47Z",
+      "side": 1,
+      "message": "I\u0027m working on it, but it\u0027s surprisingly tricky. We need to have a path that simplifies first to an SkRect, but whose geometry has a 0 width or 0 height. All the straight forward paths I\u0027ve tried properly detect that the rect would be empty and don\u0027t report it as such from SkPath\u0027s APIs. I\u0027ll need to dig into the specifics of the fuzzer test case to figure out what special path it came up with that found the sweet spot.\n\nUnfortunately, my linux desktop at the office appears to be offline, so it\u0027ll have to wait until a trooper goes in.",
+      "parentUuid": "309dcc3e_08dd54b0",
+      "revId": "3d919c5301957d3a78db6466b37af43a088cc7d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
