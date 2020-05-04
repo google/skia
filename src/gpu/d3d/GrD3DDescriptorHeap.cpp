@@ -40,20 +40,20 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateCPUHandle() {
     // valid only for non-shader-visible heaps
     SkASSERT(!SkToBool(fHeap->GetDesc().Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
     D3D12_CPU_DESCRIPTOR_HANDLE handle = fHeap->GetCPUDescriptorHandleForHeapStart();
-    int freeIndex = fFreeBlocks.leadingBitIndex();
-    SkASSERT(freeIndex >= 0);
-    handle.ptr += freeIndex * fHandleIncrementSize;
-    fFreeBlocks.clear(freeIndex);
+    SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
+    SkASSERT(freeBlock);
+    handle.ptr += *freeBlock * fHandleIncrementSize;
+    fFreeBlocks.reset(*freeBlock);
 
     return handle;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateGPUHandle() {
     D3D12_GPU_DESCRIPTOR_HANDLE handle = fHeap->GetGPUDescriptorHandleForHeapStart();
-    int freeIndex = fFreeBlocks.leadingBitIndex();
-    SkASSERT(freeIndex >= 0);
-    handle.ptr += freeIndex * fHandleIncrementSize;
-    fFreeBlocks.clear(freeIndex);
+    SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
+    SkASSERT(freeBlock);
+    handle.ptr += *freeBlock * fHandleIncrementSize;
+    fFreeBlocks.reset(*freeBlock);
 
     return handle;
 }
