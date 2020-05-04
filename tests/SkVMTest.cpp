@@ -118,17 +118,21 @@ DEF_TEST(SkVM, r) {
             sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
             REPORTER_ASSERT(r, expected, "Couldn't load SkVMTest.expected.");
             if (expected) {
-                if (blob->size() != expected->size()
-                        || 0 != memcmp(blob->data(), expected->data(), blob->size())) {
+                if (blob->size() != expected->size() ||
+                    memcmp(blob->data(), expected->data(), blob->size()) != 0) {
 
                     ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
                            expected->size(), expected->data(),
                            blob->size(), blob->data());
-                }
 
-                SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
-                if (out.isValid()) {
-                    out.write(blob->data(), blob->size());
+                    // Windows file access is exclusive by default.
+                    // Close the expectation file before writing out the new content.
+                    expected.reset();
+
+                    SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
+                    if (out.isValid()) {
+                        out.write(blob->data(), blob->size());
+                    }
                 }
             }
         }
