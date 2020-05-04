@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c9106a3_51634e1e",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: \u0026 with type",
+      "range": {
+        "startLine": 73,
+        "startChar": 34,
+        "endLine": 73,
+        "endChar": 51
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97b871ce_183affb6",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "Did the union require these to be defined explicitly? I\u0027d have the defaults for ScalableSampler would do the right thing. \n\nIf we do need to keep them, then nits for the \u0026 and \u0026\u0026 placement 😉",
+      "range": {
+        "startLine": 74,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 13
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b04da1f0_bf94b3ac",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: * with type",
+      "range": {
+        "startLine": 92,
+        "startChar": 34,
+        "endLine": 92,
+        "endChar": 54
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86255ed2_7daf8da1",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: * with type",
+      "range": {
+        "startLine": 92,
+        "startChar": 71,
+        "endLine": 92,
+        "endChar": 78
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc47f44_8d852449",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: \u0026 with type",
+      "range": {
+        "startLine": 96,
+        "startChar": 14,
+        "endLine": 96,
+        "endChar": 50
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f52b76e1_f2b8873c",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: \u0026 with type",
+      "range": {
+        "startLine": 100,
+        "startChar": 14,
+        "endLine": 100,
+        "endChar": 31
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "820bdb7e_046e50dd",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: \u0026\u0026 should go next to the type name.",
+      "range": {
+        "startLine": 105,
+        "startChar": 22,
+        "endLine": 105,
+        "endChar": 42
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "230de579_e5213a3d",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T15:31:28Z",
+      "side": 1,
+      "message": "nit: \u0026 with type",
+      "range": {
+        "startLine": 112,
+        "startChar": 28,
+        "endLine": 112,
+        "endChar": 43
+      },
+      "revId": "328a9da9052f5afad904fd0ee4b6e65ec7bd4012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
