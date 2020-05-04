@@ -117,7 +117,7 @@ public:
     void doClick(SkPath* path) {
         if (fPtIdx >= 0) {
             SkPoint pt = path->getPoint(fPtIdx);
-            ToolUtils::set_path_pt(fPtIdx, pt + fCurr - fPrev, path);
+            SkPathPriv::UpdatePathPoint(path, fPtIdx, pt + fCurr - fPrev);
         } else {
             path->transform(
                     SkMatrix::MakeTrans(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()), path);
