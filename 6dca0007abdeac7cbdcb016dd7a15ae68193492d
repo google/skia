@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "25c1f23c_2f65e26f",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T17:24:11Z",
+      "side": 1,
+      "message": "Yup, SkColor is unpremul, by definition. There are ~0 public APIs that talk about premul colors.",
+      "parentUuid": "006be354_38a3e711",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7eef8105_1aed9c58",
         "filename": "src/gpu/GrSWMaskHelper.cpp",
         "patchSetId": 2
