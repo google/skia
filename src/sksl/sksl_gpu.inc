@@ -92,6 +92,7 @@ $genType mix($genType x, $genType y, float a);
 $genHType mix($genHType x, $genHType y, $genHType a);
 $genHType mix($genHType x, $genHType y, half a);
 $genType mix($genType x, $genType y, $genBType a);
+$genHType mix($genHType x, $genHType y, $genBType a);
 $genIType mix($genIType x, $genIType y, $genBType a);
 $genBType mix($genBType x, $genBType y, $genBType a);
 $genType step($genType edge, $genType x);
