@@ -241,19 +241,17 @@ class NullSlide : public Slide {
     }
 };
 
-const char* kName = "name";
-const char* kValue = "value";
-const char* kOptions = "options";
-const char* kSlideStateName = "Slide";
-const char* kBackendStateName = "Backend";
-const char* kMSAAStateName = "MSAA";
-const char* kPathRendererStateName = "Path renderer";
-const char* kSoftkeyStateName = "Softkey";
-const char* kSoftkeyHint = "Please select a softkey";
-const char* kFpsStateName = "FPS";
-const char* kON = "ON";
-const char* kOFF = "OFF";
-const char* kRefreshStateName = "Refresh";
+constexpr char kName[] = "name";
+constexpr char kValue[] = "value";
+constexpr char kOptions[] = "options";
+constexpr char kSlideStateName[] = "Slide";
+constexpr char kBackendStateName[] = "Backend";
+constexpr char kMSAAStateName[] = "MSAA";
+constexpr char kPathRendererStateName[] = "Path renderer";
+constexpr char kSoftkeyStateName[] = "Softkey";
+constexpr char kSoftkeyHint[] = "Please select a softkey";
+constexpr char kON[] = "ON";
+constexpr char kRefreshStateName[] = "Refresh";
 
 extern bool gUseSkVMBlitter;
 extern bool gSkVMJITViaDylib;

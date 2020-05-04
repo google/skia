@@ -22,7 +22,7 @@ enum MorphologyType {
     kDilate_MT
 };
 
-static const char* gStyleName[] = {
+constexpr const char* gStyleName[] = {
     "erode",
     "dilate"
 };

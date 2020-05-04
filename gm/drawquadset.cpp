@@ -170,7 +170,7 @@ static TileRenderer kTileSets[] = {
     [](SkCanvas* canvas) { draw_color_tiles(canvas, /* multicolor */ false); },
     [](SkCanvas* canvas) { draw_color_tiles(canvas, /* multicolor */true); },
 };
-static const char* kTileSetNames[] = { "Local", "Aligned", "Green", "Multicolor" };
+constexpr const char* kTileSetNames[] = { "Local", "Aligned", "Green", "Multicolor" };
 static_assert(SK_ARRAY_COUNT(kTileSets) == SK_ARRAY_COUNT(kTileSetNames), "Count mismatch");
 
 namespace skiagm {
@@ -202,7 +202,9 @@ private:
                           {25.f, kRowCount * kTileHeight - 15.f}};
         SkAssertResult(rowMatrices[4].setPolyToPoly(src, dst, 4));
         rowMatrices[4].preTranslate(0.f, +10.f);
-        static const char* matrixNames[] = { "Identity", "T+S", "Rotate", "Skew", "Perspective" };
+        constexpr const char* matrixNames[] = {
+            "Identity", "T+S", "Rotate", "Skew", "Perspective"
+        };
         static_assert(SK_ARRAY_COUNT(matrixNames) == SK_ARRAY_COUNT(rowMatrices), "Count mismatch");
 
         // Print a column header

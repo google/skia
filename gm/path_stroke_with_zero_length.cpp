@@ -88,7 +88,7 @@ static const SkPaint::Cap kCaps[] = {
 static const SkScalar kWidths[] = { 0.0f, 0.9f, 1.0f, 1.1f, 15.0f, 25.0f };
 
 // Full set of path structures for single contour case (each primitive with and without a close)
-static const char* kAllVerbs[] = {
+constexpr const char* kAllVerbs[] = {
     nullptr,
     "z ",
     "l 0 0 ",
@@ -102,7 +102,7 @@ static const char* kAllVerbs[] = {
 };
 
 // Reduced set of path structures for double contour case, to keep total number of cases down
-static const char* kSomeVerbs[] = {
+constexpr const char* kSomeVerbs[] = {
     nullptr,
     "z ",
     "l 0 0 ",

@@ -15,7 +15,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
-const char* gProg = R"(
+constexpr char gProg[] = R"(
     uniform half4 gColor;
 
     void main(float2 p, inout half4 color) {

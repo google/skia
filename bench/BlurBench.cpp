@@ -21,7 +21,7 @@
 // The value that produces a sigma of just over 2.
 #define CUTOVER 2.6f
 
-static const char* gStyleName[] = {
+constexpr const char* gStyleName[] = {
     "normal",
     "solid",
     "outer",
