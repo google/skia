@@ -321,7 +321,9 @@ private:
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
+        // We cannot surface the SmallPathOp's programInfo at record time. As currently
+        // implemented, the GP is modified at flush time based on the number of pages in the
+        // atlas.
     }
 
     void onPrePrepareDraws(GrRecordingContext*,
