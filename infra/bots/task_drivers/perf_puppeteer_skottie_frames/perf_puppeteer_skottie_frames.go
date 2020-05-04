@@ -83,7 +83,9 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
-	outputFile := filepath.Join(outputAbsPath, fmt.Sprintf("perf-%s.json", *taskName))
+	// outputFile name should be unique between tasks, so as to avoid having duplicate name files
+	// uploaded to GCS.
+	outputFile := filepath.Join(outputAbsPath, fmt.Sprintf("perf-%s.json", *taskID))
 	if err := processSkottieFramesData(ctx, outputWithoutResults, benchmarkAbsPath, outputFile); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
