@@ -518,7 +518,7 @@ static void show_function_header(const char* functionName) {
     }
 }
 
-static const char* gOpStrs[] = {
+constexpr const char* gOpStrs[] = {
     "kDifference_SkPathOp",
     "kIntersect_SkPathOp",
     "kUnion_SkPathOp",
@@ -2878,7 +2878,7 @@ static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
     }
 }
 
-static const char* gFillTypeStr[] = {
+constexpr const char* gFillTypeStr[] = {
     "kWinding",
     "kEvenOdd",
     "kInverseWinding",

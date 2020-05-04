@@ -123,7 +123,7 @@ static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
 
 typedef void (*MakePathsProc)(const SkRect&, SkPath*, SkPath*);
 
-const char* gCoverageName[] = {
+constexpr const char* gCoverageName[] = {
     "union", "sect", "diff", "rev-diff", "xor"
 };
 

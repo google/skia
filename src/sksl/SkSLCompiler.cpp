@@ -42,36 +42,36 @@
 
 #define STRINGIFY(x) #x
 
-static const char* SKSL_GPU_INCLUDE =
+constexpr char SKSL_GPU_INCLUDE[] =
 #include "sksl_gpu.inc"
 ;
 
-static const char* SKSL_BLEND_INCLUDE =
+constexpr char SKSL_BLEND_INCLUDE[] =
 #include "sksl_blend.inc"
 ;
 
-static const char* SKSL_INTERP_INCLUDE =
+constexpr char SKSL_INTERP_INCLUDE[] =
 #include "sksl_interp.inc"
 ;
 
-static const char* SKSL_VERT_INCLUDE =
+constexpr char SKSL_VERT_INCLUDE[] =
 #include "sksl_vert.inc"
 ;
 
-static const char* SKSL_FRAG_INCLUDE =
+constexpr char SKSL_FRAG_INCLUDE[] =
 #include "sksl_frag.inc"
 ;
 
-static const char* SKSL_GEOM_INCLUDE =
+constexpr char SKSL_GEOM_INCLUDE[] =
 #include "sksl_geom.inc"
 ;
 
-static const char* SKSL_FP_INCLUDE =
+constexpr char SKSL_FP_INCLUDE[] =
 #include "sksl_enums.inc"
 #include "sksl_fp.inc"
 ;
 
-static const char* SKSL_PIPELINE_INCLUDE =
+constexpr char SKSL_PIPELINE_INCLUDE[] =
 #include "sksl_pipeline.inc"
 ;
 

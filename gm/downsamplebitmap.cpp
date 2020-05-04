@@ -24,7 +24,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-static const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };
+constexpr const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };
 
 struct DownsampleBitmapGM : public skiagm::GM {
     SkBitmap      (*fMakeBitmap)(SkImageInfo);

@@ -27,7 +27,7 @@ DEF_TEST(SkPDF_Metadata, r) {
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     sk_sp<SkData> data = pdf.detachAsData();
-    static const char* expectations[] = {
+    static constexpr const char* expectations[] = {
         "/Title (A1)",
         "/Author (A2)",
         "/Subject (A3)",
