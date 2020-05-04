@@ -172,7 +172,7 @@ void GrShape::simplifyRect(const SkRect& rect, SkPathDirection dir, unsigned sta
         if (flags & kSimpleFill_Flag) {
             // A zero area, filled shape so go straight to empty
             this->setType(Type::kEmpty);
-        } else if (!fRect.width() ^ !fRect.height()) {
+        } else if (!rect.width() ^ !rect.height()) {
             // A line, choose the first point that best matches the starting index
             SkPoint p1 = {rect.fLeft, rect.fTop};
             SkPoint p2 = {rect.fRight, rect.fBottom};
