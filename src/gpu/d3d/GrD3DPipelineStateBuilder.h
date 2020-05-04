@@ -29,9 +29,9 @@ public:
      * available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static sk_sp<GrD3DPipelineState> CreatePipelineState(GrD3DGpu*, GrRenderTarget*,
-                                                         const GrProgramDesc&,
-                                                         const GrProgramInfo&);
+    static sk_sp<GrD3DPipelineState> MakePipelineState(GrD3DGpu*, GrRenderTarget*,
+                                                       const GrProgramDesc&,
+                                                       const GrProgramInfo&);
 
     const GrCaps* caps() const override;
 

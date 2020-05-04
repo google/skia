@@ -139,9 +139,8 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         fCurrentPipelineBounds.setEmpty();
     }
 
-    GrProgramDesc desc = fGpu->caps()->makeDesc(fRenderTarget, info);
     sk_sp<GrD3DPipelineState> pipelineState =
-        GrD3DPipelineStateBuilder::CreatePipelineState(fGpu, fRenderTarget, desc, info);
+            fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, info);
     if (!pipelineState) {
         return false;
     }
