@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5225074f_c47e6bbc",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "Just double checking I\u0027m following... these loops can go 0..count or count..0, either way\u0027s fine?",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a070c86a_43174bde",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "Think maybe these instructions want to be kAnyB / kAllB?",
+      "range": {
+        "startLine": 76,
+        "startChar": 6,
+        "endLine": 77,
+        "endChar": 46
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89daa966_a662f8e7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "typically is_generic_type?",
+      "range": {
+        "startLine": 1014,
+        "startChar": 12,
+        "endLine": 1014,
+        "endChar": 25
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1be46f7_2b748150",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "Might be clearer with this type written out?",
+      "range": {
+        "startLine": 1015,
+        "startChar": 10,
+        "endLine": 1015,
+        "endChar": 14
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7982abec_e8f22c2a",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1074,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "It\u0027s kind of brain bending to switch on inst.f then select for kAndB/kOrB?\n\nMaybe let\u0027s test for these odd cases explicitly and return early if we hit them,\nfalling through to writeTypedInstruction() outside the switch?",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e19bf44e_a7c9ec83",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "What exactly does it mean to be a SpecialIntrinsic?\nThese certainly have the foldy nature of, say, kDot.",
+      "range": {
+        "startLine": 1087,
+        "startChar": 0,
+        "endLine": 1096,
+        "endChar": 0
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdb63e48_9d9c8056",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:34:48Z",
+      "side": 1,
+      "message": "Just fwiw, anonymous structs are not technically legal C++, unlike anonymous unions.  They are legal C.\n\nBut at this point maybe just drop all the union and struct stuff anyway?  It\u0027s not really saving a ton of space.",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
