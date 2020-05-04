@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbb69f23_27506fac",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-04T18:44:30Z",
+      "side": 1,
+      "message": "This is exactly the old file with two differences...",
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ddbcad1_2aba932a",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-04T18:44:30Z",
+      "side": 1,
+      "message": "Here I turned the bounds into a rect to match the new Make() on the FP class (and pass nullptr for the pixel domain).",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 72
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42364ee7_9570eee2",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-04T18:44:30Z",
+      "side": 1,
+      "message": "Here I renamed the function.",
+      "range": {
+        "startLine": 419,
+        "startChar": 39,
+        "endLine": 419,
+        "endChar": 57
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
