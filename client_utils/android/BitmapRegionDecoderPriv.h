@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkBitmapRegionDecoderPriv_DEFINED
-#define SkBitmapRegionDecoderPriv_DEFINED
+#ifndef BitmapRegionDecoderPriv_DEFINED
+#define BitmapRegionDecoderPriv_DEFINED
 
 #include "include/core/SkRect.h"
 
@@ -58,4 +58,4 @@ inline SubsetType adjust_subset_rect(const SkISize& imageDims, SkIRect* subset, 
     return SubsetType::kFullyInside_SubsetType;
 }
 
-#endif // SkBitmapRegionDecoderPriv_DEFINED
+#endif // BitmapRegionDecoderPriv_DEFINED

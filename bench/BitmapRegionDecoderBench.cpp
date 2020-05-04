@@ -6,7 +6,9 @@
  */
 
 #include "bench/BitmapRegionDecoderBench.h"
+#ifdef SK_ENABLE_ANDROID_UTILS
 #include "bench/CodecBenchPriv.h"
+#include "client_utils/android/BitmapRegionDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "src/core/SkOSFile.h"
 
@@ -36,7 +38,7 @@ bool BitmapRegionDecoderBench::isSuitableFor(Backend backend) {
 }
 
 void BitmapRegionDecoderBench::onDelayedSetup() {
-    fBRD.reset(SkBitmapRegionDecoder::Create(fData, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
+    fBRD = android::skia::BitmapRegionDecoder::Make(fData);
 }
 
 void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {
@@ -47,3 +49,4 @@ void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {
         SkAssertResult(fBRD->decodeRegion(&bm, nullptr, fSubset, fSampleSize, ct, false, cs));
     }
 }
+#endif // SK_ENABLE_ANDROID_UTILS

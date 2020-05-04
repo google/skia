@@ -68,6 +68,10 @@
     #include "include/svg/SkSVGCanvas.h"
     #include "src/xml/SkXMLWriter.h"
 #endif
+
+#if defined(SK_ENABLE_ANDROID_UTILS)
+    #include "client_utils/android/BitmapRegionDecoder.h"
+#endif
 #include "tests/TestUtils.h"
 
 #include <cmath>
@@ -120,6 +124,11 @@ std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static SkString get_scaled_name(const Path& path, float scale) {
+    return SkStringPrintf("%s_%.3f", SkOSPath::Basename(path.c_str()).c_str(), scale);
+}
+
+#ifdef SK_ENABLE_ANDROID_UTILS
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
     : fPath(path)
     , fMode(mode)
@@ -133,12 +142,9 @@ bool BRDSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-static SkBitmapRegionDecoder* create_brd(Path path) {
+static std::unique_ptr<android::skia::BitmapRegionDecoder> create_brd(Path path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-    if (!encoded) {
-        return nullptr;
-    }
-    return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
+    return android::skia::BitmapRegionDecoder::Make(encoded);
 }
 
 static inline void alpha8_to_gray8(SkBitmap* bitmap) {
@@ -169,7 +175,7 @@ Result BRDSrc::draw(SkCanvas* canvas) const {
             break;
     }
 
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    auto brd = create_brd(fPath);
     if (nullptr == brd.get()) {
         return Result::Skip("Could not create brd for %s.", fPath.c_str());
     }
@@ -273,16 +279,12 @@ Result BRDSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize BRDSrc::size() const {
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    auto brd = create_brd(fPath);
     if (brd) {
         return {std::max(1, brd->width() / (int)fSampleSize),
                 std::max(1, brd->height() / (int)fSampleSize)};
     }
     return {0, 0};
-}
-
-static SkString get_scaled_name(const Path& path, float scale) {
-    return SkStringPrintf("%s_%.3f", SkOSPath::Basename(path.c_str()).c_str(), scale);
 }
 
 Name BRDSrc::name() const {
@@ -293,6 +295,8 @@ Name BRDSrc::name() const {
     }
     return get_scaled_name(fPath, 1.0f / (float) fSampleSize);
 }
+
+#endif // SK_ENABLE_ANDROID_UTILS
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

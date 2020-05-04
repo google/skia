@@ -5,17 +5,40 @@
  * found in the LICENSE file.
  */
 
+#include "client_utils/android/BitmapRegionDecoder.h"
+#include "client_utils/android/BitmapRegionDecoderPriv.h"
 #include "include/codec/SkAndroidCodec.h"
-#include "src/android/SkBitmapRegionCodec.h"
-#include "src/android/SkBitmapRegionDecoderPriv.h"
 #include "src/codec/SkCodecPriv.h"
 
-SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
+namespace android {
+namespace skia {
+
+std::unique_ptr<BitmapRegionDecoder> BitmapRegionDecoder::Make(sk_sp<SkData> data) {
+    auto codec = SkAndroidCodec::MakeFromData(std::move(data));
+    if (nullptr == codec) {
+        SkCodecPrintf("Error: Failed to create codec.\n");
+        return nullptr;
+    }
+
+    switch (codec->getEncodedFormat()) {
+        case SkEncodedImageFormat::kJPEG:
+        case SkEncodedImageFormat::kPNG:
+        case SkEncodedImageFormat::kWEBP:
+        case SkEncodedImageFormat::kHEIF:
+            break;
+        default:
+            return nullptr;
+    }
+
+    return std::unique_ptr<BitmapRegionDecoder>(new BitmapRegionDecoder(std::move(codec)));
+}
+
+BitmapRegionDecoder::BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec)
     : INHERITED(codec->getInfo().width(), codec->getInfo().height())
-    , fCodec(codec)
+    , fCodec(std::move(codec))
 {}
 
-bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
+bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator,
         const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
         bool requireUnpremul, sk_sp<SkColorSpace> dstColorSpace) {
 
@@ -116,3 +139,6 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
             return false;
     }
 }
+
+} // namespace skia
+} // namespace android
