@@ -188,7 +188,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                           fixedDynamicState,
                                           nullptr,
                                           kOneMesh,
-                                          GrPrimitiveType::kTriangles);
+                                          GrPrimitiveType::kTriangles, 0);
     SkASSERT(tmp->primProc().numTextureSamplers() <= 0);
     return tmp;
 }

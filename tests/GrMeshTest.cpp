@@ -444,7 +444,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
                               fState->view()->origin(),
                               pipeline,
                               mtp,
-                              nullptr, nullptr, 0, primitiveType);
+                              nullptr, nullptr, 0, primitiveType, 0);
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
     fState->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);

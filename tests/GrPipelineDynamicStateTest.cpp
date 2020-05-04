@@ -167,7 +167,7 @@ private:
                                   &pipeline,
                                   geomProc,
                                   nullptr,
-                                  &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
+                                  &dynamicState, 0, GrPrimitiveType::kTriangleStrip, 0);
 
         flushState->opsRenderPass()->bindPipeline(programInfo,
                                                   SkRect::MakeIWH(kScreenSize, kScreenSize));
