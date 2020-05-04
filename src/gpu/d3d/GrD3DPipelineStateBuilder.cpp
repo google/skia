@@ -26,7 +26,7 @@
 
 typedef size_t shader_size;
 
-sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::CreatePipelineState(
+sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
