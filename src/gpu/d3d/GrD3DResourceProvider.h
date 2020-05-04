@@ -73,7 +73,8 @@ private:
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 
-    sk_sp<GrD3DDescriptorHeap> fRTVDescriptorHeap;
+    std::vector<sk_sp<GrD3DDescriptorHeap>> fRTVDescriptorHeaps;
+    int fMaxAvailableRTVDescriptors;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 };

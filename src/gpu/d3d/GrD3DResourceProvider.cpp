@@ -17,12 +17,11 @@
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {
-    // TODO: Change to handle growing the heap rather than a fixed size
-    const int kMaxRenderTargetViews = 256;
-
-    fRTVDescriptorHeap = GrD3DDescriptorHeap::Make(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-                                                   kMaxRenderTargetViews,
-                                                   D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+    fMaxAvailableRTVDescriptors = 32;
+    sk_sp<GrD3DDescriptorHeap> heap = GrD3DDescriptorHeap::Make(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+                                                                fMaxAvailableRTVDescriptors,
+                                                                D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+    fRTVDescriptorHeaps.push_back(std::move(heap));
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
@@ -59,13 +58,35 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createRenderTargetView(
         ID3D12Resource* textureResource) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fRTVDescriptorHeap->allocateCPUHandle();
+    for (unsigned int i = 0; i < fRTVDescriptorHeaps.size(); ++i) {
+        if (fRTVDescriptorHeaps[i]->canAllocate()) {
+            D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fRTVDescriptorHeaps[i]->allocateCPUHandle();
+            fGpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor);
+            return descriptor;
+        }
+    }
+
+    // need to allocate more space
+    sk_sp<GrD3DDescriptorHeap> heap = GrD3DDescriptorHeap::Make(this->fGpu,
+                                                                D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+                                                                fMaxAvailableRTVDescriptors,
+                                                                D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+    fRTVDescriptorHeaps.push_back(std::move(heap));
+    fMaxAvailableRTVDescriptors *= 2;
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor =
+            fRTVDescriptorHeaps[fRTVDescriptorHeaps.size()-1]->allocateCPUHandle();
     fGpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor);
     return descriptor;
 }
 
 void GrD3DResourceProvider::recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
-    fRTVDescriptorHeap->freeCPUHandle(rtvDescriptor);
+    for (unsigned int i = 0; i < fRTVDescriptorHeaps.size(); ++i) {
+        if (fRTVDescriptorHeaps[i]->ownsHandle(*rtvDescriptor)) {
+            fRTVDescriptorHeaps[i]->freeCPUHandle(rtvDescriptor);
+            return;
+        }
+    }
+    SkASSERT(false);
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
