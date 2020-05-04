@@ -112,24 +112,27 @@ DEF_TEST(SkVM, r) {
 
     // Our checked in dump expectations assume we have FMA support.
     if (skvm::fma_supported()) {
-        sk_sp<SkData> blob = buf.detachAsData();
+        sk_sp<SkData> newExpected = buf.detachAsData();
+        bool writeNewExpected = false;
         {
+            sk_sp<SkData> oldExpected = GetResourceAsData("SkVMTest.expected");
+            if (!oldExpected) {
+                ERRORF(r, "Couldn't load SkVMTest.expected.");
+                writeNewExpected = true;
 
-            sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
-            REPORTER_ASSERT(r, expected, "Couldn't load SkVMTest.expected.");
-            if (expected) {
-                if (blob->size() != expected->size()
-                        || 0 != memcmp(blob->data(), expected->data(), blob->size())) {
-
-                    ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
-                           expected->size(), expected->data(),
-                           blob->size(), blob->data());
-                }
-
-                SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
-                if (out.isValid()) {
-                    out.write(blob->data(), blob->size());
-                }
+            } else if (newExpected->size() != oldExpected->size() ||
+                       memcmp(newExpected->data(), oldExpected->data(), newExpected->size()) != 0)
+            {
+                ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
+                       oldExpected->size(), oldExpected->data(),
+                       newExpected->size(), newExpected->data());
+                writeNewExpected = true;
+            }
+        }
+        if (writeNewExpected) {
+            SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
+            if (out.isValid()) {
+                out.write(newExpected->data(), newExpected->size());
             }
         }
     }
