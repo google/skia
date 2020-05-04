@@ -135,7 +135,14 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
         return;
     }
 
+    sk_sp<const SkPathRef> srcKeepAlive;
     if (!(*dst)->unique()) {
+        // If dst and src are the same then we are about to drop our only ref on the common path
+        // ref. Some other thread may have owned src when we checked unique() above but it may not
+        // continue to do so. Add another ref so we continue to be an owner until we're done.
+        if (dst->get() == &src) {
+            srcKeepAlive.reset(SkRef(&src));
+        }
         dst->reset(new SkPathRef);
     }
 
