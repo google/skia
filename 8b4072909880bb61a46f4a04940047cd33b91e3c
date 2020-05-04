@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b730654_bcdcc5df",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T13:15:03Z",
+      "side": 1,
+      "message": "might be clearer as float, given the sizeof on the next line",
+      "range": {
+        "startLine": 113,
+        "startChar": 10,
+        "endLine": 113,
+        "endChar": 14
+      },
+      "revId": "8b4072909880bb61a46f4a04940047cd33b91e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa22186c_2f298078",
         "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
         "patchSetId": 2
