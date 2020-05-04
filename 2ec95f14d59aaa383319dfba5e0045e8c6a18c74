@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49654264_24b2c435",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T13:50:22Z",
+      "side": 1,
+      "message": "Lets have the GrMatrixConvolutionEffect class have a kMaxUniformKernelSize constant as a public static, then this can just reference that.",
+      "range": {
+        "startLine": 451,
+        "startChar": 8,
+        "endLine": 451,
+        "endChar": 61
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11b225a0_4eab496d",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T13:50:22Z",
+      "side": 1,
+      "message": "I\u0027d move this to the public part of GrMatrixConvolutionEffect",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 49
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f7f34f0_d6edfb8a",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T13:50:22Z",
+      "side": 1,
+      "message": "What if we just do:\n\n   union {\n       std::array\u003cfloat, kMaxUniformSize\u003e fArray;\n       ScalableSampler fScalableSampler;\n   };\n\nand then add\n\n   ~KernelWrapper() {\n       if (this-\u003eisSampled()) {\n           fScalableSampler.~ScalableSampler();\n       }\n    }\n\nThe array is just floats, so shouldn\u0027t need to be explicitly invoked. I agree variant would be nicest here, but neither 25 floats nor a TextureSampler are small objects, so it\u0027d be nice not to double up on their storage.",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 41
+      },
+      "revId": "2ec95f14d59aaa383319dfba5e0045e8c6a18c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
