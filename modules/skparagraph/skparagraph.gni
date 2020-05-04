@@ -19,6 +19,8 @@ skparagraph_public = [
 ]
 
 skparagraph_sources = [
+  "$_src/Decorations.cpp",
+  "$_src/Decorations.h",
   "$_src/FontCollection.cpp",
   "$_src/Iterators.h",
   "$_src/OneLineShaper.cpp",

@@ -116,13 +116,6 @@ private:
     void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
-    void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style, SkScalar thickness,
-                                SkPath& path) const;
-
-    bool contains(const Cluster* cluster) const {
-        return fTextRange.contains(cluster->textRange());
-    }
-
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
 
     ParagraphImpl* fMaster;

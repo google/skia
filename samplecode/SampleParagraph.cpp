@@ -2538,6 +2538,68 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView38 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph38"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kLeft);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorDKGRAY);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        text_style.setDecoration(TextDecoration::kUnderline);
+
+        text_style.setDecorationMode(TextDecorationMode::kThrough);
+        text_style.setDecorationStyle(TextDecorationStyle::kDouble);
+        text_style.setDecorationColor(SK_ColorBLUE);
+        builder.pushStyle(text_style);
+        builder.addText("Double underline: {opopo}\n");
+
+        text_style.setDecorationMode(TextDecorationMode::kGaps);
+        text_style.setDecorationStyle(TextDecorationStyle::kDouble);
+        text_style.setDecorationColor(SK_ColorBLUE);
+        builder.pushStyle(text_style);
+        builder.addText("Double underline: {opopo}\n");
+
+        text_style.setDecorationStyle(TextDecorationStyle::kDotted);
+        text_style.setDecorationColor(SK_ColorRED);
+        builder.pushStyle(text_style);
+        builder.addText("Dotted underline: {ijiji}\n");
+
+        text_style.setDecorationStyle(TextDecorationStyle::kSolid);
+        text_style.setDecorationColor(SK_ColorGREEN);
+        builder.pushStyle(text_style);
+        builder.addText("Solid underline: {rqrqr}\n");
+
+        text_style.setDecorationStyle(TextDecorationStyle::kDashed);
+        text_style.setDecorationColor(SK_ColorMAGENTA);
+        builder.pushStyle(text_style);
+        builder.addText("Dashed underline: {zyzyz}\n");
+
+        text_style.setDecorationStyle(TextDecorationStyle::kWavy);
+        text_style.setDecorationColor(SK_ColorCYAN);
+        builder.pushStyle(text_style);
+        builder.addText("Wavy underline: {does not skip}\n");
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2556,7 +2618,7 @@ DEF_SAMPLE(return new ParagraphView15();)
 DEF_SAMPLE(return new ParagraphView16();)
 DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
-DEF_SAMPLE(return new ParagraphView19();)
+//DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
 DEF_SAMPLE(return new ParagraphView21();)
 DEF_SAMPLE(return new ParagraphView22();)
@@ -2575,3 +2637,4 @@ DEF_SAMPLE(return new ParagraphView34();)
 DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
+DEF_SAMPLE(return new ParagraphView38();)

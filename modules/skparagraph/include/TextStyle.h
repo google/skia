@@ -50,6 +50,8 @@ constexpr TextDecoration AllTextDecorations[] = {
 
 enum TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
+enum TextDecorationMode { kGaps, kThrough };
+
 enum StyleType {
     kNone,
     kAllAttributes,
@@ -64,12 +66,14 @@ enum StyleType {
 
 struct Decoration {
     TextDecoration fType;
+    TextDecorationMode fMode;
     SkColor fColor;
     TextDecorationStyle fStyle;
     SkScalar fThicknessMultiplier;
 
     bool operator==(const Decoration& other) const {
         return this->fType == other.fType &&
+               this->fMode == other.fMode &&
                this->fColor == other.fColor &&
                this->fStyle == other.fStyle &&
                this->fThicknessMultiplier == other.fThicknessMultiplier;
@@ -181,12 +185,14 @@ public:
     // Decorations
     Decoration getDecoration() const { return fDecoration; }
     TextDecoration getDecorationType() const { return fDecoration.fType; }
+    TextDecorationMode getDecorationMode() const { return fDecoration.fMode; }
     SkColor getDecorationColor() const { return fDecoration.fColor; }
     TextDecorationStyle getDecorationStyle() const { return fDecoration.fStyle; }
     SkScalar getDecorationThicknessMultiplier() const {
         return fDecoration.fThicknessMultiplier;
     }
     void setDecoration(TextDecoration decoration) { fDecoration.fType = decoration; }
+    void setDecorationMode(TextDecorationMode mode) { fDecoration.fMode = mode; }
     void setDecorationStyle(TextDecorationStyle style) { fDecoration.fStyle = style; }
     void setDecorationColor(SkColor color) { fDecoration.fColor = color; }
     void setDecorationThicknessMultiplier(SkScalar m) { fDecoration.fThicknessMultiplier = m; }

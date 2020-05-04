@@ -2,6 +2,7 @@
 #include "modules/skparagraph/src/TextLine.h"
 #include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
+#include "modules/skparagraph/src/Decorations.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
 #include "include/core/SkMaskFilter.h"
@@ -388,170 +389,12 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
     }
 }
 
-static const float kDoubleDecorationSpacing = 3.0f;
 void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
-    if (style.getDecorationType() == TextDecoration::kNoDecoration) {
-        return;
-    }
 
-    canvas->save();
+    Decorations decorations;
+    SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
+    decorations.paint(canvas, style, context, correctedBaseline, this->fShift);
 
-
-    SkPaint paint;
-    paint.setStyle(SkPaint::kStroke_Style);
-    if (style.getDecorationColor() == SK_ColorTRANSPARENT) {
-        paint.setColor(style.getColor());
-    } else {
-        paint.setColor(style.getDecorationColor());
-    }
-    paint.setAntiAlias(true);
-
-    SkFontMetrics fontMetrics;
-    TextStyle combined = style;
-    combined.setTypeface(context.run->fFont.refTypeface());
-    combined.getFontMetrics(&fontMetrics);
-    SkScalar thickness;
-    if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlineThicknessIsValid_Flag) &&
-         fontMetrics.fUnderlineThickness > 0) {
-        thickness = fontMetrics.fUnderlineThickness;
-    } else {
-        thickness = style.getFontSize() / 14.0f;
-    }
-
-    paint.setStrokeWidth(thickness * style.getDecorationThicknessMultiplier());
-
-    for (auto decoration : AllTextDecorations) {
-        if ((style.getDecorationType() & decoration) == 0) {
-            continue;
-        }
-
-        SkScalar position = 0;
-        switch (decoration) {
-            case TextDecoration::kUnderline:
-                if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlinePositionIsValid_Flag) &&
-                     fontMetrics.fUnderlinePosition > 0) {
-                    position = fontMetrics.fUnderlinePosition;
-                } else {
-                    position = thickness;
-                }
-                position += - context.run->correctAscent();
-                break;
-            case TextDecoration::kOverline:
-                position = 0;
-                break;
-            case TextDecoration::kLineThrough: {
-                if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutThicknessIsValid_Flag) &&
-                     fontMetrics.fStrikeoutThickness > 0) {
-                    paint.setStrokeWidth(fontMetrics.fStrikeoutThickness * style.getDecorationThicknessMultiplier());
-                }
-                position = (fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutThicknessIsValid_Flag)
-                            ? fontMetrics.fStrikeoutPosition
-                            : fontMetrics.fXHeight / -2;
-                position += - context.run->correctAscent();
-                break;
-            }
-            default:
-                SkASSERT(false);
-                break;
-        }
-
-        auto width = context.clip.width();
-        SkScalar x = context.clip.left();
-        SkScalar y = context.clip.top() + position;
-
-        // Decoration paint (for now) and/or path
-        SkPath path;
-        this->computeDecorationPaint(paint, context.clip, style, thickness, path);
-
-        switch (style.getDecorationStyle()) {
-            case TextDecorationStyle::kWavy:
-                path.offset(x, y);
-                canvas->drawPath(path, paint);
-                break;
-            case TextDecorationStyle::kDouble: {
-                canvas->drawLine(x, y, x + width, y, paint);
-                SkScalar bottom = y + kDoubleDecorationSpacing;
-                canvas->drawLine(x, bottom, x + width, bottom, paint);
-                break;
-            }
-            case TextDecorationStyle::kDashed:
-            case TextDecorationStyle::kDotted:
-            case TextDecorationStyle::kSolid:
-                canvas->drawLine(x, y, x + width, y, paint);
-                break;
-            default:
-                break;
-        }
-    }
-
-    canvas->restore();
-}
-
-void TextLine::computeDecorationPaint(SkPaint& paint,
-                                      SkRect clip,
-                                      const TextStyle& style,
-                                      SkScalar thickness,
-                                      SkPath& path) const {
-    SkScalar scaleFactor = style.getFontSize() / 14.f;
-
-    switch (style.getDecorationStyle()) {
-        case TextDecorationStyle::kSolid:
-            break;
-
-        case TextDecorationStyle::kDouble:
-            break;
-
-            // Note: the intervals are scaled by the thickness of the line, so it is
-            // possible to change spacing by changing the decoration_thickness
-            // property of TextStyle.
-        case TextDecorationStyle::kDotted: {
-            const SkScalar intervals[] = {1.0f * scaleFactor, 1.5f * scaleFactor,
-                                          1.0f * scaleFactor, 1.5f * scaleFactor};
-            size_t count = sizeof(intervals) / sizeof(intervals[0]);
-            paint.setPathEffect(SkPathEffect::MakeCompose(
-                    SkDashPathEffect::Make(intervals, (int32_t)count, 0.0f),
-                    SkDiscretePathEffect::Make(0, 0)));
-            break;
-        }
-            // Note: the intervals are scaled by the thickness of the line, so it is
-            // possible to change spacing by changing the decoration_thickness
-            // property of TextStyle.
-        case TextDecorationStyle::kDashed: {
-            const SkScalar intervals[] = {4.0f * scaleFactor, 2.0f * scaleFactor,
-                                          4.0f * scaleFactor, 2.0f * scaleFactor};
-            size_t count = sizeof(intervals) / sizeof(intervals[0]);
-            paint.setPathEffect(SkPathEffect::MakeCompose(
-                    SkDashPathEffect::Make(intervals, (int32_t)count, 0.0f),
-                    SkDiscretePathEffect::Make(0, 0)));
-            break;
-        }
-        case TextDecorationStyle::kWavy: {
-            int wave_count = 0;
-            SkScalar x_start = 0;
-            SkScalar quarterWave = thickness * style.getDecorationThicknessMultiplier();
-            path.moveTo(0, 0);
-            while (x_start + quarterWave * 2 < clip.width()) {
-                path.rQuadTo(quarterWave,
-                             wave_count % 2 != 0 ? quarterWave : -quarterWave,
-                             quarterWave * 2,
-                             0);
-                x_start += quarterWave * 2;
-                ++wave_count;
-            }
-
-            // The rest of the wave
-            auto remaining = clip.width() - x_start;
-            if (remaining > 0) {
-                double x1 = remaining / 2;
-                double y1 = remaining / 2 * (wave_count % 2 == 0 ? -1 : 1);
-                double x2 = remaining;
-                double y2 = (remaining - remaining * remaining / (quarterWave * 2)) *
-                            (wave_count % 2 == 0 ? -1 : 1);
-                path.rQuadTo(x1, y1, x2, y2);
-            }
-            break;
-        }
-    }
 }
 
 void TextLine::justify(SkScalar maxWidth) {
