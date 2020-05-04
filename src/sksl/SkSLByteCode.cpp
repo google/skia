@@ -150,6 +150,10 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
+        VECTOR_DISASSEMBLE(kMaxF, "maxf")
+        VECTOR_DISASSEMBLE(kMaxS, "maxs")
+        VECTOR_DISASSEMBLE(kMinF, "minf")
+        VECTOR_DISASSEMBLE(kMinS, "mins")
         VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
@@ -833,6 +837,11 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 continue;
             }
 
+            VECTOR_BINARY_FN(kMaxF, fFloat, skvx::max)
+            VECTOR_BINARY_FN(kMaxS, fSigned, skvx::max)
+            VECTOR_BINARY_FN(kMinF, fFloat, skvx::min)
+            VECTOR_BINARY_FN(kMinS, fSigned, skvx::min)
+
             case ByteCodeInstruction::kMix4:
             case ByteCodeInstruction::kMix3:
             case ByteCodeInstruction::kMix2:
@@ -1179,6 +1188,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 *loopPtr &= ~m;
                 continue;
             }
+
+            case ByteCodeInstruction::kInvalid:
+                SkASSERT(false);
+                return false;
         }
     }
 }
