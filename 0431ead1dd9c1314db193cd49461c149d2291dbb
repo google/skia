@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "37f5dfce_9197fe60",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "Yup, either one works.",
+      "parentUuid": "5225074f_c47e6bbc",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a070c86a_43174bde",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 1
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "bfdb44fe_46604ed1",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89daa966_a662f8e7",
+      "range": {
+        "startLine": 1014,
+        "startChar": 12,
+        "endLine": 1014,
+        "endChar": 25
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1be46f7_2b748150",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 1
@@ -88,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "6e7efad6_d2826ec5",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1be46f7_2b748150",
+      "range": {
+        "startLine": 1015,
+        "startChar": 10,
+        "endLine": 1015,
+        "endChar": 14
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7982abec_e8f22c2a",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 1
@@ -102,6 +168,24 @@
       "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c03d7d21_2bcddc83",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1074,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "Yeah, I realized after I put all this together that I should just make those special, which will make this all less confusing.",
+      "parentUuid": "7982abec_e8f22c2a",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -125,6 +209,30 @@
       "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ec2c1df_35a21be7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e19bf44e_a7c9ec83",
+      "range": {
+        "startLine": 1087,
+        "startChar": 0,
+        "endLine": 1096,
+        "endChar": 0
+      },
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -178,6 +286,24 @@
       "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8abadcfa_fac3ecbe",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T14:11:42Z",
+      "side": 1,
+      "message": "I had already switched it to get rid of the union and extra struct anyway.",
+      "parentUuid": "bdb63e48_9d9c8056",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
