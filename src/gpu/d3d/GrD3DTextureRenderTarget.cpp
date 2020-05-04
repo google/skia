@@ -88,9 +88,16 @@ static std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> create_msa
     msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
     msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = info.fFormat;
+    clearValue.Color[0] = 1;
+    clearValue.Color[1] = 1;
+    clearValue.Color[2] = 1;
+    clearValue.Color[3] = 1;
+
     if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc,
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                       info.fProtected, &msInfo)) {
+                                                       info.fProtected, &clearValue, &msInfo)) {
         return {};
     }
 
@@ -112,8 +119,16 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
     GrD3DTextureResourceInfo info;
     D3D12_RESOURCE_STATES initialState = sampleCnt > 1 ? D3D12_RESOURCE_STATE_RESOLVE_DEST
                                                        : D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = resourceDesc.Format;
+    clearValue.Color[0] = 1;
+    clearValue.Color[1] = 1;
+    clearValue.Color[2] = 1;
+    clearValue.Color[3] = 1;
+
     if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, initialState,
-                                                       isProtected, &info)) {
+                                                       isProtected, &clearValue, &info)) {
         return nullptr;
     }
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(
