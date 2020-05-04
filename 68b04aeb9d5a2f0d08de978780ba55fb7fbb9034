@@ -22,6 +22,30 @@
       "revId": "68b04aeb9d5a2f0d08de978780ba55fb7fbb9034",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38f223a9_75d80169",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-04T16:08:40Z",
+      "side": 1,
+      "message": "Not sure I understand, everything seems to be doing its job as advertised, the SkData is backed by the file after all. Windows doesn\u0027t have *nix file descriptors (though it will fake \u0027fd\u0027 numbers in the c library) it has file HANDLES which are rather different. Here we have an SkData backed by a Windows file HANDLE (in this case in sk_fdmmap). It isn\u0027t backed by a FILE* (we closed that), but it is backed by a HANDLE from CreateFileMapping and MapViewOfFile FILE_MAP_READ. Windows really likes locking files and if you call CreateFileMapping it will not allow anything to change the content of the file (except though that CreateFileMapping if opened for write). In addition Windows will not unlink a file HANDLE while it is open (at least not without a serious amount of work afaict), so when you go to open the path for write it will attempt to truncate the file at that path (it will not unlink the existing file at that path and put a new file in its place). Somewhat unrelated Windows also won\u0027t let you unlink any file opened for execute, which is one of the reasons Windows updates generally like to reboot and run before anything else starts up.\n\nNote that without closing \u0027expected\u0027 early like this on *nix you end up with \u0027expected\u0027 holding the orphaned file inside the mmap until the end of the scope of \u0027expected\u0027 and the blob is written into a different file (at the path \u0027expected\u0027 used to be). We don\u0027t really need to hold on to the old file handle, so this just drops it.",
+      "parentUuid": "2e6ef8d9_a1b80067",
+      "range": {
+        "startLine": 118,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 54
+      },
+      "revId": "68b04aeb9d5a2f0d08de978780ba55fb7fbb9034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

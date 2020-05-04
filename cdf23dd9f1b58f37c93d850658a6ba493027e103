@@ -22,6 +22,30 @@
       "revId": "cdf23dd9f1b58f37c93d850658a6ba493027e103",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97b0eb90_29e85544",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-04T16:08:40Z",
+      "side": 0,
+      "message": "Yeah, I just found this hard to parse, so reformatted it.",
+      "parentUuid": "b433903e_01e2e3d8",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 87
+      },
+      "revId": "cdf23dd9f1b58f37c93d850658a6ba493027e103",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
