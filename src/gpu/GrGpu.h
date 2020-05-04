@@ -471,8 +471,8 @@ public:
         void incNumCompilationSuccesses() { ++fNumCompilationSuccesses; }
 
 #if GR_TEST_UTILS
-        void dump(SkString*);
-        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+        void dump1(SkString*);
+        void dumpKeyValuePairs1(SkTArray<SkString>* keys, SkTArray<double>* values);
 #endif
     private:
         int fRenderTargetBinds = 0;

@@ -731,7 +731,7 @@ static const char* cache_result_to_str(int i) {
     return kCacheResultStrings[i];
 }
 
-void GrGpu::Stats::dump(SkString* out) {
+void GrGpu::Stats::dump1(SkString* out) {
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
@@ -778,7 +778,7 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 }
 
-void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+void GrGpu::Stats::dumpKeyValuePairs1(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
 }

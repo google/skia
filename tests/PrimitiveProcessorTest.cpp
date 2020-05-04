@@ -184,7 +184,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
         return;
     }
     context->flush();
-    context->priv().resetGpuStats();
+    context->priv().resetGpuStats1();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
@@ -200,7 +200,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
-    context->priv().resetGpuStats();
+    context->priv().resetGpuStats1();
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(context, attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS

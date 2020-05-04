@@ -24,6 +24,7 @@ class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
 class SkArenaAlloc;
+class SkJSONWriter;
 
 class GrRecordingContext : public GrImageContext {
 public:
@@ -130,6 +131,42 @@ protected:
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
+    class Stats {
+    public:
+        Stats() = default;
+
+        void reset() { *this = {}; }
+
+#if GR_CONTEXT_STATS
+        int numPathMasksGenerated() const { return fNumPathMasksGenerated; }
+        void incNumPathMasksGenerated() { fNumPathMasksGenerated++; }
+
+        int numPathMasksCacheHits() const { return fNumPathMaskCacheHits; }
+        void incNumPathMasksCacheHits() { fNumPathMaskCacheHits++; }
+
+#if GR_TEST_UTILS
+        void dump(SkString*);
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+#endif
+
+    private:
+        int fNumPathMasksGenerated{0};
+        int fNumPathMaskCacheHits{0};
+
+#else // GR_CONTEXT_STATS
+        void incNumPathMasksGenerated() {}
+        void incNumPathMasksCacheHits() {}
+
+#if GR_TEST_UTILS
+        void dump(SkString*) {}
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {}
+#endif
+#endif // GR_CONTEXT_STATS
+    } fStats;
+
+    Stats* stats() { return &fStats; }
+    void dumpJSON(SkJSONWriter*) const;
+
 private:
     OwnedArenas                       fArenas;
 
@@ -142,6 +179,8 @@ private:
 #ifdef GR_TEST_UTILS
     int fSuppressWarningMessages = 0;
 #endif
+
+    virtual void onDumpJSON(SkJSONWriter*) const {}
 
     typedef GrImageContext INHERITED;
 };

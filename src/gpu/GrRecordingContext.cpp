@@ -190,3 +190,35 @@ GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
+void GrRecordingContext::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginObject();
+
+    this->onDumpJSON(writer);
+
+    writer->endObject();
+}
+#else
+void GrRecordingContext::dumpJSON(SkJSONWriter*) const { }
+#endif
+
+#if GR_TEST_UTILS
+
+#if GR_GPU_STATS
+
+void GrRecordingContext::Stats::dump(SkString* string) {
+
+}
+
+void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
+                                                  SkTArray<double>* values) {
+
+}
+
+#endif // GR_GPU_STATS
+#endif // GR_TEST_UTILS
+
