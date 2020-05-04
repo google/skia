@@ -220,8 +220,10 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
         .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
                                     (&ManagedAnimation::render), allow_raw_pointers())
-        .function("setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, SimpleColor4f c) {
-            self.setColor(key, c.toSkColor());
+        .function("_setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, uintptr_t /* float* */ cPtr) {
+            float* fourFloats = reinterpret_cast<float*>(cPtr);
+            SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
+            self.setColor(key, color.toSkColor());
         }))
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)

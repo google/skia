@@ -852,6 +852,13 @@ CanvasKit.onRuntimeInitialized = function() {
     return retVal;
   }
 
+  // Accepts an array of four numbers in the range of 0-1 representing a 4f color
+  CanvasKit.SkCanvas.prototype.clear = function (color4f) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    this._clear(cPtr);
+    CanvasKit._free(cPtr);
+  }
+
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
   // under the hood, SkCanvas uses a 4x4 matrix.
   CanvasKit.SkCanvas.prototype.concat = function(matr) {
@@ -866,7 +873,7 @@ CanvasKit.onRuntimeInitialized = function() {
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.
-  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of CanvasKit.SimpleColor4f
+  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of float colors (arrays of 4 floats)
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
@@ -902,7 +909,7 @@ CanvasKit.onRuntimeInitialized = function() {
       } else {
         if (!isCanvasKitColor(colors[0])) {
           SkDebug('DrawAtlas color argument expected to be CanvasKit.SkRectBuilder or array of ' +
-            'CanvasKit.SimpleColor4f, but got '+colors);
+            'float arrays, but got '+colors);
           return;
         }
         // convert here
@@ -926,6 +933,16 @@ CanvasKit.onRuntimeInitialized = function() {
 
   }
 
+  CanvasKit.SkCanvas.prototype.drawColor = function (color4f, mode) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    if (mode !== undefined) {
+      this._drawColor(cPtr, mode);
+    } else {
+      this._drawColor(cPtr);
+    }
+    CanvasKit._free(cPtr);
+  }
+
   // points is either an array of [x, y] where x and y are numbers or
   // a typed array from Malloc where the even indices will be treated
   // as x coordinates and the odd indices will be treated as y coordinates.
@@ -943,6 +960,14 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     this._drawPoints(mode, ptr, n, paint);
     CanvasKit._free(ptr);
+  }
+
+  CanvasKit.SkCanvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
+    var ambiPtr = copy1dArray(ambientColor, CanvasKit.HEAPF32);
+    var spotPtr = copy1dArray(spotColor, CanvasKit.HEAPF32);
+    this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
+    CanvasKit._free(ambiPtr);
+    CanvasKit._free(spotPtr);
   }
 
   // getLocalToDevice returns a 4x4 matrix.
@@ -1023,6 +1048,13 @@ CanvasKit.onRuntimeInitialized = function() {
     return ok;
   }
 
+  CanvasKit.SkColorFilter.MakeBlend = function(color4f, mode) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var result = CanvasKit.SkColorFilter._MakeBlend(cPtr, mode);
+    CanvasKit._free(cPtr);
+    return result;
+  }
+
   // colorMatrix is an SkColorMatrix (e.g. Float32Array of length 20)
   CanvasKit.SkColorFilter.MakeMatrix = function(colorMatrix) {
     if (!colorMatrix || colorMatrix.length !== 20) {
@@ -1041,6 +1073,18 @@ CanvasKit.onRuntimeInitialized = function() {
 
     CanvasKit._free(matrPtr);
     return imgF;
+  }
+
+  CanvasKit.SkPaint.prototype.getColor = function() {
+    var cPtr = CanvasKit._malloc(16); // 4 floats, 4 bytes each
+    this._getColor(cPtr);
+    return copyColorFromWasm(cPtr);
+  }
+
+  CanvasKit.SkPaint.prototype.setColor = function(color4f) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    this._setColor(cPtr);
+    CanvasKit._free(cPtr);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -1102,6 +1146,13 @@ CanvasKit.onRuntimeInitialized = function() {
     var dpe = CanvasKit.SkPathEffect._MakeDash(ptr, intervals.length, phase);
     CanvasKit._free(ptr);
     return dpe;
+  }
+
+  CanvasKit.SkShader.Color = function(color4f) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var result = CanvasKit.SkShader._Color(cPtr);
+    CanvasKit._free(cPtr);
+    return result;
   }
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
@@ -1183,6 +1234,23 @@ CanvasKit.onRuntimeInitialized = function() {
     });
   }
 }; // end CanvasKit.onRuntimeInitialized, that is, anything changing prototypes or dynamic.
+
+// Accepts an object holding two canvaskit colors.
+// {
+//    ambient: {r, g, b, a},
+//    spot: {r, g, b, a},
+// }
+// Returns the same format
+CanvasKit.computeTonalColors = function(tonalColors) {
+    var cPtrAmbi = copy1dArray(tonalColors['ambient'], CanvasKit.HEAPF32);
+    var cPtrSpot = copy1dArray(tonalColors['spot'], CanvasKit.HEAPF32);
+    this._computeTonalColors(cPtrAmbi, cPtrSpot);
+    var result =  {
+      'ambient': copyColorFromWasm(cPtrAmbi),
+      'spot': copyColorFromWasm(cPtrSpot),
+    }
+    return result;
+}
 
 CanvasKit.LTRBRect = function(l, t, r, b) {
   return {
@@ -1269,7 +1337,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
-// colors is an array of SimpleColor4f
+// colors is an array of float color arrays
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     indices, isVolatile) {
   // Default isVolitile to true if not set

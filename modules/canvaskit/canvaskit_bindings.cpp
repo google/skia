@@ -97,10 +97,9 @@ struct OptionalMatrix : SkMatrix {
     }
 };
 
-SimpleColor4f toSimpleColor4f(const SkColor4f c) {
-    SimpleColor4f color {
-        c.fR, c.fG, c.fB, c.fA,
-    };
+SkColor4f ptrToSkColor4f(uintptr_t /* float* */ cPtr) {
+    float* fourFloats = reinterpret_cast<float*>(cPtr);
+    SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
     return color;
 }
 
@@ -623,19 +622,27 @@ SkRRect toRRect(const SimpleRRect& r) {
     return rr;
 }
 
-struct TonalColors {
-    SimpleColor4f ambientColor;
-    SimpleColor4f spotColor;
-};
+// This function is private, we call it in interface.js
+void computeTonalColors(uintptr_t cPtrAmbi /* float * */, uintptr_t cPtrSpot /* float * */) {
+    // private methods accepting colors take pointers to floats already copied into wasm memory.
+    float* ambiFloats = reinterpret_cast<float*>(cPtrAmbi);
+    float* spotFloats = reinterpret_cast<float*>(cPtrSpot);
+    SkColor4f ambiColor = { ambiFloats[0], ambiFloats[1], ambiFloats[2], ambiFloats[3]};
+    SkColor4f spotColor = { spotFloats[0], spotFloats[1], spotFloats[2], spotFloats[3]};
 
-TonalColors computeTonalColors(const TonalColors& in) {SkColor resultAmbient, resultSpot;
+    // This function takes SkColor
+    SkColor resultAmbi, resultSpot;
     SkShadowUtils::ComputeTonalColors(
-        in.ambientColor.toSkColor(), in.spotColor.toSkColor(),
-        &resultAmbient, &resultSpot);
-    TonalColors out;
-    out.ambientColor = toSimpleColor4f(SkColor4f::FromColor(resultAmbient));
-    out.spotColor = toSimpleColor4f(SkColor4f::FromColor(resultSpot));
-    return out;
+        ambiColor.toSkColor(), spotColor.toSkColor(),
+        &resultAmbi, &resultSpot);
+
+    // Convert back to color4f
+    const SkColor4f ambi4f = SkColor4f::FromColor(resultAmbi);
+    const SkColor4f spot4f = SkColor4f::FromColor(resultSpot);
+
+    // Re-use the caller's allocated memory to hold the result.
+    memcpy(ambiFloats, ambi4f.vec(), 4 * sizeof(SkScalar));
+    memcpy(spotFloats, spot4f.vec(), 4 * sizeof(SkScalar));
 }
 
 // These objects have private destructors / delete methods - I don't think
@@ -695,7 +702,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("setDecodeCacheLimitBytes", &SkResourceCache::SetTotalByteLimit);
     function("getDecodeCacheUsedBytes" , &SkResourceCache::GetTotalBytesUsed);
 
-    function("computeTonalColors", &computeTonalColors);
+    function("_computeTonalColors", &computeTonalColors);
     function("_decodeAnimatedImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkAnimatedImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
@@ -853,8 +860,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
-        .function("clear", optional_override([](SkCanvas& self, SimpleColor4f c) {
-            self.clear(c.toSkColor());
+        .function("_clear", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
+            self.clear(ptrToSkColor4f(cPtr).toSkColor());
         }))
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
         .function("clipRRect", optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
@@ -886,11 +893,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawAtlas(atlas, dstXforms, srcRects, colors, count, mode, nullptr, paint);
         }), allow_raw_pointers())
         .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
-        .function("drawColor", optional_override([](SkCanvas& self, SimpleColor4f c) {
-            self.drawColor(c.toSkColor());
+        .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
+            self.drawColor(ptrToSkColor4f(cPtr).toSkColor());
         }))
-        .function("drawColor", optional_override([](SkCanvas& self, SimpleColor4f c, SkBlendMode mode) {
-            self.drawColor(c.toSkColor(), mode);
+        .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr, SkBlendMode mode) {
+            self.drawColor(ptrToSkColor4f(cPtr).toSkColor(), mode);
         }))
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
@@ -937,13 +944,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawRoundRect", &SkCanvas::drawRoundRect)
-        .function("drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
+        .function("_drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
                                                      const SkPoint3& zPlaneParams,
                                                      const SkPoint3& lightPos, SkScalar lightRadius,
-                                                     SimpleColor4f ambientColor, SimpleColor4f spotColor,
+                                                     uintptr_t /* float* */ ambientColorPtr,
+                                                     uintptr_t /* float* */ spotColorPtr,
                                                      uint32_t flags) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
-                                      ambientColor.toSkColor(), spotColor.toSkColor(), flags);
+                                      ptrToSkColor4f(ambientColorPtr).toSkColor(),
+                                      ptrToSkColor4f(spotColorPtr).toSkColor(),
+                                      flags);
         }))
 #ifndef SK_NO_FONTS
         .function("_drawShapedText", &drawShapedText)
@@ -1025,8 +1035,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkColorFilter>("SkColorFilter")
         .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
-        .class_function("MakeBlend", optional_override([](SimpleColor4f c, SkBlendMode mode)->sk_sp<SkColorFilter> {
-            return SkColorFilters::Blend(c.toSkColor(), mode);
+        .class_function("_MakeBlend", optional_override([](uintptr_t /* float* */ cPtr, SkBlendMode mode)->sk_sp<SkColorFilter> {
+            return SkColorFilters::Blend(ptrToSkColor4f(cPtr).toSkColor(), mode);
         }))
         .class_function("MakeCompose", &SkColorFilters::Compose)
         .class_function("MakeLerp", &SkColorFilters::Lerp)
@@ -1216,10 +1226,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return p;
         }))
         .function("getBlendMode", &SkPaint::getBlendMode)
-        .function("getColor", optional_override([](SkPaint& self)->Float32Array {
-            const SimpleColor4f& c = toSimpleColor4f(self.getColor4f());
-            const float array[4] = {c.r, c.g, c.b, c.a};
-            return Float32Array(typed_memory_view(4, array));
+        // provide an allocated place to put the returned color
+        .function("_getColor", optional_override([](SkPaint& self, uintptr_t /* float* */ cPtr)->void {
+            const SkColor4f& c = self.getColor4f();
+            float* fourFloats = reinterpret_cast<float*>(cPtr);
+            memcpy(fourFloats, c.vec(), 4 * sizeof(SkScalar));
         }))
         .function("getFilterQuality", &SkPaint::getFilterQuality)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
@@ -1229,8 +1240,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setAlphaf", &SkPaint::setAlphaf)
         .function("setBlendMode", &SkPaint::setBlendMode)
-        .function("setColor", optional_override([](SkPaint& self, SimpleColor4f c) {
-            self.setColor({c.r, c.g, c.b, c.a});
+        .function("_setColor", optional_override([](SkPaint& self, uintptr_t /* float* */ cPtr) {
+            self.setColor(ptrToSkColor4f(cPtr));
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
@@ -1376,9 +1387,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>")
         .class_function("Blend", select_overload<sk_sp<SkShader>(SkBlendMode, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Blend))
-        .class_function("Color",
-            optional_override([](SimpleColor4f c)->sk_sp<SkShader> {
-                return SkShaders::Color(c.toSkColor4f(), SkColorSpace::MakeSRGB());
+        .class_function("_Color",
+            optional_override([](uintptr_t /* float* */ cPtr)->sk_sp<SkShader> {
+                return SkShaders::Color(ptrToSkColor4f(cPtr), SkColorSpace::MakeSRGB());
             })
         )
         .class_function("Lerp", select_overload<sk_sp<SkShader>(float, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Lerp));
@@ -1651,10 +1662,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fRight",  &SkIRect::fRight)
         .field("fBottom", &SkIRect::fBottom);
 
-    value_object<TonalColors>("TonalColors")
-        .field("ambient", &TonalColors::ambientColor)
-        .field("spot",    &TonalColors::spotColor);
-
     value_object<SimpleImageInfo>("SkImageInfo")
         .field("width",     &SimpleImageInfo::width)
         .field("height",    &SimpleImageInfo::height)
@@ -1694,13 +1701,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("join",        &StrokeOpts::join)
         .field("cap",         &StrokeOpts::cap)
         .field("precision",   &StrokeOpts::precision);
-
-    value_array<SimpleColor4f>("SkColor4f")
-        .element(&SimpleColor4f::r)
-        .element(&SimpleColor4f::g)
-        .element(&SimpleColor4f::b)
-        .element(&SimpleColor4f::a);
-
 
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);
