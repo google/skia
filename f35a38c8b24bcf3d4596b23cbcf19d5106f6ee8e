@@ -16,6 +16,24 @@
       "revId": "f35a38c8b24bcf3d4596b23cbcf19d5106f6ee8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c2a5813_4da1ac3b",
+        "filename": "src/ports/SkTypeface_win_dw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-04T14:31:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "698411f7_b47d15f1",
+      "revId": "f35a38c8b24bcf3d4596b23cbcf19d5106f6ee8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
