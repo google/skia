@@ -16,6 +16,8 @@ half3x3 inverse(half3x3 m);
 half4x4 inverse(half4x4 m);
 float length($genType x);
 half length($genHType x);
+$genType pow($genType x, $genType y);
+$genHType pow($genHType x, $genHType y);
 $genType sin($genType x);
 $genHType sin($genHType x);
 $genType sqrt($genType x);
