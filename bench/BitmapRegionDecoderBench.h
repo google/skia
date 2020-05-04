@@ -9,7 +9,7 @@
 #define BitmapRegionDecoderBench_DEFINED
 
 #include "bench/Benchmark.h"
-#include "include/android/SkBitmapRegionDecoder.h"
+#include "client_utils/android/BitmapRegionDecoder.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -34,12 +34,12 @@ protected:
     void onDelayedSetup() override;
 
 private:
-    SkString                                       fName;
-    std::unique_ptr<SkBitmapRegionDecoder>         fBRD;
-    sk_sp<SkData>                                  fData;
-    const SkColorType                              fColorType;
-    const uint32_t                                 fSampleSize;
-    const SkIRect                                  fSubset;
+    SkString                                            fName;
+    std::unique_ptr<android::skia::BitmapRegionDecoder> fBRD;
+    sk_sp<SkData>                                       fData;
+    const SkColorType                                   fColorType;
+    const uint32_t                                      fSampleSize;
+    const SkIRect                                       fSubset;
     typedef Benchmark INHERITED;
 };
 #endif // BitmapRegionDecoderBench_DEFINED

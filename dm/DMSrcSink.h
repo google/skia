@@ -9,7 +9,6 @@
 #define DMSrcSink_DEFINED
 
 #include "gm/gm.h"
-#include "include/android/SkBitmapRegionDecoder.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -194,6 +193,7 @@ private:
     bool                    fRunSerially;
 };
 
+#ifdef SK_ENABLE_ANDROID_UTILS
 // Allows for testing of various implementations of Android's BitmapRegionDecoder
 class BRDSrc : public Src {
 public:
@@ -219,6 +219,7 @@ private:
     CodecSrc::DstColorType                   fDstColorType;
     uint32_t                                 fSampleSize;
 };
+#endif
 
 class ImageGenSrc : public Src {
 public:

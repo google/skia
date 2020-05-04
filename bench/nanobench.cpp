@@ -11,7 +11,6 @@
 
 #include "bench/AndroidCodecBench.h"
 #include "bench/Benchmark.h"
-#include "bench/BitmapRegionDecoderBench.h"
 #include "bench/CodecBench.h"
 #include "bench/CodecBenchPriv.h"
 #include "bench/GMBench.h"
@@ -20,7 +19,6 @@
 #include "bench/SKPAnimationBench.h"
 #include "bench/SKPBench.h"
 #include "bench/SkGlyphCacheBench.h"
-#include "include/android/SkBitmapRegionDecoder.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
@@ -51,6 +49,11 @@
 #ifdef SK_XML
 #include "experimental/svg/model/SkSVGDOM.h"
 #endif  // SK_XML
+
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "bench/BitmapRegionDecoderBench.h"
+#include "client_utils/android/BitmapRegionDecoder.h"
+#endif
 
 #include <stdlib.h>
 #include <thread>
@@ -584,10 +587,10 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 #pragma warning ( pop )
 #endif
 
+#ifdef SK_ENABLE_ANDROID_UTILS
 static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
-    std::unique_ptr<SkBitmapRegionDecoder> brd(
-            SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
+    auto brd = android::skia::BitmapRegionDecoder::Make(encoded);
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
         return false;
@@ -605,6 +608,7 @@ static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32
     *height = brd->height();
     return true;
 }
+#endif
 
 static void cleanup_run(Target* target) {
     delete target;
@@ -965,6 +969,7 @@ public:
             fCurrentSampleSize = 0;
         }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
         // Run the BRDBenches
         // We intend to create benchmarks that model the use cases in
         // android/libraries/social/tiledimage.  In this library, an image is decoded in 512x512
@@ -1048,6 +1053,7 @@ public:
             }
             fCurrentColorType = 0;
         }
+#endif // SK_ENABLE_ANDROID_UTILS
 
         return nullptr;
     }
@@ -1077,6 +1083,7 @@ public:
     }
 
 private:
+#ifdef SK_ENABLE_ANDROID_UTILS
     enum SubsetType {
         kTopLeft_SubsetType     = 0,
         kTopRight_SubsetType    = 1,
@@ -1088,6 +1095,7 @@ private:
         kLast_SubsetType        = kZoom_SubsetType,
         kLastSingle_SubsetType  = kBottomRight_SubsetType,
     };
+#endif
 
     const BenchRegistry* fBenches;
     const skiagm::GMRegistry* fGMs;
@@ -1115,10 +1123,12 @@ private:
     int fCurrentUseMPD = 0;
     int fCurrentCodec = 0;
     int fCurrentAndroidCodec = 0;
+#ifdef SK_ENABLE_ANDROID_UTILS
     int fCurrentBRDImage = 0;
+    int fCurrentSubsetType = 0;
+#endif
     int fCurrentColorType = 0;
     int fCurrentAlphaType = 0;
-    int fCurrentSubsetType = 0;
     int fCurrentSampleSize = 0;
     int fCurrentAnimSKP = 0;
 };

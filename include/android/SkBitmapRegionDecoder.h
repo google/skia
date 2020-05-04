@@ -25,13 +25,6 @@ public:
     };
 
     /*
-     * @param data     Refs the data while this object exists, unrefs on destruction
-     * @param strategy Strategy used for scaling and subsetting
-     * @return         Tries to create an SkBitmapRegionDecoder, returns NULL on failure
-     */
-    static SkBitmapRegionDecoder* Create(sk_sp<SkData>, Strategy strategy);
-
-    /*
      * @param stream   Takes ownership of the stream
      * @param strategy Strategy used for scaling and subsetting
      * @return         Tries to create an SkBitmapRegionDecoder, returns NULL on failure
@@ -59,7 +52,7 @@ public:
      *                        decode into.  Otherwise, we will choose a default.
      *
      */
-    virtual bool decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
+    virtual bool decodeRegion(SkBitmap* bitmap, android::skia::BRDAllocator* allocator,
                               const SkIRect& desiredSubset, int sampleSize,
                               SkColorType colorType, bool requireUnpremul,
                               sk_sp<SkColorSpace> prefColorSpace = nullptr) = 0;
