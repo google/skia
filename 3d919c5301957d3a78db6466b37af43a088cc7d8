@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309dcc3e_08dd54b0",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T14:06:32Z",
+      "side": 1,
+      "message": "nit: could you add a test that would have failed w/o this fix?",
+      "revId": "3d919c5301957d3a78db6466b37af43a088cc7d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
