@@ -715,6 +715,9 @@ namespace skvm {
 
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
     F32 Builder::approx_log2(F32 x) {
+        // TODO: assert_true(x >= 0) instead?  or even x > 0?
+        x = max(0.0f, x);
+
         // e - 127 is a fair approximation of log2(x) in its own right...
         F32 e = mul(to_f32(bit_cast(x)), splat(1.0f / (1<<23)));
 
