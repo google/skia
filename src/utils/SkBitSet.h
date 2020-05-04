@@ -43,22 +43,23 @@ public:
     }
 
     /** Set the value of the index-th bit to false.  */
-    void clear(size_t index) {
+    void reset(size_t index) {
         SkASSERT(index < fSize);
         *this->chunkFor(index) &= ~chunkMaskFor(index);
     }
 
-    bool has(size_t index) const {
-        return (index < fSize) && SkToBool(*this->chunkFor(index) & chunkMaskFor(index));
+    bool test(size_t index) const {
+        SkASSERT(index < fSize);
+        return SkToBool(*this->chunkFor(index) & chunkMaskFor(index));
     }
 
     size_t size() const {
         return fSize;
     }
 
-    // Calls f(size_t) for each set value.
+    // Calls f(size_t index) for each set index.
     template<typename FN>
-    void getSetValues(FN f) const {
+    void forEachSetIndex(FN f) const {
         const Chunk* chunks = fChunks.get();
         const size_t numChunks = numChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
@@ -73,18 +74,49 @@ public:
         }
     }
 
-    // Returns the index of the first set bit
-    // Returns -1 if no bits are set
-    int leadingBitIndex() {
+    // Use std::optional<size_t> when possible.
+    class OptionalIndex {
+        bool fHasValue;
+        size_t fValue;
+    public:
+        OptionalIndex() : fHasValue(false) {}
+        constexpr OptionalIndex(size_t index) : fHasValue(true), fValue(index) {}
+
+        constexpr size_t* operator->() { return &fValue; }
+        constexpr const size_t* operator->() const { return &fValue; }
+        constexpr size_t& operator*() & { return fValue; }
+        constexpr const size_t& operator*() const& { return fValue; }
+        constexpr size_t&& operator*() && { return std::move(fValue); }
+        constexpr const size_t&& operator*() const&& { return std::move(fValue); }
+
+        constexpr explicit operator bool() const noexcept { return fHasValue; }
+        constexpr bool has_value() const noexcept { return fHasValue; }
+
+        constexpr size_t& value() & { return fValue; }
+        constexpr const size_t& value() const & { return fValue; }
+        constexpr size_t&& value() && { return std::move(fValue); }
+        constexpr const size_t&& value() const && { return std::move(fValue); }
+
+        template<typename U> constexpr size_t value_or(U&& defaultValue) const& {
+            return bool(*this) ? **this
+                               : static_cast<size_t>(std::forward<U>(defaultValue));
+        }
+        template<typename U> constexpr size_t value_or(U&& defaultValue) && {
+            return bool(*this) ? std::move(**this)
+                               : static_cast<size_t>(std::forward<U>(defaultValue));
+        }
+    };
+    // If any bits are set returns the index of the first.
+    OptionalIndex findFirst() {
         const Chunk* chunks = fChunks.get();
         const size_t numChunks = numChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
-                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkPrevLog2");
-                return i * ChunkBits + SkPrevLog2(chunk);
+                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
+                return OptionalIndex(i * ChunkBits + SkCTZ(chunk));
             }
         }
-        return -1;
+        return OptionalIndex();
     }
 
 private:

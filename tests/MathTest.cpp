@@ -20,6 +20,7 @@ static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));
     REPORTER_ASSERT(reporter, 31 == SkCLZ(1));
     REPORTER_ASSERT(reporter, 1 == SkCLZ(1 << 30));
+    REPORTER_ASSERT(reporter, 1 == SkCLZ((1 << 30) | (1 << 24) | 1));
     REPORTER_ASSERT(reporter, 0 == SkCLZ(~0U));
 
     SkRandom rand;
@@ -30,7 +31,26 @@ static void test_clz(skiatest::Reporter* reporter) {
         mask >>= (mask & 31);
         int intri = SkCLZ(mask);
         int porta = SkCLZ_portable(mask);
-        REPORTER_ASSERT(reporter, intri == porta);
+        REPORTER_ASSERT(reporter, intri == porta, "mask:%d intri:%d porta:%d", mask, intri, porta);
+    }
+}
+
+static void test_ctz(skiatest::Reporter* reporter) {
+    REPORTER_ASSERT(reporter, 32 == SkCTZ(0));
+    REPORTER_ASSERT(reporter, 0 == SkCTZ(1));
+    REPORTER_ASSERT(reporter, 30 == SkCTZ(1 << 30));
+    REPORTER_ASSERT(reporter, 2 == SkCTZ((1 << 30) | (1 << 24) | (1 << 2)));
+    REPORTER_ASSERT(reporter, 0 == SkCTZ(~0U));
+
+    SkRandom rand;
+    for (int i = 0; i < 1000; ++i) {
+        uint32_t mask = rand.nextU();
+        // need to get some zeros for testing, but in some obscure way so the
+        // compiler won't "see" that, and work-around calling the functions.
+        mask >>= (mask & 31);
+        int intri = SkCTZ(mask);
+        int porta = SkCTZ_portable(mask);
+        REPORTER_ASSERT(reporter, intri == porta, "mask:%d intri:%d porta:%d", mask, intri, porta);
     }
 }
 
@@ -472,6 +492,7 @@ DEF_TEST(Math, reporter) {
 
     test_muldivround(reporter);
     test_clz(reporter);
+    test_ctz(reporter);
 }
 
 template <typename T> struct PairRec {
