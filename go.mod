@@ -7,7 +7,7 @@ require (
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/VividCortex/godaemon v0.0.0-20150910212227-3d9f6e0b234f // indirect
-	github.com/andygrunwald/go-gerrit v0.0.0-20191101112536-3f5e365ccf57
+	github.com/andygrunwald/go-gerrit v0.0.0-20200503132804-ed2419acda39
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -23,8 +23,9 @@ require (
 	github.com/prometheus/client_golang v1.6.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.5.1
-	go.chromium.org/luci v0.0.0-20200503010324-19f257ce35d3 // indirect
-	go.skia.org/infra v0.0.0-20200502103800-94e8762baaf7
+	github.com/vektra/mockery v1.0.0 // indirect
+	go.chromium.org/luci v0.0.0-20200504000755-e3f22e3930e4 // indirect
+	go.skia.org/infra v0.0.0-20200503052148-83859334b074
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
@@ -32,7 +33,7 @@ require (
 	golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
-	golang.org/x/tools v0.0.0-20200502202811-ed308ab3e770 // indirect
+	golang.org/x/tools v0.0.0-20200504022951-6b6965ac5dd1 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.22.0
 	google.golang.org/appengine v1.6.6 // indirect
