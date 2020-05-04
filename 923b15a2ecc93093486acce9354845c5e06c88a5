@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0c8216e0_b2c6f41e",
+        "filename": "bench/CreateBackendTextureBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-04T19:00:21Z",
+      "side": 1,
+      "message": "Done. Its a shame the loops aren\u0027t passed into some preDraw call outside the timings, but I don\u0027t think the allocation here will affect our ability to see the signal we\u0027re looking to track.",
+      "parentUuid": "db937876_2bbe8db4",
+      "revId": "923b15a2ecc93093486acce9354845c5e06c88a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "716f7b7f_471b9eef",
         "filename": "bench/CreateBackendTextureBench.cpp",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "923b15a2ecc93093486acce9354845c5e06c88a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "212888b6_19db1cd9",
+        "filename": "bench/CreateBackendTextureBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-04T19:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "716f7b7f_471b9eef",
+      "range": {
+        "startLine": 34,
+        "startChar": 74,
+        "endLine": 34,
+        "endChar": 90
+      },
+      "revId": "923b15a2ecc93093486acce9354845c5e06c88a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
