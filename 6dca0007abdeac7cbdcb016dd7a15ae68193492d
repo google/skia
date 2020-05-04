@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "006be354_38a3e711",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-04T17:22:37Z",
+      "side": 1,
+      "message": "Is SkPaint unpremul by default?",
+      "parentUuid": "64752cef_9e50fb08",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7eef8105_1aed9c58",
         "filename": "src/gpu/GrSWMaskHelper.cpp",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "drawPathCoverage is also weird in that it overwrites the entire buffer, so blending doesn\u0027t seem to really be a thing it does. If anything, now the paint has Src set on it (matching the replace op). I believe this is okay; it certainly doesn\u0027t seem to do anything for the A8 images we draw into (or the color images we use as fallback, then read as alpha-only)",
       "parentUuid": "7eef8105_1aed9c58",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83e964ac_00c922cf",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-04T17:22:37Z",
+      "side": 1,
+      "message": "Src will be slower than SrcOver. When there is coverage, we use dual-source blending or a dst copy in order to implement Src, whereas SrcOver is a simple HW blend mode. Since the framebuffer will be fully cleared, we ought to be able to get away with SrcOver, but I don\u0027t think there is code in place further down to notice this.\n\nI might consider setting the blend mode to SrcOver with a comment about performance and the destination being fully cleared.",
+      "parentUuid": "0fe41725_4fec2830",
       "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
