@@ -46,17 +46,21 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     // they're available to "generic" interpreter programs (eg particles).
     // You can probably copy the declarations from sksl_gpu.inc.
     , fIntrinsics {
-        { "atan",    ByteCodeInstruction::kATan },
-        { "cos",     ByteCodeInstruction::kCos },
-        { "dot",     SpecialIntrinsic::kDot },
-        { "fract",   ByteCodeInstruction::kFract },
-        { "inverse", ByteCodeInstruction::kInverse2x2 },
-        { "length",  SpecialIntrinsic::kLength },
-        { "mix",     SpecialIntrinsic::kMix },
-        { "pow",     ByteCodeInstruction::kPow },
-        { "sin",     ByteCodeInstruction::kSin },
-        { "sqrt",    ByteCodeInstruction::kSqrt },
-        { "tan",     ByteCodeInstruction::kTan },
+        { "atan",     ByteCodeInstruction::kATan },
+        { "clamp",    SpecialIntrinsic::kClamp },
+        { "cos",      ByteCodeInstruction::kCos },
+        { "dot",      SpecialIntrinsic::kDot },
+        { "fract",    ByteCodeInstruction::kFract },
+        { "inverse",  ByteCodeInstruction::kInverse2x2 },
+        { "length",   SpecialIntrinsic::kLength },
+        { "max",      SpecialIntrinsic::kMax },
+        { "min",      SpecialIntrinsic::kMin },
+        { "mix",      SpecialIntrinsic::kMix },
+        { "pow",      ByteCodeInstruction::kPow },
+        { "saturate", SpecialIntrinsic::kSaturate },
+        { "sin",      ByteCodeInstruction::kSin },
+        { "sqrt",     ByteCodeInstruction::kSqrt },
+        { "tan",      ByteCodeInstruction::kTan },
 
         { "lessThan",         { ByteCodeInstruction::kCompareFLT,
                                 ByteCodeInstruction::kCompareSLT,
@@ -309,6 +313,10 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_BINARY_OP(kDivideS)
         VECTOR_BINARY_OP(kDivideU)
         VECTOR_MATRIX_BINARY_OP(kDivideF)
+        VECTOR_BINARY_OP(kMaxF)
+        VECTOR_BINARY_OP(kMaxS)
+        VECTOR_BINARY_OP(kMinF)
+        VECTOR_BINARY_OP(kMinS)
         VECTOR_BINARY_OP(kMultiplyI)
         VECTOR_MATRIX_BINARY_OP(kMultiplyF)
         VECTOR_BINARY_OP(kPow)
@@ -440,11 +448,9 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoopEnd:          return 0;
         case ByteCodeInstruction::kLoopBreak:        return 0;
         case ByteCodeInstruction::kLoopContinue:     return 0;
-
-        default:
-            ABORT("unsupported instruction %d\n", (int)inst);
-            return 0;
     }
+
+    SkUNREACHABLE;
 }
 
 ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) {
@@ -1029,8 +1035,63 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         return;
     }
     Intrinsic intrin = found->second;
-
     int count = SlotCount(c.fArguments[0]->fType);
+
+    // Several intrinsics have variants where one argument is either scalar, or the same size as
+    // the first argument. Call dupSmallerType(SlotCount(argType)) to ensure equal component count.
+    auto dupSmallerType = [count, this](int smallCount) {
+        SkASSERT(smallCount == 1 || smallCount == count);
+        for (int i = smallCount; i < count; ++i) {
+            this->write(ByteCodeInstruction::kDup);
+        }
+    };
+
+    if (intrin.is_special && (intrin.special == SpecialIntrinsic::kClamp ||
+                              intrin.special == SpecialIntrinsic::kSaturate)) {
+        // These intrinsics are extra-special, we need instructions interleaved with arguments
+        bool saturate = (intrin.special == SpecialIntrinsic::kSaturate);
+        SkASSERT(c.fArguments.size() == (saturate ? 1 : 3));
+        int limitCount = saturate ? 1 : SlotCount(c.fArguments[1]->fType);
+
+        // 'x'
+        this->writeExpression(*c.fArguments[0]);
+
+        // 'minVal'
+        if (saturate) {
+            this->write(ByteCodeInstruction::kPushImmediate);
+            this->write32(float_to_bits(0.0f));
+        } else {
+            this->writeExpression(*c.fArguments[1]);
+        }
+        dupSmallerType(limitCount);
+        this->writeTypedInstruction(c.fArguments[0]->fType,
+                                    ByteCodeInstruction::kMaxS,
+                                    ByteCodeInstruction::kMaxS,
+                                    ByteCodeInstruction::kMaxF,
+                                    count);
+
+        // 'maxVal'
+        if (saturate) {
+            this->write(ByteCodeInstruction::kPushImmediate);
+            this->write32(float_to_bits(1.0f));
+        } else {
+            SkASSERT(limitCount == SlotCount(c.fArguments[2]->fType));
+            this->writeExpression(*c.fArguments[2]);
+        }
+        dupSmallerType(limitCount);
+        this->writeTypedInstruction(c.fArguments[0]->fType,
+                                    ByteCodeInstruction::kMinS,
+                                    ByteCodeInstruction::kMinS,
+                                    ByteCodeInstruction::kMinF,
+                                    count);
+        return;
+    }
+
+    // All other intrinsics can handle their arguments being on the stack in order
+    for (const auto& arg : c.fArguments) {
+        this->writeExpression(*arg);
+    }
+
     if (intrin.is_special) {
         switch (intrin.special) {
             case SpecialIntrinsic::kAll: {
@@ -1064,6 +1125,26 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 this->write(ByteCodeInstruction::kSqrt);
             } break;
 
+            case SpecialIntrinsic::kMax:
+            case SpecialIntrinsic::kMin: {
+                SkASSERT(c.fArguments.size() == 2);
+                // There are variants where the second argument is scalar
+                dupSmallerType(SlotCount(c.fArguments[1]->fType));
+                if (intrin.special == SpecialIntrinsic::kMax) {
+                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                                                ByteCodeInstruction::kMaxS,
+                                                ByteCodeInstruction::kMaxS,
+                                                ByteCodeInstruction::kMaxF,
+                                                count);
+                } else {
+                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                                                ByteCodeInstruction::kMinS,
+                                                ByteCodeInstruction::kMinS,
+                                                ByteCodeInstruction::kMinF,
+                                                count);
+                }
+            } break;
+
             case SpecialIntrinsic::kMix: {
                 // Two main variants of mix to handle
                 SkASSERT(c.fArguments.size() == 3);
@@ -1076,10 +1157,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     this->write(vector_instruction(ByteCodeInstruction::kMix, count));
                 } else {
                     // mix(genType, genType, genType) or mix(genType, genType, float)
-                    SkASSERT(selectorCount == 1 || selectorCount == count);
-                    for (int i = selectorCount; i < count; ++i) {
-                        this->write(ByteCodeInstruction::kDup);
-                    }
+                    dupSmallerType(selectorCount);
                     this->write(vector_instruction(ByteCodeInstruction::kLerp, count));
                 }
             } break;
@@ -1121,9 +1199,6 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
         }
     }
     if (idx == -1) {
-        for (const auto& arg : f.fArguments) {
-            this->writeExpression(*arg);
-        }
         this->writeIntrinsicCall(f);
         return;
     }
