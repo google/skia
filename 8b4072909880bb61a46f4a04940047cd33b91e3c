@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d3d0d2e8_e31f72c0",
+        "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-04T13:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b730654_bcdcc5df",
+      "range": {
+        "startLine": 113,
+        "startChar": 10,
+        "endLine": 113,
+        "endChar": 14
+      },
+      "revId": "8b4072909880bb61a46f4a04940047cd33b91e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa22186c_2f298078",
         "filename": "modules/skottie/src/effects/BrightnessContrastEffect.cpp",
         "patchSetId": 2
