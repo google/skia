@@ -8,22 +8,9 @@
 #ifndef SkBRDAllocator_DEFINED
 #define SkBRDAllocator_DEFINED
 
-#include "include/codec/SkCodec.h"
-#include "include/core/SkBitmap.h"
+#include "client_utils/android/BRDAllocator.h"
 
-/**
- *  Abstract subclass of SkBitmap's allocator.
- *  Allows the allocator to indicate if the memory it allocates
- *  is zero initialized.
- */
-class SkBRDAllocator : public SkBitmap::Allocator {
-public:
-
-    /**
-     *  Indicates if the memory allocated by this allocator is
-     *  zero initialized.
-     */
-    virtual SkCodec::ZeroInitialized zeroInit() const = 0;
-};
+// Temporary until Android switches over to BRDAllocator directly.
+class SkBRDAllocator : public android::skia::BRDAllocator {};
 
 #endif // SkBRDAllocator_DEFINED
