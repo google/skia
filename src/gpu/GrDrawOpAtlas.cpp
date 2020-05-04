@@ -324,8 +324,8 @@ bool GrDrawOpAtlas::uploadToPage(const GrCaps& caps, unsigned int pageIdx,
 // a page with unused plots will get removed reasonably quickly, but allow it
 // to hang around for a bit in case it's needed. The assumption is that flushes
 // are rare; i.e., we are not continually refreshing the frame.
-static constexpr auto kPlotRecentlyUsedCount = 256;
-static constexpr auto kAtlasRecentlyUsedCount = 1024;
+static constexpr auto kPlotRecentlyUsedCount = 32;
+static constexpr auto kAtlasRecentlyUsedCount = 128;
 
 GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceProvider,
                                                    GrDeferredUploadTarget* target,
