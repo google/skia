@@ -450,8 +450,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
             SkPath clipPath;
             element->asDeviceSpacePath(&clipPath);
             clipPath.toggleInverseFillType();
-            GrStyledShape shape(clipPath, GrStyle::SimpleFill());
-            helper.drawShape(shape, translate, SkRegion::kReplace_Op, aa, 0x00);
+            helper.drawShape(GrShape(clipPath), translate, SkRegion::kReplace_Op, aa, 0x00);
             continue;
         }
 
@@ -459,11 +458,12 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
         // the geometry so they can just be drawn normally
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
             helper.drawRect(element->getDeviceSpaceRect(), translate, (SkRegion::Op)op, aa, 0xFF);
+        } else if (Element::DeviceSpaceType::kRRect == element->getDeviceSpaceType()) {
+            helper.drawRRect(element->getDeviceSpaceRRect(), translate, (SkRegion::Op)op, aa, 0xFF);
         } else {
             SkPath path;
             element->asDeviceSpacePath(&path);
-            GrStyledShape shape(path, GrStyle::SimpleFill());
-            helper.drawShape(shape, translate, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawShape(GrShape(path), translate, (SkRegion::Op)op, aa, 0xFF);
         }
     }
 }
