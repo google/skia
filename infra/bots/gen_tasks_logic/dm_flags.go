@@ -108,6 +108,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 		return rv
 	}
+	suffix := func(slice []string, sfx string) []string {
+		rv := make([]string, 0, len(slice))
+		for _, e := range slice {
+			rv = append(rv, e+sfx)
+		}
+		return rv
+	}
 
 	blacklist := func(quad ...string) {
 		if len(quad) == 1 {
@@ -438,15 +445,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// DDL is a GPU-only feature
 		if b.extraConfig("DDL1") {
-			// This bot generates gl and vk comparison images for the large skps
+			// This bot generates comparison images for the large skps and the gms
 			configs = filter(configs, "gl", "vk", "mtl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--pr", "~small")
 		}
 		if b.extraConfig("DDL3") {
-			// This bot generates the ddl-gl and ddl-vk images for the
-			// large skps and the gms
-			ddlConfigs := prefix(filter(configs, "gl", "vk", "mtl"), "ddl-")
+			// This bot generates the real ddl images for the large skps and the gms
+			ddlConfigs := suffix(filter(configs, "gl", "vk", "mtl"), "ddl")
 			ddl2Configs := prefix(filter(configs, "gl", "vk", "mtl"), "ddl2-")
 			configs = append(ddlConfigs, ddl2Configs...)
 			args = append(args, "--skpViewportSize", "2048")
