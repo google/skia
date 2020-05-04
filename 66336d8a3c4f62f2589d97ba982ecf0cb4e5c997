@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4af06c6_da14cf8f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "memcpy(ambifFloats, ambi4f.vec(), 4 * sizeof(SkScalar)) ? (protip, don\u0027t be like me and forget that memcpy takes a number of bytes not number of elements when copying).",
+      "range": {
+        "startLine": 657,
+        "startChar": 4,
+        "endLine": 657,
+        "endChar": 30
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b9af19_aec1fe9c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "memcpy should work well here too.",
+      "range": {
+        "startLine": 1252,
+        "startChar": 12,
+        "endLine": 1252,
+        "endChar": 22
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19293e6d_f1115300",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "nit: Float32",
+      "range": {
+        "startLine": 354,
+        "startChar": 55,
+        "endLine": 354,
+        "endChar": 67
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63fe97fd_54d64e65",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "I don\u0027t think this is super necessary. JS users are used to libraries monkey patching things onto objects they pass in. If we can get better performance w/o the copy, I would try to remove it.",
+      "range": {
+        "startLine": 114,
+        "startChar": 47,
+        "endLine": 114,
+        "endChar": 60
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a5aace5_04f18f7f",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "I would probably call this canvas.bench.js (since it\u0027s the canvas APIs we are invoking). It just so happens you\u0027ve added color related tests.",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31dc10e4_63694ebe",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "nit: indent to 4 (or 2) spaces and be consistent with it.",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8e42ff0_1f87eed5",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "I don\u0027t see this getting used.",
+      "range": {
+        "startLine": 20,
+        "startChar": 16,
+        "endLine": 20,
+        "endChar": 19
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67231a77_bc966355",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "nit: try to wrap JS code to 100 cols.",
+      "range": {
+        "startLine": 26,
+        "startChar": 93,
+        "endLine": 26,
+        "endChar": 102
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07780a05_a0aa6caa",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "In teardown, I would call delete (dispose?) on the surface. Here and below.",
+      "range": {
+        "startLine": 33,
+        "startChar": 17,
+        "endLine": 33,
+        "endChar": 25
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d368e3e9_05ff41b5",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "I don\u0027t see this getting used.",
+      "range": {
+        "startLine": 42,
+        "startChar": 20,
+        "endLine": 42,
+        "endChar": 25
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cde54b18_b40ec218",
+        "filename": "modules/canvaskit/perf/colors.bench.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T19:04:12Z",
+      "side": 1,
+      "message": "Should these be a TODO?",
+      "range": {
+        "startLine": 51,
+        "startChar": 43,
+        "endLine": 51,
+        "endChar": 47
+      },
+      "revId": "66336d8a3c4f62f2589d97ba982ecf0cb4e5c997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
