@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64752cef_9e50fb08",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T17:04:33Z",
+      "side": 1,
+      "message": "Yes, that does seem wrong I\u0027ll updated it.",
+      "parentUuid": "6580eca5_250204fe",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7eef8105_1aed9c58",
         "filename": "src/gpu/GrSWMaskHelper.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2020-05-04T16:53:43Z",
       "side": 1,
       "message": "In the old code, this wouldn\u0027t have set blend mode, so this is a behavior change. But with the assert that alpha is 0xFF, I guess it doesn\u0027t matter (SrcOver \u003d\u003d Src)?",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe41725_4fec2830",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T17:04:33Z",
+      "side": 1,
+      "message": "drawPathCoverage is also weird in that it overwrites the entire buffer, so blending doesn\u0027t seem to really be a thing it does. If anything, now the paint has Src set on it (matching the replace op). I believe this is okay; it certainly doesn\u0027t seem to do anything for the A8 images we draw into (or the color images we use as fallback, then read as alpha-only)",
+      "parentUuid": "7eef8105_1aed9c58",
       "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
