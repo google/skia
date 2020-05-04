@@ -142,6 +142,24 @@
       "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07a5c7ce_95ca3db9",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-05-04T14:02:00Z",
+      "side": 1,
+      "message": "This is an unnamed struct, not an anonymous struct (and yes, it\u0027s stupid that those are two different things). Unnamed structs are supported.",
+      "parentUuid": "bdb63e48_9d9c8056",
+      "revId": "0431ead1dd9c1314db193cd49461c149d2291dbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
