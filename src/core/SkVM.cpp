@@ -738,6 +738,9 @@ namespace skvm {
     }
 
     F32 Builder::approx_powf(F32 x, F32 y) {
+        // TODO: assert this instead?  Sometimes x is very slightly negative.  See skia:10210.
+        x = max(0.0f, x);
+
         auto is_x = bit_or(eq(x, 0.0f),
                            eq(x, 1.0f));
         return select(is_x, x, approx_pow2(mul(approx_log2(x), y)));
