@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e6ef8d9_a1b80067",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T15:06:16Z",
+      "side": 1,
+      "message": "This is kind of spooky, given that no file object appears in scope.  Feels like maybe GetResourceAsData() or SkData::MakeFromFileName() isn\u0027t quite doing its job safely?\n\nWe do close the FILE* right?  This issues is the fd staying open?",
+      "range": {
+        "startLine": 118,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 54
+      },
+      "revId": "68b04aeb9d5a2f0d08de978780ba55fb7fbb9034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
