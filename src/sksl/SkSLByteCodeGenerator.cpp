@@ -49,6 +49,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "fract",   ByteCodeInstruction::kFract },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
         { "length",  SpecialIntrinsic::kLength },
+        { "pow",     ByteCodeInstruction::kPow },
         { "sin",     ByteCodeInstruction::kSin },
         { "sqrt",    ByteCodeInstruction::kSqrt },
         { "tan",     ByteCodeInstruction::kTan },
@@ -283,6 +284,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_MATRIX_BINARY_OP(kDivideF)
         VECTOR_BINARY_OP(kMultiplyI)
         VECTOR_MATRIX_BINARY_OP(kMultiplyF)
+        VECTOR_BINARY_OP(kPow)
         VECTOR_BINARY_OP(kRemainderF)
         VECTOR_BINARY_OP(kRemainderS)
         VECTOR_BINARY_OP(kRemainderU)
@@ -1013,6 +1015,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case ByteCodeInstruction::kATan:
             case ByteCodeInstruction::kCos:
             case ByteCodeInstruction::kFract:
+            case ByteCodeInstruction::kPow:
             case ByteCodeInstruction::kSin:
             case ByteCodeInstruction::kSqrt:
             case ByteCodeInstruction::kTan:

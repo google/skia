@@ -280,6 +280,7 @@ SIT T max(const Vec<1,T>& x) { return x.val; }
 
 SIT Vec<1,T> min(const Vec<1,T>& x, const Vec<1,T>& y) { return std::min(x.val, y.val); }
 SIT Vec<1,T> max(const Vec<1,T>& x, const Vec<1,T>& y) { return std::max(x.val, y.val); }
+SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
 
 SIT Vec<1,T>  atan(const Vec<1,T>& x) { return std:: atan(x.val); }
 SIT Vec<1,T>  ceil(const Vec<1,T>& x) { return std:: ceil(x.val); }
@@ -314,6 +315,7 @@ SINT T max(const Vec<N,T>& x) { return std::max(max(x.lo), max(x.hi)); }
 
 SINT Vec<N,T> min(const Vec<N,T>& x, const Vec<N,T>& y) { return join(min(x.lo, y.lo), min(x.hi, y.hi)); }
 SINT Vec<N,T> max(const Vec<N,T>& x, const Vec<N,T>& y) { return join(max(x.lo, y.lo), max(x.hi, y.hi)); }
+SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) { return join(pow(x.lo, y.lo), pow(x.hi, y.hi)); }
 
 SINT Vec<N,T>  atan(const Vec<N,T>& x) { return join( atan(x.lo),  atan(x.hi)); }
 SINT Vec<N,T>  ceil(const Vec<N,T>& x) { return join( ceil(x.lo),  ceil(x.hi)); }
@@ -351,6 +353,7 @@ SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; 
 SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
 SINTU Vec<N,T>           min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
 SINTU Vec<N,T>           max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
+SINTU Vec<N,T>           pow(U x, const Vec<N,T>& y) { return pow(Vec<N,T>(x), y); }
 
 // ... and same deal for vector/scalar operations.
 SINTU Vec<N,T>    operator+ (const Vec<N,T>& x, U y) { return x +  Vec<N,T>(y); }
@@ -368,6 +371,7 @@ SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); 
 SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
 SINTU Vec<N,T>           min(const Vec<N,T>& x, U y) { return min(x, Vec<N,T>(y)); }
 SINTU Vec<N,T>           max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
+SINTU Vec<N,T>           pow(const Vec<N,T>& x, U y) { return pow(x, Vec<N,T>(y)); }
 
 // All vector/scalar combinations for mad() with at least one vector.
 SINTU Vec<N,T> mad(U f, const Vec<N,T>& m, const Vec<N,T>& a) { return Vec<N,T>(f)*m + a; }

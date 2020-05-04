@@ -92,6 +92,7 @@ enum class ByteCodeInstruction : uint16_t {
     kNotB,
     kOrB,
     VECTOR_MATRIX(kPop),
+    VECTOR(kPow),
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
     // Followed by a byte indicating external value to read
