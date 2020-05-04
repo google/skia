@@ -19,6 +19,7 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -899,6 +900,20 @@ private:
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&) override;
 
+    GrPipeline* createPipeline(const GrCaps& caps,
+                               SkArenaAlloc* arena,
+                               const GrSurfaceProxyView* dstView,
+                               GrAppliedClip&& appliedClip,
+                               const GrXferProcessor::DstProxyView& dstProxyView);
+
+    GrProgramInfo* createProgramInfo(SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* dstView,
+                                     GrPipeline* pipeline,
+                                     GrGeometryProcessor* geomProc,
+                                     GrPipeline::FixedDynamicState* fixedDynamicState);
+
+    void onPrePrepareDraws(GrRecordingContext*, const GrSurfaceProxyView*,
+                           GrAppliedClip*, const GrXferProcessor::DstProxyView&) override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -1174,6 +1189,12 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         return;
     }
 
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    GrPipeline* pipeline = this->createPipeline(target->caps(), target->allocator(),
+                                                target->view(), target->detachAppliedClip(),
+                                                target->dstProxyView());
+
     // do lines first
     if (lineCount) {
         SkASSERT(predictedPrograms & kLine_Program);
@@ -1195,7 +1216,21 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
+<<<<<<< HEAD
         fMeshes[0] = helper.mesh();
+=======
+        if (!fProgramInfos[0]) {
+            GrGeometryProcessor* lineGP = this->makeLineGP(target->caps(), target->allocator(),
+                                                           geometryProcessorViewM,
+                                                           geometryProcessorLocalM);
+
+            fProgramInfos[0] = this->createProgramInfo(target->allocator(), target->view(),
+                                                       pipeline, lineGP, fixedDynamicState);
+        }
+
+        fMeshes[0] = helper.mesh();
+        //helper.recordDraw(target, lineGP);
+>>>>>>> git squash commit for more-programInfo.
     }
 
     if (quadCount || conicCount) {
@@ -1228,6 +1263,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         }
 
         if (quadCount > 0) {
+<<<<<<< HEAD
             SkASSERT(predictedPrograms & kQuad_Program);
             actualPrograms |= kQuad_Program;
 
@@ -1235,10 +1271,29 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             fMeshes[1]->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, quadCount,
                                             kQuadsNumInIdxBuffer, vertexBuffer, kQuadNumVertices,
                                             firstVertex);
+=======
+            if (!fProgramInfos[1]) {
+                GrGeometryProcessor* quadGP = this->makeQuadGP(target->caps(), target->allocator(),
+                                                               geometryProcessorViewM,
+                                                               geometryProcessorLocalM);
+
+                fProgramInfos[1] = this->createProgramInfo(target->allocator(), target->view(),
+                                                           pipeline, quadGP, fixedDynamicState);
+            }
+
+            fMeshes[1] = target->allocMesh();
+            fMeshes[1]->setIndexedPatterned(quadsIndexBuffer,
+                                            kIdxsPerQuad, kQuadNumVertices,
+                                            quadCount, kQuadsNumInIdxBuffer);
+            fMeshes[1]->setVertexData(vertexBuffer, firstVertex);
+
+            //target->recordDraw(quadGP, mesh, 1, GrPrimitiveType::kTriangles);
+>>>>>>> git squash commit for more-programInfo.
             firstVertex += quadCount * kQuadNumVertices;
         }
 
         if (conicCount > 0) {
+<<<<<<< HEAD
             SkASSERT(predictedPrograms & kConic_Program);
             actualPrograms |= kConic_Program;
 
@@ -1246,6 +1301,25 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             fMeshes[2]->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, conicCount,
                                             kQuadsNumInIdxBuffer, std::move(vertexBuffer),
                                             kQuadNumVertices, firstVertex);
+=======
+            if (!fProgramInfos[2]) {
+                GrGeometryProcessor* conicGP = this->makeConicGP(target->caps(),
+                                                                 target->allocator(),
+                                                                 geometryProcessorViewM,
+                                                                 geometryProcessorLocalM);
+
+                fProgramInfos[2] = this->createProgramInfo(target->allocator(), target->view(),
+                                                           pipeline, conicGP, fixedDynamicState);
+            }
+
+            fMeshes[2] = target->allocMesh();
+            fMeshes[2]->setIndexedPatterned(std::move(quadsIndexBuffer),
+                                            kIdxsPerQuad, kQuadNumVertices,
+                                            conicCount, kQuadsNumInIdxBuffer);
+            fMeshes[2]->setVertexData(std::move(vertexBuffer), firstVertex);
+
+//            target->recordDraw(conicGP, mesh, 1, GrPrimitiveType::kTriangles);
+>>>>>>> git squash commit for more-programInfo.
         }
     }
 
@@ -1255,6 +1329,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 }
 
 void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+<<<<<<< HEAD
     this->createProgramInfo(flushState);
 
     for (int i = 0; i < 3; ++i) {
@@ -1265,6 +1340,22 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
             flushState->drawMesh(*fMeshes[i]);
         }
     }
+=======
+    auto pipeline = fHelper.createPipelineWithStencil(flushState);
+#if 0
+    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+#else
+    for (int i = 0; i < 3; ++i) {
+        if (fMeshes[i]) {
+            SkASSERT(fProgramInfos[i]);
+
+            // TODO: update this
+            //flushState->opsRenderPass()->draw(*fProgramInfos[i], fMeshes[i], 1, chainBounds);
+        }
+    }
+#endif
+>>>>>>> git squash commit for more-programInfo.
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
