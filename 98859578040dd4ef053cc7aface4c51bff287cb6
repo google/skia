@@ -16,6 +16,24 @@
       "revId": "98859578040dd4ef053cc7aface4c51bff287cb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca90b3ad_db28f754",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 39
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-04T19:28:38Z",
+      "side": 1,
+      "message": "Nice! I was going to ask exactly this question – I will take a stab at doing that, as a victory lap!",
+      "parentUuid": "630bb658_ff22f74f",
+      "revId": "98859578040dd4ef053cc7aface4c51bff287cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
