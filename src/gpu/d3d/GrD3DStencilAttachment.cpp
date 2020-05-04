@@ -39,10 +39,15 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = format.fInternalFormat;
+    clearValue.DepthStencil.Depth = 0;
+    clearValue.DepthStencil.Stencil = 0;
+
     GrD3DTextureResourceInfo info;
     if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc,
                                                        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                                                       GrProtected::kNo, &info)) {
+                                                       GrProtected::kNo, &clearValue, &info)) {
         return nullptr;
     }
 

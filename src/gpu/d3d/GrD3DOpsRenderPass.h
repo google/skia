@@ -33,6 +33,8 @@ public:
 private:
     GrGpu* gpu() override;
 
+    void onBegin() override;
+
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override {}
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
@@ -49,13 +51,16 @@ private:
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override {}
 
-    void onClear(const GrFixedClip&, const SkPMColor4f& color) override {}
+    void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
     GrD3DGpu* fGpu;
     SkIRect fBounds;
     SkIRect fCurrentPipelineBounds;
+
+    GrLoadOp fColorLoadOp;
+    SkPMColor4f fClearColor;
 
     typedef GrOpsRenderPass INHERITED;
 };

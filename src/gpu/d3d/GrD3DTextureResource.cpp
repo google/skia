@@ -31,6 +31,7 @@ void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
 bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
                                                    D3D12_RESOURCE_STATES initialState,
                                                    GrProtected isProtected,
+                                                   D3D12_CLEAR_VALUE* clearValue,
                                                    GrD3DTextureResourceInfo* info) {
     if (0 == desc.Width || 0 == desc.Height) {
         return false;
@@ -56,7 +57,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
         D3D12_HEAP_FLAG_NONE,
         &desc,
         initialState,
-        nullptr,  // TODO: might want to set pOptimizedClearValue for rendertarget and stencil
+        clearValue,
         IID_PPV_ARGS(&resource));
     if (!SUCCEEDED(hr)) {
         return false;

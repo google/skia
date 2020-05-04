@@ -10,6 +10,7 @@
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
+#include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -145,6 +146,16 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
     this->addResource(std::move(dst));
     this->addResource(std::move(src));
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
+}
+
+void GrD3DCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
+                                             const SkPMColor4f& color,
+                                             const GrFixedClip& clip) {
+    this->addingWork();
+    this->addResource(renderTarget->resource());
+    fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
+                                        color.vec(),
+                                        0, NULL); // no cliprects for now
 }
 
 void GrD3DCommandList::addingWork() {

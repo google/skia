@@ -66,7 +66,7 @@ public:
 
     static bool InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
                                         D3D12_RESOURCE_STATES initialState, GrProtected,
-                                        GrD3DTextureResourceInfo*);
+                                        D3D12_CLEAR_VALUE*, GrD3DTextureResourceInfo*);
 
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 

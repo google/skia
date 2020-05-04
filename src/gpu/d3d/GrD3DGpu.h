@@ -98,6 +98,8 @@ public:
         return nullptr;
     }
 
+    void clear(const GrFixedClip& clip, const SkPMColor4f& color, GrRenderTarget*);
+
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override {}

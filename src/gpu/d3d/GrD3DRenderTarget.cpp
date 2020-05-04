@@ -118,11 +118,19 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
         msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
+        D3D12_CLEAR_VALUE clearValue = {};
+        clearValue.Format = dxgiFormat;
+        // For wrapped rendertargets we assume a clear to white
+        clearValue.Color[0] = 1;
+        clearValue.Color[1] = 1;
+        clearValue.Color[2] = 1;
+        clearValue.Color[3] = 1;
+
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
         if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc,
                                                            D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                           info.fProtected, &msInfo)) {
+                                                           info.fProtected, &clearValue, &msInfo)) {
             return nullptr;
         }
 
