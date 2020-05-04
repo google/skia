@@ -33,7 +33,7 @@ static const SkTileMode TILE_MODES[] = { SkTileMode::kDecal,
                                          SkTileMode::kRepeat,
                                          SkTileMode::kMirror,
                                          SkTileMode::kClamp };
-static const char* TILE_NAMES[] = { "decal", "repeat", "mirror", "clamp" };
+static constexpr char* TILE_NAMES[] = { "decal", "repeat", "mirror", "clamp" };
 static const int TILE_MODE_CT = SK_ARRAY_COUNT(TILE_MODES);
 
 static constexpr int TILE_SIZE = 100;

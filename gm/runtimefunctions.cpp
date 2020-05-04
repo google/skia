@@ -13,7 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
 
-static const char* RUNTIME_FUNCTIONS_SRC = R"(
+constexpr char RUNTIME_FUNCTIONS_SRC[] = R"(
     uniform half4 gColor;
 
     half scale(float x) {

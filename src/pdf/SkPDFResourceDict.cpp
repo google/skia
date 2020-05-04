@@ -43,7 +43,7 @@ void SkPDFWriteResourceName(SkWStream* dst, SkPDFResourceType type, int key) {
 }
 
 static const char* resource_name(SkPDFResourceType type) {
-    static const char* kResourceTypeNames[] = {
+    static constexpr const char* kResourceTypeNames[] = {
         "ExtGState",
         "Pattern",
         "XObject",

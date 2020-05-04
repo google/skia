@@ -107,7 +107,7 @@ public:
 private:
 #ifdef SK_DEBUG
     static const char* ToStr(EdgeType type) {
-        static const char* names[] = { "soft", "hard", "bad" };
+        static constexpr const char* names[] = { "soft", "hard", "bad" };
         return names[type];
     }
 #endif
@@ -133,7 +133,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                            GrRenderable::kNo);
 
-    static const char* name = "proxy";
+    constexpr char name[] = "proxy";
 
     // Proxies are always hard on the left and top but can be bad on the right and bottom
     rect->set(SkRect::MakeWH(size, size),
@@ -247,7 +247,7 @@ static const SkRect* left_only(const RectInfo& enclosing,
                                bool areCoordsLimitedToRect,
                                float insetAmount,
                                float halfFilterWidth) {
-    static const char* name = "left";
+    constexpr char name[] = "left";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth,
                          kInsetTop_Flag|kInsetRight_Flag|kInsetBot_Flag, name);
@@ -260,7 +260,7 @@ static const SkRect* top_only(const RectInfo& enclosing,
                                bool areCoordsLimitedToRect,
                                float insetAmount,
                                float halfFilterWidth) {
-    static const char* name = "top";
+    constexpr char name[] = "top";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth,
                          kInsetLeft_Flag|kInsetRight_Flag|kInsetBot_Flag, name);
@@ -273,7 +273,7 @@ static const SkRect* right_only(const RectInfo& enclosing,
                                 bool areCoordsLimitedToRect,
                                 float insetAmount,
                                 float halfFilterWidth) {
-    static const char* name = "right";
+    constexpr char name[] = "right";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth,
                          kInsetLeft_Flag|kInsetTop_Flag|kInsetBot_Flag, name);
@@ -286,7 +286,7 @@ static const SkRect* bot_only(const RectInfo& enclosing,
                               bool areCoordsLimitedToRect,
                               float insetAmount,
                               float halfFilterWidth) {
-    static const char* name = "bot";
+    constexpr char name[] = "bot";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth,
                          kInsetLeft_Flag|kInsetTop_Flag|kInsetRight_Flag, name);
@@ -299,7 +299,7 @@ static const SkRect* full_inset(const RectInfo& enclosing,
                                 bool areCoordsLimitedToRect,
                                 float insetAmount,
                                 float halfFilterWidth) {
-    static const char* name = "all";
+    constexpr char name[] = "all";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth,
                          kInsetLeft_Flag|kInsetTop_Flag|kInsetRight_Flag|kInsetBot_Flag, name);
@@ -312,7 +312,7 @@ static const SkRect* no_inset(const RectInfo& enclosing,
                               bool areCoordsLimitedToRect,
                               float insetAmount,
                               float halfFilterWidth) {
-    static const char* name = "none";
+    constexpr char name[] = "none";
     return generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
                          insetAmount, halfFilterWidth, 0, name);
 }

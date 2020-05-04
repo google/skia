@@ -14,7 +14,7 @@
 #include "src/utils/SkUTF.h"
 
 // From Project Guttenberg. This is UTF-8 text.
-static const char* atext[] = {
+constexpr const char* atext[] = {
         "Call me Ishmael.  Some years ago--never mind how",
         "long precisely --having little or no money in my purse, and nothing particular",
         "to interest me on shore, I thought I would sail about a little and see the",
@@ -142,7 +142,7 @@ static const char* atext[] = {
         "orchard thieves entailed upon us."
 };
 
-static const char* ctext[] = {
+constexpr const char* ctext[] = {
         "第一回",
         "胡秀才告狀鳴冤　施賢臣得夢訪案",
         "",

@@ -314,7 +314,7 @@ DEF_BENCH(return new PDFClipPathBenchmark;)
 #include "include/core/SkExecutor.h"
 namespace {
 void big_pdf_test(SkDocument* doc, const SkBitmap& background) {
-    static const char* kText[] = {
+    static constexpr const char* kText[] = {
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
         "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad",
         "minim veniam, quis nostrud exercitation ullamco laboris nisi ut",

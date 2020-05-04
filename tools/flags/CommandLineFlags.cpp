@@ -58,7 +58,7 @@ void SkFlagInfo::SetDefaultStrings(CommandLineFlags::StringArray* pStrings,
     }
 }
 
-static bool string_is_in(const char* target, const char* set[], size_t len) {
+static bool string_is_in(const char* target, const char* const set[], size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (0 == strcmp(target, set[i])) {
             return true;
@@ -75,12 +75,12 @@ static bool string_is_in(const char* target, const char* set[], size_t len) {
  *  @param boolean True if the string represents a boolean, false otherwise.
  */
 static bool parse_bool_arg(const char* string, bool* result) {
-    static const char* trueValues[] = {"1", "TRUE", "true"};
+    constexpr const char* trueValues[] = {"1", "TRUE", "true"};
     if (string_is_in(string, trueValues, SK_ARRAY_COUNT(trueValues))) {
         *result = true;
         return true;
     }
-    static const char* falseValues[] = {"0", "FALSE", "false"};
+    constexpr const char* falseValues[] = {"0", "FALSE", "false"};
     if (string_is_in(string, falseValues, SK_ARRAY_COUNT(falseValues))) {
         *result = false;
         return true;

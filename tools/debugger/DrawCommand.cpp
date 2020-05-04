@@ -363,7 +363,7 @@ void render_shadow(SkCanvas* canvas, const SkPath& path, SkDrawShadowRec rec) {
     canvas->private_draw_shadow_rec(path, rec);
 }
 
-static const char* const gBlendModeMap[] = {
+constexpr char* const gBlendModeMap[] = {
         "clear",      "src",        "dst",      "srcOver",    "dstOver",   "srcIn",     "dstIn",
         "srcOut",     "dstOut",     "srcATop",  "dstATop",    "xor",       "plus",      "modulate",
 

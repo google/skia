@@ -256,7 +256,7 @@ void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifi
 }
 
 void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
-    static const char* interfaceQualifierNames[] = {
+    static constexpr const char* interfaceQualifierNames[] = {
         "in",
         "out"
     };
