@@ -1011,7 +1011,7 @@ uint32_t SkClipStack::getTopmostGenID() const {
 
 #ifdef SK_DEBUG
 void SkClipStack::Element::dump() const {
-    static const char* kTypeStrings[] = {
+    static constexpr const char* kTypeStrings[] = {
         "empty",
         "rect",
         "rrect",
@@ -1023,7 +1023,7 @@ void SkClipStack::Element::dump() const {
     static_assert(3 == static_cast<int>(DeviceSpaceType::kPath), "enum mismatch");
     static_assert(SK_ARRAY_COUNT(kTypeStrings) == kTypeCnt, "enum mismatch");
 
-    static const char* kOpStrings[] = {
+    static constexpr const char* kOpStrings[] = {
         "difference",
         "intersect",
         "union",

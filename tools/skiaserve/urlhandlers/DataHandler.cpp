@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool DataHandler::canHandle(const char* method, const char* url) {
-    static const char* kBaseUrl = "/data";
+    constexpr char kBaseUrl[] = "/data";
     return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
            0 == strncmp(url, kBaseUrl, strlen(kBaseUrl));
 }

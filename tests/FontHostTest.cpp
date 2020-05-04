@@ -171,7 +171,7 @@ static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& f
 }
 
 static void test_tables(skiatest::Reporter* reporter) {
-    static const char* const gNames[] = {
+    static constexpr const char* gNames[] = {
         nullptr,   // default font
         "Helvetica", "Arial",
         "Times", "Times New Roman",
@@ -198,13 +198,13 @@ static void test_tables(skiatest::Reporter* reporter) {
  * generateMetrics match.
  */
 static void test_advances(skiatest::Reporter* reporter) {
-    static const char* const faces[] = {
+    constexpr const char* faces[] = {
         nullptr,   // default font
         "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
         "Courier New", "Verdana", "monospace",
     };
 
-    static const struct {
+    static constexpr struct {
         SkFontHinting   hinting;
         bool            linear;
         bool            subpixel;
@@ -220,7 +220,7 @@ static void test_advances(skiatest::Reporter* reporter) {
         { SkFontHinting::kNormal, false, true  },
     };
 
-    static const struct {
+    static constexpr struct {
         SkScalar    fScaleX;
         SkScalar    fSkewX;
     } gScaleRec[] = {
@@ -232,7 +232,7 @@ static void test_advances(skiatest::Reporter* reporter) {
     };
 
     SkFont font;
-    char const * const txt = "long.text.with.lots.of.dots.";
+    constexpr char txt[] = "long.text.with.lots.of.dots.";
     size_t textLen = strlen(txt);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {

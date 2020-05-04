@@ -297,7 +297,7 @@ Name BRDSrc::name() const {
 
 static bool serial_from_path_name(const SkString& path) {
     if (!FLAGS_RAW_threading) {
-        static const char* const exts[] = {
+        static constexpr const char* exts[] = {
             "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
             "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
         };

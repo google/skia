@@ -417,9 +417,9 @@ static void gather_gold() {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_BUILD_FOR_WIN)
-    static const char* kNewline = "\r\n";
+    constexpr char kNewline[] = "\r\n";
 #else
-    static const char* kNewline = "\n";
+    constexpr char kNewline[] = "\n";
 #endif
 
 static SkTHashSet<SkString> gUninterestingHashes;
@@ -786,7 +786,7 @@ static void push_codec_srcs(Path path) {
     if (ext) {
         ext++;
 
-        static const char* const rawExts[] = {
+        static constexpr const char* rawExts[] = {
             "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
             "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
         };
@@ -797,7 +797,7 @@ static void push_codec_srcs(Path path) {
             }
         }
 
-        static const char* const brdExts[] = {
+        static constexpr const char* brdExts[] = {
             "jpg", "jpeg", "png", "webp",
             "JPG", "JPEG", "PNG", "WEBP",
         };
@@ -1521,7 +1521,7 @@ int main(int argc, char** argv) {
     // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
     bool defaultConfigs = true;
     for (int i = 0; i < argc; i++) {
-        static const char* kConfigArg = "--config";
+        constexpr char kConfigArg[] = "--config";
         if (strcmp(argv[i], kConfigArg) == 0) {
             defaultConfigs = false;
             break;

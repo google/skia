@@ -964,7 +964,7 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "2020", "Identity" };
+    static constexpr const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "2020", "Identity" };
     static_assert(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace + 1);
 
     SkPaint paint;
@@ -989,7 +989,7 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
-    static const char* kYUVFormatNames[] = {
+    static constexpr const char* kYUVFormatNames[] = {
         "P016", "P010", "P016F", "Y416", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
     };
     static_assert(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat + 1);

@@ -1135,7 +1135,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->endArray();
 
-    static const char* kMSFBOExtStr[] = {
+    static constexpr const char* kMSFBOExtStr[] = {
         "None",
         "Standard",
         "Apple",
@@ -1149,7 +1149,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     static_assert(4 == kES_EXT_MsToTexture_MSFBOType);
     static_assert(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
-    static const char* kInvalidateFBTypeStr[] = {
+    static constexpr const char* kInvalidateFBTypeStr[] = {
         "None",
         "Discard",
         "Invalidate",
@@ -1159,7 +1159,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     static_assert(2 == kInvalidate_InvalidateFBType);
     static_assert(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
-    static const char* kMapBufferTypeStr[] = {
+    static constexpr const char* kMapBufferTypeStr[] = {
         "None",
         "MapBuffer",
         "MapBufferRange",

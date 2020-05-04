@@ -50,7 +50,8 @@ static void test_hasLength(skiatest::Reporter* reporter,
 // All tests will buffer this string, and compare output to the original.
 // The string is long to ensure that all of our lengths being tested are
 // smaller than the string length.
-const char gAbcs[] = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx";
+constexpr char gAbcs[] =
+    "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx";
 
 // Tests reading the stream across boundaries of what has been buffered so far and what
 // the total buffer size is.

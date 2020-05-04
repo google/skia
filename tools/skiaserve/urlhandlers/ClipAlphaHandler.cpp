@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool ClipAlphaHandler::canHandle(const char* method, const char* url) {
-    static const char* kBasePath = "/clipAlpha/";
+    constexpr char kBasePath[] = "/clipAlpha/";
     return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }
