@@ -321,7 +321,7 @@ static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
     //CreateFontPackage wants unsigned short.
     //Microsoft, Y U NO stdint.h?
     std::vector<unsigned short> keepList;
-    current.glyphsUsed.getSetValues([&keepList](unsigned v) {
+    current.glyphsUsed.forEachSetIndex([&keepList](size_t v) {
             keepList.push_back((unsigned short)v);
     });
 

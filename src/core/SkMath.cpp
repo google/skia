@@ -25,17 +25,46 @@ int SkCLZ_portable(uint32_t x) {
     if (x & 0xFFFF0000) {
         sub_shift(zeros, x, 16);
     }
-    if (x & 0xFF00) {
+    if (x & 0x0000FF00) {
         sub_shift(zeros, x, 8);
     }
-    if (x & 0xF0) {
+    if (x & 0x000000F0) {
         sub_shift(zeros, x, 4);
     }
-    if (x & 0xC) {
+    if (x & 0x0000000C) {
         sub_shift(zeros, x, 2);
     }
-    if (x & 0x2) {
+    if (x & 0x00000002) {
         sub_shift(zeros, x, 1);
+    }
+
+    return zeros;
+}
+
+#define add_shift(zeros, x, n)  \
+    zeros += n;                 \
+    x >>= n
+
+int SkCTZ_portable(uint32_t x) {
+    if (x == 0) {
+        return 32;
+    }
+
+    int zeros = 0;
+    if (!(x & 0x0000FFFF)) {
+        add_shift(zeros, x, 16);
+    }
+    if (!(x & 0x000000FF)) {
+        add_shift(zeros, x, 8);
+    }
+    if (!(x & 0x0000000F)) {
+        add_shift(zeros, x, 4);
+    }
+    if (!(x & 0x00000003)) {
+        add_shift(zeros, x, 2);
+    }
+    if (!(x & 0x00000001)) {
+        add_shift(zeros, x, 1);
     }
 
     return zeros;
