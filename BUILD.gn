@@ -275,9 +275,16 @@ template("optional") {
 optional("android_utils") {
   enabled = skia_enable_android_utils
 
-  public = [ "client_utils/android/FrontBufferedStream.h" ]
+  public = [
+    "client_utils/android/BRDAllocator.h",
+    "client_utils/android/BitmapRegionDecoder.h",
+    "client_utils/android/FrontBufferedStream.h",
+  ]
   public_defines = [ "SK_ENABLE_ANDROID_UTILS" ]
-  sources = [ "client_utils/android/FrontBufferedStream.cpp" ]
+  sources = [
+    "client_utils/android/BitmapRegionDecoder.cpp",
+    "client_utils/android/FrontBufferedStream.cpp",
+  ]
 }
 
 optional("fontmgr_android") {
@@ -922,7 +929,6 @@ component("skia") {
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
-    "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
     "src/codec/SkAndroidCodec.cpp",
     "src/codec/SkAndroidCodecAdapter.cpp",
