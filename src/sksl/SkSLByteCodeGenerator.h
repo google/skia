@@ -142,6 +142,8 @@ private:
         kAny,
         kDot,
         kLength,
+        kMax,
+        kMin,
         kMix,
     };
 

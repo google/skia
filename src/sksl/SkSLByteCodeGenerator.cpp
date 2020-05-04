@@ -52,6 +52,8 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "fract",   ByteCodeInstruction::kFract },
         { "inverse", ByteCodeInstruction::kInverse2x2 },
         { "length",  SpecialIntrinsic::kLength },
+        { "max",     SpecialIntrinsic::kMax },
+        { "min",     SpecialIntrinsic::kMin },
         { "mix",     SpecialIntrinsic::kMix },
         { "pow",     ByteCodeInstruction::kPow },
         { "sin",     ByteCodeInstruction::kSin },
@@ -309,6 +311,10 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VECTOR_BINARY_OP(kDivideS)
         VECTOR_BINARY_OP(kDivideU)
         VECTOR_MATRIX_BINARY_OP(kDivideF)
+        VECTOR_BINARY_OP(kMaxF)
+        VECTOR_BINARY_OP(kMaxS)
+        VECTOR_BINARY_OP(kMinF)
+        VECTOR_BINARY_OP(kMinS)
         VECTOR_BINARY_OP(kMultiplyI)
         VECTOR_MATRIX_BINARY_OP(kMultiplyF)
         VECTOR_BINARY_OP(kPow)
@@ -440,11 +446,9 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoopEnd:          return 0;
         case ByteCodeInstruction::kLoopBreak:        return 0;
         case ByteCodeInstruction::kLoopContinue:     return 0;
-
-        default:
-            ABORT("unsupported instruction %d\n", (int)inst);
-            return 0;
     }
+
+    SkUNREACHABLE;
 }
 
 ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) {
@@ -1062,6 +1066,27 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     this->write(ByteCodeInstruction::kAddF);
                 }
                 this->write(ByteCodeInstruction::kSqrt);
+            } break;
+
+            case SpecialIntrinsic::kMax:
+            case SpecialIntrinsic::kMin: {
+                // There are variants where the second argument is scalar
+                SkASSERT(c.fArguments.size() == 2);
+                int yCount = SlotCount(c.fArguments[1]->fType);
+                for (int i = yCount; i < count; ++i) {
+                    this->write(ByteCodeInstruction::kDup);
+                }
+                if (intrin.special == SpecialIntrinsic::kMax) {
+                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                                                ByteCodeInstruction::kMaxS,
+                                                ByteCodeInstruction::kMaxS,
+                                                ByteCodeInstruction::kMaxF, count);
+                } else {
+                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                                                ByteCodeInstruction::kMinS,
+                                                ByteCodeInstruction::kMinS,
+                                                ByteCodeInstruction::kMinF, count);
+                }
             } break;
 
             case SpecialIntrinsic::kMix: {
