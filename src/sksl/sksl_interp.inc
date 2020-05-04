@@ -1,11 +1,21 @@
 STRINGIFY(
 
+$genType atan($genType y_over_x);
+$genHType atan($genHType y_over_x);
 $genType cos($genType y);
 $genHType cos($genHType y);
 float dot($genType x, $genType y);
+half dot($genHType x, $genHType y);
+$genType fract($genType x);
+$genHType fract($genHType x);
 float2x2 inverse(float2x2 m);
 float3x3 inverse(float3x3 m);
 float4x4 inverse(float4x4 m);
+half2x2 inverse(half2x2 m);
+half3x3 inverse(half3x3 m);
+half4x4 inverse(half4x4 m);
+float length($genType x);
+half length($genHType x);
 $genType sin($genType x);
 $genHType sin($genHType x);
 $genType sqrt($genType x);
@@ -22,10 +32,6 @@ float  radians(float  deg) { return deg * 0.0174532925; }
 float2 radians(float2 deg) { return deg * 0.0174532925; }
 float3 radians(float3 deg) { return deg * 0.0174532925; }
 float4 radians(float4 deg) { return deg * 0.0174532925; }
-
-float length(float2 v) { return sqrt(dot(v, v)); }
-float length(float3 v) { return sqrt(dot(v, v)); }
-float length(float4 v) { return sqrt(dot(v, v)); }
 
 float distance(float2 a, float2 b) { return length(a - b); }
 float distance(float3 a, float3 b) { return length(a - b); }
