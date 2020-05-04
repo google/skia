@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6da35be_18496896",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T20:34:53Z",
+      "side": 1,
+      "message": "Fix dangling comment? (or delete)",
+      "range": {
+        "startLine": 120,
+        "startChar": 6,
+        "endLine": 120,
+        "endChar": 8
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c436642_c18c5aa2",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T20:34:53Z",
+      "side": 1,
+      "message": "What won\u0027t work? Could we do a check and see if the *Ptrs were set already? If so, don\u0027t copy the colors again?",
+      "range": {
+        "startLine": 136,
+        "startChar": 91,
+        "endLine": 136,
+        "endChar": 99
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8970bd75_a28d03e3",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T20:34:53Z",
+      "side": 1,
+      "message": "nit: wrap comments to 100 cols.",
+      "range": {
+        "startLine": 145,
+        "startChar": 86,
+        "endLine": 145,
+        "endChar": 94
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d3e1fd3_345ec0b8",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T20:34:53Z",
+      "side": 1,
+      "message": "FWIW: I\u0027m not sure this does much, since setup is called once only and IIRC the canvas defaults to clear.",
+      "range": {
+        "startLine": 20,
+        "startChar": 23,
+        "endLine": 20,
+        "endChar": 28
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6681e05f_462115dc",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-04T20:34:53Z",
+      "side": 1,
+      "message": "Did you mean to delete the comment?",
+      "range": {
+        "startLine": 55,
+        "startChar": 43,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
