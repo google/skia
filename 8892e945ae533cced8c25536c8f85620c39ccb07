@@ -22,6 +22,30 @@
       "revId": "8892e945ae533cced8c25536c8f85620c39ccb07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5292ddb6_6007a813",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-04T19:17:16Z",
+      "side": 1,
+      "message": "first and last have this too. I have found, that forcing a segfault when you try to zero length span simplifies debugging.",
+      "parentUuid": "f8466992_9586b1ff",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 44
+      },
+      "revId": "8892e945ae533cced8c25536c8f85620c39ccb07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
