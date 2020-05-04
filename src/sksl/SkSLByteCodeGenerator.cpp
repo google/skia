@@ -42,6 +42,9 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
     , fOutput(output)
+    // If you're adding new intrinsics here, ensure that they're declared in sksl_interp.inc, so
+    // they're available to "generic" interpreter programs (eg particles).
+    // You can probably copy the declarations from sksl_gpu.inc.
     , fIntrinsics {
         { "atan",    ByteCodeInstruction::kATan },
         { "cos",     ByteCodeInstruction::kCos },
