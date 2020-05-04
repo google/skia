@@ -22,6 +22,30 @@
       "revId": "dd30775fccb654f03aeae678fb69d1909567f654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67486992_83c3b244",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-04T19:13:11Z",
+      "side": 1,
+      "message": "Correct. I wasn\u0027t sure if it was worth adding a kInvalid instruction, just to be able to catch this stuff in a central spot. Using any other existing instruction just seems like it would be even more confusing.",
+      "parentUuid": "49188ed7_9ff4a993",
+      "range": {
+        "startLine": 1068,
+        "startChar": 36,
+        "endLine": 1069,
+        "endChar": 63
+      },
+      "revId": "dd30775fccb654f03aeae678fb69d1909567f654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
