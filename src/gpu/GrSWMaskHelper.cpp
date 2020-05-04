@@ -50,6 +50,20 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegi
     fDraw.drawRect(rect, paint);
 }
 
+void GrSWMaskHelper::drawRRect(const SkRRect& rrect, const SkMatrix& matrix, SkRegion::Op op,
+                               GrAA aa, uint8_t alpha) {
+    SkPaint paint;
+    paint.setBlendMode(op_to_mode(op));
+    paint.setAntiAlias(GrAA::kYes == aa);
+    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+
+    SkMatrix translatedMatrix = matrix;
+    translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
+    fDraw.fMatrix = &translatedMatrix;
+
+    fDraw.drawRRect(rrect, paint);
+}
+
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
@@ -74,7 +88,39 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
         paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
         fDraw.drawPath(path, paint);
     }
-};
+}
+
+void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkRegion::Op op,
+                               GrAA aa, uint8_t alpha) {
+    SkPaint paint;
+    paint.setAntiAlias(GrAA::kYes == aa);
+    paint.setBlendMode(op_to_mode(op));
+    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+
+    SkMatrix translatedMatrix = matrix;
+    translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
+    fDraw.fMatrix = &translatedMatrix;
+
+    if (shape.isEmpty() || shape.isLine() || shape.isPoint()) {
+        // Do nothing, these shapes do not cover any pixels for simple fills
+        return;
+    } else if (shape.isRect()) {
+        fDraw.drawRect(shape.rect(), paint);
+    } else if (shape.isRRect()) {
+        fDraw.drawRRect(shape.rrect(), paint);
+    } else {
+        SkPath path;
+        shape.asPath(&path);
+        if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
+            SkASSERT(0xFF == paint.getAlpha());
+            fDraw.drawPathCoverage(path, paint);
+        } else {
+            paint.setBlendMode(op_to_mode(op));
+            paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+            fDraw.drawPath(path, paint);
+        }
+    }
+}
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     // We will need to translate draws so the bound's UL corner is at the origin
