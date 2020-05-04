@@ -123,6 +123,24 @@
       "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "323a7685_19d3c65a",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-04T17:37:35Z",
+      "side": 1,
+      "message": "These draws are using the raster backend, so we don\u0027t need to worry about HW blending performance.",
+      "parentUuid": "83e964ac_00c922cf",
+      "revId": "6dca0007abdeac7cbdcb016dd7a15ae68193492d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
