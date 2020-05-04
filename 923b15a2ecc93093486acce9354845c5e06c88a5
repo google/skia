@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db937876_2bbe8db4",
+        "filename": "bench/CreateBackendTextureBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-04T18:53:19Z",
+      "side": 1,
+      "message": "Maybe reserve \u0027loops\u0027 backend textures before the loop ?",
+      "revId": "923b15a2ecc93093486acce9354845c5e06c88a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "716f7b7f_471b9eef",
+        "filename": "bench/CreateBackendTextureBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-04T18:53:19Z",
+      "side": 1,
+      "message": "fMipMapped ?",
+      "range": {
+        "startLine": 34,
+        "startChar": 74,
+        "endLine": 34,
+        "endChar": 90
+      },
+      "revId": "923b15a2ecc93093486acce9354845c5e06c88a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
