@@ -37,6 +37,7 @@ bench_sources = [
   "$_bench/CompositingImagesBench.cpp",
   "$_bench/ControlBench.cpp",
   "$_bench/CoverageBench.cpp",
+  "$_bench/CreateBackendTextureBench.cpp",
   "$_bench/CubicKLMBench.cpp",
   "$_bench/CubicMapBench.cpp",
   "$_bench/DDLRecorderBench.cpp",
