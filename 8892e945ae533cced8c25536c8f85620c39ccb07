@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8466992_9586b1ff",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-04T19:11:22Z",
+      "side": 1,
+      "message": "Why this extra bit? If you have a span of size one then the max offset is one in which case the count is zero and then you end up with the zero size span that comes after the single element.",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 44
+      },
+      "revId": "8892e945ae533cced8c25536c8f85620c39ccb07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
