@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49188ed7_9ff4a993",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-04T19:04:34Z",
+      "side": 1,
+      "message": "The min/max U versions just won\u0027t come up right?  Does it make sense to shove in something less-subtly broken here in case one somehow slips through?",
+      "range": {
+        "startLine": 1068,
+        "startChar": 36,
+        "endLine": 1069,
+        "endChar": 63
+      },
+      "revId": "dd30775fccb654f03aeae678fb69d1909567f654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
