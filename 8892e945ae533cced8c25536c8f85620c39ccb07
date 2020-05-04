@@ -46,6 +46,30 @@
       "revId": "8892e945ae533cced8c25536c8f85620c39ccb07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99bf6e7d_e611e5cc",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-04T20:36:23Z",
+      "side": 1,
+      "message": "Interesting. It\u0027s just that std::span is prohibited from doing this. Maybe we should mark these as being non standard and a little bit limiting and strange. I would be a bit surprised by this. For example it breaks ordering of spans, so if one wanted to sort some spans into one big object by starting point all the empty spans would no longer work with \u0027\u003c\u0027 (they would need to use std::less or it\u0027s UB) and would all go together instead of where expected.",
+      "parentUuid": "5292ddb6_6007a813",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 44
+      },
+      "revId": "8892e945ae533cced8c25536c8f85620c39ccb07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
