@@ -80,9 +80,6 @@ class ComplexClipView : public Sample {
         } gOps[] = { //extra spaces in names for measureText
             {kIntersect_SkClipOp,         "Isect "},
             {kDifference_SkClipOp,        "Diff " },
-            {kUnion_SkClipOp,             "Union "},
-            {kXOR_SkClipOp,               "Xor "  },
-            {kReverseDifference_SkClipOp, "RDiff "}
         };
 
         canvas->translate(0, SkIntToScalar(40));

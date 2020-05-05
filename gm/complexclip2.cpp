@@ -93,10 +93,6 @@ protected:
         const SkClipOp ops[] = {
             kDifference_SkClipOp,
             kIntersect_SkClipOp,
-            kUnion_SkClipOp,
-            kXOR_SkClipOp,
-            kReverseDifference_SkClipOp,
-            kReplace_SkClipOp,
         };
 
         SkRandom r;
