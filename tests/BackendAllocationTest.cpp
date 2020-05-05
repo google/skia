@@ -64,8 +64,8 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                                                                   skColorType,
                                                                   nullptr, nullptr);
         if (!surf) {
-            ERRORF(reporter, "Couldn't make surface from backendTexture for colorType %d\n",
-                   skColorType);
+            ERRORF(reporter, "Couldn't make surface from backendTexture for %s\n",
+                   ToolUtils::colortype_name(skColorType));
         } else {
             REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
@@ -79,8 +79,8 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
                                                       kPremul_SkAlphaType,
                                                       nullptr);
         if (!img) {
-            ERRORF(reporter, "Couldn't make image from backendTexture for skColorType %d\n",
-                   skColorType);
+            ERRORF(reporter, "Couldn't make image from backendTexture for %s\n",
+                   ToolUtils::colortype_name(skColorType));
         } else {
             SkImage_Base* ib = as_IB(img);
 
@@ -100,7 +100,7 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
     context->deleteBackendTexture(backendTex);
 }
 
-static bool isBGRA(const GrBackendFormat& format) {
+static bool isBGRA8(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL:
 #ifdef SK_GL
@@ -119,7 +119,7 @@ static bool isBGRA(const GrBackendFormat& format) {
         }
         case GrBackendApi::kMetal:
 #ifdef SK_METAL
-            return GrMtlFormatIsBGRA(format.asMtlFormat());
+            return GrMtlFormatIsBGRA8(format.asMtlFormat());
 #else
             return false;
 #endif
@@ -439,7 +439,7 @@ static void test_pixmap_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    if (skColorType == kBGRA_8888_SkColorType && !isBGRA(backendTex.getBackendFormat())) {
+    if (skColorType == kBGRA_8888_SkColorType && !isBGRA8(backendTex.getBackendFormat())) {
         // When kBGRA is backed by an RGBA something goes wrong in the swizzling
         return;
     }
@@ -600,11 +600,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGB_888x_SkColorType,          SkColors::kCyan          },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },
-        // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { kRGBA_1010102_SkColorType,      { .25f, .5f, .75f, 1.0f }},
-        // RGB/BGR 101010x and BGRA 1010102 have no Ganesh correlate
+        // TODO: readback is busted for *10A2 when alpha = 0.5f (perhaps premul vs. unpremul)
+        { kRGBA_1010102_SkColorType,      { 0.25f, 0.5f, 0.75f, 1.0f }},
+        { kBGRA_1010102_SkColorType,      { 0.25f, 0.5f, 0.75f, 1.0f }},
+        // RGB/BGR 101010x have no Ganesh correlate
         { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
-        { kBGRA_1010102_SkColorType,      { 0, 0.5f, 0, 0.5f }     },
         { kBGR_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
         { kGray_8_SkColorType,            kGrayCol                 },
         { kRGBA_F16Norm_SkColorType,      SkColors::kLtGray        },
@@ -712,26 +712,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                     renderable);
                 }
 
-                auto createWithSrcDataMtd = [](GrContext* context,
-                                               const SkPixmap srcData[],
-                                               int numLevels,
-                                               GrRenderable renderable) {
-                    SkASSERT(srcData && numLevels);
-                    auto result = context->createBackendTexture(srcData, numLevels, renderable,
-                                                                GrProtected::kNo);
-                    check_vk_layout(result, VkLayout::kReadOnlyOptimal);
+                {
+                    auto createWithSrcDataMtd = [](GrContext* context,
+                                                   const SkPixmap srcData[],
+                                                   int numLevels,
+                                                   GrRenderable renderable) {
+                        SkASSERT(srcData && numLevels);
+                        auto result = context->createBackendTexture(srcData, numLevels, renderable,
+                                                                    GrProtected::kNo);
+                        check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 #ifdef SK_DEBUG
-                    {
-                        auto format =
-                                context->defaultBackendFormat(srcData[0].colorType(), renderable);
-                        SkASSERT(format == result.getBackendFormat());
-                    }
+                        {
+                            auto format = context->defaultBackendFormat(srcData[0].colorType(),
+                                                                        renderable);
+                            SkASSERT(format == result.getBackendFormat());
+                        }
 #endif
-                    return result;
-                };
+                        return result;
+                    };
 
-                test_pixmap_init(context, reporter, createWithSrcDataMtd, colorType, mipMapped,
-                                 renderable);
+                    test_pixmap_init(context, reporter, createWithSrcDataMtd, colorType, mipMapped,
+                                     renderable);
+                }
             }
         }
     }
@@ -763,7 +765,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kBGRA_8888,        GR_GL_RGBA8,                SkColors::kBlue      },
         { GrColorType::kBGRA_8888,        GR_GL_BGRA8,                SkColors::kBlue      },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
+        { GrColorType::kBGRA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
         { GrColorType::kBGR_565,          GR_GL_RGB565,               SkColors::kRed       },
         { GrColorType::kABGR_4444,        GR_GL_RGBA4,                SkColors::kGreen     },
 
@@ -796,9 +799,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        if (GrColorType::kBGRA_8888 == combo.fColorType) {
-            // We allow using a GL_RGBA8 texture as BGRA on desktop GL but not ES.
-            if (GR_GL_RGBA8 == combo.fFormat && kGL_GrGLStandard != standard) {
+        if (GrColorType::kBGRA_8888 == combo.fColorType ||
+            GrColorType::kBGRA_1010102 == combo.fColorType) {
+            // We allow using a GL_RGBA8 or GR_GL_RGB10_A2 texture as BGRA on desktop GL but not ES
+            if (kGL_GrGLStandard != standard &&
+                (GR_GL_RGBA8 == combo.fFormat || GR_GL_RGB10_A2 == combo.fFormat)) {
                 continue;
             }
         }
@@ -914,7 +919,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kBGRA_8888,        VK_FORMAT_B8G8R8A8_UNORM,           SkColors::kBlue     },
 
-        { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32, { 0.5f, 0, 0, 1.0f }},
+        { GrColorType::kRGBA_1010102,     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+                                                                      { 0.25f, 0.5f, 0.75f, 1.0f }},
+        { GrColorType::kBGRA_1010102,     VK_FORMAT_A2R10G10B10_UNORM_PACK32,
+                                                                      { 0.25f, 0.5f, 0.75f, 1.0f }},
         { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed      },
 
         { GrColorType::kABGR_4444,        VK_FORMAT_R4G4B4A4_UNORM_PACK16,    SkColors::kCyan     },

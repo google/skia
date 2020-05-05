@@ -22,6 +22,7 @@ bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
         case VK_FORMAT_R8G8B8_UNORM:              return GrColorType::kRGB_888x == colorType;
         case VK_FORMAT_R8G8_UNORM:                return GrColorType::kRG_88 == colorType;
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:  return GrColorType::kRGBA_1010102 == colorType;
+        case VK_FORMAT_A2R10G10B10_UNORM_PACK32:  return GrColorType::kBGRA_1010102 == colorType;
         case VK_FORMAT_R5G6B5_UNORM_PACK16:       return GrColorType::kBGR_565 == colorType;
         // R4G4B4A4 is not required to be supported so we actually
         // store RGBA_4444 data as B4G4R4A4.
@@ -56,6 +57,7 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_R8G8B8_UNORM:
         case VK_FORMAT_R8G8_UNORM:
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+        case VK_FORMAT_A2R10G10B10_UNORM_PACK32:
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:

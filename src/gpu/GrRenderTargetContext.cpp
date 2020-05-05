@@ -228,6 +228,7 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
         case GrColorType::kABGR_4444:
         case GrColorType::kBGRA_8888:
         case GrColorType::kRGBA_1010102:
+        case GrColorType::kBGRA_1010102:
         case GrColorType::kRGBA_F16:
         case GrColorType::kRGBA_F16_Clamped:
             return GrColorType::kRGBA_8888;

@@ -760,6 +760,9 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
         case MTLPixelFormatRG8Unorm:        return GrColorType::kRG_88;
         case MTLPixelFormatBGRA8Unorm:      return GrColorType::kBGRA_8888;
         case MTLPixelFormatRGB10A2Unorm:    return GrColorType::kRGBA_1010102;
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBGR10A2Unorm:    return GrColorType::kBGRA_1010102;
+#endif
         case MTLPixelFormatR16Float:        return GrColorType::kR_F16;
         case MTLPixelFormatRGBA16Float:     return GrColorType::kRGBA_F16;
         case MTLPixelFormatR16Unorm:        return GrColorType::kR_16;

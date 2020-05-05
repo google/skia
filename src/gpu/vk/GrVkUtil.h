@@ -97,6 +97,7 @@ static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {
         case VK_FORMAT_R8G8B8_UNORM:             return "R8G8B8_UNORM";
         case VK_FORMAT_R8G8_UNORM:               return "R8G8_UNORM";
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return "A2B10G10R10_UNORM_PACK32";
+        case VK_FORMAT_A2R10G10B10_UNORM_PACK32: return "A2R10G10B10_UNORM_PACK32";
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:    return "B4G4R4A4_UNORM_PACK16";
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:    return "R4G4B4A4_UNORM_PACK16";
         case VK_FORMAT_R32G32B32A32_SFLOAT:      return "R32G32B32A32_SFLOAT";
