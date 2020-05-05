@@ -25,6 +25,7 @@ private:
 
     ASTNode::ID fRoot;
 
+    friend class ASTBuilder;
     friend class IRGenerator;
     friend class Parser;
 };

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLASTBuilder.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include "tests/Test.h"
@@ -41,6 +42,32 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     }
 }
 
+static void test(skiatest::Reporter* r, std::unique_ptr<SkSL::ASTFile> file,
+                 const SkSL::Program::Settings& settings, const char* expected,
+                 SkSL::Program::Inputs* inputs,
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+    SkSL::Compiler compiler;
+    SkSL::String output;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(file),
+                                                                     settings);
+    if (!program) {
+        SkDebugf("Unexpected error compiling from AST\n%s", compiler.errorText().c_str());
+    }
+    REPORTER_ASSERT(r, program);
+    if (program) {
+        *inputs = program->fInputs;
+        REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+        if (program) {
+            SkSL::String skExpected(expected);
+            if (output != skExpected) {
+                SkDebugf("AST -> GLSL MISMATCH:\n\nexpected:\n'%s'\n\nreceived:\n'%s'",
+                         expected, output.c_str());
+            }
+            REPORTER_ASSERT(r, output == skExpected);
+        }
+    }
+}
+
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Program::Settings settings;
@@ -49,9 +76,35 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
     test(r, src, settings, expected, &inputs, kind);
 }
 
+static void test(skiatest::Reporter* r, std::unique_ptr<SkSL::ASTFile> file,
+                 const GrShaderCaps& caps, const char* expected,
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+    SkSL::Program::Settings settings;
+    settings.fCaps = &caps;
+    SkSL::Program::Inputs inputs;
+    test(r, std::move(file), settings, expected, &inputs, kind);
+}
+
 DEF_TEST(SkSLHelloWorld, r) {
     test(r,
          "void main() { sk_FragColor = half4(0.75); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.75);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLHelloWorldBuilder, r) {
+    SkSL::ASTBuilder b;
+
+    auto main = b.function(b.void_, "main");
+    main,
+    b["sk_FragColor"] = b.half4_(0.75f);
+
+    test(r,
+         b.file(),
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
@@ -118,6 +171,55 @@ DEF_TEST(SkSLFunctions, r) {
          "    float x = 10.0;\n"
          "    bar(x);\n"
          "    sk_FragColor = vec4(x);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLOperatorsBuilder, r) {
+    SkSL::ASTBuilder b;
+
+    auto main = b.function(b.void_, "main");
+    auto x = main.local(b.float_, "x", 1.0f),
+         y = main.local(b.float_, "y", 2.0f),
+         z = main.local(b.int_, "z", 3);
+
+    main,
+    x = x - x + y * z * x * (y - z),
+    y = x / y / z,
+    z = (z / 2 % 3 << 4) >> 2 << 1;
+
+    auto b_ = main.local(b.bool_, "b", (x > 4) == x < 2 || 2 >= b.type("sqrt")(2) && y <= z);
+    main,
+    x += 12,
+    x -= 12,
+    x *= y /= z = 10;
+
+    main, b["sk_FragColor"] = b.half4_(b.half_(x), b.half_(y), b.half_(z), b.half_(b_));
+
+    test(r,
+         b.file(),
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    float x = 1.0, y = 2.0;\n"
+         "    int z = 3;\n"
+         "    x = -6.0;\n"
+         "    y = -1.0;\n"
+         "    z = 8;\n"
+         "    bool b = false == true || 2.0 >= sqrt(2.0);\n"
+         "    x += 12.0;\n"
+         "    x -= 12.0;\n"
+         "    x *= (y /= float(z = 10));\n"
+         "    b ||= false;\n"
+         "    b &&= true;\n"
+         "    b ^^= false;\n"
+         "    z |= 0;\n"
+         "    z &= -1;\n"
+         "    z ^= 0;\n"
+         "    z >>= 2;\n"
+         "    z <<= 4;\n"
+         "    z %= 5;\n"
+         "    x = float((vec2(sqrt(1.0)) , 6));\n"
+         "    z = (vec2(sqrt(1.0)) , 6);\n"
          "}\n");
 }
 

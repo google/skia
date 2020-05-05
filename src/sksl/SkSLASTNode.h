@@ -51,6 +51,7 @@ struct ASTNode {
 
         int fValue;
 
+        friend class ASTBuilder;
         friend struct ASTFile;
         friend struct ASTNode;
         friend class Parser;
