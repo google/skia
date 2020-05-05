@@ -404,14 +404,6 @@
 #  endif
 #endif
 
-#ifndef SK_SIZE_T_SPECIFIER
-#  if defined(_MSC_VER) && !defined(__clang__)
-#    define SK_SIZE_T_SPECIFIER "%Iu"
-#  else
-#    define SK_SIZE_T_SPECIFIER "%zu"
-#  endif
-#endif
-
 #ifndef SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     #define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 0
 #endif
