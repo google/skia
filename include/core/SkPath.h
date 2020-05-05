@@ -1507,12 +1507,18 @@ private:
                 : fVerb(verbs), fPoints(points), fWeights(weights) {
             SkDEBUGCODE(fInitialPoints = fPoints;)
         }
-        void operator++() {
+        RangeIter& operator++() {
             auto verb = static_cast<SkPathVerb>(*fVerb++);
             fPoints += pts_advance_after_verb(verb);
             if (verb == SkPathVerb::kConic) {
                 ++fWeights;
             }
+            return *this;
+        }
+        RangeIter operator++(int) {
+            RangeIter copy = *this;
+            this->operator++();
+            return copy;
         }
         bool operator!=(const RangeIter& that) const {
             return fVerb != that.fVerb;
