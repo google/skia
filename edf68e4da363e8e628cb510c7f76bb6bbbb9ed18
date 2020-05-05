@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3fb8730_e6e2e07e",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-05T20:02:14Z",
+      "side": 1,
+      "message": "nit: I found the previous version simpler to read, but either works.",
+      "range": {
+        "startLine": 485,
+        "startChar": 14,
+        "endLine": 485,
+        "endChar": 22
+      },
+      "revId": "edf68e4da363e8e628cb510c7f76bb6bbbb9ed18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
