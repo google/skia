@@ -118,6 +118,30 @@
       "revId": "921d012445e8275e1fba44804adff0bd841f3673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95652a39_4e5bfc7e",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-05T20:07:37Z",
+      "side": 1,
+      "message": "Sorry for the delay! I have split out the bug fixes discovered from these changes into separate individual CLs.",
+      "parentUuid": "b067a3fd_75b28456",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
