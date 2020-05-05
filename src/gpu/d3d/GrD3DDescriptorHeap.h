@@ -27,6 +27,22 @@ public:
     void freeCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE*);
     void freeGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE*);
 
+    bool canAllocate() { return fFreeCount > 0; }
+    bool ownsHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+        if (handle.ptr < fCPUHeapStart.ptr) {
+            return false;
+        }
+        SIZE_T index = (handle.ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
+        return (index < fHeap->GetDesc().NumDescriptors);
+    }
+    bool ownsHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) {
+        if (handle.ptr < fGPUHeapStart.ptr) {
+            return false;
+        }
+        SIZE_T index = (handle.ptr - fGPUHeapStart.ptr) / fHandleIncrementSize;
+        return (index < fHeap->GetDesc().NumDescriptors);
+    }
+
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
      */
@@ -42,6 +58,9 @@ private:
     gr_cp<ID3D12DescriptorHeap> fHeap;
     size_t fHandleIncrementSize;
     SkBitSet fFreeBlocks;
+    int fFreeCount;
+    D3D12_CPU_DESCRIPTOR_HANDLE fCPUHeapStart;
+    D3D12_GPU_DESCRIPTOR_HANDLE fGPUHeapStart;
 };
 
 #endif
