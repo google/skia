@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00e5e2c4_a03ccb21",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-05T11:14:51Z",
+      "side": 1,
+      "message": "I think you want to check if colorPtr is already defined - if it is, assume we already copied the colors and return early.",
+      "range": {
+        "startLine": 116,
+        "startChar": 6,
+        "endLine": 116,
+        "endChar": 15
+      },
+      "revId": "d6c6f19db5efd7751d58c86e68a01218ceb53452",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
