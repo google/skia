@@ -308,7 +308,7 @@ public:
     };
 
     static const char* LineTypeName(LineType lt) {
-        static const char* gNames[] = { "hori", "vert", "diag" };
+        static constexpr const char* gNames[] = { "hori", "vert", "diag" };
         static_assert(kLineTypeCount == SK_ARRAY_COUNT(gNames), "names_wrong_size");
         return gNames[lt];
     }

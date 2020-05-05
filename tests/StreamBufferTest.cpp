@@ -13,7 +13,7 @@
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 
-static const char* gText = "Four score and seven years ago";
+constexpr char gText[] = "Four score and seven years ago";
 
 static void test_get_data_at_position(skiatest::Reporter* r, SkStreamBuffer* buffer, size_t position,
                                     size_t length) {

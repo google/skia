@@ -1018,13 +1018,13 @@ static const struct luaL_Reg gSkFont_Methods[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char* mode2string(SkTileMode mode) {
-    static const char* gNames[] = { "clamp", "repeat", "mirror", "decal" };
+    static constexpr const char* gNames[] = { "clamp", "repeat", "mirror", "decal" };
     SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gNames));
     return gNames[static_cast<int>(mode)];
 }
 
 static const char* gradtype2string(SkShader::GradientType t) {
-    static const char* gNames[] = {
+    static constexpr const char* gNames[] = {
         "none", "color", "linear", "radial", "radial2", "sweep", "conical"
     };
     SkASSERT((unsigned)t < SK_ARRAY_COUNT(gNames));

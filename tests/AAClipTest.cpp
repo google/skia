@@ -175,7 +175,7 @@ static const SkRegion::Op gRgnOps[] = {
     SkRegion::kReplace_Op
 };
 
-static const char* gRgnOpNames[] = {
+constexpr const char* gRgnOpNames[] = {
     "DIFF", "INTERSECT", "UNION", "XOR", "REVERSE_DIFF", "REPLACE"
 };
 

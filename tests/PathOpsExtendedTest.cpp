@@ -47,14 +47,14 @@ bool SimplifyDebug(const SkPath& one, SkPath* result
                    SkDEBUGPARAMS(bool skipAssert)
                    SkDEBUGPARAMS(const char* testName));
 
-static const char marker[] =
+constexpr char marker[] =
     "</div>\n"
     "\n"
     "<script type=\"text/javascript\">\n"
     "\n"
     "var testDivs = [\n";
 
-static const char* opStrs[] = {
+constexpr const char* opStrs[] = {
     "kDifference_SkPathOp",
     "kIntersect_SkPathOp",
     "kUnion_SkPathOp",
@@ -62,7 +62,7 @@ static const char* opStrs[] = {
     "kReverseDifference_SkPathOp",
 };
 
-static const char* opSuffixes[] = {
+constexpr const char* opSuffixes[] = {
     "d",
     "i",
     "u",

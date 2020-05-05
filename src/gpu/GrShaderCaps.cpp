@@ -91,7 +91,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
     writer->appendBool("Integer Support", fIntegerSupport);
 
-    static const char* kAdvBlendEqInteractionStr[] = {
+    static constexpr const char* kAdvBlendEqInteractionStr[] = {
         "Not Supported",
         "Automatic",
         "General Enable",

@@ -934,7 +934,7 @@ sk_sp<SkTypeface> SkMakeTypefaceFromCTFont(CTFontRef font) {
 }
 
 static const char* map_css_names(const char* name) {
-    static const struct {
+    static constexpr struct {
         const char* fFrom;  // name the caller specified
         const char* fTo;    // "canonical" name we map to
     } gPairs[] = {

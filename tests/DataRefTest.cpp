@@ -229,7 +229,7 @@ DEF_TEST(Data_empty, reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const char gABC[] = "abcdefghijklmnopqrstuvwxyz";
+constexpr char gABC[] = "abcdefghijklmnopqrstuvwxyz";
 
 static void check_abcs(skiatest::Reporter* reporter, const char buffer[], size_t size) {
     REPORTER_ASSERT(reporter, size % 26 == 0);
