@@ -1507,15 +1507,24 @@ private:
                 : fVerb(verbs), fPoints(points), fWeights(weights) {
             SkDEBUGCODE(fInitialPoints = fPoints;)
         }
-        void operator++() {
+        bool operator!=(const RangeIter& that) const {
+            return fVerb != that.fVerb;
+        }
+        bool operator==(const RangeIter& that) const {
+            return fVerb == that.fVerb;
+        }
+        RangeIter& operator++() {
             auto verb = static_cast<SkPathVerb>(*fVerb++);
             fPoints += pts_advance_after_verb(verb);
             if (verb == SkPathVerb::kConic) {
                 ++fWeights;
             }
+            return *this;
         }
-        bool operator!=(const RangeIter& that) const {
-            return fVerb != that.fVerb;
+        RangeIter operator++(int) {
+            RangeIter copy = *this;
+            this->operator++();
+            return copy;
         }
         std::tuple<SkPathVerb, const SkPoint*, const SkScalar*> operator*() const {
             auto verb = static_cast<SkPathVerb>(*fVerb);
