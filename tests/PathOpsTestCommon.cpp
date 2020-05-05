@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsConic.h"
@@ -167,21 +168,18 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
     quadPath->reset();
     SkDCubic cubic;
     SkTArray<SkDQuad, true> quads;
-    SkPath::RawIter iter(cubicPath);
-    uint8_t verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(cubicPath)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 quadPath->moveTo(pts[0].fX, pts[0].fY);
                 continue;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 quadPath->lineTo(pts[1].fX, pts[1].fY);
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 quads.reset();
                 cubic.set(pts);
                 CubicToQuads(cubic, cubic.calcPrecision(), quads);
@@ -193,7 +191,7 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
                     quadPath->quadTo(qPts[0].fX, qPts[0].fY, qPts[1].fX, qPts[1].fY);
                 }
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                  quadPath->close();
                 break;
             default:
@@ -206,21 +204,18 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
 void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
     simplePath->reset();
     SkDCubic cubic;
-    SkPath::RawIter iter(cubicPath);
-    uint8_t verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(cubicPath)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 simplePath->moveTo(pts[0].fX, pts[0].fY);
                 continue;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 simplePath->lineTo(pts[1].fX, pts[1].fY);
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 simplePath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 cubic.set(pts);
                 double tInflects[2];
                 int inflections = cubic.findInflections(tInflects);
@@ -242,7 +237,7 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                 }
                 break;
             }
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                  simplePath->close();
                 break;
             default:
