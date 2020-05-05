@@ -136,7 +136,7 @@ public:
 
 #if GR_TEST_UTILS
     /** Reset GPU stats */
-    void resetGpuStats() const ;
+    void resetGpuStats() const;
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
@@ -147,6 +147,12 @@ public:
     void dumpGpuStats(SkString*) const;
     void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
     void printGpuStats() const;
+
+    /** These are only active if GR_GPU_STATS == 1. */
+    void resetContextStats() const;
+    void dumpContextStats(SkString*) const;
+    void dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void printContextStats() const;
 
     /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
         this is for testing only */

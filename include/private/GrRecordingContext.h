@@ -24,6 +24,7 @@ class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
 class SkArenaAlloc;
+class SkJSONWriter;
 
 class GrRecordingContext : public GrImageContext {
 public:
@@ -129,6 +130,43 @@ protected:
     GrAuditTrail* auditTrail() { return fAuditTrail.get(); }
 
     GrRecordingContext* asRecordingContext() override { return this; }
+
+    class Stats {
+    public:
+        Stats() = default;
+
+#if GR_GPU_STATS
+        void reset() { *this = {}; }
+
+        int numPathMasksGenerated() const { return fNumPathMasksGenerated; }
+        void incNumPathMasksGenerated() { fNumPathMasksGenerated++; }
+
+        int numPathMaskCacheHits() const { return fNumPathMaskCacheHits; }
+        void incNumPathMasksCacheHits() { fNumPathMaskCacheHits++; }
+
+#if GR_TEST_UTILS
+        void dump(SkString* out);
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+#endif
+
+    private:
+        int fNumPathMasksGenerated{0};
+        int fNumPathMaskCacheHits{0};
+
+#else // GR_GPU_STATS
+        void incNumPathMasksGenerated() {}
+        void incNumPathMasksCacheHits() {}
+
+#if GR_TEST_UTILS
+        void dump(SkString*) {}
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {}
+#endif
+#endif // GR_GPU_STATS
+    } fStats;
+
+    Stats* stats() { return &fStats; }
+    const Stats* stats() const { return &fStats; }
+    void dumpJSON(SkJSONWriter*) const;
 
 private:
     OwnedArenas                       fArenas;
