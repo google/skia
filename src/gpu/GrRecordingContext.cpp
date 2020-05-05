@@ -190,3 +190,40 @@ GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
+void GrRecordingContext::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginObject();
+
+    this->onDumpJSON(writer);
+
+    writer->endObject();
+}
+#else
+void GrRecordingContext::dumpJSON(SkJSONWriter*) const { }
+#endif
+
+#if GR_TEST_UTILS
+
+#if GR_CONTEXT_STATS
+
+void GrRecordingContext::Stats::dump(SkString* out) {
+    out->appendf("Num Path Masks Generated: %d\n", fNumPathMasksGenerated);
+    out->appendf("Num Path Mask Cache Hits: %d\n", fNumPathMaskCacheHits);
+}
+
+void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
+                                                  SkTArray<double>* values) {
+    keys->push_back(SkString("path_masks_generated"));
+    values->push_back(fNumPathMasksGenerated);
+
+    keys->push_back(SkString("path_mask_cache_hits"));
+    values->push_back(fNumPathMaskCacheHits);
+}
+
+#endif // GR_CONTEXT_STATS
+#endif // GR_TEST_UTILS
+
