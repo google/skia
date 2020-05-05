@@ -16,6 +16,8 @@
 
 namespace SkSL {
 
+namespace Builder { class File; }
+
 // std::max isn't constexpr in some compilers
 static constexpr size_t Max(size_t a, size_t b) {
     return a > b ? a : b;
@@ -53,6 +55,7 @@ struct ASTNode {
 
         friend struct ASTFile;
         friend struct ASTNode;
+        friend class Builder::File;
         friend class Parser;
     };
 

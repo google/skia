@@ -48,6 +48,11 @@ public:
                         SymbolTable& types,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
+    void convertProgram(Program::Kind kind,
+                        std::unique_ptr<ASTFile> file,
+                        SymbolTable& types,
+                        std::vector<std::unique_ptr<ProgramElement>>* result);
+
     /**
      * If both operands are compile-time constants and can be folded, returns an expression
      * representing the folded value. Otherwise, returns null. Note that unlike most other functions
