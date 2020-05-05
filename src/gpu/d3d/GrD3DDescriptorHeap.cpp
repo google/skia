@@ -29,17 +29,20 @@ GrD3DDescriptorHeap::GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>& heap
                                          unsigned int handleIncrementSize)
     : fHeap(heap)
     , fHandleIncrementSize(handleIncrementSize)
-    , fFreeBlocks(descriptor.NumDescriptors) {
+    , fFreeBlocks(descriptor.NumDescriptors)
+    , fFreeCount(descriptor.NumDescriptors) {
     // set all the bits in freeBlocks
     for (UINT i = 0; i < descriptor.NumDescriptors; ++i) {
         fFreeBlocks.set(i);
     }
+    fCPUHeapStart = fHeap->GetCPUDescriptorHandleForHeapStart();
+    fGPUHeapStart = fHeap->GetGPUDescriptorHandleForHeapStart();
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateCPUHandle() {
     // valid only for non-shader-visible heaps
     SkASSERT(!SkToBool(fHeap->GetDesc().Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
-    D3D12_CPU_DESCRIPTOR_HANDLE handle = fHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_CPU_DESCRIPTOR_HANDLE handle = fCPUHeapStart;
     SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
     SkASSERT(freeBlock);
     handle.ptr += *freeBlock * fHandleIncrementSize;
@@ -49,7 +52,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateCPUHandle() {
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateGPUHandle() {
-    D3D12_GPU_DESCRIPTOR_HANDLE handle = fHeap->GetGPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE handle = fGPUHeapStart;
     SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
     SkASSERT(freeBlock);
     handle.ptr += *freeBlock * fHandleIncrementSize;
@@ -61,22 +64,22 @@ D3D12_GPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::allocateGPUHandle() {
 void GrD3DDescriptorHeap::freeCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE* handle) {
     // valid only for non-shader-visible heaps
     SkASSERT(!SkToBool(fHeap->GetDesc().Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
-    D3D12_CPU_DESCRIPTOR_HANDLE heapStart = fHeap->GetCPUDescriptorHandleForHeapStart();
     // Make sure this handle belongs to this heap
-    SkASSERT(handle->ptr >= heapStart.ptr);
-    SIZE_T index = (handle->ptr - heapStart.ptr) / fHandleIncrementSize;
+    SkASSERT(handle->ptr >= fCPUHeapStart.ptr);
+    SIZE_T index = (handle->ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
     SkASSERT(index < fHeap->GetDesc().NumDescriptors);
     fFreeBlocks.set(index);
+    ++fFreeCount;
     handle->ptr = 0;
 }
 
 void GrD3DDescriptorHeap::freeGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE* handle) {
-    D3D12_GPU_DESCRIPTOR_HANDLE heapStart = fHeap->GetGPUDescriptorHandleForHeapStart();
     // Make sure this handle belongs to this heap
-    SkASSERT(handle->ptr >= heapStart.ptr);
-    SIZE_T index = (handle->ptr - heapStart.ptr) / fHandleIncrementSize;
+    SkASSERT(handle->ptr >= fGPUHeapStart.ptr);
+    SIZE_T index = (handle->ptr - fGPUHeapStart.ptr) / fHandleIncrementSize;
     SkASSERT(index < fHeap->GetDesc().NumDescriptors);
     fFreeBlocks.set(index);
+    ++fFreeCount;
     handle->ptr = 0;
 }
 
