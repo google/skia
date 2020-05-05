@@ -70,6 +70,30 @@
       "revId": "921d012445e8275e1fba44804adff0bd841f3673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8684440_e6da4149",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-05T14:51:34Z",
+      "side": 1,
+      "message": "1) I am new on the team, so I felt like cleanup CLs would be a good way for me to get my feet wet. Please bear with me on a few cleanups here and there. I promise that eventually I will write something more substantial.\n\n2) It caught some real bugs, so maybe not working perfectly after all??\n\n3) I like the principle but I cannot in good faith write an omnibus CL that cleans up every possible facet of the code at once. That sounds like a recipe for rollbacks. Changing one thing at a time seems more appropriate while I am still learning the ropes and things like \"how it should be written\" are clearly opinionated questions with a broad spectrum of possible answers. I imagine my full-rewrite of that code would look quite dissimilar. (Especially if std::string_view is available to me? I haven\u0027t seen that in the codebase much so I don\u0027t know how the team feels about it.)",
+      "parentUuid": "17ef8d67_2e3d1600",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
