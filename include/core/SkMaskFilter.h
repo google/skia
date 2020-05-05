@@ -32,18 +32,6 @@ public:
     static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
                                         bool respectCTM = true);
 
-    /**
-     *  Construct a maskfilter whose effect is to first apply the inner filter and then apply
-     *  the outer filter to the result of the inner's. Returns nullptr on failure.
-     */
-    static sk_sp<SkMaskFilter> MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner);
-
-    /**
-     *  Compose two maskfilters together using a coverage mode. Returns nullptr on failure.
-     */
-    static sk_sp<SkMaskFilter> MakeCombine(sk_sp<SkMaskFilter> filterA, sk_sp<SkMaskFilter> filterB,
-                                           SkCoverageMode mode);
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkMaskFilter_Type;
     }
