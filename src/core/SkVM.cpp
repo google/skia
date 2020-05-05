@@ -2773,7 +2773,11 @@ namespace skvm {
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
-                a->vmovups(r, &constants[instructions[v].immy]);
+                if (instructions[v].immy == 0) {
+                    a->vpxor(r,r,r);
+                } else {
+                    a->vmovups(r, &constants[instructions[v].immy]);
+                }
             } else {
                 SkASSERT(stack_slot[v] != NA);
                 a->vmovups(r, A::Mem{A::rsp, stack_slot[v]*K*4});
@@ -2801,7 +2805,11 @@ namespace skvm {
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
-                a->ldrq(r, &constants[instructions[v].immy]);
+                if (instructions[v].immy == 0) {
+                    a->eor16b(r,r,r);
+                } else {
+                    a->ldrq(r, &constants[instructions[v].immy]);
+                }
             } else {
                 SkASSERT(stack_slot[v] != NA);
                 a->ldrq(r, A::sp, stack_slot[v]);
