@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool OverdrawHandler::canHandle(const char* method, const char* url) {
-    static const char* kBasePath = "/overdraw/";
+    constexpr char kBasePath[] = "/overdraw/";
     return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }

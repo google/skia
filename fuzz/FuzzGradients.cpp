@@ -95,7 +95,7 @@ static void logLinearGradient(const SkPoint pts[2],
     }
     SkDebugf("]\n");
 
-    static const char* gModeName[] = {
+    static constexpr const char* gModeName[] = {
         "kClamp_TileMode", "kRepeat_TileMode", "kMirror_TileMode", "kDecal_TileMode"
     };
     SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gModeName));

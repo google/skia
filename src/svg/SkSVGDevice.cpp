@@ -90,7 +90,7 @@ static SkScalar svg_opacity(SkColor color) {
 }
 
 // Keep in sync with SkPaint::Cap
-static const char* cap_map[]  = {
+constexpr const char* cap_map[]  = {
     nullptr,    // kButt_Cap (default)
     "round", // kRound_Cap
     "square" // kSquare_Cap
@@ -103,7 +103,7 @@ static const char* svg_cap(SkPaint::Cap cap) {
 }
 
 // Keep in sync with SkPaint::Join
-static const char* join_map[] = {
+constexpr const char* join_map[] = {
     nullptr,    // kMiter_Join (default)
     "round", // kRound_Join
     "bevel"  // kBevel_Join

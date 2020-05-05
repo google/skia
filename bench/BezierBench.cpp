@@ -53,10 +53,10 @@ class BezierBench : public Benchmark {
     SkScalar fWidth;
 public:
     BezierBench(SkPaint::Cap c, SkPaint::Join j, SkScalar w, DrawProc proc) {
-        static const char* gCapName[] = {
+        static constexpr const char* gCapName[] = {
             "butt", "round", "square"
         };
-        static const char* gJoinName[] = {
+        static constexpr const char* gJoinName[] = {
             "miter", "round", "bevel"
         };
 

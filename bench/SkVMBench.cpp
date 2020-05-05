@@ -13,7 +13,7 @@
 namespace {
 
     enum Mode {Opts, RP, F32, I32_Naive};
-    static const char* kMode_name[] = { "Opts", "RP","F32", "I32_Naive" };
+    constexpr const char* kMode_name[] = { "Opts", "RP","F32", "I32_Naive" };
 
 }
 

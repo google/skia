@@ -19,7 +19,7 @@
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 
-static const char* code = R"(
+static constexpr char code[] = R"(
 uniform half4 color0;
 uniform half4 color1;
 uniform half4 color2;

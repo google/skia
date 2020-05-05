@@ -41,7 +41,7 @@ public:
     };
 
     FilteredRectBench(Type t) : fType(t) {
-        static const char* suffix[] = { "nofilter", "colorfilter", "imagefilter" };
+        static constexpr const char* suffix[] = { "nofilter", "colorfilter", "imagefilter" };
         fName.printf("filteredrect_%s", suffix[t]);
         fPaint.setColor(SK_ColorRED);
     }
