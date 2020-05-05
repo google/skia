@@ -761,7 +761,7 @@ void GrResourceCache::getStats(Stats* stats) const {
 }
 
 #if GR_TEST_UTILS
-void GrResourceCache::dumpStats(SkString* out) const {
+void GrResourceCache::dumpStats1(SkString* out) const {
     this->validate();
 
     Stats stats;
@@ -780,7 +780,7 @@ void GrResourceCache::dumpStats(SkString* out) const {
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
 }
 
-void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
+void GrResourceCache::dumpStatsKeyValuePairs1(SkTArray<SkString>* keys,
                                              SkTArray<double>* values) const {
     this->validate();
 
