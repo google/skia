@@ -129,72 +129,62 @@ static SkScalar get_path_weight(int index, const SkPath& path) {
 
 static void add_path_segment(int index, SkPath* path) {
     SkPath result;
-    SkPoint pts[4];
     SkPoint firstPt = { 0, 0 };  // init to avoid warning
     SkPoint lastPt = { 0, 0 };  // init to avoid warning
-    SkPath::Verb verb;
-    SkPath::RawIter iter(*path);
     int counter = -1;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        SkScalar weight  SK_INIT_TO_AVOID_WARNING;
+    SkPoint chop[7];
+    SkConic conicChop[2];
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(*path)) {
         if (++counter == index) {
             switch (verb) {
-                case SkPath::kLine_Verb:
+                case SkPathVerb::kLine:
                     result.lineTo((pts[0].fX + pts[1].fX) / 2, (pts[0].fY + pts[1].fY) / 2);
                     break;
-                case SkPath::kQuad_Verb: {
-                    SkPoint chop[5];
+                case SkPathVerb::kQuad: {
                     SkChopQuadAtHalf(pts, chop);
                     result.quadTo(chop[1], chop[2]);
-                    pts[1] = chop[3];
+                    pts = chop + 2;
                     } break;
-                case SkPath::kConic_Verb: {
-                    SkConic chop[2];
+                case SkPathVerb::kConic: {
                     SkConic conic;
-                    conic.set(pts, iter.conicWeight());
-                    if (!conic.chopAt(0.5f, chop)) {
+                    conic.set(pts, *w);
+                    if (!conic.chopAt(0.5f, conicChop)) {
                         return;
                     }
-                    result.conicTo(chop[0].fPts[1], chop[0].fPts[2], chop[0].fW);
-                    pts[1] = chop[1].fPts[1];
-                    weight = chop[1].fW;
+                    result.conicTo(conicChop[0].fPts[1], conicChop[0].fPts[2], conicChop[0].fW);
+                    pts = conicChop[1].fPts;
+                    w = &conicChop[1].fW;
                     } break;
-                case SkPath::kCubic_Verb: {
-                    SkPoint chop[7];
+                case SkPathVerb::kCubic: {
                     SkChopCubicAtHalf(pts, chop);
                     result.cubicTo(chop[1], chop[2], chop[3]);
-                    pts[1] = chop[4];
-                    pts[2] = chop[5];
+                    pts = chop + 3;
                     } break;
-                case SkPath::kClose_Verb: {
+                case SkPathVerb::kClose: {
                     result.lineTo((lastPt.fX + firstPt.fX) / 2, (lastPt.fY + firstPt.fY) / 2);
                     } break;
                 default:
                     SkASSERT(0);
             }
-        } else if (verb == SkPath::kConic_Verb) {
-            weight = iter.conicWeight();
         }
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 result.moveTo(firstPt = pts[0]);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 result.lineTo(lastPt = pts[1]);
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 result.quadTo(pts[1], lastPt = pts[2]);
                 break;
-            case SkPath::kConic_Verb:
-                result.conicTo(pts[1], lastPt = pts[2], weight);
+            case SkPathVerb::kConic:
+                result.conicTo(pts[1], lastPt = pts[2], *w);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 result.cubicTo(pts[1], pts[2], lastPt = pts[3]);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 result.close();
-                break;
-            case SkPath::kDone_Verb:
                 break;
             default:
                 SkASSERT(0);
@@ -205,34 +195,29 @@ static void add_path_segment(int index, SkPath* path) {
 
 static void delete_path_segment(int index, SkPath* path) {
     SkPath result;
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    SkPath::RawIter iter(*path);
     int counter = -1;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(*path)) {
         if (++counter == index) {
             continue;
         }
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 result.moveTo(pts[0]);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 result.lineTo(pts[1]);
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 result.quadTo(pts[1], pts[2]);
                 break;
-            case SkPath::kConic_Verb:
-                result.conicTo(pts[1], pts[2], iter.conicWeight());
+            case SkPathVerb::kConic:
+                result.conicTo(pts[1], pts[2], *w);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 result.cubicTo(pts[1], pts[2], pts[3]);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 result.close();
-                break;
-            case SkPath::kDone_Verb:
                 break;
             default:
                 SkASSERT(0);

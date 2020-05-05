@@ -1121,17 +1121,14 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
     SkTArray<SkPoint, true> qPts;
     SkAutoConicToQuads      converter;
     const SkPoint*          quadPts;
-    SkPath::RawIter         iter(path);
-    uint8_t                 verb;
-    SkPoint                 pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb: quadPath->moveTo(pts[0].fX, pts[0].fY); break;
-            case SkPath::kLine_Verb: quadPath->lineTo(pts[1].fX, pts[1].fY); break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kMove: quadPath->moveTo(pts[0].fX, pts[0].fY); break;
+            case SkPathVerb::kLine: quadPath->lineTo(pts[1].fX, pts[1].fY); break;
+            case SkPathVerb::kQuad:
                 quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 qPts.reset();
                 convertCubicToQuads(pts, SK_Scalar1, &qPts);
                 for (int i = 0; i < qPts.count(); i += 3) {
@@ -1139,8 +1136,8 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
                             qPts[i + 1].fX, qPts[i + 1].fY, qPts[i + 2].fX, qPts[i + 2].fY);
                 }
                 break;
-            case SkPath::kConic_Verb:
-                quadPts = converter.computeQuads(pts, iter.conicWeight(), SK_Scalar1);
+            case SkPathVerb::kConic:
+                quadPts = converter.computeQuads(pts, *w, SK_Scalar1);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     quadPath->quadTo(quadPts[i * 2 + 1].fX,
                                      quadPts[i * 2 + 1].fY,
@@ -1148,8 +1145,7 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
                                      quadPts[i * 2 + 2].fY);
                 }
                 break;
-            case SkPath::kClose_Verb: quadPath->close(); break;
-            default: SkDEBUGFAIL("bad verb"); return;
+            case SkPathVerb::kClose: quadPath->close(); break;
         }
     }
 }
@@ -1204,19 +1200,16 @@ public:
         fOut->writeDecAsText(ibounds.fBottom);
         fOut->writeText("\">\n");
 
-        SkPath::RawIter iter(quads);
-        uint8_t         verb;
-        SkPoint         pts[4];
-        bool            contourOpen = false;
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        bool contourOpen = false;
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(quads)) {
             switch (verb) {
-                case SkPath::kMove_Verb:
+                case SkPathVerb::kMove:
                     if (contourOpen) {
                         fOut->writeText("      </contour>\n");
                         contourOpen = false;
                     }
                     break;
-                case SkPath::kLine_Verb:
+                case SkPathVerb::kLine:
                     if (!contourOpen) {
                         fOut->writeText("      <contour>\n");
                         this->writePoint(pts[0].fX, pts[0].fY, true);
@@ -1224,7 +1217,7 @@ public:
                     }
                     this->writePoint(pts[1].fX, pts[1].fY, true);
                     break;
-                case SkPath::kQuad_Verb:
+                case SkPathVerb::kQuad:
                     if (!contourOpen) {
                         fOut->writeText("      <contour>\n");
                         this->writePoint(pts[0].fX, pts[0].fY, true);
@@ -1233,7 +1226,7 @@ public:
                     this->writePoint(pts[1].fX, pts[1].fY, false);
                     this->writePoint(pts[2].fX, pts[2].fY, true);
                     break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     if (contourOpen) {
                         fOut->writeText("      </contour>\n");
                         contourOpen = false;

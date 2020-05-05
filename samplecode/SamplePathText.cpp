@@ -10,6 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
@@ -280,35 +281,30 @@ public:
             backpath->reset();
             backpath->setFillType(SkPathFillType::kEvenOdd);
 
-            SkPath::RawIter iter(glyph.fPath);
-            SkPath::Verb verb;
-            SkPoint pts[4];
-
-            while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+            for (auto [verb, pts, w] : SkPathPriv::Iterate(glyph.fPath)) {
                 switch (verb) {
-                    case SkPath::kMove_Verb: {
+                    case SkPathVerb::kMove: {
                         SkPoint pt = fWaves.apply(tsec, matrix, pts[0]);
                         backpath->moveTo(pt.x(), pt.y());
                         break;
                     }
-                    case SkPath::kLine_Verb: {
+                    case SkPathVerb::kLine: {
                         SkPoint endpt = fWaves.apply(tsec, matrix, pts[1]);
                         backpath->lineTo(endpt.x(), endpt.y());
                         break;
                     }
-                    case SkPath::kQuad_Verb: {
+                    case SkPathVerb::kQuad: {
                         SkPoint controlPt = fWaves.apply(tsec, matrix, pts[1]);
                         SkPoint endpt = fWaves.apply(tsec, matrix, pts[2]);
                         backpath->quadTo(controlPt.x(), controlPt.y(), endpt.x(), endpt.y());
                         break;
                     }
-                    case SkPath::kClose_Verb: {
+                    case SkPathVerb::kClose: {
                         backpath->close();
                         break;
                     }
-                    case SkPath::kCubic_Verb:
-                    case SkPath::kConic_Verb:
-                    case SkPath::kDone_Verb:
+                    case SkPathVerb::kCubic:
+                    case SkPathVerb::kConic:
                         SK_ABORT("Unexpected path verb");
                         break;
                 }
