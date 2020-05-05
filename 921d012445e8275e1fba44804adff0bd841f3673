@@ -94,6 +94,30 @@
       "revId": "921d012445e8275e1fba44804adff0bd841f3673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b067a3fd_75b28456",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T15:03:41Z",
+      "side": 1,
+      "message": "Your feet are now wet whether you land this CL or not.  Time to find substance to work on.\n\nstd::string_view is not available.\n\nI completely agree that rewriting one thing at a time is a good way to refactor.  CLs should always be written at the granularity of a revert.",
+      "parentUuid": "d8684440_e6da4149",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
