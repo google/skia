@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a7fe4ef5_6968468a",
+        "filename": "bench/BitmapRegionDecoderBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-05T19:13:39Z",
+      "side": 1,
+      "message": "Sounds fine to me. Done.",
+      "parentUuid": "8ffab821_5f213359",
+      "revId": "ef45d986cec17772fa73aa72e410167d2ae0c43c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a305ea7_0c10340c",
         "filename": "bench/nanobench.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "ef45d986cec17772fa73aa72e410167d2ae0c43c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f9c622_05b8b731",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-05T19:13:39Z",
+      "side": 1,
+      "message": "No, we\u0027ll want to be able to run nanobench in Google3, for example, which doesn\u0027t have this defined.",
+      "parentUuid": "5a305ea7_0c10340c",
+      "revId": "ef45d986cec17772fa73aa72e410167d2ae0c43c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
