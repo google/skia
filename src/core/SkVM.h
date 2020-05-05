@@ -35,6 +35,8 @@ class SkWStream;
     #endif
 #endif
 
+//#undef SKVM_JIT
+
 namespace skvm {
 
     bool fma_supported();
