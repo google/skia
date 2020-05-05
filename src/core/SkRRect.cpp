@@ -157,7 +157,7 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
-    this->scaleRadii(rect);
+    this->scaleRadii();
 }
 
 bool SkRRect::initializeRect(const SkRect& rect) {
@@ -188,7 +188,7 @@ static void flush_to_zero(SkScalar& a, SkScalar& b) {
     }
 }
 
-void SkRRect::scaleRadii(const SkRect& rect) {
+bool SkRRect::scaleRadii() {
     // Proportionally scale down all radii to fit. Find the minimum ratio
     // of a side and the radii on that side (for all four sides) and use
     // that to scale down _all_ the radii. This algorithm is from the
@@ -222,15 +222,13 @@ void SkRRect::scaleRadii(const SkRect& rect) {
     }
 
     // adjust radii may set x or y to zero; set companion to zero as well
-    if (clamp_to_zero(fRadii)) {
-        this->setRect(rect);
-        return;
-    }
+    clamp_to_zero(fRadii);
 
-    // At this point we're either oval, simple, or complex (not empty or rect).
+    // May be simple, oval, or complex, or become a rect/empty if the radii adjustment made them 0
     this->computeType();
 
     SkASSERT(this->isValid());
+    return scale < 1.0;
 }
 
 // This method determines if a point known to be inside the RRect's bounds is
@@ -492,7 +490,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return false;
     }
 
-    dst->scaleRadii(dst->fRect);
+    dst->scaleRadii();
     dst->isValid();
 
     return true;
@@ -808,8 +806,10 @@ SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
         }
     };
 
-    SkRect edges;
-    if (!edges.intersect(a.rect(), b.rect())) {
+    // We fill in the SkRRect directly. Since the rect and radii are either 0s or determined by
+    // valid existing SkRRects, we know we are finite.
+    SkRRect intersection;
+    if (!intersection.fRect.intersect(a.rect(), b.rect())) {
         // Definitely no intersection
         return SkRRect::MakeEmpty();
     }
@@ -826,22 +826,24 @@ SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
     // Same for b's radii. If any corner fails these conditions, we reject the intersection as an
     // rrect. If after determining radii for all 4 corners, they would overlap, we also reject the
     // intersection shape.
-    SkVector radii[4];
     for (auto c : corners) {
-        if (!getIntersectionRadii(edges, c, &radii[c])) {
+        if (!getIntersectionRadii(intersection.fRect, c, &intersection.fRadii[c])) {
             return SkRRect::MakeEmpty(); // Resulting intersection is not a rrect
         }
     }
 
     // Check for radius overlap along the four edges, since the earlier evaluation was only a
-     // one-sided corner check.
-    if (!SkRRect::AreRectAndRadiiValid(edges, radii)) {
+    // one-sided corner check. If they aren't valid, a corner's radii doesn't fit within the rect.
+    // If the radii are scaled, the combination of radii from two adjacent corners doesn't fit.
+    // Normally for a regularly constructed SkRRect, we want this scaling, but in this case it means
+    // the intersection shape is definitively not a round rect.
+    if (!SkRRect::AreRectAndRadiiValid(intersection.fRect, intersection.fRadii) ||
+        intersection.scaleRadii()) {
         return SkRRect::MakeEmpty();
     }
 
     // The intersection is an rrect of the given radii. Potentially all 4 corners could have
     // been simplified to (0,0) radii, making the intersection a rectangle.
-    SkRRect intersection;
-    intersection.setRectRadii(edges, radii);
+    intersection.computeType();
     return intersection;
 }
