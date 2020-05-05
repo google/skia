@@ -22,6 +22,30 @@
       "revId": "edf68e4da363e8e628cb510c7f76bb6bbbb9ed18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "216ea868_508643a1",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-05T21:18:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3fb8730_e6e2e07e",
+      "range": {
+        "startLine": 485,
+        "startChar": 14,
+        "endLine": 485,
+        "endChar": 22
+      },
+      "revId": "edf68e4da363e8e628cb510c7f76bb6bbbb9ed18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
