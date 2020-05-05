@@ -1239,6 +1239,15 @@ static void test_conservative_intersection(skiatest::Reporter* reporter) {
     verify_failure(reporter, a.makeOffset(-8.f, 10.f), b);
     verify_failure(reporter, a.makeOffset(8.f, -10.f), b);
     verify_failure(reporter, a.makeOffset(-8.f, -10.f), b);
+
+    // Another variant of corners overlapping, this is two circles of radius r that overlap by r
+    // pixels (e.g. the leftmost point of the right circle touches the center of the left circle).
+    // The key difference with the above case is that the intersection of the circle bounds have
+    // corners that are contained in both circles, but because it is only r wide, can not satisfy
+    // all corners having radii = r.
+    float r = 100.f;
+    a = SkRRect::MakeOval(SkRect::MakeWH(2*r, 2*r));
+    verify_failure(reporter, a, a.makeOffset(r, 0.f));
 }
 
 DEF_TEST(RoundRect, reporter) {
