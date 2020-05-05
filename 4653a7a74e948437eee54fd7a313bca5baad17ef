@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ba28020_0832f97b",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T13:14:47Z",
+      "side": 1,
+      "message": "Maybe expected + actual, got + want, etc?  Kind of weird to have two \"expected\"s.",
+      "range": {
+        "startLine": 115,
+        "startChar": 22,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "4653a7a74e948437eee54fd7a313bca5baad17ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd0e79e_1630cf5e",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T13:14:47Z",
+      "side": 1,
+      "message": "Just noticed SkData::equals().  Want to use that here?",
+      "revId": "4653a7a74e948437eee54fd7a313bca5baad17ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
