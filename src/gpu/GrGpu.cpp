@@ -845,6 +845,8 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
                                              GrRenderable renderable,
                                              GrMipMapped mipMapped,
                                              GrProtected isProtected,
+                                             GrGpuFinishedProc finishedProc,
+                                             GrGpuFinishedContext finishedContext,
                                              const BackendTextureData* data) {
     const GrCaps* caps = this->caps();
 
@@ -877,14 +879,20 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
     return this->onCreateBackendTexture(dimensions, format, renderable, mipMapped,
-                                        isProtected, data);
+                                        isProtected, std::move(callback), data);
 }
 
 GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
                                                        const GrBackendFormat& format,
                                                        GrMipMapped mipMapped,
                                                        GrProtected isProtected,
+                                                       GrGpuFinishedProc finishedProc,
+                                                       GrGpuFinishedContext finishedContext,
                                                        const BackendTextureData* data) {
     const GrCaps* caps = this->caps();
 
@@ -911,9 +919,12 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
     if (!CompressedDataIsCorrect(dimensions, compressionType, mipMapped, data)) {
         return {};
     }
-
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
     return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped,
-                                                  isProtected, data);
+                                                  isProtected, std::move(callback), data);
 }
 
 GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
