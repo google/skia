@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6deafed_2854ba69",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T13:00:51Z",
+      "side": 0,
+      "message": "This is the sort of thing you probably want to land as a separate CL.  It would be sad to revert it along with the rest of this CL if something in the rest of this CL needs reverting.",
+      "range": {
+        "startLine": 85,
+        "startChar": 38,
+        "endLine": 85,
+        "endChar": 42
+      },
+      "revId": "41e377d1baf0dbf1355ec644a6fe40f6da48fc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
