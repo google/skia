@@ -208,8 +208,11 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         left  = {dstBounds.left(), mid.top(), mid.left()       , mid.bottom()};
         right = {mid.right(),      mid.top(), dstBounds.right(), mid.bottom()};
 
-        // The new 'contentRect' when we're done will be the area between the clears.
-        *contentRect = {dstBounds.left(), top.bottom(), dstBounds.right(), bottom.top()};
+        // The new 'contentRect' when we're done will be the area between the clears in the dst.
+        *contentRect = {dstBounds.left(),
+                        std::max(contentRect->top(), dstBounds.top()),
+                        dstBounds.right(),
+                        std::min(dstBounds.bottom(), contentRect->bottom())};
     } else {
         // This is the same as the x direction code if you turn your head 90 degrees CCW. Swap x and
         // y and swap top/bottom with left/right.
@@ -224,7 +227,10 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         left  = {mid.left(), dstBounds.top(), mid.right(), mid.top()         };
         right = {mid.left(), mid.bottom()   , mid.right(), dstBounds.bottom()};
 
-        *contentRect = {top.right(), dstBounds.top(), bottom.left(), dstBounds.bottom()};
+        *contentRect = {std::max(contentRect->left(), dstBounds.left()),
+                        dstBounds.top(),
+                        std::min(contentRect->right(), dstBounds.right()),
+                        dstBounds.bottom()};
     }
     // Move all the rects from 'srcView' coord system to 'dstRenderTargetContext' coord system.
     mid   .offset(-rtcToSrcOffset);
