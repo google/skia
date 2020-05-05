@@ -33,7 +33,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkShaderMaskFilter.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "tools/Resources.h"
@@ -279,65 +278,6 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
         }
     }
 
-    canvas->restore();
-}
-
-DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
-    // Offscreen surface for making the clip mask and mask filter images
-    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(100, 100));
-    SkPaint maskPaint;
-    maskPaint.setColor(SK_ColorWHITE);
-    maskPaint.setAntiAlias(true);
-
-    // Draw a centered circle for the mask filter
-    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
-    surf->getCanvas()->drawCircle(50.f, 50.f, 50.f, maskPaint);
-    auto maskFilterImage = surf->makeImageSnapshot();
-    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(maskFilterImage->makeShader());
-
-    // Cut out a cross for the clip mask
-    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
-    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 0.f, 40.f, 40.f), maskPaint);
-    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 0.f, 100.f, 40.f), maskPaint);
-    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 60.f, 40.f, 100.f), maskPaint);
-    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 60.f, 100.f, 100.f), maskPaint);
-    auto clipMaskImage = surf->makeImageSnapshot();
-    SkMatrix clipMatrix = SkMatrix::I();
-    SkRect clipBounds = SkRect::MakeWH(100, 100);
-
-    // On the main canvas, save a 100x100 layer three times, applying clip mask, mask filter, or
-    // both, translating across the GM for each configuration. Since the mask filter is provided
-    // on the layer restore paint, it must be ignored by the restore since coverage is not well
-    // defined.
-    canvas->clear(SK_ColorGRAY);
-
-    canvas->translate(25.f, 0.f);
-
-    // Clip mask only
-    SkCanvas::SaveLayerRec rec;
-    rec.fBounds = &clipBounds;
-    rec.fClipMask = clipMaskImage.get();
-    rec.fClipMatrix = &clipMatrix;
-    canvas->saveLayer(rec);
-    canvas->clear(SK_ColorWHITE);
-    canvas->restore();
-
-    canvas->translate(125.f, 0.f);
-
-    // Mask filter only (should be ignored, producing a white square)
-    maskPaint.setMaskFilter(maskFilter);
-    rec.fClipMask = nullptr;
-    rec.fPaint = &maskPaint;
-    canvas->saveLayer(rec);
-    canvas->clear(SK_ColorWHITE);
-    canvas->restore();
-
-    canvas->translate(125.f, 0.f);
-
-    // Both (mask filter is ignored, but clip mask should not, so should look like first draw)
-    rec.fClipMask = clipMaskImage.get();
-    canvas->saveLayer(rec);
-    canvas->clear(SK_ColorWHITE);
     canvas->restore();
 }
 
