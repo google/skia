@@ -22,6 +22,30 @@
       "revId": "921d012445e8275e1fba44804adff0bd841f3673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9079cfd0_a8250d66",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-05T14:25:34Z",
+      "side": 1,
+      "message": "The additional const is necessary. In the original code, \n\n    table[0] \u003d nullptr;\n\nwas perfectly valid and would mutate the passed-in static array. (As you can imagine, this is a very undesirable property.)\nWith constexpr, the array itself is now const and cannot be mutated.\nAs such, removing the const leads to a compile error:\n\n  ../../src/utils/SkParse.cpp:251:9: error: no matching function for call to \u0027lookup_str\u0027\n    if (lookup_str(str, gYes, SK_ARRAY_COUNT(gYes)))\n        ^~~~~~~~~~\n  ../../src/utils/SkParse.cpp:238:13: note: candidate function not viable: no known conversion \n  from \u0027const char *const [3]\u0027 to \u0027const char **\u0027 for 2nd argument\n  static bool lookup_str(const char str[], const char** table, int count)\n              ^",
+      "parentUuid": "0b50b009_57a7301c",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
