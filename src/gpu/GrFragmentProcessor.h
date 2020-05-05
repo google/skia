@@ -490,6 +490,8 @@ public:
 
     TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
 
+    TextureSampler(TextureSampler&&) = default;
+    TextureSampler& operator=(TextureSampler&&) = default;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
     bool operator==(const TextureSampler& that) const {

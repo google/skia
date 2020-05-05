@@ -359,6 +359,8 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 namespace {
 
 template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const char* name) {
+    // DO NOT SUBMIT
+    return 0 != strcmp(name, "ProcessorCloneTest");
     int    count      = strings.count();
     size_t testLen    = strlen(name);
     bool   anyExclude = count == 0;
