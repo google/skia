@@ -200,6 +200,7 @@ var CanvasKit = {
     flush: function() {},
     getSaveCount: function() {},
     makeSurface: function() {},
+    markCTM: function() {},
     restore: function() {},
     restoreToCount: function() {},
     rotate: function() {},

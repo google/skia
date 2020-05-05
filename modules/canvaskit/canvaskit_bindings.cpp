@@ -985,6 +985,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("makeSurface", optional_override([](SkCanvas& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii), nullptr);
         }), allow_raw_pointers())
+        .function("markCTM", optional_override([](SkCanvas& self, std::string marker) {
+            self.markCTM(marker.c_str());
+        }))
+        //.function("findMarkedCTM", &SkCanvas::findMarkedCTM)
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       uintptr_t /* uint8_t* */ pPtr,
                                                       size_t dstRowBytes, int srcX, int srcY) {
