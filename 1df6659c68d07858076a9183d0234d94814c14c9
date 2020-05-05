@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8017ab2a_689b9a26",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-05T17:34:40Z",
+      "side": 1,
+      "message": "maybe mention the intended replacement (clipShader)",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 12,
+        "endChar": 54
+      },
+      "revId": "1df6659c68d07858076a9183d0234d94814c14c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
