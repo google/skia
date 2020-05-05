@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dcc3d176_ec462ec1",
+        "filename": "modules/skparagraph/src/Decorations.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-05T21:03:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d0e977c_3cf1512c",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 2
+      },
+      "revId": "0088569c3c36ee056eab9c83e3269465d5fb2ff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e456b186_6a173c5e",
         "filename": "modules/skparagraph/src/Run.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "0088569c3c36ee056eab9c83e3269465d5fb2ff2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e68a3662_1b674dc5",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-05T21:03:53Z",
+      "side": 1,
+      "message": "I meant at first to keep the textblob generated for painting text to use for calculating gaps.\nBut for now I am not going to use it. \nRemoved...",
+      "parentUuid": "e456b186_6a173c5e",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 63
+      },
+      "revId": "0088569c3c36ee056eab9c83e3269465d5fb2ff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
