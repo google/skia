@@ -844,10 +844,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              GrRenderable renderable,
                                              GrMipMapped mipMapped,
-                                             GrProtected isProtected,
-                                             GrGpuFinishedProc finishedProc,
-                                             GrGpuFinishedContext finishedContext,
-                                             const BackendTextureData* data) {
+                                             GrProtected isProtected) {
     const GrCaps* caps = this->caps();
 
     if (!format.isValid()) {
@@ -859,13 +856,6 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
-        auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
-        if (!caps->areColorTypeAndFormatCompatible(ct, format)) {
-            return {};
-        }
-    }
-
     if (dimensions.isEmpty() || dimensions.width()  > caps->maxTextureSize() ||
                                 dimensions.height() > caps->maxTextureSize()) {
         return {};
@@ -875,16 +865,44 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (!MipMapsAreCorrect(dimensions, mipMapped, data)) {
-        return {};
-    }
+    return this->onCreateBackendTexture(dimensions, format, renderable, mipMapped, isProtected);
+}
+
+bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
+                                 GrGpuFinishedProc finishedProc,
+                                 GrGpuFinishedContext finishedContext,
+                                 const BackendTextureData* data,
+                                 GrRenderable createRenderable) {
+    SkASSERT(data);
+    const GrCaps* caps = this->caps();
 
     sk_sp<GrRefCntedCallback> callback;
     if (finishedProc) {
         callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
     }
-    return this->onCreateBackendTexture(dimensions, format, renderable, mipMapped,
-                                        isProtected, std::move(callback), data);
+
+    if (!backendTexture.isValid()) {
+        return false;
+    }
+
+    if (data->type() == BackendTextureData::Type::kPixmaps) {
+        auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        if (!caps->areColorTypeAndFormatCompatible(ct, backendTexture.getBackendFormat())) {
+            return false;
+        }
+    }
+
+    if (backendTexture.hasMipMaps() && !this->caps()->mipMapSupport()) {
+        return false;
+    }
+
+    GrMipMapped mipMapped = backendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
+    if (!MipMapsAreCorrect(backendTexture.dimensions(), mipMapped, data)) {
+        return false;
+    }
+
+    return this->onUpdateBackendTexture(backendTexture, std::move(callback), data,
+                                        createRenderable);
 }
 
 GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,

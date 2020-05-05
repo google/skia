@@ -3506,9 +3506,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
                                                  GrMipMapped mipMapped,
-                                                 GrProtected isProtected,
-                                                 sk_sp<GrRefCntedCallback> finishedCallback,
-                                                 const BackendTextureData* data) {
+                                                 GrProtected isProtected) {
     // We don't support protected textures in GL.
     if (isProtected == GrProtected::kYes) {
         return {};
@@ -3543,16 +3541,46 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
-    SkASSERT(!data || data->type() != BackendTextureData::Type::kCompressed);
-    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+    // Unbind this texture from the scratch texture unit.
+    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
+
+    auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
+    parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                    fResetTimestampForTextureParameters);
+
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+                            std::move(parameters));
+}
+
+bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                     sk_sp<GrRefCntedCallback> finishedCallback,
+                                     const BackendTextureData* data,
+                                     GrRenderable creatingRenderable) {
+    GrGLTextureInfo info;
+    SkAssertResult(backendTexture.getGLTextureInfo(&info));
+
+    int numMipLevels = 1;
+    if (backendTexture.hasMipMaps()) {
+        numMipLevels =
+                SkMipMap::ComputeLevelCount(backendTexture.width(), backendTexture.height()) + 1;
+    }
+
+    GrGLFormat glFormat = GrGLFormatFromGLEnum(info.fFormat);
+
+    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, info.fID);
+
+    SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
+    if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
         }
-        if (!this->uploadTexData(glFormat, colorType, dimensions.width(), dimensions.height(),
-                                 GR_GL_TEXTURE_2D, 0, 0, dimensions.width(), dimensions.height(),
+        if (!this->uploadTexData(glFormat, colorType, backendTexture.width(),
+                                 backendTexture.height(), GR_GL_TEXTURE_2D, 0, 0,
+                                 backendTexture.width(), backendTexture.height(),
                                  colorType, texels.begin(), texels.count())) {
             GL_CALL(DeleteTextures(1, &info.fID));
             return {};
@@ -3569,34 +3597,28 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
         }
 
         // Make one tight image at the base size and reuse it for smaller levels.
-        GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+        GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
         auto rb = ii.minRowBytes();
-        std::unique_ptr<char[]> pixelStorage(new char[rb * dimensions.height()]);
+        std::unique_ptr<char[]> pixelStorage(new char[rb * backendTexture.height()]);
         if (!GrClearImage(ii, pixelStorage.get(), rb, data->color())) {
             GL_CALL(DeleteTextures(1, &info.fID));
             return {};
         }
 
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-        SkISize levelDimensions = dimensions;
+        SkISize levelDimensions = backendTexture.dimensions();
         for (int i = 0; i < numMipLevels; ++i) {
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
-            levelDimensions = {std::max(1, levelDimensions.width() /2),
-                               std::max(1, levelDimensions.height()/2)};
+            levelDimensions = {std::max(1, levelDimensions.width() / 2),
+                               std::max(1, levelDimensions.height() / 2)};
         }
     }
+
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
-
-    auto parameters = sk_make_sp<GrGLTextureParameters>();
-    // The non-sampler params are still at their default values.
-    parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
-                    fResetTimestampForTextureParameters);
-
-    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
-                            std::move(parameters));
+    return true;
 }
 
 void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {

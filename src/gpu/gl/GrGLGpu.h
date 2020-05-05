@@ -97,7 +97,6 @@ public:
         attribState->enableVertexArrays(this, numAttribs, primitiveRestart);
         return attribState;
     }
-    GrGLAttribArrayState* bindInternalVertexArray(const GrBuffer* indexBuffer, GrPrimitiveRestart);
 
     // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
     GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
@@ -193,9 +192,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             GrMipMapped,
-                                            GrProtected,
-                                            sk_sp<GrRefCntedCallback> finishedCallback,
-                                            const BackendTextureData*) override;
+                                            GrProtected) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
@@ -203,6 +200,11 @@ private:
                                                       GrProtected,
                                                       sk_sp<GrRefCntedCallback> finishedCallback,
                                                       const BackendTextureData*) override;
+
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*,
+                                GrRenderable creatingRenderable) override;
 
     void onResetContext(uint32_t resetBits) override;
 
@@ -321,8 +323,6 @@ private:
                                       const SkIPoint& dstPoint);
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
-
-    static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
     class ProgramCache : public ::SkNoncopyable {
     public:
