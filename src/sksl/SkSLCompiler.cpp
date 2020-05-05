@@ -1437,6 +1437,75 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     return result;
 }
 
+std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::unique_ptr<ASTFile> file,
+                                                  const Program::Settings& settings) {
+    fErrorText = "";
+    fErrorCount = 0;
+    std::vector<std::unique_ptr<ProgramElement>>* inherited;
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    switch (kind) {
+        case Program::kVertex_Kind:
+            inherited = &fVertexInclude;
+            fIRGenerator->fSymbolTable = fVertexSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->start(&settings, inherited);
+            break;
+        case Program::kFragment_Kind:
+            inherited = &fFragmentInclude;
+            fIRGenerator->fSymbolTable = fFragmentSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->start(&settings, inherited);
+            break;
+        case Program::kGeometry_Kind:
+            inherited = &fGeometryInclude;
+            fIRGenerator->fSymbolTable = fGeometrySymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->start(&settings, inherited);
+            break;
+        case Program::kFragmentProcessor_Kind:
+            inherited = nullptr;
+            fIRGenerator->fSymbolTable = fGpuSymbolTable;
+            fIRGenerator->start(&settings, nullptr);
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
+                                         &elements);
+            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+            break;
+        case Program::kPipelineStage_Kind:
+            inherited = &fPipelineInclude;
+            fIRGenerator->fSymbolTable = fPipelineSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->start(&settings, inherited);
+            break;
+        case Program::kGeneric_Kind:
+            inherited = &fInterpreterInclude;
+            fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
+            fIRGenerator->fIntrinsics = &fInterpreterIntrinsics;
+            fIRGenerator->start(&settings, inherited);
+            break;
+    }
+    for (auto& element : elements) {
+        if (element->fKind == ProgramElement::kEnum_Kind) {
+            ((Enum&) *element).fBuiltin = true;
+        }
+    }
+    std::unique_ptr<String> textPtr(new String("No source available"));
+    fSource = textPtr.get();
+    fIRGenerator->convertProgram(kind, std::move(file), *fTypes, &elements);
+    auto result = std::unique_ptr<Program>(new Program(kind,
+                                                       std::move(textPtr),
+                                                       settings,
+                                                       fContext,
+                                                       inherited,
+                                                       std::move(elements),
+                                                       fIRGenerator->fSymbolTable,
+                                                       fIRGenerator->fInputs));
+    if (fErrorCount) {
+        return nullptr;
+    }
+    return result;
+}
+
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
     if (!program.fIsOptimized) {

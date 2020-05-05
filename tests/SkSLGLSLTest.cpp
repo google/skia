@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLASTBuilder.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include "tests/Test.h"
@@ -41,12 +42,47 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     }
 }
 
+static void test(skiatest::Reporter* r, std::unique_ptr<SkSL::ASTFile> file,
+                 const SkSL::Program::Settings& settings, const char* expected,
+                 SkSL::Program::Inputs* inputs,
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+    SkSL::Compiler compiler;
+    SkSL::String output;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(file),
+                                                                     settings);
+    if (!program) {
+        SkDebugf("Unexpected error compiling from AST\n%s", compiler.errorText().c_str());
+    }
+    REPORTER_ASSERT(r, program);
+    if (program) {
+        *inputs = program->fInputs;
+        REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+        if (program) {
+            SkSL::String skExpected(expected);
+            if (output != skExpected) {
+                SkDebugf("AST -> GLSL MISMATCH:\n\nexpected:\n'%s'\n\nreceived:\n'%s'",
+                         expected, output.c_str());
+            }
+            REPORTER_ASSERT(r, output == skExpected);
+        }
+    }
+}
+
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     SkSL::Program::Inputs inputs;
     test(r, src, settings, expected, &inputs, kind);
+}
+
+static void test(skiatest::Reporter* r, std::unique_ptr<SkSL::ASTFile> file,
+                 const GrShaderCaps& caps, const char* expected,
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+    SkSL::Program::Settings settings;
+    settings.fCaps = &caps;
+    SkSL::Program::Inputs inputs;
+    test(r, std::move(file), settings, expected, &inputs, kind);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
@@ -57,6 +93,67 @@ DEF_TEST(SkSLHelloWorld, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor = vec4(0.75);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLHelloWorldBuilder, r) {
+    SkSL::Builder::File f;
+
+    auto main = f.function(f.void_, "main");
+    main,
+    f["sk_FragColor"] = f.half4_(0.75f);
+
+    test(r,
+         f.file(),
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.75);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLControlBuilder, r) {
+    using namespace SkSL::Builder;
+    SkSL::Builder::File f;
+
+    auto main = f.function(f.void_, "main");
+    main,
+    If(f.type("sqrt")(2) > 5),
+        f["sk_FragColor"] = f.half4_(0.75f),
+    Else,
+        Discard,
+    EndIf;
+    auto i = main.local(f.int_, "i", 0);
+    main,
+    While(i < 10),
+        f["sk_FragColor"] *= 0.5f,
+        i = i + 1,
+    EndWhile;
+
+    test(r,
+         f.file(),
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    if (sqrt(2.0) > 5.0) {\n"
+         "        sk_FragColor = vec4(0.75);\n"
+         "    } else {\n"
+         "        discard;\n"
+         "    }\n"
+         "    int i = 0;\n"
+         "    while (i < 10) {\n"
+         "        sk_FragColor *= 0.5;\n"
+         "        i++;\n"
+         "    }\n"
+         "    do {\n"
+         "        sk_FragColor += 0.25;\n"
+         "    } while (sk_FragColor.x < 0.75);\n"
+         "    for (int i = 0;i < 10; i++) {\n"
+         "        if (i % 2 == 1) break; else continue;\n"
+         "    }\n"
+         "    return;\n"
          "}\n");
 }
 
@@ -121,8 +218,73 @@ DEF_TEST(SkSLFunctions, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLOperatorsBuilder, r) {
+    SkSL::Builder::File f;
+
+    auto main = f.function(f.void_, "main");
+    auto x = main.local(f.float_, "x", 1.0f),
+         y = main.local(f.float_, "y", 2.0f),
+         z = main.local(f.int_, "z", 3);
+
+    main,
+    x = x - x + y * z * x * (y - z),
+    y = x / y / z,
+    z = (z / 2 % 3 << 4) >> 2 << 1;
+
+    auto b = main.local(f.bool_, "b", (x > 4) == x < 2 || 2 >= f.type("sqrt")(2) && y <= z);
+    main,
+    x += 12,
+    x -= 12,
+    x *= y /= z = 10;
+
+    // No compound logical operators
+
+    main,
+    b = b || false,
+    b = b && true,
+    b = b != false,
+    z |= 0,
+    z &= -1,
+    z ^= 0,
+    z >>= 2,
+    z <<= 4,
+    z %= 5,
+    x = (f.float2_(f.type("sqrt")(1)), 6),
+    z = (f.float2_(f.type("sqrt")(1)), 6);
+
+//    main, b["sk_FragColor"] = b.half4_(b.half_(x), b.half_(y), b.half_(z), b.half_(b_));
+
+    test(r,
+         f.file(),
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    float x = 1.0, y = 2.0;\n"
+         "    int z = 3;\n"
+         "    x = -6.0;\n"
+         "    y = -1.0;\n"
+         "    z = 8;\n"
+         "    bool b = false == true || 2.0 >= sqrt(2.0);\n"
+         "    x += 12.0;\n"
+         "    x -= 12.0;\n"
+         "    x *= (y /= float(z = 10));\n"
+         "    b ||= false;\n"
+         "    b &&= true;\n"
+         "    b ^^= false;\n"
+         "    z |= 0;\n"
+         "    z &= -1;\n"
+         "    z ^= 0;\n"
+         "    z >>= 2;\n"
+         "    z <<= 4;\n"
+         "    z %= 5;\n"
+         "    x = float((vec2(sqrt(1.0)) , 6));\n"
+         "    z = (vec2(sqrt(1.0)) , 6);\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLOperators, r) {
     test(r,
+         "float sqrt(float);"
          "void main() {"
          "float x = 1, y = 2;"
          "int z = 3;"

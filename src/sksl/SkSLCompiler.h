@@ -122,6 +122,9 @@ public:
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
+    std::unique_ptr<Program> convertProgram(Program::Kind kind, std::unique_ptr<ASTFile> file,
+                                            const Program::Settings& settings);
+
     bool optimize(Program& program);
 
     std::unique_ptr<Program> specialize(Program& program,
