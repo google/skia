@@ -778,7 +778,7 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 }
 
-void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+void GrGpu::Stats::dumpKeyValuePairs1(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
 }

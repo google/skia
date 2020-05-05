@@ -80,24 +80,18 @@ void GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info
 
 
 //////////////////////////////////////////////////////////////////////////////
-
 #if GR_TEST_UTILS
-void GrContextPriv::resetGpuStats() const {
-#if GR_GPU_STATS
-    fContext->fGpu->stats()->reset();
-#endif
-}
 
 void GrContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStats(out);
+    fContext->fResourceCache->dumpStats1(out);
 #endif
 }
 
 void GrContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                 SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    fContext->fResourceCache->dumpStatsKeyValuePairs1(keys, values);
 #endif
 }
 
@@ -105,6 +99,13 @@ void GrContextPriv::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
     SkDebugf("%s", out.c_str());
+}
+
+/////////////////////////////////////////////////
+void GrContextPriv::resetGpuStats() const {
+#if GR_GPU_STATS
+    fContext->fGpu->stats()->reset();
+#endif
 }
 
 void GrContextPriv::dumpGpuStats(SkString* out) const {
@@ -116,7 +117,7 @@ void GrContextPriv::dumpGpuStats(SkString* out) const {
 void GrContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                               SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
+    return fContext->fGpu->stats()->dumpKeyValuePairs1(keys, values);
 #endif
 }
 
@@ -126,6 +127,33 @@ void GrContextPriv::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
+/////////////////////////////////////////////////
+void GrContextPriv::resetContextStats() const {
+#if GR_CONTEXT_STATS
+    fContext->stats()->reset();
+#endif
+}
+
+void GrContextPriv::dumpContextStats(SkString* out) const {
+#if GR_CONTEXT_STATS
+    return fContext->stats()->dump(out);
+#endif
+}
+
+void GrContextPriv::dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                  SkTArray<double>* values) const {
+#if GR_CONTEXT_STATS
+    return fContext->stats()->dumpKeyValuePairs(keys, values);
+#endif
+}
+
+void GrContextPriv::printContextStats() const {
+    SkString out;
+    this->dumpContextStats(&out);
+    SkDebugf("%s", out.c_str());
+}
+
+/////////////////////////////////////////////////
 void GrContextPriv::testingOnly_setTextBlobCacheLimit(size_t bytes) {
     fContext->priv().getTextBlobCache()->setBudget(bytes);
 }

@@ -220,9 +220,9 @@ public:
     void getStats(Stats*) const;
 
 #if GR_TEST_UTILS
-    void dumpStats(SkString*) const;
+    void dumpStats1(SkString*) const;
 
-    void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
+    void dumpStatsKeyValuePairs1(SkTArray<SkString>* keys, SkTArray<double>* value) const;
 #endif
 
 #endif
