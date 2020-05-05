@@ -263,7 +263,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
 }
 
 #if GR_TEST_UTILS
-bool GrMtlFormatIsBGRA(GrMTLPixelFormat mtlFormat) {
+bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;
 }
 
@@ -281,6 +281,9 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR16Float:        return "R16Float";
         case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
         case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBGR10A2Unorm:    return "BGR10A2Unorm";
+#endif
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
 #endif

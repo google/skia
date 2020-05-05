@@ -31,8 +31,9 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
         for (int x = 0; x < w; ++x) {
             uint8_t a = actual[y * actualRowBytes + x];
             uint8_t e = expected[y * w + x];
-            if (GrColorType::kRGBA_1010102 == colorType) {
-                // This config only preserves two bits of alpha
+            if (GrColorType::kRGBA_1010102 == colorType ||
+                GrColorType::kBGRA_1010102 == colorType) {
+                // These configs only preserves two bits of alpha
                 a >>= 6;
                 e >>= 6;
             }

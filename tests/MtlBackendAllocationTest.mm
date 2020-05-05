@@ -49,7 +49,12 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kBGRA_8888,        MTLPixelFormatBGRA8Unorm,      SkColors::kBlue      },
 
-        { GrColorType::kRGBA_1010102,     MTLPixelFormatRGB10A2Unorm,    { 0.5f, 0, 0, 1.0f } },
+        { GrColorType::kRGBA_1010102,     MTLPixelFormatRGB10A2Unorm,
+                                                                    { 0.25f, 0.5f, 0.75f, 1.0f } },
+#ifdef SK_BUILD_FOR_MAC
+        { GrColorType::kBGRA_1010102,     MTLPixelFormatBGR10A2Unorm,
+                                                                    { 0.25f, 0.5f, 0.75f, 1.0f } },
+#endif
 #ifdef SK_BUILD_FOR_IOS
         { GrColorType::kBGR_565,          MTLPixelFormatB5G6R5Unorm,     SkColors::kRed       },
         { GrColorType::kABGR_4444,        MTLPixelFormatABGR4Unorm,      SkColors::kGreen     },
