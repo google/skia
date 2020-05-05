@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d0e977c_3cf1512c",
+        "filename": "modules/skparagraph/src/Decorations.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-05T20:29:47Z",
+      "side": 1,
+      "message": "nit: spacing",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 2
+      },
+      "revId": "0088569c3c36ee056eab9c83e3269465d5fb2ff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e456b186_6a173c5e",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-05T20:29:47Z",
+      "side": 1,
+      "message": "I don\u0027t see where these (or the fTextBlob below on line 223) is used. Perhaps for calculateGaps?",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 63
+      },
+      "revId": "0088569c3c36ee056eab9c83e3269465d5fb2ff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
