@@ -60,7 +60,7 @@
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 
-static DEFINE_string(src, "tests gm skp image", "Source types to test.");
+static DEFINE_string(src, "tests gm skp mskp lottie svg image colorImage", "Source types to test.");
 static DEFINE_bool(nameByHash, false,
                    "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
                    "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");

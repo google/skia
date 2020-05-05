@@ -98,6 +98,10 @@ public:
         SkDebugf(msg);
     }
 
+    GrRecordingContext::Stats* stats() {
+        return &fContext->fStats;
+    }
+
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
     GrRecordingContextPriv(const GrRecordingContextPriv&); // unimpl

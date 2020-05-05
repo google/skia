@@ -1463,6 +1463,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
+        canvas->getGrContext()->priv().dumpContextStats(log);
     }
 
     this->readBack(surface.get(), dst);
@@ -1775,10 +1776,12 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     if (FLAGS_gpuStats) {
         mainCtx->priv().dumpCacheStats(log);
         mainCtx->priv().dumpGpuStats(log);
+        mainCtx->priv().dumpContextStats(log);
 
 #if 0
         otherCtx->priv().dumpCacheStats(log);
         otherCtx->priv().dumpGpuStats(log);
+        otherCtx->priv().dumpContextStats(log);
 #endif
     }
 

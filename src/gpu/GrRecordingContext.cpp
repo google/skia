@@ -190,3 +190,43 @@ GrContext* GrRecordingContextPriv::backdoor() {
     return (GrContext*) fContext;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
+void GrRecordingContext::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginObject();
+
+#if GR_GPU_STATS
+    writer->appendS32("path_masks_generated", this->stats()->numPathMasksGenerated());
+    writer->appendS32("path_mask_cache_hits", this->stats()->numPathMaskCacheHits());
+#endif
+
+    writer->endObject();
+}
+#else
+void GrRecordingContext::dumpJSON(SkJSONWriter*) const { }
+#endif
+
+#if GR_TEST_UTILS
+
+#if GR_GPU_STATS
+
+void GrRecordingContext::Stats::dump(SkString* out) {
+    out->appendf("Num Path Masks Generated: %d\n", fNumPathMasksGenerated);
+    out->appendf("Num Path Mask Cache Hits: %d\n", fNumPathMaskCacheHits);
+}
+
+void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
+                                                  SkTArray<double>* values) {
+    keys->push_back(SkString("path_masks_generated"));
+    values->push_back(fNumPathMasksGenerated);
+
+    keys->push_back(SkString("path_mask_cache_hits"));
+    values->push_back(fNumPathMaskCacheHits);
+}
+
+#endif // GR_GPU_STATS
+#endif // GR_TEST_UTILS
+
