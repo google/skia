@@ -31,6 +31,14 @@
   #endif
 #endif
 
+#if !defined(GR_CONTEXT_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS) || defined(GR_TEST_UTILS)
+      #define GR_CONTEXT_STATS    1
+  #else
+      #define GR_CONTEXT_STATS    0
+  #endif
+#endif
+
 #endif
 
 /**
