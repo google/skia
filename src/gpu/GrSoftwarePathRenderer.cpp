@@ -279,12 +279,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkScalar kx = args.fViewMatrix->get(SkMatrix::kMSkewX);
         SkScalar ky = args.fViewMatrix->get(SkMatrix::kMSkewY);
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 9 + args.fShape->unstyledKeySize(),
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 7 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
-        builder[0] = boundsForMask->fLeft;
-        builder[1] = boundsForMask->fTop;
-        builder[2] = boundsForMask->fRight;
-        builder[3] = boundsForMask->fBottom;
+        builder[0] = boundsForMask->width();
+        builder[1] = boundsForMask->height();
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         // Fractional translate does not affect caching on Android. This is done for better cache
@@ -299,18 +297,18 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
 #endif
-        builder[4] = SkFloat2Bits(sx);
-        builder[5] = SkFloat2Bits(sy);
-        builder[6] = SkFloat2Bits(kx);
-        builder[7] = SkFloat2Bits(ky);
+        builder[2] = SkFloat2Bits(sx);
+        builder[3] = SkFloat2Bits(sy);
+        builder[4] = SkFloat2Bits(kx);
+        builder[5] = SkFloat2Bits(ky);
         // Distinguish between hairline and filled paths. For hairlines, we also need to include
         // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
         // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
         // all cases we might see.
         uint32_t styleBits = args.fShape->style().isSimpleHairline() ?
                              ((args.fShape->style().strokeRec().getCap() << 1) | 1) : 0;
-        builder[8] = fracX | (fracY >> 8) | (styleBits << 16);
-        args.fShape->writeUnstyledKey(&builder[9]);
+        builder[6] = fracX | (fracY >> 8) | (styleBits << 16);
+        args.fShape->writeUnstyledKey(&builder[7]);
     }
 
     sk_sp<GrTextureProxy> proxy;
