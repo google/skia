@@ -55,7 +55,7 @@ public:
 
         fName.printf("constXTile_");
 
-        static const char* gTileModeStr[kSkTileModeCount] = { "C", "R", "M", "D" };
+        static constexpr const char* gTileModeStr[kSkTileModeCount] = { "C", "R", "M", "D" };
         fName.append(gTileModeStr[(unsigned)xTile]);
         fName.append(gTileModeStr[(unsigned)yTile]);
 

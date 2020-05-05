@@ -19,7 +19,7 @@ const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
-    static const char* kLayoutQualifierNames[] = {
+    static constexpr const char* kLayoutQualifierNames[] = {
         "blend_support_screen",
         "blend_support_overlay",
         "blend_support_darken",

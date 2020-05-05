@@ -235,7 +235,7 @@ const char* SkParse::FindScalars(const char str[], SkScalar value[], int count)
     return str;
 }
 
-static bool lookup_str(const char str[], const char** table, int count)
+static bool lookup_str(const char str[], const char* const* table, int count)
 {
     while (--count >= 0)
         if (!strcmp(str, table[count]))
@@ -245,8 +245,8 @@ static bool lookup_str(const char str[], const char** table, int count)
 
 bool SkParse::FindBool(const char str[], bool* value)
 {
-    static const char* gYes[] = { "yes", "1", "true" };
-    static const char* gNo[] = { "no", "0", "false" };
+    static constexpr const char* gYes[] = { "yes", "1", "true" };
+    static constexpr const char* gNo[] = { "no", "0", "false" };
 
     if (lookup_str(str, gYes, SK_ARRAY_COUNT(gYes)))
     {

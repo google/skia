@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool EnableGPUHandler::canHandle(const char* method, const char* url) {
-    static const char* kBasePath = "/enableGPU/";
+    constexpr char kBasePath[] = "/enableGPU/";
     return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }

@@ -256,7 +256,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Preferred Sample Count for Internal MSAA and Mixed Samples",
                       fInternalMultisampleCount);
 
-    static const char* kBlendEquationSupportNames[] = {
+    static constexpr const char* kBlendEquationSupportNames[] = {
         "Basic",
         "Advanced",
         "Advanced Coherent",

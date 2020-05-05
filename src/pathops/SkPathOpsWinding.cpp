@@ -35,7 +35,7 @@ enum class SkOpRayDir {
 };
 
 #if DEBUG_WINDING
-const char* gDebugRayDirName[] = {
+constexpr const char* gDebugRayDirName[] = {
     "kLeft",
     "kTop",
     "kRight",

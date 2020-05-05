@@ -1079,7 +1079,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kCCW_FirstDirection));
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kUnknown_FirstDirection));
 
-    static const char* gDegen[] = {
+    static constexpr const char* gDegen[] = {
         "M 10 10",
         "M 10 10 M 20 20",
         "M 10 10 L 20 20",
@@ -1094,7 +1094,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !SkPathPriv::CheapComputeFirstDirection(path, nullptr));
     }
 
-    static const char* gCW[] = {
+    static constexpr const char* gCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 20",
         "M 10 10 C 20 10 20 20 20 20",
         "M 20 10 Q 20 20 30 20 L 10 20", // test double-back at y-max
@@ -1110,7 +1110,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         check_direction(reporter, path, SkPathPriv::kCW_FirstDirection);
     }
 
-    static const char* gCCW[] = {
+    static constexpr const char* gCCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 -20",
         "M 10 10 C 20 10 20 -20 20 -20",
         "M 20 10 Q 20 20 10 20 L 30 20", // test double-back at y-max

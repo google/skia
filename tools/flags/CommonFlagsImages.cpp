@@ -8,7 +8,7 @@
 bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
 
-    static const char* const exts[] = {
+    static constexpr const char* const exts[] = {
         "bmp",
         "gif",
         "jpg",
