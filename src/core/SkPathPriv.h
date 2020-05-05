@@ -144,6 +144,14 @@ public:
     };
 
     /**
+      * Iterates through a raw range of path verbs, points, and conics. All values are returned
+      * unaltered.
+      *
+      * NOTE: This class's definition will be moved into SkPathPriv once RangeIter is removed.
+    */
+    using RangeIter = SkPath::RangeIter;
+
+    /**
      * Iterable object for traversing verbs, points, and conic weights in a path:
      *
      *   for (auto [verb, pts, weights] : SkPathPriv::Iterate(skPath)) {
