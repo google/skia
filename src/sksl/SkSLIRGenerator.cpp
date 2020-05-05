@@ -2526,10 +2526,17 @@ void IRGenerator::convertProgram(Program::Kind kind,
                                  size_t length,
                                  SymbolTable& types,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+    Parser parser(text, length, types, fErrors);
+    this->convertProgram(kind, parser.file(), types, out);
+}
+
+void IRGenerator::convertProgram(Program::Kind kind,
+                                 std::unique_ptr<ASTFile> file,
+                                 SymbolTable& types,
+                                 std::vector<std::unique_ptr<ProgramElement>>* out) {
     fKind = kind;
     fProgramElements = out;
-    Parser parser(text, length, types, fErrors);
-    fFile = parser.file();
+    fFile = std::move(file);
     if (fErrors.errorCount()) {
         return;
     }

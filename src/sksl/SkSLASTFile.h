@@ -12,6 +12,8 @@
 
 namespace SkSL {
 
+namespace Builder { class File; }
+
 struct ASTFile {
     ASTFile()
         : fRoot(ASTNode::ID::Invalid()) {}
@@ -25,6 +27,7 @@ private:
 
     ASTNode::ID fRoot;
 
+    friend class Builder::File;
     friend class IRGenerator;
     friend class Parser;
 };
