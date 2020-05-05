@@ -27,7 +27,7 @@ const struct Legal {
 bool gEasy = false;  // set to true while debugging to suppress unusual whitespace
 
 // mostly do nothing, then bias towards spaces
-const char gWhiteSpace[] = { 0, 0, 0, 0, 0, 0, 0, 0, ' ', ' ', ' ', ' ', 0x09, 0x0D, 0x0A };
+constexpr char gWhiteSpace[] = { 0, 0, 0, 0, 0, 0, 0, 0, ' ', ' ', ' ', ' ', 0x09, 0x0D, 0x0A };
 
 static void add_white(SkRandom* rand, SkString* atom) {
     if (gEasy) {

@@ -238,9 +238,9 @@ private:
             return;
         }
 
-        static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
+        static constexpr const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
-        static const SkColor kLabelColors[kNumLabels] = {
+        static constexpr SkColor kLabelColors[kNumLabels] = {
             SK_ColorRED,
             SK_ColorGREEN,
             SK_ColorBLUE,

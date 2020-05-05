@@ -15,7 +15,7 @@
 
 #include <vector>
 
-static const char* gNames[] = {
+constexpr const char* gNames[] = {
     "images/mandrill_512_q075.jpg",
     "images/dog.jpg",
 };

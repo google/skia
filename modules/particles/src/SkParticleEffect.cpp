@@ -27,7 +27,7 @@ static inline uint32_t float_to_bits(float f) {
     return u;
 }
 
-static const char* kCommonHeader =
+constexpr char kCommonHeader[] =
 R"(
 struct Effect {
   float  age;
@@ -59,7 +59,7 @@ float rand(inout uint seed) {
 }
 )";
 
-static const char* kParticleHeader =
+constexpr char kParticleHeader[] =
 R"(
 struct Particle {
   float  age;
@@ -78,7 +78,7 @@ struct Particle {
 uniform Effect effect;
 )";
 
-static const char* kDefaultEffectCode =
+constexpr char kDefaultEffectCode[] =
 R"(void effectSpawn(inout Effect effect) {
 }
 
@@ -86,7 +86,7 @@ void effectUpdate(inout Effect effect) {
 }
 )";
 
-static const char* kDefaultParticleCode =
+constexpr char kDefaultParticleCode[] =
 R"(void spawn(inout Particle p) {
 }
 
