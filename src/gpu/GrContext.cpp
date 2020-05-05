@@ -683,6 +683,9 @@ SkString GrContext::dump() const {
     writer.appendName("gpu");
     this->fGpu->dumpJSON(&writer);
 
+    writer.appendName("context");
+    this->dumpJSON(&writer);
+
     // Flush JSON to the memory stream
     writer.endObject();
     writer.flush();
