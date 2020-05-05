@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a94cd8b_88e7b4cd",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-05T16:56:50Z",
+      "side": 1,
+      "message": "Replace with \u0027replace\u0027?",
+      "range": {
+        "startLine": 77,
+        "startChar": 7,
+        "endLine": 77,
+        "endChar": 13
+      },
+      "revId": "f37c42cfab799cec32df65d3f16d39d699d4cb5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
