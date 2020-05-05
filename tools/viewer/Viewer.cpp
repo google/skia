@@ -1707,7 +1707,12 @@ void Viewer::drawImGui() {
 
                     if (sampleCount != params.fMSAASampleCount) {
                         params.fMSAASampleCount = sampleCount;
-                        paramsChanged = true;
+                        fDeferredActions.push_back([=]() {
+                            fWindow->setRequestedDisplayParams(params);
+                            fWindow->detach();
+                            fWindow->attach(backend_type_for_window(fBackendType));
+                            this->updateTitle();
+                        });
                     }
                 }
 
