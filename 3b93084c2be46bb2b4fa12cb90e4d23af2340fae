@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dea33b10_986cdd02",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-05T12:50:21Z",
+      "side": 1,
+      "message": "I understand its mostly harmless, but written this way, it\u0027s suggestive that somewhere in the loop we might set fImpl to nullptr (which we don\u0027t afaik). I think its clearer, tho a tad longer to do the null-check once separately.\n\nif (fImpl) {\n    while (...)",
+      "range": {
+        "startLine": 497,
+        "startChar": 11,
+        "endLine": 497,
+        "endChar": 25
+      },
+      "revId": "3b93084c2be46bb2b4fa12cb90e4d23af2340fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
