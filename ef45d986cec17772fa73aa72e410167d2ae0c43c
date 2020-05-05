@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ffab821_5f213359",
+        "filename": "bench/BitmapRegionDecoderBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-05T14:39:08Z",
+      "side": 1,
+      "message": "The header is not guarded by SK_ENABLE_ANDROID_UTILS so you will end up with linker errors instead of compile errors since these functions are not defined.  What are your thoughts on guarding the declaration of the class?",
+      "revId": "ef45d986cec17772fa73aa72e410167d2ae0c43c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a305ea7_0c10340c",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-05T14:39:08Z",
+      "side": 1,
+      "message": "can we just assume that all of our internal testing tools will have SK_ENABLE_ANDROID_UTILS defined so we can avoid having all these extra ifdefs?",
+      "revId": "ef45d986cec17772fa73aa72e410167d2ae0c43c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
