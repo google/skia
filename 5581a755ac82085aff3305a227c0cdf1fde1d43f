@@ -213,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "92df0922_a72fcc59",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-05T12:40:03Z",
+      "side": 1,
+      "message": "We provide this color constructor to mimic the syntax from CSS. Internally in canvaskit, everything is 4 floats where possible.",
+      "parentUuid": "970d8976_74b4348b",
+      "range": {
+        "startLine": 20,
+        "startChar": 60,
+        "endLine": 20,
+        "endChar": 63
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6aa0f449_a2694047",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 5
@@ -233,6 +257,30 @@
       "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5f3def_06ed96d0",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-05T12:40:03Z",
+      "side": 1,
+      "message": "this constructor gives you a javascript Float32Array, which I think differs from a normal array in that it will stop you if you try to put a non-float in it. It may also have a slight performance advantage over a regular js array.\n\nit is still possible to pass something like [0.5, 0.5 0.5, 1.0] to any canvaskit function that accepts a color.",
+      "parentUuid": "6aa0f449_a2694047",
+      "range": {
+        "startLine": 28,
+        "startChar": 37,
+        "endLine": 28,
+        "endChar": 80
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
