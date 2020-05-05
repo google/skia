@@ -9,6 +9,7 @@
 #include "include/core/SkPath.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathMeasurePriv.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkTSearch.h"
 
 #define kMaxTValue  0x3FFFFFFF
@@ -174,19 +175,19 @@ static bool cubic_too_curvy(const SkPoint pts[4], SkScalar tolerance) {
 class SkContourMeasureIter::Impl {
 public:
     Impl(const SkPath& path, bool forceClosed, SkScalar resScale)
-            : fIter(path)
+            : fIter(SkPathPriv::Iterate(path).begin())
             , fPath(path)
             , fTolerance(CHEAP_DIST_LIMIT * SkScalarInvert(resScale))
             , fForceClosed(forceClosed) {}
 
-    bool hasNextSegments() const { return fIter.peek() != SkPath::kDone_Verb; }
+    bool hasNextSegments() const { return fIter != SkPathPriv::Iterate(fPath).end(); }
     SkContourMeasure* buildSegments();
 
 private:
-    SkPath::RawIter fIter;
-    SkPath          fPath;
-    SkScalar        fTolerance;
-    bool            fForceClosed;
+    SkPathPriv::RangeIter fIter;
+    SkPath                fPath;
+    SkScalar              fTolerance;
+    bool                  fForceClosed;
 
     // temporary
     SkTDArray<SkContourMeasure::Segment>  fSegments;
@@ -299,7 +300,6 @@ SkScalar SkContourMeasureIter::Impl::compute_line_seg(SkPoint p0, SkPoint p1, Sk
 }
 
 SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
-    SkPoint     pts[4];
     int         ptIndex = -1;
     SkScalar    distance = 0;
     bool        haveSeenClose = fForceClosed;
@@ -316,20 +316,21 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
     fSegments.reset();
     fPts.reset();
 
-    bool done = false;
-    do {
-        if (haveSeenMoveTo && fIter.peek() == SkPath::kMove_Verb) {
+    auto end = SkPathPriv::Iterate(fPath).end();
+    for (; fIter != end; ++fIter) {
+        auto [verb, pts, w] = *fIter;
+        if (haveSeenMoveTo && verb == SkPathVerb::kMove) {
             break;
         }
-        switch (fIter.next(pts)) {
-            case SkPath::kMove_Verb:
+        switch (verb) {
+            case SkPathVerb::kMove:
                 ptIndex += 1;
                 fPts.append(1, pts);
                 SkASSERT(!haveSeenMoveTo);
                 haveSeenMoveTo = true;
                 break;
 
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 SkASSERT(haveSeenMoveTo);
                 SkScalar prevD = distance;
                 distance = this->compute_line_seg(pts[0], pts[1], distance, ptIndex);
@@ -339,7 +340,7 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
                 }
             } break;
 
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 SkASSERT(haveSeenMoveTo);
                 SkScalar prevD = distance;
                 distance = this->compute_quad_segs(pts, distance, 0, kMaxTValue, ptIndex);
@@ -349,9 +350,9 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
                 }
             } break;
 
-            case SkPath::kConic_Verb: {
+            case SkPathVerb::kConic: {
                 SkASSERT(haveSeenMoveTo);
-                const SkConic conic(pts, fIter.conicWeight());
+                const SkConic conic(pts, *w);
                 SkScalar prevD = distance;
                 distance = this->compute_conic_segs(conic, distance, 0, conic.fPts[0],
                                                     kMaxTValue, conic.fPts[2], ptIndex);
@@ -365,7 +366,7 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
                 }
             } break;
 
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 SkASSERT(haveSeenMoveTo);
                 SkScalar prevD = distance;
                 distance = this->compute_cubic_segs(pts, distance, 0, kMaxTValue, ptIndex);
@@ -375,16 +376,12 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
                 }
             } break;
 
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 haveSeenClose = true;
-                break;
-
-            case SkPath::kDone_Verb:
-                done = true;
                 break;
         }
 
-    } while (!done);
+    }
 
     if (!SkScalarIsFinite(distance)) {
         return nullptr;
@@ -393,7 +390,6 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
         return nullptr;
     }
 
-    // Handle the close segment ourselves, since we're using RawIter
     if (haveSeenClose) {
         SkScalar prevD = distance;
         SkPoint firstPt = fPts[0];
