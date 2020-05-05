@@ -124,11 +124,14 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
             SkASSERT(fInstalledTransforms.back().fType == kFloat3x3_GrSLType);
-            if (v.type() == kFloat2_GrSLType) {
-                vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrix.c_str(),
-                                localCoordsStr.c_str());
-            } else {
-                vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(), localCoordsStr.c_str());
+            if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+                if (v.type() == kFloat2_GrSLType) {
+                    vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrix.c_str(),
+                                    localCoordsStr.c_str());
+                } else {
+                    vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(),
+                                    localCoordsStr.c_str());
+                }
             }
             fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
             fTransformInfos.push_back({ v.vsOut(), v.type(), matrix, localCoordsStr, &fp });
