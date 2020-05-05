@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fc63d9b_ea69782f",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-05T14:10:59Z",
+      "side": 0,
+      "message": "hurray!",
+      "range": {
+        "startLine": 267,
+        "startChar": 26,
+        "endLine": 267,
+        "endChar": 34
+      },
+      "revId": "e55e56038cf443251b6e8a85b431df85828067cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
