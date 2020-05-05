@@ -42,7 +42,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() { return SkISize::Make(1000, 950); }
+    SkISize onISize() { return SkISize::Make(400, 950); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath clipSimple;
@@ -73,9 +73,6 @@ protected:
         } gOps[] = {
             {kIntersect_SkClipOp,         "I"},
             {kDifference_SkClipOp,        "D" },
-            {kUnion_SkClipOp,             "U"},
-            {kXOR_SkClipOp,               "X"  },
-            {kReverseDifference_SkClipOp, "R"}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

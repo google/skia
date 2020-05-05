@@ -92,7 +92,6 @@ gm_sources = [
   "$_gm/complexclip.cpp",
   "$_gm/complexclip2.cpp",
   "$_gm/complexclip3.cpp",
-  "$_gm/complexclip4.cpp",
   "$_gm/complexclip_blur_tiled.cpp",
   "$_gm/composeshader.cpp",
   "$_gm/compositor_quads.cpp",
