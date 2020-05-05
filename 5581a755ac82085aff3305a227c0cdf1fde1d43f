@@ -190,6 +190,52 @@
     },
     {
       "key": {
+        "uuid": "970d8976_74b4348b",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-05T12:33:24Z",
+      "side": 1,
+      "message": "is this byte, byte, byte, float ?\n\nOdd. Not at all how skia presents things (we\u0027d have 4 bytes or 4 floats).",
+      "range": {
+        "startLine": 20,
+        "startChar": 60,
+        "endLine": 20,
+        "endChar": 63
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6aa0f449_a2694047",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-05T12:33:24Z",
+      "side": 1,
+      "message": "general question: is color4f a special thing, or could the caller just pass an array of 4 floats?",
+      "range": {
+        "startLine": 28,
+        "startChar": 37,
+        "endLine": 28,
+        "endChar": 80
+      },
+      "revId": "5581a755ac82085aff3305a227c0cdf1fde1d43f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6681e05f_462115dc",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 5
