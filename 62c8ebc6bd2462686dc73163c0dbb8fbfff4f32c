@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d483beaa_c3d393cb",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-05T20:04:28Z",
+      "side": 1,
+      "message": "be",
+      "range": {
+        "startLine": 12,
+        "startChar": 76,
+        "endLine": 12,
+        "endChar": 80
+      },
+      "revId": "62c8ebc6bd2462686dc73163c0dbb8fbfff4f32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24b3b5f_6ce1edf1",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-05T20:04:28Z",
+      "side": 1,
+      "message": "why do we have to do this ?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "62c8ebc6bd2462686dc73163c0dbb8fbfff4f32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1fc33e3_e1c41613",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-05T20:04:28Z",
+      "side": 1,
+      "message": "tabs ?",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 751,
+        "endChar": 7
+      },
+      "revId": "62c8ebc6bd2462686dc73163c0dbb8fbfff4f32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d43be63b_c13f84b6",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-05T20:04:28Z",
+      "side": 1,
+      "message": "This is interesting. In this case we should probably add a system to that we only wait for the upload to complete when a DDL is about to be replayed.",
+      "revId": "62c8ebc6bd2462686dc73163c0dbb8fbfff4f32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
