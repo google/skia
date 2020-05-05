@@ -78,11 +78,11 @@ static DEFINE_int(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 static DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 static DEFINE_double(scale, 1, "Scale the size of the canvas and the zoom level by this factor.");
 
-static const char* header =
+static const char header[] =
 "   accum    median       max       min   stddev  samples  sample_ms  clock  metric  config    bench";
 
-static const char* resultFormat =
-"%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-5s  %-6s  %-9s %s";
+static const char resultFormat[] =
+"%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7zu  %9i  %-5s  %-6s  %-9s %s";
 
 static constexpr int kNumFlushesToPrimeCache = 3;
 
