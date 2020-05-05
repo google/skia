@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool BreakHandler::canHandle(const char* method, const char* url) {
-    static const char* kBasePath = "/break";
+    constexpr char kBasePath[] = "/break";
     return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }

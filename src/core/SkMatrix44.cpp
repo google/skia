@@ -933,10 +933,10 @@ bool SkMatrix44::preserves2dAxisAlignment (SkScalar epsilon) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::dump() const {
-    static const char* format = "|%g %g %g %g|\n"
-                                "|%g %g %g %g|\n"
-                                "|%g %g %g %g|\n"
-                                "|%g %g %g %g|\n";
+    constexpr char format[] = "|%g %g %g %g|\n"
+                              "|%g %g %g %g|\n"
+                              "|%g %g %g %g|\n"
+                              "|%g %g %g %g|\n";
     SkDebugf(format,
              fMat[0][0], fMat[1][0], fMat[2][0], fMat[3][0],
              fMat[0][1], fMat[1][1], fMat[2][1], fMat[3][1],

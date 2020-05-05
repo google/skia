@@ -98,14 +98,14 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        const char* gConfigNames[] = { "8888", "565", "4444" };
+        static constexpr const char* gConfigNames[] = { "8888", "565", "4444" };
 
-        constexpr bool gFilters[] = { false, true };
-        static const char* gFilterNames[] = { "point", "bilinear" };
+        static constexpr bool gFilters[] = { false, true };
+        static constexpr const char* gFilterNames[] = { "point", "bilinear" };
 
-        constexpr SkTileMode gModes[] = {
+        static constexpr SkTileMode gModes[] = {
             SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror };
-        static const char* gModeNames[] = { "C", "R", "M" };
+        static constexpr const char* gModeNames[] = { "C", "R", "M" };
 
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(10);

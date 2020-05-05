@@ -164,7 +164,7 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     doc->close();
     sk_sp<SkData> data(buffer.detachAsData());
 
-    static const char* expectations[] = {
+    static constexpr const char* expectations[] = {
         "sRGB IEC61966-2.1",
         "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">test document",
         "<xmp:CreateDate>1999-12-31T23:59:59+00:00</xmp:CreateDate>",
@@ -183,7 +183,7 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     doc->close();
     data = buffer.detachAsData();
 
-    static const char* moreExpectations[] = {
+    constexpr const char* moreExpectations[] = {
         "/Producer (phoney library)",
         "<pdf:Producer>phoney library</pdf:Producer>",
     };
@@ -208,7 +208,7 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
         doc->beginPage(612, 792)->drawColor(SK_ColorCYAN);
     }
     sk_sp<SkData> data(wStream.detachAsData());
-    static const char* expectations[] = {
+    constexpr const char* expectations[] = {
         "<</Title <FEFFD835DCD0D835DCD1D835DCD2D835DCD3D835DCD40020"
             "D835DCD5D835DCD6D835DCD7D835DCD8D835DCD9>",
         "/Author (ABCDE FGHIJ)",
