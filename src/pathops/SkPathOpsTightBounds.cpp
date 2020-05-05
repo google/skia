@@ -4,33 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkPathOpsCommon.h"
 
 bool TightBounds(const SkPath& path, SkRect* result) {
-    SkPath::RawIter iter(path);
     SkRect moveBounds = { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
     bool wellBehaved = true;
-    SkPath::Verb verb;
-    do {
-        SkPoint pts[4];
-        verb = iter.next(pts);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 moveBounds.fLeft = std::min(moveBounds.fLeft, pts[0].fX);
                 moveBounds.fTop = std::min(moveBounds.fTop, pts[0].fY);
                 moveBounds.fRight = std::max(moveBounds.fRight, pts[0].fX);
                 moveBounds.fBottom = std::max(moveBounds.fBottom, pts[0].fY);
                 break;
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
                 if (!wellBehaved) {
                     break;
                 }
                 wellBehaved &= between(pts[0].fX, pts[1].fX, pts[2].fX);
                 wellBehaved &= between(pts[0].fY, pts[1].fY, pts[2].fY);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 if (!wellBehaved) {
                     break;
                 }
@@ -42,7 +39,7 @@ bool TightBounds(const SkPath& path, SkRect* result) {
             default:
                 break;
         }
-    } while (verb != SkPath::kDone_Verb);
+    }
     if (wellBehaved) {
         *result = path.getBounds();
         return true;

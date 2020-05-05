@@ -9,6 +9,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -2838,37 +2839,35 @@ static void output_points(const SkPoint* pts, int count) {
     }
 }
 
-static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
-    uint8_t verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+static void showPathContours(const SkPath& path, const char* pathName) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 SkDebugf("    %s.moveTo(", pathName);
                 output_points(&pts[0], 1);
                 SkDebugf(");\n");
                 continue;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 SkDebugf("    %s.lineTo(", pathName);
                 output_points(&pts[1], 1);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 SkDebugf("    %s.quadTo(", pathName);
                 output_points(&pts[1], 2);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kConic:
                 SkDebugf("    %s.conicTo(", pathName);
                 output_points(&pts[1], 2);
-                SkDebugf(", %1.9gf);\n", iter.conicWeight());
+                SkDebugf(", %1.9gf);\n", *w);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 SkDebugf("    %s.cubicTo(", pathName);
                 output_points(&pts[1], 3);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 SkDebugf("    %s.close();\n", pathName);
                 break;
             default:
@@ -2886,7 +2885,6 @@ static const char* gFillTypeStr[] = {
 };
 
 void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
-    SkPath::RawIter iter(path);
 #define SUPPORT_RECT_CONTOUR_DETECTION 0
 #if SUPPORT_RECT_CONTOUR_DETECTION
     int rectCount = path.isRectContours() ? path.rectContours(nullptr, nullptr) : 0;
@@ -2911,8 +2909,7 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         SkDebugf("    SkPath %s;\n", name);
     }
     SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(int)fillType]);
-    iter.setPath(path);
-    showPathContours(iter, name);
+    showPathContours(path, name);
 }
 
 #if DEBUG_DUMP_VERIFY
