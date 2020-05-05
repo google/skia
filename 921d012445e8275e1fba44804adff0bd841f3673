@@ -46,6 +46,30 @@
       "revId": "921d012445e8275e1fba44804adff0bd841f3673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17ef8d67_2e3d1600",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T14:44:50Z",
+      "side": 1,
+      "message": "Ok, but we\u0027re violating a few important principles here:\n\n  1) this code is unimportant, so don\u0027t waste time on it\n  2) this code is working fine, so don\u0027t change it frivolously\n  3) if we\u0027re going to change some code, write it how it should be written\n\n3) is pretty key... incremental refactors like these end up hill climbing code like this into corners that no one would ever write from scratch.  If this were important to rewrite, I expect we\u0027d rewrite it as something like\n\n    for (const char* yes : {\"yes\", \"1\", \"true\"}) {\n        if (0 \u003d\u003d strcmp(str, yes)) {\n            *value \u003d true;\n            return true;\n        }\n    }\n    for (const char* no : {\"no\", \"0\", \"false\"}) {\n        if (0 \u003d\u003d strcmp(str, no)) {\n            *value \u003d false;\n            return true;\n        }\n    }\n    return false;\n\nand delete lookup_str().",
+      "parentUuid": "9079cfd0_a8250d66",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
