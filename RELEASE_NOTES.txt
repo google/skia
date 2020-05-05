@@ -8,6 +8,9 @@ Milestone 84
 
   * <insert new release note here>
 
+  * Remove unused SkMaskFilter helpers: compbine, compose
+    Note: shadermaskfilter will likely be removed next (clipShader should serve)
+
   * Add back SkCanvas::kPreserveLCDText_SaveLayerFlag to indicate that saveLayer()
     will preserve LCD-text. All text in the layer must be drawn on opaque background
     to ensure correct rendering.
