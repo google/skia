@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b50b009_57a7301c",
+        "filename": "src/utils/SkParse.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-05T12:59:32Z",
+      "side": 1,
+      "message": "Please undo this sort of thing.  It\u0027s not important and makes it harder to follow what is important to be const.  In the original it\u0027s clear that the data is const and whether the pointer itself is const or not is unimportant.",
+      "range": {
+        "startLine": 238,
+        "startChar": 41,
+        "endLine": 238,
+        "endChar": 59
+      },
+      "revId": "921d012445e8275e1fba44804adff0bd841f3673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
