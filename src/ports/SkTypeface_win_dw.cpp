@@ -32,6 +32,21 @@
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkDWriteFontFileStream.h"
 
+DWriteFontTypeface::Loaders::~Loaders() {
+    // Don't return if any fail, just keep going to free up as much as possible.
+    HRESULT hr;
+
+    hr = fFactory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get());
+    if (FAILED(hr)) {
+        SK_TRACEHR(hr, "FontCollectionLoader");
+    }
+
+    hr = fFactory->UnregisterFontFileLoader(fDWriteFontFileLoader.get());
+    if (FAILED(hr)) {
+        SK_TRACEHR(hr, "FontFileLoader");
+    }
+}
+
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
@@ -50,10 +65,10 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
 
     desc->setFamilyName(utf8FamilyName.c_str());
     desc->setStyle(this->fontStyle());
-    *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
+    *isLocalStream = SkToBool(fLoaders);
 }
 
-void DWriteFontTypeface::onCharsToGlyphs(const SkUnichar uni[], int count,
+void DWriteFontTypeface::onCharsToGlyphs(const SkUnichar* uni, int count,
                                          SkGlyphID glyphs[]) const {
     fDWriteFontFace->GetGlyphIndices((const UINT32*)uni, count, glyphs);
 }
@@ -317,8 +332,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
                                         newFontFace.get(),
                                         fDWriteFont.get(),
                                         fDWriteFontFamily.get(),
-                                        fDWriteFontFileLoader.get(),
-                                        fDWriteFontCollectionLoader.get());
+                                        fLoaders);
     }
 
 #endif
