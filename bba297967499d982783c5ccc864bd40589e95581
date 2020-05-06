@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9138341_f04f45f4",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T18:21:09Z",
+      "side": 1,
+      "message": "This TODO is probably good. It was the other one (line 617) I wasn\u0027t sure about.",
+      "range": {
+        "startLine": 618,
+        "startChar": 0,
+        "endLine": 618,
+        "endChar": 71
+      },
+      "revId": "bba297967499d982783c5ccc864bd40589e95581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
