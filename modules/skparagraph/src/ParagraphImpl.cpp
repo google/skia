@@ -471,9 +471,6 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
     }
 
     for (auto& line : fLines) {
-        if (&line == &fLines.back() && effectiveAlign == TextAlign::kJustify) {
-            effectiveAlign = line.assumedTextAlign();
-        }
         line.format(effectiveAlign, maxWidth);
     }
 }

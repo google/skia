@@ -2600,6 +2600,42 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView39 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph39"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(
+            "text1 with line break\n"
+            "text2 without line break text without line break text without line break text without line break text without line break text without line break "
+            "text3 with line break\n"
+            "text4 without line break text without line break text without line break text without line break text without line break text without line break "
+            "text5 with line break\n"
+        );
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2638,3 +2674,4 @@ DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
 DEF_SAMPLE(return new ParagraphView38();)
+DEF_SAMPLE(return new ParagraphView39();)

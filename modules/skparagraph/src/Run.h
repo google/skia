@@ -184,7 +184,6 @@ public:
     void resetJustificationShifts() {
         fJustificationShifts.reset();
     }
-
 private:
     friend class ParagraphImpl;
     friend class TextLine;
@@ -213,6 +212,7 @@ private:
     SkSTArray<128, SkPoint, true> fOffsets;
     SkSTArray<128, uint32_t, true> fClusterIndexes;
     SkSTArray<128, SkRect, true> fBounds;
+
     SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
     bool fSpaced;
 };
