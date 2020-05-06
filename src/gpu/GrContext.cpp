@@ -405,7 +405,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      mipMapped, isProtected, nullptr, nullptr, nullptr);
+                                      mipMapped, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -497,6 +497,31 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
     return result;
 }
 
+static GrBackendTexture create_and_update_backend_texture(GrContext* context,
+                                                          SkISize dimensions,
+                                                          const GrBackendFormat& backendFormat,
+                                                          GrMipMapped mipMapped,
+                                                          GrRenderable renderable,
+                                                          GrProtected isProtected,
+                                                          GrGpuFinishedProc finishedProc,
+                                                          GrGpuFinishedContext finishedContext,
+                                                          const GrGpu::BackendTextureData* data) {
+    GrGpu* gpu = context->priv().getGpu();
+
+    GrBackendTexture beTex = gpu->createBackendTexture(dimensions, backendFormat, renderable,
+                                                       mipMapped, isProtected);
+    if (!beTex.isValid()) {
+        return {};
+    }
+
+    if (!context->priv().getGpu()->updateBackendTexture(beTex, finishedProc, finishedContext,
+                                                        data)) {
+        context->deleteBackendTexture(beTex);
+        return {};
+    }
+    return beTex;
+}
+
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  const SkColor4f& color,
@@ -517,8 +542,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     GrGpu::BackendTextureData data(color);
-    return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      mipMapped, isProtected, finishedProc, finishedContext, &data);
+    return create_and_update_backend_texture(this, {width, height}, backendFormat, mipMapped,
+                                             renderable, isProtected, finishedProc, finishedContext,
+                                             &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -592,8 +618,9 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
     GrGpu::BackendTextureData data(srcData);
-    return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable,
-                                      mipMapped, isProtected, finishedProc, finishedContext, &data);
+    return create_and_update_backend_texture(this, {baseWidth, baseHeight}, backendFormat,
+                                             mipMapped, renderable, isProtected, finishedProc,
+                                             finishedContext, &data);
 }
 
 //////////////////////////////////////////////////////////////////////////////

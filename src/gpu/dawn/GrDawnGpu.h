@@ -41,20 +41,6 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    GrBackendTexture onCreateBackendTexture(SkISize dimensions,
-                                            const GrBackendFormat&,
-                                            GrRenderable,
-                                            GrMipMapped,
-                                            GrProtected,
-                                            sk_sp<GrRefCntedCallback> finishedCallback,
-                                            const BackendTextureData*) override;
-    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
-                                                      const GrBackendFormat&,
-                                                      GrMipMapped,
-                                                      GrProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                                      const BackendTextureData*) override;
-
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
@@ -147,6 +133,23 @@ private:
 
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              int sampleCnt) override;
+
+    GrBackendTexture onCreateBackendTexture(SkISize dimensions,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            GrMipMapped,
+                                            GrProtected) override;
+
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*) override;
+
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                      const GrBackendFormat&,
+                                                      GrMipMapped,
+                                                      GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallback,
+                                                      const BackendTextureData*) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType type, GrAccessPattern,
                                       const void* data) override;
