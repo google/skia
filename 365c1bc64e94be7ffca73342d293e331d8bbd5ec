@@ -22,6 +22,30 @@
       "revId": "365c1bc64e94be7ffca73342d293e331d8bbd5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ec8c0b7_ffc56258",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1701,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-06T14:54:38Z",
+      "side": 1,
+      "message": "OK, I\u0027ll reorganize.",
+      "parentUuid": "23fb0430_10b142be",
+      "range": {
+        "startLine": 1701,
+        "startChar": 20,
+        "endLine": 1701,
+        "endChar": 42
+      },
+      "revId": "365c1bc64e94be7ffca73342d293e331d8bbd5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
