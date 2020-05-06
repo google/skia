@@ -52,7 +52,7 @@ using AnimatorScope = std::vector<sk_sp<Animator>>;
 class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
-                     sk_sp<Logger>, sk_sp<MarkerObserver>,
+                     sk_sp<Logger>, sk_sp<MarkerObserver>, sk_sp<PrecompInterceptor>,
                      Animation::Builder::Stats*, const SkSize& comp_size,
                      float duration, float framerate, uint32_t flags);
 
@@ -194,7 +194,8 @@ private:
     const ImageAssetInfo* loadImageAsset(const skjson::ObjectValue&) const;
     sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, LayerInfo*) const;
 
-    sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name) const;
+    sk_sp<sksg::RenderNode> attachExternalPrecompLayer(const skjson::ObjectValue&,
+                                                       const LayerInfo&) const;
 
     sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, LayerInfo*) const;
@@ -226,6 +227,7 @@ private:
     sk_sp<PropertyObserver>    fPropertyObserver;
     sk_sp<Logger>              fLogger;
     sk_sp<MarkerObserver>      fMarkerObserver;
+    sk_sp<PrecompInterceptor>  fPrecompInterceptor;
     Animation::Builder::Stats* fStats;
     const SkSize               fCompSize;
     const float                fDuration,

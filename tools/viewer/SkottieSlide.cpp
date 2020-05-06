@@ -13,6 +13,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/timer/TimeUtils.h"
@@ -97,13 +98,20 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     auto logger = sk_make_sp<Logger>();
     skottie::Animation::Builder builder;
 
+    auto resource_provider =
+            skresources::DataURIResourceProviderProxy::Make(
+                skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                                                        /*predecode=*/true),
+                /*predecode=*/true);
+
+    static constexpr char kInterceptPrefix[] = "__";
+    auto precomp_interceptor =
+            sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(resource_provider,
+                                                                           kInterceptPrefix);
     fAnimation      = builder
             .setLogger(logger)
-            .setResourceProvider(
-                skresources::DataURIResourceProviderProxy::Make(
-                    skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
-                                                              /*predecode=*/true),
-                    /*predecode=*/true))
+            .setResourceProvider(std::move(resource_provider))
+            .setPrecompInterceptor(std::move(precomp_interceptor))
             .makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fWinSize        = SkSize::Make(w, h);
