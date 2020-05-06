@@ -579,6 +579,21 @@ describe('Canvas Behavior', () => {
         }
     };
 
+    it('can mark a CTM and retrieve it', () => {
+        const canvas = new CanvasKit.SkCanvas();
+
+        canvas.concat(CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4));
+        canvas.concat(CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8));
+        canvas.markCTM('krispykreme');
+
+        const expected = CanvasKit.SkM44.multiply(
+          CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4),
+          CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8),
+        );
+
+        expect4x4MatricesToMatch(expected, canvas.findMarkedCTM('krispykreme'));
+    });
+
     it('can change the 4x4 matrix on the canvas and read it back', () => {
         const canvas = new CanvasKit.SkCanvas();
 
@@ -594,8 +609,6 @@ describe('Canvas Behavior', () => {
         );
 
         expect4x4MatricesToMatch(expected, canvas.getLocalToDevice());
-        // TODO(kjlubick) add test for DOMMatrix
-        // TODO(nifong) add more involved test for camera-related math.
     });
 
     gm('concat_with4x4_canvas', (canvas) => {
