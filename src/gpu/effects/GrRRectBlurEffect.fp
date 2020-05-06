@@ -94,7 +94,7 @@ uniform half blurRadius;
             return {};
         }
         SkASSERT(mask.asTextureProxy());
-        SkASSERT(mask.origin() == kMaskOrigin);
+        SkASSERT(mask.origin() == kBottomLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
 
         return mask;
