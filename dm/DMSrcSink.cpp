@@ -1338,7 +1338,9 @@ static Result compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 static DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
+static DEFINE_bool(gpuStatsDump, false, "Append GPU stats to the log for each GPU task?");
 static DEFINE_bool(preAbandonGpuContext, false,
                    "Test abandoning the GrContext before running the test.");
 static DEFINE_bool(abandonGpuContext, false,
@@ -1461,8 +1463,23 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     surface->flush();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->priv().dumpCacheStats(log);
-        canvas->getGrContext()->priv().dumpGpuStats(log);
+        context->priv().dumpCacheStats(log);
+        context->priv().dumpGpuStats(log);
+    }
+    if (FLAGS_gpuStatsDump && !FLAGS_outResultsFile.isEmpty()) {
+        SkString jsonStr = context->dump();
+
+        FILE* file = sk_fopen(FLAGS_outResultsFile[0], kAppend_SkFILE_Flag);
+        if (!file) {
+            return Result::Fatal("Could not open output JSON file.");
+        }
+
+        size_t bytesWritten = sk_fwrite(jsonStr.c_str(), jsonStr.size(), file);
+        sk_fclose(file);
+
+        if (bytesWritten != jsonStr.size()) {
+            return Result::Fatal("Write to JSON file failed.");
+        }
     }
 
     this->readBack(surface.get(), dst);
