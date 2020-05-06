@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37f45711_c9c1f9df",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "nit: wrap comments to 100 cols.",
+      "range": {
+        "startLine": 744,
+        "startChar": 85,
+        "endLine": 744,
+        "endChar": 94
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "114a1624_af1524ce",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "Let\u0027s see if I understand - in the shader, you mark 2 of the uniforms with some special code that says \"plop 16 floats here\" (using layout). The runtime effect will take the canvas\u0027s CTM and copy it into the reserved space for those floats. that\u0027s why we need to have the Array(32).fill logic below, right?",
+      "range": {
+        "startLine": 745,
+        "startChar": 34,
+        "endLine": 745,
+        "endChar": 39
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea21381e_465c951d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "nit: wrap comments to 100 cols",
+      "range": {
+        "startLine": 981,
+        "startChar": 87,
+        "endLine": 981,
+        "endChar": 95
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfb0ec97_ec246599",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "I usually prefer to return null as an explicit \"nothing found here\" marker.",
+      "range": {
+        "startLine": 986,
+        "startChar": 25,
+        "endLine": 986,
+        "endChar": 34
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff489c7d_984f749e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "style:\nif (!found) {\n  return null;\n}",
+      "range": {
+        "startLine": 986,
+        "startChar": 17,
+        "endLine": 986,
+        "endChar": 18
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d96c7e4_e4809cfa",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-06T17:50:34Z",
+      "side": 1,
+      "message": "maybe also add an assert to check that a invalid id returns undefined/null?",
+      "range": {
+        "startLine": 594,
+        "startChar": 8,
+        "endLine": 594,
+        "endChar": 32
+      },
+      "revId": "2ed77f1aeebd440481b6dbdf63160d67aa8c1750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
