@@ -436,6 +436,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
     GrBackendTexture backendTexture;
     CreateBackendTexture(context, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
                          SkColors::kTransparent, GrMipMapped::kNo, renderable, GrProtected::kNo);
+    SkASSERT(backendTexture.isValid());
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(

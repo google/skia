@@ -787,13 +787,8 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                       GrRenderable renderable,
                                                       GrMipMapped mipMapped,
                                                       GrD3DTextureResourceInfo* info,
-                                                      GrProtected isProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                                      const BackendTextureData* data) {
+                                                      GrProtected isProtected) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
-    if (texturable == GrTexturable::kNo) {
-        SkASSERT(!data && mipMapped == GrMipMapped::kNo);
-    }
 
     if (this->protectedContext() != (isProtected == GrProtected::kYes)) {
         return false;
@@ -820,7 +815,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
 
     D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    resourceDesc.Alignment = 0; // use default alignment
+    resourceDesc.Alignment = 0;  // use default alignment
     resourceDesc.Width = dimensions.fWidth;
     resourceDesc.Height = dimensions.fHeight;
     resourceDesc.DepthOrArraySize = 1;
@@ -829,7 +824,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.SampleDesc.Count = 1;
     // quality levels are only supported for tiled resources so ignore for now
     resourceDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
-    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // use driver-selected swizzle
+    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 
     D3D12_CLEAR_VALUE* clearValuePtr = nullptr;
@@ -844,20 +839,14 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
         clearValuePtr = &clearValue;
     }
 
-    D3D12_RESOURCE_STATES initialState =
-        (renderable == GrRenderable::kYes) && !data ? D3D12_RESOURCE_STATE_RENDER_TARGET :
-                                                      D3D12_RESOURCE_STATE_COPY_DEST;
+    D3D12_RESOURCE_STATES initialState = (renderable == GrRenderable::kYes)
+                                                 ? D3D12_RESOURCE_STATE_RENDER_TARGET
+                                                 : D3D12_RESOURCE_STATE_COPY_DEST;
     if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, initialState,
                                                        isProtected, clearValuePtr, info)) {
         SkDebugf("Failed to init texture resource info\n");
         return false;
     }
-
-    if (!data) {
-        return true;
-    }
-
-    // TODO: upload the data and handle finished callback
 
     return true;
 }
@@ -866,9 +855,7 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
                                                   GrMipMapped mipMapped,
-                                                  GrProtected isProtected,
-                                                  sk_sp<GrRefCntedCallback> finishedCallback,
-                                                  const BackendTextureData* data) {
+                                                  GrProtected isProtected) {
     this->handleDirtyContext();
 
     const GrD3DCaps& caps = this->d3dCaps();
@@ -890,12 +877,18 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
                                                       renderable, mipMapped,
-                                                      &info, isProtected,
-                                                      std::move(finishedCallback), data)) {
+                                                      &info, isProtected)) {
         return {};
     }
 
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
+
+bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                      sk_sp<GrRefCntedCallback> finishedCallback,
+                                      const BackendTextureData* data) {
+    // TODO: handle finishedCallback and data upload
+    return true;
 }
 
 GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
@@ -923,8 +916,7 @@ GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
                                                       GrRenderable::kNo, mipMapped,
-                                                      &info, isProtected,
-                                                      std::move(finishedCallback), data)) {
+                                                      &info, isProtected)) {
         return {};
     }
 
@@ -968,7 +960,7 @@ GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, { w, h }, GrTexturable::kNo,
                                                       GrRenderable::kYes, GrMipMapped::kNo,
-                                                      &info, GrProtected::kNo, nullptr, nullptr)) {
+                                                      &info, GrProtected::kNo)) {
         return {};
     }
 

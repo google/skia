@@ -775,12 +775,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
                                                  GrTexturable texturable,
                                                  GrRenderable renderable,
                                                  GrMipMapped mipMapped,
-                                                 GrMtlTextureInfo* info,
-                                                 const BackendTextureData* data) {
+                                                 GrMtlTextureInfo* info) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
-    if (texturable == GrTexturable::kNo) {
-        SkASSERT(!data && mipMapped == GrMipMapped::kNo);
-    }
 
     if (texturable == GrTexturable::kYes && !fMtlCaps->isFormatTexturable(mtlFormat)) {
         return false;
@@ -804,12 +800,36 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         desc.usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
     }
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
+    info->fTexture.reset(GrRetainPtrFromId(testTexture));
+    return true;
+}
 
-    if (!data) {
-        info->fTexture.reset(GrRetainPtrFromId(testTexture));
+GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
+                                                  const GrBackendFormat& format,
+                                                  GrRenderable renderable,
+                                                  GrMipMapped mipMapped,
+                                                  GrProtected isProtected) {
+    const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
-        return true;
+    GrMtlTextureInfo info;
+    if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
+                                                 renderable, mipMapped, &info)) {
+        return {};
     }
+
+    GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
+    return backendTex;
+}
+
+bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                      sk_sp<GrRefCntedCallback> finishedCallback,
+                                      const BackendTextureData* data) {
+    GrMtlTextureInfo info;
+    SkAssertResult(backendTexture.getMtlTextureInfo(&info));
+
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
+
+    const MTLPixelFormat mtlFormat = mtlTexture.pixelFormat;
 
     // Create the transfer buffer
     NSUInteger options = 0;  // TODO: consider other options here
@@ -821,10 +841,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
 #endif
     }
 
-    int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
-    }
+    int numMipLevels = mtlTexture.mipmapLevelCount;
+    GrMipMapped mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
 
@@ -839,12 +857,13 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         if (compression == SkImage::CompressionType::kNone) {
             size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
 
-            transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, dimensions,
+            transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel,
+                                                                  backendTexture.dimensions(),
                                                                   &individualMipOffsets,
                                                                   numMipLevels);
 
         } else {
-            transferBufferSize = SkCompressedDataSize(compression, dimensions,
+            transferBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
                                                       &individualMipOffsets,
                                                       mipMapped == GrMipMapped::kYes);
         }
@@ -875,9 +894,9 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
             if (colorType == GrColorType::kUnknown) {
                 return false;
             }
-            GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+            GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
             auto rb = ii.minRowBytes();
-            transferBufferSize = rb*dimensions.height();
+            transferBufferSize = rb*backendTexture.height();
             transferBuffer = [fDevice newBufferWithLength: transferBufferSize
                                                   options: options];
             if (nil == transferBuffer) {
@@ -889,7 +908,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
             // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.
             individualMipOffsets.push_back_n(numMipLevels, (size_t)0);
         } else {
-            transferBufferSize = SkCompressedDataSize(compression, dimensions,
+            transferBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
                                                       &individualMipOffsets,
                                                       mipMapped == GrMipMapped::kYes);
             SkASSERT(individualMipOffsets.count() == numMipLevels);
@@ -901,7 +920,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
             }
 
             char* buffer = (char*)transferBuffer.contents;
-            GrFillInCompressedData(compression, dimensions, mipMapped, buffer, data->color());
+            GrFillInCompressedData(compression, backendTexture.dimensions(), mipMapped, buffer,
+                                   data->color());
         }
     }
 
@@ -911,7 +931,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
     id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
-    SkISize levelDimensions(dimensions);
+    SkISize levelDimensions(backendTexture.dimensions());
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
         size_t levelRowBytes;
         size_t levelSize;
@@ -934,7 +954,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
                    sourceBytesPerImage: levelSize
                             sourceSize: MTLSizeMake(levelDimensions.width(),
                                                     levelDimensions.height(), 1)
-                             toTexture: testTexture
+                             toTexture: mtlTexture
                       destinationSlice: 0
                       destinationLevel: currentMipLevel
                      destinationOrigin: origin];
@@ -950,27 +970,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
     [cmdBuffer commit];
     transferBuffer = nil;
 
-    info->fTexture.reset(GrRetainPtrFromId(testTexture));
     return true;
-}
-
-GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
-                                                  const GrBackendFormat& format,
-                                                  GrRenderable renderable,
-                                                  GrMipMapped mipMapped,
-                                                  GrProtected isProtected,
-                                                  sk_sp<GrRefCntedCallback> finishedCallback,
-                                                  const BackendTextureData* data) {
-    const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-
-    GrMtlTextureInfo info;
-    if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
-                                                 renderable, mipMapped, &info, data)) {
-        return {};
-    }
-
-    GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
-    return backendTex;
 }
 
 GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
@@ -981,11 +981,19 @@ GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
 
     GrMtlTextureInfo info;
     if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
-                                                 GrRenderable::kNo, mipMapped, &info, data)) {
+                                                 GrRenderable::kNo, mipMapped, &info)) {
         return {};
     }
 
     GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
+
+    if (data) {
+        if (!this->onUpdateBackendTexture(backendTex, std::move(finishedCallback), data)) {
+            this->deleteBackendTexture(backendTex);
+            return {};
+        }
+    }
+
     return backendTex;
 }
 
@@ -1030,7 +1038,7 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     GrMtlTextureInfo info;
     if (!this->createMtlTextureForBackendSurface(format, {w, h}, GrTexturable::kNo,
                                                  GrRenderable::kYes,
-                                                 GrMipMapped::kNo, &info, nullptr)) {
+                                                 GrMipMapped::kNo, &info)) {
         return {};
     }
 

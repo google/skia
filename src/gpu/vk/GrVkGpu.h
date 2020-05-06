@@ -184,15 +184,17 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             GrMipMapped,
-                                            GrProtected,
-                                            sk_sp<GrRefCntedCallback> finishedCallback,
-                                            const BackendTextureData*) override;
+                                            GrProtected) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
                                                       sk_sp<GrRefCntedCallback> finishedCallbacks,
                                                       const BackendTextureData*) override;
+
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*) override;
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
@@ -293,9 +295,7 @@ private:
                                         GrRenderable,
                                         GrMipMapped,
                                         GrVkImageInfo*,
-                                        GrProtected,
-                                        sk_sp<GrRefCntedCallback> finishedCallback,
-                                        const BackendTextureData*);
+                                        GrProtected);
 
     // Creates a new temporary primary command buffer that will be target of all subsequent commands
     // until it is submitted via submitTempCommandBuffer. When the temp command buffer gets

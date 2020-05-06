@@ -597,10 +597,12 @@ public:
                                           const GrBackendFormat&,
                                           GrRenderable,
                                           GrMipMapped,
-                                          GrProtected,
-                                          GrGpuFinishedProc finishedProc,
-                                          GrGpuFinishedContext finishedContext,
-                                          const BackendTextureData*);
+                                          GrProtected);
+
+    bool updateBackendTexture(const GrBackendTexture&,
+                              GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext,
+                              const BackendTextureData*);
 
     /**
      * Same as the createBackendTexture case except compressed backend textures can
@@ -719,13 +721,15 @@ private:
                                                     const GrBackendFormat&,
                                                     GrRenderable,
                                                     GrMipMapped,
-                                                    GrProtected,
-                                                    sk_sp<GrRefCntedCallback> finishedCallback,
-                                                    const BackendTextureData*) = 0;
+                                                    GrProtected) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(
             SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected,
             sk_sp<GrRefCntedCallback> finishedCallback, const BackendTextureData*) = 0;
+
+    virtual bool onUpdateBackendTexture(const GrBackendTexture&,
+                                        sk_sp<GrRefCntedCallback> finishedCallback,
+                                        const BackendTextureData*) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
