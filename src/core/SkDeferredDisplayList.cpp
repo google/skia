@@ -48,12 +48,12 @@ SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrContext* context,
 
 SkDeferredDisplayList::ProgramIterator::~ProgramIterator() {}
 
-void SkDeferredDisplayList::ProgramIterator::compile() {
+bool SkDeferredDisplayList::ProgramIterator::compile() {
     if (!fContext || fIndex < 0 || fIndex >= (int) fProgramData.size()) {
-        return;
+        return false;
     }
 
-    fContext->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
+    return fContext->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
 }
 
 bool SkDeferredDisplayList::ProgramIterator::done() const {
