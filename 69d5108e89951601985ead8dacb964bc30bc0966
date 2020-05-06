@@ -22,6 +22,30 @@
       "revId": "69d5108e89951601985ead8dacb964bc30bc0966",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e363a959_c8983c0b",
+        "filename": "src/pathops/SkOpEdgeBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-06T17:52:03Z",
+      "side": 1,
+      "message": "Done in a separate CL: https://skia-review.googlesource.com/c/skia/+/288178",
+      "parentUuid": "29082831_b78994da",
+      "range": {
+        "startLine": 90,
+        "startChar": 16,
+        "endLine": 90,
+        "endChar": 19
+      },
+      "revId": "69d5108e89951601985ead8dacb964bc30bc0966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
