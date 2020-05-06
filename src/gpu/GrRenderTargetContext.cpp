@@ -1713,8 +1713,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
-        tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma,
-                                rescaleQuality);
+        tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
         if (!tempRTC) {
             callback(context, nullptr);
             return;
@@ -1944,8 +1943,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         auto info = SkImageInfo::Make(dstSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                       dstColorSpace);
         // TODO: Incorporate the YUV conversion into last pass of rescaling.
-        auto tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma,
-                                     rescaleQuality);
+        auto tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
         if (!tempRTC) {
             callback(context, nullptr);
             return;
