@@ -46,6 +46,30 @@
       "revId": "f2fc8bd4316ba73941618b83ba1a81396f1b0635",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74d0eaf4_13623832",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1529,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T18:37:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "712f9f0a_263c53d3",
+      "range": {
+        "startLine": 1529,
+        "startChar": 19,
+        "endLine": 1529,
+        "endChar": 27
+      },
+      "revId": "f2fc8bd4316ba73941618b83ba1a81396f1b0635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
