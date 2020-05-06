@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb57ba16_0ba0ded1",
+        "filename": "gm/lcdtext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T12:55:13Z",
+      "side": 1,
+      "message": "Can someone please triage the images for this new GM? Results are here:\n\nhttps://gold.skia.org/search?blame\u003da91e478ceba1d6637de6b842619918a9800ffce6\u0026fdiffmax\u003d-1\u0026fref\u003dfalse\u0026frgbamax\u003d255\u0026frgbamin\u003d0\u0026head\u003dtrue\u0026include\u003dfalse\u0026limit\u003d50\u0026master\u003dfalse\u0026match\u003dname\u0026metric\u003dcombined\u0026neg\u003dfalse\u0026new_clstore\u003dtrue\u0026offset\u003d0\u0026pos\u003dfalse\u0026query\u003dsource_type%3Dgm\u0026sort\u003ddesc\u0026unt\u003dtrue",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 46
+      },
+      "revId": "a91e478ceba1d6637de6b842619918a9800ffce6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
