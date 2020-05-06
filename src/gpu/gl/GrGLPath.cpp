@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLPath.h"
@@ -106,22 +107,19 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
     SkSTArray<16, GrGLubyte, true> pathCommands(verbCnt);
     SkSTArray<16, GrGLfloat, true> pathCoords(minCoordCnt);
     bool lastVerbWasMove = true; // A path with just "close;" means "moveto(0,0); close;"
-    SkPoint points[4];
-    SkPath::RawIter iter(skPath);
-    SkPath::Verb verb;
-    while ((verb = iter.next(points)) != SkPath::kDone_Verb) {
-        pathCommands.push_back(verb_to_gl_path_cmd(verb));
+    for (auto [verb, points, w] : SkPathPriv::Iterate(skPath)) {
+        pathCommands.push_back(verb_to_gl_path_cmd((SkPath::Verb)verb));
         GrGLfloat coords[6];
         int coordsForVerb;
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 if (checkForDegenerates) {
                     lastVerbWasMove = true;
                 }
                 points_to_coords(points, 0, 1, coords);
                 coordsForVerb = 2;
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (checkForDegenerates) {
                     if (SkPath::IsLineDegenerate(points[0], points[1], true)) {
                         return false;
@@ -132,7 +130,7 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                 points_to_coords(points, 1, 1, coords);
                 coordsForVerb = 2;
                 break;
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kConic:
                 if (checkForDegenerates) {
                     if (SkPath::IsQuadDegenerate(points[0], points[1], points[2], true)) {
                         return false;
@@ -140,10 +138,10 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                     lastVerbWasMove = false;
                 }
                 points_to_coords(points, 1, 2, coords);
-                coords[4] = SkScalarToFloat(iter.conicWeight());
+                coords[4] = SkScalarToFloat(*w);
                 coordsForVerb = 5;
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 if (checkForDegenerates) {
                     if (SkPath::IsQuadDegenerate(points[0], points[1], points[2], true)) {
                         return false;
@@ -153,7 +151,7 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                 points_to_coords(points, 1, 2, coords);
                 coordsForVerb = 4;
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 if (checkForDegenerates) {
                     if (SkPath::IsCubicDegenerate(points[0], points[1], points[2], points[3],
                                                   true)) {
@@ -164,7 +162,7 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                 points_to_coords(points, 1, 3, coords);
                 coordsForVerb = 6;
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 if (checkForDegenerates) {
                     if (lastVerbWasMove) {
                         // Interpret "move(x,y);close;" as "move(x,y);lineto(x,y);close;".
@@ -173,11 +171,8 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                     }
                 }
                 continue;
-            default:
-                SkASSERT(false);  // Not reached.
-                continue;
         }
-        SkDEBUGCODE(numCoords += num_coords(verb));
+        SkDEBUGCODE(numCoords += num_coords((SkPath::Verb)verb));
         SkDEBUGCODE(verify_floats(coords, coordsForVerb));
         pathCoords.push_back_n(coordsForVerb, coords);
     }
