@@ -303,6 +303,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    GrRenderable renderable,
                                                    GrMipMapped mipMapped,
                                                    GrProtected isProtected,
+                                                   sk_sp<GrRefCntedCallback> finishedCallback,
                                                    const BackendTextureData* data) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
@@ -387,11 +388,9 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
-GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                             const GrBackendFormat&,
-                                                             GrMipMapped,
-                                                             GrProtected,
-                                                             const BackendTextureData*) {
+GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(
+        SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected,
+        sk_sp<GrRefCntedCallback> finishedCallback, const BackendTextureData*) {
     return {};
 }
 
@@ -418,7 +417,6 @@ bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width, int height,
                                                                       GrColorType colorType) {
-
     if (width > this->caps()->maxTextureSize() || height > this->caps()->maxTextureSize()) {
         return GrBackendRenderTarget();
     }
