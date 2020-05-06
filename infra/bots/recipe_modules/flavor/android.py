@@ -503,10 +503,15 @@ time.sleep(60)
 
   def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
-    self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; %s%s; echo $? >%src' % (
-            self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
-            self.device_dirs.bin_dir))
+    script = '''
+set -x
+%s%s
+echo $? > %src
+''' % (self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
+       self.device_dirs.bin_dir)
+    if 'GalaxyS20' in self.m.vars.builder_cfg.get('model'):
+      script = 'export LD_PRELOAD=/system/vendor/lib64/libGLES_mali.so' + script
+    self.m.run.writefile(self.m.vars.tmp_dir.join(sh), script)
     self._adb('push %s' % sh,
               'push', self.m.vars.tmp_dir.join(sh), self.device_dirs.bin_dir)
 

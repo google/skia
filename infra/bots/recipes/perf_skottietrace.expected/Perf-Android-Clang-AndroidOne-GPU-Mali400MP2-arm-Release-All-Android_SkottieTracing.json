@@ -449,7 +449,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -459,7 +459,10 @@
     "infra_step": true,
     "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@dm.sh@/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu@@@",
+      "@@@STEP_LOG_LINE@dm.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
@@ -636,7 +639,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -646,7 +649,10 @@
     "infra_step": true,
     "name": "write dm.sh (2)",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@dm.sh@/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu@@@",
+      "@@@STEP_LOG_LINE@dm.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
@@ -823,7 +829,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -833,7 +839,10 @@
     "infra_step": true,
     "name": "write dm.sh (3)",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@dm.sh@/data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu@@@",
+      "@@@STEP_LOG_LINE@dm.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },

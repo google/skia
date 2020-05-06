@@ -1180,7 +1180,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --dummy --flags --properties bot skia-bot-123 key1 value1 task 123456 --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --svgs /sdcard/revenge_of_the_skiabot/svgs --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/dm --dummy --flags --properties bot skia-bot-123 key1 value1 task 123456 --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --svgs /sdcard/revenge_of_the_skiabot/svgs --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -1190,7 +1190,10 @@
     "infra_step": true,
     "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --dummy --flags --properties bot skia-bot-123 key1 value1 task 123456 --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --svgs /sdcard/revenge_of_the_skiabot/svgs --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@dm.sh@/data/local/tmp/dm --dummy --flags --properties bot skia-bot-123 key1 value1 task 123456 --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --svgs /sdcard/revenge_of_the_skiabot/svgs --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out@@@",
+      "@@@STEP_LOG_LINE@dm.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
