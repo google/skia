@@ -44,7 +44,8 @@ public:
         ProgramIterator(GrContext*, SkDeferredDisplayList*);
         ~ProgramIterator();
 
-        void compile();
+        // This returns true if any work was done. Getting a cache hit does not count as work.
+        bool compile();
         bool done() const;
         void next();
 
