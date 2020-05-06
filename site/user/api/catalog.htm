@@ -1988,27 +1988,6 @@
     "name": "SkPath::Iter::setPath",
         "stdout": "quad open:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkDone_Verb \\n\\nconic closed:\\nkMove_Verb {0, 0}, \\nkConic_Verb {0, 0}, {1, 2}, {3, 4}, weight = 0.5\\nkLine_Verb {3, 4}, {0, 0}, \\nkClose_Verb {0, 0}, \\nkDone_Verb \\n\\n"
     },
-        "SkPath_RawIter_conicWeight": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPath path;\n   path.conicTo(1, 2, 3, 4, .5f);\n   SkPath::RawIter iter(path);\n   SkPoint p[4];\n   SkDebugf(\"first verb is \" \"%s\" \"move\\n\", SkPath::kMove_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"next verb is \" \"%s\" \"conic\\n\", SkPath::kConic_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"conic points: {%g,%g}, {%g,%g}, {%g,%g}\\n\", p[0].fX, p[0].fY, p[1].fX, p[1].fY,\n                p[2].fX, p[2].fY);\n   SkDebugf(\"conic weight: %g\\n\", iter.conicWeight());\n}\n",
-    "hash": "69f360a0ba8f40c51ef4cd9f972c5893",
-    "file": "SkPath_Reference",
-    "name": "SkPath::RawIter::conicWeight",
-        "stdout": "first verb is move\\nnext verb is conic\\nconic points: {0,0}, {1,2}, {3,4}\\nconic weight: 0.5\\n"
-    },
-        "SkPath_RawIter_next": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.moveTo(50, 60);\n    path.quadTo(10, 20, 30, 40);\n    path.close();\n    path.lineTo(30, 30);\n    path.conicTo(1, 2, 3, 4, .5f);\n    path.cubicTo(-1, -2, -3, -4, -5, -6);\n    SkPath::RawIter iter(path);\n    const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n    const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n    SkPath::Verb verb;\n    do {\n        SkPoint points[4];\n        verb = iter.next(points);\n        SkDebugf(\"k%s_Verb \", verbStr[(int) verb]);\n        for (int i = 0; i < pointCount[(int) verb]; ++i) {\n            SkDebugf(\"{%1.8g, %1.8g}, \", points[i].fX, points[i].fY);\n        }\n        if (SkPath::kConic_Verb == verb) {\n            SkDebugf(\"weight = %g\", iter.conicWeight());\n        }\n        SkDebugf(\"\\n\");\n    } while (SkPath::kDone_Verb != verb);\n}\n",
-    "hash": "944a80c7ff8c04e1fecc4aec4a47ea60",
-    "file": "SkPath_Reference",
-    "name": "SkPath::RawIter::next()",
-        "stdout": "kMove_Verb {50, 60}, \\nkQuad_Verb {50, 60}, {10, 20}, {30, 40}, \\nkClose_Verb {50, 60}, \\nkMove_Verb {50, 60}, \\nkLine_Verb {50, 60}, {30, 30}, \\nkConic_Verb {30, 30}, {1, 2}, {3, 4}, weight = 0.5\\nkCubic_Verb {3, 4}, {-1, -2}, {-3, -4}, {-5, -6}, \\nkDone_Verb \\n"
-    },
-        "SkPath_RawIter_peek": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.quadTo(10, 20, 30, 40);\n    path.conicTo(1, 2, 3, 4, .5f);\n    path.cubicTo(1, 2, 3, 4, .5, 6);\n    SkPath::RawIter iter(path);\n    SkPath::Verb verb, peek = iter.peek();\n    const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n    do {\n        SkPoint points[4];\n        verb = iter.next(points);\n        SkDebugf(\"peek %s %c= verb %s\\n\", verbStr[peek], peek == verb ? '=' : '!', verbStr[verb]);\n        peek = iter.peek();\n    } while (SkPath::kDone_Verb != verb);\n    SkDebugf(\"peek %s %c= verb %s\\n\", verbStr[peek], peek == verb ? '=' : '!', verbStr[verb]);\n}",
-    "hash": "eb5fa5bea23059ce538e883502f828f5",
-    "file": "SkPath_Reference",
-    "name": "SkPath::RawIter::peek()",
-        "stdout": "peek Move == verb Move\\npeek Quad == verb Quad\\npeek Conic == verb Conic\\npeek Cubic == verb Cubic\\npeek Done == verb Done\\npeek Done == verb Done\\n\\n"
-    },
         "SkPath_SegmentMask": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.conicTo(10, 10, 20, 30, 1);\n    SkDebugf(\"Path kConic_SegmentMask is %s\\n\", path.getSegmentMasks() &\n          SkPath::kConic_SegmentMask ? \"set\" : \"clear\");\n    SkDebugf(\"Path kQuad_SegmentMask is %s\\n\", path.getSegmentMasks() &\n          SkPath::kQuad_SegmentMask ? \"set\" : \"clear\");\n}",
     "hash": "a61e5758574e28190ec4ed8c4ae7e7fa",
