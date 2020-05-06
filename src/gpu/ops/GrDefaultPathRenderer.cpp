@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -148,32 +149,25 @@ public:
     void addPath(const SkPath& path, SkScalar srcSpaceTol) {
         SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
 
-        SkPath::Iter iter(path, false);
-        SkPoint pts[4];
-
-        bool done = false;
-        while (!done) {
-            SkPath::Verb verb = iter.next(pts);
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
-                case SkPath::kMove_Verb:
+                case SkPathVerb::kMove:
                     this->moveTo(pts[0]);
                     break;
-                case SkPath::kLine_Verb:
+                case SkPathVerb::kLine:
                     this->addLine(pts[1]);
                     break;
-                case SkPath::kConic_Verb:
-                    this->addConic(iter.conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
+                case SkPathVerb::kConic:
+                    this->addConic(*w, pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kQuad_Verb:
+                case SkPathVerb::kQuad:
                     this->addQuad(pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kCubic_Verb:
+                case SkPathVerb::kCubic:
                     this->addCubic(pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     break;
-                case SkPath::kDone_Verb:
-                    done = true;
             }
         }
     }
@@ -181,12 +175,8 @@ public:
     static bool PathHasMultipleSubpaths(const SkPath& path) {
         bool first = true;
 
-        SkPath::Iter iter(path, false);
-        SkPath::Verb verb;
-
-        SkPoint pts[4];
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-            if (SkPath::kMove_Verb == verb && !first) {
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+            if (SkPathVerb::kMove == verb && !first) {
                 return true;
             }
             first = false;
