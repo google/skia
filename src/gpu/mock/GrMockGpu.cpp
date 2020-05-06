@@ -276,9 +276,7 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& format,
                                                    GrRenderable,
                                                    GrMipMapped mipMapped,
-                                                   GrProtected,
-                                                   sk_sp<GrRefCntedCallback> finishedCallback,
-                                                   const BackendTextureData*) {
+                                                   GrProtected) {
     SkImage::CompressionType compression = format.asMockCompressionType();
     if (compression != SkImage::CompressionType::kNone) {
         return {}; // should go through onCreateCompressedBackendTexture

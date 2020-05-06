@@ -302,9 +302,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
                                                    GrRenderable renderable,
                                                    GrMipMapped mipMapped,
-                                                   GrProtected isProtected,
-                                                   sk_sp<GrRefCntedCallback> finishedCallback,
-                                                   const BackendTextureData* data) {
+                                                   GrProtected isProtected) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return GrBackendTexture();
@@ -338,8 +336,21 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
 
     wgpu::Texture tex = this->device().CreateTexture(&desc);
 
-    size_t bpp = GrDawnBytesPerPixel(format);
-    size_t baseLayerSize = bpp * dimensions.width() * dimensions.height();
+    GrDawnTextureInfo info;
+    info.fTexture = tex;
+    info.fFormat = desc.format;
+    info.fLevelCount = desc.mipLevelCount;
+    return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
+
+bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                       sk_sp<GrRefCntedCallback> finishedCallback,
+                                       const BackendTextureData* data) {
+    GrDawnTextureInfo info;
+    SkAssertResult(backendTexture.getDawnTextureInfo(&info));
+
+    size_t bpp = GrDawnBytesPerPixel(info.fFormat);
+    size_t baseLayerSize = bpp * backendTexture.width() * backendTexture.height();
     const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
@@ -350,8 +361,8 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     }
     wgpu::Device device = this->device();
     wgpu::CommandEncoder copyEncoder = this->getCopyEncoder();
-    int w = dimensions.width(), h = dimensions.height();
-    for (uint32_t i = 0; i < desc.mipLevelCount; i++) {
+    int w = backendTexture.width(), h = backendTexture.height();
+    for (uint32_t i = 0; i < info.fLevelCount; i++) {
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
@@ -373,19 +384,15 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         srcBuffer.bytesPerRow = rowBytes;
         srcBuffer.rowsPerImage = h;
         wgpu::TextureCopyView dstTexture;
-        dstTexture.texture = tex;
+        dstTexture.texture = info.fTexture;
         dstTexture.mipLevel = i;
         dstTexture.origin = {0, 0, 0};
-        wgpu::Extent3D copySize = {(uint32_t) w, (uint32_t) h, 1};
+        wgpu::Extent3D copySize = {(uint32_t)w, (uint32_t)h, 1};
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
         w = std::max(1, w / 2);
         h = std::max(1, h / 2);
     }
-    GrDawnTextureInfo info;
-    info.fTexture = tex;
-    info.fFormat = desc.format;
-    info.fLevelCount = desc.mipLevelCount;
-    return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+    return true;
 }
 
 GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(
