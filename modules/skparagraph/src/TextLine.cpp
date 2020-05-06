@@ -259,17 +259,17 @@ void TextLine::paint(SkCanvas* textCanvas) {
     textCanvas->restore();
 }
 
-void TextLine::format(TextAlign effectiveAlign, SkScalar maxWidth) {
+void TextLine::format(TextAlign align, SkScalar maxWidth) {
     SkScalar delta = maxWidth - this->width();
     if (delta <= 0) {
         return;
     }
 
-    if (effectiveAlign == TextAlign::kJustify) {
+    if (align == TextAlign::kJustify && !this->endsWithHardLineBreak()) {
         this->justify(maxWidth);
-    } else if (effectiveAlign == TextAlign::kRight) {
+    } else if (align == TextAlign::kRight) {
         fShift = delta;
-    } else if (effectiveAlign == TextAlign::kCenter) {
+    } else if (align == TextAlign::kCenter) {
         fShift = delta / 2;
     }
 }
@@ -831,10 +831,7 @@ LineMetrics TextLine::getMetrics() const {
     result.fEndIndex = fTextWithWhitespacesRange.end;
     result.fEndExcludingWhitespaces = fTextRange.end;
     result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
-    // TODO: For some reason Flutter imagines a hard line break at the end of the last line.
-    //  To be removed...
-    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end - 1).isHardBreak() ||
-                        fGhostClusterRange.end == fMaster->clusters().size() - 1;
+    result.fHardBreak = endsWithHardLineBreak();
     result.fAscent = - fMaxRunMetrics.ascent();
     result.fDescent = fMaxRunMetrics.descent();
     result.fUnscaledAscent = - fMaxRunMetrics.ascent(); // TODO: implement
@@ -872,6 +869,13 @@ bool TextLine::isFirstLine() {
 
 bool TextLine::isLastLine() {
     return this == &fMaster->lines().back();
+}
+
+bool TextLine::endsWithHardLineBreak() const {
+    // TODO: For some reason Flutter imagines a hard line break at the end of the last line.
+    //  To be removed...
+    return fMaster->cluster(fGhostClusterRange.end - 1).isHardBreak() ||
+           fGhostClusterRange.end == fMaster->clusters().size() - 1;
 }
 
 void TextLine::getRectsForRange(TextRange textRange0,

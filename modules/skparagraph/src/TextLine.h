@@ -71,7 +71,7 @@ public:
     using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
-    void format(TextAlign effectiveAlign, SkScalar maxWidth);
+    void format(TextAlign align, SkScalar maxWidth);
     void paint(SkCanvas* canvas);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
@@ -105,6 +105,8 @@ public:
 
     SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
     void shiftVertically(SkScalar shift) { fOffset.fY += shift; }
+
+    bool endsWithHardLineBreak() const;
 
 private:
 
