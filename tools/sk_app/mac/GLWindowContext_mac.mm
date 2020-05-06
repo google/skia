@@ -63,7 +63,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
 
     if (!fGLContext) {
         // set up pixel format
-        constexpr int kMaxAttributes = 18;
+        constexpr int kMaxAttributes = 19;
         NSOpenGLPixelFormatAttribute attributes[kMaxAttributes];
         int numAttributes = 0;
         attributes[numAttributes++] = NSOpenGLPFAAccelerated;
@@ -80,6 +80,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
         attributes[numAttributes++] = NSOpenGLPFAStencilSize;
         attributes[numAttributes++] = 8;
         if (fDisplayParams.fMSAASampleCount > 1) {
+            attributes[numAttributes++] = NSOpenGLPFAMultisample;
             attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
             attributes[numAttributes++] = 1;
             attributes[numAttributes++] = NSOpenGLPFASamples;
