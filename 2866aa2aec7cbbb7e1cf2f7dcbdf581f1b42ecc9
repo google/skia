@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b7a42f8_52d805ee",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T19:46:18Z",
+      "side": 1,
+      "message": "I guess there\u0027s no need for multiple of these? Since a given interceptor get\u0027s to see the strings, and can return any number of different Layer types if it chooses?",
+      "range": {
+        "startLine": 126,
+        "startChar": 17,
+        "endLine": 126,
+        "endChar": 38
+      },
+      "revId": "2866aa2aec7cbbb7e1cf2f7dcbdf581f1b42ecc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
