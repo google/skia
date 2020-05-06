@@ -22,6 +22,30 @@
       "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2a2f6a8_b33c95a6",
+        "filename": "include/utils/SkCustomTypeface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T23:09:19Z",
+      "side": 1,
+      "message": "I\u0027ll add dox -- everything is a 1-point size\n\nHavne\u0027t impl\u0027ed the others (like image), but that\u0027s the intent of the scale parameter on image: to logically scale the image down to 1-point.",
+      "parentUuid": "4168d59a_20300612",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 59
+      },
+      "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
