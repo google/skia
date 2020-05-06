@@ -8,6 +8,7 @@
 #ifndef SkottieUtils_DEFINED
 #define SkottieUtils_DEFINED
 
+#include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 
@@ -102,6 +103,25 @@ private:
     std::vector<MarkerInfo>                   fMarkers;
     std::string                               fCurrentNode;
 };
+
+/**
+ * A sample PrecompInterceptor implementation.
+ *
+ * Attempts to substitute all precomp layers matching the given pattern (name prefix)
+ * with external Lottie animations.
+ */
+class ExternalAnimationPrecompInterceptor final : public skottie::PrecompInterceptor {
+public:
+    ExternalAnimationPrecompInterceptor(sk_sp<skresources::ResourceProvider>, const char prefix[]);
+    ~ExternalAnimationPrecompInterceptor() override;
+
+private:
+    sk_sp<skottie::ExternalLayer> onLoadPrecomp(const char[], const char[], const SkSize&) override;
+
+    const sk_sp<skresources::ResourceProvider> fResourceProvider;
+    const SkString                             fPrefix;
+};
+
 
 } // namespace skottie_utils
 

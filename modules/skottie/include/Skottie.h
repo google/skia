@@ -38,6 +38,7 @@ namespace internal { class Animator; }
 using ImageAsset = skresources::ImageAsset;
 using ResourceProvider = skresources::ResourceProvider;
 
+class PrecompInterceptor;
 class PropertyObserver;
 
 /**
@@ -119,6 +120,12 @@ public:
         Builder& setMarkerObserver(sk_sp<MarkerObserver>);
 
         /**
+         * Register a precomp layer interceptor.
+         * This allows substituting precomp layers with custom/externally managed content.
+         */
+        Builder& setPrecompInterceptor(sk_sp<PrecompInterceptor>);
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -128,12 +135,13 @@ public:
     private:
         const uint32_t          fFlags;
 
-        sk_sp<ResourceProvider> fResourceProvider;
-        sk_sp<SkFontMgr>        fFontMgr;
-        sk_sp<PropertyObserver> fPropertyObserver;
-        sk_sp<Logger>           fLogger;
-        sk_sp<MarkerObserver>   fMarkerObserver;
-        Stats                   fStats;
+        sk_sp<ResourceProvider>   fResourceProvider;
+        sk_sp<SkFontMgr>          fFontMgr;
+        sk_sp<PropertyObserver>   fPropertyObserver;
+        sk_sp<Logger>             fLogger;
+        sk_sp<MarkerObserver  >   fMarkerObserver;
+        sk_sp<PrecompInterceptor> fPrecompInterceptor;
+        Stats                     fStats;
     };
 
     /**
