@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e18eaa8_7821e498",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T13:09:16Z",
+      "side": 0,
+      "message": "this seems disconcerting, that we used to call extend_pts() with kDone (and now we don\u0027t)?",
+      "range": {
+        "startLine": 477,
+        "startChar": 50,
+        "endLine": 477,
+        "endChar": 60
+      },
+      "revId": "217ea171e2d4d49427cfc3d2486d1f52d053c7d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a850e29_da284a02",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T13:09:16Z",
+      "side": 0,
+      "message": "this returns the \"next\" verb, not the current one.",
+      "range": {
+        "startLine": 576,
+        "startChar": 51,
+        "endLine": 576,
+        "endChar": 60
+      },
+      "revId": "217ea171e2d4d49427cfc3d2486d1f52d053c7d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
