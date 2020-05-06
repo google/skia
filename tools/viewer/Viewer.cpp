@@ -1696,12 +1696,27 @@ void Viewer::drawImGui() {
                 }
 
                 if (ctx) {
+                    // Determine the context's max sample count for MSAA radio buttons.
                     int sampleCount = fWindow->sampleCount();
-                    ImGui::Text("MSAA: "); ImGui::SameLine();
-                    ImGui::RadioButton("1", &sampleCount, 1); ImGui::SameLine();
-                    ImGui::RadioButton("4", &sampleCount, 4); ImGui::SameLine();
-                    ImGui::RadioButton("8", &sampleCount, 8); ImGui::SameLine();
-                    ImGui::RadioButton("16", &sampleCount, 16);
+                    int maxMSAA = (fBackendType != sk_app::Window::kRaster_BackendType) ?
+                            ctx->maxSurfaceSampleCountForColorType(kRGBA_8888_SkColorType) :
+                            1;
+
+                    // Only display the MSAA radio buttons when there are options above 1x MSAA.
+                    if (maxMSAA >= 4) {
+                        ImGui::Text("MSAA: ");
+
+                        for (int curMSAA = 1; curMSAA <= maxMSAA; curMSAA *= 2) {
+                            // 2x MSAA works, but doesn't offer much of a visual improvement, so we
+                            // don't show it in the list.
+                            if (curMSAA == 2) {
+                                continue;
+                            }
+                            ImGui::SameLine();
+                            ImGui::RadioButton(SkStringPrintf("%d", curMSAA).c_str(),
+                                               &sampleCount, curMSAA);
+                        }
+                    }
 
                     if (sampleCount != params.fMSAASampleCount) {
                         params.fMSAASampleCount = sampleCount;
