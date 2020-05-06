@@ -11,8 +11,9 @@
 #include "src/gpu/GrFragmentProcessor.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
-// Allows for a 5x5 kernel (or 25x1, for that matter).
-#define MAX_KERNEL_SIZE 25
+// Allows for a 5x5 kernel (or 28x1, for that matter).
+// Must be a multiple of 4, since we upload these in vec4s.
+#define MAX_KERNEL_SIZE 28
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
