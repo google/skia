@@ -8,6 +8,7 @@
 #ifndef SkottieUtils_DEFINED
 #define SkottieUtils_DEFINED
 
+#include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 
@@ -102,6 +103,19 @@ private:
     std::vector<MarkerInfo>                   fMarkers;
     std::string                               fCurrentNode;
 };
+
+class CustomPrecompInterceptor final : public skottie::PrecompInterceptor {
+public:
+    CustomPrecompInterceptor(sk_sp<skresources::ResourceProvider>, const char prefix[]);
+    ~CustomPrecompInterceptor() override;
+
+private:
+    sk_sp<skottie::ExternalLayer> onLoadPrecomp(const char[], const char[], const SkSize&) override;
+
+    const sk_sp<skresources::ResourceProvider> fResourceProvider;
+    const SkString                             fPrefix;
+};
+
 
 } // namespace skottie_utils
 
