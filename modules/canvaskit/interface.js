@@ -978,6 +978,18 @@ CanvasKit.onRuntimeInitialized = function() {
     return copy4x4MatrixFromWasm(matrPtr);
   }
 
+  // findMarkedCTM returns a 4x4 matrix, or null if a matrix was not found at
+  // the provided marker.
+  CanvasKit.SkCanvas.prototype.findMarkedCTM = function(marker) {
+    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
+    // _getLocalToDevice will copy the values into the pointer.
+    var found = this._findMarkedCTM(marker, matrPtr);
+    if (!found) {
+      return null;
+    }
+    return copy4x4MatrixFromWasm(matrPtr);
+  }
+
   // getTotalMatrix returns the current matrix as a 3x3 matrix.
   CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {
     var matrPtr = CanvasKit._malloc(9 * 4); // allocate space for the matrix

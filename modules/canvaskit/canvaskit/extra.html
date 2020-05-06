@@ -616,30 +616,31 @@ const curves = {
       in fragmentProcessor color_map;
       in fragmentProcessor normal_map;
 
-      uniform float4x4 localToWorld;
-      uniform float4x4 localToWorldAdjInv;
       uniform float3   lightPos;
+      layout (marker=local_to_world)          uniform float4x4 localToWorld;
+      layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;
 
       float3 convert_normal_sample(half4 c) {
-          float3 n = 2 * c.rgb - 1;
-          n.y = -n.y;
-          return n;
+        float3 n = 2 * c.rgb - 1;
+        n.y = -n.y;
+        return n;
       }
 
       void main(float2 p, inout half4 color) {
-          float3 norm = convert_normal_sample(sample(normal_map, p));
-          float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+        float3 norm = convert_normal_sample(sample(normal_map, p));
+        float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
-          float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
-          float3 light_dir = normalize(lightPos - plane_pos);
+        float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+        float3 light_dir = normalize(lightPos - plane_pos);
 
-          float ambient = 0.2;
-          float dp = dot(plane_norm, light_dir);
-          float scale = min(ambient + max(dp, 0), 1);
+        float ambient = 0.2;
+        float dp = dot(plane_norm, light_dir);
+        float scale = min(ambient + max(dp, 0), 1);
 
-          color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+        color = sample(color_map, p) * half4(float4(scale, scale, scale, 1)); 
       }
 `;
+
     const fact = CanvasKit.SkRuntimeEffect.Make(prog);
 
     // properties of light
@@ -723,7 +724,8 @@ const curves = {
       // as part of our "camera".
       canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
       canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
-      // canvas.markCTM(...);
+      // Mark the matrix to make it available to the shader by this name.
+      canvas.markCTM('local_to_world');
     }
 
     function setClickToWorld(canvas, matrix) {
@@ -739,9 +741,9 @@ const curves = {
       if (znormal < 0) {
         return; // skip faces facing backwards
       }
-      const ltw = canvas.getLocalToWorld();
-      // shader expects the 4x4 matrices in column major order.
-      const uniforms = [...CanvasKit.SkM44.transpose(ltw), ...mustInvert(ltw), ...lightWorldPos];
+      // Pad with space for two 4x4 matrices. Even though the shader uses a layout()
+      // statement to populate them, we still have to reserve space for them.
+      const uniforms = [...lightWorldPos, ...Array(32).fill(0)];
       const paint = new CanvasKit.SkPaint();
       paint.setAntiAlias(true);
       const shader = fact.makeShaderWithChildren(uniforms, true /*=opaque*/, children);
