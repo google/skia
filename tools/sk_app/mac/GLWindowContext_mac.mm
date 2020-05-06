@@ -33,6 +33,8 @@ public:
     void resize(int w, int h) override;
 
 private:
+    void teardownContext();
+
     NSView*              fMainView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
@@ -51,6 +53,10 @@ GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const Displa
 }
 
 GLWindowContext_mac::~GLWindowContext_mac() {
+    teardownContext();
+}
+
+void GLWindowContext_mac::teardownContext() {
     [NSOpenGLContext clearCurrentContext];
     [fPixelFormat release];
     fPixelFormat = nil;
@@ -141,10 +147,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
 void GLWindowContext_mac::onDestroyContext() {
     // We only need to tear down the GLContext if we've changed the sample count.
     if (fGLContext && fSampleCount != fDisplayParams.fMSAASampleCount) {
-        [fPixelFormat release];
-        fPixelFormat = nil;
-        [fGLContext release];
-        fGLContext = nil;
+        teardownContext();
     }
 }
 
