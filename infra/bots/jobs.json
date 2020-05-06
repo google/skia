@@ -43,6 +43,7 @@
   "Build-Debian10-Clang-x86_64-Debug-ASAN_Vulkan",
   "Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES",
   "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker",
+  "Build-Debian10-Clang-x86_64-Debug-Dawn",
   "Build-Debian10-Clang-x86_64-Debug-OpenCL",
   "Build-Debian10-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Build-Debian10-Clang-x86_64-Debug-SafeStack",
