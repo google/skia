@@ -1705,14 +1705,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                      regions.count(), regions.begin());
     }
 
-    if (data->type() == BackendTextureData::Type::kColor && renderable == GrRenderable::kYes) {
-        // Change image layout to color-attachment-optimal since if we use this texture as a
-        // borrowed texture within Ganesh we are probably going to render to it
-        VkAccessFlags access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        image->setImageLayout(this, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, access,
-                              VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, false);
-    } else if (texturable == GrTexturable::kYes) {
+    if (texturable == GrTexturable::kYes) {
         // Change image layout to shader read since if we use this texture as a borrowed
         // texture within Ganesh we require that its layout be set to that
         image->setImageLayout(this, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,

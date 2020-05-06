@@ -483,7 +483,6 @@ static void test_pixmap_init(GrContext* context, skiatest::Reporter* reporter,
 enum class VkLayout {
     kUndefined,
     kReadOnlyOptimal,
-    kColorAttachmentOptimal
 };
 
 void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
@@ -496,9 +495,6 @@ void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
             break;
         case VkLayout::kReadOnlyOptimal:
             expected = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            break;
-        case VkLayout::kColorAttachmentOptimal:
-            expected = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             break;
         default:
             SkUNREACHABLE;
@@ -582,7 +578,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
                                                                                     SkColors::kRed,
                                                                                     mark_signaled,
                                                                                     &finished);
-                        check_vk_layout(backendTex, VkLayout::kColorAttachmentOptimal);
+                        check_vk_layout(backendTex, VkLayout::kReadOnlyOptimal);
                         REPORTER_ASSERT(reporter, backendTex.isValid());
                         REPORTER_ASSERT(reporter, c.isCompatible(backendTex));
 
@@ -712,9 +708,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                                     GrProtected::kNo,
                                                                     mark_signaled,
                                                                     finishedPtr);
-                        check_vk_layout(result, GrRenderable::kYes == renderable
-                                                        ? VkLayout::kColorAttachmentOptimal
-                                                        : VkLayout::kReadOnlyOptimal);
+                        check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 
 #ifdef SK_DEBUG
                         {
@@ -1066,9 +1060,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                                                                                GrProtected::kNo,
                                                                                mark_signaled,
                                                                                finishedPtr);
-                        check_vk_layout(beTex, GrRenderable::kYes == renderable
-                                                        ? VkLayout::kColorAttachmentOptimal
-                                                        : VkLayout::kReadOnlyOptimal);
+                        check_vk_layout(beTex, VkLayout::kReadOnlyOptimal);
                         return beTex;
                     };
                     test_color_init(context, reporter, createWithColorMtd,

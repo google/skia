@@ -467,8 +467,7 @@ public:
      * client can assume the upload work has been submitted to the gpu. The finishedProc will always
      * get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
-     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if renderable is kNo
-     *  and VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL if renderable is kYes
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
     GrBackendTexture createBackendTexture(int width, int height,
                                           const GrBackendFormat&,
@@ -488,8 +487,7 @@ public:
      * If successful, the created backend texture will be compatible with the provided
      * SkColorType.
      * For the Vulkan backend the layout of the created VkImage will be:
-     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if renderable is kNo
-     *  and VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL if renderable is kYes
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
     GrBackendTexture createBackendTexture(int width, int height,
                                           SkColorType,
@@ -508,7 +506,8 @@ public:
      * the upload work has been submitted to the gpu. The finishedProc will always get called even
      * if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
-     *      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if texturaeble
+     *      VK_IMAGE_LAYOUT_UNDEFINED                if not textureable
      */
     GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization,
                                           const SkColor4f& color,
@@ -531,7 +530,6 @@ public:
      * Note: the pixmap's alphatypes and colorspaces are ignored.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-     * regardless of the renderability setting
      */
     GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
                                           GrRenderable, GrProtected,
