@@ -10,6 +10,7 @@
 #include "src/core/SkFDot6.h"
 #include "src/core/SkLineClipper.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 
@@ -450,11 +451,11 @@ static int compute_quad_level(const SkPoint pts[3]) {
    the control point, use the next control point to create a tangent. If the curve
    is degenerate, move the cap out 1/2 unit horizontally. */
 template <SkPaint::Cap capStyle>
-void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int ptCount) {
+void extend_pts(SkPathVerb prevVerb, SkPathVerb nextVerb, SkPoint* pts, int ptCount) {
     SkASSERT(SkPaint::kSquare_Cap == capStyle || SkPaint::kRound_Cap == capStyle);
     // The area of a circle is PI*R*R. For a unit circle, R=1/2, and the cap covers half of that.
     const SkScalar capOutset = SkPaint::kSquare_Cap == capStyle ? 0.5f : SK_ScalarPI / 8;
-    if (SkPath::kMove_Verb == prevVerb) {
+    if (SkPathVerb::kMove == prevVerb) {
         SkPoint* first = pts;
         SkPoint* ctrl = first;
         int controls = ptCount - 1;
@@ -474,8 +475,7 @@ void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int 
             ++first;
         } while (++controls < ptCount);
     }
-    if (SkPath::kMove_Verb == nextVerb || SkPath::kDone_Verb == nextVerb
-            || SkPath::kClose_Verb == nextVerb) {
+    if (SkPathVerb::kMove == nextVerb || SkPathVerb::kClose == nextVerb) {
         SkPoint* last = &pts[ptCount - 1];
         SkPoint* ctrl = last;
         int controls = ptCount - 1;
@@ -558,41 +558,40 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
         }
     }
 
-    SkPath::RawIter     iter(path);
     SkPoint             pts[4], firstPt, lastPt;
-    SkPath::Verb        verb, prevVerb;
+    SkPathVerb          prevVerb;
     SkAutoConicToQuads  converter;
 
     if (SkPaint::kButt_Cap != capStyle) {
-        prevVerb = SkPath::kDone_Verb;
+        prevVerb = SkPathVerb::kClose;
     }
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, rawPts, w] : SkPathPriv::Iterate(path)) {
+        memcpy(pts, rawPts, SkPathPriv::PtsInIter((unsigned)verb) * sizeof(SkPoint));
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 firstPt = lastPt = pts[0];
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                    extend_pts<capStyle>(prevVerb, SkPathVerb::kLine, pts, 2);
                 }
                 lineproc(pts, 2, clip, blitter);
                 lastPt = pts[1];
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                    extend_pts<capStyle>(prevVerb, SkPathVerb::kQuad, pts, 3);
                 }
                 hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
                 lastPt = pts[2];
                 break;
-            case SkPath::kConic_Verb: {
+            case SkPathVerb::kConic: {
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                    extend_pts<capStyle>(prevVerb, SkPathVerb::kConic, pts, 3);
                 }
                 // how close should the quads be to the original conic?
                 const SkScalar tol = SK_Scalar1 / 4;
-                const SkPoint* quadPts = converter.computeQuads(pts,
-                                                       iter.conicWeight(), tol);
+                const SkPoint* quadPts = converter.computeQuads(pts, *w, tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     int level = compute_quad_level(quadPts);
                     hairquad(quadPts, clip, insetClip, outsetClip, blitter, level, lineproc);
@@ -601,28 +600,26 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 lastPt = pts[2];
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 4);
+                    extend_pts<capStyle>(prevVerb, SkPathVerb::kCubic, pts, 4);
                 }
                 haircubic(pts, clip, insetClip, outsetClip, blitter, kMaxCubicSubdivideLevel, lineproc);
                 lastPt = pts[3];
             } break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 pts[0] = lastPt;
                 pts[1] = firstPt;
-                if (SkPaint::kButt_Cap != capStyle && prevVerb == SkPath::kMove_Verb) {
+                if (SkPaint::kButt_Cap != capStyle && prevVerb == SkPathVerb::kMove) {
                     // cap moveTo/close to match svg expectations for degenerate segments
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                    extend_pts<capStyle>(prevVerb, SkPathVerb::kClose, pts, 2);
                 }
                 lineproc(pts, 2, clip, blitter);
                 break;
-            case SkPath::kDone_Verb:
-                break;
         }
         if (SkPaint::kButt_Cap != capStyle) {
-            if (prevVerb == SkPath::kMove_Verb &&
-                    verb >= SkPath::kLine_Verb && verb <= SkPath::kCubic_Verb) {
+            if (prevVerb == SkPathVerb::kMove &&
+                    verb >= SkPathVerb::kLine && verb <= SkPathVerb::kCubic) {
                 firstPt = pts[0];  // the curve moved the initial point, so close to it instead
             }
             prevVerb = verb;
