@@ -119,7 +119,7 @@ static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
-static DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
+static DEFINE_bool(gpuStatsDump, false, "Dump GPU stats after each benchmark to json");
 static DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 static DEFINE_bool(csv, false, "Print status in CSV format");
 static DEFINE_string(sourceType, "",
@@ -1170,7 +1170,7 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<SkWStream> logStream(new SkNullWStream);
     if (!FLAGS_outResultsFile.isEmpty()) {
-#if defined(SK_RELEASE)
+#if 1 // defined(SK_RELEASE)
         // SkJSONWriter uses a 32k in-memory cache, so it only flushes occasionally and is well
         // equipped for a stream that re-opens, appends, and closes the file on every write.
         logStream.reset(new NanoFILEAppendAndCloseStream(FLAGS_outResultsFile[0]));
