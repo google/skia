@@ -1370,11 +1370,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     return std::move(tex);
 }
 
-GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                           const GrBackendFormat& format,
-                                                           GrMipMapped mipMapped,
-                                                           GrProtected isProtected,
-                                                           const BackendTextureData* data) {
+GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
+        SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
+        const BackendTextureData* data) {
     // We don't support protected textures in GL.
     if (isProtected == GrProtected::kYes) {
         return {};
@@ -3508,6 +3507,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  GrRenderable renderable,
                                                  GrMipMapped mipMapped,
                                                  GrProtected isProtected,
+                                                 sk_sp<GrRefCntedCallback> finishedCallback,
                                                  const BackendTextureData* data) {
     // We don't support protected textures in GL.
     if (isProtected == GrProtected::kYes) {

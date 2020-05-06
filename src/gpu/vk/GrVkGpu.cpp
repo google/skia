@@ -333,13 +333,15 @@ GrVkPrimaryCommandBuffer* GrVkGpu::getTempCommandBuffer() {
     return fTempCmdBuffer;
 }
 
-bool GrVkGpu::submitTempCommandBuffer(SyncQueue sync) {
+bool GrVkGpu::submitTempCommandBuffer(SyncQueue sync, sk_sp<GrRefCntedCallback> finishedCallback) {
     SkASSERT(fTempCmdBuffer);
 
     fTempCmdBuffer->end(this);
     fTempCmdPool->close();
 
     SkASSERT(fMainCmdBuffer->validateNoSharedImageResources(fTempCmdBuffer));
+
+    fTempCmdBuffer->addFinishedProc(std::move(finishedCallback));
 
     SkTArray<GrVkSemaphore::Resource*, false> fEmptySemaphores;
     bool didSubmit = fTempCmdBuffer->submitToQueue(this, fQueue, fEmptySemaphores,
@@ -1569,6 +1571,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              GrMipMapped mipMapped,
                                              GrVkImageInfo* info,
                                              GrProtected isProtected,
+                                             sk_sp<GrRefCntedCallback> finishedCallback,
                                              const BackendTextureData* data) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
     if (texturable == GrTexturable::kNo) {
@@ -1717,7 +1720,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                               false);
     }
     info->fImageLayout = layout->getImageLayout();
-    return this->submitTempCommandBuffer(kForce_SyncQueue);
+    return this->submitTempCommandBuffer(kSkip_SyncQueue, std::move(finishedCallback));
 }
 
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
@@ -1725,6 +1728,7 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
                                                  GrRenderable renderable,
                                                  GrMipMapped mipMapped,
                                                  GrProtected isProtected,
+                                                 sk_sp<GrRefCntedCallback> finishedCallback,
                                                  const BackendTextureData* data) {
     this->handleDirtyContext();
 
@@ -1751,18 +1755,18 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
                                               renderable, mipMapped,
-                                              &info, isProtected, data)) {
+                                              &info, isProtected, std::move(finishedCallback),
+                                              data)) {
         return {};
     }
 
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
-GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                           const GrBackendFormat& format,
-                                                           GrMipMapped mipMapped,
-                                                           GrProtected isProtected,
-                                                           const BackendTextureData* data) {
+GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
+        SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
+        const BackendTextureData* data) {
     this->handleDirtyContext();
 
     const GrVkCaps& caps = this->vkCaps();
@@ -1788,7 +1792,8 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
                                               GrRenderable::kNo, mipMapped,
-                                              &info, isProtected, data)) {
+                                              &info, isProtected, std::move(finishedCallback),
+                                              data)) {
         return {};
     }
 
@@ -1897,8 +1902,8 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
                                               GrRenderable::kYes, GrMipMapped::kNo,
-                                              &info, GrProtected::kNo, nullptr)) {
-        return {};
+                                              &info, GrProtected::kNo, nullptr, nullptr)) {
+      return {};
     }
 
     return GrBackendRenderTarget(w, h, 1, 0, info);
