@@ -3,7 +3,7 @@ module go.skia.org/skia
 go 1.12
 
 require (
-	cloud.google.com/go/storage v1.6.0
+	cloud.google.com/go/storage v1.7.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/VividCortex/godaemon v0.0.0-20150910212227-3d9f6e0b234f // indirect
@@ -25,8 +25,8 @@ require (
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/vektra/mockery v1.0.0 // indirect
-	go.chromium.org/luci v0.0.0-20200505035555-18ccdaab7550 // indirect
-	go.skia.org/infra v0.0.0-20200504172459-3a2f532f7f6a
+	go.chromium.org/luci v0.0.0-20200506033851-1d2f8079f6c1 // indirect
+	go.skia.org/infra v0.0.0-20200505190403-4f948f03bc1d
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
@@ -37,9 +37,6 @@ require (
 	golang.org/x/tools v0.0.0-20200505023115-26f46d2f7ef8 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.23.0
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/genproto v0.0.0-20200430143042-b979b6f78d84 // indirect
-	google.golang.org/grpc v1.29.1 // indirect
 	rsc.io/sampler v1.99.99 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
