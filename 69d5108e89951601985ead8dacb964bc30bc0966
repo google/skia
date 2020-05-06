@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29082831_b78994da",
+        "filename": "src/pathops/SkOpEdgeBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-06T13:16:14Z",
+      "side": 1,
+      "message": "do we need to keep this copy? I guess its the force_small_to_zero... what if we wrote that to return its (modified) arg..?\n\ncurve[] \u003d force_small(pathPts[]);",
+      "range": {
+        "startLine": 90,
+        "startChar": 16,
+        "endLine": 90,
+        "endChar": 19
+      },
+      "revId": "69d5108e89951601985ead8dacb964bc30bc0966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
