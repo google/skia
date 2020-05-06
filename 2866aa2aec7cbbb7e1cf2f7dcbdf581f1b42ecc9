@@ -22,6 +22,30 @@
       "revId": "2866aa2aec7cbbb7e1cf2f7dcbdf581f1b42ecc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dbd13a6_f82190d8",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-06T19:55:53Z",
+      "side": 1,
+      "message": "Yup, that\u0027s what I\u0027m thinking too.",
+      "parentUuid": "6b7a42f8_52d805ee",
+      "range": {
+        "startLine": 126,
+        "startChar": 17,
+        "endLine": 126,
+        "endChar": 38
+      },
+      "revId": "2866aa2aec7cbbb7e1cf2f7dcbdf581f1b42ecc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
