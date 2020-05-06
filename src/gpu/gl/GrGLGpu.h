@@ -194,12 +194,14 @@ private:
                                             GrRenderable,
                                             GrMipMapped,
                                             GrProtected,
+                                            sk_sp<GrRefCntedCallback> finishedCallback,
                                             const BackendTextureData*) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                                       const BackendTextureData*) override;
 
     void onResetContext(uint32_t resetBits) override;

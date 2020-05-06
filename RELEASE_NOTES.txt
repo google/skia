@@ -6,7 +6,14 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 84
 
-  * <insert new release note here>
+  * GrContext::createBackendTexture functions that initialize the texture no longer
+    guarantee that all the data has been uploaded and the gpu is done with the texture.
+    Instead the client can assume the upload work has been submitted to the gpu and they
+    must wait for that work to finish before deleting the texture. This can be done via
+    their own synchronization or by passing in a finish proc into the create calls which
+    will be called when it is safe to delete the texture (at least in terms of work
+    done during the create).
+    https://review.skia.org/286517
 
   * Remove unused SkMaskFilter helpers: compbine, compose
     Note: shadermaskfilter will likely be removed next (clipShader should serve)

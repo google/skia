@@ -46,11 +46,13 @@ public:
                                             GrRenderable,
                                             GrMipMapped,
                                             GrProtected,
+                                            sk_sp<GrRefCntedCallback> finishedCallback,
                                             const BackendTextureData*) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                                       const BackendTextureData*) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;

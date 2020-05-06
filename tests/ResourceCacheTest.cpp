@@ -25,6 +25,7 @@
 #include "src/core/SkMipMap.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 #include <thread>
 
@@ -195,14 +196,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     static const int kW = 100;
     static const int kH = 100;
 
-    backendTextures[0] = context->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                       SkColors::kTransparent,
-                                                       GrMipMapped::kNo, GrRenderable::kNo,
-                                                       GrProtected::kNo);
-    backendTextures[1] = context->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                       SkColors::kTransparent,
-                                                       GrMipMapped::kNo, GrRenderable::kNo,
-                                                       GrProtected::kNo);
+    CreateBackendTexture(context, &backendTextures[0], kW, kH, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         GrProtected::kNo);
+    CreateBackendTexture(context, &backendTextures[1], kW, kH, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTextures[0].isValid());
     REPORTER_ASSERT(reporter, backendTextures[1].isValid());
     if (!backendTextures[0].isValid() || !backendTextures[1].isValid()) {

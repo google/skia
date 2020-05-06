@@ -131,12 +131,14 @@ private:
                                             GrRenderable,
                                             GrMipMapped,
                                             GrProtected,
+                                            sk_sp<GrRefCntedCallback> finishedCallback,
                                             const BackendTextureData*) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                                       const BackendTextureData*) override;
 
     sk_sp<GrTexture> onCreateTexture(SkISize,

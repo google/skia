@@ -185,11 +185,13 @@ private:
                                             GrRenderable,
                                             GrMipMapped,
                                             GrProtected,
+                                            sk_sp<GrRefCntedCallback> finishedCallback,
                                             const BackendTextureData*) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
                                                       GrProtected,
+                                                      sk_sp<GrRefCntedCallback> finishedCallbacks,
                                                       const BackendTextureData*) override;
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
@@ -292,6 +294,7 @@ private:
                                         GrMipMapped,
                                         GrVkImageInfo*,
                                         GrProtected,
+                                        sk_sp<GrRefCntedCallback> finishedCallback,
                                         const BackendTextureData*);
 
     // Creates a new temporary primary command buffer that will be target of all subsequent commands
@@ -304,7 +307,7 @@ private:
     // updates out of order. It is legal to use a resource on either the temp or main command buffer
     // that was used on a previously submitted command buffer;
     GrVkPrimaryCommandBuffer* getTempCommandBuffer();
-    bool submitTempCommandBuffer(SyncQueue sync);
+    bool submitTempCommandBuffer(SyncQueue sync, sk_sp<GrRefCntedCallback> finishedCallback);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

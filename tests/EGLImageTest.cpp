@@ -87,10 +87,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // Use GL Context 1 to create a texture unknown to GrContext.
     context1->flush();
     static const int kSize = 100;
-    backendTexture1 =
-        context1->createBackendTexture(kSize, kSize, kRGBA_8888_SkColorType,
-                                       SkColors::kTransparent,
-                                       GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+
+    CreateBackendTexture(context1.get(), &backendTexture1, kSize, kSize, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         GrProtected::kNo);
 
     if (!backendTexture1.isValid()) {
         ERRORF(reporter, "Error creating texture for EGL Image");
