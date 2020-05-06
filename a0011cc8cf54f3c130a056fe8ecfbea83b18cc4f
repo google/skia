@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "48c13854_9a73c629",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Done, good catch",
+      "parentUuid": "4f0b8446_95b17e5c",
+      "range": {
+        "startLine": 158,
+        "startChar": 24,
+        "endLine": 158,
+        "endChar": 27
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19efa6d0_caf4a676",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 17
@@ -45,6 +69,30 @@
       "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9536d420_09d271a4",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19efa6d0_caf4a676",
+      "range": {
+        "startLine": 175,
+        "startChar": 24,
+        "endLine": 175,
+        "endChar": 27
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f3688b01_3bd2c540",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37c7d1b6_865c78ee",
+      "range": {
+        "startLine": 187,
+        "startChar": 8,
+        "endLine": 187,
+        "endChar": 37
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5a3e689_30abb8a1",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 17
@@ -91,6 +163,30 @@
       "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67f6d3a8_8712511f",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5a3e689_30abb8a1",
+      "range": {
+        "startLine": 416,
+        "startChar": 49,
+        "endLine": 416,
+        "endChar": 56
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "6f22573e_88186b78",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Yeah, I liked that. It also means that after rescaling we can choose the single pass approach if the rescaled sigmas are small.",
+      "parentUuid": "d1a2e260_8d10d0f3",
+      "range": {
+        "startLine": 444,
+        "startChar": 0,
+        "endLine": 447,
+        "endChar": 33
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbb69f23_27506fac",
         "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
         "patchSetId": 17
@@ -131,6 +251,24 @@
       "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4de9d13e_0590b046",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dbb69f23_27506fac",
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "072ac781_f8a3f4fa",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0ddbcad1_2aba932a",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 72
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42364ee7_9570eee2",
         "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
         "patchSetId": 17
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "65a70b39_c13204d9",
+        "filename": "src/core/SkLegacyGpuBlurUtils.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "42364ee7_9570eee2",
+      "range": {
+        "startLine": 419,
+        "startChar": 39,
+        "endLine": 419,
+        "endChar": 57
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d04b1aff_b38951cf",
         "filename": "src/gpu/GrSurfaceContext.cpp",
         "patchSetId": 17
@@ -200,6 +386,30 @@
       "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f2f8673_b5d9b8a8",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T16:01:10Z",
+      "side": 1,
+      "message": "It should be transparent to them. They never see these textures. If you were only every reading back one sized buffer repeatedly you might use a little more memory, but you might save memory if you\u0027re resizing a window that\u0027s being read back through better texture reuse. Because of interpolation/floating point you can get slightly different pixel values in your read back (or perhaps significantly different in kLow/nearest mode on edge cases).\n\nI\u0027ll run the Chrome tests again just to double check that no image tests get tripped up.",
+      "parentUuid": "d04b1aff_b38951cf",
+      "range": {
+        "startLine": 621,
+        "startChar": 56,
+        "endLine": 621,
+        "endChar": 77
+      },
+      "revId": "a0011cc8cf54f3c130a056fe8ecfbea83b18cc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
