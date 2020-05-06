@@ -46,6 +46,30 @@
       "revId": "a91e478ceba1d6637de6b842619918a9800ffce6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84a64254_3110cac6",
+        "filename": "gm/lcdtext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-06T13:30:09Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "f172b6f4_a9c286e5",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 46
+      },
+      "revId": "a91e478ceba1d6637de6b842619918a9800ffce6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
