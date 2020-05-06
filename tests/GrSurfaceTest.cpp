@@ -433,9 +433,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 static const int kSurfSize = 10;
 
 static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
-    auto backendTexture = context->createBackendTexture(
-            kSurfSize, kSurfSize, kRGBA_8888_SkColorType, SkColors::kTransparent, GrMipMapped::kNo,
-            renderable, GrProtected::kNo);
+    GrBackendTexture backendTexture;
+    CreateBackendTexture(context, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipMapped::kNo, renderable, GrProtected::kNo);
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(

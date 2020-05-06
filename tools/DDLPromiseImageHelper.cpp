@@ -121,8 +121,18 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
         SkASSERT(kR8G8_unorm_SkColorType == pm.colorType());
     }
 #endif
-
-    return context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
+    bool finishedBECreate = false;
+    auto markFinished = [](void* context) {
+        *(bool*)context = true;
+    };
+    auto beTex = context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo,
+                                               markFinished, &finishedBECreate);
+    if (beTex.isValid()) {
+        while (!finishedBECreate) {
+            context->checkAsyncWorkCompletion();
+        }
+    }
+    return beTex;
 }
 
 /*
@@ -157,11 +167,17 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
 
         std::unique_ptr<SkPixmap[]> mipLevels = info->normalMipLevels();
 
-        GrBackendTexture backendTex = context->createBackendTexture(mipLevels.get(),
-                                                                    info->numMipLevels(),
-                                                                    GrRenderable::kNo,
-                                                                    GrProtected::kNo);
+        bool finishedBECreate = false;
+        auto markFinished = [](void* context) {
+            *(bool*)context = true;
+        };
+        auto backendTex = context->createBackendTexture(mipLevels.get(), info->numMipLevels(),
+                                                        GrRenderable::kNo, GrProtected::kNo,
+                                                        markFinished, &finishedBECreate);
         SkASSERT(backendTex.isValid());
+        while (!finishedBECreate) {
+            context->checkAsyncWorkCompletion();
+        }
 
         callbackContext->setBackendTexture(backendTex);
     }
