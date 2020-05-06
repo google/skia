@@ -139,8 +139,14 @@ public:
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
-        sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo);
-        return SkToBool(tmp);
+        Stats::ProgramCacheResult stat;
+
+        sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo, &stat);
+        if (!tmp) {
+            return false;
+        }
+
+        return stat != Stats::ProgramCacheResult::kHit;
     }
 
     bool precompileShader(const SkData& key, const SkData& data) override {
@@ -333,13 +339,13 @@ private:
         void reset();
         sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*, const GrProgramInfo&);
         sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc& desc,
-                                               const GrProgramInfo& programInfo) {
-            Stats::ProgramCacheResult stat;
-            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, &stat);
+                                               const GrProgramInfo& programInfo,
+                                               Stats::ProgramCacheResult* stat) {
+            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
             if (!tmp) {
                 fGpu->fStats.incNumPreCompilationFailures();
             } else {
-                fGpu->fStats.incNumPreProgramCacheResult(stat);
+                fGpu->fStats.incNumPreProgramCacheResult(*stat);
             }
 
             return tmp;
