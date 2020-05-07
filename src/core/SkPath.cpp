@@ -1843,34 +1843,6 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
     return (Verb)verb;
 }
 
-void SkPath::RawIter::setPath(const SkPath& path) {
-    SkPathPriv::Iterate iterate(path);
-    fIter = iterate.begin();
-    fEnd = iterate.end();
-}
-
-SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
-    if (!(fIter != fEnd)) {
-        return kDone_Verb;
-    }
-    auto [verb, iterPts, weights] = *fIter;
-    int numPts;
-    switch (verb) {
-        case SkPathVerb::kMove: numPts = 1; break;
-        case SkPathVerb::kLine: numPts = 2; break;
-        case SkPathVerb::kQuad: numPts = 3; break;
-        case SkPathVerb::kConic:
-            numPts = 3;
-            fConicWeight = *weights;
-            break;
-        case SkPathVerb::kCubic: numPts = 4; break;
-        case SkPathVerb::kClose: numPts = 0; break;
-    }
-    memcpy(pts, iterPts, sizeof(SkPoint) * numPts);
-    ++fIter;
-    return (Verb) verb;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkStream.h"
