@@ -186,10 +186,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     auto precomp_layer = this->attachExternalPrecompLayer(jlayer, *layer_info);
 
     if (!precomp_layer) {
-        precomp_layer = this->attachAssetRef(jlayer,
-            [this, layer_info] (const skjson::ObjectValue& jcomp) {
-                return CompositionBuilder(*this, layer_info->fSize, jcomp).build(*this);
-            });
+        const ScopedAssetRef precomp_asset(this, jlayer);
+        if (precomp_asset) {
+            precomp_layer =
+                CompositionBuilder(*this, layer_info->fSize, *precomp_asset).build(*this);
+        }
     }
 
     if (requires_time_mapping) {
