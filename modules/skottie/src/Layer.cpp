@@ -410,14 +410,14 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     } gLayerBuildInfo[] = {
         { &AnimationBuilder::attachPrecompLayer, kTransformEffects },  // 'ty':  0 -> precomp
         { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty':  1 -> solid
-        { &AnimationBuilder::attachImageLayer  , kTransformEffects },  // 'ty':  2 -> image
+        { &AnimationBuilder::attachFootageLayer, kTransformEffects },  // 'ty':  2 -> image
         { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty':  3 -> null
         { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty':  4 -> shape
         { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty':  5 -> text
         { nullptr                              ,                 0 },  // 'ty':  6 -> audio
         { nullptr                              ,                 0 },  // 'ty':  7 -> pholderVideo
         { nullptr                              ,                 0 },  // 'ty':  8 -> imageSeq
-        { &AnimationBuilder::attachImageLayer  ,                 0 },  // 'ty':  9 -> video
+        { &AnimationBuilder::attachFootageLayer, kTransformEffects },  // 'ty':  9 -> video
         { nullptr                              ,                 0 },  // 'ty': 10 -> pholderStill
         { nullptr                              ,                 0 },  // 'ty': 11 -> guide
         { nullptr                              ,                 0 },  // 'ty': 12 -> adjustment
