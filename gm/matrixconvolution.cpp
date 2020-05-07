@@ -79,7 +79,7 @@ protected:
                 return SkImageFilters::MatrixConvolution({3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
             }
             case kLarge_KernelFixture: {
-                // Intentionally go over the MAX_KERNEL_SIZE limit and trigger CPU fallback.
+                // Intentionally go over the uniform kernel size limit of 25.
                 // All 1s except center value, which is -47 (sum of 1).
                 std::vector<SkScalar> kernel(49, SkIntToScalar(1));
                 kernel[24] = SkIntToScalar(-47);
@@ -113,6 +113,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        // DO NOT SUBMIT
+        // Testing the one broken tile on pixel4 gl
         canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
         SkIRect rect = fBitmap.bounds();
@@ -129,8 +131,9 @@ protected:
         this->draw(canvas, 310, 210, kernelOffset, SkTileMode::kRepeat, true, &smallRect);
 
         this->draw(canvas, 410, 10, kernelOffset, SkTileMode::kClamp, false, &rect);
-        this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kDecal, false, &rect);
-        this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kRepeat, false, &rect);
+        // These two are swapped for testing sake:
+        this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kRepeat, false, &rect);
+        this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kDecal, false, &rect);
     }
 
 private:
