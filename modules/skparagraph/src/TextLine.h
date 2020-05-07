@@ -72,7 +72,7 @@ public:
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign align, SkScalar maxWidth);
-    void paint(SkCanvas* canvas);
+    void paint(SkCanvas* canvas, SkScalar offsetY);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -128,7 +128,7 @@ private:
     SkTArray<size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
-    SkScalar fShift;                    // Let right
+    SkScalar fShift;                    // Left right
     SkScalar fWidthWithSpaces;
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     InternalLineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts

@@ -205,9 +205,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
-        // We have to calculate the paragraph boundaries only after we format the lines
-        this->calculateBoundaries();
-        fState = kFormatted;
+        this->fLineRange = SkRange<size_t>(0, 0);
     }
 
     this->fOldWidth = floorWidth;
@@ -228,14 +226,44 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
+    paintLines(canvas, 0, fLines.size(), x, y);
+}
+
+SkScalar ParagraphImpl::paintLines(SkCanvas* canvas, size_t start, size_t end, SkScalar x, SkScalar y) {
+
+    if (fLineRange.start != start || fLineRange.end != end) {
+        fState = kFormatted;
+    }
+
     if (fState < kDrawn) {
+        // We have to calculate the paragraph boundaries only after we format the lines
+        this->calculateBoundaries(start, end);
+        fLineRange = SkRange<size_t>(start, end);
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
-        this->paintLinesIntoPicture();
+        fDrawnHeight = this->paintLinesIntoPicture(start, end);
         fState = kDrawn;
     }
 
     SkMatrix matrix = SkMatrix::MakeTrans(x + fOrigin.fLeft, y + fOrigin.fTop);
     canvas->drawPicture(fPicture, &matrix, nullptr);
+
+    return fDrawnHeight;
+}
+
+size_t ParagraphImpl::snapToLine(SkScalar value) {
+
+    if (value <= 0) return 0;
+    if (value >= fHeight) return fLines.size();
+
+    size_t result = 0;
+    for (auto& line : fLines) {
+        if (line.offset().fY > value) {
+            break;
+        }
+        ++result;
+    }
+    SkASSERT(result > 0);
+    return result - 1;
 }
 
 void ParagraphImpl::resetContext() {
@@ -248,6 +276,10 @@ void ParagraphImpl::resetContext() {
     fLongestLine = 0;
     fMaxWidthWithTrailingSpaces = 0;
     fExceededMaxLines = false;
+    fDrawnHeight = 0;
+    fLineRange = SkRange<size_t>(0, 0);
+    fOldHeight = 0;
+    fOldWidth = 0;
 }
 
 // Clusters in the order of the input text
@@ -419,13 +451,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
-                    if (line.ellipsis() != nullptr) {
-                        // Make sure the paragraph boundaries include its ellipsis
-                        auto size = line.ellipsis()->advance();
-                        auto offset = line.ellipsis()->offset();
-                        SkRect boundaries = SkRect::MakeXYWH(offset.fX, offset.fY, size.fX, size.fY);
-                        fOrigin.joinPossiblyEmptyRect(boundaries);
-                    }
                 }
 
                 fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
@@ -475,16 +500,27 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
     }
 }
 
-void ParagraphImpl::paintLinesIntoPicture() {
+SkScalar ParagraphImpl::paintLinesIntoPicture(size_t start, size_t end) {
+    if (start >= end) {
+        return 0;
+    }
+
     SkPictureRecorder recorder;
     SkCanvas* textCanvas = recorder.beginRecording(fOrigin.width(), fOrigin.height(), nullptr, 0);
     textCanvas->translate(-fOrigin.fLeft, -fOrigin.fTop);
 
-    for (auto& line : fLines) {
-        line.paint(textCanvas);
+    end = std::min(end, fLines.size());
+    SkScalar height = 0;
+    SkScalar offsetY = fLines[start].offset().fY;
+    for (size_t index = start; index < end; ++index) {
+        auto& line = fLines[index];
+        line.paint(textCanvas, offsetY);
+        height += line.height();
     }
 
     fPicture = recorder.finishRecordingAsPicture();
+
+    return height;
 }
 
 void ParagraphImpl::resolveStrut() {
@@ -540,8 +576,11 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
     return { begin, end + 1 };
 }
 
-void ParagraphImpl::calculateBoundaries() {
-    for (auto& line : fLines) {
+void ParagraphImpl::calculateBoundaries(size_t start, size_t end) {
+    fOrigin.setEmpty();
+    end = std::min(end, fLines.size());
+    for (auto index = start; index < end; ++index) {
+        auto& line = fLines[index];
         fOrigin.joinPossiblyEmptyRect(line.calculateBoundaries());
     }
 }

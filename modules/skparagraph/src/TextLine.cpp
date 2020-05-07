@@ -152,6 +152,14 @@ SkRect TextLine::calculateBoundaries() {
         }
     }
 
+    if (this->ellipsis() != nullptr) {
+        // Make sure the paragraph boundaries include its ellipsis
+        auto size = this->ellipsis()->advance();
+        auto offset = this->ellipsis()->offset();
+        auto bounds = SkRect::MakeXYWH(offset.fX, offset.fY, size.fX, size.fY);
+        boundaries.joinPossiblyEmptyRect(bounds);
+    }
+
     // We need to take in account all the shadows when we calculate the boundaries
     // TODO: Need to find a better solution
     if (fHasShadows) {
@@ -194,13 +202,13 @@ SkRect TextLine::calculateBoundaries() {
     return boundaries;
 }
 
-void TextLine::paint(SkCanvas* textCanvas) {
+void TextLine::paint(SkCanvas* textCanvas, SkScalar offsetY) {
     if (this->empty()) {
         return;
     }
 
     textCanvas->save();
-    textCanvas->translate(this->offset().fX, this->offset().fY);
+    textCanvas->translate(this->offset().fX, this->offset().fY - offsetY);
 
     if (fHasBackground) {
         this->iterateThroughVisualRuns(false,
