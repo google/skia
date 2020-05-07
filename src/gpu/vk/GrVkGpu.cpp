@@ -1852,7 +1852,41 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
-bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+// Reconstruct the render target attachment information from the program desc. This includes which
+// attachments the render target will have (color, stencil) and the attachment's format and
+// sample count.
+static  GrVkRenderPass::AttachmentFlags doit(const GrProgramInfo& programInfo,
+                                             GrVkRenderPass::AttachmentsDescriptor* desc) {
+    return GrVkRenderPass::AttachmentFlags::kColor_AttachmentFlag;
+}
+
+bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    auto attachmentFlags = doit(programInfo, &attachmentsDescriptor);
+
+#if 0
+    // Get attachment information from render target. This includes which attachments the render
+    // target has (color, stencil) and the attachments format and sample count.
+    GrVkRenderPass::AttachmentFlags attachmentFlags;
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    this->getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
+#endif
+
+    auto renderPass = this->resourceProvider().findCompatibleRenderPass1(attachmentsDescriptor,
+                                                                         attachmentFlags, nullptr);
+    if (!renderPass) {
+        return false;
+    }
+
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState3(
+                                    nullptr /* renderTarget! */,
+                                    programInfo,
+                                    renderPass->vkRenderPass());
+    if (!pipelineState) {
+        return false;
+    }
+
     return false;
 }
 
