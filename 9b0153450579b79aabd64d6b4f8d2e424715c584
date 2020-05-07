@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d7434d0_a6372a2e",
+        "filename": "src/gpu/d3d/GrD3DAttachmentViewManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T17:50:33Z",
+      "side": 1,
+      "message": "I wonder if it is cleaner for GrD3DattachmentViewManager::Heap to have a GrD3DDescriptorHeap instead of being one. Then here we can just stay GrVkDescripotrHeap::Make(type, numDescripotrs, flags) and then pass the returned GrVkDescriptorHeap to our ctor. This would allow the uniform/sampler heap abstractions to use the same GrVkDescriptorHeap::Make call without duplicating the code.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 72
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bab4fd55_20502a36",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T17:50:33Z",
+      "side": 1,
+      "message": "These two ownsHandle functions worry me slightly. I do think that in practice they will work, but the d3d spec does make it pretty clear that the handles are not meant to be treated like pointers and they only think you can do with them is pass them into d3d function calls or add an offset to them to get a new handle. It is not guaranteed that the + operator with the offset works like a point +. It can return an arbitrary handle that the driver understands. So I don\u0027t think you\u0027re suppose to be comparing handles or subtracting them and expected to have meaning.\n\nI may be wrong here, but that is at least my reading from the programming guide.\n\nAn alternative way to deal with the recycling of handles would be for the allocate calls to instead return a struct of { D3D_HANDLE, {heapID, index} }; The inner struct can be some private data only accessible by the heap manager",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 57
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5763154_89ec2a37",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T17:50:33Z",
+      "side": 1,
+      "message": "just lowercase size_t?",
+      "range": {
+        "startLine": 32,
+        "startChar": 8,
+        "endLine": 32,
+        "endChar": 14
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04d1dab3_3a34456f",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T17:50:33Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 14
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
