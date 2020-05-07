@@ -1853,6 +1853,8 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 }
 
 bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+    // $$
+
     return false;
 }
 

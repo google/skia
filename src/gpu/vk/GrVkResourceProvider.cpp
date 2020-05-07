@@ -87,12 +87,12 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
+GrVkPipeline* GrVkResourceProvider::createPipeline7(const GrProgramInfo& programInfo,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, shaderStageInfo,
+    return GrVkPipeline::Create1(fGpu, programInfo, shaderStageInfo,
                                 shaderStageCount, compatibleRenderPass, layout,
                                 this->pipelineCache());
 }
