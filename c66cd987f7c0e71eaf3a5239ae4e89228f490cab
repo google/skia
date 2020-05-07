@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a5e8ca9_16fa33d0",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-07T20:05:32Z",
+      "side": 0,
+      "message": "Removed this comment because it actually doesn\u0027t work. If you define:\n\n static constexpr int RadiusToWidth(int r) { return 2*r +1; }\n\nin the class it can\u0027t be used to initialize a static constexpr member withing the class definition.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 50
+      },
+      "revId": "c66cd987f7c0e71eaf3a5239ae4e89228f490cab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aefa380b_25b4af02",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-07T20:05:32Z",
+      "side": 0,
+      "message": "Removed this comment because we although the kernel widths are discrete we do allow a floating point sigma so not all kernels of the same width are the same. I think we\u0027d get popping in animations if we snapped them.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 98
+      },
+      "revId": "c66cd987f7c0e71eaf3a5239ae4e89228f490cab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
