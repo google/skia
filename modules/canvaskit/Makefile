@@ -59,7 +59,7 @@ npm:
 	mkdir -p ./canvaskit/bin
 	# These features are turned off to keep code size smaller for the
 	# general use case.
-	./compile.sh release no_skottie no_particles no_pathops no_rt_shader no_skp
+	./compile.sh release no_skottie no_particles no_pathops no_rt_shader no_skp no_alias_font
 	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin
 
