@@ -822,8 +822,10 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     SkScalar toleranceSqd = tolerance * tolerance;
     bool innerPolygons = (Mode::kSimpleInnerPolygons == mode);
 
+    SkPoint pts[4];
     int localCurveCount = 0;
     VertexList* contour = contours;
+    SkPath::Iter iter(path, false);
     if (path.isInverseFillType()) {
         SkPoint quad[4];
         clipBounds.toQuad(quad);
@@ -833,32 +835,34 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
         contour++;
     }
     SkAutoConicToQuads converter;
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+    SkPath::Verb verb;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
-            case SkPathVerb::kConic: {
+            case SkPath::kConic_Verb: {
                 ++localCurveCount;
                 if (innerPolygons) {
                     append_point_to_contour(pts[2], contour, alloc);
                     break;
                 }
-                const SkPoint* quadPts = converter.computeQuads(pts, *w, toleranceSqd);
+                SkScalar weight = iter.conicWeight();
+                const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     append_quadratic_to_contour(quadPts, toleranceSqd, contour, alloc);
                     quadPts += 2;
                 }
                 break;
             }
-            case SkPathVerb::kMove:
+            case SkPath::kMove_Verb:
                 if (contour->fHead) {
                     contour++;
                 }
                 append_point_to_contour(pts[0], contour, alloc);
                 break;
-            case SkPathVerb::kLine: {
+            case SkPath::kLine_Verb: {
                 append_point_to_contour(pts[1], contour, alloc);
                 break;
             }
-            case SkPathVerb::kQuad: {
+            case SkPath::kQuad_Verb: {
                 ++localCurveCount;
                 if (innerPolygons) {
                     append_point_to_contour(pts[2], contour, alloc);
@@ -867,7 +871,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 append_quadratic_to_contour(pts, toleranceSqd, contour, alloc);
                 break;
             }
-            case SkPathVerb::kCubic: {
+            case SkPath::kCubic_Verb: {
                 ++localCurveCount;
                 if (innerPolygons) {
                     append_point_to_contour(pts[3], contour, alloc);
@@ -878,7 +882,8 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                                       pointsLeft, alloc);
                 break;
             }
-            case SkPathVerb::kClose:
+            case SkPath::kClose_Verb:
+            case SkPath::kDone_Verb:
                 break;
         }
     }
@@ -2385,18 +2390,21 @@ int get_contour_count(const SkPath& path, SkScalar tolerance) {
     int contourCnt = 1;
     bool hasPoints = false;
 
+    SkPath::Iter iter(path, false);
+    SkPath::Verb verb;
+    SkPoint pts[4];
     bool first = true;
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
-            case SkPathVerb::kMove:
+            case SkPath::kMove_Verb:
                 if (!first) {
                     ++contourCnt;
                 }
                 // fallthru.
-            case SkPathVerb::kLine:
-            case SkPathVerb::kConic:
-            case SkPathVerb::kQuad:
-            case SkPathVerb::kCubic:
+            case SkPath::kLine_Verb:
+            case SkPath::kConic_Verb:
+            case SkPath::kQuad_Verb:
+            case SkPath::kCubic_Verb:
                 hasPoints = true;
                 // fallthru to break.
             default:
