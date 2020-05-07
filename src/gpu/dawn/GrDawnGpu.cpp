@@ -460,20 +460,10 @@ void GrDawnGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget
 }
 
 void GrDawnGpu::testingOnly_flushGpuAndSync() {
-    this->flush();
+    this->submitToGpu(true);
 }
 
 #endif
-
-void GrDawnGpu::flush() {
-    this->flushCopyEncoder();
-    if (!fCommandBuffers.empty()) {
-        fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
-        fCommandBuffers.clear();
-    }
-    this->mapStagingBuffers();
-    fDevice.Tick();
-}
 
 void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                 GrGpuFinishedContext finishedContext) {
@@ -485,7 +475,12 @@ static void callback(WGPUFenceCompletionStatus status, void* userData) {
 }
 
 bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
-    this->flush();
+    this->flushCopyEncoder();
+    if (!fCommandBuffers.empty()) {
+        fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
+        fCommandBuffers.clear();
+    }
+    this->mapStagingBuffers();
     if (syncCpu) {
         wgpu::FenceDescriptor desc;
         wgpu::Fence fence = fQueue.CreateFence(&desc);
@@ -541,7 +536,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     wgpu::Texture tex = get_dawn_texture_from_surface(surface);
     SkASSERT(tex);
 
-    if (0 == rowBytes) {
+    if (!tex || 0 == rowBytes) {
         return false;
     }
     size_t origRowBytes = rowBytes;
@@ -567,7 +562,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
-    this->flush();
+    this->submitToGpu(true);
 
     const void *readPixelsPtr = nullptr;
     buf.MapReadAsync(callback, &readPixelsPtr);
@@ -721,7 +716,9 @@ void GrDawnGpu::flushCopyEncoder() {
 
 void GrDawnGpu::mapStagingBuffers() {
     // Map all active buffers, so we get a callback when they're done.
-    for (auto buffer : fActiveStagingBuffers) {
+    while (auto buffer = fActiveStagingBuffers.head()) {
+        fActiveStagingBuffers.remove(buffer);
+        fBusyStagingBuffers.addToTail(buffer);
         static_cast<GrDawnStagingBuffer*>(buffer)->mapAsync();
     }
 }

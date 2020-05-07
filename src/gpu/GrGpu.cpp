@@ -692,12 +692,6 @@ bool GrGpu::submitToGpu(bool syncCpu) {
 
     bool submitted = this->onSubmitToGpu(syncCpu);
 
-    // Move all active staging buffers to the busy list.
-    // TODO: this should probably be handled inside of the onSubmitToGpu by the backends.
-    while (GrStagingBuffer* buffer = fActiveStagingBuffers.head()) {
-        fActiveStagingBuffers.remove(buffer);
-        fBusyStagingBuffers.addToTail(buffer);
-    }
     return submitted;
 }
 
