@@ -513,7 +513,7 @@ private:
             SkScalar devPhase = draw.fPhase * args.fParallelScale;
             SkScalar strokeWidth = args.fSrcStrokeWidth * args.fPerpendicularScale;
 
-            if ((strokeWidth < 1.f && useAA) || 0.f == strokeWidth) {
+            if ((strokeWidth < 1.f && !useAA) || 0.f == strokeWidth) {
                 strokeWidth = 1.f;
             }
 
