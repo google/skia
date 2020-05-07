@@ -296,7 +296,6 @@ private:
     friend class SkStrikeServer;
     friend class SkTestScalerContext;
     friend class SkTestSVGScalerContext;
-    friend class SkUserScalerContext;
     friend class TestSVGTypeface;
     friend class TestTypeface;
 
