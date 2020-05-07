@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <vector>
@@ -79,11 +80,12 @@ protected:
                 return SkImageFilters::MatrixConvolution({3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
             }
             case kLarge_KernelFixture: {
-                // Intentionally go over the MAX_KERNEL_SIZE limit and trigger CPU fallback.
+                static_assert(30 > GrMatrixConvolutionEffect::kMaxUniformSize);
+                // testing some medium-size kernels on the pixel 4
                 // All 1s except center value, which is -47 (sum of 1).
-                std::vector<SkScalar> kernel(49, SkIntToScalar(1));
-                kernel[24] = SkIntToScalar(-47);
-                return SkImageFilters::MatrixConvolution({7,7}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
+                std::vector<SkScalar> kernel(30, SkIntToScalar(1));
+                kernel[15] = SkIntToScalar(28);
+                return SkImageFilters::MatrixConvolution({6,5}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
             }
             default:
                 return nullptr;
@@ -129,7 +131,9 @@ protected:
         this->draw(canvas, 310, 210, kernelOffset, SkTileMode::kRepeat, true, &smallRect);
 
         this->draw(canvas, 410, 10, kernelOffset, SkTileMode::kClamp, false, &rect);
+        SkDebugf("Begin fail case\n");
         this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kDecal, false, &rect);
+        SkDebugf("End fail case\n");
         this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kRepeat, false, &rect);
     }
 
