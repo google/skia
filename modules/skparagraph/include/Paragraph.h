@@ -39,6 +39,10 @@ public:
     virtual void layout(SkScalar width) = 0;
 
     virtual void paint(SkCanvas* canvas, SkScalar x, SkScalar y) = 0;
+    // Paints only the paragraph lines in range [start: end)
+    virtual SkScalar paintLines(SkCanvas* canvas, size_t start, size_t end, SkScalar x, SkScalar y) = 0;
+    // Snaps the value to the top of the closest line above (to be used with paintLines)
+    virtual size_t snapToLine(SkScalar value) = 0;
 
     // Returns a vector of bounding boxes that enclose all text between
     // start and end glyph indexes, including start and excluding end

@@ -114,6 +114,8 @@ public:
 
     void layout(SkScalar width) override;
     void paint(SkCanvas* canvas, SkScalar x, SkScalar y) override;
+    SkScalar paintLines(SkCanvas* canvas, size_t start, size_t end, SkScalar x, SkScalar y) override;
+    size_t snapToLine(SkScalar value) override;
     std::vector<TextBox> getRectsForRange(unsigned start,
                                           unsigned end,
                                           RectHeightStyle rectHeightStyle,
@@ -181,7 +183,7 @@ public:
     void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
-    void paintLinesIntoPicture();
+    SkScalar paintLinesIntoPicture(size_t start, size_t end);
 
     void updateTextAlign(TextAlign textAlign) override;
     void updateText(size_t from, SkString text) override;
@@ -210,7 +212,7 @@ private:
     friend class TextWrapper;
     friend class OneLineShaper;
 
-    void calculateBoundaries();
+    void calculateBoundaries(size_t start, size_t end);
 
     void markGraphemes16();
     void markGraphemes();
@@ -252,6 +254,8 @@ private:
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
     std::vector<size_t> fWords;
+    SkScalar fDrawnHeight;
+    SkRange<size_t> fLineRange;
 };
 }  // namespace textlayout
 }  // namespace skia
