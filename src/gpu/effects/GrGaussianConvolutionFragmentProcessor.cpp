@@ -137,11 +137,12 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
         const GrCaps& caps) {
     std::unique_ptr<GrFragmentProcessor> child;
     GrSamplerState sampler;
+    wm = GrSamplerState::WrapMode::kClamp;
     switch (dir) {
         case Direction::kX: sampler.setWrapModeX(wm); break;
         case Direction::kY: sampler.setWrapModeY(wm); break;
     }
-    if (bounds) {
+    if (bounds && false) {
         SkASSERT(bounds[0] < bounds[1]);
         SkRect subset;
         switch (dir) {
