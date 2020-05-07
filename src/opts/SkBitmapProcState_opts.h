@@ -139,9 +139,11 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
             sum >>= 8;
 
-            // Scale by [0,256] alpha.
-            sum *= s.fAlphaScale;
-            sum >>= 8;
+            // Scale by alpha if needed.
+            if(s.fAlphaScale < 256) {
+                sum *= s.fAlphaScale;
+                sum >>= 8;
+            }
 
             // Pack back to 8-bit channels, undoing to_16x4().
             return skvx::bit_pun<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
