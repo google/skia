@@ -178,10 +178,16 @@ static bool should_tile_image_id(GrContext* context,
         return false;
     }
 
-    // At this point we know we could do the draw by uploading the entire bitmap
-    // as a texture. However, if the texture would be large compared to the
-    // cache size and we don't require most of it for this draw then tile to
-    // reduce the amount of upload and cache spill.
+    // At this point we know we could do the draw by uploading the entire bitmap as a texture.
+    // However, if the texture would be large compared to the cache size and we don't require most
+    // of it for this draw then tile to reduce the amount of upload and cache spill.
+    // NOTE: if the context is not a direct context, it doesn't have access to the resource cache,
+    // and theoretically, the resource cache's limits could be being changed on another thread, so
+    // even having access to just the limit wouldn't be a reliable test during recording here.
+    // Instead, we will just upload the entire image to be on the safe side and not tile.
+    if (!context->priv().asDirectContext()) {
+        return false;
+    }
 
     // assumption here is that sw bitmap size is a good proxy for its size as
     // a texture
