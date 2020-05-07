@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e59de30_f8dbe2bb",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-07T13:05:32Z",
+      "side": 1,
+      "message": "Was this change intentional?",
+      "range": {
+        "startLine": 131,
+        "startChar": 43,
+        "endLine": 131,
+        "endChar": 52
+      },
+      "revId": "6bdbd3da5d91eec7d25017efe12761b0ba8ae577",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
