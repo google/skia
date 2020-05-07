@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2f86f241_68a2e849",
+        "filename": "src/gpu/d3d/GrD3DAttachmentViewManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-07T18:10:55Z",
+      "side": 1,
+      "message": "I tried that, but it felt like it got a little messy. I can take another stab at it now that the rest of interface is nailed down more.",
+      "parentUuid": "4d7434d0_a6372a2e",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 72
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bab4fd55_20502a36",
         "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-07T17:50:33Z",
       "side": 1,
       "message": "These two ownsHandle functions worry me slightly. I do think that in practice they will work, but the d3d spec does make it pretty clear that the handles are not meant to be treated like pointers and they only think you can do with them is pass them into d3d function calls or add an offset to them to get a new handle. It is not guaranteed that the + operator with the offset works like a point +. It can return an arbitrary handle that the driver understands. So I don\u0027t think you\u0027re suppose to be comparing handles or subtracting them and expected to have meaning.\n\nI may be wrong here, but that is at least my reading from the programming guide.\n\nAn alternative way to deal with the recycling of handles would be for the allocate calls to instead return a struct of { D3D_HANDLE, {heapID, index} }; The inner struct can be some private data only accessible by the heap manager",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 57
+      },
+      "revId": "9b0153450579b79aabd64d6b4f8d2e424715c584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89dd687b_809efc1c",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-07T18:10:55Z",
+      "side": 1,
+      "message": "I guess the way I think about it is that the set of \"ptr\" (it\u0027s really a size_t) values \n   { heapStart, heapStart + increment, heapStart + 2*increment, ... , heapStart + (numDescriptors-1)*increment }\n\nare valid descriptors for that heap. So if the value you have is in that set, then this heap owns it. They have to be unique to their heap, otherwise the driver couldn\u0027t find it because all you pass in is the handle. I\u0027d guess the in-between values also belong to that heap, but I suppose it\u0027s possible that different heaps could interleave their handles so best not to assume.\n\nThat said, my math doesn\u0027t really capture that, particularly with the truncating integer divide, but I think that\u0027s fixable.",
+      "parentUuid": "bab4fd55_20502a36",
       "range": {
         "startLine": 28,
         "startChar": 4,
