@@ -29,7 +29,7 @@ public:
      * as input. After successful generation, the builder result objects are available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
+    static GrVkPipelineState* CreatePipelineState1(GrVkGpu*,
                                                   GrRenderTarget*,
                                                   const GrProgramDesc&,
                                                   const GrProgramInfo&,
@@ -45,7 +45,7 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 
-    GrVkPipelineState* finalize(const GrProgramDesc&, VkRenderPass compatibleRenderPass);
+    GrVkPipelineState* finalize91(const GrProgramDesc&, VkRenderPass compatibleRenderPass);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],

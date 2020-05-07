@@ -26,7 +26,7 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
     stencilView->ref();
 }
 
-GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
+GrVkStencilAttachment* GrVkStencilAttachment::Create1(GrVkGpu* gpu,
                                                      int width,
                                                      int height,
                                                      int sampleCnt,
