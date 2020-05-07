@@ -44,7 +44,7 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(const GrProgramInfo&,
+    GrVkPipeline* createPipeline7(const GrProgramInfo&,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  VkRenderPass compatibleRenderPass,
@@ -56,19 +56,21 @@ public:
     // and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle. If this is
     // non null it will be set to a handle that can be used in the furutre to quickly return a
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
-    const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
+    const GrVkRenderPass* findCompatibleRenderPass1(const GrVkRenderPass::AttachmentsDescriptor&,
+                                                    GrVkRenderPass::AttachmentFlags,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
     // The CompatibleRPHandle must be a valid handle previously set by a call to
     // findCompatibleRenderPass(GrVkRenderTarget&, CompatibleRPHandle*).
-    const GrVkRenderPass* findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle);
+    const GrVkRenderPass* findCompatibleRenderPass2(const CompatibleRPHandle& compatibleHandle);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
                                                            uint32_t colorAttachmentIndex);
 
     // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
-    // If this is non null it will be set to a handle that can be used in the furutre to quickly
-    // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
+    // If this is non null it will be set to a handle that can be used in the future to quickly
+    // return a GrVkRenderPass without the need to inspect a GrVkRenderTarget.
+    // TODO: sk_sp?
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
@@ -109,7 +111,7 @@ public:
     GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+    GrVkPipelineState* findOrCreateCompatiblePipelineState3(
             GrRenderTarget*,
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass);
@@ -184,17 +186,17 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
+        GrVkPipelineState* findOrCreatePipelineState1(GrRenderTarget*,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass);
 
     private:
         struct Entry;
 
-        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
-                                                const GrProgramDesc&,
-                                                const GrProgramInfo&,
-                                                VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState2(GrRenderTarget*,
+                                                     const GrProgramDesc&,
+                                                     const GrProgramInfo&,
+                                                     VkRenderPass compatibleRenderPass);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
@@ -219,7 +221,8 @@ private:
         // with this set.
         CompatibleRenderPassSet(GrVkRenderPass* renderPass);
 
-        bool isCompatible(const GrVkRenderTarget& target) const;
+        bool isCompatible_eviler(const GrVkRenderPass::AttachmentsDescriptor&,
+                                 GrVkRenderPass::AttachmentFlags) const;
 
         GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store

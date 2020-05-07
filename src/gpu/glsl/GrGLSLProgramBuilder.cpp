@@ -27,7 +27,7 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fRenderTarget(renderTarget)
+        , fRenderTarget1(renderTarget)
         , fDesc(desc)
         , fProgramInfo(programInfo)
         , fGeometryProcessor(nullptr)
