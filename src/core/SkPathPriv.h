@@ -146,10 +146,73 @@ public:
     /**
       * Iterates through a raw range of path verbs, points, and conics. All values are returned
       * unaltered.
-      *
-      * NOTE: This class's definition will be moved into SkPathPriv once RangeIter is removed.
     */
-    using RangeIter = SkPath::RangeIter;
+    class RangeIter {
+    public:
+        RangeIter() = default;
+        RangeIter(const uint8_t* verbs, const SkPoint* points, const SkScalar* weights)
+                : fVerb(verbs), fPoints(points), fWeights(weights) {
+            SkDEBUGCODE(fInitialPoints = fPoints;)
+        }
+        bool operator!=(const RangeIter& that) const {
+            return fVerb != that.fVerb;
+        }
+        bool operator==(const RangeIter& that) const {
+            return fVerb == that.fVerb;
+        }
+        RangeIter& operator++() {
+            auto verb = static_cast<SkPathVerb>(*fVerb++);
+            fPoints += pts_advance_after_verb(verb);
+            if (verb == SkPathVerb::kConic) {
+                ++fWeights;
+            }
+            return *this;
+        }
+        RangeIter operator++(int) {
+            RangeIter copy = *this;
+            this->operator++();
+            return copy;
+        }
+        SkPathVerb peekVerb() const {
+            return static_cast<SkPathVerb>(*fVerb);
+        }
+        std::tuple<SkPathVerb, const SkPoint*, const SkScalar*> operator*() const {
+            SkPathVerb verb = this->peekVerb();
+            // We provide the starting point for beziers by peeking backwards from the current
+            // point, which works fine as long as there is always a kMove before any geometry.
+            // (SkPath::injectMoveToIfNeeded should have guaranteed this to be the case.)
+            int backset = pts_backset_for_verb(verb);
+            SkASSERT(fPoints + backset >= fInitialPoints);
+            return {verb, fPoints + backset, fWeights};
+        }
+    private:
+        constexpr static int pts_advance_after_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 1;
+                case SkPathVerb::kLine: return 1;
+                case SkPathVerb::kQuad: return 2;
+                case SkPathVerb::kConic: return 2;
+                case SkPathVerb::kCubic: return 3;
+                case SkPathVerb::kClose: return 0;
+            }
+            SkUNREACHABLE;
+        }
+        constexpr static int pts_backset_for_verb(SkPathVerb verb) {
+            switch (verb) {
+                case SkPathVerb::kMove: return 0;
+                case SkPathVerb::kLine: return -1;
+                case SkPathVerb::kQuad: return -1;
+                case SkPathVerb::kConic: return -1;
+                case SkPathVerb::kCubic: return -1;
+                case SkPathVerb::kClose: return 0;
+            }
+            SkUNREACHABLE;
+        }
+        const uint8_t* fVerb = nullptr;
+        const SkPoint* fPoints = nullptr;
+        const SkScalar* fWeights = nullptr;
+        SkDEBUGCODE(const SkPoint* fInitialPoints = nullptr;)
+    };
 
     /**
      * Iterable object for traversing verbs, points, and conic weights in a path:
@@ -171,8 +234,8 @@ public:
                 const SkScalar* weights)
                 : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points), fWeights(weights) {
         }
-        SkPath::RangeIter begin() { return {fVerbsBegin, fPoints, fWeights}; }
-        SkPath::RangeIter end() { return {fVerbsEnd, nullptr, nullptr}; }
+        RangeIter begin() { return {fVerbsBegin, fPoints, fWeights}; }
+        RangeIter end() { return {fVerbsEnd, nullptr, nullptr}; }
     private:
         const uint8_t* fVerbsBegin;
         const uint8_t* fVerbsEnd;

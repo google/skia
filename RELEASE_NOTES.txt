@@ -53,6 +53,8 @@ Milestone 84
     vertices with no colors and no (texture coordinates or shader) would be drawn in wireframe.
     https://review.skia.org/282043
 
+  * Replaced SkPath::RawIter with a faster, cleaner, internal RangeIter object.
+
 * * *
 
 Milestone 83

@@ -54,12 +54,12 @@ enum SkPathSegmentMask {
 };
 
 enum class SkPathVerb {
-    kMove,   //!< SkPath::RawIter returns 1 point
-    kLine,   //!< SkPath::RawIter returns 2 points
-    kQuad,   //!< SkPath::RawIter returns 3 points
-    kConic,  //!< SkPath::RawIter returns 3 points + 1 weight
-    kCubic,  //!< SkPath::RawIter returns 4 points
-    kClose   //!< SkPath::RawIter returns 0 points
+    kMove,   //!< SkPathPriv::RangeIter returns 1 point
+    kLine,   //!< SkPathPriv::RangeIter returns 2 points
+    kQuad,   //!< SkPathPriv::RangeIter returns 3 points
+    kConic,  //!< SkPathPriv::RangeIter returns 3 points + 1 weight
+    kCubic,  //!< SkPathPriv::RangeIter returns 4 points
+    kClose   //!< SkPathPriv::RangeIter returns 0 points
 };
 
 #endif
