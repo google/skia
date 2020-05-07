@@ -70,6 +70,30 @@
       "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a4003bd_ad276da5",
+        "filename": "include/utils/SkCustomTypeface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-07T02:15:57Z",
+      "side": 1,
+      "message": "Yes, you\u0027d have to manually scale paths/advances to 1-point",
+      "parentUuid": "64bb231b_be403fd2",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 59
+      },
+      "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
