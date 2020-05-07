@@ -89,10 +89,10 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         return nullptr;
     }
 
-    return this->findOrCreatePipeline(renderTarget, desc, programInfo, compatibleRenderPass);
+    return this->findOrCreatePipelineState(renderTarget, desc, programInfo, compatibleRenderPass);
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipeline(
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,

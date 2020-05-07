@@ -299,7 +299,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline7(fProgramInfo, shaderStageInfo,
                                                              numShaderStages, compatibleRenderPass,
                                                              pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
