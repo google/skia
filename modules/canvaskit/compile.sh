@@ -313,6 +313,7 @@ echo "Generating final wasm"
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
+    --no-entry \
     -I. \
     -Ithird_party/icu \
     -Ithird_party/skcms \
@@ -360,7 +361,7 @@ ${EMCXX} \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s TOTAL_MEMORY=128MB \
+    -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js
