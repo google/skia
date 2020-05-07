@@ -83,9 +83,9 @@ private:
     // We really just want the unaltered local coords, but the only way to get that right now is
     // an identity coord transform.
     GrCoordTransform      fCoordTransform = {};
-    // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
-    // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
-    float                 fKernel[kMaxKernelWidth];
+    // The array size must be a multiple of 4 because we pass it as an array of float4 uniform
+    // values.
+    float                 fKernel[SkAlign4(kMaxKernelWidth)];
     int                   fRadius;
     Direction             fDirection;
 

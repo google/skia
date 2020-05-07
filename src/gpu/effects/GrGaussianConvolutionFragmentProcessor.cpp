@@ -90,6 +90,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     int width = conv.width();
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
+    SkASSERT(arrayCount * 4 <= SK_ARRAY_COUNT(GrGaussianConvolutionFragmentProcessor::fKernel));
     pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
 }
 
