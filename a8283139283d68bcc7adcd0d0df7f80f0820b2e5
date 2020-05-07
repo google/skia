@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f635d0d_c0b84ef6",
+        "filename": "src/gpu/d3d/GrD3DAttachmentViewManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T21:06:24Z",
+      "side": 1,
+      "message": "Can this ever fail? If not can we just call a ctor? If so I think this should be in a GrD3DAttachmentViewManager::Heap::Make function so the entire thing can fail gracefully.",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 98
+      },
+      "revId": "a8283139283d68bcc7adcd0d0df7f80f0820b2e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c26edce_b7c47d3a",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-07T21:06:24Z",
+      "side": 1,
+      "message": "Not needed, but we could make a helper function that takes two size_t for the handle and start ptr if we wanted to share all the logic between the cpu and gpu handles.",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "a8283139283d68bcc7adcd0d0df7f80f0820b2e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
