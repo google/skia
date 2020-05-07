@@ -46,6 +46,30 @@
       "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64bb231b_be403fd2",
+        "filename": "include/utils/SkCustomTypeface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-05-07T01:06:46Z",
+      "side": 1,
+      "message": "That\u0027ll work, I guess I just have to downscale my glyph paths to 1pt (1/declared_size).  Advances too.",
+      "parentUuid": "d2a2f6a8_b33c95a6",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 59
+      },
+      "revId": "cf65fa95c20a6c148d1d73d8f79a2e7a736b8dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
