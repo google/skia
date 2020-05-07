@@ -18,33 +18,29 @@
 namespace skottie {
 namespace internal {
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
-    const skjson::ObjectValue& jlayer,
-    const std::function<sk_sp<sksg::RenderNode>(const skjson::ObjectValue&)>& func) const {
-
+AnimationBuilder::ScopedAssetRef::ScopedAssetRef(const AnimationBuilder* abuilder,
+                                                 const skjson::ObjectValue& jlayer) {
     const auto refId = ParseDefault<SkString>(jlayer["refId"], SkString());
     if (refId.isEmpty()) {
-        this->log(Logger::Level::kError, nullptr, "Layer missing refId.");
-        return nullptr;
+        abuilder->log(Logger::Level::kError, nullptr, "Layer missing refId.");
+        return;
     }
 
-    const auto* asset_info = fAssets.find(refId);
+    const auto* asset_info = abuilder->fAssets.find(refId);
     if (!asset_info) {
-        this->log(Logger::Level::kError, nullptr, "Asset not found: '%s'.", refId.c_str());
-        return nullptr;
+        abuilder->log(Logger::Level::kError, nullptr, "Asset not found: '%s'.", refId.c_str());
+        return;
     }
 
     if (asset_info->fIsAttaching) {
-        this->log(Logger::Level::kError, nullptr,
+        abuilder->log(Logger::Level::kError, nullptr,
                   "Asset cycle detected for: '%s'", refId.c_str());
-        return nullptr;
+        return;
     }
 
     asset_info->fIsAttaching = true;
-    auto asset = func(*asset_info->fAsset);
-    asset_info->fIsAttaching = false;
 
-    return asset;
+    fInfo = asset_info;
 }
 
 CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,

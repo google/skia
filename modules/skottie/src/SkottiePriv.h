@@ -19,7 +19,6 @@
 #include "modules/sksg/include/SkSGScene.h"
 #include "src/utils/SkUTF.h"
 
-#include <functional>
 #include <vector>
 
 class SkFontMgr;
@@ -189,8 +188,6 @@ private:
                                             sk_sp<sksg::RenderNode>) const;
 
     sk_sp<sksg::RenderNode> attachShape(const skjson::ArrayValue*, AttachShapeContext*) const;
-    sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&,
-        const std::function<sk_sp<sksg::RenderNode>(const skjson::ObjectValue&)>&) const;
     const FootageAssetInfo* loadFootageAsset(const skjson::ObjectValue&) const;
     sk_sp<sksg::RenderNode> attachFootageAsset(const skjson::ObjectValue&, LayerInfo*) const;
 
@@ -251,6 +248,24 @@ private:
     struct FootageAssetInfo {
         sk_sp<ImageAsset> fAsset;
         SkISize           fSize;
+    };
+
+    class ScopedAssetRef {
+    public:
+        ScopedAssetRef(const AnimationBuilder* abuilder, const skjson::ObjectValue& jlayer);
+
+        ~ScopedAssetRef() {
+            if (fInfo) {
+                fInfo->fIsAttaching = false;
+            }
+        }
+
+        operator bool() const { return !!fInfo; }
+
+        const skjson::ObjectValue& operator*() const { return *fInfo->fAsset; }
+
+    private:
+        const AssetInfo* fInfo = nullptr;
     };
 
     SkTHashMap<SkString, AssetInfo>                fAssets;
