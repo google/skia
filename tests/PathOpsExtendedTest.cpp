@@ -13,6 +13,7 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkMutex.h"
 #include "include/utils/SkParsePath.h"
+#include "src/core/SkPathPriv.h"
 #include "tests/PathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
@@ -416,20 +417,13 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
         SkParsePath::ToSVGString(path, &svg);
         fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
     } else {
-        SkPath::RawIter iter(path);
-        SkPath::Verb verb;
                                  // MOVE, LINE, QUAD, CONIC, CUBIC, CLOSE
         const int verbConst[] =  {     0,    1,    2,     3,     4,     5 };
         const int pointIndex[] = {     0,    1,    1,     1,     1,     0 };
         const int pointCount[] = {     1,    2,    3,     3,     4,     0 };
         fprintf(PathOpsDebug::gOut, "  \"%s\": [", pathName);
         bool first = true;
-        do {
-            SkPoint points[4];
-            verb = iter.next(points);
-            if (SkPath::kDone_Verb == verb) {
-                break;
-            }
+        for (auto [verb, points, w] : SkPathPriv::Iterate(path)) {
             if (first) {
                 first = false;
             } else {
@@ -441,11 +435,11 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
                 fprintf(PathOpsDebug::gOut, ", \"0x%08x\", \"0x%08x\"",
                         SkFloat2Bits(points[i].fX), SkFloat2Bits(points[i].fY));
             }
-            if (SkPath::kConic_Verb == verb) {
-                fprintf(PathOpsDebug::gOut, ", \"0x%08x\"", SkFloat2Bits(iter.conicWeight()));
+            if (SkPathVerb::kConic == verb) {
+                fprintf(PathOpsDebug::gOut, ", \"0x%08x\"", SkFloat2Bits(*w));
             }
             fprintf(PathOpsDebug::gOut, "]");
-        } while (SkPath::kDone_Verb != verb);
+        }
         fprintf(PathOpsDebug::gOut, "],\n");
     }
     fprintf(PathOpsDebug::gOut, "  \"fillType%s\": \"k%s_FillType\"%s", fillTypeName,

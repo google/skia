@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkReduceOrder.h"
 
@@ -83,14 +84,11 @@ int SkOpEdgeBuilder::preFetch() {
         fUnparseable = true;
         return 0;
     }
-    SkPath::RawIter iter(*fPath);
     SkPoint curveStart;
     SkPoint curve[4];
-    SkPoint pts[4];
-    SkPath::Verb verb;
     bool lastCurve = false;
-    do {
-        verb = iter.next(pts);
+    for (auto [pathVerb, pts, w] : SkPathPriv::Iterate(*fPath)) {
+        auto verb = static_cast<SkPath::Verb>(pathVerb);
         switch (verb) {
             case SkPath::kMove_Verb:
                 if (!fAllowOpenContours && lastCurve) {
@@ -124,7 +122,7 @@ int SkOpEdgeBuilder::preFetch() {
                 curve[1] = force_small_to_zero(pts[1]);
                 curve[2] = force_small_to_zero(pts[2]);
                 verb = SkReduceOrder::Quad(curve, curve);
-                if (SkPath::kQuad_Verb == verb && 1 != iter.conicWeight()) {
+                if (SkPath::kQuad_Verb == verb && 1 != *w) {
                   verb = SkPath::kConic_Verb;
                 } else if (verb == SkPath::kMove_Verb) {
                     continue;  // skip degenerate points
@@ -150,11 +148,11 @@ int SkOpEdgeBuilder::preFetch() {
         int ptCount = SkPathOpsVerbToPoints(verb);
         fPathPts.append(ptCount, &curve[1]);
         if (verb == SkPath::kConic_Verb) {
-            *fWeights.append() = iter.conicWeight();
+            *fWeights.append() = *w;
         }
         curve[0] = curve[ptCount];
         lastCurve = true;
-    } while (verb != SkPath::kDone_Verb);
+    }
     if (!fAllowOpenContours && lastCurve) {
         closeContour(curve[0], curveStart);
     }
