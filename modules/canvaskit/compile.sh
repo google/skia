@@ -179,6 +179,11 @@ else
       --align 4
 fi
 
+if [[ $@ == *no_alias_font* ]]; then
+EXTRA_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
+FONT_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
+fi
+
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
