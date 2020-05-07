@@ -64,6 +64,11 @@ public:
         return this->findAsset(name);
     }
 
+    sk_sp<SkData> load(const char[]/*path*/, const char name[]) const override {
+        // Ignore paths.
+        return this->findAsset(name);
+    }
+
 private:
     explicit SkottieAssetProvider(AssetVec assets) : fAssets(std::move(assets)) {}
 
@@ -86,10 +91,14 @@ public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
                                         sk_sp<skottie::ResourceProvider> rp) {
         auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>();
+        static constexpr char kInterceptPrefix[] = "__";
+        auto pinterceptor =
+            sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, kInterceptPrefix);
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
-                            .setResourceProvider(rp)
+                            .setResourceProvider(std::move(rp))
+                            .setPrecompInterceptor(std::move(pinterceptor))
                             .make(json.c_str(), json.size());
 
         return animation
