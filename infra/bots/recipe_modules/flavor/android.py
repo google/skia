@@ -25,8 +25,11 @@ class AndroidFlavor(default.DefaultFlavor):
 
     # Data should go in android_data_dir, which may be preserved across runs.
     android_data_dir = '/sdcard/revenge_of_the_skiabot/'
+    bin_dir = '/data/local/tmp/'
+    if 'GalaxyS20' in self.m.vars.builder_cfg.get('model'):
+      bin_dir = '/data/nativetest64/unrestricted/'
     self.device_dirs = default.DeviceDirs(
-        bin_dir        = '/data/local/tmp/',
+        bin_dir        = bin_dir,
         dm_dir         = android_data_dir + 'dm_out',
         perf_data_dir  = android_data_dir + 'perf',
         resource_dir   = android_data_dir + 'resources',
@@ -503,10 +506,15 @@ time.sleep(60)
 
   def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
-    self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; %s%s; echo $? >%src' % (
-            self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
-            self.device_dirs.bin_dir))
+    script = '''
+set -x
+%s%s
+echo $? > %src
+''' % (self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
+       self.device_dirs.bin_dir)
+    if 'GalaxyS20' in self.m.vars.builder_cfg.get('model'):
+      script = 'export LD_PRELOAD=/system/vendor/lib64/libGLES_mali.so' + script
+    self.m.run.writefile(self.m.vars.tmp_dir.join(sh), script)
     self._adb('push %s' % sh,
               'push', self.m.vars.tmp_dir.join(sh), self.device_dirs.bin_dir)
 

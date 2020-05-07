@@ -1227,13 +1227,16 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/dm --some-flag\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/dm.sh"
     ],
     "infra_step": true,
     "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@dm.sh@/data/local/tmp/dm --some-flag@@@",
+      "@@@STEP_LOG_LINE@dm.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },

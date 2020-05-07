@@ -1306,13 +1306,16 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "\nset -x\n/data/local/tmp/nanobench --some-flag\necho $? > /data/local/tmp/rc\n",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "infra_step": true,
     "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@/data/local/tmp/nanobench --some-flag@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@echo $? > /data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },
