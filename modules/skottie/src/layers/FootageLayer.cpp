@@ -147,10 +147,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageAsset(const skjson::Objec
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageLayer(const skjson::ObjectValue& jlayer,
                                                              LayerInfo* layer_info) const {
-    return this->attachAssetRef(jlayer,
-        [this, &layer_info] (const skjson::ObjectValue& jimage) {
-            return this->attachFootageAsset(jimage, layer_info);
-        });
+    const ScopedAssetRef footage_asset(this, jlayer);
+
+    return footage_asset
+        ? this->attachFootageAsset(*footage_asset, layer_info)
+        : nullptr;
 }
 
 } // namespace internal
