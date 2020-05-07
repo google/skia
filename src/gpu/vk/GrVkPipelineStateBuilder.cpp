@@ -21,9 +21,9 @@
 
 typedef size_t shader_size;
 
-GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
+GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState1(
         GrVkGpu* gpu,
-        GrRenderTarget* renderTarget,
+        GrRenderTarget* renderTarget_only_for_sample_locations,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
@@ -32,20 +32,20 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrVkPipelineStateBuilder builder(gpu, renderTarget_only_for_sample_locations, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
 
-    return builder.finalize(desc, compatibleRenderPass);
+    return builder.finalize91(desc, compatibleRenderPass);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
-                                                   GrRenderTarget* renderTarget,
+                                                   GrRenderTarget* renderTarget_only_for_sample_locations,
                                                    const GrProgramDesc& desc,
                                                    const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(renderTarget_only_for_sample_locations, desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -149,7 +149,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize91(const GrProgramDesc& desc,
                                                       VkRenderPass compatibleRenderPass) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -299,7 +299,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline7(fProgramInfo, shaderStageInfo,
                                                              numShaderStages, compatibleRenderPass,
                                                              pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {

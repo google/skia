@@ -35,12 +35,6 @@ public:
         }
     };
 
-    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
-    static GrVkRenderPass* Create(GrVkGpu* gpu,
-                                  const GrVkRenderPass& compatibleRenderPass,
-                                  const LoadStoreOps& colorOp,
-                                  const LoadStoreOps& stencilOp);
-
     // Used when importing an external render pass. In this case we have to explicitly be told the
     // color attachment index
     explicit GrVkRenderPass(const GrVkGpu* gpu, VkRenderPass renderPass,
@@ -89,6 +83,14 @@ public:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
 
+    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu,
+                                        const AttachmentsDescriptor&,
+                                        AttachmentFlags);
+    static GrVkRenderPass* Create(GrVkGpu* gpu,
+                                  const GrVkRenderPass& compatibleRenderPass,
+                                  const LoadStoreOps& colorOp,
+                                  const LoadStoreOps& stencilOp);
+
     // The following return the index of the render pass attachment array for the given attachment.
     // If the render pass does not have the given attachment it will return false and not set the
     // index value.
@@ -99,9 +101,11 @@ public:
     // this object. Specifically this compares that the number of attachments, format of
     // attachments, and sample counts are all the same. This function is used in the creation of
     // basic RenderPasses that can be used when creating a VkFrameBuffer object.
-    bool isCompatible(const GrVkRenderTarget& target) const;
+    bool isCompatible_evil(const GrVkRenderTarget& target) const;
 
     bool isCompatible(const GrVkRenderPass& renderPass) const;
+
+    bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
     bool isCompatibleExternalRP(VkRenderPass) const;
 
@@ -131,11 +135,9 @@ private:
 
     static GrVkRenderPass* Create(GrVkGpu* gpu,
                                   AttachmentFlags,
-                                  AttachmentsDescriptor&,
+                                  const AttachmentsDescriptor&,
                                   const LoadStoreOps& colorOps,
                                   const LoadStoreOps& stencilOps);
-
-    bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
     void freeGPUData() const override;
 

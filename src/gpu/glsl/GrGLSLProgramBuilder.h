@@ -51,10 +51,10 @@ public:
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
+        return fRenderTarget1->renderTargetPriv().getSampleLocations().count();
     }
     const SkTArray<SkPoint>& getSampleLocations() const {
-        return fRenderTarget->renderTargetPriv().getSampleLocations();
+        return fRenderTarget1->renderTargetPriv().getSampleLocations();
     }
 
     const GrProgramDesc& desc() const { return fDesc; }
@@ -103,7 +103,7 @@ public:
 
     int fStageIndex;
 
-    const GrRenderTarget*        fRenderTarget; // TODO: remove this
+    const GrRenderTarget*        fRenderTarget1; // TODO: remove this
     const GrProgramDesc&         fDesc;
     const GrProgramInfo&         fProgramInfo;
 
