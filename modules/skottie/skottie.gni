@@ -63,7 +63,7 @@ skia_skottie_sources = [
   "$_src/effects/TransformEffect.cpp",
   "$_src/effects/TritoneEffect.cpp",
   "$_src/effects/VenetianBlindsEffect.cpp",
-  "$_src/layers/ImageLayer.cpp",
+  "$_src/layers/FootageLayer.cpp",
   "$_src/layers/NullLayer.cpp",
   "$_src/layers/PrecompLayer.cpp",
   "$_src/layers/SolidLayer.cpp",
