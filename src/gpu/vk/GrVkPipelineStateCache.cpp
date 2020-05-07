@@ -68,10 +68,11 @@ void GrVkResourceProvider::PipelineStateCache::release() {
     fMap.reset();
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState1(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        bool* cacheHit) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -79,7 +80,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
 #ifdef SK_DEBUG
     if (programInfo.pipeline().isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
+        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == programInfo.numStencilSamples());
     }
 #endif
 
@@ -89,20 +90,23 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         return nullptr;
     }
 
-    return this->findOrCreatePipeline(renderTarget, desc, programInfo, compatibleRenderPass);
+    return this->findOrCreatePipelineState2(renderTarget, desc, programInfo, compatibleRenderPass, cacheHit);
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipeline(
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState2(
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        bool* cacheHit) {
+    *cacheHit = true;
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
+        *cacheHit = false;
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
+        GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState1(
                 fGpu, renderTarget, desc, programInfo, compatibleRenderPass));
         if (!pipelineState) {
             return nullptr;
