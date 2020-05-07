@@ -87,12 +87,12 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
+GrVkPipeline* GrVkResourceProvider::createPipeline7(const GrProgramInfo& programInfo,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, shaderStageInfo,
+    return GrVkPipeline::Create1(fGpu, programInfo, shaderStageInfo,
                                 shaderStageCount, compatibleRenderPass, layout,
                                 this->pipelineCache());
 }
@@ -225,11 +225,11 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
     return ycbcrConversion;
 }
 
-GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState3(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->findOrCreatePipelineState(renderTarget, programInfo,
+    return fPipelineStateCache->findOrCreatePipelineState1(renderTarget, programInfo,
                                                           compatibleRenderPass);
 }
 

@@ -503,7 +503,7 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
-GrVkPipeline* GrVkPipeline::Create(
+GrVkPipeline* GrVkPipeline::Create1(
         GrVkGpu* gpu,
         const GrProgramInfo& programInfo,
         VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,

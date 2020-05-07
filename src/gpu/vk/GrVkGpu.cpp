@@ -1852,7 +1852,13 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
-bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState3(
+                                    nullptr /*!!*/, programInfo, compatibleRenderPass);
+    if (!pipelineState) {
+        return false;
+    }
     return false;
 }
 

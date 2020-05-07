@@ -44,7 +44,7 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(const GrProgramInfo&,
+    GrVkPipeline* createPipeline7(const GrProgramInfo&,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  VkRenderPass compatibleRenderPass,
@@ -109,7 +109,7 @@ public:
     GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+    GrVkPipelineState* findOrCreateCompatiblePipelineState3(
             GrRenderTarget*,
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass);
@@ -184,17 +184,17 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
+        GrVkPipelineState* findOrCreatePipelineState1(GrRenderTarget*,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass);
 
     private:
         struct Entry;
 
-        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
-                                                const GrProgramDesc&,
-                                                const GrProgramInfo&,
-                                                VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState2(GrRenderTarget*,
+                                                     const GrProgramDesc&,
+                                                     const GrProgramInfo&,
+                                                     VkRenderPass compatibleRenderPass);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
