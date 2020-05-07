@@ -1515,9 +1515,10 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
+    //$$
     const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferredStencilFormat();
 
-    GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
+    GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create1(this,
                                                                  width,
                                                                  height,
                                                                  numStencilSamples,
@@ -1852,8 +1853,75 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
-bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
-    return false;
+// Reconstruct the render target attachment information from the program desc. This includes which
+// attachments the render target will have (color, stencil) and the attachments' formats and
+// sample counts - cf. GrVkRenderTarget::getAttachmentsDescriptor.
+GrVkRenderPass::AttachmentFlags reconstruct_attachment_desc(
+                                            const GrVkCaps& vkCaps,
+                                            const GrProgramInfo& programInfo,
+                                            GrVkRenderPass::AttachmentsDescriptor* desc) {
+//    SkASSERT(!this->wrapsSecondaryCommandBuffer());
+
+    VkFormat format;
+    SkAssertResult(programInfo.backendFormat().asVkFormat(&format));
+
+    desc->fColor.fFormat = format;
+    desc->fColor.fSamples = programInfo.numSamples();
+    GrVkRenderPass::AttachmentFlags attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
+    uint32_t attachmentCount = 1;
+
+    bool stencilEnabled = programInfo.pipeline().isStencilEnabled();
+    if (stencilEnabled) {
+        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        desc->fStencil.fSamples = programInfo.numStencilSamples();
+#ifdef SK_DEBUG
+        if (vkCaps.mixedSamplesSupport()) {
+            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
+        } else {
+            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
+        }
+#endif
+        attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
+        ++attachmentCount;
+    }
+    desc->fAttachmentCount = attachmentCount;
+
+    return attachmentFlags;
+}
+
+bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    auto attachmentFlags = reconstruct_attachment_desc(this->vkCaps(), programInfo,
+                                                       &attachmentsDescriptor);
+
+#if 0
+    // Get attachment information from render target. This includes which attachments the render
+    // target has (color, stencil) and the attachments format and sample count.
+    GrVkRenderPass::AttachmentFlags attachmentFlags;
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    this->getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
+#endif
+
+    auto renderPass = this->resourceProvider().findCompatibleRenderPass1(&attachmentsDescriptor,
+                                                                         attachmentFlags);
+    if (!renderPass) {
+        return false;
+    }
+
+    bool cacheHit = false;
+
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState3(
+                                    nullptr /* renderTarget! */,
+                                    programInfo,
+                                    renderPass->vkRenderPass(),
+                                    &cacheHit);
+    if (!pipelineState) {
+        return false;
+    }
+
+    return !cacheHit;
 }
 
 #if GR_TEST_UTILS

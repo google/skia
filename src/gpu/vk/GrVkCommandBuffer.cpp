@@ -470,7 +470,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
                                                bool forSecondaryCB) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
-    SkASSERT(renderPass->isCompatible(*target));
+    SkASSERT(renderPass->isCompatible_evil(*target));
 
     const GrVkFramebuffer* framebuffer = target->getFramebuffer();
     if (!framebuffer) {

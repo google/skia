@@ -460,8 +460,8 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
 
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
-    fCurrentPipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
-            fRenderTarget, programInfo, compatibleRenderPass);
+    fCurrentPipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState3(
+            fRenderTarget, programInfo, compatibleRenderPass, nullptr);
     if (!fCurrentPipelineState) {
         return false;
     }
