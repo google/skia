@@ -229,6 +229,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const GrCaps& caps,
                                                                  const float border[4]) {
     Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps);
+    SkDebugf("Sampling x: %d y: %d\n", sampling.fShaderModes[0], sampling.fShaderModes[1]);
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
