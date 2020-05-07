@@ -94,6 +94,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (fDriverBugWorkarounds.max_fragment_uniform_vectors_32) {
         fMaxFragmentUniformVectors = std::min(fMaxFragmentUniformVectors, 32);
     }
+    static SkOnce printer;
+    printer([&]{
+        SkDebugf("max frag uniform vectors: %d\n", (int)fMaxFragmentUniformVectors);
+    });
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
     if (GR_IS_GR_GL(standard)) {
