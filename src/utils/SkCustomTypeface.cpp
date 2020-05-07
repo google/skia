@@ -218,7 +218,7 @@ static void compress_write(SkWStream* stream, const SkPath& path, int upem) {
     std::vector<PVerb> verbs;
     for (auto [v, p, w] : SkPathPriv::Iterate(path)) {
         switch (v) {
-            default: SkASSERT(!"oops"); break;
+            default: break;
             case SkPathVerb::kMove: verbs.push_back(kMove); pCount += 1; break;
             case SkPathVerb::kQuad: verbs.push_back(kCurve); pCount += 2; break;
             case SkPathVerb::kLine: verbs.push_back(kLine); pCount += 1; break;
