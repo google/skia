@@ -378,7 +378,6 @@ gm_sources = [
   "$_gm/trickycubicstrokes.cpp",
   "$_gm/typeface.cpp",
   "$_gm/unpremul.cpp",
-  "$_gm/userfont.cpp",
   "$_gm/variedtext.cpp",
   "$_gm/verifiers/gmverifier.cpp",
   "$_gm/vertices.cpp",
