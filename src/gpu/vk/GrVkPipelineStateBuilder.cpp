@@ -21,7 +21,7 @@
 
 typedef size_t shader_size;
 
-GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
+GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState1(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
@@ -299,7 +299,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline7(fProgramInfo, shaderStageInfo,
                                                              numShaderStages, compatibleRenderPass,
                                                              pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {

@@ -29,7 +29,7 @@ public:
      * as input. After successful generation, the builder result objects are available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
+    static GrVkPipelineState* CreatePipelineState1(GrVkGpu*,
                                                   GrRenderTarget*,
                                                   const GrProgramDesc&,
                                                   const GrProgramInfo&,
