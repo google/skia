@@ -22,6 +22,30 @@
       "revId": "6bdbd3da5d91eec7d25017efe12761b0ba8ae577",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae0be00f_2aaf73e4",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-07T17:40:33Z",
+      "side": 1,
+      "message": "Yes, thank you. Will fix it with the next check-in.",
+      "parentUuid": "7e59de30_f8dbe2bb",
+      "range": {
+        "startLine": 131,
+        "startChar": 43,
+        "endLine": 131,
+        "endChar": 52
+      },
+      "revId": "6bdbd3da5d91eec7d25017efe12761b0ba8ae577",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
