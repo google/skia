@@ -1131,6 +1131,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // Otherwise, go with std::wstring and set UTF-32 encoding.
             return self.measureText(text.c_str(), text.length(), SkTextEncoding::kUTF8);
         }))
+        .function("setEdging", &SkFont::setEdging)
+        .function("setEmbeddedBitmaps", &SkFont::setEmbeddedBitmaps)
         .function("setHinting", &SkFont::setHinting)
         .function("setLinearMetrics", &SkFont::setLinearMetrics)
         .function("setScaleX", &SkFont::setScaleX)
@@ -1184,7 +1186,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return self.makeFromData(fontData);
     }), allow_raw_pointers());
-#endif
+#endif // SK_NO_FONTS
 
     class_<SkImage>("SkImage")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
@@ -1629,6 +1631,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Slight", SkFontHinting::kSlight)
         .value("Normal", SkFontHinting::kNormal)
         .value("Full",   SkFontHinting::kFull);
+
+    enum_<SkFont::Edging>("FontEdging")
+#ifndef CANVASKIT_NO_ALIAS_FONT
+        .value("Alias",             SkFont::Edging::kAlias)
+#endif
+        .value("AntiAlias",         SkFont::Edging::kAntiAlias)
+        .value("SubpixelAntiAlias", SkFont::Edging::kSubpixelAntiAlias);
 #endif
 
     enum_<SkTileMode>("TileMode")

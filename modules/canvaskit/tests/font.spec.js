@@ -1,12 +1,12 @@
 describe('Font Behavior', () => {
     let container;
 
-    let notSerifFontBuffer = null;
+    let notoSerifFontBuffer = null;
     // This font is known to support kerning
     const notoSerifFontLoaded = fetch('/assets/NotoSerif-Regular.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
-            notSerifFontBuffer = buffer;
+            notoSerifFontBuffer = buffer;
         });
 
     let bungeeFontBuffer = null;
@@ -40,7 +40,7 @@ describe('Font Behavior', () => {
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
         const fontMgr = CanvasKit.SkFontMgr.RefDefault();
-        const notoSerif = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
 
         const textPaint = new CanvasKit.SkPaint();
         const textFont = new CanvasKit.SkFont(notoSerif, 20);
@@ -122,7 +122,7 @@ describe('Font Behavior', () => {
 
     gm('serif_text_on_path', (canvas) => {
         const fontMgr = CanvasKit.SkFontMgr.RefDefault();
-        const notoSerif = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
 
         const paint = new CanvasKit.SkPaint();
         paint.setAntiAlias(true);
@@ -184,8 +184,8 @@ describe('Font Behavior', () => {
     });
 
     it('can make a font mgr with passed in fonts', () => {
-        // CanvasKit.SkFontMgr.FromData([bungeeFontBuffer, notSerifFontBuffer]) also works
-        const fontMgr = CanvasKit.SkFontMgr.FromData(bungeeFontBuffer, notSerifFontBuffer);
+        // CanvasKit.SkFontMgr.FromData([bungeeFontBuffer, notoSerifFontBuffer]) also works
+        const fontMgr = CanvasKit.SkFontMgr.FromData(bungeeFontBuffer, notoSerifFontBuffer);
         expect(fontMgr).toBeTruthy();
         expect(fontMgr.countFamilies()).toBe(2);
         // in debug mode, let's list them.
@@ -259,14 +259,14 @@ describe('Font Behavior', () => {
 
     it('can measure text very precisely with proper settings', () => {
         const fontMgr = CanvasKit.SkFontMgr.RefDefault();
-        const typeface = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+        const typeface = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
         const fontSizes = [257, 100, 11];
         // The point of these values is to let us know 1) we can measure to sub-pixel levels
         // and 2) that measurements don't drastically change. If these change a little bit,
         // just update them with the new values. For super-accurate readings, one could
         // run a C++ snippet of code and compare the values, but that is likely unnecessary
         // unless we suspect a bug with the bindings.
-        const expectedSizes = [1178.71143, 458.64258, 50.450683]
+        const expectedSizes = [1178.71143, 458.64258, 50.450683];
         for (const idx in fontSizes) {
             const font = new CanvasKit.SkFont(typeface, fontSizes[idx]);
             font.setHinting(CanvasKit.FontHinting.None);
@@ -279,6 +279,38 @@ describe('Font Behavior', () => {
         }
 
         typeface.delete();
+        fontMgr.delete();
+    });
+
+    gm('font_edging', (canvas) => {
+        // Draw a small font scaled up to see the aliasing artifacts.
+        canvas.scale(8, 8);
+        canvas.clear(CanvasKit.WHITE);
+        const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+
+        const textPaint = new CanvasKit.SkPaint();
+        const annotationFont = new CanvasKit.SkFont(notoSerif, 6);
+
+        canvas.drawText('Default', 5, 5, textPaint, annotationFont);
+        canvas.drawText('Alias', 5, 25, textPaint, annotationFont);
+        canvas.drawText('AntiAlias', 5, 45, textPaint, annotationFont);
+        canvas.drawText('Subpixel', 5, 65, textPaint, annotationFont);
+
+        const testFont = new CanvasKit.SkFont(notoSerif, 20);
+
+        canvas.drawText('SEA', 35, 15, textPaint, testFont);
+        testFont.setEdging(CanvasKit.FontEdging.Alias);
+        canvas.drawText('SEA', 35, 35, textPaint, testFont);
+        testFont.setEdging(CanvasKit.FontEdging.AntiAlias);
+        canvas.drawText('SEA', 35, 55, textPaint, testFont);
+        testFont.setEdging(CanvasKit.FontEdging.SubpixelAntiAlias);
+        canvas.drawText('SEA', 35, 75, textPaint, testFont);
+
+        textPaint.delete();
+        annotationFont.delete();
+        testFont.delete();
+        notoSerif.delete();
         fontMgr.delete();
     });
 
