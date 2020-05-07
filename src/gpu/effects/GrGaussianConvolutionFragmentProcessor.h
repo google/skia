@@ -59,10 +59,7 @@ public:
     // samples per fragment program run in DX9SM2 (32). A sigma param of 4.0
     // on a blur filter gives a kernel width of 25 while a sigma of 5.0
     // would exceed a 32 wide kernel.
-    static const int kMaxKernelRadius = 12;
-    // With a C++11 we could have a constexpr version of WidthFromRadius()
-    // and not have to duplicate this calculation.
-    static const int kMaxKernelWidth = 2 * kMaxKernelRadius + 1;
+    static constexpr int kMaxKernelRadius = 12;
 
 private:
     GrGaussianConvolutionFragmentProcessor(std::unique_ptr<GrFragmentProcessor>,
@@ -80,12 +77,14 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
+    static constexpr int kMaxKernelWidth = 2*kMaxKernelRadius + 1;
+
     // We really just want the unaltered local coords, but the only way to get that right now is
     // an identity coord transform.
     GrCoordTransform      fCoordTransform = {};
-    // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
-    // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
-    float                 fKernel[kMaxKernelWidth];
+    // The array size must be a multiple of 4 because we pass it as an array of float4 uniform
+    // values.
+    float                 fKernel[SkAlign4(kMaxKernelWidth)];
     int                   fRadius;
     Direction             fDirection;
 
