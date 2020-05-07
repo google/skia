@@ -24,13 +24,13 @@ SkMatrix image_matrix(const sk_sp<SkImage>& image, const SkISize& dest_size) {
                  : SkMatrix::I();
 }
 
-class ImageAnimator final : public Animator {
+class FootageAnimator final : public Animator {
 public:
-    ImageAnimator(sk_sp<ImageAsset> asset,
-                  sk_sp<sksg::Image> image_node,
-                  sk_sp<sksg::Matrix<SkMatrix>> image_transform_node,
-                  const SkISize& asset_size,
-                  float time_bias, float time_scale)
+    FootageAnimator(sk_sp<ImageAsset> asset,
+                    sk_sp<sksg::Image> image_node,
+                    sk_sp<sksg::Matrix<SkMatrix>> image_transform_node,
+                    const SkISize& asset_size,
+                    float time_bias, float time_scale)
         : fAsset(std::move(asset))
         , fImageNode(std::move(image_node))
         , fImageTransformNode(std::move(image_transform_node))
@@ -67,8 +67,8 @@ private:
 
 } // namespace
 
-const AnimationBuilder::ImageAssetInfo*
-AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
+const AnimationBuilder::FootageAssetInfo*
+AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& jimage) const {
     const skjson::StringValue* name = jimage["p"];
     const skjson::StringValue* path = jimage["u"];
     const skjson::StringValue* id   = jimage["id"];
@@ -93,9 +93,9 @@ AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
     return fImageAssetCache.set(res_id, { std::move(asset), size });
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
-                                                           LayerInfo* layer_info) const {
-    const auto* asset_info = this->loadImageAsset(jimage);
+sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageAsset(const skjson::ObjectValue& jimage,
+                                                             LayerInfo* layer_info) const {
+    const auto* asset_info = this->loadFootageAsset(jimage);
     if (!asset_info) {
         return nullptr;
     }
@@ -113,12 +113,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         // We don't know the intrinsic image size yet (plus, in the general case,
         // the size may change from frame to frame) -> we always prepare a scaling transform.
         image_transform = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
-        fCurrentAnimatorScope->push_back(sk_make_sp<ImageAnimator>(asset_info->fAsset,
-                                                                   image_node,
-                                                                   image_transform,
-                                                                   asset_info->fSize,
-                                                                   -layer_info->fInPoint,
-                                                                   1 / fFrameRate));
+        fCurrentAnimatorScope->push_back(sk_make_sp<FootageAnimator>(asset_info->fAsset,
+                                                                     image_node,
+                                                                     image_transform,
+                                                                     asset_info->fSize,
+                                                                     -layer_info->fInPoint,
+                                                                     1 / fFrameRate));
     } else {
         // No animator needed, resolve the (only) frame upfront.
         auto frame = asset_info->fAsset->getFrame(0);
@@ -145,11 +145,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     return sksg::TransformEffect::Make(std::move(image_node), std::move(image_transform));
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
-                                                           LayerInfo* layer_info) const {
+sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageLayer(const skjson::ObjectValue& jlayer,
+                                                             LayerInfo* layer_info) const {
     return this->attachAssetRef(jlayer,
         [this, &layer_info] (const skjson::ObjectValue& jimage) {
-            return this->attachImageAsset(jimage, layer_info);
+            return this->attachFootageAsset(jimage, layer_info);
         });
 }
 
