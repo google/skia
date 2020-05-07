@@ -2636,6 +2636,50 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView40 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph40"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(
+            "Can you imagine at the end of Corona?\n"
+                "When we all emerge from our coma\n"
+                "Oh what a fright\n"
+                "When we all unite\n"
+                "And everyone’s hairy, fat and finally sober?"
+        );
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        SkScalar height = 0;
+        for (auto& line : impl->lines()) {
+            auto top = paragraph->snapToLine(line.offset().fY + 10);
+            auto bottom = paragraph->snapToLine(line.offset().fY + line.height() + 10);
+            height += paragraph->paintLines(canvas, top, bottom, 0, height);
+        }
+        SkASSERT(height == paragraph->getHeight());
+        paragraph->paint(canvas, 0, height);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2675,3 +2719,4 @@ DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
 DEF_SAMPLE(return new ParagraphView38();)
 DEF_SAMPLE(return new ParagraphView39();)
+DEF_SAMPLE(return new ParagraphView40();)
