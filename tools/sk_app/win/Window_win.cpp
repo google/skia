@@ -377,6 +377,12 @@ bool Window_win::attach(BackendType attachType) {
                     window_context_factory::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
+#ifdef SK_DIRECT3D
+        case kDirect3D_BackendType:
+            fWindowContext =
+                window_context_factory::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams);
+            break;
+#endif
     }
     this->onBackendCreated();
 

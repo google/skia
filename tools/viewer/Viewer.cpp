@@ -84,9 +84,15 @@ static DEFINE_string(slide, "", "Start on this sample.");
 static DEFINE_bool(list, false, "List samples?");
 
 #if defined(SK_VULKAN)
-#    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
+#    if defined(SK_DIRECT3D)
+#        define BACKENDS_STR "\"sw\", \"gl\", \"vk\", and \"d3d\""
+#    elif
+#        define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
+#    endif
 #elif defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"mtl\""
+#elif defined(SK_DIRECT3D)
+#    define BACKENDS_STR  "\"sw\", \"gl\", and \"d3d\""
 #elif defined(SK_DAWN)
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"dawn\""
 #else
@@ -177,6 +183,12 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
         return sk_app::Window::kMetal_BackendType;
     } else
 #endif
+#ifdef SK_DIRECT3D
+    if (0 == strcmp(str, "d3d")) {
+        return sk_app::Window::kDirect3D_BackendType;
+    } else
+#endif
+
     if (0 == strcmp(str, "gl")) {
         return sk_app::Window::kNativeGL_BackendType;
     } else if (0 == strcmp(str, "sw")) {
