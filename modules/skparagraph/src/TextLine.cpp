@@ -194,13 +194,13 @@ SkRect TextLine::calculateBoundaries() {
     return boundaries;
 }
 
-void TextLine::paint(SkCanvas* textCanvas) {
+void TextLine::paint(SkCanvas* textCanvas, SkScalar offsetY) {
     if (this->empty()) {
         return;
     }
 
     textCanvas->save();
-    textCanvas->translate(this->offset().fX, this->offset().fY);
+    textCanvas->translate(this->offset().fX, this->offset().fY - offsetY);
 
     if (fHasBackground) {
         this->iterateThroughVisualRuns(false,
