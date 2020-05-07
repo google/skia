@@ -67,7 +67,6 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
-    void flush();
     std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
