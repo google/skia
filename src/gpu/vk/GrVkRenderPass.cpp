@@ -51,25 +51,25 @@ GrVkRenderPass* GrVkRenderPass::CreateSimple(GrVkGpu* gpu, const GrVkRenderTarge
     // Get attachment information from render target. This includes which attachments the render
     // target has (color, stencil) and the attachments format and sample count.
     target.getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
-    return Create(gpu, attachmentFlags, attachmentsDescriptor, kBasicLoadStoreOps,
+    return Create(gpu, attachmentFlags, &attachmentsDescriptor, kBasicLoadStoreOps,
                   kBasicLoadStoreOps);
 }
 
 GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
-                            const GrVkRenderPass& compatibleRenderPass,
-                            const LoadStoreOps& colorOp,
-                            const LoadStoreOps& stencilOp) {
+                                       const GrVkRenderPass& compatibleRenderPass,
+                                       const LoadStoreOps& colorOp,
+                                       const LoadStoreOps& stencilOp) {
     AttachmentFlags attachmentFlags = compatibleRenderPass.fAttachmentFlags;
     AttachmentsDescriptor attachmentsDescriptor = compatibleRenderPass.fAttachmentsDescriptor;
-    return Create(gpu, attachmentFlags, attachmentsDescriptor, colorOp, stencilOp);
+    return Create(gpu, attachmentFlags, &attachmentsDescriptor, colorOp, stencilOp);
 }
 
 GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
                                        AttachmentFlags attachmentFlags,
-                                       AttachmentsDescriptor& attachmentsDescriptor,
+                                       AttachmentsDescriptor* attachmentsDescriptor,
                                        const LoadStoreOps& colorOp,
                                        const LoadStoreOps& stencilOp) {
-    uint32_t numAttachments = attachmentsDescriptor.fAttachmentCount;
+    uint32_t numAttachments = attachmentsDescriptor->fAttachmentCount;
     // Attachment descriptions to be set on the render pass
     SkTArray<VkAttachmentDescription> attachments(numAttachments);
     attachments.reset(numAttachments);
@@ -95,9 +95,9 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
     if (attachmentFlags & kColor_AttachmentFlag) {
         // set up color attachment
-        attachmentsDescriptor.fColor.fLoadStoreOps = colorOp;
+        attachmentsDescriptor->fColor.fLoadStoreOps = colorOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
-                                        attachmentsDescriptor.fColor,
+                                        attachmentsDescriptor->fColor,
                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
         // setup subpass use of attachment
         colorRef.attachment = currentAttachment++;
@@ -118,9 +118,9 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
     if (attachmentFlags & kStencil_AttachmentFlag) {
         // set up stencil attachment
-        attachmentsDescriptor.fStencil.fLoadStoreOps = stencilOp;
+        attachmentsDescriptor->fStencil.fLoadStoreOps = stencilOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
-                                        attachmentsDescriptor.fStencil,
+                                        attachmentsDescriptor->fStencil,
                                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
         // setup subpass use of attachment
         stencilRef.attachment = currentAttachment++;
@@ -168,7 +168,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
                                                             renderPass,
                                                             &granularity));
 
-    return new GrVkRenderPass(gpu, renderPass, attachmentFlags, attachmentsDescriptor, granularity,
+    return new GrVkRenderPass(gpu, renderPass, attachmentFlags, *attachmentsDescriptor, granularity,
                               clearValueCount);
 }
 
