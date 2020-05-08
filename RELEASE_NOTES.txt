@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 84
 
+  * Add api on GrContext, updateBackendTexture that will upload new data to a
+    GrBackendTexture.
+    https://review.skia.org/288555
+
   * GrContext::createBackendTexture functions that initialize the texture no longer
     guarantee that all the data has been uploaded and the gpu is done with the texture.
     Instead the client can assume the upload work has been submitted to the gpu and they
