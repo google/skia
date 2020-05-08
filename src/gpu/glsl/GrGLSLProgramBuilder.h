@@ -54,6 +54,7 @@ public:
         return fRenderTarget->renderTargetPriv().getSampleLocations().count();
     }
     const SkTArray<SkPoint>& getSampleLocations() const {
+        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
         return fRenderTarget->renderTargetPriv().getSampleLocations();
     }
 

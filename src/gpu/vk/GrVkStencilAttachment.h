@@ -22,7 +22,7 @@ public:
         int  fStencilBits;
     };
 
-    static GrVkStencilAttachment* Create(GrVkGpu* gpu, int width, int height,
+    static GrVkStencilAttachment* Create1(GrVkGpu* gpu, int width, int height,
                                          int sampleCnt, const Format& format);
 
     ~GrVkStencilAttachment() override;

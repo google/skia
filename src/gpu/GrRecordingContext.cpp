@@ -214,8 +214,10 @@ void GrRecordingContext::dumpJSON(SkJSONWriter*) const { }
 #if GR_GPU_STATS
 
 void GrRecordingContext::Stats::dump(SkString* out) {
+#if 1
     out->appendf("Num Path Masks Generated: %d\n", fNumPathMasksGenerated);
     out->appendf("Num Path Mask Cache Hits: %d\n", fNumPathMaskCacheHits);
+#endif
 }
 
 void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
