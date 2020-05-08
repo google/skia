@@ -152,13 +152,24 @@ enum DashCap {
     kNonRound_DashCap,
 };
 
-static void setup_dashed_rect(const SkRect& rect, GrVertexWriter& vertices, const SkMatrix& matrix,
-                              SkScalar offset, SkScalar bloatX, SkScalar bloatY, SkScalar len,
-                              SkScalar stroke, SkScalar startInterval, SkScalar endInterval,
-                              SkScalar strokeWidth, DashCap cap) {
+static void setup_dashed_rect(const SkRect& rect,
+                              GrVertexWriter& vertices,
+                              const SkMatrix& matrix,
+                              SkScalar offset,
+                              SkScalar bloatX,
+                              SkScalar len,
+                              SkScalar startInterval,
+                              SkScalar endInterval,
+                              SkScalar strokeWidth,
+                              SkScalar perpScale,
+                              DashCap cap) {
     SkScalar intervalLength = startInterval + endInterval;
-    SkRect dashRect = { offset       - bloatX, -stroke - bloatY,
-                        offset + len + bloatX,  stroke + bloatY };
+    // 'dashRect' gets interpolated over the rendered 'rect'. For y we want the perpendicular signed
+    // distance from the stroke center line in device space. 'perpScale' is the scale factor applied
+    // to the y dimension of 'rect' isolated from 'matrix'.
+    SkScalar halfDevRectHeight =  rect.height()*perpScale/2.f;
+    SkRect dashRect = { offset       - bloatX, -halfDevRectHeight,
+                        offset + len + bloatX,  halfDevRectHeight};
 
     if (kRound_DashCap == cap) {
         SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
@@ -318,9 +329,8 @@ private:
         SkScalar fStartOffset;
         SkScalar fStrokeWidth;
         SkScalar fLineLength;
-        SkScalar fHalfDevStroke;
         SkScalar fDevBloatX;
-        SkScalar fDevBloatY;
+        SkScalar fPerpendicularScale;
         bool fLineDone;
         bool fHasStartRect;
         bool fHasEndRect;
@@ -596,8 +606,7 @@ private:
 
             draw.fStartOffset = startOffset;
             draw.fDevBloatX = devBloatX;
-            draw.fDevBloatY = devBloatY;
-            draw.fHalfDevStroke = halfDevStroke;
+            draw.fPerpendicularScale = args.fPerpendicularScale;
             draw.fStrokeWidth = strokeWidth;
             draw.fHasStartRect = hasStartRect;
             draw.fLineDone = lineDone;
@@ -620,11 +629,12 @@ private:
 
             if (!draws[i].fLineDone) {
                 if (fullDash) {
-                    setup_dashed_rect(
-                            rects[rectIndex], vertices, geom.fSrcRotInv,
-                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
-                            draws[i].fLineLength, draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
+                    setup_dashed_rect(rects[rectIndex], vertices, geom.fSrcRotInv,
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fLineLength, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fPerpendicularScale,
+                                      capType);
                 } else {
                     vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
@@ -633,11 +643,11 @@ private:
 
             if (draws[i].fHasStartRect) {
                 if (fullDash) {
-                    setup_dashed_rect(
-                            rects[rectIndex], vertices, geom.fSrcRotInv,
-                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
-                            draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
+                    setup_dashed_rect(rects[rectIndex], vertices, geom.fSrcRotInv,
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fIntervals[0], draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fPerpendicularScale, capType);
                 } else {
                     vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
@@ -646,11 +656,11 @@ private:
 
             if (draws[i].fHasEndRect) {
                 if (fullDash) {
-                    setup_dashed_rect(
-                            rects[rectIndex], vertices, geom.fSrcRotInv,
-                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
-                            draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
+                    setup_dashed_rect(rects[rectIndex], vertices, geom.fSrcRotInv,
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fIntervals[0], draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fPerpendicularScale, capType);
                 } else {
                     vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
