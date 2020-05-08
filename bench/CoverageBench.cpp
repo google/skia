@@ -21,11 +21,12 @@ class DrawPathBench : public Benchmark {
     SkPath      fPath;
     SkRasterClip fRC;
     SkAutoPixmapStorage fPixmap;
-    SkMatrix    fIdentity;
+    SkSimpleMatrixProvider fIdentityMatrixProvider;
     SkDraw      fDraw;
     bool        fDrawCoverage;
 public:
-    DrawPathBench(bool drawCoverage) : fDrawCoverage(drawCoverage) {
+    DrawPathBench(bool drawCoverage)
+            : fIdentityMatrixProvider(SkMatrix::I()), fDrawCoverage(drawCoverage) {
         fPaint.setAntiAlias(true);
         fName.printf("draw_coverage_%s", drawCoverage ? "true" : "false");
 
@@ -40,12 +41,11 @@ public:
             fPixmap.erase(0);
         }
 
-        fIdentity.setIdentity();
         fRC.setRect(fPath.getBounds().round());
 
-        fDraw.fDst      = fPixmap;
-        fDraw.fMatrix   = &fIdentity;
-        fDraw.fRC       = &fRC;
+        fDraw.fDst            = fPixmap;
+        fDraw.fMatrixProvider = &fIdentityMatrixProvider;
+        fDraw.fRC             = &fRC;
     }
 
 protected:

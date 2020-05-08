@@ -12,6 +12,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
@@ -279,7 +280,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
 
     SkMatrix matrix;
-    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
+    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
         return false;
     }
     matrix.postConcat(fPtsToUnit);

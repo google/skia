@@ -315,7 +315,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
         SkRasterClip rc(this->devClipBounds());
         SkDraw draw;
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
-        draw.fMatrix = &this->localToDevice();
+        draw.fMatrixProvider = this;
         draw.fRC = &rc;
         draw.drawPoints(mode, count, pts, paint, this);
         return;

@@ -20,6 +20,7 @@
 #include "src/core/SkEndian.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkSharedMutex.h"
@@ -1008,7 +1009,8 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     draw.fDst = SkPixmap(SkImageInfo::MakeN32(glyph.width(), glyph.height(), kPremul_SkAlphaType),
                          glyph.fImage,
                          glyph.rowBytesUsingFormat(SkMask::Format::kARGB32_Format));
-    draw.fMatrix = &matrix;
+    SkSimpleMatrixProvider matrixProvider(matrix);
+    draw.fMatrixProvider = &matrixProvider;
     draw.fRC = &rc;
 
     SkPaint paint;

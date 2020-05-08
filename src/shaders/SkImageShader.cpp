@@ -346,7 +346,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     auto quality = rec.fPaint.getFilterQuality();
 
     SkMatrix matrix;
-    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
+    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
         return false;
     }
 
@@ -619,7 +619,7 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
-    bool usePersp = rec.fCTM.hasPerspective();
+    bool usePersp = rec.fMatrixProvider.localToDevice().hasPerspective();
     auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp);
     return this->doStages(rec, updater) ? updater : nullptr;
 }

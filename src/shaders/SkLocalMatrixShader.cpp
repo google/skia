@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkLocalMatrixShader.h"
@@ -138,6 +139,7 @@ protected:
 #endif
 
     bool onAppendStages(const SkStageRec& rec) const override {
+        SkOverrideDeviceMatrixProvider matrixProvider(rec.fMatrixProvider, fCTM);
         SkStageRec newRec = {
             rec.fPipeline,
             rec.fAlloc,
@@ -145,7 +147,7 @@ protected:
             rec.fDstCS,
             rec.fPaint,
             rec.fLocalM,
-            fCTM,
+            matrixProvider,
         };
         return as_SB(fProxyShader)->appendStages(newRec);
     }

@@ -18,6 +18,7 @@
 
 class SkArenaAlloc;
 class SkMatrix;
+class SkMatrixProvider;
 class SkPaint;
 class SkPixmap;
 struct SkMask;
@@ -140,7 +141,7 @@ public:
         Return the correct blitter to use given the specified context.
      */
     static SkBlitter* Choose(const SkPixmap& dst,
-                             const SkMatrix& matrix,
+                             const SkMatrixProvider& matrixProvider,
                              const SkPaint& paint,
                              SkArenaAlloc*,
                              bool drawCoverage,

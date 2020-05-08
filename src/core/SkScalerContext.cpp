@@ -21,6 +21,7 @@
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -509,9 +510,10 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     sk_bzero(dst.writable_addr(), dst.computeByteSize());
 
     SkDraw  draw;
-    draw.fDst   = dst;
-    draw.fRC    = &clip;
-    draw.fMatrix = &matrix;
+    SkSimpleMatrixProvider matrixProvider(matrix);
+    draw.fDst            = dst;
+    draw.fRC             = &clip;
+    draw.fMatrixProvider = &matrixProvider;
     draw.drawPath(path, paint);
 
     switch (mask.fFormat) {
