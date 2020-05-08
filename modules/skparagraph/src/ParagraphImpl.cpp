@@ -447,6 +447,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
             fHeight += delta;
             // Shift all the lines up
             for (auto& line : fLines) {
+                if (line.isFirstLine()) continue;
                 line.shiftVertically(delta);
             }
         }

@@ -133,6 +133,13 @@ enum TextHeightBehavior {
     kDisableAll = 0x1 | 0x2,
 };
 
+enum class LineMetricStyle : uint8_t {
+    // Use ascent, descent, etc from a fixed baseline.
+    Typographic,
+    // Use ascent, descent, etc like css with the leading split and with height adjustments
+    CSS
+};
+
 }  // namespace textlayout
 }  // namespace skia
 

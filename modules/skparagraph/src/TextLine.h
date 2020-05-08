@@ -136,6 +136,9 @@ private:
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
+
+    LineMetricStyle fAscentStyle;
+    LineMetricStyle fDescentStyle;
 };
 }  // namespace textlayout
 }  // namespace skia
