@@ -3355,11 +3355,13 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // The manual approach requires the ability to limit which level we're sampling and that the
     // destination can be bound to a FBO:
     if (!this->glCaps().doManualMipmapping() || !this->glCaps().isFormatRenderable(format, 1)) {
+        SkDebugf("doing generate mipmaps\n");
         GrGLenum target = glTex->target();
         this->bindTextureToScratchUnit(target, glTex->textureID());
         GL_CALL(GenerateMipmap(glTex->target()));
         return true;
     }
+    SkDebugf("doing manual mipmaps\n");
 
     int width = texture->width();
     int height = texture->height();
@@ -3444,6 +3446,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
         GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     }
+    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, 0));
 
     // Unbind:
     GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
@@ -3452,7 +3455,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // We modified the base level param.
     GrGLTextureParameters::NonsamplerState nonsamplerState = glTex->parameters()->nonsamplerState();
     // We drew the 2nd to last level into the last level.
-    nonsamplerState.fBaseMipMapLevel = levelCount - 2;
+    nonsamplerState.fBaseMipMapLevel = 0;
     glTex->parameters()->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
 
     return true;
@@ -3606,13 +3609,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
         SkISize levelDimensions = backendTexture.dimensions();
+        SkDebugf("Start of color texsubimage2D: num mip levels: %d\n", numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
+            SkDebugf("TexSubImage2D params: i: %d, width: %d, height: %d, externalFormat: %x, externalType: %x\n",
+                    i, levelDimensions.width(), levelDimensions.height(), externalFormat,
+                    externalType);
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
             levelDimensions = {std::max(1, levelDimensions.width() / 2),
                                std::max(1, levelDimensions.height() / 2)};
         }
+        SkDebugf("End of texsubimage2d loop\n");
     }
 
     // Unbind this texture from the scratch texture unit.
