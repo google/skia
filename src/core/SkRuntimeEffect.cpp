@@ -894,8 +894,10 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
+        // TODO: Populate dynamic uniforms!
         SkMatrix inverse;
-        if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &inverse)) {
+        if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM,
+                                       &inverse)) {
             return false;
         }
 

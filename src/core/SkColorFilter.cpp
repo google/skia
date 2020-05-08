@@ -14,6 +14,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -75,8 +76,9 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkRasterPipeline    pipeline(&alloc);
     pipeline.append_constant_color(&alloc, color.vec());
     SkPaint dummyPaint;
+    SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
     SkStageRec rec = {
-        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, SkMatrix::I()
+        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, matrixProvider
     };
     this->onAppendStages(rec, color.fA == 1);
 

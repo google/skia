@@ -67,6 +67,32 @@ private:
     SkM44                   fLocalToDevice44;
 };
 
+class SkPostConcatMatrixProvider : public SkMatrixProvider {
+public:
+    SkPostConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& postMatrix)
+            : fParent(parent) {
+        this->setPostMatrix(postMatrix);
+    }
+
+    void setPostMatrix(const SkMatrix& postMatrix) {
+        fLocalToDevice44 = SkM44(postMatrix) * fParent.localToDevice44();
+        fLocalToDevice = fLocalToDevice44.asM33();
+    }
+
+    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
+    const SkM44& localToDevice44() const override { return fLocalToDevice44; }
+
+    // We have to assume that the post-concat doesn't apply to ANY marked matrices
+    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
+        return fParent.getLocalToMarker(id, localToMarker);
+    }
+
+private:
+    const SkMatrixProvider& fParent;
+    SkMatrix                fLocalToDevice;
+    SkM44                   fLocalToDevice44;
+};
+
 class SkSimpleMatrixProvider : public SkMatrixProvider {
 public:
     SkSimpleMatrixProvider(const SkMatrix& localToDevice)
