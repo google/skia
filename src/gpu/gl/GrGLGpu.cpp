@@ -3606,13 +3606,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
         SkISize levelDimensions = backendTexture.dimensions();
+        SkDebugf("Start of color texsubimage2D: num mip levels: %d\n", numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
+            SkDebugf("TexSubImage2D params: i: %d, width: %d, height: %d, externalFormat: %x, externalType: %x\n",
+                    i, levelDimensions.width(), levelDimensions.height(), externalFormat,
+                    externalType);
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
             levelDimensions = {std::max(1, levelDimensions.width() / 2),
                                std::max(1, levelDimensions.height() / 2)};
         }
+        SkDebugf("End of texsubimage2d loop\n");
     }
 
     // Unbind this texture from the scratch texture unit.
