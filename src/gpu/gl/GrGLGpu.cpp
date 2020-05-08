@@ -3569,6 +3569,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, info.fID);
 
+    // If we have mips make sure the base level is set to 0 so that the uploads go to the right
+    // levels
+    if (numMipLevels) {
+        auto params = backendTexture.getGLTextureParams();
+        if (params->nonsamplerState().fBaseMipMapLevel != 0) {
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, 0));
+            GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
+            nonsamplerState.fBaseMipMapLevel = 0;
+            params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
+        }
+    }
+
     SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
@@ -3606,13 +3618,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
         SkISize levelDimensions = backendTexture.dimensions();
+        SkDebugf("Start of color texsubimage2D: num mip levels: %d\n", numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
+            SkDebugf("TexSubImage2D params: i: %d, width: %d, height: %d, externalFormat: %x, externalType: %x\n",
+                    i, levelDimensions.width(), levelDimensions.height(), externalFormat,
+                    externalType);
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
             levelDimensions = {std::max(1, levelDimensions.width() / 2),
                                std::max(1, levelDimensions.height() / 2)};
         }
+        SkDebugf("End of texsubimage2d loop\n");
     }
 
     // Unbind this texture from the scratch texture unit.
