@@ -131,7 +131,7 @@ private:
 
     static GrVkRenderPass* Create(GrVkGpu* gpu,
                                   AttachmentFlags,
-                                  AttachmentsDescriptor&,
+                                  AttachmentsDescriptor*,
                                   const LoadStoreOps& colorOps,
                                   const LoadStoreOps& stencilOps);
 
