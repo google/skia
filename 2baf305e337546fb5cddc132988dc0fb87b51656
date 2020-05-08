@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3de3c89f_8cac5503",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-08T20:00:25Z",
+      "side": 1,
+      "message": "This is the only real change. Everything else in this file is just deleting stuff that became unused.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 67
+      },
+      "revId": "2baf305e337546fb5cddc132988dc0fb87b51656",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
