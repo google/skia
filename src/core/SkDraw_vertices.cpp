@@ -12,6 +12,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkScan.h"
@@ -302,7 +303,8 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
 
         To be safe, we just make that determination here, and pass it into the tricolorshader.
      */
-    const bool usePerspective = fMatrix->hasPerspective();
+    SkMatrix ctm = fMatrixProvider->localToDevice();
+    const bool usePerspective = ctm.hasPerspective();
 
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
@@ -326,7 +328,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
     p.setShader(sk_ref_sp(shader));
 
     if (!textures) {    // only tricolor shader
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc,
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrixProvider, outerAlloc,
                                                      this->fRC->clipShader());
         while (vertProc(&state)) {
             if (triShader &&
@@ -340,7 +342,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
 
     SkRasterPipeline pipeline(outerAlloc);
     SkStageRec rec = {
-        &pipeline, outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrix
+        &pipeline, outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrixProvider
     };
     if (auto updater = as_SB(shader)->appendUpdatableStages(rec)) {
         bool isOpaque = shader->isOpaque();
@@ -359,7 +361,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
 
             SkMatrix localM;
             if (texture_to_matrix(state, positions, textures, &localM) &&
-                updater->update(*fMatrix, &localM))
+                updater->update(ctm, &localM))
             {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
@@ -374,18 +376,17 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
 
             SkSTArenaAlloc<2048> innerAlloc;
 
-            const SkMatrix* ctm = fMatrix;
-            SkMatrix tmpCtm;
+            const SkMatrixProvider* matrixProvider = fMatrixProvider;
+            SkTLazy<SkPreConcatMatrixProvider> preConcatMatrixProvider;
             if (textures) {
                 SkMatrix localM;
                 if (!texture_to_matrix(state, positions, textures, &localM)) {
                     continue;
                 }
-                tmpCtm = SkMatrix::Concat(*fMatrix, localM);
-                ctm = &tmpCtm;
+                matrixProvider = preConcatMatrixProvider.init(*matrixProvider, localM);
             }
 
-            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc,
+            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *matrixProvider, &innerAlloc,
                                                          this->fRC->clipShader());
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
@@ -409,8 +410,9 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
         return;
     }
+    SkMatrix ctm = fMatrixProvider->localToDevice();
     SkMatrix ctmInv;
-    if (!fMatrix->invert(&ctmInv)) {
+    if (!ctm.invert(&ctmInv)) {
         return;
     }
 
@@ -423,16 +425,16 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     SkPoint*  dev2 = nullptr;
     SkPoint3* dev3 = nullptr;
 
-    if (fMatrix->hasPerspective()) {
+    if (ctm.hasPerspective()) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fMatrix->mapHomogeneousPoints(dev3, info.positions(), vertexCount);
+        ctm.mapHomogeneousPoints(dev3, info.positions(), vertexCount);
         // similar to the bounds check for 2d points (below)
         if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {
         dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fMatrix->mapPoints(dev2, info.positions(), vertexCount);
+        ctm.mapPoints(dev2, info.positions(), vertexCount);
 
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value

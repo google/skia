@@ -154,12 +154,11 @@ static void draw_points(SkCanvas::PointMode mode,
                         const SkPoint* points,
                         const SkPaint& paint,
                         const SkIRect& bounds,
-                        const SkMatrix& ctm,
                         SkBaseDevice* device) {
     SkRasterClip rc(bounds);
     SkDraw draw;
     draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(bounds.right(), bounds.bottom()), nullptr, 0);
-    draw.fMatrix = &ctm;
+    draw.fMatrixProvider = device;
     draw.fRC = &rc;
     draw.drawPoints(mode, count, points, paint, device);
 }
@@ -420,8 +419,7 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (paint->getPathEffect()) {
-        draw_points(mode, count, points, *paint,
-                    this->devClipBounds(), this->localToDevice(), this);
+        draw_points(mode, count, points, *paint, this->devClipBounds(), this);
         return;
     }
 
