@@ -24,15 +24,16 @@ public:
                   const GrPrimitiveProcessor* primProc,
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount = 0)
-            : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
-            , fIsMixedSampled(fNumRasterSamples > numSamples)
+            : fNumSamples(numSamples)
+            , fNumStencilSamples(numStencilSamples)
+            , fIsMixedSampled(pipeline->isStencilEnabled() && numStencilSamples > numSamples)
             , fBackendFormat(backendFormat)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
-        SkASSERT(fNumRasterSamples > 0);
+        SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
         fRequestedFeatures = fPrimProc->requestedFeatures();
@@ -46,7 +47,12 @@ public:
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
-    int numRasterSamples() const { return fNumRasterSamples;  }
+    int numSamples() const { return fNumSamples; }
+    int numStencilSamples() const { return fNumStencilSamples; }
+
+    int numRasterSamples() const {
+        return fPipeline->isStencilEnabled() ? fNumStencilSamples : fNumSamples;
+    }
     bool isMixedSampled() const { return fIsMixedSampled; }
     // The backend format of the destination render target [proxy]
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
@@ -84,7 +90,8 @@ public:
 #endif
 
 private:
-    const int                             fNumRasterSamples;
+    const int                             fNumSamples;
+    const int                             fNumStencilSamples;
     const bool                            fIsMixedSampled;
     const GrBackendFormat                 fBackendFormat;
     const GrSurfaceOrigin                 fOrigin;
