@@ -111,7 +111,7 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     TextDirection getTextDirection() const { return leftToRight() ? TextDirection::kLtr : TextDirection::kRtl; }
     size_t index() const { return fIndex; }
-    SkScalar lineHeight() const { return fHeightMultiplier; }
+    SkScalar heightMultiplier() const { return fHeightMultiplier; }
     PlaceholderStyle* placeholderStyle() const;
     bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
@@ -136,11 +136,10 @@ public:
     SkScalar addSpacesEvenly(SkScalar space, Cluster* cluster);
     void shift(const Cluster* cluster, SkScalar offset);
 
-    SkScalar calculateHeight() const {
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fDescent - fFontMetrics.fAscent;
-        }
-        return fHeightMultiplier * fFont.getSize();
+    SkScalar calculateHeight(bool disableAscent = false, bool disableDescent = false) const {
+        auto ascent = (disableAscent || fHeightMultiplier == 0) ? fFontMetrics.fAscent : this->correctAscent();
+        auto descent = (disableDescent || fHeightMultiplier == 0) ? fFontMetrics.fDescent : this->correctDescent();
+        return descent - ascent;
     }
     SkScalar calculateWidth(size_t start, size_t end, bool clip) const;
 
@@ -403,8 +402,8 @@ public:
         }
     }
 
-    SkScalar runTop(const Run* run) const {
-        return fLeading / 2 - fAscent + run->ascent() + delta();
+    SkScalar runTop(const Run* run, bool disableAscent = false) const {
+        return fLeading / 2 - fAscent + (disableAscent ? run->ascent() : run->correctAscent()) + delta();
     }
 
     SkScalar height() const {
@@ -424,6 +423,7 @@ public:
 private:
 
     friend class TextWrapper;
+    friend class TextLine;
 
     SkScalar fAscent;
     SkScalar fDescent;
