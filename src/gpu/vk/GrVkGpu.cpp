@@ -1852,8 +1852,69 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
-bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
-    return false;
+// Reconstruct the render target attachment information from the program desc. This includes which
+// attachments the render target will have (color, stencil) and the attachments' formats and
+// sample counts - cf. GrVkRenderTarget::getAttachmentsDescriptor.
+GrVkRenderPass::AttachmentFlags reconstruct_attachment_desc(
+                                            const GrVkCaps& vkCaps,
+                                            const GrProgramInfo& programInfo,
+                                            GrVkRenderPass::AttachmentsDescriptor* desc) {
+//    SkASSERT(!this->wrapsSecondaryCommandBuffer());
+
+    VkFormat format;
+    SkAssertResult(programInfo.backendFormat().asVkFormat(&format));
+
+    desc->fColor.fFormat = format;
+    desc->fColor.fSamples = programInfo.numSamples();
+    GrVkRenderPass::AttachmentFlags attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
+    uint32_t attachmentCount = 1;
+
+    bool stencilEnabled = programInfo.pipeline().isStencilEnabled();
+    if (stencilEnabled) {
+        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        desc->fStencil.fSamples = programInfo.numStencilSamples();
+#ifdef SK_DEBUG
+        if (vkCaps.mixedSamplesSupport()) {
+            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
+        } else {
+            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
+        }
+#endif
+        attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
+        ++attachmentCount;
+    }
+    desc->fAttachmentCount = attachmentCount;
+
+    return attachmentFlags;
+}
+
+bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+    SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
+
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    auto attachmentFlags = reconstruct_attachment_desc(this->vkCaps(), programInfo,
+                                                       &attachmentsDescriptor);
+
+    sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
+                                                                         &attachmentsDescriptor,
+                                                                         attachmentFlags));
+    if (!renderPass) {
+        return false;
+    }
+
+    Stats::ProgramCacheResult stat;
+
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState(
+                                    desc,
+                                    programInfo,
+                                    renderPass->vkRenderPass(),
+                                    &stat);
+    if (!pipelineState) {
+        return false;
+    }
+
+    return stat != Stats::ProgramCacheResult::kHit;
 }
 
 #if GR_TEST_UTILS
