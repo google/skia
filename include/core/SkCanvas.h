@@ -2106,6 +2106,9 @@ public:
         this->drawTextBlob(blob.get(), x, y, paint);
     }
 
+    void drawGyphs(const SkGlyphID[], int count, SkPoint pos[], const SkFont&, const SkPaint&);
+    void drawGyphs(const SkGlyphID[], int count, SkRSXform[], const SkFont&, const SkPaint&);
+
     /** Draws SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
