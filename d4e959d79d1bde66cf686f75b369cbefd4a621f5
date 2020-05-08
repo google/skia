@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fa53ea0_3484c8be",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-08T00:22:57Z",
+      "side": 1,
+      "message": "For the kernel x sample coord, I precompute 1/length and +\u003d it each iteration of the loop as an optimization. Intuitively it\u0027ll be accurate for insanely large kernels, and it\u0027ll turn a multiply / divide op into an add.\n\nAm I being too clever? I don\u0027t yet have a sense for the relative cost here.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 8
+      },
+      "revId": "d4e959d79d1bde66cf686f75b369cbefd4a621f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
