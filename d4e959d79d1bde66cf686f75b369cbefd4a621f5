@@ -22,6 +22,30 @@
       "revId": "d4e959d79d1bde66cf686f75b369cbefd4a621f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd90c97c_d9530f65",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-08T13:36:19Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s too clever and we\u0027ve taken a similar approach in other situations when we\u0027re iterating over pixels in a texture.\n\nHowever, there is a longer term effort to move all texturing out of individual effects and always nest a GrTextureEffect rather than directly reading a texture in other effects. I\u0027m not sure that we\u0027ll be able to preserve this optimization when that happens. But if we see a regression maybe we can get real clever.",
+      "parentUuid": "1fa53ea0_3484c8be",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 8
+      },
+      "revId": "d4e959d79d1bde66cf686f75b369cbefd4a621f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
