@@ -51,6 +51,7 @@ public:
     SkPath asPath(const SkSVGRenderContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
+    bool setAttribute(const char* attributeName, const char* attributeValue);
 
     void setClipPath(const SkSVGClip&);
     void setClipRule(const SkSVGFillRule&);
