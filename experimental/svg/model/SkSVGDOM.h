@@ -31,6 +31,12 @@ public:
 
     void setRoot(sk_sp<SkSVGNode>);
 
+    // Returns the node with the given id, or nullptr if not found.
+    sk_sp<SkSVGNode>* findNodeById(SkString id);
+
+    // Sets an attribute of the node with the given id to a new value.
+    int setNodeAttribute(const char* nodeId, const char* attributeName, const char* attributeValue);
+
     void render(SkCanvas*) const;
 
 private:

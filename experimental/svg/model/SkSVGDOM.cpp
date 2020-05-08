@@ -296,7 +296,7 @@ private:
     const char* fPos;
 };
 
-void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
+int set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
 
 bool SetStyleAttributes(const sk_sp<SkSVGNode>& node, SkSVGAttribute,
                         const char* stringValue) {
@@ -408,7 +408,7 @@ struct ConstructionContext {
     SkSVGIDMapper*   fIDMapper;
 };
 
-void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
+int set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
     const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
                                       SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
                                       name, sizeof(gAttributeParseInfo[0]));
@@ -416,7 +416,7 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 #if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("unhandled attribute: %s\n", name);
 #endif
-        return;
+        return -2;
     }
 
     SkASSERT(SkTo<size_t>(attrIndex) < SK_ARRAY_COUNT(gAttributeParseInfo));
@@ -425,7 +425,10 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 #if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("could not parse attribute: '%s=\"%s\"'\n", name, value);
 #endif
+      return -3;
     }
+
+    return 0;
 }
 
 void parse_node_attributes(const SkDOM& xmlDom, const SkDOM::Node* xmlNode,
@@ -533,6 +536,24 @@ const SkSize& SkSVGDOM::containerSize() const {
 void SkSVGDOM::setContainerSize(const SkSize& containerSize) {
     // TODO: inval
     fContainerSize = containerSize;
+}
+
+sk_sp<SkSVGNode>* SkSVGDOM::findNodeById(SkString id) {
+    return this->fIDMapper.find(id);
+}
+
+int SkSVGDOM::setNodeAttribute(const char* nodeId, const char* attributeName, const char* attributeValue) {
+    SkString id(nodeId);
+
+    sk_sp<SkSVGNode>* svgNode = this->findNodeById(id);
+    if (svgNode == nullptr) {
+#if defined(SK_VERBOSE_SVG_PARSING)
+      SkDebugf("Couldn't find node id: %s\n", nodeId);
+#endif
+      return -1;
+    }
+
+    return set_string_attribute(*svgNode, attributeName, attributeValue);
 }
 
 void SkSVGDOM::setRoot(sk_sp<SkSVGNode> root) {
