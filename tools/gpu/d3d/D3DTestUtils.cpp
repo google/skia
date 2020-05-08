@@ -72,6 +72,7 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
         return false;
     }
 
+    ctx->fFactory = factory;
     ctx->fAdapter = hardwareAdapter;
     ctx->fDevice = device;
     ctx->fQueue = queue;

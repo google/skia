@@ -25,6 +25,7 @@
 // The BackendContext contains all of the base D3D objects needed by the GrD3DGpu. The assumption
 // is that the client will set these up and pass them to the GrD3DGpu constructor.
 struct SK_API GrD3DBackendContext {
+    gr_cp<IDXGIFactory4> fFactory;
     gr_cp<IDXGIAdapter1> fAdapter;
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
