@@ -22,6 +22,30 @@
       "revId": "6cd1cdd8b5f35e0f40431780d84134dc63a6f1b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "369e5c45_51e34128",
+        "filename": "experimental/svg/model/SkSVGDOM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-05-08T20:24:50Z",
+      "side": 1,
+      "message": "Ah good to know, thanks! I haven\u0027t written C++ in decades haha",
+      "parentUuid": "4fa6461d_c42e1283",
+      "range": {
+        "startLine": 552,
+        "startChar": 32,
+        "endLine": 552,
+        "endChar": 43
+      },
+      "revId": "6cd1cdd8b5f35e0f40431780d84134dc63a6f1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
