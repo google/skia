@@ -2636,6 +2636,56 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView41 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph41"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        SkPaint line;
+        line.setColor(SK_ColorRED);
+        line.setStyle(SkPaint::kStroke_Style);
+        line.setAntiAlias(true);
+        line.setStrokeWidth(1);
+
+        auto draw = [&](SkColor color, TextHeightBehavior thb) {
+            ParagraphStyle paragraph_style;
+            paragraph_style.setTextHeightBehavior(thb);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            TextStyle text_style;
+            text_style.setColor(SK_ColorBLACK);
+            SkPaint paint;
+            paint.setColor(color);
+            text_style.setBackgroundColor(paint);
+            text_style.setFontFamilies({SkString("Roboto")});
+            text_style.setFontSize(20);
+            text_style.setHeight(5);
+            text_style.setHeightOverride(true);
+            builder.pushStyle(text_style);
+            builder.addText("World domination is such an ugly phrase - I prefer to call it world optimisation");
+            auto paragraph = builder.Build();
+            paragraph->layout(width());
+            paragraph->paint(canvas, 0, 0);
+            canvas->drawLine(0, paragraph->getHeight(), paragraph->getMaxWidth(), paragraph->getHeight(), line);
+            canvas->translate(0, paragraph->getHeight());
+        };
+
+        draw(SK_ColorLTGRAY, TextHeightBehavior::kDisableFirstAscent);
+        draw(SK_ColorYELLOW, TextHeightBehavior::kDisableLastDescent);
+        draw(SK_ColorGRAY, TextHeightBehavior::kDisableAll);
+
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2675,3 +2725,4 @@ DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
 DEF_SAMPLE(return new ParagraphView38();)
 DEF_SAMPLE(return new ParagraphView39();)
+DEF_SAMPLE(return new ParagraphView41();)
