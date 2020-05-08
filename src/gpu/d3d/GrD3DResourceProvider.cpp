@@ -16,13 +16,8 @@
 
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
+        , fAttachmentViewManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {
-    // TODO: Change to handle growing the heap rather than a fixed size
-    const int kMaxRenderTargetViews = 256;
-
-    fRTVDescriptorHeap = GrD3DDescriptorHeap::Make(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-                                                   kMaxRenderTargetViews,
-                                                   D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
@@ -59,13 +54,20 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createRenderTargetView(
         ID3D12Resource* textureResource) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fRTVDescriptorHeap->allocateCPUHandle();
-    fGpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor);
-    return descriptor;
+    return fAttachmentViewManager.createRenderTargetView(fGpu, textureResource);
 }
 
 void GrD3DResourceProvider::recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
-    fRTVDescriptorHeap->freeCPUHandle(rtvDescriptor);
+    fAttachmentViewManager.recycleRenderTargetView(rtvDescriptor);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createDepthStencilView(
+        ID3D12Resource* textureResource) {
+    return fAttachmentViewManager.createDepthStencilView(fGpu, textureResource);
+}
+
+void GrD3DResourceProvider::recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE* dsvDescriptor) {
+    fAttachmentViewManager.recycleDepthStencilView(dsvDescriptor);
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(

@@ -14,34 +14,50 @@
 
 class GrD3DGpu;
 
-class GrD3DDescriptorHeap : public GrManagedResource {
+class GrD3DDescriptorHeap {
 public:
-    static sk_sp<GrD3DDescriptorHeap> Make(GrD3DGpu* gpu, D3D12_DESCRIPTOR_HEAP_TYPE,
-                                           unsigned int numDescriptors,
-                                           D3D12_DESCRIPTOR_HEAP_FLAGS);
+    static std::unique_ptr<GrD3DDescriptorHeap> Make(GrD3DGpu* gpu, D3D12_DESCRIPTOR_HEAP_TYPE,
+                                                     unsigned int numDescriptors,
+                                                     D3D12_DESCRIPTOR_HEAP_FLAGS);
 
-    ~GrD3DDescriptorHeap() override = default;
+    ~GrD3DDescriptorHeap() = default;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE allocateCPUHandle(); // valid only for non-shader-visible heaps
-    D3D12_GPU_DESCRIPTOR_HANDLE allocateGPUHandle();
-    void freeCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE*);
-    void freeGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE*);
+    D3D12_CPU_DESCRIPTOR_HANDLE getCPUHandle(unsigned int index); // only if non-shader-visible
+    D3D12_GPU_DESCRIPTOR_HANDLE getGPUHandle(unsigned int index);
 
-#ifdef SK_TRACE_MANAGED_RESOURCES
-    /** Output a human-readable dump of this resource's information
-     */
-    void dumpInfo() const override;
-#endif
+    bool getIndex(D3D12_CPU_DESCRIPTOR_HANDLE handle, size_t* indexPtr) {
+        if (handle.ptr < fCPUHeapStart.ptr) {
+            return false;
+        }
+        size_t index = (handle.ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
+        if (index >= fHeap->GetDesc().NumDescriptors) {
+            return false;
+        }
+        SkASSERT(handle.ptr == fCPUHeapStart.ptr + index * fHandleIncrementSize);
+        *indexPtr = index;
+        return true;
+    }
 
-    void freeGPUData() const override {}
+    bool getIndex(D3D12_GPU_DESCRIPTOR_HANDLE handle, size_t* indexPtr) {
+        if (handle.ptr < fGPUHeapStart.ptr) {
+            return false;
+        }
+        size_t index = (handle.ptr - fGPUHeapStart.ptr) / fHandleIncrementSize;
+        if (index >= fHeap->GetDesc().NumDescriptors) {
+            return false;
+        }
+        SkASSERT(handle.ptr == fGPUHeapStart.ptr + index * fHandleIncrementSize);
+        *indexPtr = index;
+        return true;
+    }
 
-private:
-    GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>&, const D3D12_DESCRIPTOR_HEAP_DESC&,
-                        unsigned int handleIncrementSize);
+protected:
+    GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>&, unsigned int handleIncrementSize);
 
     gr_cp<ID3D12DescriptorHeap> fHeap;
     size_t fHandleIncrementSize;
-    SkBitSet fFreeBlocks;
+    D3D12_CPU_DESCRIPTOR_HANDLE fCPUHeapStart;
+    D3D12_GPU_DESCRIPTOR_HANDLE fGPUHeapStart;
 };
 
 #endif

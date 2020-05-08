@@ -12,7 +12,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/d3d/GrD3DDescriptorHeap.h"
+#include "src/gpu/d3d/GrD3DAttachmentViewManager.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -33,6 +33,9 @@ public:
 
     D3D12_CPU_DESCRIPTOR_HANDLE createRenderTargetView(ID3D12Resource* textureResource);
     void recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE createDepthStencilView(ID3D12Resource* textureResource);
+    void recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*);
 
    sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                                  const GrProgramInfo&);
@@ -73,7 +76,7 @@ private:
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 
-    sk_sp<GrD3DDescriptorHeap> fRTVDescriptorHeap;
+    GrD3DAttachmentViewManager fAttachmentViewManager;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 };
