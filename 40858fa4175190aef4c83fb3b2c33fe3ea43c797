@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1035fce_bdb5bbbc",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-08T21:28:44Z",
+      "side": 1,
+      "message": "I missed this the first time around, but I\u0027m on the fence about caching these. Certainly if the client is using the same kernel over and over again its a win. Maybe animating kernel values are unlikely? With near certainty a non-caching implementation won\u0027t be any worse then what we were previously doing (reading back the whole source image, filtering on the CPU, and pushing the result back to the GPU).",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 74
+      },
+      "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
