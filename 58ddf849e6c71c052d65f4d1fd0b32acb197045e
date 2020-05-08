@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8478245_0071e808",
+        "filename": "experimental/svg/model/SkSVGDOM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-05-08T19:30:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0cd4b7b_ca6d4119",
+      "range": {
+        "startLine": 35,
+        "startChar": 35,
+        "endLine": 35,
+        "endChar": 43
+      },
+      "revId": "58ddf849e6c71c052d65f4d1fd0b32acb197045e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "148b529b_81ca32c4",
         "filename": "experimental/svg/model/SkSVGDOM.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "58ddf849e6c71c052d65f4d1fd0b32acb197045e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3913bfc0_f5403d6a",
+        "filename": "experimental/svg/model/SkSVGDOM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-05-08T19:30:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "148b529b_81ca32c4",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 7
+      },
+      "revId": "58ddf849e6c71c052d65f4d1fd0b32acb197045e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
