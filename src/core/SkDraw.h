@@ -153,9 +153,9 @@ private:
     bool SK_WARN_UNUSED_RESULT computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
-    SkPixmap        fDst;
-    const SkMatrix* fMatrix{nullptr};        // required
-    const SkRasterClip* fRC{nullptr};        // required
+    SkPixmap                fDst;
+    const SkMatrixProvider* fMatrixProvider{nullptr};  // required
+    const SkRasterClip*     fRC{nullptr};              // required
 
     // optional, will be same dimensions as fDst if present
     const SkPixmap* fCoverage{nullptr};

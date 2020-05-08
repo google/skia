@@ -261,7 +261,8 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
 
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstColorType, rec.fDstCS);
+    bitmapShader = this->refBitmapShader(rec.fMatrixProvider.localToDevice(), &lm,
+                                         rec.fDstColorType, rec.fDstCS);
 
     if (!bitmapShader) {
         return false;
