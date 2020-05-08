@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fa6461d_c42e1283",
+        "filename": "experimental/svg/model/SkSVGDOM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-08T19:57:00Z",
+      "side": 1,
+      "message": "Change to sk_ref_sp(this)\n\n(Skia\u0027s sk_sp constructor takes ownership of the raw pointer, so the way that\u0027s written it will delete |this| when the temporary is destructed)",
+      "range": {
+        "startLine": 552,
+        "startChar": 32,
+        "endLine": 552,
+        "endChar": 43
+      },
+      "revId": "6cd1cdd8b5f35e0f40431780d84134dc63a6f1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
