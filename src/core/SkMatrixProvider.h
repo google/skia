@@ -35,12 +35,39 @@ protected:
     SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
 };
 
+class SkOverrideDeviceMatrixProvider : public SkMatrixProvider {
+public:
+    SkOverrideDeviceMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& localToDevice)
+        : SkMatrixProvider(localToDevice)
+        , fParent(parent) {}
+
+    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
+        return fParent.getLocalToMarker(id, localToMarker);
+    }
+
+private:
+    const SkMatrixProvider& fParent;
+};
+
 class SkPostConcatMatrixProvider : public SkMatrixProvider {
 public:
     SkPostConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& postMatrix)
+#if defined(SK_SUPPORT_LEGACY_MATRIX44)
+            : SkMatrixProvider(SkMatrix::Concat(postMatrix, parent.localToDevice()))
+#else
             : SkMatrixProvider(SkM44(postMatrix) * parent.localToDevice44())
+#endif
             , fParent(parent)
             , fPostMatrix(postMatrix) {}
+
+    void setPostMatrix(const SkMatrix& postMatrix) {
+        fLocalToDevice = SkM44(postMatrix) * fParent.localToDevice44();
+#if defined(SK_SUPPORT_LEGACY_MATRIX44)
+        fLocalToDevice33 = SkMatrix::Concat(postMatrix, fParent.localToDevice());
+#else
+        fLocalToDevice33 = fLocalToDevice.asM33();
+#endif
+    }
 
     // Assume that the post-matrix doesn't apply to any marked matrices
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
@@ -55,7 +82,11 @@ private:
 class SkPreConcatMatrixProvider : public SkMatrixProvider {
 public:
     SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
+#if defined(SK_SUPPORT_LEGACY_MATRIX44)
+            : SkMatrixProvider(SkMatrix::Concat(parent.localToDevice(), preMatrix))
+#else
             : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix))
+#endif
             , fParent(parent)
             , fPreMatrix(preMatrix) {}
 
