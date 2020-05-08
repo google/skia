@@ -3629,6 +3629,19 @@ void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
+bool GrGLGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+    SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
+
+    Stats::ProgramCacheResult stat;
+
+    sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo, &stat);
+    if (!tmp) {
+        return false;
+    }
+
+    return stat != Stats::ProgramCacheResult::kHit;
+}
+
 #if GR_TEST_UTILS
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {

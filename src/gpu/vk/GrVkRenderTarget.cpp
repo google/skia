@@ -256,8 +256,16 @@ const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass() {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     SkASSERT(!fCachedSimpleRenderPass);
 
+    // Get attachment information from render target. This includes which attachments the render
+    // target has (color, stencil) and the attachments format and sample count.
+    GrVkRenderPass::AttachmentFlags attachmentFlags;
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    this->getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
+
     fCachedSimpleRenderPass =
-        this->getVkGpu()->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
+        this->getVkGpu()->resourceProvider().findCompatibleRenderPass(&attachmentsDescriptor,
+                                                                      attachmentFlags,
+                                                                      &fCompatibleRPHandle);
     return fCachedSimpleRenderPass;
 }
 

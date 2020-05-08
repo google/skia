@@ -506,8 +506,10 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 GrVkPipeline* GrVkPipeline::Create(
         GrVkGpu* gpu,
         const GrProgramInfo& programInfo,
-        VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
-        VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
+        VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        int shaderStageCount,
+        VkRenderPass compatibleRenderPass,
+        VkPipelineLayout layout,
         VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
