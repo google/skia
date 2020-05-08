@@ -460,11 +460,15 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
 
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
-    fCurrentPipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
-            fRenderTarget, programInfo, compatibleRenderPass);
+    GrGpu::Stats::ProgramCacheResult stat;
+    fCurrentPipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState3(
+            fRenderTarget, programInfo, compatibleRenderPass, &stat);
     if (!fCurrentPipelineState) {
+        fGpu->stats()->incNumInlineCompilationFailures();
         return false;
     }
+
+    fGpu->stats()->incNumInlineProgramCacheResult(stat);
 
     fCurrentPipelineState->bindPipeline(fGpu, currentCB);
 

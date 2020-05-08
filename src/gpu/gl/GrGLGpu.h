@@ -138,13 +138,15 @@ public:
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
-        Stats::ProgramCacheResult stat;
+        Stats::ProgramCacheResult stat = Stats::ProgramCacheResult::kMiss;
 
         sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo, &stat);
         if (!tmp) {
+            fStats.incNumPreCompilationFailures();
             return false;
         }
 
+        fStats.incNumPreProgramCacheResult(stat);
         return stat != Stats::ProgramCacheResult::kHit;
     }
 
@@ -341,12 +343,6 @@ private:
                                                const GrProgramInfo& programInfo,
                                                Stats::ProgramCacheResult* stat) {
             sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
-            if (!tmp) {
-                fGpu->fStats.incNumPreCompilationFailures();
-            } else {
-                fGpu->fStats.incNumPreProgramCacheResult(*stat);
-            }
-
             return tmp;
         }
         bool precompileShader(const SkData& key, const SkData& data);
