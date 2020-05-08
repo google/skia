@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0cd4b7b_ca6d4119",
+        "filename": "experimental/svg/model/SkSVGDOM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-08T13:36:13Z",
+      "side": 1,
+      "message": "For symmetry, and to avoid forcing premature conversion, let\u0027s take a const char* here and hide the SkString conversion in the implementation.  Unless you think you\u0027ll be hanging on to these SkString keys in the client code?",
+      "range": {
+        "startLine": 35,
+        "startChar": 35,
+        "endLine": 35,
+        "endChar": 43
+      },
+      "revId": "58ddf849e6c71c052d65f4d1fd0b32acb197045e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "148b529b_81ca32c4",
+        "filename": "experimental/svg/model/SkSVGDOM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-08T13:36:13Z",
+      "side": 1,
+      "message": "Some thoughts:\n\na) is the exact failure reason needed (vs. e.g. just a bool)?\n\nb) if so, I think we should introduce an enum SetAttributeResult { kSuccess, kNodeNotFound, etc)\n\nc) we can avoid at least one failure mode (kNodeNotFound) if we relocate the setter to the SkSVGNode base class; it already has a setAttribute(SkSVGAttribute, SkSVGValue), this could be an overload that takes strings - then we only need to report success/unknownAttribute/invalidValue, the client can catch the nodeID failure externally:\n\n  auto node \u003d dom-\u003efindNodeById(\"foo\");\n  if (node) {\n    node-\u003esetAttribute(\"bar\", \"baz\");\n  } else {...}",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 7
+      },
+      "revId": "58ddf849e6c71c052d65f4d1fd0b32acb197045e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
