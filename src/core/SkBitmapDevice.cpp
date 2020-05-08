@@ -54,9 +54,9 @@ class SkDrawTiler {
     SkDraw          fDraw;
 
     // fCurr... are only used if fNeedTiling
-    SkMatrix        fTileMatrix;
-    SkRasterClip    fTileRC;
-    SkIPoint        fOrigin;
+    SkPostConcatMatrixProvider fTileMatrixProvider;
+    SkRasterClip               fTileRC;
+    SkIPoint                   fOrigin;
 
     bool            fDone, fNeedsTiling;
 
@@ -65,7 +65,8 @@ public:
         return dev->width() > kMaxDim || dev->height() > kMaxDim;
     }
 
-    SkDrawTiler(SkBitmapDevice* dev, const SkRect* bounds) : fDevice(dev) {
+    SkDrawTiler(SkBitmapDevice* dev, const SkRect* bounds)
+            : fDevice(dev), fTileMatrixProvider(dev->asMatrixProvider(), SkMatrix::I()) {
         fDone = false;
 
         // we need fDst to be set, and if we're actually drawing, to dirty the genID
@@ -106,14 +107,14 @@ public:
 
         if (fNeedsTiling) {
             // fDraw.fDst is reset each time in setupTileDraw()
-            fDraw.fMatrix = &fTileMatrix;
+            fDraw.fMatrixProvider = &fTileMatrixProvider;
             fDraw.fRC = &fTileRC;
             // we'll step/increase it before using it
             fOrigin.set(fSrcBounds.fLeft - kMaxDim, fSrcBounds.fTop);
         } else {
             // don't reference fSrcBounds, as it may not have been set
             fDraw.fDst = fRootPixmap;
-            fDraw.fMatrix = &dev->localToDevice();
+            fDraw.fMatrixProvider = dev;
             fDraw.fRC = &dev->fRCStack.rc();
             fOrigin.set(0, 0);
 
@@ -165,8 +166,8 @@ private:
         SkASSERT_RELEASE(success);
         // now don't use bounds, since fDst has the clipped dimensions.
 
-        fTileMatrix = fDevice->localToDevice();
-        fTileMatrix.postTranslate(SkIntToScalar(-fOrigin.x()), SkIntToScalar(-fOrigin.y()));
+        fTileMatrixProvider.setPostMatrix(
+                SkMatrix::MakeTrans(SkIntToScalar(-fOrigin.x()), SkIntToScalar(-fOrigin.y())));
         fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
                    SkRegion::kIntersect_Op);
@@ -192,7 +193,7 @@ public:
             // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
             fDst.reset(dev->imageInfo(), nullptr, 0);
         }
-        fMatrix = &dev->localToDevice();
+        fMatrixProvider = dev;
         fRC = &dev->fRCStack.rc();
         fCoverage = dev->accessCoverage();
     }
@@ -568,8 +569,9 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
     SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
     if (src->fCoverage) {
         SkDraw draw;
+        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
         draw.fDst = fBitmap.pixmap();
-        draw.fMatrix = &SkMatrix::I();
+        draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
         paint.writable()->setShader(src->fBitmap.makeShader());
         draw.drawBitmap(*src->fCoverage.get(),
