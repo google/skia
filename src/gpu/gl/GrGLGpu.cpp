@@ -3355,11 +3355,13 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // The manual approach requires the ability to limit which level we're sampling and that the
     // destination can be bound to a FBO:
     if (!this->glCaps().doManualMipmapping() || !this->glCaps().isFormatRenderable(format, 1)) {
+        SkDebugf("doing generate mipmaps\n");
         GrGLenum target = glTex->target();
         this->bindTextureToScratchUnit(target, glTex->textureID());
         GL_CALL(GenerateMipmap(glTex->target()));
         return true;
     }
+    SkDebugf("doing manual mipmaps\n");
 
     int width = texture->width();
     int height = texture->height();
@@ -3606,13 +3608,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
         SkISize levelDimensions = backendTexture.dimensions();
+        SkDebugf("Start of color texsubimage2D: num mip levels: %d\n", numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
+            SkDebugf("TexSubImage2D params: i: %d, width: %d, height: %d, externalFormat: %x, externalType: %x\n",
+                    i, levelDimensions.width(), levelDimensions.height(), externalFormat,
+                    externalType);
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
             levelDimensions = {std::max(1, levelDimensions.width() / 2),
                                std::max(1, levelDimensions.height() / 2)};
         }
+        SkDebugf("End of texsubimage2d loop\n");
     }
 
     // Unbind this texture from the scratch texture unit.
