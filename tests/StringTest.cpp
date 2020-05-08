@@ -168,7 +168,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, a.size() == 2000);
     for (size_t i = 0; i < a.size(); ++i) {
         if (a[i] != ' ') {
-            ERRORF(reporter, "SkStringPrintf fail: a[%d] = '%c'", i, a[i]);
+            ERRORF(reporter, "SkStringPrintf fail: a[%zu] = '%c'", i, a[i]);
             break;
         }
     }
@@ -177,7 +177,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, a.size() == 2000);
     for (size_t i = 0; i < a.size(); ++i) {
         if (a[i] != ' ') {
-            ERRORF(reporter, "SkString::printf fail: a[%d] = '%c'", i, a[i]);
+            ERRORF(reporter, "SkString::printf fail: a[%zu] = '%c'", i, a[i]);
             break;
         }
     }
@@ -185,7 +185,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, a.size() == 4000);
     for (size_t i = 0; i < a.size(); ++i) {
         if (a[i] != ' ') {
-            ERRORF(reporter, "SkString::appendf fail: a[%d] = '%c'", i, a[i]);
+            ERRORF(reporter, "SkString::appendf fail: a[%zu] = '%c'", i, a[i]);
             break;
         }
     }
