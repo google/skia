@@ -256,8 +256,16 @@ const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass() {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     SkASSERT(!fCachedSimpleRenderPass);
 
+    // Get attachment information from render target. This includes which attachments the render
+    // target has (color, stencil) and the attachments format and sample count.
+    GrVkRenderPass::AttachmentFlags attachmentFlags;
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    this->getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
+
     fCachedSimpleRenderPass =
-        this->getVkGpu()->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
+        this->getVkGpu()->resourceProvider().findCompatibleRenderPass(&attachmentsDescriptor,
+                                                                      attachmentFlags,
+                                                                      &fCompatibleRPHandle);
     return fCachedSimpleRenderPass;
 }
 
@@ -310,6 +318,40 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     }
     desc->fAttachmentCount = attachmentCount;
 }
+
+void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
+                                                        const GrProgramInfo& programInfo,
+                                                        GrVkRenderPass::AttachmentsDescriptor* desc,
+                                                        GrVkRenderPass::AttachmentFlags* flags) {
+//    SkASSERT(!this->wrapsSecondaryCommandBuffer());
+
+    VkFormat format;
+    SkAssertResult(programInfo.backendFormat().asVkFormat(&format));
+
+    desc->fColor.fFormat = format;
+    desc->fColor.fSamples = programInfo.numSamples();
+    *flags = GrVkRenderPass::kColor_AttachmentFlag;
+    uint32_t attachmentCount = 1;
+
+    bool stencilEnabled = programInfo.pipeline().isStencilEnabled();
+    if (stencilEnabled) {
+        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        desc->fStencil.fSamples = programInfo.numStencilSamples();
+#ifdef SK_DEBUG
+        if (vkCaps.mixedSamplesSupport()) {
+            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
+        } else {
+            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
+        }
+#endif
+        *flags |= GrVkRenderPass::kStencil_AttachmentFlag;
+        ++attachmentCount;
+    }
+    desc->fAttachmentCount = attachmentCount;
+}
+
+
 
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
