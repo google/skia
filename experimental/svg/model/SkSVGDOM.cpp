@@ -296,7 +296,7 @@ private:
     const char* fPos;
 };
 
-void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
+bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
 
 bool SetStyleAttributes(const sk_sp<SkSVGNode>& node, SkSVGAttribute,
                         const char* stringValue) {
@@ -408,7 +408,7 @@ struct ConstructionContext {
     SkSVGIDMapper*   fIDMapper;
 };
 
-void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
+bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
     const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
                                       SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
                                       name, sizeof(gAttributeParseInfo[0]));
@@ -416,7 +416,7 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 #if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("unhandled attribute: %s\n", name);
 #endif
-        return;
+        return false;
     }
 
     SkASSERT(SkTo<size_t>(attrIndex) < SK_ARRAY_COUNT(gAttributeParseInfo));
@@ -425,7 +425,10 @@ void set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 #if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("could not parse attribute: '%s=\"%s\"'\n", name, value);
 #endif
+        return false;
     }
+
+    return true;
 }
 
 void parse_node_attributes(const SkDOM& xmlDom, const SkDOM::Node* xmlNode,
@@ -535,6 +538,16 @@ void SkSVGDOM::setContainerSize(const SkSize& containerSize) {
     fContainerSize = containerSize;
 }
 
+sk_sp<SkSVGNode>* SkSVGDOM::findNodeById(const char* id) {
+    SkString idStr(id);
+    return this->fIDMapper.find(idStr);
+}
+
 void SkSVGDOM::setRoot(sk_sp<SkSVGNode> root) {
     fRoot = std::move(root);
+}
+
+// TODO(fuego): move this to SkSVGNode or its own CU.
+bool SkSVGNode::setAttribute(const char* attributeName, const char* attributeValue) {
+    return set_string_attribute(sk_ref_sp(this), attributeName, attributeValue);
 }
