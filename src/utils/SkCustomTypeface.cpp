@@ -257,7 +257,7 @@ static void compress_write(SkWStream* stream, const SkPath& path, int upem) {
 
     for (auto [v, p, w] : SkPathPriv::Iterate(path)) {
         switch (v) {
-            default: SkASSERT(!"oops"); break;
+            default: break;
             case SkPathVerb::kMove: write_pts(&p[0], 1); break;
             case SkPathVerb::kQuad: write_pts(&p[1], 2); break;
             case SkPathVerb::kLine: write_pts(&p[1], 1); break;
