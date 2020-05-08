@@ -82,7 +82,9 @@ TextLine::TextLine(ParagraphImpl* master,
         , fSizes(sizes)
         , fHasBackground(false)
         , fHasShadows(false)
-        , fHasDecorations(false) {
+        , fHasDecorations(false)
+        , fAscentStyle(LineMetricStyle::CSS)
+        , fDescentStyle(LineMetricStyle::CSS) {
     // Reorder visual runs
     auto& start = master->cluster(fGhostClusterRange.start);
     auto& end = master->cluster(fGhostClusterRange.end - 1);
@@ -317,9 +319,13 @@ SkScalar TextLine::metricsWithoutMultiplier(TextHeightBehavior correction) {
     });
     SkScalar delta = 0;
     if (correction  == TextHeightBehavior::kDisableFirstAscent) {
-        delta += (this->fSizes.ascent() - result.ascent());
+        delta += (this->fSizes.fAscent - result.fAscent);
+        this->fSizes.fAscent -= delta;
+        this->fAscentStyle = LineMetricStyle::Typographic;
     } else if (correction  == TextHeightBehavior::kDisableLastDescent) {
-        delta -= (this->fSizes.descent() - result.descent());
+        delta -= (this->fSizes.fDescent - result.fDescent);
+        this->fSizes.fDescent -= delta;
+        this->fDescentStyle = LineMetricStyle::Typographic;
     }
     fAdvance.fY += delta;
     return delta;
@@ -545,7 +551,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         SkString fEllipsis;
     };
 
-    ShapeHandler handler(run->lineHeight(), ellipsis);
+    ShapeHandler handler(run->heightMultiplier(), ellipsis);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
     SkASSERT_RELEASE(shaper != nullptr);
     shaper->shape(ellipsis.c_str(), ellipsis.size(), run->font(), true,
@@ -568,22 +574,21 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         SkASSERT(textRange == run->textRange());
         result.fTextShift = runOffsetInLine;
         result.clip = SkRect::MakeXYWH(runOffsetInLine,
-                                       sizes().runTop(run),
+                                       sizes().runTop(run, this->fAscentStyle),
                                        run->advance().fX,
-                                       run->calculateHeight());
+                                       run->calculateHeight(this->fAscentStyle,this->fDescentStyle));
         return result;
     } else if (run->isPlaceholder()) {
         if (SkScalarIsFinite(run->fFontMetrics.fAscent)) {
           result.clip = SkRect::MakeXYWH(runOffsetInLine,
-                                         sizes().runTop(run),
+                                         sizes().runTop(run, this->fAscentStyle),
                                          run->advance().fX,
-                                         run->calculateHeight());
+                                         run->calculateHeight(this->fAscentStyle,this->fDescentStyle));
         } else {
             result.clip = SkRect::MakeXYWH(runOffsetInLine, run->fFontMetrics.fAscent, run->advance().fX, 0);
         }
         return result;
     }
-
     // Find [start:end] clusters for the text
     bool found;
     ClusterIndex startIndex;
@@ -617,9 +622,9 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     // coming from letter spacing or word spacing or justification)
     result.clip =
             SkRect::MakeXYWH(0,
-                             sizes().runTop(run),
+                             sizes().runTop(run, this->fAscentStyle),
                              run->calculateWidth(result.pos, result.pos + result.size, false),
-                             run->calculateHeight());
+                             run->calculateHeight(this->fAscentStyle,this->fDescentStyle));
 
     // Correct the width in case the text edges don't match clusters
     // TODO: This is where we get smart about selecting a part of a cluster
@@ -908,27 +913,27 @@ void TextLine::getRectsForRange(TextRange textRange0,
                     clip.fBottom = this->height();
                     clip.fTop = this->sizes().delta();
                     break;
-                case RectHeightStyle::kIncludeLineSpacingTop:
-                    if (!isFirstLine()) {
-                        clip.fTop -= this->sizes().runTop(context.run);
+                case RectHeightStyle::kIncludeLineSpacingTop: {
+                    if (isFirstLine()) {
+                        auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
+                        clip.fTop += verticalShift;
                     }
-                    clip.fBottom -= this->sizes().runTop(context.run);
-                break;
-                case RectHeightStyle::kIncludeLineSpacingMiddle:
-                    if (!isFirstLine()) {
-                        clip.fTop -= this->sizes().runTop(context.run) / 2;
-                    }
+                    break;
+                }
+                case RectHeightStyle::kIncludeLineSpacingMiddle: {
+                    auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
+                    clip.fTop += isFirstLine() ? verticalShift : verticalShift / 2;
+                    clip.fBottom += isLastLine() ? 0 : verticalShift / 2;
+                    break;
+                 }
+                case RectHeightStyle::kIncludeLineSpacingBottom: {
+                    auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
+                    clip.offset(0, verticalShift);
                     if (isLastLine()) {
-                        clip.fBottom -= this->sizes().runTop(context.run);
-                    } else {
-                        clip.fBottom -= this->sizes().runTop(context.run) / 2;
+                        clip.fBottom -= verticalShift;
                     }
-                break;
-                case RectHeightStyle::kIncludeLineSpacingBottom:
-                    if (isLastLine()) {
-                        clip.fBottom -= this->sizes().runTop(context.run);
-                    }
-                break;
+                    break;
+                }
                 case RectHeightStyle::kStrut: {
                     auto strutStyle = paragraphStyle.getStrutStyle();
                     if (strutStyle.getStrutEnabled()
@@ -940,11 +945,15 @@ void TextLine::getRectsForRange(TextRange textRange0,
                     }
                 }
                 break;
-                case RectHeightStyle::kTight:
+                case RectHeightStyle::kTight: {
                     if (run->fHeightMultiplier > 0) {
                         // This is a special case when we do not need to take in account this height multiplier
-                        clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
+                        auto correctedHeight = clip.height() / run->fHeightMultiplier;
+                        auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
+                        clip.fTop += verticalShift;
+                        clip.fBottom = clip.fTop + correctedHeight;
                     }
+                }
                 break;
                 default:
                     SkASSERT(false);
@@ -1003,7 +1012,8 @@ void TextLine::getRectsForRange(TextRange textRange0,
                     lastRun != nullptr &&
                     lastRun->placeholderStyle() == nullptr &&
                     context.run->placeholderStyle() == nullptr &&
-                    nearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
+                    nearlyEqual(lastRun->heightMultiplier(),
+                                context.run->heightMultiplier()) &&
                     lastRun->font() == context.run->font())
                 {
                     auto& lastBox = boxes.back();

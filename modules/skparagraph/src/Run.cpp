@@ -168,7 +168,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
                     this->calculateWidth(start, glyph, glyph == size()),
-                    this->calculateHeight());
+                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
 
             start = glyph;
             cluster = nextCluster;
@@ -188,7 +188,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
                     this->calculateWidth(start, glyph, glyph == 0),
-                    this->calculateHeight());
+                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
 
             glyph = start;
             cluster = nextCluster;
