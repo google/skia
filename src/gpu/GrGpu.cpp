@@ -732,6 +732,7 @@ static const char* cache_result_to_str(int i) {
 }
 
 void GrGpu::Stats::dump(SkString* out) {
+#if 1
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
@@ -761,6 +762,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Total number of partial compilation successes %d\n",
                  fNumPartialCompilationSuccesses);
     out->appendf("Total number of compilation successes %d\n", fNumCompilationSuccesses);
+#endif
 
     // enable this block to output CSV-style stats for program pre-compilation
 #if 0

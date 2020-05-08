@@ -174,9 +174,8 @@ private:
 
     const GrVkFramebuffer*     fCachedFramebuffer;
 
-    // This is a cached pointer to a simple render pass. The render target should unref it
-    // once it is done with it.
-    const GrVkRenderPass*      fCachedSimpleRenderPass;
+    // This is a cached pointer to a simple render pass.
+    const GrVkRenderPass* fCachedSimpleRenderPass;
     // This is a handle to be used to quickly get compatible GrVkRenderPasses for this render target
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
 

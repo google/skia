@@ -56,19 +56,21 @@ public:
     // and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle. If this is
     // non null it will be set to a handle that can be used in the furutre to quickly return a
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
-    const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
-                                                   CompatibleRPHandle* compatibleHandle = nullptr);
+    const GrVkRenderPass* findCompatibleRenderPass1(GrVkRenderPass::AttachmentsDescriptor*,
+                                                         GrVkRenderPass::AttachmentFlags,
+                                                         CompatibleRPHandle* compatibleHandle = nullptr);
     // The CompatibleRPHandle must be a valid handle previously set by a call to
     // findCompatibleRenderPass(GrVkRenderTarget&, CompatibleRPHandle*).
-    const GrVkRenderPass* findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle);
+    const GrVkRenderPass* findCompatibleRenderPass2(const CompatibleRPHandle& compatibleHandle);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
                                                            uint32_t colorAttachmentIndex);
 
     // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
-    // If this is non null it will be set to a handle that can be used in the furutre to quickly
-    // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
+    // If this is non null it will be set to a handle that can be used in the future to quickly
+    // return a GrVkRenderPass without the need to inspect a GrVkRenderTarget.
+    // TODO: sk_sp?
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
@@ -109,10 +111,16 @@ public:
     GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+    GrVkPipelineState* findOrCreateCompatiblePipelineState3(
             GrRenderTarget*,
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass);
+
+    GrVkPipelineState* findOrCreateCompatiblePipelineState3_2(
+            const GrProgramDesc&,
+            const GrProgramInfo&,
+            VkRenderPass compatibleRenderPass,
+            GrGpu::Stats::ProgramCacheResult* stat);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
@@ -187,14 +195,22 @@ private:
         GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc& desc,
+                                                     const GrProgramInfo& programInfo,
+                                                     VkRenderPass compatibleRenderPass,
+                                                     GrGpu::Stats::ProgramCacheResult* stat) {
+            return this->findOrCreatePipelineState(nullptr, desc, programInfo,
+                                                   compatibleRenderPass, stat);
+        }
 
     private:
         struct Entry;
 
-        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
-                                                const GrProgramDesc&,
-                                                const GrProgramInfo&,
-                                                VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
+                                                     const GrProgramDesc&,
+                                                     const GrProgramInfo&,
+                                                     VkRenderPass compatibleRenderPass,
+                                                     GrGpu::Stats::ProgramCacheResult*);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
@@ -207,8 +223,8 @@ private:
         GrVkGpu*                    fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
+        int                         fTotalRequests1;
+        int                         fCacheMisses1;
 #endif
     };
 
@@ -219,9 +235,10 @@ private:
         // with this set.
         CompatibleRenderPassSet(GrVkRenderPass* renderPass);
 
-        bool isCompatible(const GrVkRenderTarget& target) const;
+        bool isCompatible(const GrVkRenderPass::AttachmentsDescriptor&,
+                          GrVkRenderPass::AttachmentFlags) const;
 
-        GrVkRenderPass* getCompatibleRenderPass() const {
+        const GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store
             // render pass on create
             SkASSERT(fRenderPasses[0]);

@@ -92,7 +92,7 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programI
                                                    int shaderStageCount,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, shaderStageInfo,
+    return GrVkPipeline::Create1(fGpu, programInfo, shaderStageInfo,
                                 shaderStageCount, compatibleRenderPass, layout,
                                 this->pipelineCache());
 }
@@ -101,10 +101,11 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programI
 // only used for framebuffer creation. When we actually render we will create
 // RenderPasses as needed that are compatible with the framebuffer.
 const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
+GrVkResourceProvider::findCompatibleRenderPass1(GrVkRenderPass::AttachmentsDescriptor* attachmentsDescriptor,
+                                                GrVkRenderPass::AttachmentFlags attachmentFlags,
                                                CompatibleRPHandle* compatibleHandle) {
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
-        if (fRenderPassArray[i].isCompatible(target)) {
+        if (fRenderPassArray[i].isCompatible(*attachmentsDescriptor, attachmentFlags)) {
             const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
             renderPass->ref();
             if (compatibleHandle) {
@@ -114,7 +115,8 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
         }
     }
 
-    GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, target);
+    GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, attachmentsDescriptor,
+                                                              attachmentFlags);
     if (!renderPass) {
         return nullptr;
     }
@@ -127,7 +129,7 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
 }
 
 const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle) {
+GrVkResourceProvider::findCompatibleRenderPass2(const CompatibleRPHandle& compatibleHandle) {
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     int index = compatibleHandle.toIndex();
     const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
@@ -225,12 +227,29 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
     return ycbcrConversion;
 }
 
-GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState3(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
     return fPipelineStateCache->findOrCreatePipelineState(renderTarget, programInfo,
                                                           compatibleRenderPass);
+}
+
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState3_2(
+        const GrProgramDesc& desc,
+        const GrProgramInfo& programInfo,
+        VkRenderPass compatibleRenderPass,
+        GrGpu::Stats::ProgramCacheResult* stat) {
+
+    auto tmp =  fPipelineStateCache->findOrCreatePipelineState(desc, programInfo,
+                                                               compatibleRenderPass, stat);
+    if (!tmp) {
+        fGpu->stats()->incNumPreCompilationFailures();
+    } else {
+        fGpu->stats()->incNumPreProgramCacheResult(*stat);
+    }
+
+    return tmp;
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
@@ -484,11 +503,12 @@ GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(GrVkRende
 }
 
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
-        const GrVkRenderTarget& target) const {
+        const GrVkRenderPass::AttachmentsDescriptor& attachmentsDescriptor,
+        GrVkRenderPass::AttachmentFlags attachmentFlags) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
-    return fRenderPasses[0]->isCompatible(target);
+    return fRenderPasses[0]->isCompatible(attachmentsDescriptor, attachmentFlags);
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(

@@ -1686,6 +1686,10 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
     memcpy(tmp, &key, sizeof(key));
 }
 
+extern GrVkRenderPass::AttachmentFlags reconstruct_attachment_desc(
+                                            const GrVkCaps& vkCaps,
+                                            const GrProgramInfo& programInfo,
+                                            GrVkRenderPass::AttachmentsDescriptor* desc);
 /**
  * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
  * the information needed to differentiate one pipeline from another.
@@ -1711,14 +1715,34 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     // This will become part of the sheared off key used to persistently cache
     // the SPIRV code. It needs to be added right after the base key so that,
     // when the base-key is sheared off, the shearing code can include it in the
-    // reduced key (c.f. the +4s in the SkData::MakeWithCopy calls in
+    // reduced key (cf. the +4s in the SkData::MakeWithCopy calls in
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
-    // TODO: support failure in getSimpleRenderPass
-    SkASSERT(vkRT->getSimpleRenderPass());
-    vkRT->getSimpleRenderPass()->genKey(&b);
+    GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+    auto attachmentFlags = reconstruct_attachment_desc(*this, programInfo, &attachmentsDescriptor);
+
+    b.add32(attachmentFlags);
+    if (attachmentFlags & GrVkRenderPass::kColor_AttachmentFlag) {
+        b.add32(attachmentsDescriptor.fColor.fFormat);
+        b.add32(attachmentsDescriptor.fColor.fSamples);
+    }
+    if (attachmentFlags & GrVkRenderPass::kStencil_AttachmentFlag) {
+        b.add32(attachmentsDescriptor.fStencil.fFormat);
+        b.add32(attachmentsDescriptor.fStencil.fSamples);
+    }
+
+    // TODO: the damn kExternal_AttachmentFlag in GrVkRenderPass::genKey - need to disallow - precompilation
+    // Also need to disable precompilation when wrapping a secondary command buffer
+
+#ifdef SK_DEBUG
+    if (rt) {
+        GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+        // TODO: support failure in getSimpleRenderPass
+        SkASSERT(vkRT->getSimpleRenderPass());
+        SkASSERT(vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor, attachmentFlags));
+    }
+#endif
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, true);
