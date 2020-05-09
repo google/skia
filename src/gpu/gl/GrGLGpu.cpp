@@ -3569,6 +3569,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, info.fID);
 
+    // If we have mips make sure the base level is set to 0 so that the uploads go to the right
+    // levels
+    if (numMipLevels) {
+        auto params = backendTexture.getGLTextureParams();
+        if (params->nonsamplerState().fBaseMipMapLevel != 0) {
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, 0));
+            GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
+            nonsamplerState.fBaseMipMapLevel = 0;
+            params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
+        }
+    }
+
     SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
