@@ -199,5 +199,117 @@ private:
     const char*         fText;
     typedef skiagm::GM INHERITED;
 };
-
 DEF_GM(return new TextBlobGM("hamburgefons");)
+
+#include <vector>
+
+enum class TextMethod {
+    kGlyphs,
+    kBlobs_Raw,
+    kBlobs_Cached,
+};
+
+static const char* method_name(TextMethod m) {
+    switch (m) {
+        case TextMethod::kGlyphs:       return "glyphs";
+        case TextMethod::kBlobs_Raw:    return "blobs_raw";
+        case TextMethod::kBlobs_Cached: return "blobs_cached";
+    }
+    return "unreachable";
+}
+
+class DrawGlyphsGM : public skiagm::GM {
+    SkString fText;
+    TextMethod fMethod;
+
+    struct Rec {
+        SkFont                 fFont;
+        std::vector<SkGlyphID> fGlyphs;
+        std::vector<SkPoint>   fPositions;
+
+        Rec(const SkFont& font, size_t count) : fFont(font) {
+            fGlyphs.resize(count);
+            fPositions.resize(count);
+        }
+
+        sk_sp<SkTextBlob> makeBlob() const {
+            return SkTextBlob::MakeFromPosText(fGlyphs.data(), fGlyphs.size() * sizeof(SkGlyphID),
+                                               fPositions.data(), fFont, SkTextEncoding::kGlyphID);
+        }
+    };
+    std::vector<Rec> fRecs;
+    std::vector<sk_sp<SkTextBlob>> fBlobs;
+
+public:
+    DrawGlyphsGM(const char* text, TextMethod method) : fText(text), fMethod(method) {}
+
+protected:
+    void onOnceBeforeDraw() override {
+        auto tf = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+
+        auto make = [&](const SkFont& font, SkPoint origin) -> Rec {
+            size_t N = fText.size();
+            Rec r(font, N);
+            font.textToGlyphs(fText.c_str(), N, SkTextEncoding::kUTF8, r.fGlyphs.data(), N);
+            font.getPos(r.fGlyphs.data(), N, r.fPositions.data(), origin);
+            return r;
+        };
+
+        float y = 0;
+        SkFont font(tf);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        for (float size = 6; size < 40; size += 1) {
+            font.setSize(size);
+            fRecs.push_back(make(font, {0, y}));
+            y += size + 2;
+
+            if (fMethod == TextMethod::kBlobs_Cached) {
+                fBlobs.push_back(fRecs.back().makeBlob());
+            }
+        }
+    }
+
+    SkString onShortName() override {
+        SkString str;
+        str.printf("drawglyphs_%s", method_name(fMethod));
+        return str;
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(640, 480);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->translate(10, 10);
+
+        SkPaint paint;
+        int index = 0;
+        for (const auto& r : fRecs) {
+            switch (fMethod) {
+                case TextMethod::kGlyphs:
+                    canvas->drawGlyphs(r.fGlyphs.data(), r.fGlyphs.size(), r.fPositions.data(),
+                                       r.fFont, paint);
+                    break;
+                case TextMethod::kBlobs_Raw:
+                    canvas->drawTextBlob(r.makeBlob(), 0, 0, paint);
+                    break;
+                case TextMethod::kBlobs_Cached:
+                    canvas->drawTextBlob(fBlobs[index], 0, 0, paint);
+                    break;
+            }
+            index += 1;
+        }
+    }
+
+    bool onAnimate(double nanos) override { return true; }
+    bool runAsBench() const override { return true; }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+static const char* gBenchText = "H";
+
+DEF_GM(return new DrawGlyphsGM(gBenchText, TextMethod::kBlobs_Cached);)
+DEF_GM(return new DrawGlyphsGM(gBenchText, TextMethod::kBlobs_Raw);)
+DEF_GM(return new DrawGlyphsGM(gBenchText, TextMethod::kGlyphs);)
