@@ -199,5 +199,74 @@ private:
     const char*         fText;
     typedef skiagm::GM INHERITED;
 };
-
 DEF_GM(return new TextBlobGM("hamburgefons");)
+
+#include <vector>
+
+class DrawGlyphsGM : public skiagm::GM {
+    SkString fText;
+
+    struct Rec {
+        SkFont                 fFont;
+        std::vector<SkGlyphID> fGlyphs;
+        std::vector<SkPoint>   fPositions;
+
+        Rec(const SkFont& font, size_t count) : fFont(font) {
+            fGlyphs.resize(count);
+            fPositions.resize(count);
+        }
+    };
+    std::vector<Rec> fRecs;
+
+public:
+    DrawGlyphsGM(const char* text) : fText(text) {}
+
+protected:
+    void onOnceBeforeDraw() override {
+        auto tf = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+
+        auto make = [&](const SkFont& font, SkPoint origin) -> Rec {
+            size_t N = fText.size();
+            Rec r(font, N);
+            font.textToGlyphs(fText.c_str(), N, SkTextEncoding::kUTF8, r.fGlyphs.data(), N);
+            font.getPos(r.fGlyphs.data(), N, r.fPositions.data(), origin);
+            return r;
+        };
+
+        float y = 0;
+        SkFont font(tf);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        for (float size = 6; size < 40; size += 1) {
+            font.setSize(size);
+            fRecs.push_back(make(font, {0, y}));
+            y += size + 2;
+        }
+    }
+
+    SkString onShortName() override {
+        return SkString("drawglyphs");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(640, 480);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->translate(10, 10);
+
+        SkPaint paint;
+        for (const auto& r : fRecs) {
+            const SkGlyphID* g = r.fGlyphs.data();
+            int n = r.fGlyphs.size();
+            const SkPoint* p = r.fPositions.data();
+            canvas->drawGlyphs(g, n, p, r.fFont, paint);
+        }
+    }
+
+    bool onAnimate(double nanos) override { return true; }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+DEF_GM(return new DrawGlyphsGM("hamburgefons");)

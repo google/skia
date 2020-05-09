@@ -76,6 +76,8 @@ protected:
 
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
+    void onDrawGlyphs(const SkGlyphID[], int count, const SkPoint pos[], const SkFont&,
+                      const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override;

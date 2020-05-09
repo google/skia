@@ -2619,6 +2619,33 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     }
 }
 
+void SkCanvas::drawGlyphs(const SkGlyphID glyphs[], int count, const SkPoint pos[],
+                          const SkFont& font, const SkPaint& paint) {
+    if (count <= 0) {
+        return;
+    }
+    this->onDrawGlyphs(glyphs, count, pos, font, paint);
+}
+
+void SkCanvas::onDrawGlyphs(const SkGlyphID glyphs[], int count, const SkPoint pos[],
+                            const SkFont& font, const SkPaint& paint) {
+    // We cannot filter in the looper as we normally do, because the paint is
+    // incomplete at this point (text-related attributes are embedded within blob run paints).
+    DRAW_BEGIN(paint, nullptr)
+
+    SkGlyphRun glyphRun(font,
+                        SkMakeSpan(pos, count),
+                        SkMakeSpan(glyphs, count),
+                        SkMakeSpan<const char>(nullptr, 0),
+                        SkMakeSpan<const uint32_t>(nullptr, 0));
+
+    while (iter.next()) {
+        iter.fDevice->drawGlyphRunList({glyphRun, draw.paint()});
+    }
+
+    DRAW_END
+}
+
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
