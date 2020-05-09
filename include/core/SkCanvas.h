@@ -2106,6 +2106,9 @@ public:
         this->drawTextBlob(blob.get(), x, y, paint);
     }
 
+    void drawGlyphs(const SkGlyphID[], int count, const SkPoint pos[], const SkFont&,
+                    const SkPaint&);
+
     /** Draws SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
@@ -2519,6 +2522,8 @@ protected:
 
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
+    virtual void onDrawGlyphs(const SkGlyphID[], int count, const SkPoint pos[], const SkFont&,
+                              const SkPaint&);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);

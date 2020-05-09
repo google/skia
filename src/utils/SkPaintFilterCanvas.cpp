@@ -191,6 +191,14 @@ void SkPaintFilterCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkS
     }
 }
 
+void SkPaintFilterCanvas::onDrawGlyphs(const SkGlyphID glyphs[], int count, const SkPoint pos[],
+                                       const SkFont& font, const SkPaint& paint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawGlyphs(glyphs, count, pos, font, apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
                                       const SkRect tex[], const SkColor colors[], int count,
                                       SkBlendMode bmode, const SkRect* cull, const SkPaint* paint) {
