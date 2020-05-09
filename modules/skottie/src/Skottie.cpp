@@ -17,7 +17,6 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "modules/skottie/include/ExternalLayer.h"
-#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -229,62 +228,6 @@ void AnimationBuilder::dispatchMarkers(const skjson::ArrayValue* jmarkers) const
             this->log(Logger::Level::kWarning, m, "Ignoring unexpected marker.");
         }
     }
-}
-
-bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
-    bool dispatched = false;
-
-    if (fPropertyObserver) {
-        fPropertyObserver->onColorProperty(fPropertyObserverContext,
-            [&]() {
-                dispatched = true;
-                return std::unique_ptr<ColorPropertyHandle>(new ColorPropertyHandle(c));
-            });
-    }
-
-    return dispatched;
-}
-
-bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
-    bool dispatched = false;
-
-    if (fPropertyObserver) {
-        fPropertyObserver->onOpacityProperty(fPropertyObserverContext,
-            [&]() {
-                dispatched = true;
-                return std::unique_ptr<OpacityPropertyHandle>(new OpacityPropertyHandle(o));
-            });
-    }
-
-    return dispatched;
-}
-
-bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t) const {
-    bool dispatched = false;
-
-    if (fPropertyObserver) {
-        fPropertyObserver->onTextProperty(fPropertyObserverContext,
-            [&]() {
-                dispatched = true;
-                return std::unique_ptr<TextPropertyHandle>(new TextPropertyHandle(t));
-            });
-    }
-
-    return dispatched;
-}
-
-bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>& t) const {
-    bool dispatched = false;
-
-    if (fPropertyObserver) {
-        fPropertyObserver->onTransformProperty(fPropertyObserverContext,
-            [&]() {
-                dispatched = true;
-                return std::unique_ptr<TransformPropertyHandle>(new TransformPropertyHandle(t));
-            });
-    }
-
-    return dispatched;
 }
 
 void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* observer,
