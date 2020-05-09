@@ -128,4 +128,88 @@ void PropertyObserver::onEnterNode(const char node_name[]) {}
 
 void PropertyObserver::onLeavingNode(const char node_name[]) {}
 
-}  // namespace skottie
+template <typename T>
+template <typename U>
+PropertyObserver::LazyHandle<T>::LazyHandle(const sk_sp<U>& node)
+    : fCtx(node.get()) {}
+
+template <>
+std::unique_ptr<ColorPropertyHandle>
+PropertyObserver::LazyHandle<ColorPropertyHandle>::operator()() const {
+    fDidResolve = true;
+    return std::make_unique<ColorPropertyHandle>(
+                sk_ref_sp(static_cast<sksg::Color*>(fCtx)));
+}
+
+template <>
+std::unique_ptr<OpacityPropertyHandle>
+PropertyObserver::LazyHandle<OpacityPropertyHandle>::operator()() const {
+    fDidResolve = true;
+    return std::make_unique<OpacityPropertyHandle>(
+                sk_ref_sp(static_cast<sksg::OpacityEffect*>(fCtx)));
+}
+
+template <>
+std::unique_ptr<TextPropertyHandle>
+PropertyObserver::LazyHandle<TextPropertyHandle>::operator()() const {
+    fDidResolve = true;
+    return std::make_unique<TextPropertyHandle>(
+                sk_ref_sp(static_cast<internal::TextAdapter*>(fCtx)));
+}
+
+template <>
+std::unique_ptr<TransformPropertyHandle>
+PropertyObserver::LazyHandle<TransformPropertyHandle>::operator()() const {
+    fDidResolve = true;
+    return std::make_unique<TransformPropertyHandle>(
+                sk_ref_sp(static_cast<internal::TransformAdapter2D*>(fCtx)));
+}
+
+namespace internal {
+
+bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
+    if (!fPropertyObserver) {
+        return false;
+    }
+
+    PropertyObserver::LazyHandle<ColorPropertyHandle> lh(c);
+    fPropertyObserver->onColorProperty(fPropertyObserverContext, lh);
+
+    return lh.fDidResolve;
+}
+
+bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
+    if (!fPropertyObserver) {
+        return false;
+    }
+
+    PropertyObserver::LazyHandle<OpacityPropertyHandle> lh(o);
+    fPropertyObserver->onOpacityProperty(fPropertyObserverContext, lh);
+
+    return lh.fDidResolve;
+}
+
+bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t) const {
+    if (!fPropertyObserver) {
+        return false;
+    }
+
+    PropertyObserver::LazyHandle<TextPropertyHandle> lh(t);
+    fPropertyObserver->onTextProperty(fPropertyObserverContext, lh);
+
+    return lh.fDidResolve;
+}
+
+bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>& t) const {
+    if (!fPropertyObserver) {
+        return false;
+    }
+
+    PropertyObserver::LazyHandle<TransformPropertyHandle> lh(t);
+    fPropertyObserver->onTransformProperty(fPropertyObserverContext, lh);
+
+    return lh.fDidResolve;
+}
+
+} // namespace internal
+} // namespace skottie
