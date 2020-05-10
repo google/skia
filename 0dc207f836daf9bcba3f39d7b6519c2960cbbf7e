@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fe19111_4dcab145",
+        "filename": "gm/lcdtext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2020-05-10T21:45:37Z",
+      "side": 0,
+      "message": "I just found that the above code fails to draw a fully opaque background behind the text.\n\nHowever, I found interesting different results on Gold:\n\n1. Extra black pixels for the subpixel aa pixels (which is align with my knowledge about drawing subpixel aa on non-opaque background):\nhttps://gold.skia.org/detail?test\u003dsavelayerpreservelcdtext\u0026digest\u003d372d2c25f727d185c43daffd2d80c239\n\n2. \"Automatic\" fallback to grayscale aa when the background of a pixel is not opaque. The top half of the text is drawn with grayscale aa, while the bottom half is with subpixel aa:\nhttps://gold.skia.org/detail?test\u003dsavelayerpreservelcdtext\u0026digest\u003d4bb8edf1598e6087ca613a3d9b1963f9\n\nI\u0027m wondering how we achieves the second result, and whether we could modify SkBlitter_RGB32.cpp to also achieve that. This can prevent bad drawing effect when we accidentally enable LCD-text on a non-opaque background.",
+      "revId": "0dc207f836daf9bcba3f39d7b6519c2960cbbf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
