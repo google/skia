@@ -115,6 +115,10 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
         drawText(canvas, SkString("SaveLayer PreserveLCDText"), 50,
                  SkCanvas::kPreserveLCDText_SaveLayerFlag);
         drawText(canvas, SkString("SaveLayer Default (LCDText not preserved)"), 150, 0);
+        canvas->saveLayer(nullptr, nullptr);
+        drawText(canvas, SkString("SaveLayer nested (LCDText not preserved)"), 250,
+                 SkCanvas::kPreserveLCDText_SaveLayerFlag);
+        canvas->restore();
     }
 
     void drawText(SkCanvas* canvas,
@@ -125,7 +129,7 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
         canvas->saveLayer(rec);
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);
-        canvas->drawRect(SkRect::MakeXYWH(0, y - 10, 640, kTextHeight + 20), paint);
+        canvas->drawRect(SkRect::MakeXYWH(0, y - kTextHeight - 10, 640, kTextHeight + 20), paint);
         paint.setColor(SK_ColorBLACK);
         SkFont font(nullptr, kTextHeight);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
