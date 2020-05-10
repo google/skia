@@ -39,6 +39,30 @@
       "revId": "fad745f808ca275ca744ea516d771836f7876824",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75ecf0b8_f09bb5bf",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-10T13:20:58Z",
+      "side": 1,
+      "message": "This is too fun,\n\n   int bits;\n   memcpy(\u0026bits, \u0026value, 4);\n   bits +\u003d (1\u003c\u003c23)-1;\n   int lg \u003d (bits\u003e\u003e23)-127;\n   return lg \u0026 ~(lg \u003e\u003e 31);\n\nbasically the same, except that x \u0026 ~y at the end there can be a single instruction on xmm registers.\n\nThat\u0027s moot at the moment with Clang and GCC doing this all in general purpose registers (starting with movd %xmm0,...), but I wonder if I could figure out how to convince them to keep things in xmm registers until the final return.",
+      "parentUuid": "dd0784ba_c5f1d1e3",
+      "range": {
+        "startLine": 155,
+        "startChar": 1,
+        "endLine": 159,
+        "endChar": 28
+      },
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
