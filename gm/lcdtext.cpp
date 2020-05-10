@@ -115,6 +115,10 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
         drawText(canvas, SkString("SaveLayer PreserveLCDText"), 50,
                  SkCanvas::kPreserveLCDText_SaveLayerFlag);
         drawText(canvas, SkString("SaveLayer Default (LCDText not preserved)"), 150, 0);
+        canvas->saveLayer(nullptr, nullptr);
+        drawText(canvas, SkString("SaveLayer nested (LCDText not preserved)"), 250,
+                 SkCanvas::kPreserveLCDText_SaveLayerFlag);
+        canvas->restore();
     }
 
     void drawText(SkCanvas* canvas,
