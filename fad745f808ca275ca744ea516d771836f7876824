@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "264c63fd_d12bc585",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-10T00:19:11Z",
+      "side": 1,
+      "message": "It\u0027s generally dangerous implement functions in headers unless they\u0027re static, especially when they involve float math.  It\u0027s setting things up for silent ODR violations if different copies of these functions are compiled differently, e.g. via SkOpts.\n\n(Even just #including \u003ccmath\u003e can break things when it\u0027s MSVC\u0027s cmath.)",
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0784ba_c5f1d1e3",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-10T00:19:11Z",
+      "side": 1,
+      "message": "This seems nice.  Isn\u0027t it all we need?\n\nIf this is too hot for a call to frexpf(), maybe just do it manually?\n\n  struct { unsigned m : 23; unsigned e : 8; unsigned s : 1; } bits;\n  memcpy(\u0026bits, \u0026value, 4);\n  if (bits.m !\u003d 0) {\n      bits.e++;  // round up\n  }\n  return std::max(0, bits.e-127);\n\nIf this is really hot you can trim a few instructions like this:\n\n   int bits;\n   memcpy(\u0026bits, \u0026value, 4);\n   bits +\u003d (1\u003c\u003c23)-1;   // if there\u0027s any fractional mantissa, round up to next exponent\n   return std::max(0, (bits\u003e\u003e23) - 127);",
+      "range": {
+        "startLine": 155,
+        "startChar": 1,
+        "endLine": 159,
+        "endChar": 28
+      },
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
