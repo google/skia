@@ -301,9 +301,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
-
-    int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
-    int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
+    static constexpr int kMaxKernelSize = 25;
+    int width = d->fRandom->nextRangeU(1, kMaxKernelSize);
+    int height = d->fRandom->nextRangeU(1, kMaxKernelSize / width);
     SkISize kernelSize = SkISize::Make(width, height);
     std::unique_ptr<SkScalar[]> kernel(new SkScalar[width * height]);
     for (int i = 0; i < width * height; i++) {
