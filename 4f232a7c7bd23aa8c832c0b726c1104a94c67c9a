@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a335dc89_2da2ae59",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 3583,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-11T13:51:06Z",
+      "side": 1,
+      "message": "Do you know if you actually need to do this? I wasn\u0027t sure. FWIW in the rest of our code we just blindly set it to 1000 because it gets capped automatically by the texture size.",
+      "range": {
+        "startLine": 3582,
+        "startChar": 7,
+        "endLine": 3583,
+        "endChar": 96
+      },
+      "revId": "4f232a7c7bd23aa8c832c0b726c1104a94c67c9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
