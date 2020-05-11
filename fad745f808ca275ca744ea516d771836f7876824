@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "442e34be_67c547a9",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-11T20:16:08Z",
+      "side": 1,
+      "message": "Yeah, if a function\u0027s already static then inline doesn\u0027t do anything in terms of C++ mechanics.  inline is completely moot for a static function... think about it.\n\nBut declaring a static function inline does prevent some warnings about the function being unused, so it can still be useful when you\u0027ve got a grab bag of things all defined in one header.\n\nIf you want to be safe, never include \u003ccmath\u003e from a file that\u0027s built in more than one way.  It\u0027s really easy to lose track of how your headers are being included, and that makes it hard to track \u003ccmath\u003e bombs.  I think we\u0027ve got the tools available to mostly make this moot, but it\u0027s all incredibly silently dangerous right now.  You can break things for like, no reason.",
+      "parentUuid": "a54cb5bd_6c6f5c5c",
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0784ba_c5f1d1e3",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 6
