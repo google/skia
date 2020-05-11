@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94c4ed47_152d6fa2",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T21:38:42Z",
+      "side": 1,
+      "message": "stencil stencil",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3144d319_d5a39483",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T21:38:42Z",
+      "side": 1,
+      "message": "Not for this CL, but how much longer until this is just kIntersect or kDifference? That will simplify this code so much!",
+      "range": {
+        "startLine": 28,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aabacef_e95d6ecd",
+        "filename": "src/gpu/GrStencilMaskHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T21:38:42Z",
+      "side": 1,
+      "message": "Was this formatting intentional?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 4
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
