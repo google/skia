@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "505ac7c3_93497919",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-11T15:03:23Z",
+      "side": 1,
+      "message": "Could be. I\u0027ll be honest: I just cargo-culted what the GL backend was doing, which may not be the best model. Is there a test that exercises this code? Perhaps we should be doing a submitToGpu() here?",
+      "parentUuid": "f0da93a3_13e3f189",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30e5407_3540c4ff",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-11T14:49:04Z",
       "side": 1,
       "message": "should we report this failing in the test (if we\u0027re going to remove the assert)?",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29be91fa_3892ebd4",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-11T15:03:23Z",
+      "side": 1,
+      "message": "It\u0027s guaranteed to fail, because the buffer is erased to ~origColor in the line above.",
+      "parentUuid": "c30e5407_3540c4ff",
       "range": {
         "startLine": 852,
         "startChar": 13,
