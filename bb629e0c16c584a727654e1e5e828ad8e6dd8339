@@ -22,6 +22,30 @@
       "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d096c50_5e9e7392",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-11T15:38:14Z",
+      "side": 1,
+      "message": "I agree, having to do this is a bit of a pain. I\u0027ve spent a few minutes experimenting. Those macro hijinks are possible but (1) they\u0027re very messy and (2) they\u0027re ambiguous because maybe you just forgot to add your format arguments and we wouldn\u0027t get a warning in that case.\n\nThis isn\u0027t worth much of our time. Out of a total 8500 REPORTER_ASSERTS, 8089 have no argument. 17 are this bad case (just a c_str arg).\n\nI think the best move is to have REPORTER_ASSERT insert the \"%s\" itself. This means copying the string, but it\u0027s only in testing code and only triggered on failures so it won\u0027t matter.\n\nFor ERRORF and INFOF, since they have F right in the name, we could require the `%s` or we could have them do that too.\n\nWhat do you think?",
+      "parentUuid": "5f51b396_9262f541",
+      "range": {
+        "startLine": 1061,
+        "startChar": 24,
+        "endLine": 1061,
+        "endChar": 48
+      },
+      "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
