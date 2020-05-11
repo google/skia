@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b69f576e_b053cd5b",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-11T15:13:58Z",
+      "side": 1,
+      "message": "Yeah I would look at metal or vk to see what they do. Though each handles the submission of command work to the gpu differently from dawn so dawn probably needs its own model. The only requirement is these uploads happen after all previous draws and before all future draws. So however you can achieve that (and still try to keep performance not horrible) works.\n\nLooks like the fontcache and fontcache-mt gms hit this code path.",
+      "parentUuid": "505ac7c3_93497919",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30e5407_3540c4ff",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 1
