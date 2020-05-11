@@ -1245,7 +1245,8 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        A::Label l = a.here();
+        A::Label l;
+        a.label(&l);
         a.byte(1);
         a.byte(2);
         a.byte(3);
@@ -1302,7 +1303,8 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        A::Label l = a.here();
+        A::Label l;
+        a.label(&l);
         a.jne(&l);
         a.jne(&l);
         a.je (&l);
@@ -1771,7 +1773,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.subs(A::xzr, A::x2, 4);  // These are actually the same instruction!
         a.cmp(A::x2, 4);
 
-        A::Label l = a.here();
+        A::Label l;
+        a.label(&l);
         a.bne(&l);
         a.bne(&l);
         a.blt(&l);
@@ -1822,11 +1825,13 @@ DEF_TEST(SkVM_Assembler, r) {
     // can we redefine it to be a future label?
     // (Not sure this is useful... just want to test it works.)
     test_asm(r, [&](A& a) {
-        A::Label l1 = a.here();
+        A::Label l1;
+        a.label(&l1);
         a.add(A::x3, A::x2, 32);
         a.cbz(A::x2, &l1);          // This will jump backward... nothing sneaky.
 
-        A::Label l2 = a.here();     // Start off the same...
+        A::Label l2;                // Start off the same...
+        a.label(&l2);
         a.add(A::x3, A::x2, 32);
         a.cbz(A::x2, &l2);          // Looks like this will go backward...
         a.add(A::x2, A::x2, 4);
