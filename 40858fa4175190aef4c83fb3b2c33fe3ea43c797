@@ -70,6 +70,30 @@
       "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44e64dd9_32076cfa",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T14:10:21Z",
+      "side": 1,
+      "message": "I think splitting the caching out to a separate CL makes sense. In my experience with composited content from chrome, the image filters are usually static; they may just be moving around on the page, or in a separate layer. From this standpoint, the cached kernel would be beneficial, but it definitely doesn\u0027t make sense for an animating kernel. I don\u0027t have numbers to back up my impressions on content either, so being able to see perf numbers for both cases would be good.",
+      "parentUuid": "b334b5bf_8efeb589",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 74
+      },
+      "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
