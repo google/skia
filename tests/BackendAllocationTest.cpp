@@ -28,7 +28,8 @@
 #include "src/gpu/mtl/GrMtlCppUtil.h"
 #endif
 
-static void wait_on_backend_work_to_finish(GrContext* context, bool* finishedCreate) {
+static void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTexture,
+                                   bool* finishedCreate) {
     while (finishedCreate && !(*finishedCreate)) {
         context->checkAsyncWorkCompletion();
     }
@@ -38,16 +39,7 @@ static void wait_on_backend_work_to_finish(GrContext* context, bool* finishedCre
         // Reset it here so that it can be use to signal a future backend texture's creation
         *finishedCreate = false;
     }
-}
-
-static void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTexture,
-                                   bool* finishedCreate) {
-    wait_on_backend_work_to_finish(context, finishedCreate);
     context->deleteBackendTexture(backendTexture);
-}
-
-static void mark_signaled(void* context) {
-    *(bool*)context = true;
 }
 
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
@@ -321,35 +313,16 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    auto checkBackendTexture = [&](const SkColor4f& testColor) {
-        if (mipMapped == GrMipMapped::kYes) {
-            SkColor4f expectedColor = get_expected_color(testColor, skColorType);
-            SkColor4f expectedColors[6] = {expectedColor, expectedColor, expectedColor,
-                                           expectedColor, expectedColor, expectedColor};
-            check_mipmaps(context, backendTex, skColorType, expectedColors, reporter, "colorinit");
-        }
+    if (mipMapped == GrMipMapped::kYes) {
+        SkColor4f expectedColor = get_expected_color(color, skColorType);
+        SkColor4f expectedColors[6] = { expectedColor, expectedColor, expectedColor,
+                                        expectedColor, expectedColor, expectedColor };
+        check_mipmaps(context, backendTex, skColorType, expectedColors, reporter, "colorinit");
+    }
 
-        // The last step in this test will dirty the mipmaps so do it last
-        check_base_readbacks(context, backendTex, skColorType, renderable, testColor, reporter,
-                             "colorinit");
-    };
-
-    checkBackendTexture(color);
-
-    // Make sure the initial create work has finished so we can test the update independently.
-    wait_on_backend_work_to_finish(context, finishedBECreate);
-
-    SkColor4f newColor = {color.fB , color.fR, color.fG, color.fA };
-
-    // Reupload the new data and make sure everything still works. We test with an SkColorType so
-    // we may actually swizzle the input during the create path. The update does not do any swizzle
-    // of the passed in color. So we manually do it here so we get the same expected results.
-    SkColor4f swizzledColor = context->priv().caps()->getWriteSwizzle(
-            backendTex.getBackendFormat(), grColorType).applyTo(newColor);
-    context->updateBackendTexture(backendTex, swizzledColor, mark_signaled, finishedBECreate);
-
-    checkBackendTexture(newColor);
-
+    // The last step in this test will dirty the mipmaps so do it last
+    check_base_readbacks(context, backendTex, skColorType, renderable, color,
+                         reporter, "colorinit");
     delete_backend_texture(context, backendTex, finishedBECreate);
 }
 
@@ -488,49 +461,22 @@ static void test_pixmap_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    auto checkBackendTexture = [&](SkColor4f colors[6]) {
-        if (mipMapped == GrMipMapped::kYes) {
-            SkColor4f expectedColors[6] = {
-                    get_expected_color(colors[0], skColorType),
-                    get_expected_color(colors[1], skColorType),
-                    get_expected_color(colors[2], skColorType),
-                    get_expected_color(colors[3], skColorType),
-                    get_expected_color(colors[4], skColorType),
-                    get_expected_color(colors[5], skColorType),
-            };
+    if (mipMapped == GrMipMapped::kYes) {
+        SkColor4f expectedColors[6] = {
+            get_expected_color(colors[0], skColorType),
+            get_expected_color(colors[1], skColorType),
+            get_expected_color(colors[2], skColorType),
+            get_expected_color(colors[3], skColorType),
+            get_expected_color(colors[4], skColorType),
+            get_expected_color(colors[5], skColorType),
+        };
 
-            check_mipmaps(context, backendTex, skColorType, expectedColors, reporter, "pixmap");
-        }
-
-        // The last step in this test will dirty the mipmaps so do it last
-        check_base_readbacks(context, backendTex, skColorType, renderable, colors[0], reporter,
-                             "pixmap");
-    };
-
-    checkBackendTexture(colors);
-
-    // Make sure the initial create work has finished so we can test the update independently.
-    wait_on_backend_work_to_finish(context, finishedBECreate);
-
-    SkColor4f colorsNew[6] = {
-        {1.0f, 1.0f, 0.0f, 0.2f},  // Y
-        {1.0f, 0.0f, 0.0f, 1.0f},  // R
-        {0.0f, 1.0f, 0.0f, 0.9f},  // G
-        {0.0f, 0.0f, 1.0f, 0.7f},  // B
-        {0.0f, 1.0f, 1.0f, 0.5f},  // C
-        {1.0f, 0.0f, 1.0f, 0.3f},  // M
-    };
-    make_pixmaps(skColorType, mipMapped, colorsNew, pixmapMem);
-    for (int i = 0; i < numMipLevels; ++i) {
-        pixmaps[i].reset(pixmapMem[i].info(), pixmapMem[i].addr(), pixmapMem[i].rowBytes());
+        check_mipmaps(context, backendTex, skColorType, expectedColors, reporter, "pixmap");
     }
 
-    // Upload new data and make sure everything still works
-    context->updateBackendTexture(backendTex, pixmaps, numMipLevels, mark_signaled,
-                                  finishedBECreate);
-
-    checkBackendTexture(colorsNew);
-
+    // The last step in this test will dirty the mipmaps so do it last
+    check_base_readbacks(context, backendTex, skColorType, renderable, colors[0],
+                         reporter, "pixmap");
     delete_backend_texture(context, backendTex, finishedBECreate);
 }
 
@@ -561,6 +507,10 @@ void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
         SkASSERT(VK_IMAGE_TILING_OPTIMAL == vkII.fImageTiling);
     }
 #endif
+}
+
+static void mark_signaled(void* context) {
+    *(bool*)context = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
