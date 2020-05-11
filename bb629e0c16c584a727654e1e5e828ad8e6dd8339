@@ -46,6 +46,30 @@
       "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "243bd08c_8eb275c1",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-11T15:47:15Z",
+      "side": 1,
+      "message": "Actually, I take that back. That won\u0027t work. We could have a debug-only function that isn\u0027t marked as PRINTF_LIKE, and the testing macros could use that. Or we could keep the %s\u0027es, or we could forget about it.",
+      "parentUuid": "2d096c50_5e9e7392",
+      "range": {
+        "startLine": 1061,
+        "startChar": 24,
+        "endLine": 1061,
+        "endChar": 48
+      },
+      "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
