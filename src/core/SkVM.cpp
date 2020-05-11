@@ -1798,23 +1798,39 @@ namespace skvm {
     void Assembler::vsqrtps   (Ymm dst, Operand x) { this->op(   0,0x0f,0x51, dst,x); }
 
     int Assembler::disp19(Label* l) {
-        SkASSERT(l->kind == Label::NotYetSet ||
-                 l->kind == Label::ARMDisp19);
-        int here = (int)this->size();
-        l->kind = Label::ARMDisp19;
-        l->references.push_back(here);
-        // ARM 19-bit instruction count, from the beginning of this instruction.
-        return (l->offset - here) / 4;
+        const int here = (int)this->size();
+        switch (l->state) {
+            case Label::Empty:
+            case Label::Referenced_ARM:
+                // Extend reference linked list, pointing l->offset here
+                // and storing the old head in this instruction's displacement.
+                l->state = Label::Referenced_ARM;
+                return std::exchange(l->offset, here);
+
+            case Label::Set:
+              // Actual displacement: ARM 19-bit instruction count from the beginning of this one.
+              return (l->offset - here) / 4;
+
+            case Label::Referenced_x86: SkUNREACHABLE;
+        }
     }
 
     int Assembler::disp32(Label* l) {
-        SkASSERT(l->kind == Label::NotYetSet ||
-                 l->kind == Label::X86Disp32);
-        int here = (int)this->size();
-        l->kind = Label::X86Disp32;
-        l->references.push_back(here);
-        // x86 32-bit byte count, from the end of this instruction.
-        return l->offset - (here + 4);
+        const int here = (int)this->size();
+        switch (l->state) {
+            case Label::Empty:
+            case Label::Referenced_x86:
+                // Extend reference linked list, pointing l->offset here
+                // and storing the old head in this instruction's displacement.
+                l->state = Label::Referenced_x86;
+                return std::exchange(l->offset, here);
+
+            case Label::Set:
+              // Actual displacement: x86 32-bit byte count from the end of this instruction.
+              return l->offset - (here + 4);
+
+            case Label::Referenced_ARM: SkUNREACHABLE;
+        }
     }
 
     void Assembler::op(int prefix, int map, int opcode, int dst, int x, Operand y, W w, L l) {
@@ -2080,45 +2096,57 @@ namespace skvm {
     }
 
     void Assembler::label(Label* l) {
-        if (fCode) {
-            // The instructions all currently point to l->offset.
-            // We'll want to add a delta to point them to here.
-            int here = (int)this->size();
-            int delta = here - l->offset;
-            l->offset = here;
+        if (!fCode) {
+            return;
+        }
 
-            if (l->kind == Label::ARMDisp19) {
-                for (int ref : l->references) {
-                    // ref points to a 32-bit instruction with 19-bit displacement in instructions.
-                    uint32_t inst;
-                    memcpy(&inst, fCode + ref, 4);
+        const int here = (int)this->size();
+        switch (l->state) {
+            case Label::Empty: break;
+            case Label::Set: SkUNREACHABLE;
 
-                    // [ 8 bits to preserve] [ 19 bit signed displacement ] [ 5 bits to preserve ]
-                    int disp = (int)(inst << 8) >> 13;
+            case Label::Referenced_ARM:
+            case Label::Referenced_x86:
+                // TODO
+                break;
+        }
 
-                    disp += delta/4;  // delta is in bytes, we want instructions.
+        l->state  = Label::Set;
+        l->offset = here;
+    }
 
-                    // Put it all back together, preserving the high 8 bits and low 5.
-                    inst = ((disp << 5) &  (19_mask << 5))
-                         | ((inst     ) & ~(19_mask << 5));
+    #if 0
+    if (l->kind == Label::ARMDisp19) {
+        for (int ref : l->references) {
+            // ref points to a 32-bit instruction with 19-bit displacement in instructions.
+            uint32_t inst;
+            memcpy(&inst, fCode + ref, 4);
 
-                    memcpy(fCode + ref, &inst, 4);
-                }
-            }
+            // [ 8 bits to preserve] [ 19 bit signed displacement ] [ 5 bits to preserve ]
+            int disp = (int)(inst << 8) >> 13;
 
-            if (l->kind == Label::X86Disp32) {
-                for (int ref : l->references) {
-                    // ref points to a 32-bit displacement in bytes.
-                    int disp;
-                    memcpy(&disp, fCode + ref, 4);
+            disp += delta/4;  // delta is in bytes, we want instructions.
 
-                    disp += delta;
+            // Put it all back together, preserving the high 8 bits and low 5.
+            inst = ((disp << 5) &  (19_mask << 5))
+                 | ((inst     ) & ~(19_mask << 5));
 
-                    memcpy(fCode + ref, &disp, 4);
-                }
-            }
+            memcpy(fCode + ref, &inst, 4);
         }
     }
+
+    if (l->kind == Label::X86Disp32) {
+        for (int ref : l->references) {
+            // ref points to a 32-bit displacement in bytes.
+            int disp;
+            memcpy(&disp, fCode + ref, 4);
+
+            disp += delta;
+
+            memcpy(fCode + ref, &disp, 4);
+        }
+    }
+    #endif
 
     void Program::eval(int n, void* args[]) const {
     #define SKVM_JIT_STATS 0
@@ -3468,7 +3496,7 @@ namespace skvm {
             }
         });
 
-        if (!iota.references.empty()) {
+        if (iota.state != A::Label::Empty) {
             a->align(4);
             a->label(&iota);
             for (int i = 0; i < K; i++) {

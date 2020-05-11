@@ -77,10 +77,30 @@ namespace skvm {
         void byte(uint8_t);
         void word(uint32_t);
 
+        // Labels start with no instructions referring to them and no location set.
+        // A Label's location may be set exactly once using Assembler::label(), but any number
+        // of instructions can refer to it, before or after the location is set, even both.
         struct Label {
-            int                                      offset = 0;
-            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            SkSTArray<2, int>                        references;
+            // A Label's state transitions from Empty to Referenced to Set,
+            // or just Empty to Set if label() is called before any instruction refers to the Label.
+            //
+            // While Referenced, each instruction waiting to learn this Label's ultimate location
+            // holds the offset of the previous referencing instruction in its displacement payload,
+            // forming a (temporary) linked list of references to this Label.  We fill in the actual
+            // displacements when the label transitions to its Set state.
+            enum {
+                Empty,
+                Referenced_ARM, Referenced_x86,
+                Set,
+            } state = Empty;
+            // (This ARM/x86 distinction could be made at compile time, but this is easier to test.)
+
+            // The offset field counts bytes relative to the start of the program,
+            // pointing different places depending on state:
+            //    - if Empty,      meaningless
+            //    - if Referenced, offset of the most recent referencing instruction
+            //    - if Set,        offset of the Label itself
+            int offset = 0;
         };
 
         // x86-64
