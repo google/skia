@@ -94,6 +94,30 @@
       "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc6dcdf_a56ef603",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-11T14:45:19Z",
+      "side": 1,
+      "message": "OK, that makes sense to me too. I\u0027ve updated the CL to disable kernel caching with a followup to enable it. Filed bug skia:10233 to track that work.",
+      "parentUuid": "44e64dd9_32076cfa",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 74
+      },
+      "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
