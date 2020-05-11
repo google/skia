@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c5149b0_6f0d002a",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-11T18:37:39Z",
+      "side": 1,
+      "message": "SkScalar calculateHeight(LineMetricStyle ascentStyle, LineMetricStyle descentStyle)",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 69
+      },
+      "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a963ec6b_fc1f1b26",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-11T18:37:39Z",
+      "side": 1,
+      "message": "LineMetricStyle ascentStyle",
+      "range": {
+        "startLine": 407,
+        "startChar": 36,
+        "endLine": 407,
+        "endChar": 62
+      },
+      "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
