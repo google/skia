@@ -46,6 +46,30 @@
       "revId": "4f232a7c7bd23aa8c832c0b726c1104a94c67c9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67776172_523437c7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 3583,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-11T14:23:20Z",
+      "side": 1,
+      "message": "Yeah, I had assumed the base change was required by the spec but it\u0027s not obvious that it is after looking at it. So I agree setting the max as well is probably safer.\n\nActually you\u0027re right, I was looking at where we set it to 1000 to match the GL default. What you have here is more consistent with what we do when binding for drawing.",
+      "parentUuid": "3b019663_8aca8d2d",
+      "range": {
+        "startLine": 3582,
+        "startChar": 7,
+        "endLine": 3583,
+        "endChar": 96
+      },
+      "revId": "4f232a7c7bd23aa8c832c0b726c1104a94c67c9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
