@@ -29,12 +29,14 @@
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
 
-
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
 
 <h2> 3D perspective transformations </h2>
 <canvas id=camera3d width=500 height=500></canvas>
+
+<h2> Use of offscreen surfaces </h2>
+<canvas id=surfaces width=500 height=500></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -76,6 +78,8 @@
     RTShaderAPI1(CanvasKit);
 
     SkpExample(CanvasKit, skpData);
+
+    SurfaceAPI1(CanvasKit);
   });
 
   fetch(cdn + 'lego_loader.json').then((resp) => {
@@ -242,10 +246,11 @@ const curves = {
       console.error('Could not make surface');
       return;
     }
+    console.log('SurfaceAPI1 top surface type = '+surface.reportBackendType() );
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
 
-    // create a subsurface as a temporary workspace.
+    //create a subsurface as a temporary workspace.
     const subSurface = surface.makeSurface({
       width: 50,
       height: 50,
@@ -257,6 +262,7 @@ const curves = {
       console.error('Could not make subsurface');
       return;
     }
+    console.log('SurfaceAPI1 subSurface type = '+subSurface.reportBackendType() );
 
     // draw a small "scene"
     const paint = new CanvasKit.SkPaint();
