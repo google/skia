@@ -67,6 +67,7 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     }
     auto correction = 0.0f;
     if (end > start && !fJustificationShifts.empty()) {
+        // This is not a typo: we are using Point as a pair of SkScalars
         correction = fJustificationShifts[end - 1].fX -
                      fJustificationShifts[start].fY;
     }

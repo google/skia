@@ -666,12 +666,16 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reversed,
 
         auto trailed = fMaster->clusters(trailedRange);
         auto trimmed = fMaster->clusters(trimmedRange);
+        bool ignore = false;
         directional_for_each(trailed, reversed != run.leftToRight(), [&](Cluster& cluster) {
+            if (ignore) return;
             bool ghost =  &cluster >= trimmed.end();
             if (!includeGhosts && ghost) {
+                ignore = true;
                 return;
             }
             if (!visitor(&cluster, ghost)) {
+                ignore = true;
                 return;
             }
         });
@@ -876,6 +880,7 @@ bool TextLine::endsWithHardLineBreak() const {
     // TODO: For some reason Flutter imagines a hard line break at the end of the last line.
     //  To be removed...
     return fMaster->cluster(fGhostClusterRange.end - 1).isHardBreak() ||
+           fEllipsis != nullptr ||
            fGhostClusterRange.end == fMaster->clusters().size() - 1;
 }
 
