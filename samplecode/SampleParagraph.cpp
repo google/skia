@@ -2730,7 +2730,41 @@ protected:
 private:
     typedef Sample INHERITED;
 };
-//
+
+class ParagraphView43 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph43"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        SkString text("World domination is such an ugly phrase - I prefer to call it world optimisation");
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(2);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        text_style.setHeightOverride(true);
+        builder.pushStyle(text_style);
+        builder.addText(text.c_str());
+        auto paragraph = builder.Build();
+        paragraph->layout(width() / 4);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2772,3 +2806,4 @@ DEF_SAMPLE(return new ParagraphView38();)
 DEF_SAMPLE(return new ParagraphView39();)
 DEF_SAMPLE(return new ParagraphView41();)
 DEF_SAMPLE(return new ParagraphView42();)
+DEF_SAMPLE(return new ParagraphView43();)
