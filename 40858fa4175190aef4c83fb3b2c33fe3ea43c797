@@ -46,6 +46,30 @@
       "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b334b5bf_8efeb589",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-11T12:53:12Z",
+      "side": 1,
+      "message": "SG. What I\u0027d do if I was going to add caching is land without caching, wait a day or two, and then add caching. That way if there is a memory regression it\u0027ll be clear that it\u0027s unrelated to the rest of the change. It\u0027s not uncommon for there to be significant lag in regression reports from Skia clients and it\u0027s very nice when you\u0027ve moved on to something else and this isn\u0027t top of mind any more to know as narrowly as possible what caused the regression. Of course, it\u0027s not always possible.",
+      "parentUuid": "4180e828_2768d241",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 74
+      },
+      "revId": "40858fa4175190aef4c83fb3b2c33fe3ea43c797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
