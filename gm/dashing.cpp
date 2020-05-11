@@ -585,7 +585,7 @@ DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
     }
 }
 
-DEF_SIMPLE_GM(thin_aa_dash_lines, canvas, 330, 110) {
+DEF_SIMPLE_GM(thin_aa_dash_lines, canvas, 110, 110) {
     SkPaint paint;
     static constexpr SkScalar kIntervals[] = {10, 5};
     paint.setPathEffect(SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0.f));
@@ -596,13 +596,9 @@ DEF_SIMPLE_GM(thin_aa_dash_lines, canvas, 330, 110) {
     // We will draw a grid of horiz/vertical lines that pass through each other's off intervals.
     static constexpr SkScalar kStep = kIntervals[0] + kIntervals[1];
     canvas->translate(kIntervals[1], kIntervals[1]);
-    for (auto c : {SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap}) {
-        paint.setStrokeCap(c);
-        for (SkScalar x = -.5f*kIntervals[1]; x < 105; x += (kStep + kSubstep)) {
-            canvas->drawLine({x, 0}, {x, 100}, paint);
-            canvas->drawLine({0, x}, {100, x}, paint);
-        }
-        canvas->translate(110, 0);
+    for (SkScalar x = -.5f*kIntervals[1]; x < 105; x += (kStep + kSubstep)) {
+        canvas->drawLine({x, 0}, {x, 100}, paint);
+        canvas->drawLine({0, x}, {100, x}, paint);
     }
 }
 
