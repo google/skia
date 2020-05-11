@@ -80,7 +80,7 @@ namespace skvm {
         struct Label {
             int                                      offset = 0;
             enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            SkSTArray<1, int>                        references;
+            SkSTArray<2, int>                        references;
         };
 
         // x86-64
