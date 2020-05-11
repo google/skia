@@ -570,7 +570,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     SkDEBUGCODE(this->validate());
 
     bool submitted = false;
-    if (didFlush) {
+
+    if (didFlush && GrFlushFlagsRequireSubmit(info.fFlags)) {
         submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
     }
 
