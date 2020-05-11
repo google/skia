@@ -90,7 +90,7 @@ static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter, const ch
             }
         }
 
-        REPORTER_ASSERT(reporter, match, label);
+        REPORTER_ASSERT(reporter, match, "%s", label);
     }
 }
 
