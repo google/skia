@@ -248,7 +248,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_getProps
     */
-    bool getProps(SkSurfaceProps* props) const;
+    bool SK_WARN_UNUSED_RESULT getProps(SkSurfaceProps* props) const;
 
     /** Triggers the immediate execution of all pending draw operations.
         If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
@@ -340,7 +340,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_peekPixels
     */
-    bool peekPixels(SkPixmap* pixmap);
+    bool SK_WARN_UNUSED_RESULT peekPixels(SkPixmap* pixmap);
 
     /** Copies SkRect of pixels from SkCanvas into dstPixels. SkMatrix and clip are
         ignored.
@@ -376,8 +376,8 @@ public:
         @param srcY         offset into readable pixels on y-axis; may be negative
         @return             true if pixels were copied
     */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkImageInfo& dstInfo, void* dstPixels,
+                                          size_t dstRowBytes, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into pixmap. SkMatrix and clip are
         ignored.
@@ -414,7 +414,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_readPixels_2
     */
-    bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkPixmap& pixmap, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into bitmap. SkMatrix and clip are
         ignored.
@@ -451,7 +451,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_readPixels_3
     */
-    bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkBitmap& bitmap, int srcX, int srcY);
 
     /** Copies SkRect from pixels to SkCanvas. SkMatrix and clip are ignored.
         Source SkRect corners are (0, 0) and (info.width(), info.height()).
@@ -892,7 +892,7 @@ public:
      */
     void markCTM(const char* name);
 
-    bool findMarkedCTM(const char* name, SkM44*) const;
+    bool SK_WARN_UNUSED_RESULT findMarkedCTM(const char* name, SkM44*) const;
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.

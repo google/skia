@@ -670,7 +670,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_peekPixels
     */
-    bool peekPixels(SkPixmap* pixmap);
+    bool SK_WARN_UNUSED_RESULT peekPixels(SkPixmap* pixmap);
 
     /** Copies SkRect of pixels to dst.
 
@@ -701,7 +701,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_readPixels
     */
-    bool readPixels(const SkPixmap& dst, int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkPixmap& dst, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into dstPixels.
 
@@ -732,8 +732,8 @@ public:
         @param srcY         offset into readable pixels on y-axis; may be negative
         @return             true if pixels were copied
     */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkImageInfo& dstInfo, void* dstPixels,
+                                          size_t dstRowBytes, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkSurface into bitmap.
 
@@ -765,7 +765,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_readPixels_3
     */
-    bool readPixels(const SkBitmap& dst, int srcX, int srcY);
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkBitmap& dst, int srcX, int srcY);
 
     /** The result from asyncRescaleAndReadPixels() or asyncRescaleAndReadPixelsYUV420(). */
     class AsyncReadResult {

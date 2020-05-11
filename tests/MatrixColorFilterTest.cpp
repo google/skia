@@ -35,7 +35,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack, reporter,
     surf->getCanvas()->drawPaint(p);
     SkAutoPixmapStorage pixels;
     pixels.alloc(surf->imageInfo());
-    surf->readPixels(pixels, 0, 0);
+    REPORTER_ASSERT(reporter, surf->readPixels(pixels, 0, 0));
     auto error = std::function<ComparePixmapsErrorReporter>(
             [reporter](int x, int y, const float diffs[4]) {
                 ERRORF(reporter, "Expected transparent black, instead got (%f, %f, %f, %f)",

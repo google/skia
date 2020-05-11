@@ -802,7 +802,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_peekPixels
     */
-    bool peekPixels(SkPixmap* pixmap) const;
+    bool SK_WARN_UNUSED_RESULT peekPixels(SkPixmap* pixmap) const;
 
     /** Returns true the contents of SkImage was created on or uploaded to GPU memory,
         and is available as a GPU texture.
@@ -906,8 +906,9 @@ public:
         @param srcY         row index whose absolute value is less than height()
         @return             true if pixels are copied to dstPixels
     */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const;
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkImageInfo& dstInfo, void* dstPixels,
+                                          size_t dstRowBytes, int srcX, int srcY,
+                                          CachingHint cachingHint = kAllow_CachingHint) const;
 
     /** Copies a SkRect of pixels from SkImage to dst. Copy starts at (srcX, srcY), and
         does not exceed SkImage (width(), height()).
@@ -938,8 +939,8 @@ public:
         @param srcY         row index whose absolute value is less than height()
         @return             true if pixels are copied to dst
     */
-    bool readPixels(const SkPixmap& dst, int srcX, int srcY,
-                    CachingHint cachingHint = kAllow_CachingHint) const;
+    bool SK_WARN_UNUSED_RESULT readPixels(const SkPixmap& dst, int srcX, int srcY,
+                                          CachingHint cachingHint = kAllow_CachingHint) const;
 
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
@@ -966,8 +967,8 @@ public:
         @param dst            destination SkPixmap: SkImageInfo, pixels, row bytes
         @return               true if pixels are scaled to fit dst
     */
-    bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
-                     CachingHint cachingHint = kAllow_CachingHint) const;
+    bool SK_WARN_UNUSED_RESULT scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
+                                           CachingHint cachingHint = kAllow_CachingHint) const;
 
     /** Encodes SkImage pixels, returning result as SkData.
 

@@ -72,9 +72,9 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp1.eraseColor(0);
         readBmp2.eraseColor(0);
 
-        surf->readPixels(readBmp1, 0, 0);
+        REPORTER_ASSERT(reporter, surf->readPixels(readBmp1, 0, 0));
         surf->writePixels(readBmp1, 0, 0);
-        surf->readPixels(readBmp2, 0, 0);
+        REPORTER_ASSERT(reporter, surf->readPixels(readBmp2, 0, 0));
 
         bool success = true;
         for (int y = 0; y < 256 && success; ++y) {

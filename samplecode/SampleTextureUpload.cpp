@@ -45,8 +45,9 @@ class TextureUploadSample : public Sample {
 
         void uploadRasterSurface(sk_sp<SkSurface> rasterSurface) {
             SkPixmap pixmap;
-            rasterSurface->peekPixels(&pixmap);
-            fSurface->writePixels(pixmap, 0, 0);
+            if (rasterSurface->peekPixels(&pixmap)) {
+                fSurface->writePixels(pixmap, 0, 0);
+            }
         }
 
     private:

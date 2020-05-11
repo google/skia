@@ -58,7 +58,7 @@ static void test_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, image->width() == layerWidth);
     REPORTER_ASSERT(reporter, image->height() == layerHeight);
     // confirm center is blue, proving only first pic was drawn.
-    image->peekPixels(&pixmap);
+    REPORTER_ASSERT(reporter, image->peekPixels(&pixmap));
     SkColor paintColor = pixmap.getColor(50, 50);
     REPORTER_ASSERT(reporter, paintColor == SK_ColorBLUE);
   }
@@ -69,7 +69,7 @@ static void test_basic(skiatest::Reporter* reporter) {
     auto image = dlm.getLayerAsImage(node, i);
     REPORTER_ASSERT(reporter, image->width() == layerWidth);
     REPORTER_ASSERT(reporter, image->height() == layerHeight);
-    image->peekPixels(&pixmap);
+    REPORTER_ASSERT(reporter, image->peekPixels(&pixmap));
     auto innerColor = pixmap.getColor(50, 50);
     REPORTER_ASSERT(reporter, innerColor == SK_ColorGREEN);
     auto outerColor = pixmap.getColor(10, 50);

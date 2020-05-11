@@ -378,8 +378,8 @@ static void do_draw(SkCanvas* canvas, SkColor color, bool doLayer) {
 static bool is_equal(SkSurface* a, SkSurface* b) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     SkPMColor ca, cb;
-    a->readPixels(info, &ca, sizeof(SkPMColor), 0, 0);
-    b->readPixels(info, &cb, sizeof(SkPMColor), 0, 0);
+    SkAssertResult(a->readPixels(info, &ca, sizeof(SkPMColor), 0, 0));
+    SkAssertResult(b->readPixels(info, &cb, sizeof(SkPMColor), 0, 0));
     return ca == cb;
 }
 

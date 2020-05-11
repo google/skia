@@ -21,7 +21,9 @@ static bool surface_is_expected_color(SkSurface* surf, const SkImageInfo& ii, Sk
     SkBitmap bm;
     bm.allocPixels(ii);
 
-    surf->readPixels(bm, 0, 0);
+    if (!surf->readPixels(bm, 0, 0)) {
+        return false;
+    }
 
     for (int y = 0; y < bm.height(); ++y) {
         for (int x = 0; x < bm.width(); ++x) {

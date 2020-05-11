@@ -76,7 +76,7 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
                                       const SkPaint& paint) {
     SkGlyphRunBuilder b;
     SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
-    this->getProps(&props);
+    (void)this->getProps(&props);
     TextDevice device{this, props};
 
     b.drawTextBlob(paint, *blob, {x, y}, &device);
