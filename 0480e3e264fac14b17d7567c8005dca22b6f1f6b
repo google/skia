@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "616928fb_49d7bbe8",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-11T17:00:08Z",
+      "side": 1,
+      "message": "The confusing part is that this actually has the view matrix folded into it. I thought it was just a rotation.",
+      "range": {
+        "startLine": 646,
+        "startChar": 71,
+        "endLine": 646,
+        "endChar": 81
+      },
+      "revId": "0480e3e264fac14b17d7567c8005dca22b6f1f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
