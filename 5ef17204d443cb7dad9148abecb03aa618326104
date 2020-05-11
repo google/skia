@@ -22,6 +22,29 @@
       "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c30e5407_3540c4ff",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-11T14:49:04Z",
+      "side": 1,
+      "message": "should we report this failing in the test (if we\u0027re going to remove the assert)?",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
