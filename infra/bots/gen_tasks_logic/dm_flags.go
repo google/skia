@@ -328,6 +328,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		}
 
+		if b.model("Pixelbook") {
+			// skbug.com/10232
+			blacklist("_ test _ ProcessorCloneTest")
+
+		}
+
 		if b.model("AndroidOne", "GalaxyS6") || (b.model("Nexus5", "Nexus7")) {
 			// skbug.com/9019
 			blacklist("_ test _ ProcessorCloneTest")
