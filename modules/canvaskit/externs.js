@@ -520,6 +520,7 @@ var CanvasKit = {
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},
+    reportBackendType: function() {},
     grContext: {},
 
     // private API
