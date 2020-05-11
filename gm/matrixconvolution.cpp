@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <vector>
@@ -79,7 +80,7 @@ protected:
                 return SkImageFilters::MatrixConvolution({3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
             }
             case kLarge_KernelFixture: {
-                // Intentionally go over the MAX_KERNEL_SIZE limit and trigger CPU fallback.
+                static_assert(49 > GrMatrixConvolutionEffect::kMaxUniformSize);
                 // All 1s except center value, which is -47 (sum of 1).
                 std::vector<SkScalar> kernel(49, SkIntToScalar(1));
                 kernel[24] = SkIntToScalar(-47);
