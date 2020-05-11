@@ -1145,7 +1145,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         return;
     }
 
-    SkPixelGeometry geo = fProps.pixelGeometry();
+    SkBaseDevice* priorDevice = this->getTopDevice();
+    if (nullptr == priorDevice) {   // Do we still need this check???
+        SkDebugf("Unable to find device for layer.");
+        return;
+    }
+
+    SkPixelGeometry geo = priorDevice->surfaceProps().pixelGeometry();
     if (!(saveLayerFlags & kPreserveLCDText_SaveLayerFlag)) {
         geo = kUnknown_SkPixelGeometry;
     } else if (paint) {
@@ -1153,12 +1159,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         if (paint->getImageFilter() || paint->getColorFilter()) {
             geo = kUnknown_SkPixelGeometry;
         }
-    }
-
-    SkBaseDevice* priorDevice = this->getTopDevice();
-    if (nullptr == priorDevice) {   // Do we still need this check???
-        SkDebugf("Unable to find device for layer.");
-        return;
     }
 
     SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), paint);
@@ -2170,6 +2170,11 @@ void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], i
                                                SrcRectConstraint constraint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices, paint, constraint);
+}
+
+bool SkCanvas::currentDeviceSupportsLCDText() const {
+    SkBaseDevice* top_device = getTopDevice();
+    return top_device && top_device->surfaceProps().pixelGeometry() != kUnknown_SkPixelGeometry;
 }
 
 //////////////////////////////////////////////////////////////////////////////

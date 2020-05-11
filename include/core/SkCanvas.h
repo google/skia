@@ -2446,6 +2446,10 @@ public:
      */
     SkMatrix getTotalMatrix() const;
 
+    /** @return true if the current device's pixel geometry supports LCD text.
+     */
+    bool currentDeviceSupportsLCDText() const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call

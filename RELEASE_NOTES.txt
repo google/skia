@@ -22,6 +22,11 @@ Milestone 84
     will preserve LCD-text. All text in the layer must be drawn on opaque background
     to ensure correct rendering.
 
+  * Add SkCanvas::currentDeviceSupportsLCDText() so that the client can check it
+    before calling saveLayer[Alpha] to avoid passing kInitWithPrevious_SaveLayerFlag
+    (along with kPreserveLCDText_SaveLayerFlag to preserve LCD-text on a layer with
+    transparent background) which has extra cost, when LCD-text is not supported.
+
   * Add the new directory client_utils/ for code that is specific to a single client and
     should be considered separate from Skia proper. Move SkFrontBufferedStream into the
     subdir android/.
