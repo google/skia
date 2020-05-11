@@ -1148,11 +1148,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkPixelGeometry geo = fProps.pixelGeometry();
     if (!(saveLayerFlags & kPreserveLCDText_SaveLayerFlag)) {
         geo = kUnknown_SkPixelGeometry;
+#ifdef SK_SUPPORT_LEGACY_DISABLE_LCD_FOR_FILTERS
     } else if (paint) {
         // Filters may move pixels, or change colors or opaqueness, which may break LCD text.
         if (paint->getImageFilter() || paint->getColorFilter()) {
             geo = kUnknown_SkPixelGeometry;
         }
+#endif
     }
 
     SkBaseDevice* priorDevice = this->getTopDevice();
