@@ -105,16 +105,18 @@ class LcdTextSizeGM : public skiagm::GM {
 };
 
 class SaveLayerPreserveLCDTextGM : public skiagm::GM {
-    static constexpr SkScalar kTextHeight = 36;
+    static constexpr SkScalar kTextHeight = 20;
 
     SkString onShortName() override { return SkString("savelayerpreservelcdtext"); }
 
     SkISize onISize() override { return {620, 300}; }
 
     void onDraw(SkCanvas* canvas) override {
-        drawText(canvas, SkString("SaveLayer PreserveLCDText"), 50,
-                 SkCanvas::kPreserveLCDText_SaveLayerFlag);
-        drawText(canvas, SkString("SaveLayer Default (LCDText not preserved)"), 150, 0);
+        drawText(canvas, SkString("SaveLayer PreserveLCDText (colored pixels along strokes"
+                                  "visible when zoomed in)"),
+                 50, SkCanvas::kPreserveLCDText_SaveLayerFlag);
+        drawText(canvas, SkString("SaveLayer Default (NO colored pixels visible when zoomed in)"),
+                 150, 0);
     }
 
     void drawText(SkCanvas* canvas,
@@ -125,7 +127,7 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
         canvas->saveLayer(rec);
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);
-        canvas->drawRect(SkRect::MakeXYWH(0, y - 10, 640, kTextHeight + 20), paint);
+        canvas->drawRect(SkRect::MakeXYWH(0, y - kTextHeight - 10, 640, kTextHeight + 20), paint);
         paint.setColor(SK_ColorBLACK);
         SkFont font(nullptr, kTextHeight);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
