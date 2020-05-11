@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ab1bb10_f13886b6",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "Moved to GrStencilMaskHelper.cpp and updated it to take a view matrix.",
+      "range": {
+        "startLine": 714,
+        "startChar": 12,
+        "endLine": 714,
+        "endChar": 31
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b45eb9c_73503f53",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "The logic inside this for-loop block is moved into GrStencilMaskHelper. I did not modify it, other than separating out the rect and path branches, partially because the helper has separate drawrect and drawPath functions, but I also think it makes the logic easier to follow.",
+      "range": {
+        "startLine": 837,
+        "startChar": 4,
+        "endLine": 837,
+        "endChar": 74
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff2e6551_192825ec",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 925,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "This just became the static draw_path function in GrStencilMaskHelper.cpp",
+      "range": {
+        "startLine": 912,
+        "startChar": 24,
+        "endLine": 925,
+        "endChar": 43
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e6cd330_1365e069",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "And this is the stencil_path static function",
+      "range": {
+        "startLine": 927,
+        "startChar": 24,
+        "endLine": 935,
+        "endChar": 46
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f67777c1_6ad0ab92",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "This also became an invocation of draw_path, albeit with the different clip.",
+      "range": {
+        "startLine": 949,
+        "startChar": 20,
+        "endLine": 962,
+        "endChar": 39
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "680182a0_12ce0ee6",
+        "filename": "src/gpu/GrStencilClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-11T20:01:28Z",
+      "side": 0,
+      "message": "This was a source of my stencil bugs. The helper relied on the stencil clip\u0027s returned value here in order to configure the ops task and modify the final applied clip. This only returned 0/1 so later path rendering wouldn\u0027t respect the stencil mask properly. It wasn\u0027t an issue before because GrReducedClip stored the gen ID itself and used that directly.",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 9
+      },
+      "revId": "e646fad9625c49a51e154b73d990a387c32872d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
