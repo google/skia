@@ -34,6 +34,24 @@
       "revId": "b1a309cacb1b4c842905d383d32520a35bc3afd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f91bfa0f_2c1fdddb",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T21:27:55Z",
+      "side": 1,
+      "message": "Changed my mind again.. I like int better, and I like the guarantee that the return value is \u003e\u003d 0 for array indexing.",
+      "parentUuid": "11901f67_062fdbfa",
+      "revId": "b1a309cacb1b4c842905d383d32520a35bc3afd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
