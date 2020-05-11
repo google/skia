@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "2161d6b4_37cd8fa5",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-11T20:31:49Z",
+      "side": 1,
+      "message": "Yeah, I suppose it doesn\u0027t need to be named \u0027LineMetricStyle\u0027 it could just as well be \u0027RunMetricStyle\u0027 or even \u0027FontMetricStyle\u0027. Whatever works best, the enum itself is somewhat independent of Line and Run.",
+      "parentUuid": "e8a42ac1_3709fff7",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 69
+      },
+      "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a963ec6b_fc1f1b26",
         "filename": "modules/skparagraph/src/Run.h",
         "patchSetId": 3
