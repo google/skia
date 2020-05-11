@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0da93a3_13e3f189",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-11T14:27:39Z",
+      "side": 1,
+      "message": "Will this upload correctly go in after the preceding draw commands? My recall of how dawn works is that this will send commands to the copy encoder. Then we we submit to the gpu we always set the copy first before the the draw commands.",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
