@@ -117,6 +117,30 @@
       "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0dc0a36_49e7d8b8",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-11T18:22:27Z",
+      "side": 1,
+      "message": "So I think the correct thing to do here would be to pass GrCaps into this function and use the readpixels supported query on there to see if we can do a readPixels or not. If not we just return.\n\nIn the short term if you don\u0027t want to put that into this change, I would replace the assert here with a REPORTER_ASSERT so it documents exactly where the failure is.\n\nOn a side note, I am kind of surprised this is failing. I thought the thing we couldn\u0027t readpixels from in dawn was a GrBackendRenderTarget because all we pass in was the view. But this is a case where we are passing in a GrBackendTexture so we do have the actual backend object even if it is only stored as a GrRenderTarget. Shouldn\u0027t this be able to work?",
+      "parentUuid": "29be91fa_3892ebd4",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
