@@ -68,7 +68,7 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     auto correction = 0.0f;
     if (end > start && !fJustificationShifts.empty()) {
         correction = fJustificationShifts[end - 1].fX -
-                     fJustificationShifts[start].fY;
+                     fJustificationShifts[start].fX;
     }
     return posX(end) - posX(start) + shift + correction;
 }
