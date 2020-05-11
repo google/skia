@@ -16,6 +16,24 @@
       "revId": "b1a309cacb1b4c842905d383d32520a35bc3afd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11901f67_062fdbfa",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T20:44:07Z",
+      "side": 1,
+      "message": "Not anymore.. I used to be only concerned about not returning a negative number, since this will be used to index into an array, but I changed my mind about the return type.\n\nNegative infinity should return 0 still.",
+      "parentUuid": "33806326_a817e443",
+      "revId": "b1a309cacb1b4c842905d383d32520a35bc3afd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
