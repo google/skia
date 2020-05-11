@@ -97,9 +97,6 @@ public:
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
                   int numDivisions);
-    ~DDLTileHelper() {
-        delete[] fTiles;
-    }
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
 
@@ -136,7 +133,7 @@ public:
 
 private:
     int                                    fNumDivisions; // number of tiles along a side
-    TileData*                              fTiles;        // 'fNumDivisions' x 'fNumDivisions'
+    SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 
     std::unique_ptr<SkDeferredDisplayList> fComposeDDL;
 

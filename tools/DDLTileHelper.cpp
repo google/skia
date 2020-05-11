@@ -233,9 +233,9 @@ DDLTileHelper::DDLTileHelper(GrContext* context,
                              const SkIRect& viewport,
                              int numDivisions)
         : fNumDivisions(numDivisions)
+        , fTiles(numDivisions * numDivisions)
         , fDstCharacterization(dstChar) {
     SkASSERT(fNumDivisions > 0);
-    fTiles = new TileData[this->numTiles()];
 
     int xTileSize = viewport.width()/fNumDivisions;
     int yTileSize = viewport.height()/fNumDivisions;
