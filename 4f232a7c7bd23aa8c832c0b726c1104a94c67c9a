@@ -22,6 +22,30 @@
       "revId": "4f232a7c7bd23aa8c832c0b726c1104a94c67c9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b019663_8aca8d2d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 3583,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-11T14:07:59Z",
+      "side": 1,
+      "message": "TBH I am not completely sure. The closest I found in the spec are these paragraphs.\n\nFirst about texSubImage*:\n\"The level parameter of each command specifies the level of the texel array that\nis modified. If level is less than zero or greater than the base 2 logarithm of the\nmaximum texture width, height, or depth, the error INVALID_VALUE is generated.\nIf target is TEXTURE_RECTANGLE and level is not zero, the error INVALID_VALUE\nis generated. TexSubImage3D arguments width, height, depth, format, type, and\ndata match the corresponding arguments to TexImage3D, meaning that they are\nspecified using the same values, and have the same meanings. Likewise, TexSubImage2D arguments width, height, format, type, and data match the corresponding arguments to TexImage2D\"\n\nThen in texImage2D/Texturing section.\n\"Each array in a mipmap is defined using TexImage3D, TexImage2D, CopyTexImage2D, TexImage1D, or CopyTexImage1D; the array being set is indicated\nwith the level-of-detail argument level. Level-of-detail numbers proceed from\nlevelbase for the original texel array through p \u003d blog2\n(maxsize)c + levelbase\nwith each unit increase indicating an array of half the dimensions of the previous\none (rounded down to the next integer if fractional) as already described. All arrays from levelbase through q \u003d min{p, levelmax} must be defined, as discussed\nin section 3.8.14.\"\n\nSo the first paragraph does talk about level but seems to just require it is a level that fits the values use for width and height. The second paragraph is the only place directly connecting anything involving the TexImage calls with the base/max values.\n\nMy overall opinion is that the spec may be vague on this. Some gpus may just take the level param as the raw level and use that, and others, specifically amd, may use it relative to the base (and if they are using the base I feel like good chance they use max).\n\nAs for setting the value, I copied from bindTexture which sets it to the SkMipMap::ComputeLevelCount value here https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/gl/GrGLGpu.cpp?type\u003dcs\u0026q\u003dGR_GL_TEXTURE_BASE_LEVEL\u0026g\u003d0\u0026l\u003d2617. I\u0027m happy to make it 1000 if you prefer that.",
+      "parentUuid": "a335dc89_2da2ae59",
+      "range": {
+        "startLine": 3582,
+        "startChar": 7,
+        "endLine": 3583,
+        "endChar": 96
+      },
+      "revId": "4f232a7c7bd23aa8c832c0b726c1104a94c67c9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
