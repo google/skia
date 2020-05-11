@@ -15,6 +15,8 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
 
+#include <functional>
+
 class SkMatrix;
 
 namespace sksg {
@@ -106,25 +108,8 @@ using TransformPropertyHandle = PropertyHandle<TransformPropertyValue,
  */
 class SK_API PropertyObserver : public SkRefCnt {
 public:
-    // LazyHandle wrappers serve two purposes:
-    //
-    //   1) avoid handle object allocation for properties of no interest to clients
-    //   2) track whether a given property has been intercepted by clients
-    //      (to suppress discarding static adapters with client-visible bindings)
     template <typename T>
-    class LazyHandle {
-    public:
-        std::unique_ptr<T> operator()() const;
-
-    private:
-        template <typename U>
-        explicit LazyHandle(const sk_sp<U>&);
-
-        friend class internal::AnimationBuilder;
-
-        void*        fCtx;
-        mutable bool fDidResolve = false;
-    };
+    using LazyHandle = std::function<std::unique_ptr<T>()>;
 
     virtual void onColorProperty    (const char node_name[],
                                      const LazyHandle<ColorPropertyHandle>&);
