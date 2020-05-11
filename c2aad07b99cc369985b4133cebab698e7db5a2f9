@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8a42ac1_3709fff7",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-11T18:52:01Z",
+      "side": 1,
+      "message": "I tried to separate line and run logic so the run is not aware about any line style... But anyway, keeping it bool is not good. Fixed.",
+      "parentUuid": "2c5149b0_6f0d002a",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 69
+      },
+      "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a963ec6b_fc1f1b26",
         "filename": "modules/skparagraph/src/Run.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a93c131_30b21bac",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-11T18:52:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a963ec6b_fc1f1b26",
+      "range": {
+        "startLine": 407,
+        "startChar": 36,
+        "endLine": 407,
+        "endChar": 62
+      },
+      "revId": "c2aad07b99cc369985b4133cebab698e7db5a2f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
