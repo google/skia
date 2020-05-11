@@ -229,6 +229,8 @@ enum GrFlushFlags {
     kNone_GrFlushFlags = 0,
     // flush will wait till all submitted GPU work is finished before returning.
     kSyncCpu_GrFlushFlag = 0x1,
+    // don't skip flush
+    kForce_GrFlushFlag = 0x2
 };
 
 typedef void* GrGpuFinishedContext;

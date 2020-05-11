@@ -1006,6 +1006,29 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
     fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
 }
 
+void GrD3DGpu::prepareSurfacesForBackendAccessAndExternalIO(
+        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+        const GrPrepareForExternalIORequests& externalRequests) {
+    SkASSERT(numProxies >= 0);
+    SkASSERT(!numProxies || proxies);
+    // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
+    // not effect what we do here.
+    if (numProxies && access == SkSurface::BackendSurfaceAccess::kPresent) {
+        GrD3DTextureResource* resource;
+        for (int i = 0; i < numProxies; ++i) {
+            SkASSERT(proxies[i]->isInstantiated());
+            if (GrTexture* tex = proxies[i]->peekTexture()) {
+                resource = static_cast<GrD3DTexture*>(tex);
+            } else {
+                GrRenderTarget* rt = proxies[i]->peekRenderTarget();
+                SkASSERT(rt);
+                resource = static_cast<GrD3DRenderTarget*>(rt);
+            }
+            resource->prepareForPresent(this);
+        }
+    }
+}
+
 bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu) {
         return this->submitDirectCommandList(SyncQueue::kForce);
