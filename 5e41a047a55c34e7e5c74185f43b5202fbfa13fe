@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ef7dd32_49363eb2",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-11T23:38:22Z",
+      "side": 1,
+      "message": "Ugh, we need a safe_unpremul helper function to capture this pattern.",
+      "range": {
+        "startLine": 194,
+        "startChar": 42,
+        "endLine": 194,
+        "endChar": 58
+      },
+      "revId": "5e41a047a55c34e7e5c74185f43b5202fbfa13fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
