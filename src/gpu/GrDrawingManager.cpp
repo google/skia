@@ -561,8 +561,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
         if (auto* textureProxy = proxy->asTextureProxy()) {
             if (textureProxy->mipMapsAreDirty()) {
                 SkASSERT(textureProxy->peekTexture());
-                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
-                textureProxy->markMipMapsClean();
+                //gpu->regenerateMipMapLevels(textureProxy->peekTexture());
+                //textureProxy->markMipMapsClean();
             }
         }
     }
