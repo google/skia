@@ -211,7 +211,6 @@ namespace skvm {
         void vgatherdps(Ymm dst, Scale scale, Ymm ix, GP64 base, Ymm mask);
 
 
-        Label here();
         void label(Label*);
 
         void jmp(Label*);

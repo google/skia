@@ -1797,26 +1797,24 @@ namespace skvm {
     void Assembler::vcvtps2dq (Ymm dst, Operand x) { this->op(0x66,0x0f,0x5b, dst,x); }
     void Assembler::vsqrtps   (Ymm dst, Operand x) { this->op(   0,0x0f,0x51, dst,x); }
 
-    Assembler::Label Assembler::here() {
-        return { (int)this->size(), Label::NotYetSet, {} };
-    }
-
     int Assembler::disp19(Label* l) {
         SkASSERT(l->kind == Label::NotYetSet ||
                  l->kind == Label::ARMDisp19);
+        int here = (int)this->size();
         l->kind = Label::ARMDisp19;
-        l->references.push_back(here().offset);
+        l->references.push_back(here);
         // ARM 19-bit instruction count, from the beginning of this instruction.
-        return (l->offset - here().offset) / 4;
+        return (l->offset - here) / 4;
     }
 
     int Assembler::disp32(Label* l) {
         SkASSERT(l->kind == Label::NotYetSet ||
                  l->kind == Label::X86Disp32);
+        int here = (int)this->size();
         l->kind = Label::X86Disp32;
-        l->references.push_back(here().offset);
+        l->references.push_back(here);
         // x86 32-bit byte count, from the end of this instruction.
-        return l->offset - (here().offset + 4);
+        return l->offset - (here + 4);
     }
 
     void Assembler::op(int prefix, int map, int opcode, int dst, int x, Operand y, W w, L l) {
@@ -2084,9 +2082,10 @@ namespace skvm {
     void Assembler::label(Label* l) {
         if (fCode) {
             // The instructions all currently point to l->offset.
-            // We'll want to add a delta to point them to here().
-            int delta = here().offset - l->offset;
-            l->offset = here().offset;
+            // We'll want to add a delta to point them to here.
+            int here = (int)this->size();
+            int delta = here - l->offset;
+            l->offset = here;
 
             if (l->kind == Label::ARMDisp19) {
                 for (int ref : l->references) {
