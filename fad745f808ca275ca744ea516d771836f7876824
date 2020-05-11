@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a54cb5bd_6c6f5c5c",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T19:31:46Z",
+      "side": 1,
+      "message": "Done\n\nI recall you saying that declaring a static function as \"inline\" has little or no effect.. Should I take out the inlines?\n\nWill it be a problem to include \u003ccmath\u003e from this header file?",
+      "parentUuid": "264c63fd_d12bc585",
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0784ba_c5f1d1e3",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 6
@@ -63,6 +81,30 @@
       "revId": "fad745f808ca275ca744ea516d771836f7876824",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302b9d22_b82e8b98",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-11T19:31:46Z",
+      "side": 1,
+      "message": "LOVE it!\n\nI measured on windows, mac (both intel) and a couple ARM androids, and this new approach appears to be ~1.5x faster than clz and ~4x faster than frexp.",
+      "parentUuid": "75ecf0b8_f09bb5bf",
+      "range": {
+        "startLine": 155,
+        "startChar": 1,
+        "endLine": 159,
+        "endChar": 28
+      },
+      "revId": "fad745f808ca275ca744ea516d771836f7876824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
