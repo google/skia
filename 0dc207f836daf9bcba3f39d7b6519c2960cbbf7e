@@ -16,6 +16,24 @@
       "revId": "0dc207f836daf9bcba3f39d7b6519c2960cbbf7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b5f2d6f_8678a40a",
+        "filename": "gm/lcdtext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-05-11T12:41:27Z",
+      "side": 0,
+      "message": "Interesting, when I triaged the results I assumed that\u0027s intentional, to show undefined behavior :)\n\nMost of the good/grayscale fallback cases are GPU results, maybe Mike or a Ganesh expert knows how they achieve that.",
+      "parentUuid": "4fe19111_4dcab145",
+      "revId": "0dc207f836daf9bcba3f39d7b6519c2960cbbf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
