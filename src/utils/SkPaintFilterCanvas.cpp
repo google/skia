@@ -169,7 +169,15 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
                                         const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawPicture(picture, m, &apf.paint());
+        // onDrawPicture behaves differently if it has a paint -vs- nullptr (even if the paint
+        // is 'default' -- the presence if a non-null paint means it will draw the picture
+        // into a temp layer.
+        // Therefore we have to be careful to only pass non-null if the filter actually modified
+        // the 'default'
+        if (paint == nullptr && apf.paint() != SkPaint()) {
+            paint = &apf.paint();
+        }
+        this->SkNWayCanvas::onDrawPicture(picture, m, paint);
     }
 }
 
