@@ -2134,8 +2134,9 @@ public:
         SkMatrix matrix, if provided; and use SkPaint paint alpha, SkColorFilter,
         SkImageFilter, and SkBlendMode, if provided.
 
-        matrix transformation is equivalent to: save(), concat(), drawPicture(), restore().
-        paint use is equivalent to: saveLayer(), drawPicture(), restore().
+        If paint is non-null, then the picture is always drawn into a temporary layer before
+        actually landing on the canvas. Note that drawing into a layer can also change its
+        appearance if there are any non-associative blendModes inside any of the pictures elements.
 
         @param picture  recorded drawing commands to play
         @param matrix   SkMatrix to rotate, scale, translate, and so on; may be nullptr
@@ -2149,8 +2150,9 @@ public:
         SkMatrix matrix, if provided; and use SkPaint paint alpha, SkColorFilter,
         SkImageFilter, and SkBlendMode, if provided.
 
-        matrix transformation is equivalent to: save(), concat(), drawPicture(), restore().
-        paint use is equivalent to: saveLayer(), drawPicture(), restore().
+        If paint is non-null, then the picture is always drawn into a temporary layer before
+        actually landing on the canvas. Note that drawing into a layer can also change its
+        appearance if there are any non-associative blendModes inside any of the pictures elements.
 
         @param picture  recorded drawing commands to play
         @param matrix   SkMatrix to rotate, scale, translate, and so on; may be nullptr
