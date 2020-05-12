@@ -116,6 +116,29 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187d5fea_7e48987a",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T20:05:37Z",
+      "side": 1,
+      "message": "Can this be private, or these be const?  (Really, they could be public if they can be const.)\n\nIt feels like that with this interface as-is, you can\u0027t trust some sub-class you don\u0027t know about won\u0027t mess with the CTM between calls to localToDevice().",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 85
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
