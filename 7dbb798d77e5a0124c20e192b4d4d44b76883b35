@@ -16,6 +16,24 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2506f512_53e04251",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T18:28:00Z",
+      "side": 1,
+      "message": "Ah, perhaps. I think the real determining factor is if the paint requires the provider (which today means: does it contain a runtime shader that uses marked matrices). I think I anticipated that this case would also end up using provider (rather than matrix). As an extreme solution for now, SkRTShader::onProgram could fail if the effect needs the provider, right?",
+      "parentUuid": "1d3c1d1f_2dd577be",
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
