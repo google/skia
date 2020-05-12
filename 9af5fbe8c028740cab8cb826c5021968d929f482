@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d54d569_3caa5c8b",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T14:42:14Z",
+      "side": 1,
+      "message": "Done, used that in SkDevice as well (and added a comment to clarify what\u0027s happening there).",
+      "parentUuid": "54a058a7_2721032e",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 26
+      },
+      "revId": "9af5fbe8c028740cab8cb826c5021968d929f482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26e3f4c4_fa1f1038",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "9af5fbe8c028740cab8cb826c5021968d929f482",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd97d5f7_bc3dce1a",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T14:42:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26e3f4c4_fa1f1038",
+      "range": {
+        "startLine": 327,
+        "startChar": 12,
+        "endLine": 327,
+        "endChar": 38
+      },
+      "revId": "9af5fbe8c028740cab8cb826c5021968d929f482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
