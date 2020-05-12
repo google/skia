@@ -34,6 +34,24 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd7b12aa_0762080e",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T18:44:21Z",
+      "side": 1,
+      "message": "Yeah, making onProgram() fail if it needs a provider sounds like the right approach, more like a TODO than anything extreme.\n\nIf I\u0027m thinking about it right, we\u0027re guarding the old legacy shader-context path in the exact same way... makeContext() should already be failing today for anything that needs a matrix provider.",
+      "parentUuid": "2506f512_53e04251",
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
