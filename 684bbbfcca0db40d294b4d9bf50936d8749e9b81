@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "4bd4915b_60e0d209",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "u",
+      "range": {
+        "startLine": 315,
+        "startChar": 12,
+        "endLine": 315,
+        "endChar": 13
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9e59520_f93bc5ec",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "Given this, maybe the rest of this comment isn\u0027t really relevant?",
+      "range": {
+        "startLine": 319,
+        "startChar": 7,
+        "endLine": 319,
+        "endChar": 84
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5a0b142_9a5f90fe",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "Since you can submit in a flush by using a flag, perhaps we should avoid referring to calling submit and instead refer to a submit occurring (either by calling submit() or by passing the flag).",
+      "range": {
+        "startLine": 340,
+        "startChar": 93,
+        "endLine": 341,
+        "endChar": 22
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a2f79d6_30138902",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 3
@@ -49,6 +118,53 @@
     },
     {
       "key": {
+        "uuid": "39beadd4_c9ff4fea",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "That seems reasonable",
+      "parentUuid": "92bae37d_d74645f2",
+      "range": {
+        "startLine": 433,
+        "startChar": 4,
+        "endLine": 433,
+        "endChar": 9
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f3a9279_a4e30463",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "I thought this variant was supposed to be used with with enum classes. Also, I think we generally just take an int for bitfields in the public API (or make client do casts) rather than use these macros on public types.",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 40
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0a049e9_92bfc4a6",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -72,6 +188,30 @@
     },
     {
       "key": {
+        "uuid": "ea8448a2_c82c0a43",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "Deos this work: We get rid of the submit flag. Caller has to make two calls. In at least the short term we break this rule for the flush() that takes no params and it does a submit. Long term we either delete it or rename it flushAndSubmit(). It should only be used by clients that aren\u0027t using any of the synchronization APIs.\n\nTo stage that we could add submit() as a do-nothing function, update Chrome to call submit(), and then make this change.",
+      "parentUuid": "f0a049e9_92bfc4a6",
+      "range": {
+        "startLine": 574,
+        "startChar": 8,
+        "endLine": 574,
+        "endChar": 58
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c98478bc_fd31e2e4",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -83,6 +223,30 @@
       "writtenOn": "2020-05-12T13:23:06Z",
       "side": 1,
       "message": "during flushIfNecessary do we want to do a submit? For GL I feel like the answer would be no, but for other backends I think we need to so we can try and free up resources as soon as possible even if it is not immediately this frame. Though if we don\u0027t submit I believe most of the newer APIs don\u0027t hold refs to GrGpuResources in their command buffers, but to the gpu objects themselves. So technically all we need is the flush to clear up our tracking of GrGpuResources even though the actual objects are still alive.",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 941,
+        "endChar": 37
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d8e5a17_68a2345c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T19:42:13Z",
+      "side": 1,
+      "message": "Personally, I think we should be moving towards removing flushIfNecessary(). I think most of our clients want explicit control over when things like this happen. Many of our allocations have been moved to flush time anyway and most clients explicitly make texture-backed images rather than using the SW image cache.",
+      "parentUuid": "c98478bc_fd31e2e4",
       "range": {
         "startLine": 941,
         "startChar": 0,
