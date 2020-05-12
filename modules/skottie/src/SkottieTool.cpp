@@ -46,7 +46,7 @@ static DEFINE_int(threads,  0, "Number of worker threads (0 -> cores count).");
 namespace {
 
 std::unique_ptr<SkFILEWStream> MakeFrameStream(size_t idx, const char* ext) {
-    const auto frame_file = SkStringPrintf("0%06d.%s", idx, ext);
+    const auto frame_file = SkStringPrintf("0%06zu.%s", idx, ext);
     auto stream = std::make_unique<SkFILEWStream>(SkOSPath::Join(FLAGS_writePath[0],
                                                                    frame_file.c_str()).c_str());
     if (!stream->isValid()) {

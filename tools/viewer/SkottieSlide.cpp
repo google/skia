@@ -36,10 +36,10 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::
 
     paint.setColor(SK_ColorBLACK);
 
-    const auto json_size = SkStringPrintf("Json size: %lu bytes",
+    const auto json_size = SkStringPrintf("Json size: %zu bytes",
                                           stats.fJsonSize);
     canvas->drawString(json_size, kR.x() + 10, kR.y() + kTextSize * 1, font, paint);
-    const auto animator_count = SkStringPrintf("Animator count: %lu",
+    const auto animator_count = SkStringPrintf("Animator count: %zu",
                                                stats.fAnimatorCount);
     canvas->drawString(animator_count, kR.x() + 10, kR.y() + kTextSize * 2, font, paint);
     const auto json_parse_time = SkStringPrintf("Json parse time: %.3f ms",
