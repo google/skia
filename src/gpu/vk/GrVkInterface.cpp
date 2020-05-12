@@ -426,12 +426,17 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_bind_memory2
+    SkDebugf("physicalDeviceVersion: %d, 1.1: %d, 1.0: %d\n",
+             physicalDeviceVersion, VK_MAKE_VERSION(1, 1, 0), VK_MAKE_VERSION(1, 0, 0));
+    SkDebugf("has bindMemory2 extension: %d\n",
+             extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1));
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fBindBufferMemory2 ||
             nullptr == fFunctions.fBindImageMemory2) {
             RETURN_FALSE_INTERFACE
         }
+        SkDebugf("We have the function ptr\n");
     }
 
     // Functions for VK_KHR_maintenance1 or vulkan 1.1
