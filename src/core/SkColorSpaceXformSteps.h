@@ -33,8 +33,8 @@ struct SkColorSpaceXformSteps {
         }
     };
 
-    SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                           SkColorSpace* dst, SkAlphaType dstAT);
+    SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaType srcAT,
+                           const SkColorSpace* dst, SkAlphaType dstAT);
 
     template <typename S, typename D>
     SkColorSpaceXformSteps(const S& src, const D& dst)
