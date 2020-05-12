@@ -199,6 +199,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrStencilAttachment.cpp",
   "$_src/gpu/GrStencilAttachment.h",
   "$_src/gpu/GrStencilClip.h",
+  "$_src/gpu/GrStencilMaskHelper.cpp",
+  "$_src/gpu/GrStencilMaskHelper.h",
   "$_src/gpu/GrStencilSettings.cpp",
   "$_src/gpu/GrStencilSettings.h",
   "$_src/gpu/GrStyle.cpp",
