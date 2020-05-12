@@ -223,6 +223,23 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
                                                           compatibleRenderPass);
 }
 
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+        const GrProgramDesc& desc,
+        const GrProgramInfo& programInfo,
+        VkRenderPass compatibleRenderPass,
+        GrGpu::Stats::ProgramCacheResult* stat) {
+
+    auto tmp =  fPipelineStateCache->findOrCreatePipelineState(desc, programInfo,
+                                                               compatibleRenderPass, stat);
+    if (!tmp) {
+        fGpu->stats()->incNumPreCompilationFailures();
+    } else {
+        fGpu->stats()->incNumPreProgramCacheResult(*stat);
+    }
+
+    return tmp;
+}
+
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
                                                          const GrVkUniformHandler& uniformHandler,
                                                          GrVkDescriptorSetManager::Handle* handle) {

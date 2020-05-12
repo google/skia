@@ -27,6 +27,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
+
+    gpu->stats()->incShaderCompilations();
+
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
 
