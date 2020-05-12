@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9a53f53_3d333476",
+        "filename": "src/utils/SkPaintFilterCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-12T17:03:44Z",
+      "side": 1,
+      "message": "Why not test/skip regardless of whether there was an initial paint?",
+      "revId": "c978ce0a5fed2e350e052cee596056190c8eb3ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
