@@ -114,6 +114,12 @@ public:
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass);
 
+    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+            const GrProgramDesc&,
+            const GrProgramInfo&,
+            VkRenderPass compatibleRenderPass,
+            GrGpu::Stats::ProgramCacheResult* stat);
+
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
                                        GrVkDescriptorSetManager::Handle* handle);
@@ -187,14 +193,22 @@ private:
         GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc& desc,
+                                                     const GrProgramInfo& programInfo,
+                                                     VkRenderPass compatibleRenderPass,
+                                                     GrGpu::Stats::ProgramCacheResult* stat) {
+            return this->findOrCreatePipelineState(nullptr, desc, programInfo,
+                                                   compatibleRenderPass, stat);
+        }
 
     private:
         struct Entry;
 
-        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
-                                                const GrProgramDesc&,
-                                                const GrProgramInfo&,
-                                                VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
+                                                     const GrProgramDesc&,
+                                                     const GrProgramInfo&,
+                                                     VkRenderPass compatibleRenderPass,
+                                                     GrGpu::Stats::ProgramCacheResult*);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
@@ -207,8 +221,8 @@ private:
         GrVkGpu*                    fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
+        int                         fTotalRequests1;
+        int                         fCacheMisses1;
 #endif
     };
 
