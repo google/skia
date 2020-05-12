@@ -169,6 +169,6 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
     }
 
 #if !FINEGRAIN
-    REPORTER_ASSERT(reporter, 0 == numErrors, errors.c_str());
+    REPORTER_ASSERT(reporter, 0 == numErrors, "%s", errors.c_str());
 #endif
 }
