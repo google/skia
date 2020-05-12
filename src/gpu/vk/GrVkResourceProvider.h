@@ -207,8 +207,8 @@ private:
         GrVkGpu*                    fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
+        int                         fTotalRequests1;
+        int                         fCacheMisses1;
 #endif
     };
 
