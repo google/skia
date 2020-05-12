@@ -70,6 +70,52 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f5e87bf_fad907bc",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T19:43:53Z",
+      "side": 1,
+      "message": "Ok now, I think I need another round of schooling on things like this.\n\nWhy does the CTM come along via the fMatrixProvider?  Does the provider change it, or make it interact with the other matrices somehow?  Would it be correct to think of it disjointly as a CTM + any number of unrelated named matrices?\n\nThe reason I ask is places like this where we make decisions based on the CTM.  How do we know the matrix provider isn\u0027t messing with it behind the scenes?  And if it doesn\u0027t, or can\u0027t, why is the matrix provider involved at all, instead of running along parallel side-car to the CTM?  Is there any relationship between the matrix provider and the CTM other than \"one carries an immutable copy of the other\"?",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 53
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbeda6dc_f8b847ea",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T19:43:53Z",
+      "side": 1,
+      "message": "or is it for things like this where we\u0027d want to concat every matrix with localM, and it\u0027s hard to keep track of all the mutations without a type to handle it?",
+      "range": {
+        "startLine": 386,
+        "startChar": 15,
+        "endLine": 386,
+        "endChar": 87
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
