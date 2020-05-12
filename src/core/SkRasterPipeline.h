@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNx.h"
@@ -18,6 +19,8 @@
 #include "src/core/SkArenaAlloc.h"
 #include <functional>
 #include <vector>  // TODO: unused
+
+class SkData;
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -169,10 +172,10 @@ struct SkRasterPipeline_InterpreterCtx {
     const SkSL::ByteCode*         byteCode;
     const SkSL::ByteCodeFunction* fn;
 
-    SkColor4f   paintColor;
-    const void* inputs;
-    int         ninputs;
-    bool        shaderConvention;  // if false, we're a colorfilter
+    SkColor4f     paintColor;
+    sk_sp<SkData> inputs;
+    int           ninputs;
+    bool          shaderConvention;  // if false, we're a colorfilter
 };
 
 struct SkRasterPipeline_GradientCtx {

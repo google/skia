@@ -11,6 +11,8 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
@@ -685,7 +687,7 @@ public:
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         // don't need to set ctx->paintColor
-        ctx->inputs = fInputs->data();
+        ctx->inputs = fInputs;
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = false;
 
@@ -792,31 +794,27 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
-        SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
-            return nullptr;
-        }
-        // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
-        sk_sp<SkData> inputs = fInputs;
-        auto copyOnWrite = [&]() {
-            if (inputs == fInputs) {
-                inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
-            }
-        };
-
+    sk_sp<SkData> getUniforms(const SkMatrixProvider& matrixProvider,
+                              const SkColorSpace* dstCS) const {
         using Flags = SkRuntimeEffect::Variable::Flags;
         using Type = SkRuntimeEffect::Variable::Type;
+        SkColorSpaceXformSteps steps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                     dstCS,               kUnpremul_SkAlphaType);
+
+        sk_sp<SkData> inputs = nullptr;
+        auto writableData = [&]() {
+            if (!inputs) {
+                inputs =  SkData::MakeWithCopy(fInputs->data(), fInputs->size());
+            }
+            return inputs->writable_data();
+        };
+
         for (const auto& v : fEffect->inputs()) {
             if (v.fFlags & Flags::kMarker_Flag) {
-                copyOnWrite();
-
                 SkASSERT(v.fType == Type::kFloat4x4);
-                SkM44* localToMarker = SkTAddOffset<SkM44>(inputs->writable_data(), v.fOffset);
-                if (!args.fMatrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
+                SkM44* localToMarker = SkTAddOffset<SkM44>(writableData(), v.fOffset);
+                if (!matrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
                     // We couldn't provide a matrix that was requested by the SkSL
-                    SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
                     return nullptr;
                 }
                 if (v.fFlags & Flags::kMarkerNormals_Flag) {
@@ -831,11 +829,8 @@ public:
                 }
             } else if (v.fFlags & Flags::kSRGBUnpremul_Flag) {
                 SkASSERT(v.fType == Type::kFloat3 || v.fType == Type::kFloat4);
-                if (auto xform = args.fDstColorInfo->colorSpaceXformFromSRGB()) {
-                    copyOnWrite();
-
-                    const SkColorSpaceXformSteps& steps(xform->steps());
-                    float* color = SkTAddOffset<float>(inputs->writable_data(), v.fOffset);
+                if (steps.flags.mask()) {
+                    float* color = SkTAddOffset<float>(writableData(), v.fOffset);
                     if (v.fType == Type::kFloat4) {
                         // RGBA, easy case
                         for (int i = 0; i < v.fCount; ++i) {
@@ -857,6 +852,21 @@ public:
                     }
                 }
             }
+        }
+        return inputs ? inputs : fInputs;
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
+        SkMatrix matrix;
+        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
+            return nullptr;
+        }
+
+        sk_sp<SkData> inputs =
+                this->getUniforms(args.fMatrixProvider, args.fDstColorInfo->colorSpace());
+        if (!inputs) {
+            return nullptr;
         }
 
         auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs));
@@ -894,7 +904,6 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
-        // TODO: Populate dynamic uniforms!
         SkMatrix inverse;
         if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM,
                                        &inverse)) {
@@ -903,7 +912,10 @@ public:
 
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         ctx->paintColor = rec.fPaint.getColor4f();
-        ctx->inputs = fInputs->data();
+        ctx->inputs = this->getUniforms(rec.fMatrixProvider, rec.fDstCS);
+        if (!ctx->inputs) {
+            return false;
+        }
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = true;
 
@@ -920,7 +932,7 @@ public:
 
     skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
                           const SkMatrix& ctm, const SkMatrix* localM,
-                          SkFilterQuality, const SkColorInfo& /*dst*/,
+                          SkFilterQuality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
         const SkSL::ByteCode* bc = this->byteCode();
         if (!bc) {
@@ -932,10 +944,19 @@ public:
             return {};
         }
 
+        // TODO: Eventually, plumb SkMatrixProvider here (instead of just ctm). For now, we will
+        // simply fail if our effect requires any marked matrices (SkSimpleMatrixProvider always
+        // returns false in getLocalToMarker).
+        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        sk_sp<SkData> inputs = this->getUniforms(matrixProvider, dst.colorSpace());
+        if (!inputs) {
+            return {};
+        }
+
         std::vector<skvm::F32> uniform;
         for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
             float f;
-            memcpy(&f, (const char*)fInputs->data() + 4*i, 4);
+            memcpy(&f, (const char*)inputs->data() + 4*i, 4);
             uniform.push_back(p->uniformF(uniforms->pushF(f)));
         }
 
