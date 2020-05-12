@@ -142,6 +142,30 @@
       "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ff6ee90_592c8d71",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-12T12:25:53Z",
+      "side": 1,
+      "message": "We can\u0027t overload macros by num of params but we can overload functions:\n\n static inline SkString reporter_assert_string() { return {}; }\n static inline SkString reporter_assert_string(const char* s) { return SkString(s); }\n template\u003ctypename... Args\u003e\n static inline SkString reporter_assert_string(const char* fmt, Args... args)  {\n     return SkStringPrintf(fmt, std::forward\u003cArgs\u003e(args)...);\n }\n\n #define REPORTER_ASSERT(r, cond, ...)                                      \\\n     do {                                                                   \\\n         if (!(cond)) {                                                     \\\n             REPORT_FAILURE(r, #cond, reporter_assert_string(__VA_ARGS__)); \\\n         }                                                                  \\\n     } while (0)",
+      "parentUuid": "27c28ad8_226c5569",
+      "range": {
+        "startLine": 1061,
+        "startChar": 24,
+        "endLine": 1061,
+        "endChar": 48
+      },
+      "revId": "bb629e0c16c584a727654e1e5e828ad8e6dd8339",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
