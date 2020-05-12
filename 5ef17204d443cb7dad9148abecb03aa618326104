@@ -141,6 +141,30 @@
       "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18a5e50f_cbd6b8f9",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-12T14:59:07Z",
+      "side": 1,
+      "message": "Right now, all GrDawnRenderTargets have only a view (not just GrBackendRenderTarget), so any readbacks from render targets will fail. Assuming we can live with this limitation long-term in Skia, I was thinking also that a cap would be a good idea.\n\nSounds like this is a GrBackendTexture, though, so that\u0027s a bit confusing.",
+      "parentUuid": "c0dc0a36_49e7d8b8",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
