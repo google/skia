@@ -22,6 +22,30 @@
       "revId": "3d29cca4745a1edd823abd72f9ad7339ac077cb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f70a165_fc6c847b",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-12T17:21:50Z",
+      "side": 1,
+      "message": "Ack - I may jump in here once I\u0027ve landed the omnibus CL.",
+      "parentUuid": "14ec4c14_94d16a9c",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 19
+      },
+      "revId": "3d29cca4745a1edd823abd72f9ad7339ac077cb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
