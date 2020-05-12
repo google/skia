@@ -11,6 +11,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
@@ -792,32 +793,22 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
-        SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
-            return nullptr;
-        }
-        // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
-        sk_sp<SkData> inputs = fInputs;
-        auto copyOnWrite = [&]() {
-            if (inputs == fInputs) {
-                inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
-            }
-        };
-
+    bool resolveLateBoundUniforms(const SkMatrixProvider& matrixProvider,
+                                  const SkColorSpace* dstCS,
+                                  std::function<void*(void)> writableData) const {
         using Flags = SkRuntimeEffect::Variable::Flags;
         using Type = SkRuntimeEffect::Variable::Type;
+        SkColorSpaceXformSteps steps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                     dstCS,               kUnpremul_SkAlphaType);
+
         for (const auto& v : fEffect->inputs()) {
             if (v.fFlags & Flags::kMarker_Flag) {
-                copyOnWrite();
-
                 SkASSERT(v.fType == Type::kFloat4x4);
-                SkM44* localToMarker = SkTAddOffset<SkM44>(inputs->writable_data(), v.fOffset);
-                if (!args.fMatrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
+                SkM44* localToMarker = SkTAddOffset<SkM44>(writableData(), v.fOffset);
+                if (!matrixProvider.getLocalToMarker(v.fMarker, localToMarker)) {
                     // We couldn't provide a matrix that was requested by the SkSL
                     SkDebugf("Failed to get marked matrix %u\n", v.fMarker);
-                    return nullptr;
+                    return false;
                 }
                 if (v.fFlags & Flags::kMarkerNormals_Flag) {
                     // Normals need to be transformed by the inverse-transpose of the upper-left
@@ -825,17 +816,14 @@ public:
                     localToMarker->setRow(3, {0, 0, 0, 1});
                     localToMarker->setCol(3, {0, 0, 0, 1});
                     if (!localToMarker->invert(localToMarker)) {
-                        return nullptr;
+                        return false;
                     }
                     *localToMarker = localToMarker->transpose();
                 }
             } else if (v.fFlags & Flags::kSRGBUnpremul_Flag) {
                 SkASSERT(v.fType == Type::kFloat3 || v.fType == Type::kFloat4);
-                if (auto xform = args.fDstColorInfo->colorSpaceXformFromSRGB()) {
-                    copyOnWrite();
-
-                    const SkColorSpaceXformSteps& steps(xform->steps());
-                    float* color = SkTAddOffset<float>(inputs->writable_data(), v.fOffset);
+                if (steps.flags.mask()) {
+                    float* color = SkTAddOffset<float>(writableData(), v.fOffset);
                     if (v.fType == Type::kFloat4) {
                         // RGBA, easy case
                         for (int i = 0; i < v.fCount; ++i) {
@@ -857,6 +845,29 @@ public:
                     }
                 }
             }
+        }
+        return true;
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
+        SkMatrix matrix;
+        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
+            return nullptr;
+        }
+        // If any of our uniforms are late-bound (eg, layout(marker)), we need to clone the blob
+        sk_sp<SkData> inputs = fInputs;
+        auto writableData = [&]() {
+            if (inputs == fInputs) {
+                inputs = SkData::MakeWithCopy(fInputs->data(), fInputs->size());
+            }
+            return inputs->writable_data();
+        };
+
+        if (!this->resolveLateBoundUniforms(args.fMatrixProvider,
+                                            args.fDstColorInfo->colorSpace(),
+                                            writableData)) {
+            return nullptr;
         }
 
         auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs));
@@ -894,16 +905,28 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
-        // TODO: Populate dynamic uniforms!
         SkMatrix inverse;
         if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM,
                                        &inverse)) {
             return false;
         }
 
+        void* inputs = const_cast<void*>(fInputs->data());
+        auto writableData = [&]() {
+            if (inputs == fInputs->data()) {
+                inputs = rec.fAlloc->makeBytesAlignedTo(fEffect->uniformSize(), 4);
+                memcpy(inputs, fInputs->data(), fEffect->uniformSize());
+            }
+            return inputs;
+        };
+
+        if (!this->resolveLateBoundUniforms(rec.fMatrixProvider, rec.fDstCS, writableData)) {
+            return false;
+        }
+
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         ctx->paintColor = rec.fPaint.getColor4f();
-        ctx->inputs = fInputs->data();
+        ctx->inputs = inputs;
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = true;
 
