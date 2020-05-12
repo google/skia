@@ -8,6 +8,7 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
+#include "include/core/SkData.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
 #include "src/sksl/SkSLByteCode.h"
@@ -2737,8 +2738,8 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
         sk_unaligned_store(aa, a);
     }
 
-    SkAssertResult(c->byteCode->runStriped(c->fn, tail ? tail : N, in_args, in_count,
-                                           nullptr, 0, (const float*)c->inputs, c->ninputs));
+    SkAssertResult(c->byteCode->runStriped(c->fn, tail ? tail : N, in_args, in_count, nullptr, 0,
+                                           (const float*)c->inputs->data(), c->ninputs));
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);
