@@ -919,7 +919,18 @@ public:
         kPresent,   //!< back-end surface will be used for presenting to screen
     };
 
-    /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
+    /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
+        MSAA. A call to GrContext::submit or equivalent GrFlushFlag is always required to ensure
+        work is actually sent to the gpu. Some specific API details:
+            GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+                sync objects from the flush will not be valid until submit is called.
+
+            VUlkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+                buffer or encoder objects. However, these objects are not sent to the gpu until
+                submit is called.
+
+        Note: The default values for GrFlushInfo will submit the work the gpu.
+
         The work that is submitted to the GPU will be dependent on the BackendSurfaceAccess that is
         passed in.
 
