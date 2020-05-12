@@ -1145,16 +1145,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         return;
     }
 
-    SkPixelGeometry geo = fProps.pixelGeometry();
-    if (!(saveLayerFlags & kPreserveLCDText_SaveLayerFlag)) {
-        geo = kUnknown_SkPixelGeometry;
-    } else if (paint) {
-        // Filters may move pixels, or change colors or opaqueness, which may break LCD text.
-        if (paint->getImageFilter() || paint->getColorFilter()) {
-            geo = kUnknown_SkPixelGeometry;
-        }
-    }
-
     SkBaseDevice* priorDevice = this->getTopDevice();
     if (nullptr == priorDevice) {   // Do we still need this check???
         SkDebugf("Unable to find device for layer.");
@@ -1170,6 +1160,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     {
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
 
+        SkPixelGeometry geo = saveLayerFlags & kPreserveLCDText_SaveLayerFlag
+                                      ? fProps.pixelGeometry()
+                                      : kUnknown_SkPixelGeometry;
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const auto createInfo = SkBaseDevice::CreateInfo(info,
