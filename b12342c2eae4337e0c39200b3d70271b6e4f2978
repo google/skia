@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72a6ccc1_72a6ac81",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T18:04:09Z",
+      "side": 1,
+      "message": "Do you think it\u0027d make things easier to follow if inputs were an sk_sp\u003cSkData\u003e, so you can just pass them around like you do in the GPU impl?",
+      "revId": "b12342c2eae4337e0c39200b3d70271b6e4f2978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
