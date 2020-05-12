@@ -189,6 +189,30 @@
       "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9795ce05_9fc3fa81",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-12T15:34:16Z",
+      "side": 1,
+      "message": "Reading your comment a bit more carefully: creating a GrDawnRenderTarget from a GrBackendTexture will strip the dawn::Texture out of it, and leave only a dawn::TextureView. So you couldn\u0027t do readbacks from it. I think Brian mentioned that this code path was deprecated, though?",
+      "parentUuid": "18a5e50f_cbd6b8f9",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
