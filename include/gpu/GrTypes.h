@@ -227,9 +227,16 @@ static const uint32_t kAll_GrBackendState = 0xffffffff;
 
 enum GrFlushFlags {
     kNone_GrFlushFlags = 0,
-    // flush will wait till all submitted GPU work is finished before returning.
-    kSyncCpu_GrFlushFlag = 0x1,
+    // Submit all flushed work from this flush and previously unsubmitted flushes to the gpu.
+    // GrContext::submit does not need to be called if this flag is passed in with the flush.
+    kSubmitToGpu_GrFlushFlag = 0x1,
+    // flush will submit work to the gpu and then will wait till all submitted GPU work is finished
+    // before returning. GrContext::submit does not need to be called if this flag is passed in with
+    // the flush.
+    kSyncCpu_GrFlushFlag = 0x2,
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrFlushFlags)
 
 typedef void* GrGpuFinishedContext;
 typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
@@ -253,7 +260,7 @@ typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
  * immediately.
  */
 struct GrFlushInfo {
-    GrFlushFlags         fFlags = kNone_GrFlushFlags;
+    GrFlushFlags         fFlags = kSubmitToGpu_GrFlushFlag;
     int                  fNumSemaphores = 0;
     GrBackendSemaphore*  fSignalSemaphores = nullptr;
     GrGpuFinishedProc    fFinishedProc = nullptr;

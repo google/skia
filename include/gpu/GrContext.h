@@ -296,7 +296,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
-
     /**
      * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
      * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
@@ -307,14 +306,34 @@ public:
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to GrContext::submit or equivalent GrFlushFlag is always required to ensure
+     * work is actually sent to the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until submit is called.
+     *
+     *     VUlkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until
+     *         submit is called.
+     *
+     * Note: The default GrFlushInfo used in this call will submit the work the gpu.
      */
     void flush() {
         this->flush(GrFlushInfo(), GrPrepareForExternalIORequests());
     }
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to GrContext::submit or equivalent GrFlushFlag is always required to ensure
+     * work is actually sent to the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until submit is called.
+     *
+     *     VUlkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until
+     *         submit is called.
+     *
+     * Note: The default values for GrFlushInfo will submit the work the gpu.
      *
      * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will have
      * been submitted and can be waited on (it is possible Skia failed to create a subset of the
@@ -333,7 +352,17 @@ public:
     }
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to GrContext::submit or equivalent GrFlushFlag is always required to ensure
+     * work is actually sent to the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until submit is called.
+     *
+     *     VUlkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until
+     *         submit is called.
+     *
+     * Note: The default values for GrFlushInfo will submit the work the gpu.
      *
      * If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have created or
      * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
@@ -345,7 +374,10 @@ public:
      *
      * If the GrPrepareForExternalIORequests contains valid gpu backed SkSurfaces or SkImages, Skia
      * will put the underlying backend objects into a state that is ready for external uses. See
-     * declaration of GrPreopareForExternalIORequests for more details.
+     * declaration of GrPreopareForExternalIORequests for more details. Note that the backend
+     * objects will not be moved to this state until submit has been called. If subsequent flushes
+     * are called between this and submit that use the backend objects, those objects are no longer
+     * guaranteed to be in a state that is ready for external use.
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo&, const GrPrepareForExternalIORequests&);
 
@@ -375,6 +407,22 @@ public:
         info.fSignalSemaphores = signalSemaphores;
         return this->flush(info);
     }
+
+    /**
+     * Submit outstanding work to the gpu from all previously un-submitted flushes. The return
+     * value of the submit will indicate whether or not the submission to the GPU was successful.
+     *
+     * If the call returns true, all previously passed in semaphores in flush calls will have been
+     * submitted to the GPU and they can safely be waited on. The caller should wait on those
+     * semaphores or perform some other global synchronization before deleting the semaphores.
+     *
+     * If it returns false, then those same semaphores will not have been submitted and we will not
+     * try to submit them again. The caller is free to delete the semaphores at any time.
+     *
+     * If the syncCpu flag is true this function will return once the gpu has finished with all
+     * submitted work.
+     */
+    bool submit(bool syncCpu = false);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.

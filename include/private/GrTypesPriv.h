@@ -1191,6 +1191,10 @@ private:
     Context fReleaseCtx;
 };
 
+static constexpr bool GrFlushFlagsRequireSubmit(GrFlushFlags flags) {
+    return SkToBool(flags & (kSubmitToGpu_GrFlushFlag | kSyncCpu_GrFlushFlag));
+}
+
 #if GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {
