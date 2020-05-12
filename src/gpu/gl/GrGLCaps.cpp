@@ -235,7 +235,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fRectangleTextureSupport = true;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (kChromium_GrGLDriver == ctxInfo.driver()) {
+        if (ctxInfo.driver() == kChromium_GrGLDriver ||
+            ctxInfo.driver() == kSwiftShader_GrGLDriver) {
             fRectangleTextureSupport = ctxInfo.hasExtension("GL_ARB_texture_rectangle");
         } else {
             // ANGLE will advertise the extension in ES2 contexts but actually using the texture in
