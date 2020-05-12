@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a2f79d6_30138902",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T13:23:06Z",
+      "side": 1,
+      "message": "At one point we talked about each flush call returning an ID and then having submit return an array of flushIDs to say which flushes were successfully submitted and possibly also which flushIDs failed to be submitted. Since we are decided to pass full ownership of the semaphores to the caller at flush time, is this something that is still needed? I could see some uses of it being nice, maybe.\n\nA complication to this is the currently flush calls that force a submit with them. If there are outstanding unsubmitted flushes how do we notify the client what go flushed during them. I guess we could add some outParam thing onto GrFlushInfo that matches whatever we decide to return from a normal submit call? Just need to make sure that can be ignored and all things still work who want the current behavior.",
+      "range": {
+        "startLine": 433,
+        "startChar": 4,
+        "endLine": 433,
+        "endChar": 9
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0a049e9_92bfc4a6",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T13:23:06Z",
+      "side": 1,
+      "message": "How do we want to handle the case where the client wants to submit while flushing. Currently I wrote this up to work like it does today where if we failed (or didn\u0027t flush cause no work) we don\u0027t submit. However, this gets awkward if the client had previously don\u0027t non submitting flushes then a submit flush that had no work to do. Seems like we should submit then?\n\nWe can change the flush with submit API to work as if the two steps are independent (i.e. as if the caller call flush without submit and then submit). The issue with this one is we don\u0027t have a good return value on the current flush call to say hey the flush part failed and we didn\u0027t send the semaphores for that flush, but the submit did pass so that submitted all previous work. Or the opposite of hey we did the flush and added its semaphores, but oh the submit failed so you should now assume we won\u0027t ever signal those or previous semaphores.\n\nIts also possible that always doing the submit separately could cause us to do some submits of empty command buffers if there was no work on the flush or previously outstanding work. I know we have some tracking of if command buffers have work recorded into them and won\u0027t submit them if they are empty, but not sure how robust that is and if no vulkan backends also do the tracking well. This in general is less of a worry for me since it is rare for a client to be flushing a surface/context if they don\u0027t think there is work to be flushed.",
+      "range": {
+        "startLine": 574,
+        "startChar": 8,
+        "endLine": 574,
+        "endChar": 58
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c98478bc_fd31e2e4",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T13:23:06Z",
+      "side": 1,
+      "message": "during flushIfNecessary do we want to do a submit? For GL I feel like the answer would be no, but for other backends I think we need to so we can try and free up resources as soon as possible even if it is not immediately this frame. Though if we don\u0027t submit I believe most of the newer APIs don\u0027t hold refs to GrGpuResources in their command buffers, but to the gpu objects themselves. So technically all we need is the flush to clear up our tracking of GrGpuResources even though the actual objects are still alive.",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 941,
+        "endChar": 37
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
