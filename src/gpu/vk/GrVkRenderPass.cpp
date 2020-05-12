@@ -234,6 +234,7 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
 
 bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
     SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
+
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
     target.getAttachmentsDescriptor(&desc, &flags);

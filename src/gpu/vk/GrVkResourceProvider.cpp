@@ -126,16 +126,6 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
     return renderPass;
 }
 
-const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle) {
-    SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
-    int index = compatibleHandle.toIndex();
-    const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
-    SkASSERT(renderPass);
-    renderPass->ref();
-    return renderPass;
-}
-
 const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
         VkRenderPass renderPass, uint32_t colorAttachmentIndex) {
     for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
