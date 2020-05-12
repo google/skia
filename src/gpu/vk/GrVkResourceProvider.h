@@ -58,17 +58,15 @@ public:
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
-    // The CompatibleRPHandle must be a valid handle previously set by a call to
-    // findCompatibleRenderPass(GrVkRenderTarget&, CompatibleRPHandle*).
-    const GrVkRenderPass* findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
                                                            uint32_t colorAttachmentIndex);
 
     // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
-    // If this is non null it will be set to a handle that can be used in the furutre to quickly
-    // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
+    // If this is non null it will be set to a handle that can be used in the future to quickly
+    // return a GrVkRenderPass without the need to inspect a GrVkRenderTarget.
+    // TODO: sk_sp?
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
@@ -221,7 +219,7 @@ private:
 
         bool isCompatible(const GrVkRenderTarget& target) const;
 
-        GrVkRenderPass* getCompatibleRenderPass() const {
+        const GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store
             // render pass on create
             SkASSERT(fRenderPasses[0]);

@@ -35,12 +35,6 @@ public:
         }
     };
 
-    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
-    static GrVkRenderPass* Create(GrVkGpu* gpu,
-                                  const GrVkRenderPass& compatibleRenderPass,
-                                  const LoadStoreOps& colorOp,
-                                  const LoadStoreOps& stencilOp);
-
     // Used when importing an external render pass. In this case we have to explicitly be told the
     // color attachment index
     explicit GrVkRenderPass(const GrVkGpu* gpu, VkRenderPass renderPass,
@@ -88,6 +82,12 @@ public:
         kExternal_AttachmentFlag = 0x4,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
+
+    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
+    static GrVkRenderPass* Create(GrVkGpu* gpu,
+                                  const GrVkRenderPass& compatibleRenderPass,
+                                  const LoadStoreOps& colorOp,
+                                  const LoadStoreOps& stencilOp);
 
     // The following return the index of the render pass attachment array for the given attachment.
     // If the render pass does not have the given attachment it will return false and not set the
