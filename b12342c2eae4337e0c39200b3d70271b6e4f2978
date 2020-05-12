@@ -34,6 +34,24 @@
       "revId": "b12342c2eae4337e0c39200b3d70271b6e4f2978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0491b73_25c1d738",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T18:47:24Z",
+      "side": 1,
+      "message": "Yeah, there was a time long ago where the contexts were all required to be POD, back when we precompiled into assembly, but now I think they can safely be whatever makes most sense.\n\nEven without changing the context struct, we could make an sk_sp\u003cSkData\u003e on rec.fAlloc to track it that way if you like.",
+      "parentUuid": "0e6a1e8d_bb38341d",
+      "revId": "b12342c2eae4337e0c39200b3d70271b6e4f2978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
