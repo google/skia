@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
-// Workaround to make sure we align non-coherent memory to nonCoherentAtomSize.
-#define VMA_DEBUG_ALIGNMENT 256
-
 // We use our own functions pointers
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+
+// vma_mem_alloc.h will use VMA_NULLABLE and VMA_NOT_NULL as clang nullability attribtues but does a
+// poor job at using them everywhere. Thus it causes lots of clang compiler warnings. We just
+// disable them here by defining them to be nothing.
+#define VMA_NULLABLE
+#define VMA_NOT_NULL
 
 #define VMA_IMPLEMENTATION
 #include <vulkan/vulkan_core.h>

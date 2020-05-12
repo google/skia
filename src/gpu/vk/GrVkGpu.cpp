@@ -142,8 +142,10 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     sk_sp<GrVkMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
-        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fPhysicalDevice,
-                                                       backendContext.fDevice, interface);
+        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fInstance,
+                                                       backendContext.fPhysicalDevice,
+                                                       backendContext.fDevice, physDevVersion,
+                                                       backendContext.fVkExtensions, interface);
     }
     if (!memoryAllocator) {
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");

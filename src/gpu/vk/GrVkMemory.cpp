@@ -138,13 +138,6 @@ void GrVkMemory::FreeImageMemory(const GrVkGpu* gpu, bool linearTiling,
 
 void* GrVkMemory::MapAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc) {
     SkASSERT(GrVkAlloc::kMappable_Flag & alloc.fFlags);
-#ifdef SK_DEBUG
-    if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
-        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
-        SkASSERT(0 == (alloc.fOffset & (alignment-1)));
-        SkASSERT(0 == (alloc.fSize & (alignment-1)));
-    }
-#endif
     if (alloc.fBackendMemory) {
         GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
         return allocator->mapMemory(alloc.fBackendMemory);

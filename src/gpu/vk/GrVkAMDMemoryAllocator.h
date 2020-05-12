@@ -10,12 +10,17 @@
 
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 
+class GrVkExtensions;
 struct GrVkInterface;
 
 #ifndef SK_USE_VMA
 class GrVkAMDMemoryAllocator {
 public:
-    static sk_sp<GrVkMemoryAllocator> Make(VkPhysicalDevice physicalDevice, VkDevice device,
+    static sk_sp<GrVkMemoryAllocator> Make(VkInstance instance,
+                                           VkPhysicalDevice physicalDevice,
+                                           VkDevice device,
+                                           uint32_t physicalDeviceVersion,
+                                           const GrVkExtensions* extensions,
                                            sk_sp<const GrVkInterface> interface);
 };
 
@@ -25,7 +30,11 @@ public:
 
 class GrVkAMDMemoryAllocator : public GrVkMemoryAllocator {
 public:
-    static sk_sp<GrVkMemoryAllocator> Make(VkPhysicalDevice physicalDevice, VkDevice device,
+    static sk_sp<GrVkMemoryAllocator> Make(VkInstance instance,
+                                           VkPhysicalDevice physicalDevice,
+                                           VkDevice device,
+                                           uint32_t physicalDeviceVersion,
+                                           const GrVkExtensions* extensions,
                                            sk_sp<const GrVkInterface> interface);
 
     ~GrVkAMDMemoryAllocator() override;
@@ -52,8 +61,7 @@ public:
     uint64_t totalAllocatedMemory() const override;
 
 private:
-    GrVkAMDMemoryAllocator(VmaAllocator allocator, VkDevice device,
-                           sk_sp<const GrVkInterface> interface);
+    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface);
 
     VmaAllocator fAllocator;
 
@@ -61,7 +69,6 @@ private:
     // memory, then we won't need to save the GrVkInterface here since we won't need to make direct
     // vulkan calls.
     sk_sp<const GrVkInterface> fInterface;
-    VkDevice fDevice;
 
     typedef GrVkMemoryAllocator INHERITED;
 };

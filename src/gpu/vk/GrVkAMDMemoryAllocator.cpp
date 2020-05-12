@@ -7,23 +7,31 @@
 
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 
+#include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 #ifndef SK_USE_VMA
-sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physicalDevice,
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
+                                                        VkPhysicalDevice physicalDevice,
                                                         VkDevice device,
+                                                        uint32_t physicalDeviceVersion,
+                                                        const GrVkExtensions* extensions,
                                                         sk_sp<const GrVkInterface> interface) {
     return nullptr;
 }
 #else
 
-sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physicalDevice,
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
+                                                        VkPhysicalDevice physicalDevice,
                                                         VkDevice device,
+                                                        uint32_t physicalDeviceVersion,
+                                                        const GrVkExtensions* extensions,
                                                         sk_sp<const GrVkInterface> interface) {
 #define GR_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
+#define GR_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
 
     VmaVulkanFunctions functions;
     GR_COPY_FUNCTION(GetPhysicalDeviceProperties);
@@ -32,6 +40,8 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physica
     GR_COPY_FUNCTION(FreeMemory);
     GR_COPY_FUNCTION(MapMemory);
     GR_COPY_FUNCTION(UnmapMemory);
+    GR_COPY_FUNCTION(FlushMappedMemoryRanges);
+    GR_COPY_FUNCTION(InvalidateMappedMemoryRanges);
     GR_COPY_FUNCTION(BindBufferMemory);
     GR_COPY_FUNCTION(BindImageMemory);
     GR_COPY_FUNCTION(GetBufferMemoryRequirements);
@@ -40,13 +50,21 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physica
     GR_COPY_FUNCTION(DestroyBuffer);
     GR_COPY_FUNCTION(CreateImage);
     GR_COPY_FUNCTION(DestroyImage);
-
-    // Skia current doesn't support VK_KHR_dedicated_allocation
-    functions.vkGetBufferMemoryRequirements2KHR = nullptr;
-    functions.vkGetImageMemoryRequirements2KHR = nullptr;
+    GR_COPY_FUNCTION(CmdCopyBuffer);
+    GR_COPY_FUNCTION_KHR(GetBufferMemoryRequirements2);
+    GR_COPY_FUNCTION_KHR(GetImageMemoryRequirements2);
+    GR_COPY_FUNCTION_KHR(BindBufferMemory2);
+    GR_COPY_FUNCTION_KHR(BindImageMemory2);
+    GR_COPY_FUNCTION_KHR(GetPhysicalDeviceMemoryProperties2);
 
     VmaAllocatorCreateInfo info;
     info.flags = 0;
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        (extensions->hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 1) &&
+         extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1))) {
+        info.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
+    }
+
     info.physicalDevice = physicalDevice;
     info.device = device;
     // 4MB was picked for the size here by looking at memory usage of Android apps and runs of DM.
@@ -59,20 +77,21 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkPhysicalDevice physica
     info.frameInUseCount = 0;
     info.pHeapSizeLimit = nullptr;
     info.pVulkanFunctions = &functions;
+    info.pRecordSettings = nullptr;
+    info.instance = instance;
+    info.vulkanApiVersion = physicalDeviceVersion;
 
     VmaAllocator allocator;
     vmaCreateAllocator(&info, &allocator);
 
-    return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(allocator, device,
+    return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(allocator,
                                                                     std::move(interface)));
 }
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
-                                               VkDevice device,
                                                sk_sp<const GrVkInterface> interface)
         : fAllocator(allocator)
-        , fInterface(std::move(interface))
-        , fDevice(device) {}
+        , fInterface(std::move(interface)) {}
 
 GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -204,25 +223,6 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
     alloc->fSize          = vmaInfo.size;
     alloc->fFlags         = flags;
     alloc->fBackendMemory = memoryHandle;
-
-    // TODO: Remove this hack once the AMD allocator is able to handle the alignment of noncoherent
-    // memory itself.
-    if (!SkToBool(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT & memFlags)) {
-        // This is a hack to say that the allocation size is actually larger than it is. This is to
-        // make sure when we are flushing and invalidating noncoherent memory we have a size that is
-        // aligned to the nonCoherentAtomSize. This is safe for three reasons. First the total size
-        // of the VkDeviceMemory we allocate will always be a multple of the max possible alignment
-        // (currently 256). Second all sub allocations are alignmed with an offset of 256. And
-        // finally the allocator we are using always maps the entire VkDeviceMemory so the range
-        // we'll be flushing/invalidating will be mapped. So our new fake allocation size will
-        // always fit into the VkDeviceMemory, will never push it into another suballocation, and
-        // will always be mapped when map is called.
-        const VkPhysicalDeviceProperties* devProps;
-        vmaGetPhysicalDeviceProperties(fAllocator, &devProps);
-        VkDeviceSize alignment = devProps->limits.nonCoherentAtomSize;
-
-        alloc->fSize = (alloc->fSize + alignment - 1) & ~(alignment -1);
-    }
 }
 
 void* GrVkAMDMemoryAllocator::mapMemory(const GrVkBackendMemory& memoryHandle) {
@@ -242,39 +242,15 @@ void GrVkAMDMemoryAllocator::unmapMemory(const GrVkBackendMemory& memoryHandle) 
 void GrVkAMDMemoryAllocator::flushMappedMemory(const GrVkBackendMemory& memoryHandle,
                                                VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    GrVkAlloc info;
-    this->getAllocInfo(memoryHandle, &info);
-
-    if (GrVkAlloc::kNoncoherent_Flag & info.fFlags) {
-        // We need to store the nonCoherentAtomSize for non-coherent flush/invalidate alignment.
-        const VkPhysicalDeviceProperties* physDevProps;
-        vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
-        VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
-
-        VkMappedMemoryRange mappedMemoryRange;
-        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
-                                                    &mappedMemoryRange);
-        GR_VK_CALL(fInterface, FlushMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
-    }
+    const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
+    vmaFlushAllocation(fAllocator, allocation, offset, size);
 }
 
 void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& memoryHandle,
                                                     VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    GrVkAlloc info;
-    this->getAllocInfo(memoryHandle, &info);
-
-    if (GrVkAlloc::kNoncoherent_Flag & info.fFlags) {
-        // We need to store the nonCoherentAtomSize for non-coherent flush/invalidate alignment.
-        const VkPhysicalDeviceProperties* physDevProps;
-        vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
-        VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
-
-        VkMappedMemoryRange mappedMemoryRange;
-        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
-                                                    &mappedMemoryRange);
-        GR_VK_CALL(fInterface, InvalidateMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
-    }
+    const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
+    vmaFlushAllocation(fAllocator, allocation, offset, size);
 }
 
 uint64_t GrVkAMDMemoryAllocator::totalUsedMemory() const {
