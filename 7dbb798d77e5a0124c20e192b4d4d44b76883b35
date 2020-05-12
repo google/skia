@@ -52,6 +52,24 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b14f1e72_e0b2da6e",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T19:22:11Z",
+      "side": 1,
+      "message": "Yeah, I did this in the follow-up CL, as it seems to belong there (as a parallel to actually using it correctly in onAppendStages).",
+      "parentUuid": "dd7b12aa_0762080e",
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
