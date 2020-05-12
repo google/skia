@@ -266,6 +266,12 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
+    if (ctx->abandoned()) {
+        // GrReducedClip assumes the context hasn't been abandoned, which is reasonable since it is
+        // only ever used if a draw op is made. Since this GM calls it directly, it has to be taken
+        // into account.
+        return;
+    }
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched
     // by the clip mask generation.
     this->stencilCheckerboard(rtc, false);
