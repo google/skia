@@ -3355,12 +3355,16 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // The manual approach requires the ability to limit which level we're sampling and that the
     // destination can be bound to a FBO:
     if (!this->glCaps().doManualMipmapping() || !this->glCaps().isFormatRenderable(format, 1)) {
+        SkDebugf("doing GenerateMipmap\n");
         GrGLenum target = glTex->target();
         this->bindTextureToScratchUnit(target, glTex->textureID());
         GL_CALL(GenerateMipmap(glTex->target()));
+        this->bindTextureToScratchUnit(target, 0);
+       // GL_CALL(Finish());
         return true;
     }
 
+        SkDebugf("doing manual Mipmap\n");
     int width = texture->width();
     int height = texture->height();
     int levelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
@@ -3568,6 +3572,22 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     GrGLFormat glFormat = GrGLFormatFromGLEnum(info.fFormat);
 
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, info.fID);
+
+    // If we have mips make sure the base level is set to 0 and the max level set to numMipLevesl-1
+    // so that the uploads go to the right levels.
+    if (numMipLevels) {
+        auto params = backendTexture.getGLTextureParams();
+        GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
+        if (true || params->nonsamplerState().fBaseMipMapLevel != 0) {
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, 0));
+            nonsamplerState.fBaseMipMapLevel = 0;
+        }
+        if (true || params->nonsamplerState().fMaxMipMapLevel != (numMipLevels - 1)) {
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAX_LEVEL, numMipLevels - 1));
+            nonsamplerState.fBaseMipMapLevel = numMipLevels - 1;
+        }
+        params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
+    }
 
     SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
     if (data->type() == BackendTextureData::Type::kPixmaps) {
