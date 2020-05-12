@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "416f4eb1_bd7ef629",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-12T14:43:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94c4ed47_152d6fa2",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3144d319_d5a39483",
         "filename": "src/gpu/GrStencilMaskHelper.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4cc050e2_0ded6789",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-12T14:43:38Z",
+      "side": 1,
+      "message": "It\u0027s still a little up in the air with what Android needs to support, but I\u0027m hoping it\u0027ll be only a month or two?",
+      "parentUuid": "3144d319_d5a39483",
+      "range": {
+        "startLine": 28,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2aabacef_e95d6ecd",
         "filename": "src/gpu/GrStencilMaskHelper.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b37431_6c00c271",
+        "filename": "src/gpu/GrStencilMaskHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-12T14:43:38Z",
+      "side": 1,
+      "message": "Nope, fixed!",
+      "parentUuid": "2aabacef_e95d6ecd",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 4
+      },
+      "revId": "1dac4121610755ed045a5a1747f9d505676af6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
