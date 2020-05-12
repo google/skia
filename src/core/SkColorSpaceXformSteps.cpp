@@ -13,8 +13,8 @@
 
 // See skia.org/user/color  (== site/user/color.md).
 
-SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                                               SkColorSpace* dst, SkAlphaType dstAT) {
+SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaType srcAT,
+                                               const SkColorSpace* dst, SkAlphaType dstAT) {
     // Opaque outputs are treated as the same alpha type as the source input.
     // TODO: we'd really like to have a good way of explaining why we think this is useful.
     if (dstAT == kOpaque_SkAlphaType) {
