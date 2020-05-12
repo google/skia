@@ -146,11 +146,18 @@ private:
 
 }  // namespace skiatest
 
-#define REPORTER_ASSERT(r, cond, ...)                              \
-    do {                                                           \
-        if (!(cond)) {                                             \
-            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
-        }                                                          \
+static inline SkString reporter_assert_string() { return {}; }
+static inline SkString reporter_assert_string(const char* s) { return SkString(s); }
+template<typename... Args>
+static inline SkString reporter_assert_string(const char* fmt, Args... args)  {
+    return SkStringPrintf(fmt, std::forward<Args>(args)...);
+}
+
+#define REPORTER_ASSERT(r, cond, ...)                                      \
+    do {                                                                   \
+        if (!(cond)) {                                                     \
+            REPORT_FAILURE(r, #cond, reporter_assert_string(__VA_ARGS__)); \
+        }                                                                  \
     } while (0)
 
 #define ERRORF(r, ...)                                      \
