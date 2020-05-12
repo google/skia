@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "99005171_ab1bfc29",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-12T15:31:43Z",
+      "side": 1,
+      "message": "All uploads should be guaranteed to happen before subsequent draws. No guarantee that the upload will happen after previous draws. Out of curiosity, what would the failure mode there look like? Previous draws couldn\u0027t reference these uploads, could they?\n\nBoth of those tests pass in DM (and look fine in viewer). I\u0027m happy to add a submitToGpu() before the doUpload() call, though.",
+      "parentUuid": "b69f576e_b053cd5b",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30e5407_3540c4ff",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 1
