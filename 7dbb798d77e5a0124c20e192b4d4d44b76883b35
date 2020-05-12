@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d3c1d1f_2dd577be",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T18:11:52Z",
+      "side": 1,
+      "message": "Do we need to do something to force ourselves into a matrix-provider-aware flow when the matrix provider is more than just a local-to-device matrix?\n\nIt seems weird to let this and the shaderContext cases succeed with a complex matrix provider, doesn\u0027t it?",
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
