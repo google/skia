@@ -20,15 +20,17 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.5.1
-	github.com/vektra/mockery v1.1.0 // indirect
-	go.chromium.org/luci v0.0.0-20200511040339-30a8e14ed9ab // indirect
-	go.skia.org/infra v0.0.0-20200510051916-c510af98b2e2
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
+	github.com/vektra/mockery v1.1.1 // indirect
+	go.chromium.org/luci v0.0.0-20200512011855-6544ee9df9fa // indirect
+	go.skia.org/infra v0.0.0-20200511211207-95f3089bc4cc
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25 // indirect
+	golang.org/x/tools v0.0.0-20200512001501-aaeff5de670a // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	google.golang.org/api v0.23.0
+	google.golang.org/api v0.24.0
+	google.golang.org/genproto v0.0.0-20200511104702-f5ebc3bea380 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
