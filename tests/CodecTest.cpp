@@ -1517,7 +1517,7 @@ DEF_TEST(Codec_InvalidAnimated, r) {
         auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
 
         if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to start decoding frame %i (out of %i) with error %i\n", i,
+            ERRORF(r, "Failed to start decoding frame %i (out of %zu) with error %i\n", i,
                    frameInfos.size(), result);
             continue;
         }

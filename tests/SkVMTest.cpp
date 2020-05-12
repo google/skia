@@ -122,8 +122,8 @@ DEF_TEST(SkVM, r) {
 
             } else if (!expected->equals(actual.get())) {
                 ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
-                       expected->size(), expected->data(),
-                         actual->size(),   actual->data());
+                       (int)expected->size(), expected->data(),
+                         (int)actual->size(),   actual->data());
                 writeActualAsNewExpectation = true;
             }
         }
