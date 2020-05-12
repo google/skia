@@ -59,7 +59,7 @@ static void assert_eql(skiatest::Reporter* reporter,
                        size_t len) {
     if (!eq(skString, str, len)) {
         REPORT_FAILURE(reporter, "", SkStringPrintf(
-                "'%*s' != '%s'", len, str, skString.c_str()));
+                "'%*s' != '%s'", (int)len, str, skString.c_str()));
     }
 }
 
