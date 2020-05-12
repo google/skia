@@ -34,6 +34,24 @@
       "revId": "c978ce0a5fed2e350e052cee596056190c8eb3ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bd872e5_46a41d39",
+        "filename": "src/utils/SkPaintFilterCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-12T17:16:26Z",
+      "side": 1,
+      "message": "Ah, so null paint is not the same as no-op paint.  Ack.",
+      "parentUuid": "3fe577ab_ef481393",
+      "revId": "c978ce0a5fed2e350e052cee596056190c8eb3ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bdedc45_4df554c8",
+        "filename": "src/utils/SkPaintFilterCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-12T17:16:26Z",
+      "side": 1,
+      "message": "hmm, what if paint !\u003d nullptr - are we now ignoring the filtered paint (apf)?",
+      "range": {
+        "startLine": 185,
+        "startChar": 54,
+        "endLine": 185,
+        "endChar": 59
+      },
+      "revId": "f80e5f95a0e81a9cfd33c9c802a1f69d8cfc5603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
