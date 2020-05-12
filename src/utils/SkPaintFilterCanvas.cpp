@@ -169,7 +169,20 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
                                         const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawPicture(picture, m, &apf.paint());
+        // Passing a paint (-vs- passing null) makes drawPicture draw into a layer...
+        // much slower, and can produce different blending. Thus we should only do this
+        // if the filter's effect actually impacts the picture.
+        if (paint == nullptr) {
+            const SkPaint* newp = &apf.paint();
+            if (   newp->getAlphaf()      != 1.0f
+                || newp->getColorFilter() != nullptr
+                || newp->getImageFilter() != nullptr
+                || newp->getBlendMode()   != SkBlendMode::kSrcOver) {
+                // only take the paint if it affects pictures
+                paint = newp;
+            }
+        }
+        this->SkNWayCanvas::onDrawPicture(picture, m, paint);
     }
 }
 
