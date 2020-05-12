@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "92bae37d_d74645f2",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2020-05-12T14:19:43Z",
+      "side": 1,
+      "message": "I remember we talked about having a fSubmittedProc(void* flushContext) in GrFlushInfo, it can be used to indicate if a flush is submitted to GPU successfully. Will it work?",
+      "parentUuid": "3a2f79d6_30138902",
+      "range": {
+        "startLine": 433,
+        "startChar": 4,
+        "endLine": 433,
+        "endChar": 9
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0a049e9_92bfc4a6",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
