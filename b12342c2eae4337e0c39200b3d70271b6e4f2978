@@ -16,6 +16,24 @@
       "revId": "b12342c2eae4337e0c39200b3d70271b6e4f2978",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e6a1e8d_bb38341d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T18:38:46Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure if that was something we\u0027d normally do (most of the Ctx structs look like POD), but I realize that the arena would handle it having an sk_sp in there. If I do that, the writableData logic can all live in resolveLateBoundUniforms.",
+      "parentUuid": "72a6ccc1_72a6ac81",
+      "revId": "b12342c2eae4337e0c39200b3d70271b6e4f2978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
