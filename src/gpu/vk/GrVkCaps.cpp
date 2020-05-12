@@ -1715,10 +1715,44 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
-    // TODO: support failure in getSimpleRenderPass
-    SkASSERT(vkRT->getSimpleRenderPass());
-    vkRT->getSimpleRenderPass()->genKey(&b);
+    if (rt) {
+        GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+        // TODO: support failure in getSimpleRenderPass
+        SkASSERT(vkRT->getSimpleRenderPass());
+        vkRT->getSimpleRenderPass()->genKey(&b);
+
+#ifdef SK_DEBUG
+        if (!vkRT->getSimpleRenderPass()->isExternal()) {
+            // This is to ensure ReconstructAttachmentsDescriptor keeps matching
+            // getSimpleRenderPass' result
+            GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+            GrVkRenderPass::AttachmentFlags attachmentFlags;
+            GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
+                                                               &attachmentsDescriptor,
+                                                               &attachmentFlags);
+            SkASSERT(vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor,
+                                                               attachmentFlags));
+        }
+#endif
+    } else {
+        // kExternal_AttachmentFlag is only set for wrapped secondary command buffers - which
+        // will always go through the above 'rt' path.
+        GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+        GrVkRenderPass::AttachmentFlags attachmentFlags;
+        GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
+                                                           &attachmentsDescriptor,
+                                                           &attachmentFlags);
+
+        b.add32(attachmentFlags);
+        if (attachmentFlags & GrVkRenderPass::kColor_AttachmentFlag) {
+            b.add32(attachmentsDescriptor.fColor.fFormat);
+            b.add32(attachmentsDescriptor.fColor.fSamples);
+        }
+        if (attachmentFlags & GrVkRenderPass::kStencil_AttachmentFlag) {
+            b.add32(attachmentsDescriptor.fStencil.fFormat);
+            b.add32(attachmentsDescriptor.fStencil.fSamples);
+        }
+    }
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, true);
