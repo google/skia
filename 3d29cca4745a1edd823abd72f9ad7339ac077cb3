@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14ec4c14_94d16a9c",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T17:19:27Z",
+      "side": 1,
+      "message": "Yeah all the vulkan things should be updated to return sk_sp instead of doing manual refs/unrefs now (jim updated support to handle this not too long ago). We\u0027ve just been slowly updating call sites as we go.",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 19
+      },
+      "revId": "3d29cca4745a1edd823abd72f9ad7339ac077cb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
