@@ -139,6 +139,30 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92a49825_c9d162ea",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T20:20:47Z",
+      "side": 1,
+      "message": "SkDevice actually has several methods that change these. (So the same sort of concerns would have applied before, where localToDevice() could theoretically change). Practically, the operations that change the CTM on the device are done around draws (by canvas, or for the purpose of temporary changes that last an entire single draw).\n\nAnd I\u0027m actually changing them below, in setPostMatrix, to implement similar shifting CTM logic in SkDrawTiler (in SkBitmapDevice). That one was putting a pointer to class-local SkMatrix at the fMatrix on a long-lived SkDraw, then repeatedly changing that matrix (for tile offsetting) while re-issuing drawing commands.",
+      "parentUuid": "187d5fea_7e48987a",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 85
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
