@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d687052_164014f4",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T17:55:42Z",
+      "side": 1,
+      "message": "May be clearer without the const_cast, e.g.\n\n     void* late_bound \u003d nullptr;\n\nhere and then\n\n     ctx-\u003einputs \u003d late_bound ? late_bound : fInputs-\u003edata();\n\nbelow?",
+      "revId": "17dccce943b2d538c3047763744357fdb3eef53e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

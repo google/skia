@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ab4a8ef_df5dcd18",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T17:55:42Z",
+      "side": 0,
+      "message": "I think we\u0027d been using a convention of passing SkColorSpace* instead of const SkColorSpace*, but I prefer what you\u0027re doing here.",
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
