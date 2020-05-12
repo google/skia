@@ -26,7 +26,7 @@ public:
     const GrFixedClip& fixedClip() const { return fFixedClip; }
     GrFixedClip& fixedClip() { return fFixedClip; }
 
-    bool stencilStackID() const { return fStencilStackID; }
+    uint32_t stencilStackID() const { return fStencilStackID; }
     bool hasStencilClip() const { return SK_InvalidGenID != fStencilStackID; }
     void setStencilClip(uint32_t stencilStackID) { fStencilStackID = stencilStackID; }
 
