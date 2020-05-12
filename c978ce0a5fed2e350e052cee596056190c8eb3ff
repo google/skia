@@ -16,6 +16,24 @@
       "revId": "c978ce0a5fed2e350e052cee596056190c8eb3ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fe577ab_ef481393",
+        "filename": "src/utils/SkPaintFilterCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-12T17:10:40Z",
+      "side": 1,
+      "message": "It is a \"feature\" that we shove the picture into a layer if there is a paint-parameter.\n(it changes some blends, which may be desireable).",
+      "parentUuid": "a9a53f53_3d333476",
+      "revId": "c978ce0a5fed2e350e052cee596056190c8eb3ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
