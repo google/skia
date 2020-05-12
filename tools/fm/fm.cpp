@@ -111,9 +111,12 @@ struct Result {
 static const Result ok = {Result::Ok,   {}},
                   skip = {Result::Skip, {}};
 
+static Result fail(const char* why) {
+    return { Result::Fail, SkString(why) };
+}
 template <typename... Args>
-static Result fail(const char* why, Args... args) {
-    return { Result::Fail, SkStringPrintf(why, args...) };
+static Result fail(const char* whyFmt, Args... args) {
+    return { Result::Fail, SkStringPrintf(whyFmt, args...) };
 }
 
 

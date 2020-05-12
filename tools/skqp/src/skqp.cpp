@@ -494,7 +494,7 @@ void SkQP::makeReport() {
         if (result.fErrors.empty()) {
             unitOut.writeText(" PASSED\n* * *\n");
         } else {
-            write(&unitOut, SkStringPrintf(" FAILED (%u errors)\n", result.fErrors.size()));
+            write(&unitOut, SkStringPrintf(" FAILED (%zu errors)\n", result.fErrors.size()));
             for (const std::string& err : result.fErrors) {
                 write(&unitOut, err);
                 unitOut.newline();

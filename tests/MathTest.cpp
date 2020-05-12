@@ -16,6 +16,8 @@
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
+#include <cinttypes>
+
 static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));
     REPORTER_ASSERT(reporter, 31 == SkCLZ(1));
@@ -480,7 +482,8 @@ DEF_TEST(Math, reporter) {
             check = SK_MinS32;
         }
         if (result != (int32_t)check) {
-            ERRORF(reporter, "\nFixed Divide: %8x / %8x -> %8x %8x\n", numer, denom, result, check);
+            ERRORF(reporter, "\nFixed Divide: %8x / %8x -> %8x %8" PRIx64 "\n", numer, denom,
+                   result, check);
         }
         REPORTER_ASSERT(reporter, result == (int32_t)check);
     }

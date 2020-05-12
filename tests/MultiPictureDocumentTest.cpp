@@ -169,8 +169,8 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     // Confirm written data is at least as large as the magic word
     std::unique_ptr<SkStreamAsset> writtenStream = stream.detachAsStream();
     REPORTER_ASSERT(reporter, writtenStream->getLength() > 24,
-        "Written data length too short (%d)", writtenStream->getLength());
-    // SkDebugf("Multi Frame file size = %d\n", writtenStream->getLength());
+        "Written data length too short (%zu)", writtenStream->getLength());
+    // SkDebugf("Multi Frame file size = %zu\n", writtenStream->getLength());
 
     // Set up deserialization
     SkSharingDeserialContext deserialContext;
@@ -196,9 +196,9 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     for (const auto& frame : frames) {
         SkRect bounds = frame.fPicture->cullRect();
         REPORTER_ASSERT(reporter, bounds.width() == WIDTH,
-            "Page width: expected (%d) got (%d)", WIDTH, bounds.width());
+            "Page width: expected (%d) got (%d)", WIDTH, (int)bounds.width());
         REPORTER_ASSERT(reporter, bounds.height() == HEIGHT,
-            "Page height: expected (%d) got (%d)", HEIGHT, bounds.height());
+            "Page height: expected (%d) got (%d)", HEIGHT, (int)bounds.height());
         // confirm contents of picture match what we drew.
         // There are several ways of doing this, an ideal comparison would not break in the same
         // way at the same time as the code under test (no serialization), and would involve only

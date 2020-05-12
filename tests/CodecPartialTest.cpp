@@ -289,7 +289,7 @@ DEF_TEST(Codec_partialAnim, r) {
         }
 
         if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to decode frame %i from %s", i, path);
+            ERRORF(r, "Failed to decode frame %zu from %s", i, path);
             return;
         }
 
@@ -301,7 +301,7 @@ DEF_TEST(Codec_partialAnim, r) {
     std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(
                                                       std::unique_ptr<SkStream>(haltingStream)));
     if (!partialCodec) {
-        ERRORF(r, "Failed to create a partial codec from %s with %i bytes out of %i",
+        ERRORF(r, "Failed to create a partial codec from %s with %zu bytes out of %zu",
                path, frameByteCounts[0], file->size());
         return;
     }
@@ -325,7 +325,7 @@ DEF_TEST(Codec_partialAnim, r) {
         SkCodec::Result result = partialCodec->startIncrementalDecode(info,
                 frame.getPixels(), frame.rowBytes(), &opts);
         if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to start incremental decode for %s on frame %i",
+            ERRORF(r, "Failed to start incremental decode for %s on frame %zu",
                    path, i);
             return;
         }
@@ -341,11 +341,11 @@ DEF_TEST(Codec_partialAnim, r) {
         REPORTER_ASSERT(r, frameInfo.size() == i + 1);
         REPORTER_ASSERT(r, frameInfo[i].fFullyReceived);
         if (!compare_bitmaps(r, frames[i], frame)) {
-            ERRORF(r, "\tfailure was on frame %i", i);
-            SkString name = SkStringPrintf("expected_%i", i);
+            ERRORF(r, "\tfailure was on frame %zu", i);
+            SkString name = SkStringPrintf("expected_%zu", i);
             write_bm(name.c_str(), frames[i]);
 
-            name = SkStringPrintf("actual_%i", i);
+            name = SkStringPrintf("actual_%zu", i);
             write_bm(name.c_str(), frame);
         }
     }
@@ -534,15 +534,15 @@ DEF_TEST(Codec_incomplete, r) {
                                    std::make_unique<SkMemoryStream>(file->data(), len), &result));
             if (codec) {
                 if (result != SkCodec::kSuccess) {
-                    ERRORF(r, "Created an SkCodec for %s with %lu bytes, but "
-                              "reported an error %i", name, len, result);
+                    ERRORF(r, "Created an SkCodec for %s with %zu bytes, but "
+                              "reported an error %i", name, len, (int)result);
                 }
                 break;
             }
 
             if (SkCodec::kIncompleteInput != result) {
-                ERRORF(r, "Reported error %i for %s with %lu bytes",
-                       result, name, len);
+                ERRORF(r, "Reported error %i for %s with %zu bytes",
+                       (int)result, name, len);
                 break;
             }
         }

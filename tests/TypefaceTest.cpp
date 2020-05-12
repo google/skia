@@ -362,7 +362,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
         // If two codepoints map to the same glyph then this assert is not valid.
         // However, the emoji test font should never have multiple characters map to the same glyph.
         REPORTER_ASSERT(reporter, originalCodepoints[i] == newCodepoints[i],
-                        "name:%s i:%d original:%d new:%d glyph:%d", familyName.c_str(), i,
+                        "name:%s i:%zu original:%d new:%d glyph:%d", familyName.c_str(), i,
                         originalCodepoints[i], newCodepoints[i], glyphs[i]);
     }
 }

@@ -98,7 +98,7 @@ void SkTextBlobTrace::Capture::dump(SkWStream* dst) const {
     SkTLazy<SkFILEWStream> fileStream;
     if (!dst) {
         uint32_t id = SkChecksum::Mix(reinterpret_cast<uintptr_t>(this));
-        SkString f = SkStringPrintf("diff-canvas-%08x-%04d.trace", id, fBlobCount);
+        SkString f = SkStringPrintf("diff-canvas-%08x-%04zu.trace", id, fBlobCount);
         dst = fileStream.init(f.c_str());
         if (!fileStream->isValid()) {
             SkDebugf("Error opening '%s'.\n", f.c_str());
