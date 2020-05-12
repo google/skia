@@ -187,6 +187,30 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd04f0c0_5b181158",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-12T21:02:27Z",
+      "side": 1,
+      "message": "following on that...\n\nCan SkDevice still own whatever it wants to (e.g. several matrices), but when it needs to call something that wants a provider, it just creates one (on the stack) reference its (device) storage? That would let the provider always be const.",
+      "parentUuid": "da01d396_4f9cec22",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 85
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
