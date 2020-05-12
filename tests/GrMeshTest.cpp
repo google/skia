@@ -591,7 +591,7 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
         return;
     }
     if (sizeof(uint32_t) * kImageWidth != gold.rowBytes()) {
-        ERRORF(reporter, "unexpected row bytes in gold image.", testName);
+        ERRORF(reporter, "[%s] unexpected row bytes in gold image", testName);
         return;
     }
 

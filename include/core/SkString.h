@@ -269,7 +269,7 @@ private:
 };
 
 /// Creates a new string and writes into it using a printf()-style format.
-SkString SkStringPrintf(const char* format, ...);
+SkString SkStringPrintf(const char* format, ...) SK_PRINTF_LIKE(1, 2);
 /// This makes it easier to write a caller as a VAR_ARGS function where the format string is
 /// optional.
 static inline SkString SkStringPrintf() { return SkString(); }

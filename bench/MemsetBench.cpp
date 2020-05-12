@@ -15,7 +15,7 @@ public:
     explicit MemsetBench(int n)
         : fN(n)
         , fBuffer(n)
-        , fName(SkStringPrintf("memset%d_%d%s", sizeof(T)*8, n, kInline ? "_inline" : "")) {}
+        , fName(SkStringPrintf("memset%zu_%d%s", sizeof(T)*8, n, kInline ? "_inline" : "")) {}
 
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override { return fName.c_str(); }
