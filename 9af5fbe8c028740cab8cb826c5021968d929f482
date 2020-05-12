@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54a058a7_2721032e",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-12T14:31:40Z",
+      "side": 1,
+      "message": "just a thought: having a real constructor based on m33 is fine, since we\u0027ll get the flags, and its clear how to initialize the 44 version internally.",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 26
+      },
+      "revId": "9af5fbe8c028740cab8cb826c5021968d929f482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26e3f4c4_fa1f1038",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-12T14:31:40Z",
+      "side": 1,
+      "message": "can we move this storage into the ifdef as well?",
+      "range": {
+        "startLine": 327,
+        "startChar": 12,
+        "endLine": 327,
+        "endChar": 38
+      },
+      "revId": "9af5fbe8c028740cab8cb826c5021968d929f482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
