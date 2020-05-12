@@ -21,7 +21,7 @@
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
 // Display pipeline state cache usage
-static const bool c_DisplayVkPipelineCache{false};
+static const bool c_DisplayVkPipelineCache{true};
 #endif
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {
@@ -43,8 +43,8 @@ GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
     : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-    , fTotalRequests(0)
-    , fCacheMisses(0)
+    , fTotalRequests1(0)
+    , fCacheMisses1(0)
 #endif
 {}
 
@@ -54,11 +54,24 @@ GrVkResourceProvider::PipelineStateCache::~PipelineStateCache() {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     if (c_DisplayVkPipelineCache) {
         SkDebugf("--- Pipeline State Cache ---\n");
-        SkDebugf("Total requests: %d\n", fTotalRequests);
-        SkDebugf("Cache misses: %d\n", fCacheMisses);
-        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
-                 100.f * fCacheMisses / fTotalRequests :
-                 0.f);
+        SkDebugf("Total requests: %d\n", fTotalRequests1);
+        SkDebugf("Cache misses: %d\n", fCacheMisses1);
+        SkDebugf("Cache miss %%: %f\n", (fTotalRequests1 > 0) ?
+                 100.f * fCacheMisses1 / fTotalRequests1 :
+                 0.0f);
+
+        using CacheResult = GrGpu::Stats::ProgramCacheResult;
+
+        int misses = fGpu->stats()->numInlineProgramCacheResult(CacheResult::kMiss) +
+                     fGpu->stats()->numPreProgramCacheResult(CacheResult::kMiss);
+
+        int total = misses + fGpu->stats()->numInlineProgramCacheResult(CacheResult::kHit) +
+                             fGpu->stats()->numPreProgramCacheResult(CacheResult::kHit);
+
+        SkASSERT(fTotalRequests1 == total);
+        SkASSERT(fCacheMisses1 == misses);
+
+        SkDebugf("Alt - Cache miss %%: %f\n", (total > 0) ? 100.f * misses / total : 0.0f);
         SkDebugf("---------------------\n");
     }
 #endif
@@ -73,13 +86,15 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-    ++fTotalRequests;
+    ++fTotalRequests1;
 #endif
 
 #ifdef SK_DEBUG
     if (programInfo.pipeline().isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
         SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
+        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment()->numSamples() ==
+                 programInfo.numStencilSamples());
     }
 #endif
 
@@ -89,18 +104,35 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         return nullptr;
     }
 
-    return this->findOrCreatePipeline(renderTarget, desc, programInfo, compatibleRenderPass);
+    GrGpu::Stats::ProgramCacheResult stat;
+    auto tmp = this->findOrCreatePipelineState(renderTarget, desc, programInfo,
+                                               compatibleRenderPass, &stat);
+    if (!tmp) {
+        fGpu->stats()->incNumInlineCompilationFailures();
+    } else {
+        fGpu->stats()->incNumInlineProgramCacheResult(stat);
+    }
+
+    return tmp;
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipeline(
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        GrGpu::Stats::ProgramCacheResult* stat) {
+    if (stat) {
+        *stat = GrGpu::Stats::ProgramCacheResult::kHit;
+    }
+
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
+        if (stat) {
+            *stat = GrGpu::Stats::ProgramCacheResult::kMiss;
+        }
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-        ++fCacheMisses;
+        ++fCacheMisses1;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
                 fGpu, renderTarget, desc, programInfo, compatibleRenderPass));
