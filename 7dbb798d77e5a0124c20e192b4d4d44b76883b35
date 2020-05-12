@@ -163,6 +163,30 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da01d396_4f9cec22",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-12T20:57:56Z",
+      "side": 1,
+      "message": "Ah, ok.  Am I reading it right that SkPostConcatMatrixProvider starts with one postMatrix, and then setPostMatrix() changes it to something else?  The constructor is equivalent to starting with I and then calling setPostMatrix(), or equivalently instead of calling setPostMatrix() you could just create a new SkPostConcatMatrixProvider?\n\nI\u0027m just wondering if we can get away without any mutability, to make reasoning easier.  I\u0027m more worried about local reasoning than the matrix provider changing at a high level, e.g.\n\n    SkMatrix ctm \u003d mp-\u003elocalToDevice();\n    some_other_code(..., mp);\n    ... is ctm \u003d\u003d mp-\u003elocalToDevice() here still ? ...\n\nwe\u0027d have to read some_other_code() all the way through to know.",
+      "parentUuid": "92a49825_c9d162ea",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 85
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
