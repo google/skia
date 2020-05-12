@@ -137,16 +137,7 @@ public:
             const GrRenderTarget* rt, int width, int height, int numStencilSamples) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
-    bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
-        Stats::ProgramCacheResult stat;
-
-        sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo, &stat);
-        if (!tmp) {
-            return false;
-        }
-
-        return stat != Stats::ProgramCacheResult::kHit;
-    }
+    bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
     bool precompileShader(const SkData& key, const SkData& data) override {
         return fProgramCache->precompileShader(key, data);
