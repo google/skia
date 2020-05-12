@@ -120,6 +120,8 @@ private:
 
     sk_app::Window*        fWindow;
 
+    sk_sp<SkSurface>       fRasterSurface;
+
     StatsLayer             fStatsLayer;
     StatsLayer::Timer      fPaintTimer;
     StatsLayer::Timer      fFlushTimer;

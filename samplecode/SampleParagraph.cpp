@@ -410,6 +410,8 @@ private:
     typedef Sample INHERITED;
 };
 
+#include "include/core/SkPictureRecorder.h"
+
 class ParagraphView3 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph3"); }
@@ -494,7 +496,11 @@ protected:
         return result;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDrawContent(SkCanvas* realCanvas) override {
+        if (!fPic) {
+            SkPictureRecorder rec;
+            SkCanvas* canvas = rec.beginRecording(this->width(), this->height());
+
         const std::string options =  // { "open-source open-source open-source open-source" };
                 {"Flutter is an open-source project to help developers "
                  "build high-performance, high-fidelity, mobile apps for "
@@ -503,7 +509,7 @@ protected:
                  "and showcase of Flutter's many widgets, behaviors, "
                  "animations, layouts, and more."};
 
-        canvas->drawColor(SK_ColorDKGRAY);
+//        canvas->drawColor(SK_ColorDKGRAY);
         SkScalar width = this->width() / 4;
         SkScalar height = this->height() / 2;
 
@@ -527,9 +533,14 @@ protected:
         canvas->translate(width, 0);
         drawLine(canvas, width, height, line, TextAlign::kJustify, 4, true, SK_ColorLTGRAY);
         canvas->translate(width, 0);
+
+            fPic = rec.finishRecordingAsPicture();
+    }
+        realCanvas->drawPicture(fPic.get());
     }
 
 private:
+    sk_sp<SkPicture> fPic;
     typedef Sample INHERITED;
 };
 
@@ -2601,12 +2612,17 @@ private:
 };
 
 class ParagraphView39 : public ParagraphView_Base {
+    sk_sp<SkPicture> fPic;
 protected:
     SkString name() override { return SkString("Paragraph39"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void onDrawContent(SkCanvas* realCanvas) override {
 
-        canvas->drawColor(SK_ColorWHITE);
+//        canvas->drawColor(SK_ColorWHITE);
+        if (!fPic) {
+            SkPictureRecorder rec;
+            SkCanvas* canvas = rec.beginRecording(this->width(), this->height());
+
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -2630,6 +2646,10 @@ protected:
         auto paragraph = builder.Build();
         paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
+
+        fPic = rec.finishRecordingAsPicture();
+    }
+        realCanvas->drawPicture(fPic);
     }
 
 private:
