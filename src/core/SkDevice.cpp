@@ -33,12 +33,11 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-        : fInfo(info)
+        : SkMatrixProvider(/* fLocalToDevice = */ SkMatrix::I())
+        , fInfo(info)
         , fSurfaceProps(surfaceProps) {
     fDeviceToGlobal.reset();
     fGlobalToDevice.reset();
-    fLocalToDevice.setIdentity();
-    fLocalToDevice33.reset();
 }
 
 void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,

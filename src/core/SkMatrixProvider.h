@@ -13,43 +13,52 @@
 
 class SkMatrixProvider {
 public:
+    SkMatrixProvider(const SkMatrix& localToDevice)
+        : fLocalToDevice(localToDevice)
+        , fLocalToDevice33(localToDevice) {}
+
+    SkMatrixProvider(const SkM44& localToDevice)
+        : fLocalToDevice(localToDevice)
+        , fLocalToDevice33(localToDevice.asM33()) {}
+
     virtual ~SkMatrixProvider() {}
 
-    virtual const SkMatrix& localToDevice() const = 0;
-    virtual const SkM44& localToDevice44() const = 0;
+    // These should return the "same" matrix, as either a 3x3 or 4x4. Most sites in Skia still
+    // call localToDevice, and operate on SkMatrix.
+    const SkMatrix& localToDevice() const { return fLocalToDevice33; }
+    const SkM44& localToDevice44() const { return fLocalToDevice; }
+
     virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
+
+protected:
+    SkM44    fLocalToDevice;
+    SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
 };
 
-class SkOverrideDeviceMatrixProvider : public SkMatrixProvider {
+class SkPostConcatMatrixProvider : public SkMatrixProvider {
 public:
-    SkOverrideDeviceMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& localToDevice)
-        : fParent(parent)
-        , fLocalToDevice(localToDevice)
-        , fLocalToDevice44(localToDevice) {}
+    SkPostConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& postMatrix)
+            : SkMatrixProvider(SkM44(postMatrix) * parent.localToDevice44())
+            , fParent(parent)
+            , fPostMatrix(postMatrix) {}
 
-    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
-    const SkM44& localToDevice44() const override { return fLocalToDevice44; }
+    // Assume that the post-matrix doesn't apply to any marked matrices
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
         return fParent.getLocalToMarker(id, localToMarker);
     }
 
 private:
     const SkMatrixProvider& fParent;
-    SkMatrix                fLocalToDevice;
-    SkM44                   fLocalToDevice44;
+    SkMatrix                fPostMatrix;
 };
 
 class SkPreConcatMatrixProvider : public SkMatrixProvider {
 public:
     SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
-            : fParent(parent)
-            , fPreMatrix(preMatrix) {
-        fLocalToDevice44 = fParent.localToDevice44() * SkM44(preMatrix);
-        fLocalToDevice = fLocalToDevice44.asM33();
-    }
+            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix))
+            , fParent(parent)
+            , fPreMatrix(preMatrix) {}
 
-    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
-    const SkM44& localToDevice44() const override { return fLocalToDevice44; }
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
         if (fParent.getLocalToMarker(id, localToMarker)) {
             if (localToMarker) {
@@ -63,23 +72,14 @@ public:
 private:
     const SkMatrixProvider& fParent;
     SkMatrix                fPreMatrix;
-    SkMatrix                fLocalToDevice;
-    SkM44                   fLocalToDevice44;
 };
 
 class SkSimpleMatrixProvider : public SkMatrixProvider {
 public:
     SkSimpleMatrixProvider(const SkMatrix& localToDevice)
-        : fLocalToDevice(localToDevice)
-        , fLocalToDevice44(localToDevice) {}
+        : SkMatrixProvider(localToDevice) {}
 
-    const SkMatrix& localToDevice() const override { return fLocalToDevice; }
-    const SkM44& localToDevice44() const override { return fLocalToDevice44; }
     bool getLocalToMarker(uint32_t, SkM44*) const override { return false; }
-
-private:
-    SkMatrix fLocalToDevice;
-    SkM44    fLocalToDevice44;
 };
 
 #endif

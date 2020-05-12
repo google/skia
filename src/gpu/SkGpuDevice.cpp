@@ -324,15 +324,14 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
     GrPrimitiveType primitiveType = point_mode_to_primitive_type(mode);
 
     const SkMatrixProvider* matrixProvider = this;
-    SkTLazy<SkOverrideDeviceMatrixProvider> overrideDeviceMatrixProvider;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    SkTLazy<SkPostConcatMatrixProvider> postConcatMatrixProvider;
     // This offsetting in device space matches the expectations of the Android framework for non-AA
     // points and lines.
     if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
-        SkMatrix tempMatrix = this->localToDevice();
         static const SkScalar kOffset = 0.063f; // Just greater than 1/16.
-        tempMatrix.postTranslate(kOffset, kOffset);
-        matrixProvider = overrideDeviceMatrixProvider.init(*matrixProvider, tempMatrix);
+        matrixProvider = postConcatMatrixProvider.init(*matrixProvider,
+                                                       SkMatrix::MakeTrans(kOffset, kOffset));
     }
 #endif
 

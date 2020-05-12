@@ -140,8 +140,6 @@ public:
 
     // SkMatrixProvider interface:
     bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
-    const SkMatrix& localToDevice() const override { return fLocalToDevice33; }
-    const SkM44& localToDevice44() const override { return fLocalToDevice; }
 
     const SkMatrixProvider& asMatrixProvider() const { return *this; }
 
@@ -439,11 +437,10 @@ private:
     // SkDevices, so pay the memory cost to avoid recalculating the inverse.
     SkMatrix             fDeviceToGlobal;
     SkMatrix             fGlobalToDevice;
-    // This is the device CTM, not the global CTM. This transform maps from local space to the
-    // device's coordinate space; fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
-    SkM44                fLocalToDevice;
-    // Cached SkMatrix version of above, for legacy usage
-    SkMatrix             fLocalToDevice33;
+
+    // fLocalToDevice (inherited from SkMatrixProvider) is the device CTM, not the global CTM
+    // It maps from local space to the device's coordinate space.
+    // fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
 
     typedef SkRefCnt INHERITED;
 };
