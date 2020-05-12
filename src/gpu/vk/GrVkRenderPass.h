@@ -107,6 +107,8 @@ public:
 
     bool isCompatibleExternalRP(VkRenderPass) const;
 
+    bool isExternal() const { return fAttachmentFlags & kExternal_AttachmentFlag; }
+
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
                            const LoadStoreOps& stencilOps) const;
 
