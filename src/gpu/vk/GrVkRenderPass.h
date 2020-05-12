@@ -83,8 +83,8 @@ public:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
 
-    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
-    static GrVkRenderPass* Create(GrVkGpu* gpu,
+    static GrVkRenderPass* CreateSimple(GrVkGpu*, AttachmentsDescriptor*, AttachmentFlags);
+    static GrVkRenderPass* Create(GrVkGpu*,
                                   const GrVkRenderPass& compatibleRenderPass,
                                   const LoadStoreOps& colorOp,
                                   const LoadStoreOps& stencilOp);
@@ -103,7 +103,11 @@ public:
 
     bool isCompatible(const GrVkRenderPass& renderPass) const;
 
+    bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
+
     bool isCompatibleExternalRP(VkRenderPass) const;
+
+    bool isExternal() const { return fAttachmentFlags & kExternal_AttachmentFlag; }
 
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
                            const LoadStoreOps& stencilOps) const;
@@ -134,8 +138,6 @@ private:
                                   AttachmentsDescriptor*,
                                   const LoadStoreOps& colorOps,
                                   const LoadStoreOps& stencilOps);
-
-    bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
     void freeGPUData() const override;
 

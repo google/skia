@@ -58,6 +58,9 @@ public:
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
+    const GrVkRenderPass* findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor*,
+                                                   GrVkRenderPass::AttachmentFlags,
+                                                   CompatibleRPHandle* compatibleHandle = nullptr);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
                                                            uint32_t colorAttachmentIndex);
@@ -222,7 +225,8 @@ private:
         // with this set.
         CompatibleRenderPassSet(GrVkRenderPass* renderPass);
 
-        bool isCompatible(const GrVkRenderTarget& target) const;
+        bool isCompatible(const GrVkRenderPass::AttachmentsDescriptor&,
+                          GrVkRenderPass::AttachmentFlags) const;
 
         const GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store
