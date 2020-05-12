@@ -42,16 +42,13 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
     attachment->finalLayout = layout;
 }
 
-GrVkRenderPass* GrVkRenderPass::CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target) {
+GrVkRenderPass* GrVkRenderPass::CreateSimple(GrVkGpu* gpu,
+                                             AttachmentsDescriptor* attachmentsDescriptor,
+                                             AttachmentFlags attachmentFlags) {
     static const GrVkRenderPass::LoadStoreOps kBasicLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
-    AttachmentFlags attachmentFlags;
-    AttachmentsDescriptor attachmentsDescriptor;
-    // Get attachment information from render target. This includes which attachments the render
-    // target has (color, stencil) and the attachments format and sample count.
-    target.getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
-    return Create(gpu, attachmentFlags, &attachmentsDescriptor, kBasicLoadStoreOps,
+    return Create(gpu, attachmentFlags, attachmentsDescriptor, kBasicLoadStoreOps,
                   kBasicLoadStoreOps);
 }
 
@@ -234,6 +231,7 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
 
 bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
     SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
+
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
     target.getAttachmentsDescriptor(&desc, &flags);
