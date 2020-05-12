@@ -307,7 +307,17 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         }
     }
 
-    reducedClip.drawStencilClipMask(context, renderTargetContext);
+    // This relies on the property that a reduced sub-rect of the last clip will contain all the
+    // relevant window rectangles that were in the last clip. This subtle requirement will go away
+    // after clipping is overhauled.
+    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                   reducedClip.numAnalyticFPs())) {
+        reducedClip.drawStencilClipMask(context, renderTargetContext);
+        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                reducedClip.numAnalyticFPs());
+    }
+    // GrAppliedClip doesn't need to figure numAnalyticFPs into its key (used by operator==) because
+    // it verifies the FPs are also equal.
     out->hardClip().addStencilClip(reducedClip.maskGenID());
     return true;
 }
