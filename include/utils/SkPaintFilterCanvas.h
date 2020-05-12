@@ -37,6 +37,8 @@ public:
     }
 
 protected:
+    virtual bool onWillFilter() const { return true; }
+
     /**
      *  Called with the paint that will be used to draw the specified type.
      *  The implementation may modify the paint as they wish.

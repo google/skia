@@ -169,7 +169,10 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
                                         const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawPicture(picture, m, &apf.paint());
+        if (paint || this->onWillFilter()) {
+            paint =  &apf.paint();
+        }
+        this->SkNWayCanvas::onDrawPicture(picture, m, paint);
     }
 }
 

@@ -1277,6 +1277,11 @@ public:
 
         return true;
     }
+    bool onWillFilter() const override {
+        return fPaintOverrides->fAntiAlias
+            || fPaintOverrides->fDither
+            || fPaintOverrides->fFilterQuality;
+    }
     bool onFilter(SkPaint& paint) const override {
         if (fPaintOverrides->fAntiAlias) {
             paint.setAntiAlias(fPaint->isAntiAlias());
@@ -1363,7 +1368,11 @@ void Viewer::drawSlide(SkSurface* surface) {
         colorSpace != nullptr ||
         FLAGS_offscreen) {
 
-        offscreenSurface = make_surface(fWindow->width(), fWindow->height());
+        if (fRasterSurface) {
+            offscreenSurface = fRasterSurface;
+        } else {
+            offscreenSurface = make_surface(fWindow->width(), fWindow->height());
+        }
         slideSurface = offscreenSurface.get();
         slideCanvas = offscreenSurface->getCanvas();
     }
@@ -1469,6 +1478,8 @@ void Viewer::onPaint(SkSurface* surface) {
 }
 
 void Viewer::onResize(int width, int height) {
+    fRasterSurface = SkSurface::MakeRasterN32Premul(width, height);
+
     if (fCurrentSlide >= 0) {
         fSlides[fCurrentSlide]->resize(width, height);
     }
