@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "f0cdb3e0_f02e9992",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T15:51:11Z",
+      "side": 1,
+      "message": "So generally what this is used for is when we have a single texture atlas (usually for fonts). We have a max size for the atlas so if a batch of text draws can\u0027t all fit into the atlas we need to break up the draws. So first we upload all the text needed for draws 1...k. Then we inline upload new data to the same atlas and do draws k+1...N.\n\nSo if you don\u0027t do the inline upload, then draws k+1...N will use masks from the first set incorrectly. If you do the inline upload before the draws 1....k then you may have draws in 1...k that are using masks from the second set instead of their own.\n\nThe usual failure case looks like the wrong glyph being used for a given draw.",
+      "parentUuid": "99005171_ab1bfc29",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c30e5407_3540c4ff",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 1
@@ -204,6 +228,30 @@
       "side": 1,
       "message": "Reading your comment a bit more carefully: creating a GrDawnRenderTarget from a GrBackendTexture will strip the dawn::Texture out of it, and leave only a dawn::TextureView. So you couldn\u0027t do readbacks from it. I think Brian mentioned that this code path was deprecated, though?",
       "parentUuid": "18a5e50f_cbd6b8f9",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43045b39_f0cc3e15",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-12T15:51:11Z",
+      "side": 1,
+      "message": "Yes Brian is once again working on trying to remove that code path, so I don\u0027t think it is worth any effort making sure it works \"better\" than it does today.\n\nLike I said I think the best fix for this is to call GrCaps::surfaceSupportsReadPixels(GrSurface*), before the readPixels here and return if it is not supported. Since the SkSurface was created with a GrBackendTexture the inner GrSurfaceProxy should be instantiated for you to get the GrSurface out.\n\nIn the very short term I\u0027m also fine with putting a REPORTER_ASSERT around the read pixels return value so that the test isn\u0027t crashing anymore. And then come back through and add the above fix for the test to actually pass.",
+      "parentUuid": "9795ce05_9fc3fa81",
       "range": {
         "startLine": 852,
         "startChar": 13,
