@@ -16,6 +16,24 @@
       "revId": "17dccce943b2d538c3047763744357fdb3eef53e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667144e1_33d033ea",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-12T18:02:55Z",
+      "side": 1,
+      "message": "Ah yeah, I was trying to navigate the const-ness here, but I think that\u0027s better (and makes the condition clearer). Used the same pattern for the GPU path as well.",
+      "parentUuid": "8d687052_164014f4",
+      "revId": "17dccce943b2d538c3047763744357fdb3eef53e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
