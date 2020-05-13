@@ -906,13 +906,18 @@ public:
     */
     const SkSurfaceProps& props() const { return fProps; }
 
-    /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
-
-        Skia flushes as needed, so it is not necessary to call this if Skia manages
-        drawing and object lifetime. Call when interleaving Skia calls with native
-        GPU calls.
+    /** Call to ensure all reads/writes of the surface have been issued to the underlying 3D API.
+        Skia will correctly order its own draws and pixel operations. This must to be used to ensure
+        correct ordering when the surface backing store is accessed outside Skia (e.g. direct use of
+        the 3D API or a windowing system). GrContext has additional flush and submit methods that
+        apply to all surfaces and images created from a GrContext.
     */
-    void flush();
+    void flushAndSubmit();
+
+    /**
+     * Deprecated.
+     */
+    void flush() { this->flushAndSubmit(); }
 
     enum class BackendSurfaceAccess {
         kNoAccess,  //!< back-end object will not be used by client

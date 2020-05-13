@@ -309,9 +309,12 @@ public:
     /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      */
-    void flush() {
-        this->flush(GrFlushInfo(), GrPrepareForExternalIORequests());
-    }
+    void flushAndSubmit() { this->flush(GrFlushInfo(), GrPrepareForExternalIORequests()); }
+
+    /**
+     * Deprecated.
+     */
+    void flush() { this->flushAndSubmit(); }
 
     /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
@@ -375,6 +378,11 @@ public:
         info.fSignalSemaphores = signalSemaphores;
         return this->flush(info);
     }
+
+    /**
+     * Placeholder no-op submit call.
+     */
+    bool submit(bool syncToCpu = false);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
