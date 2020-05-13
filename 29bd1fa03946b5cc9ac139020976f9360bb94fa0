@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15613ad0_4d7252cd",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-13T00:51:55Z",
+      "side": 1,
+      "message": "is this the same as\n\np0 \u003d Sk2f::Load(pts)\np1 \u003d Sk2f::Load(pts+1)\np2 \u003d Sk2f::Load(pts+2)\n...\n\nIf so, why also create a tuple?",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "29bd1fa03946b5cc9ac139020976f9360bb94fa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
