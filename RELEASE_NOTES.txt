@@ -5,6 +5,10 @@ This file includes a list of high level updates for each milestone release.
 * * *
 
 Milestone 84
+
+  * Add GrContext getter to SkSurface.
+    https://review.skia.org/289479
+
   * Deprecate GrContext and SkSurface flush() call and replace ith with flushAndSubmit().
     This only effects the default flush call that takes no parameters.
     https://review.skia.org/289478
