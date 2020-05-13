@@ -19,7 +19,7 @@ public:
     constexpr SkSemaphore(int count = 0) : fCount(count), fOSSemaphore(nullptr) {}
 
     // Cleanup the underlying OS semaphore.
-    ~SkSemaphore();
+    SK_SPI ~SkSemaphore();
 
     // Increment the counter n times.
     // Generally it's better to call signal(n) instead of signal() n times.
@@ -30,7 +30,7 @@ public:
     void wait();
 
     // If the counter is positive, decrement it by 1 and return true, otherwise return false.
-    bool try_wait();
+    SK_SPI bool try_wait();
 
 private:
     // This implementation follows the general strategy of
@@ -44,8 +44,8 @@ private:
     // moving the count from >=0 to <0 or vice-versa, i.e. sleeping or waking threads.
     struct OSSemaphore;
 
-    void osSignal(int n);
-    void osWait();
+    SK_SPI void osSignal(int n);
+    SK_SPI void osWait();
 
     std::atomic<int> fCount;
     SkOnce           fOSSemaphoreOnce;
