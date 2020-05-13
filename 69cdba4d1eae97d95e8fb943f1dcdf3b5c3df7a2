@@ -56,6 +56,24 @@
       "revId": "69cdba4d1eae97d95e8fb943f1dcdf3b5c3df7a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8c700bc_343e0cfa",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-13T18:00:10Z",
+      "side": 1,
+      "message": "I like your fix better.",
+      "parentUuid": "2c66d6db_957476c8",
+      "revId": "69cdba4d1eae97d95e8fb943f1dcdf3b5c3df7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
