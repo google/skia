@@ -73,7 +73,7 @@ public:
      */
     const GrUniqueKey& getUniqueKey() const {
 #ifdef SK_DEBUG
-        if (this->isInstantiated() && fUniqueKey.isValid() && fSyncTargetKey) {
+        if (this->isInstantiated() && fUniqueKey1.isValid() && fSyncTargetKey) {
             GrSurface* surface = this->peekSurface();
             SkASSERT(surface);
 
@@ -82,11 +82,11 @@ public:
             // it. This just means that a future user of the resource will be filling it with unique
             // data. However, if the proxy has a unique key its attached resource should also
             // have that key.
-            SkASSERT(fUniqueKey == surface->getUniqueKey());
+            SkASSERT(fUniqueKey1 == surface->getUniqueKey());
         }
 #endif
 
-        return fUniqueKey;
+        return fUniqueKey1;
     }
 
     /**
@@ -173,7 +173,7 @@ private:
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
-    GrUniqueKey      fUniqueKey;
+    GrUniqueKey      fUniqueKey1;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
 
     LazySurfaceDesc callbackDesc() const override;
