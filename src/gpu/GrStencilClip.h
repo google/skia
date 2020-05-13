@@ -33,8 +33,8 @@ public:
     bool quickContains(const SkRect& rect) const override {
         return !this->hasStencilClip() && fFixedClip.quickContains(rect);
     }
-    void getConservativeBounds(int width, int height, SkIRect* bounds, bool* iior) const override {
-        fFixedClip.getConservativeBounds(width, height, bounds, iior);
+    SkIRect getConservativeBounds(int width, int height) const override {
+        return fFixedClip.getConservativeBounds(width, height);
     }
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override {
         return !this->hasStencilClip() && fFixedClip.isRRect(rtBounds, rr, aa);

@@ -43,12 +43,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     // wrap the SkClipStack in a GrClip
     GrClipStackClip clipData(&stack);
 
-    SkIRect devGrClipBound;
-    clipData.getConservativeBounds(kXSize, kYSize,
-                                   &devGrClipBound,
-                                   &isIntersectionOfRects);
+    SkIRect devGrClipBound = clipData.getConservativeBounds(kXSize, kYSize);
 
     // make sure that GrClip is behaving itself
     REPORTER_ASSERT(reporter, intScreen == devGrClipBound);
-    REPORTER_ASSERT(reporter, isIntersectionOfRects);
 }

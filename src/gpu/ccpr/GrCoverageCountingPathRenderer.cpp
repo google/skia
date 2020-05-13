@@ -167,9 +167,8 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!fFlushing);
 
-    SkIRect clipIBounds;
     GrRenderTargetContext* rtc = args.fRenderTargetContext;
-    args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &clipIBounds, nullptr);
+    SkIRect clipIBounds = args.fClip->getConservativeBounds(rtc->width(), rtc->height());
 
     auto op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, *args.fViewMatrix, *args.fShape,
                                     std::move(args.fPaint));

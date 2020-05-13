@@ -25,8 +25,15 @@ public:
     virtual bool quickContains(const SkRRect& rrect) const {
         return this->quickContains(rrect.getBounds());
     }
-    virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
-                                       bool* isIntersectionOfRects = nullptr) const = 0;
+    /**
+     * Compute a conservative pixel bounds restricted to the given render target dimensions.
+     * The returned bounds represent the limits of pixels that can be drawn; anything outside of the
+     * bounds will be entirely clipped out.
+     */
+    virtual SkIRect getConservativeBounds(int width, int height) const {
+        return SkIRect::MakeWH(width, height);
+    }
+
     /**
      * This computes a GrAppliedClip from the clip which in turn can be used to build a GrPipeline.
      * To determine the appropriate clipping implementation the GrClip subclass must know whether
@@ -160,13 +167,6 @@ class GrNoClip final : public GrHardClip {
 private:
     bool quickContains(const SkRect&) const final { return true; }
     bool quickContains(const SkRRect&) const final { return true; }
-    void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final {
-        devResult->setXYWH(0, 0, width, height);
-        if (isIntersectionOfRects) {
-            *isIntersectionOfRects = true;
-        }
-    }
     bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const final { return true; }
     bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }
 };

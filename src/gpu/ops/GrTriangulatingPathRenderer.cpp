@@ -419,10 +419,8 @@ private:
 bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrTriangulatingPathRenderer::onDrawPath");
-    SkIRect clipBoundsI;
-    args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
-                                      args.fRenderTargetContext->height(),
-                                      &clipBoundsI);
+    SkIRect clipBoundsI = args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
+                                                            args.fRenderTargetContext->height());
     std::unique_ptr<GrDrawOp> op = TriangulatingPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix, clipBoundsI,
             args.fAAType, args.fUserStencilSettings);

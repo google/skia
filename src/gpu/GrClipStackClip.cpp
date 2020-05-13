@@ -62,18 +62,14 @@ bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa)
     return false;
 }
 
-void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devResult,
-                                            bool* isIntersectionOfRects) const {
-    if (!fStack) {
-        devResult->setXYWH(0, 0, width, height);
-        if (isIntersectionOfRects) {
-            *isIntersectionOfRects = true;
-        }
-        return;
+SkIRect GrClipStackClip::getConservativeBounds(int width, int height) const {
+    if (fStack) {
+        SkRect devBounds;
+        fStack->getConservativeBounds(0, 0, width, height, &devBounds);
+        return devBounds.roundOut();
+    } else {
+        return this->GrClip::getConservativeBounds(width, height);
     }
-    SkRect devBounds;
-    fStack->getConservativeBounds(0, 0, width, height, &devBounds, isIntersectionOfRects);
-    devBounds.roundOut(devResult);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

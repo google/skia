@@ -17,16 +17,14 @@ bool GrFixedClip::quickContains(const SkRect& rect) const {
     return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
 }
 
-void GrFixedClip::getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const {
-    devResult->setXYWH(0, 0, w, h);
+SkIRect GrFixedClip::getConservativeBounds(int w, int h) const {
+    SkIRect devResult = this->GrClip::getConservativeBounds(w, h);
     if (fScissorState.enabled()) {
-        if (!devResult->intersect(fScissorState.rect())) {
-            devResult->setEmpty();
+        if (!devResult.intersect(fScissorState.rect())) {
+            devResult.setEmpty();
         }
     }
-    if (iior) {
-        *iior = true;
-    }
+    return devResult;
 }
 
 bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {

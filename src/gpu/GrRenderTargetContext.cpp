@@ -771,9 +771,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     }
 
     // Crop the quad to the conservative bounds of the clip.
-    SkIRect clipDevBounds;
-    clip.getConservativeBounds(rtRect.width(), rtRect.height(), &clipDevBounds);
-    SkRect clipBounds = SkRect::Make(clipDevBounds);
+    SkRect clipBounds = SkRect::Make(clip.getConservativeBounds(rtRect.width(), rtRect.height()));
 
     // One final check for discarding, since we may have gone here directly due to a complex clip
     if (!clipBounds.intersects(drawBounds)) {
@@ -2304,9 +2302,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     GrAAType aaType = fRenderTargetContext->chooseAAType(aa);
     bool hasUserStencilSettings = !ss->isUnused();
 
-    SkIRect clipConservativeBounds;
-    clip.getConservativeBounds(fRenderTargetContext->width(), fRenderTargetContext->height(),
-                               &clipConservativeBounds, nullptr);
+    SkIRect clipConservativeBounds = clip.getConservativeBounds(fRenderTargetContext->width(),
+                                                                fRenderTargetContext->height());
 
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
@@ -2379,8 +2376,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
         return;
     }
 
-    SkIRect clipConservativeBounds;
-    clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
+    SkIRect clipConservativeBounds = clip.getConservativeBounds(this->width(), this->height());
 
     GrStyledShape tempShape;
     GrAAType aaType = this->chooseAAType(aa);
@@ -2567,9 +2563,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
 
     SkIRect copyRect = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
 
-    SkIRect clippedRect;
-    clip.getConservativeBounds(
-            this->width(), this->height(), &clippedRect);
+    SkIRect clippedRect = clip.getConservativeBounds(this->width(), this->height());
     SkRect opBounds = op.bounds();
     // If the op has aa bloating or is a infinitely thin geometry (hairline) outset the bounds by
     // 0.5 pixels.
