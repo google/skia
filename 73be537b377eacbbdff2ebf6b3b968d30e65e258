@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "f956e86a_521d580b",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T18:26:38Z",
+      "side": 1,
+      "message": "Right now there are only 2 stats kPresent and kNone so this is fine. But I\u0027m wondering if we were to add another in the future I would assume we\u0027d want to not skip the flush for that as well. Does it make more sense to have access \u003d\u003d kNone here instead?",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 63
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa4c23ca_3dd37a81",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T18:26:38Z",
+      "side": 1,
+      "message": "this comment does make much sense with what is actually happening here.",
+      "range": {
+        "startLine": 1015,
+        "startChar": 7,
+        "endLine": 1016,
+        "endChar": 34
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a14c18e_b7430a12",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 8
