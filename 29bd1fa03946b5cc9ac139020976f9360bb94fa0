@@ -22,6 +22,30 @@
       "revId": "29bd1fa03946b5cc9ac139020976f9360bb94fa0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4fb1af8_41154bcd",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-13T01:06:04Z",
+      "side": 1,
+      "message": "Only because I thought it looked prettier..\n\nGood point. Since this is inlined in a header it\u0027s probably best to keep stl out of it.\n\nDone.",
+      "parentUuid": "15613ad0_4d7252cd",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "29bd1fa03946b5cc9ac139020976f9360bb94fa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
