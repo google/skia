@@ -45,7 +45,14 @@ GrGpu::~GrGpu() {
     SkASSERT(fBusyStagingBuffers.isEmpty());
 }
 
-void GrGpu::disconnect(DisconnectType) {}
+void GrGpu::disconnect(DisconnectType type) {
+    if (DisconnectType::kAbandon == type) {
+        fAvailableStagingBuffers.reset();
+        fActiveStagingBuffers.reset();
+        fBusyStagingBuffers.reset();
+    }
+    fStagingBuffers.clear();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -982,10 +989,18 @@ void GrGpu::unmapStagingBuffers() {
     }
 }
 
-void GrGpu::markStagingBufferAvailable(GrStagingBuffer* buffer) {
+void GrGpu::moveStagingBufferFromBusyToAvailable(GrStagingBuffer* buffer) {
 #ifdef SK_DEBUG
     this->validateStagingBuffers();
 #endif
     fBusyStagingBuffers.remove(buffer);
     fAvailableStagingBuffers.addToTail(buffer);
+}
+
+void GrGpu::moveStagingBufferFromActiveToBusy(GrStagingBuffer* buffer) {
+#ifdef SK_DEBUG
+    this->validateStagingBuffers();
+#endif
+    fActiveStagingBuffers.remove(buffer);
+    fBusyStagingBuffers.addToTail(buffer);
 }
