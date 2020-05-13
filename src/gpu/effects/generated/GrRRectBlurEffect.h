@@ -96,7 +96,7 @@ public:
             return {};
         }
         SkASSERT(mask.asTextureProxy());
-        SkASSERT(mask.origin() == kBottomLeft_GrSurfaceOrigin);
+        SkASSERT(mask.origin() == kMaskOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
 
         return mask;
