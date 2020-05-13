@@ -29,7 +29,7 @@ class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
-class SkBaseDevice : public SkRefCnt, public SkMatrixProvider {
+class SkBaseDevice : public SkRefCnt {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -138,10 +138,30 @@ public:
     SkMarkerStack* markerStack() const { return fMarkerStack; }
     void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
 
-    // SkMatrixProvider interface:
-    bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
+    const SkMatrix& localToDevice() const { return fLocalToDevice33; }
+    const SkM44& localToDevice44() const { return fLocalToDevice; }
 
-    const SkMatrixProvider& asMatrixProvider() const { return *this; }
+    class SkDeviceMatrixProvider : public SkMatrixProvider {
+    public:
+        SkDeviceMatrixProvider(const SkM44& localToDevice44,
+                               const SkMatrix& localToDevice,
+                               const SkMatrix& deviceToGlobal,
+                               const SkMarkerStack* markerStack)
+                : SkMatrixProvider(localToDevice44, localToDevice)
+                , fDeviceToGlobal(deviceToGlobal)
+                , fMarkerStack(markerStack) {}
+
+        bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
+
+    private:
+        const SkMatrix&      fDeviceToGlobal;
+        const SkMarkerStack* fMarkerStack;
+    };
+
+    SkDeviceMatrixProvider asMatrixProvider() const {
+        return SkDeviceMatrixProvider(fLocalToDevice, fLocalToDevice33, fDeviceToGlobal,
+                                      fMarkerStack);
+    }
 
     void save() { this->onSave(); }
     void restore(const SkM44& ctm) {
@@ -437,10 +457,11 @@ private:
     // SkDevices, so pay the memory cost to avoid recalculating the inverse.
     SkMatrix             fDeviceToGlobal;
     SkMatrix             fGlobalToDevice;
-
-    // fLocalToDevice (inherited from SkMatrixProvider) is the device CTM, not the global CTM
-    // It maps from local space to the device's coordinate space.
-    // fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
+    // This is the device CTM, not the global CTM. It maps from local space to the device's
+    // coordinate space. fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
+    SkM44                fLocalToDevice;
+    // Cached SkMatrix version of above, for legacy usage
+    SkMatrix             fLocalToDevice33;
 
     typedef SkRefCnt INHERITED;
 };

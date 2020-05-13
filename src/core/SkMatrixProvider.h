@@ -13,34 +13,47 @@
 
 class SkMatrixProvider {
 public:
-    SkMatrixProvider(const SkMatrix& localToDevice)
-        : fLocalToDevice(localToDevice)
-        , fLocalToDevice33(localToDevice) {}
-
-    SkMatrixProvider(const SkM44& localToDevice)
-        : fLocalToDevice(localToDevice)
-        , fLocalToDevice33(localToDevice.asM33()) {}
+    SkMatrixProvider(const SkM44& localToDevice44, const SkMatrix& localToDevice)
+        : fLocalToDevice44(localToDevice44)
+        , fLocalToDevice(localToDevice) {}
 
     virtual ~SkMatrixProvider() {}
 
     // These should return the "same" matrix, as either a 3x3 or 4x4. Most sites in Skia still
     // call localToDevice, and operate on SkMatrix.
-    const SkMatrix& localToDevice() const { return fLocalToDevice33; }
-    const SkM44& localToDevice44() const { return fLocalToDevice; }
+    const SkM44& localToDevice44() const { return fLocalToDevice44; }
+    const SkMatrix& localToDevice() const { return fLocalToDevice; }
 
     virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
 
-protected:
-    SkM44    fLocalToDevice;
-    SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
+private:
+    const SkM44&    fLocalToDevice44;
+    const SkMatrix& fLocalToDevice;  // Cached SkMatrix version of above, for legacy usage
 };
 
-class SkPostConcatMatrixProvider : public SkMatrixProvider {
+// Utility class for provider sub-classes that need embedded storage of local-to-device matrices.
+class SkSTMatrixProvider : public SkMatrixProvider {
+public:
+    SkSTMatrixProvider(const SkM44& localToDevice44)
+        : SkMatrixProvider(fLocalToDevice44Storage, fLocalToDeviceStorage)
+        , fLocalToDevice44Storage(localToDevice44)
+        , fLocalToDeviceStorage(localToDevice44.asM33()) {}
+
+    SkSTMatrixProvider(const SkMatrix& localToDevice)
+        : SkMatrixProvider(fLocalToDevice44Storage, fLocalToDeviceStorage)
+        , fLocalToDevice44Storage(localToDevice)
+        , fLocalToDeviceStorage(localToDevice) {}
+
+private:
+    const SkM44    fLocalToDevice44Storage;
+    const SkMatrix fLocalToDeviceStorage;
+};
+
+class SkPostConcatMatrixProvider : public SkSTMatrixProvider {
 public:
     SkPostConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& postMatrix)
-            : SkMatrixProvider(SkM44(postMatrix) * parent.localToDevice44())
-            , fParent(parent)
-            , fPostMatrix(postMatrix) {}
+            : SkSTMatrixProvider(SkM44(postMatrix) * parent.localToDevice44())
+            , fParent(parent) {}
 
     // Assume that the post-matrix doesn't apply to any marked matrices
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
@@ -49,16 +62,16 @@ public:
 
 private:
     const SkMatrixProvider& fParent;
-    SkMatrix                fPostMatrix;
 };
 
-class SkPreConcatMatrixProvider : public SkMatrixProvider {
+class SkPreConcatMatrixProvider : public SkSTMatrixProvider {
 public:
     SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
-            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix))
+            : SkSTMatrixProvider(parent.localToDevice44() * SkM44(preMatrix))
             , fParent(parent)
             , fPreMatrix(preMatrix) {}
 
+    // Marked matrices are local-to-<something>, so they should also be pre-multiplied
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
         if (fParent.getLocalToMarker(id, localToMarker)) {
             if (localToMarker) {
@@ -71,13 +84,13 @@ public:
 
 private:
     const SkMatrixProvider& fParent;
-    SkMatrix                fPreMatrix;
+    const SkMatrix          fPreMatrix;
 };
 
-class SkSimpleMatrixProvider : public SkMatrixProvider {
+class SkSimpleMatrixProvider : public SkSTMatrixProvider {
 public:
     SkSimpleMatrixProvider(const SkMatrix& localToDevice)
-        : SkMatrixProvider(localToDevice) {}
+        : SkSTMatrixProvider(localToDevice) {}
 
     bool getLocalToMarker(uint32_t, SkM44*) const override { return false; }
 };

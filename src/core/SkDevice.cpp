@@ -33,11 +33,12 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-        : SkMatrixProvider(/* fLocalToDevice = */ SkMatrix::I())
-        , fInfo(info)
+        : fInfo(info)
         , fSurfaceProps(surfaceProps) {
     fDeviceToGlobal.reset();
     fGlobalToDevice.reset();
+    fLocalToDevice.setIdentity();
+    fLocalToDevice33.setIdentity();
 }
 
 void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
@@ -92,13 +93,14 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) con
     return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
-bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
+bool SkBaseDevice::SkDeviceMatrixProvider::getLocalToMarker(uint32_t id,
+                                                            SkM44* localToMarker) const {
     // The marker stack stores CTM snapshots, which are "marker to global" matrices.
     // We ask for the (cached) inverse, which is a "global to marker" matrix.
     SkM44 globalToMarker;
     if (fMarkerStack && fMarkerStack->findMarkerInverse(id, &globalToMarker)) {
         if (localToMarker) {
-            *localToMarker = globalToMarker * SkM44(fDeviceToGlobal) * fLocalToDevice;
+            *localToMarker = globalToMarker * SkM44(fDeviceToGlobal) * this->localToDevice44();
         }
         return true;
     }

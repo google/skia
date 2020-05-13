@@ -323,7 +323,8 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 
     GrPrimitiveType primitiveType = point_mode_to_primitive_type(mode);
 
-    const SkMatrixProvider* matrixProvider = this;
+    auto baseMatrixProvider = this->asMatrixProvider();
+    const SkMatrixProvider* matrixProvider = &baseMatrixProvider;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkTLazy<SkPostConcatMatrixProvider> postConcatMatrixProvider;
     // This offsetting in device space matches the expectations of the Android framework for non-AA
