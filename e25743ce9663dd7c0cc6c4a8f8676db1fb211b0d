@@ -94,6 +94,30 @@
       "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d072dcb6_701840b1",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-13T20:17:18Z",
+      "side": 1,
+      "message": "Ah, gah, makeArrayDefault does do default initialization, for some reason gerrit folded the diff right in the middle so the top half was in makeArrayDefault and the bottom in makeArray but lined up. The code selected for the comment was hilighted in yellow, so my eye slid right across the yellow-ish \u0027Show x common lines bar\u0027.",
+      "parentUuid": "cb6ab1b5_15f2f983",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
