@@ -627,6 +627,58 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
                                              finishedContext, &data);
 }
 
+bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
+                                     const SkColor4f& color,
+                                     GrGpuFinishedProc finishedProc,
+                                     GrGpuFinishedContext finishedContext) {
+    if (!this->asDirectContext()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    if (this->abandoned()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(color);
+    return fGpu->updateBackendTexture(backendTexture, finishedProc, finishedContext, &data);
+}
+
+bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
+                                     const SkPixmap srcData[],
+                                     int numLevels,
+                                     GrGpuFinishedProc finishedProc,
+                                     GrGpuFinishedContext finishedContext) {
+    if (!this->asDirectContext()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    if (this->abandoned()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    if (!srcData || numLevels <= 0) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    int numExpectedLevels = 1;
+    if (backendTexture.hasMipMaps()) {
+        numExpectedLevels = SkMipMap::ComputeLevelCount(backendTexture.width(),
+                                                        backendTexture.height()) + 1;
+    }
+    if (numLevels != numExpectedLevels) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(srcData);
+    return fGpu->updateBackendTexture(backendTexture, finishedProc, finishedContext, &data);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,

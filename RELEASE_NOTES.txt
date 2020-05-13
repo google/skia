@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 84
 
+  * Add api on GrContext, updateBackendTexture that will upload new data to a
+    GrBackendTexture.
+    https://review.skia.org/288909
+
   * Add GrContext getter to SkSurface.
     https://review.skia.org/289479
 
