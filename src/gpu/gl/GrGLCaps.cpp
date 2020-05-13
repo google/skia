@@ -56,6 +56,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
+    fMustSetTexParameterMinFilterToEnableMipMapping = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3553,6 +3554,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     } else if (fDriverBugWorkarounds.disallow_large_instanced_draw) {
         fMaxInstancesPerDrawWithoutCrashing = 0x4000000;
     }
+
+#ifndef SK_BUILD_FOR_IOS
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
+        // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
+        // Possibly this could be more limited by driver version or HW generation.
+        fMustSetTexParameterMinFilterToEnableMipMapping = true;
+    }
+#endif
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
     if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
