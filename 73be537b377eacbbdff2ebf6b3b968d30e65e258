@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cffbfc19_8e4d61fb",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-13T19:05:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f956e86a_521d580b",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 63
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa4c23ca_3dd37a81",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 8
@@ -82,6 +106,30 @@
       "writtenOn": "2020-05-13T18:29:03Z",
       "side": 1,
       "message": "So GL is now built optionally isn\u0027t it? Should we redo all this now since each backend is optional (minus sw). Like can we build up the string instead of having a massive if else block covering all the combinations.",
+      "range": {
+        "startLine": 86,
+        "startChar": 1,
+        "endLine": 100,
+        "endChar": 6
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1423a1f_d3fa3bf9",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-13T19:05:35Z",
+      "side": 1,
+      "message": "Oops -- I meant to go back and do that.",
+      "parentUuid": "b4c61f43_f9b639c2",
       "range": {
         "startLine": 86,
         "startChar": 1,
