@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00dbf8ad_0fcca09c",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-13T19:16:02Z",
+      "side": 1,
+      "message": "Concretely, what if we did something like this?\n\n  // We _will_ call ~T on these, so you must initialize them yourself at some point.\n  template \u003ctypename T\u003e\n  T* makeUninitialized(size_t count) {\n      AssertRelease(SkTFitsIn\u003cuint32_t\u003e(count));\n      uint32_t safeCount \u003d ToU32(count);\n      return (T*)this-\u003ecommonArrayAlloc\u003cT\u003e(safeCount);\n  }\n\nand then implement makeArrayDefault() and makeArray() as\n\n  template \u003ctypename T\u003e\n  T* makeArrayDefault(size_t count) {\n      T* array \u003d this-\u003emakeUninitialized(count);\n      for (size_t i \u003d 0; i \u003c count; i++) {\n          new (\u0026array[i]) T;  // no-op if T is primitive\n      }\n      return array;\n  }\n\nand\n\n  template \u003ctypename T\u003e\n  T* makeArray(size_t count) {\n      T* array \u003d this-\u003emakeUninitialized(count);\n      for (size_t i \u003d 0; i \u003c count; i++) {\n          new (\u0026array[i]) T();  // initialized even if primitive (usually to zero)\n      }\n      return array;\n  }\n\n?",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
