@@ -436,7 +436,7 @@ bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
                                                releaseContext);
 }
 
-void SkSurface::flush() {
+void SkSurface::flushAndSubmit() {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }
 
