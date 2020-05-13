@@ -959,6 +959,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^GrMeshTest$")
 	}
 
+	if b.extraConfig("Vulkan") && b.model("GalaxyS20") {
+		// skia:10247
+		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
+	}
+
 	if b.model("LenovoYogaC630") && b.extraConfig("ANGLE") {
 		// skia:9275
 		blacklist("_", "tests", "_", "Programs")
