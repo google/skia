@@ -138,8 +138,7 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
                  m10, m11, m12, m13, m14,
                  m15, m16, m17, m18, m19;
     void main(inout half4 c) {
-        half nonZeroAlpha = max(c.a, 0.0001);
-        c = half4(c.rgb / nonZeroAlpha, nonZeroAlpha);
+        c = unpremul(c);
 
         half4x4 m = half4x4(m0, m5, m10, m15,
                             m1, m6, m11, m16,

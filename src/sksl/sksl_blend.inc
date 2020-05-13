@@ -298,4 +298,8 @@ half4 blend(SkBlendMode mode, half4 src, half4 dst) {
     }
     return half4(0);  // Avoids "'blend' can exit without returning a value."
 }
+
+// The max() guards against division by zero when the incoming color is transparent black
+half4 unpremul(half4 color) { return half4(color.rgb / max(color.a, 0.0001), color.a); }
+float4 unpremul_float(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 )SKSL"

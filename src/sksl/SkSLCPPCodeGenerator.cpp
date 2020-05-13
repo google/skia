@@ -557,6 +557,9 @@ static const char* glsltype_string(const Context& context, const Type& type) {
 
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     const FunctionDeclaration& decl = f.fDeclaration;
+    if (decl.fBuiltin) {
+        return;
+    }
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
