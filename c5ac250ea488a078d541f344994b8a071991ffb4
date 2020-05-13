@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e8b7a13_985f17c2",
+        "filename": "bench/TessellatePathBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-13T17:52:19Z",
+      "side": 1,
+      "message": "Is there any reason that we can\u0027t just do\n\n  SK_ABORT(SkStringPrintf(\"FATAL: ...\", ...))\n\n?",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 89
+      },
+      "revId": "c5ac250ea488a078d541f344994b8a071991ffb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e919f0b_9cf3cbe2",
+        "filename": "bench/TessellatePathBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-13T17:52:19Z",
+      "side": 1,
+      "message": "SkStringPrintf?",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 54,
+        "endChar": 58
+      },
+      "revId": "c5ac250ea488a078d541f344994b8a071991ffb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "526c67cc_4f092866",
+        "filename": "bench/TessellatePathBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-13T17:52:19Z",
+      "side": 1,
+      "message": "UNIMPL",
+      "range": {
+        "startLine": 79,
+        "startChar": 7,
+        "endLine": 79,
+        "endChar": 20
+      },
+      "revId": "c5ac250ea488a078d541f344994b8a071991ffb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
