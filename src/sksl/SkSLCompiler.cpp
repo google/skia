@@ -77,22 +77,23 @@ static const char* SKSL_PIPELINE_INCLUDE =
 
 namespace SkSL {
 
+using Intrinsic = std::pair<std::unique_ptr<ProgramElement>, bool>;
+
 static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
-               std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* target) {
+                            std::map<StringFragment, std::vector<Intrinsic>>* target) {
     for (auto& element : *src) {
         switch (element->fKind) {
             case ProgramElement::kFunction_Kind: {
                 FunctionDefinition& f = (FunctionDefinition&) *element;
                 StringFragment name = f.fDeclaration.fName;
-                SkASSERT(target->find(name) == target->end());
-                (*target)[name] = std::make_pair(std::move(element), false);
+                (*target)[name].push_back(std::make_pair(std::move(element), false));
                 break;
             }
             case ProgramElement::kEnum_Kind: {
                 Enum& e = (Enum&) *element;
                 StringFragment name = e.fTypeName;
                 SkASSERT(target->find(name) == target->end());
-                (*target)[name] = std::make_pair(std::move(element), false);
+                (*target)[name].push_back(std::make_pair(std::move(element), false));
                 break;
             }
             default:
@@ -101,7 +102,6 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
         }
     }
 }
-
 
 Compiler::Compiler(Flags flags)
 : fFlags(flags)

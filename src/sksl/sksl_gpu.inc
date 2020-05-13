@@ -296,4 +296,9 @@ float interpolateAtOffset(float interpolant, float2 offset);
 float2 interpolateAtOffset(float2 interpolant, float2 offset);
 float3 interpolateAtOffset(float3 interpolant, float2 offset);
 float4 interpolateAtOffset(float4 interpolant, float2 offset);
+
+// The max() guards against division by zero when the incoming color is transparent black
+half4 safeUnpremul(half4 color) { return half4(color.rgb / max(color.a, 0.0001), color.a); }
+float4 safeUnpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
+
 )SKSL"

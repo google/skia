@@ -98,8 +98,7 @@ const char* kHighContrastFilterSrc = R"(
         ucontrast_Stage2 = 0.2;
 
         // HighContrastFilter
-        half nonZeroAlpha = max(color.a, 0.0001);
-        color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);
+        color = safeUnpremul(color);
         color.rgb = color.rgb * color.rgb;
         half fmax = max(color.r, max(color.g, color.b));
         half fmin = min(color.r, min(color.g, color.b));

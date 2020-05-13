@@ -169,7 +169,9 @@ void IRGenerator::start(const Program::Settings* settings,
     }
     SkASSERT(fIntrinsics);
     for (auto& pair : *fIntrinsics) {
-        pair.second.second = false;
+        for (auto& defs : pair.second) {
+            defs.second = false;
+        }
     }
 }
 
@@ -1816,12 +1818,19 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fBuiltin) {
         auto found = fIntrinsics->find(function.fName);
-        if (found != fIntrinsics->end() && !found->second.second) {
-            found->second.second = true;
-            const FunctionDeclaration* old = fCurrentFunction;
-            fCurrentFunction = nullptr;
-            this->convertFunction(*((FunctionDefinition&) *found->second.first).fSource);
-            fCurrentFunction = old;
+        if (found != fIntrinsics->end()) {
+            auto matchCall = [&function](const Intrinsic& intrin) {
+                FunctionDefinition& def = (FunctionDefinition&)(*intrin.first);
+                return function.matches(def.fDeclaration);
+            };
+            auto overload = std::find_if(found->second.begin(), found->second.end(), matchCall);
+            if (overload != found->second.end() && !overload->second) {
+                overload->second = true;
+                const FunctionDeclaration* old = fCurrentFunction;
+                fCurrentFunction = nullptr;
+                this->convertFunction(*((FunctionDefinition&) *overload->first).fSource);
+                fCurrentFunction = old;
+            }
         }
     }
     if (function.fParameters.size() != arguments.size()) {
@@ -2344,9 +2353,10 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     if (!result) {
         auto found = fIntrinsics->find(type.fName);
         if (found != fIntrinsics->end()) {
-            SkASSERT(!found->second.second);
-            found->second.second = true;
-            fProgramElements->push_back(found->second.first->clone());
+            SkASSERT(found->second.size() == 1);
+            SkASSERT(!found->second.front().second);
+            found->second.front().second = true;
+            fProgramElements->push_back(found->second.front().first->clone());
             return this->convertTypeField(offset, type, field);
         }
         fErrors.error(offset, "type '" + type.fName + "' does not have a field named '" + field +
