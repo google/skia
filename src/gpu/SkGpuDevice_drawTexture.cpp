@@ -124,32 +124,31 @@ static int determine_tile_size(const SkIRect& src, int maxTileSize) {
 
 // Given a bitmap, an optional src rect, and a context with a clip and matrix determine what
 // pixels from the bitmap are necessary.
-static void determine_clipped_src_rect(int width, int height,
-                                       const GrClip& clip,
-                                       const SkMatrix& viewMatrix,
-                                       const SkMatrix& srcToDstRect,
-                                       const SkISize& imageDimensions,
-                                       const SkRect* srcRectPtr,
-                                       SkIRect* clippedSrcIRect) {
-    clip.getConservativeBounds(width, height, clippedSrcIRect, nullptr);
+static SkIRect determine_clipped_src_rect(int width, int height,
+                                          const GrClip& clip,
+                                          const SkMatrix& viewMatrix,
+                                          const SkMatrix& srcToDstRect,
+                                          const SkISize& imageDimensions,
+                                          const SkRect* srcRectPtr) {
+    SkIRect clippedSrcIRect = clip.getConservativeBounds(width, height);
     SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
     if (!inv.invert(&inv)) {
-        clippedSrcIRect->setEmpty();
-        return;
+        return SkIRect::MakeEmpty();
     }
-    SkRect clippedSrcRect = SkRect::Make(*clippedSrcIRect);
+    SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
     inv.mapRect(&clippedSrcRect);
     if (srcRectPtr) {
         if (!clippedSrcRect.intersect(*srcRectPtr)) {
-            clippedSrcIRect->setEmpty();
-            return;
+            return SkIRect::MakeEmpty();
         }
     }
-    clippedSrcRect.roundOut(clippedSrcIRect);
+    clippedSrcRect.roundOut(&clippedSrcIRect);
     SkIRect bmpBounds = SkIRect::MakeSize(imageDimensions);
-    if (!clippedSrcIRect->intersect(bmpBounds)) {
-        clippedSrcIRect->setEmpty();
+    if (!clippedSrcIRect.intersect(bmpBounds)) {
+        return SkIRect::MakeEmpty();
     }
+
+    return clippedSrcIRect;
 }
 
 // tileSize and clippedSubset are valid if true is returned
@@ -166,8 +165,8 @@ static bool should_tile_image_id(GrContext* context,
                                  SkIRect* clippedSubset) {
     // if it's larger than the max tile size, then we have no choice but tiling.
     if (imageSize.width() > maxTileSize || imageSize.height() > maxTileSize) {
-        determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm, srcToDst,
-                                   imageSize, src, clippedSubset);
+        *clippedSubset = determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm,
+                                                    srcToDst, imageSize, src);
         *tileSize = determine_tile_size(*clippedSubset, maxTileSize);
         return true;
     }
@@ -199,8 +198,8 @@ static bool should_tile_image_id(GrContext* context,
 
     // Figure out how much of the src we will need based on the src rect and clipping. Reject if
     // tiling memory savings would be < 50%.
-    determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm, srcToDst, imageSize, src,
-                               clippedSubset);
+    *clippedSubset = determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm,
+                                                srcToDst, imageSize, src);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
     size_t usedTileBytes = get_tile_count(*clippedSubset, kBmpSmallTileSize) *
                            kBmpSmallTileSize * kBmpSmallTileSize *

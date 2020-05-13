@@ -162,12 +162,6 @@ class MaskOnlyClipBase : public GrClip {
 private:
     bool quickContains(const SkRect&) const final { return false; }
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
-    void getConservativeBounds(int width, int height, SkIRect* rect, bool* iior) const final {
-        rect->setWH(width, height);
-        if (iior) {
-            *iior = false;
-        }
-    }
 };
 
 /**

@@ -26,8 +26,7 @@ public:
 
     bool quickContains(const SkRect&) const final;
     bool quickContains(const SkRRect&) const final;
-    void getConservativeBounds(int width, int height, SkIRect* devResult,
-                               bool* isIntersectionOfRects) const final;
+    SkIRect getConservativeBounds(int width, int height) const final;
     bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
 
