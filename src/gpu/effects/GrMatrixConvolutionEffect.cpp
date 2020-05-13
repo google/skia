@@ -81,8 +81,8 @@ GrMatrixConvolutionEffect::KernelWrapper GrMatrixConvolutionEffect::KernelWrappe
         scalableSampler.fBias = SkScalarToFloat(min) / scalableSampler.fGain;
     }
 
-    // TODO: Enable kernel caching and check perf.
-    static constexpr bool kCacheKernelTexture = false;
+    // TODO: Pick cache or dont-cache based on observed perf.
+    static constexpr bool kCacheKernelTexture = true;
 
     GrUniqueKey key;
     if (kCacheKernelTexture) {
