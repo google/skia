@@ -2562,6 +2562,20 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     GrGLTextureParameters::SamplerOverriddenState newSamplerState;
     if (fSamplerObjectCache) {
         fSamplerObjectCache->bindSampler(unitIdx, samplerState);
+        if (this->glCaps().mustSetTexParameterMinFilterToEnableMipMapping()) {
+            if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
+                const GrGLTextureParameters::SamplerOverriddenState& oldSamplerState =
+                        texture->parameters()->samplerOverriddenState();
+                if (setAll || oldSamplerState.fMinFilter != GR_GL_LINEAR_MIPMAP_LINEAR) {
+                    this->setTextureUnit(unitIdx);
+                    GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER,
+                                          GR_GL_LINEAR_MIPMAP_LINEAR));
+                    newSamplerState = oldSamplerState;
+                    newSamplerState.fMinFilter = GR_GL_LINEAR_MIPMAP_LINEAR;
+                    samplerStateToRecord = &newSamplerState;
+                }
+            }
+        }
     } else {
         const GrGLTextureParameters::SamplerOverriddenState& oldSamplerState =
                 texture->parameters()->samplerOverriddenState();

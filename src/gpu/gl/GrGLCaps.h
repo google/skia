@@ -396,6 +396,11 @@ public:
     // PowerVRGX6250 drops every pixel if we modify the sample mask while color writes are disabled.
     bool neverDisableColorWrites() const { return fNeverDisableColorWrites; }
 
+    // Texture parameters must be used to enable MIP mapping even when a sampler object is used.
+    bool mustSetTexParameterMinFilterToEnableMipMapping() const {
+        return fMustSetTexParameterMinFilterToEnableMipMapping;
+    }
+
     // Returns the observed maximum number of instances the driver can handle in a single draw call
     // without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
     // NOTE: the return value may be larger than pendingInstanceCount.
@@ -547,6 +552,7 @@ private:
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
     bool fNeverDisableColorWrites : 1;
+    bool fMustSetTexParameterMinFilterToEnableMipMapping : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
