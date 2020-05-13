@@ -184,6 +184,21 @@ public:
                                             sk_sp<const GrBuffer>*, int* startIndex,
                                             int* actualIndexCount) = 0;
 
+    /**
+     * Makes space for elements in a draw-indirect buffer. Upon success, the returned pointer is a
+     * CPU mapping where the data should be written.
+     */
+    virtual GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount,
+                                                         sk_sp<const GrBuffer>* buffer,
+                                                         size_t* offsetInBytes) = 0;
+
+    /**
+     * Makes space for elements in a draw-indexed-indirect buffer. Upon success, the returned
+     * pointer is a CPU mapping where the data should be written.
+     */
+    virtual GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
+            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) = 0;
+
     /** Helpers for ops which over-allocate and then return excess data to the pool. */
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
