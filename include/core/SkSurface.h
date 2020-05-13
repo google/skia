@@ -532,6 +532,12 @@ public:
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
+    /** Returns GPU context of the GPU surface associated with SkSurface.
+
+        @return  GPU context, if available; nullptr otherwise
+    */
+    GrContext* getContext();
+
     enum BackendHandleAccess {
         kFlushRead_BackendHandleAccess,    //!< back-end object is readable
         kFlushWrite_BackendHandleAccess,   //!< back-end object is writable
