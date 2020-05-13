@@ -2193,6 +2193,10 @@ if (skia_enable_tools) {
       }
     }
 
+    if (skia_use_direct3d) {
+      sources += [ "tools/sk_app/win/D3D12WindowContext_win.cpp" ]
+    }
+
     if (skia_use_dawn) {
       sources += [ "tools/sk_app/DawnWindowContext.cpp" ]
       if (is_linux) {
