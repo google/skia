@@ -191,7 +191,7 @@ void GrGLMatrixConvolutionEffect::emitKernelBlock(EmitArgs& args, SkIPoint loc) 
     auto sample = this->invokeChild(0, args, "coord + sourceOffset");
     fragBuilder->codeAppendf("half4 c = %s;", sample.c_str());
     if (!mce.convolveAlpha()) {
-        fragBuilder->codeAppend("c.rgb /= max(c.a, 0.0001);");
+        fragBuilder->codeAppend("c = unpremul(c);");
         fragBuilder->codeAppend("c.rgb = saturate(c.rgb);");
     }
     fragBuilder->codeAppend("sum += c * k;");
