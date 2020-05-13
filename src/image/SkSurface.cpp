@@ -71,6 +71,10 @@ SkSurface_Base::~SkSurface_Base() {
     }
 }
 
+GrContext* SkSurface_Base::onGetContext() {
+    return nullptr;
+}
+
 GrBackendTexture SkSurface_Base::onGetBackendTexture(BackendHandleAccess) {
     return GrBackendTexture(); // invalid
 }
@@ -418,6 +422,10 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     if (src.peekPixels(&pm)) {
         this->writePixels(pm, x, y);
     }
+}
+
+GrContext* SkSurface::getContext() {
+    return asSB(this)->onGetContext();
 }
 
 GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
