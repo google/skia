@@ -58,7 +58,7 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
     GR_COPY_FUNCTION_KHR(GetPhysicalDeviceMemoryProperties2);
 
     VmaAllocatorCreateInfo info;
-    info.flags = 0;
+    info.flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         (extensions->hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 1) &&
          extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1))) {
