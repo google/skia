@@ -126,6 +126,19 @@ public:
         return array;
     }
 
+    template <typename T, typename Initializer>
+    T* makeInitializedArray(size_t count, Initializer initializer) {
+        AssertRelease(SkTFitsIn<uint32_t>(count));
+        uint32_t safeCount = ToU32(count);
+        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
+
+        // Initialize array elements.
+        for (size_t i = 0; i < safeCount; i++) {
+            new (&array[i]) T(initializer(i));
+        }
+        return array;
+    }
+
     // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
         AssertRelease(SkTFitsIn<uint32_t>(size));
