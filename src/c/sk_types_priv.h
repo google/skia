@@ -110,6 +110,8 @@ DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
 DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
+DEF_CLASS_MAP(GrVkExtensions, gr_vk_extensions_t, GrVkExtensions)
+
 DEF_STRUCT_MAP(skcms_ICCProfile, sk_colorspace_icc_profile_t, ColorSpaceIccProfile)
 DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspace_primaries_t, ColorSpacePrimaries)
 DEF_STRUCT_MAP(skcms_TransferFunction, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
@@ -128,6 +130,9 @@ DEF_STRUCT_MAP(SkSize, sk_size_t, Size)
 DEF_STRUCT_MAP(GrGLTextureInfo, gr_gl_textureinfo_t, GrGLTextureInfo)
 DEF_STRUCT_MAP(GrGLFramebufferInfo, gr_gl_framebufferinfo_t, GrGLFramebufferInfo)
 DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
+
+DEF_STRUCT_MAP(GrVkYcbcrConversionInfo, gr_vk_ycbcrconversioninfo_t, GrVkYcbcrConversionInfo)
+DEF_STRUCT_MAP(GrVkImageInfo, gr_vk_imageinfo_t, GrVkImageInfo)
 
 #include "include/core/SkCanvas.h"
 DEF_MAP(SkCanvas::Lattice, sk_lattice_t, Lattice)
@@ -273,5 +278,57 @@ static inline SkPDF::Metadata AsDocumentPDFMetadata(const sk_document_pdf_metada
     md.fEncodingQuality = metadata->fEncodingQuality;
     return md;
 }
+
+#if SK_SUPPORT_GPU
+// GPU specific
+
+#if SK_VULKAN
+#define DEF_MAP_VK(VkType, vk_type)                 \
+    static inline VkType As##VkType(vk_type* t) {   \
+        return reinterpret_cast<VkType>(t);         \
+    }                                               \
+    static inline vk_type* To##VkType(VkType t) {   \
+        return reinterpret_cast<vk_type*>(t);       \
+    }
+
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+
+DEF_MAP_VK(VkInstance, vk_instance_t);
+DEF_MAP_VK(VkDevice, vk_device_t);
+DEF_MAP_VK(VkPhysicalDevice, vk_physical_device_t);
+DEF_MAP_VK(VkQueue, vk_queue_t);
+DEF_MAP(VkPhysicalDeviceFeatures, vk_physical_device_features_t, VkPhysicalDeviceFeatures);
+DEF_MAP(VkPhysicalDeviceFeatures2, vk_physical_device_features_2_t, VkPhysicalDeviceFeatures2);
+DEF_MAP(GrVkMemoryAllocator, gr_vk_memory_allocator_t, GrVkMemoryAllocator);
+
+static GrVkBackendContext AsGrVkBackendContext(const gr_vk_backendcontext_t* context) {
+    GrVkBackendContext ctx;
+    ctx.fInstance = AsVkInstance(context->fInstance);
+    ctx.fPhysicalDevice = AsVkPhysicalDevice(context->fPhysicalDevice);
+    ctx.fDevice = AsVkDevice(context->fDevice);
+    ctx.fQueue = AsVkQueue(context->fQueue);
+    ctx.fGraphicsQueueIndex = context->fGraphicsQueueIndex;
+    ctx.fMinAPIVersion = context->fMinAPIVersion;
+    ctx.fInstanceVersion = context->fInstanceVersion;
+    ctx.fMaxAPIVersion = context->fMaxAPIVersion;
+    ctx.fExtensions = context->fExtensions;
+    ctx.fVkExtensions = AsGrVkExtensions(context->fVkExtensions);
+    ctx.fFeatures = context->fFeatures;
+    ctx.fDeviceFeatures = AsVkPhysicalDeviceFeatures(context->fDeviceFeatures);
+    ctx.fDeviceFeatures2 = AsVkPhysicalDeviceFeatures2(context->fDeviceFeatures2);
+    ctx.fMemoryAllocator = sk_ref_sp(AsGrVkMemoryAllocator(context->fMemoryAllocator));
+    if (context->fGetProc != nullptr) {
+        ctx.fGetProc = [context](const char* name, VkInstance instance, VkDevice device) -> PFN_vkVoidFunction {
+            return context->fGetProc(context->fGetProcUserData, name, ToVkInstance(instance), ToVkDevice(device));
+        };
+    }
+    ctx.fOwnsInstanceAndDevice = context->fOwnsInstanceAndDevice;
+    ctx.fProtectedContext = context->fProtectedContext ? GrProtected::kYes : GrProtected::kNo;
+    return ctx;
+}
+
+#endif // SK_VULKAN
+#endif // SK_SUPPORT_GPU
 
 #endif

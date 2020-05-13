@@ -29,6 +29,11 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/gl/GrGLTypes.h"
+
+#if SK_VULKAN
+#include "include/gpu/vk/GrVkTypes.h"
+#endif
+
 #endif
 
 #if __cplusplus >= 199711L
@@ -69,6 +74,12 @@ static_assert (sizeof (sk_colorspace_xyz_t) == sizeof (skcms_Matrix3x3), ASSERT_
 #if SK_SUPPORT_GPU
 static_assert (sizeof (gr_gl_framebufferinfo_t) == sizeof (GrGLFramebufferInfo), ASSERT_MSG(GrGLFramebufferInfo, gr_gl_framebufferinfo_t));
 static_assert (sizeof (gr_gl_textureinfo_t) == sizeof (GrGLTextureInfo), ASSERT_MSG(GrGLTextureInfo, gr_gl_textureinfo_t));
+
+#if SK_VULKAN
+static_assert (sizeof (gr_vk_alloc_t) == sizeof (GrVkAlloc), ASSERT_MSG(GrVkAlloc, gr_vk_alloc_t));
+static_assert (sizeof (gr_vk_imageinfo_t) == sizeof (GrVkImageInfo), ASSERT_MSG(GrVkImageInfo, gr_vk_imageinfo_t));
+static_assert (sizeof (gr_vk_ycbcrconversioninfo_t) == sizeof (GrVkYcbcrConversionInfo), ASSERT_MSG(GrVkYcbcrConversionInfo, gr_vk_ycbcrconversioninfo_t));
+#endif
 #endif
 
 #endif

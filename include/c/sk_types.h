@@ -38,6 +38,12 @@
     #endif
 #endif
 
+#if defined(_WIN32)
+    #define VKAPI_CALL __stdcall
+#else
+    #define VKAPI_CALL
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
@@ -674,6 +680,81 @@ typedef struct {
     unsigned int fFBOID;
     unsigned int fFormat;
 } gr_gl_framebufferinfo_t;
+
+typedef struct vk_instance_t vk_instance_t;
+typedef struct gr_vkinterface_t gr_vkinterface_t;
+typedef struct vk_physical_device_t vk_physical_device_t;
+typedef struct vk_physical_device_features_t vk_physical_device_features_t;
+typedef struct vk_physical_device_features_2_t vk_physical_device_features_2_t;
+typedef struct vk_device_t vk_device_t;
+typedef struct vk_queue_t vk_queue_t;
+
+typedef struct gr_vk_extensions_t gr_vk_extensions_t;
+typedef struct gr_vk_memory_allocator_t gr_vk_memory_allocator_t;
+
+typedef void (VKAPI_CALL *gr_vk_func_ptr)(void);
+typedef gr_vk_func_ptr (*gr_vk_get_proc)(void* ctx, const char* name, vk_instance_t* instance, vk_device_t* device);
+
+typedef struct {
+    vk_instance_t*                          fInstance;
+    vk_physical_device_t*                   fPhysicalDevice;
+    vk_device_t*                            fDevice;
+    vk_queue_t*                             fQueue;
+    uint32_t                                fGraphicsQueueIndex;
+    uint32_t                                fMinAPIVersion;
+    uint32_t                                fInstanceVersion;
+    uint32_t                                fMaxAPIVersion;
+    uint32_t                                fExtensions;
+    const gr_vk_extensions_t*               fVkExtensions;
+    uint32_t                                fFeatures;
+    const vk_physical_device_features_t*    fDeviceFeatures;
+    const vk_physical_device_features_2_t*  fDeviceFeatures2;
+    gr_vk_memory_allocator_t*               fMemoryAllocator;
+    gr_vk_get_proc                          fGetProc;
+    void*                                   fGetProcUserData;
+    bool                                    fOwnsInstanceAndDevice;
+    bool                                    fProtectedContext;
+} gr_vk_backendcontext_t;
+
+typedef intptr_t gr_vk_backendmemory_t;
+
+typedef struct {
+    uint64_t               fMemory;
+    uint64_t               fOffset;
+    uint64_t               fSize;
+    uint32_t               fFlags;
+    gr_vk_backendmemory_t  fBackendMemory;
+    bool                   _private_fUsesSystemHeap;
+} gr_vk_alloc_t;
+
+typedef struct {
+    uint32_t  fFormat;
+    uint64_t  fExternalFormat;
+    uint32_t  fYcbcrModel;
+    uint32_t  fYcbcrRange;
+    uint32_t  fXChromaOffset;
+    uint32_t  fYChromaOffset;
+    uint32_t  fChromaFilter;
+    uint32_t  fForceExplicitReconstruction;
+    uint32_t  fFormatFeatures;
+} gr_vk_ycbcrconversioninfo_t;
+
+typedef struct {
+    uint64_t                        fImage;
+    gr_vk_alloc_t                   fAlloc;
+    uint32_t                        fImageTiling;
+    uint32_t                        fImageLayout;
+    uint32_t                        fFormat;
+    uint32_t                        fLevelCount;
+    uint32_t                        fCurrentQueueFamily;
+    bool                            fProtected;
+    gr_vk_ycbcrconversioninfo_t     fYcbcrConversionInfo;
+} gr_vk_imageinfo_t;
+
+typedef struct vk_instance_t vk_instance_t;
+typedef struct vk_physical_device_t vk_physical_device_t;
+typedef struct vk_device_t vk_device_t;
+typedef struct vk_queue_t vk_queue_t;
 
 typedef enum {
     DIFFERENCE_SK_PATHOP,

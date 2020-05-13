@@ -9,32 +9,44 @@
 
 #include "include/core/SkTypes.h" // required to make sure SK_SUPPORT_GPU is defined
 
+#define SK_SKIP_ARG__(keep, skip, ...) skip
+#define SK_SKIP_ARG_(args) SK_SKIP_ARG__ args
+#define SK_SKIP_ARG(...) SK_SKIP_ARG_((__VA_ARGS__, ))
+
+#define SK_FIRST_ARG__(keep, skip, ...) keep
+#define SK_FIRST_ARG_(args) SK_FIRST_ARG__ args
+#define SK_FIRST_ARG(...) SK_FIRST_ARG_((__VA_ARGS__, ))
+
 #if SK_SUPPORT_GPU
-
-#include "include/gpu/GrContext.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-
-#define SK_ONLY_GPU(expr) expr
-#define SK_ONLY_GPU_RETURN(expr, def) expr
-
+#    include "include/gpu/GrContext.h"
+#    include "include/gpu/GrBackendSurface.h"
+#    include "include/gpu/gl/GrGLInterface.h"
+#    include "include/gpu/gl/GrGLAssembleInterface.h"
+#    define SK_ONLY_GPU(...) SK_FIRST_ARG(__VA_ARGS__)
+#    if SK_VULKAN
+#        include "include/gpu/vk/GrVkBackendContext.h"
+#        include "include/gpu/vk/GrVkExtensions.h"
+#        define SK_ONLY_VULKAN(...) SK_FIRST_ARG(__VA_ARGS__)
+#    else
+#        define SK_ONLY_VULKAN(...) SK_SKIP_ARG(__VA_ARGS__)
+#    endif
 #else // !SK_SUPPORT_GPU
-
-#define SK_ONLY_GPU(expr)
-#define SK_ONLY_GPU_RETURN(expr, def) def
-
+#    define SK_ONLY_GPU(...) SK_SKIP_ARG(__VA_ARGS__)
+#    define SK_ONLY_VULKAN(...) SK_SKIP_ARG(__VA_ARGS__)
 #endif // SK_SUPPORT_GPU
 
 #include "include/c/gr_context.h"
 
 #include "src/c/sk_types_priv.h"
 
-
 // GrContext
 
 gr_context_t* gr_context_make_gl(const gr_glinterface_t* glInterface) {
-    return SK_ONLY_GPU_RETURN(ToGrContext(GrContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface))).release()), nullptr);
+    return SK_ONLY_GPU(ToGrContext(GrContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface))).release()), nullptr);
+}
+
+gr_context_t* gr_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext) {
+    return SK_ONLY_VULKAN(ToGrContext(GrContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext)).release()), nullptr);
 }
 
 void gr_context_unref(gr_context_t* context) {
@@ -62,7 +74,7 @@ void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResource
 }
 
 int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t* context, sk_colortype_t colorType) {
-    return SK_ONLY_GPU_RETURN(AsGrContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
+    return SK_ONLY_GPU(AsGrContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
 }
 
 void gr_context_flush(gr_context_t* context) {
@@ -74,26 +86,26 @@ void gr_context_reset_context(gr_context_t* context, uint32_t state) {
 }
 
 gr_backend_t gr_context_get_backend(gr_context_t* context) {
-    return SK_ONLY_GPU_RETURN((gr_backend_t)AsGrContext(context)->backend(), (gr_backend_t)0);
+    return SK_ONLY_GPU((gr_backend_t)AsGrContext(context)->backend(), (gr_backend_t)0);
 }
 
 
 // GrGLInterface
 
 const gr_glinterface_t* gr_glinterface_create_native_interface(void) {
-    return SK_ONLY_GPU_RETURN(ToGrGLInterface(GrGLMakeNativeInterface().release()), nullptr);
+    return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeNativeInterface().release()), nullptr);
 }
 
 const gr_glinterface_t* gr_glinterface_assemble_interface(void* ctx, gr_gl_get_proc get) {
-    return SK_ONLY_GPU_RETURN(ToGrGLInterface(GrGLMakeAssembledInterface(ctx, get).release()), nullptr);
+    return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeAssembledInterface(ctx, get).release()), nullptr);
 }
 
 const gr_glinterface_t* gr_glinterface_assemble_gl_interface(void* ctx, gr_gl_get_proc get) {
-    return SK_ONLY_GPU_RETURN(ToGrGLInterface(GrGLMakeAssembledGLInterface(ctx, get).release()), nullptr);
+    return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeAssembledGLInterface(ctx, get).release()), nullptr);
 }
 
 const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_get_proc get) {
-    return SK_ONLY_GPU_RETURN(ToGrGLInterface(GrGLMakeAssembledGLESInterface(ctx, get).release()), nullptr);
+    return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeAssembledGLESInterface(ctx, get).release()), nullptr);
 }
 
 void gr_glinterface_unref(const gr_glinterface_t* glInterface) {
@@ -101,18 +113,46 @@ void gr_glinterface_unref(const gr_glinterface_t* glInterface) {
 }
 
 bool gr_glinterface_validate(const gr_glinterface_t* glInterface) {
-    return SK_ONLY_GPU_RETURN(AsGrGLInterface(glInterface)->validate(), false);
+    return SK_ONLY_GPU(AsGrGLInterface(glInterface)->validate(), false);
 }
 
 bool gr_glinterface_has_extension(const gr_glinterface_t* glInterface, const char* extension) {
-    return SK_ONLY_GPU_RETURN(AsGrGLInterface(glInterface)->hasExtension(extension), false);
+    return SK_ONLY_GPU(AsGrGLInterface(glInterface)->hasExtension(extension), false);
 }
 
+// GrVkExtensions
+
+gr_vk_extensions_t* gr_vk_extensions_new() {
+    return SK_ONLY_VULKAN(ToGrVkExtensions(new GrVkExtensions()), nullptr);
+}
+
+void gr_vk_extensions_delete(gr_vk_extensions_t* extensions) {
+    SK_ONLY_VULKAN(delete AsGrVkExtensions(extensions));
+}
+
+void gr_vk_extensions_init(gr_vk_extensions_t* extensions, gr_vk_get_proc getProc, void* userData, vk_instance_t* instance, vk_physical_device_t* physDev, uint32_t instanceExtensionCount, const char** instanceExtensions, uint32_t deviceExtensionCount, const char** deviceExtensions) {
+    SK_ONLY_VULKAN(AsGrVkExtensions(extensions)->init(
+        [userData, getProc](const char* name, VkInstance instance, VkDevice device) -> PFN_vkVoidFunction {
+            return getProc(userData, name, ToVkInstance(instance), ToVkDevice(device));
+        },
+        AsVkInstance(instance),
+        AsVkPhysicalDevice(physDev),
+        instanceExtensionCount, instanceExtensions,
+        deviceExtensionCount, deviceExtensions));
+}
+
+bool gr_vk_extensions_has_extension(gr_vk_extensions_t* extensions, const char* ext, uint32_t minVersion) {
+    return SK_ONLY_VULKAN(AsGrVkExtensions(extensions)->hasExtension(ext, minVersion), false);
+}
 
 // GrBackendTexture
 
 gr_backendtexture_t* gr_backendtexture_new_gl(int width, int height, bool mipmapped, const gr_gl_textureinfo_t* glInfo) {
-    return SK_ONLY_GPU_RETURN(ToGrBackendTexture(new GrBackendTexture(width, height, (GrMipMapped)mipmapped, *AsGrGLTextureInfo(glInfo))), nullptr);
+    return SK_ONLY_GPU(ToGrBackendTexture(new GrBackendTexture(width, height, (GrMipMapped)mipmapped, *AsGrGLTextureInfo(glInfo))), nullptr);
+}
+
+gr_backendtexture_t* gr_backendtexture_new_vulkan(int width, int height, const gr_vk_imageinfo_t* vkInfo) {
+    return SK_ONLY_VULKAN(ToGrBackendTexture(new GrBackendTexture(width, height, *AsGrVkImageInfo(vkInfo))), nullptr);
 }
 
 void gr_backendtexture_delete(gr_backendtexture_t* texture) {
@@ -120,34 +160,38 @@ void gr_backendtexture_delete(gr_backendtexture_t* texture) {
 }
 
 bool gr_backendtexture_is_valid(const gr_backendtexture_t* texture) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendTexture(texture)->isValid(), false);
+    return SK_ONLY_GPU(AsGrBackendTexture(texture)->isValid(), false);
 }
 
 int gr_backendtexture_get_width(const gr_backendtexture_t* texture) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendTexture(texture)->width(), 0);
+    return SK_ONLY_GPU(AsGrBackendTexture(texture)->width(), 0);
 }
 
 int gr_backendtexture_get_height(const gr_backendtexture_t* texture) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendTexture(texture)->height(), 0);
+    return SK_ONLY_GPU(AsGrBackendTexture(texture)->height(), 0);
 }
 
 bool gr_backendtexture_has_mipmaps(const gr_backendtexture_t* texture) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendTexture(texture)->hasMipMaps(), false);
+    return SK_ONLY_GPU(AsGrBackendTexture(texture)->hasMipMaps(), false);
 }
 
 gr_backend_t gr_backendtexture_get_backend(const gr_backendtexture_t* texture) {
-    return SK_ONLY_GPU_RETURN((gr_backend_t)AsGrBackendTexture(texture)->backend(), (gr_backend_t)0);
+    return SK_ONLY_GPU((gr_backend_t)AsGrBackendTexture(texture)->backend(), (gr_backend_t)0);
 }
 
 bool gr_backendtexture_get_gl_textureinfo(const gr_backendtexture_t* texture, gr_gl_textureinfo_t* glInfo) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendTexture(texture)->getGLTextureInfo(AsGrGLTextureInfo(glInfo)), false);
+    return SK_ONLY_GPU(AsGrBackendTexture(texture)->getGLTextureInfo(AsGrGLTextureInfo(glInfo)), false);
 }
 
 
 // GrBackendRenderTarget
 
 gr_backendrendertarget_t* gr_backendrendertarget_new_gl(int width, int height, int samples, int stencils, const gr_gl_framebufferinfo_t* glInfo) {
-    return SK_ONLY_GPU_RETURN(ToGrBackendRenderTarget(new GrBackendRenderTarget(width, height, samples, stencils, *AsGrGLFramebufferInfo(glInfo))), nullptr);
+    return SK_ONLY_GPU(ToGrBackendRenderTarget(new GrBackendRenderTarget(width, height, samples, stencils, *AsGrGLFramebufferInfo(glInfo))), nullptr);
+}
+
+gr_backendrendertarget_t* gr_backendrendertarget_new_vulkan(int width, int height, int samples, const gr_vk_imageinfo_t* vkImageInfo) {
+    return SK_ONLY_VULKAN(ToGrBackendRenderTarget(new GrBackendRenderTarget(width, height, samples, *AsGrVkImageInfo(vkImageInfo))), nullptr);
 }
 
 void gr_backendrendertarget_delete(gr_backendrendertarget_t* rendertarget) {
@@ -155,29 +199,29 @@ void gr_backendrendertarget_delete(gr_backendrendertarget_t* rendertarget) {
 }
 
 bool gr_backendrendertarget_is_valid(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->isValid(), false);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->isValid(), false);
 }
 
 int gr_backendrendertarget_get_width(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->width(), 0);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->width(), 0);
 }
 
 int gr_backendrendertarget_get_height(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->height(), 0);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->height(), 0);
 }
 
 int gr_backendrendertarget_get_samples(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->sampleCnt(), 0);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->sampleCnt(), 0);
 }
 
 int gr_backendrendertarget_get_stencils(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->stencilBits(), 0);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->stencilBits(), 0);
 }
 
 gr_backend_t gr_backendrendertarget_get_backend(const gr_backendrendertarget_t* rendertarget) {
-    return SK_ONLY_GPU_RETURN((gr_backend_t)AsGrBackendRenderTarget(rendertarget)->backend(), (gr_backend_t)0);
+    return SK_ONLY_GPU((gr_backend_t)AsGrBackendRenderTarget(rendertarget)->backend(), (gr_backend_t)0);
 }
 
 bool gr_backendrendertarget_get_gl_framebufferinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo) {
-    return SK_ONLY_GPU_RETURN(AsGrBackendRenderTarget(rendertarget)->getGLFramebufferInfo(AsGrGLFramebufferInfo(glInfo)), false);
+    return SK_ONLY_GPU(AsGrBackendRenderTarget(rendertarget)->getGLFramebufferInfo(AsGrGLFramebufferInfo(glInfo)), false);
 }
