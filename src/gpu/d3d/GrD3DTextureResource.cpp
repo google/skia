@@ -78,6 +78,10 @@ GrD3DTextureResource::~GrD3DTextureResource() {
     SkASSERT(!fResource);
 }
 
+void GrD3DTextureResource::prepareForPresent(GrD3DGpu* gpu) {
+    this->setResourceState(gpu, D3D12_RESOURCE_STATE_PRESENT);
+}
+
 void GrD3DTextureResource::releaseResource(GrD3DGpu* gpu) {
     // TODO: do we need to migrate resource state if we change queues?
     if (fResource) {
