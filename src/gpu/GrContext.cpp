@@ -332,6 +332,10 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
     return GrSemaphoresSubmitted::kYes;
 }
 
+bool GrContext::submit(bool syncToCpu) {
+    return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::checkAsyncWorkCompletion() {
