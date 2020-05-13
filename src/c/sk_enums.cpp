@@ -152,25 +152,25 @@ static_assert ((int)SkBlendMode::kColor        == (int)COLOR_SK_BLENDMODE,      
 static_assert ((int)SkBlendMode::kLuminosity   == (int)LUMINOSITY_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
 
 // sk_colortype_t
-static_assert ((int)SkColorType::kUnknown_SkColorType              == (int)UNKNOWN_SK_COLORTYPE,                     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kAlpha_8_SkColorType              == (int)ALPHA_8_SK_COLORTYPE,                     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGB_565_SkColorType              == (int)RGB_565_SK_COLORTYPE,                     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kARGB_4444_SkColorType            == (int)ARGB_4444_SK_COLORTYPE,                   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_8888_SkColorType            == (int)RGBA_8888_SK_COLORTYPE,                   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kBGRA_8888_SkColorType            == (int)BGRA_8888_SK_COLORTYPE,                   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGB_888x_SkColorType             == (int)RGB_888X_SK_COLORTYPE,                    ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_1010102_SkColorType         == (int)RGBA_1010102_SK_COLORTYPE,                ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGB_101010x_SkColorType          == (int)RGB_101010X_SK_COLORTYPE,                 ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kGray_8_SkColorType               == (int)GRAY_8_SK_COLORTYPE,                      ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_F16Norm_SkColorType         == (int)RGBA_F16_NORMALIZED_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_F16_SkColorType             == (int)RGBA_F16_SK_COLORTYPE,                    ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_F32_SkColorType             == (int)RGBA_F32_SK_COLORTYPE,                    ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kR8G8_unorm_SkColorType           == (int)R8G8_UNNORMALIZED_SK_COLORTYPE,           ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kA16_unorm_SkColorType            == (int)A16_UNNORMALIZED_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kR16G16_unorm_SkColorType         == (int)R16G16_UNNORMALIZED_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kA16_float_SkColorType            == (int)A16_FLOAT_SK_COLORTYPE,                   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kR16G16_float_SkColorType         == (int)R16G16_FLOAT_SK_COLORTYPE,                ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kR16G16B16A16_unorm_SkColorType   == (int)R16G16B16A16_UNNORMALIZED_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kUnknown_SkColorType              == (int)UNKNOWN_SK_COLORTYPE,              ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kAlpha_8_SkColorType              == (int)ALPHA_8_SK_COLORTYPE,              ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_565_SkColorType              == (int)RGB_565_SK_COLORTYPE,              ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kARGB_4444_SkColorType            == (int)ARGB_4444_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_8888_SkColorType            == (int)RGBA_8888_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kBGRA_8888_SkColorType            == (int)BGRA_8888_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_888x_SkColorType             == (int)RGB_888X_SK_COLORTYPE,             ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_1010102_SkColorType         == (int)RGBA_1010102_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_101010x_SkColorType          == (int)RGB_101010X_SK_COLORTYPE,          ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kGray_8_SkColorType               == (int)GRAY_8_SK_COLORTYPE,               ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F16Norm_SkColorType         == (int)RGBA_F16_NORM_SK_COLORTYPE,        ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F16_SkColorType             == (int)RGBA_F16_SK_COLORTYPE,             ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F32_SkColorType             == (int)RGBA_F32_SK_COLORTYPE,             ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kR8G8_unorm_SkColorType           == (int)R8G8_UNORM_SK_COLORTYPE,           ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kA16_unorm_SkColorType            == (int)A16_UNORM_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kR16G16_unorm_SkColorType         == (int)R16G16_UNORM_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kA16_float_SkColorType            == (int)A16_FLOAT_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kR16G16_float_SkColorType         == (int)R16G16_FLOAT_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kR16G16B16A16_unorm_SkColorType   == (int)R16G16B16A16_UNORM_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
 
 // sk_alphatype_t
 static_assert ((int)SkAlphaType::kUnknown_SkAlphaType    == (int)UNKNOWN_SK_ALPHATYPE,    ASSERT_MSG(SkAlphaType, sk_alphatype_t));
