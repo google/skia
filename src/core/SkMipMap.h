@@ -36,6 +36,7 @@ public:
     // This does not include the base mipmap level that the user provided when
     // creating the SkMipMap.
     static int ComputeLevelCount(int baseWidth, int baseHeight);
+    static int ComputeLevelCount(SkISize s) { return ComputeLevelCount(s.width(), s.height()); }
 
     // Determines the size of a given mipmap level.
     // |level| is an index into the generated mipmap levels. It does not include
