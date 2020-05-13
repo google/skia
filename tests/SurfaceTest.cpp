@@ -849,8 +849,8 @@ static void test_surface_draw_partially(
     readback.alloc(readInfo);
 
     readback.erase(~origColor);
-    SkAssertResult(surface->readPixels(readback.info(), readback.writable_addr(),
-                                       readback.rowBytes(), 0, 0));
+    REPORTER_ASSERT(reporter, surface->readPixels(readback.info(), readback.writable_addr(),
+                                                  readback.rowBytes(), 0, 0));
     bool stop = false;
 
     SkPMColor origColorPM = SkPackARGB_as_RGBA(SkColorGetA(origColor),
