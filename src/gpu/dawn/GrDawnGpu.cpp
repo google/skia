@@ -197,7 +197,10 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(SkISize dimensions,
                                             GrProtected,
                                             int mipLevelCount,
                                             uint32_t levelClearMask) {
-    SkASSERT(!levelClearMask);
+    if (levelClearMask) {
+        return nullptr;
+    }
+
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return nullptr;
@@ -534,7 +537,6 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
                              GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                              size_t rowBytes) {
     wgpu::Texture tex = get_dawn_texture_from_surface(surface);
-    SkASSERT(tex);
 
     if (!tex || 0 == rowBytes) {
         return false;
