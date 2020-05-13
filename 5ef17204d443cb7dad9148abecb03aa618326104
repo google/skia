@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "9d2ffd5e_11ef6d43",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-13T21:57:25Z",
+      "side": 1,
+      "message": "OK, I couldn\u0027t reproduce the issue but I added a submitToGpu() call before the upload.",
+      "parentUuid": "f0cdb3e0_f02e9992",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 28
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c30e5407_3540c4ff",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 1
