@@ -837,9 +837,10 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
     this->bindTextureToScratchUnit(glTex->target(), glTex->textureID());
 
     SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
-    return this->uploadTexData(glTex->format(), surfaceColorType, glTex->width(), glTex->height(),
-                               glTex->target(), left, top, width, height, srcColorType, texels,
-                               mipLevelCount);
+    SkIRect dstRect = SkIRect::MakeXYWH(left, top, width, height);
+    return this->uploadColorTypeTexData(glTex->format(), surfaceColorType, glTex->dimensions(),
+                                        glTex->target(), dstRect, srcColorType, texels,
+                                        mipLevelCount);
 }
 
 bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
@@ -931,32 +932,20 @@ void GrGLGpu::unbindCpuToGpuXferBuffer() {
     }
 }
 
-bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType, int texWidth,
-                            int texHeight, GrGLenum target, int left, int top, int width,
-                            int height, GrColorType srcColorType, const GrMipLevel texels[],
-                            int mipLevelCount, GrMipMapsStatus* mipMapsStatus) {
+bool GrGLGpu::uploadColorTypeTexData(GrGLFormat textureFormat,
+                                     GrColorType textureColorType,
+                                     SkISize texDims,
+                                     GrGLenum target,
+                                     SkIRect dstRect,
+                                     GrColorType srcColorType,
+                                     const GrMipLevel texels[],
+                                     int mipLevelCount) {
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrGLFormatIsCompressed(textureFormat));
 
     SkASSERT(this->glCaps().isFormatTexturable(textureFormat));
-    SkDEBUGCODE(
-        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkIRect bounds = SkIRect::MakeWH(texWidth, texHeight);
-        SkASSERT(bounds.contains(subRect));
-    )
-    SkASSERT(1 == mipLevelCount ||
-             (0 == left && 0 == top && width == texWidth && height == texHeight));
-
-    this->unbindCpuToGpuXferBuffer();
-
-    const GrGLInterface* interface = this->glInterface();
-    const GrGLCaps& caps = this->glCaps();
 
     size_t bpp = GrColorTypeBytesPerPixel(srcColorType);
-
-    if (width == 0 || height == 0) {
-        return false;
-    }
 
     // External format and type come from the upload data.
     GrGLenum externalFormat;
@@ -966,49 +955,57 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
     if (!externalFormat || !externalType) {
         return false;
     }
+    this->uploadTexData(texDims, target, dstRect, externalFormat, externalType, bpp, texels,
+                        mipLevelCount);
+    return true;
+}
 
-    /*
-     *  Check whether to allocate a temporary buffer for flipping y or
-     *  because our srcData has extra bytes past each row. If so, we need
-     *  to trim those off here, since GL ES may not let us specify
-     *  GL_UNPACK_ROW_LENGTH.
-     */
+void GrGLGpu::uploadTexData(SkISize texDims,
+                            GrGLenum target,
+                            SkIRect dstRect,
+                            GrGLenum externalFormat,
+                            GrGLenum externalType,
+                            size_t bpp,
+                            const GrMipLevel texels[],
+                            int mipLevelCount) {
+    SkASSERT(!texDims.isEmpty());
+    SkASSERT(!dstRect.isEmpty());
+    SkASSERT(SkIRect::MakeSize(texDims).contains(dstRect));
+    SkASSERT(mipLevelCount > 0 && mipLevelCount <= SkMipMap::ComputeLevelCount(texDims) + 1);
+    SkASSERT(1 == mipLevelCount || dstRect == SkIRect::MakeSize(texDims));
+
+    const GrGLInterface* interface = this->glInterface();
+    const GrGLCaps& caps = this->glCaps();
+
     bool restoreGLRowLength = false;
 
-    if (mipMapsStatus) {
-        *mipMapsStatus = (mipLevelCount > 1) ?
-                GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
-    }
-
+    this->unbindCpuToGpuXferBuffer();
     GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
 
-    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        if (!texels[currentMipLevel].fPixels) {
-            if (mipMapsStatus) {
-                *mipMapsStatus = GrMipMapsStatus::kDirty;
-            }
+    SkISize dims = dstRect.size();
+    for (int level = 0; level < mipLevelCount; ++level, dims = {std::max(dims.width()  >> 1, 1),
+                                                                std::max(dims.height() >> 1, 1)}) {
+        if (!texels[level].fPixels) {
             continue;
         }
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        const int currentWidth = std::max(1, width / twoToTheMipLevel);
-        const int currentHeight = std::max(1, height / twoToTheMipLevel);
-        const size_t trimRowBytes = currentWidth * bpp;
-        const size_t rowBytes = texels[currentMipLevel].fRowBytes;
+        const size_t trimRowBytes = dims.width() * bpp;
+        const size_t rowBytes = texels[level].fRowBytes;
 
         if (caps.writePixelsRowBytesSupport() && (rowBytes != trimRowBytes || restoreGLRowLength)) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
             GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
             restoreGLRowLength = true;
+        } else {
+            SkASSERT(rowBytes == trimRowBytes);
         }
 
-        GL_CALL(TexSubImage2D(target, currentMipLevel, left, top, currentWidth, currentHeight,
-                              externalFormat, externalType, texels[currentMipLevel].fPixels));
+        GL_CALL(TexSubImage2D(target, level, dstRect.x(), dstRect.y(), dims.width(), dims.height(),
+                              externalFormat, externalType, texels[level].fPixels));
     }
     if (restoreGLRowLength) {
         SkASSERT(caps.writePixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
-    return true;
 }
 
 bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
@@ -1311,23 +1308,26 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             fHWBoundRenderTargetUniqueID.makeInvalid();
         } else {
             std::unique_ptr<char[]> zeros;
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-            for (int i = 0; i < mipLevelCount; ++i) {
-                if (levelClearMask & (1U << i)) {
-                    int levelWidth  = std::max(1, texDesc.fSize.width()  >> i);
-                    int levelHeight = std::max(1, texDesc.fSize.height() >> i);
+            SkSTArray<16, GrMipLevel> levels;
+            levels.resize(mipLevelCount);
+            size_t bpp = GrColorTypeBytesPerPixel(colorType);
+            auto dims = texDesc.fSize;
+            for (int i = 0; i < mipLevelCount; ++i, dims = {std::max(dims.width()  >> 1, 1),
+                                                            std::max(dims.height() >> 1, 1)}) {
+                if (levelClearMask & (1 << i)) {
                     // Levels only get smaller as we proceed. Once we create a zeros use it for all
                     // smaller levels that need clearing.
                     if (!zeros) {
-                        size_t bpp = GrColorTypeBytesPerPixel(colorType);
-                        size_t size = levelWidth * levelHeight * bpp;
+                        size_t size = dims.area() * bpp;
                         zeros.reset(new char[size]());
                     }
-                    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
-                    GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelWidth, levelHeight,
-                                          externalFormat, externalType, zeros.get()));
+                    levels[i] = {zeros.get(), bpp * dims.width()};
                 }
             }
+            this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
+            auto dstRect = SkIRect::MakeSize(texDesc.fSize);
+            this->uploadTexData(texDesc.fSize, GR_GL_TEXTURE_2D, dstRect, externalFormat,
+                                externalType, bpp, levels.begin(), mipLevelCount);
         }
     }
     return std::move(tex);
@@ -3577,10 +3577,10 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
         }
-        if (!this->uploadTexData(glFormat, colorType, backendTexture.width(),
-                                 backendTexture.height(), GR_GL_TEXTURE_2D, 0, 0,
-                                 backendTexture.width(), backendTexture.height(),
-                                 colorType, texels.begin(), texels.count())) {
+        SkIRect dstRect = SkIRect::MakeSize(backendTexture.dimensions());
+        if (!this->uploadColorTypeTexData(glFormat, colorType, backendTexture.dimensions(),
+                                          GR_GL_TEXTURE_2D, dstRect, colorType, texels.begin(),
+                                          texels.count())) {
             GL_CALL(DeleteTextures(1, &info.fID));
             return false;
         }
@@ -3604,15 +3604,18 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             return false;
         }
 
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-        SkISize levelDimensions = backendTexture.dimensions();
-        for (int i = 0; i < numMipLevels; ++i) {
-            GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
-                                  levelDimensions.height(), externalFormat, externalType,
-                                  pixelStorage.get()));
-            levelDimensions = {std::max(1, levelDimensions.width() / 2),
-                               std::max(1, levelDimensions.height() / 2)};
+        SkSTArray<16, GrMipLevel> levels;
+        levels.resize(numMipLevels);
+        size_t bpp = GrColorTypeBytesPerPixel(colorType);
+        auto dims = backendTexture.dimensions();
+        for (int i = 0; i < numMipLevels; ++i, dims = {std::max(dims.width()  >> 1, 1),
+                                                       std::max(dims.height() >> 1, 1)}) {
+            levels[i] = {pixelStorage.get(), bpp*dims.width()};
         }
+        this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, info.fID);
+        auto dstRect = SkIRect::MakeSize(backendTexture.dimensions());
+        this->uploadTexData(backendTexture.dimensions(), GR_GL_TEXTURE_2D, dstRect, externalFormat,
+                            externalType, bpp, levels.begin(), levels.count());
     }
 
     // Unbind this texture from the scratch texture unit.

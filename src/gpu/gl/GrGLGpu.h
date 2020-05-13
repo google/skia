@@ -411,10 +411,30 @@ private:
 
     void flushFramebufferSRGB(bool enable);
 
-    bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType, int texWidth,
-                       int texHeight, GrGLenum target, int left, int top, int width, int height,
-                       GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
-                       GrMipMapsStatus* mipMapsStatus = nullptr);
+    // Uploads src data in a color type to a texture of being used for a specific color type. The
+    // upload occurs to the texture that is bound to the currently active texture unit. Fails if the
+    // combination of texture format, texture color type, and src data color type are not valid.
+    // No conversion is performed on the data before passing it to GL. 'dstRect' must be the texture
+    // bounds if mipLevelCount is greater than 1.
+    bool uploadColorTypeTexData(GrGLFormat textureFormat,
+                                GrColorType textureColorType,
+                                SkISize texDims,
+                                GrGLenum target,
+                                SkIRect dstRect,
+                                GrColorType srcColorType,
+                                const GrMipLevel texels[],
+                                int mipLevelCount);
+
+    // Pushes data to the currently bound texture to the currently active unit. 'dstRect' must be
+    // the texture bounds if mipLevelCount is greater than 1.
+    void uploadTexData(SkISize dimensions,
+                       GrGLenum target,
+                       SkIRect dstRect,
+                       GrGLenum externalFormat,
+                       GrGLenum externalType,
+                       size_t bpp,
+                       const GrMipLevel texels[],
+                       int mipLevelCount);
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
     // to populate a new texture. Returns false if we failed to create and upload the texture.
