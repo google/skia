@@ -202,6 +202,10 @@ DEF_TEST(SkMakeSpan, reporter) {
         REPORTER_ASSERT(reporter, s[3] == 4);
         s[3] = 100;
         REPORTER_ASSERT(reporter, s[3] == 100);
+        auto s1 = s.subspan(1,3);
+        REPORTER_ASSERT(reporter, s1.size() == 3);
+        REPORTER_ASSERT(reporter, s1.front() == 2);
+        REPORTER_ASSERT(reporter, s1.back() == 100);
     }
 
     {
