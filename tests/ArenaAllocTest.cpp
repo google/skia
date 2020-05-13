@@ -169,6 +169,14 @@ DEF_TEST(ArenaAlloc, r) {
         start.start = current;
     }
 
+    {
+        SkSTArenaAlloc<64> arena;
+        auto a = arena.makeInitializedArray<int>(8, [](size_t i ) { return i; });
+        for (size_t i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, a[i] == (int)i);
+        }
+    }
+
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
 
