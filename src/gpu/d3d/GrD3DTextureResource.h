@@ -55,6 +55,9 @@ public:
 
     void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
 
+    // Changes the layout to present
+    void prepareForPresent(GrD3DGpu* gpu);
+
     unsigned int sampleQualityLevel() const { return fInfo.fSampleQualityLevel; }
 
     // This simply updates our tracking of the resourceState and does not actually do any gpu work.

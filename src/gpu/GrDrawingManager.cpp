@@ -238,6 +238,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     SkDEBUGCODE(this->validate());
 
     if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
+            access == SkSurface::BackendSurfaceAccess::kNoAccess &&
             !externalRequests.hasRequests()) {
         bool canSkip = numProxies > 0;
         for (int i = 0; i < numProxies && canSkip; ++i) {

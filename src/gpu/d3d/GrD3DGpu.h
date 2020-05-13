@@ -190,6 +190,10 @@ private:
         finishedProc(finishedContext);
     }
 
+    void prepareSurfacesForBackendAccessAndExternalIO(
+        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+        const GrPrepareForExternalIORequests& externalRequests) override;
+
     bool onSubmitToGpu(bool syncCpu) override;
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,

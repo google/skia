@@ -926,6 +926,11 @@ void GrBackendRenderTarget::cleanup() {
         fVkInfo.cleanup();
     }
 #endif
+#ifdef SK_DIRECT3D
+    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
+        fD3DInfo.cleanup();
+    }
+#endif
 }
 
 GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTarget& that) : fIsValid(false) {

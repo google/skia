@@ -83,15 +83,34 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
 static DEFINE_string(slide, "", "Start on this sample.");
 static DEFINE_bool(list, false, "List samples?");
 
-#if defined(SK_VULKAN)
-#    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
-#elif defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
-#    define BACKENDS_STR "\"sw\", \"gl\", and \"mtl\""
-#elif defined(SK_DAWN)
-#    define BACKENDS_STR "\"sw\", \"gl\", and \"dawn\""
+#ifdef SK_GL
+#define GL_BACKEND_STR ", \"gl\""
 #else
-#    define BACKENDS_STR "\"sw\" and \"gl\""
+#define GL_BACKEND_STR
 #endif
+#ifdef SK_VULKAN
+#define VK_BACKEND_STR ", \"vk\""
+#else
+#define VK_BACKEND_STR
+#endif
+#ifdef SK_METAL
+#define MTL_BACKEND_STR ", \"mtl\""
+#else
+#define MTL_BACKEND_STR
+#endif
+#ifdef SK_DIRECT3D
+#define D3D_BACKEND_STR ", \"d3d\""
+#else
+#define D3D_BACKEND_STR
+#endif
+#ifdef SK_DAWN
+#define DAWN_BACKEND_STR ", \"dawn\""
+#else
+#define DAWN_BACKEND_STR
+#endif
+#define BACKENDS_STR_EVALUATOR(sw, gl, vk, mtl, d3d, dawn) sw gl vk mtl d3d dawn
+#define BACKENDS_STR BACKENDS_STR_EVALUATOR( \
+    "\"sw\"", GL_BACKEND_STR, VK_BACKEND_STR, MTL_BACKEND_STR, D3D_BACKEND_STR, DAWN_BACKEND_STR)
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
@@ -153,6 +172,9 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #ifdef SK_METAL
     "Metal",
 #endif
+#ifdef SK_DIRECT3D
+    "Direct3D",
+#endif
     "Raster"
 };
 
@@ -177,6 +199,12 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
         return sk_app::Window::kMetal_BackendType;
     } else
 #endif
+#ifdef SK_DIRECT3D
+    if (0 == strcmp(str, "d3d")) {
+        return sk_app::Window::kDirect3D_BackendType;
+    } else
+#endif
+
     if (0 == strcmp(str, "gl")) {
         return sk_app::Window::kNativeGL_BackendType;
     } else if (0 == strcmp(str, "sw")) {
@@ -1683,6 +1711,10 @@ void Viewer::drawImGui() {
 #if defined(SK_METAL)
                 ImGui::SameLine();
                 ImGui::RadioButton("Metal", &newBackend, sk_app::Window::kMetal_BackendType);
+#endif
+#if defined(SK_DIRECT3D)
+                ImGui::SameLine();
+                ImGui::RadioButton("Direct3D", &newBackend, sk_app::Window::kDirect3D_BackendType);
 #endif
                 if (newBackend != fBackendType) {
                     fDeferredActions.push_back([=]() {

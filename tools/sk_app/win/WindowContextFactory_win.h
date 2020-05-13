@@ -26,6 +26,10 @@ std::unique_ptr<WindowContext> MakeGLForWin(HWND, const DisplayParams&);
 
 std::unique_ptr<WindowContext> MakeANGLEForWin(HWND, const DisplayParams&);
 
+#ifdef SK_DIRECT3D
+std::unique_ptr<WindowContext> MakeD3D12ForWin(HWND, const DisplayParams&);
+#endif
+
 #ifdef SK_DAWN
 std::unique_ptr<WindowContext> MakeDawnD3D12ForWin(HWND, const DisplayParams&);
 #endif
