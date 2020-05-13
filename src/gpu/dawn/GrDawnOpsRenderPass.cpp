@@ -108,7 +108,8 @@ void GrDawnOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& co
 
 void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
                                        GrDeferredTextureUploadFn& upload) {
-    SkASSERT(!"unimplemented");
+    fGpu->submitToGpu(false);
+    state->doUpload(upload);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
