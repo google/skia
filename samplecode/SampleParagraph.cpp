@@ -24,6 +24,10 @@
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
+#include "tools/flags/CommandLineFlags.h"
+
+
+static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
 using namespace skia::textlayout;
 namespace {
@@ -37,6 +41,10 @@ protected:
             fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
         }
         return fFC;
+    }
+
+    bool isVerbose() {
+        return FLAGS_verboseParagraph;
     }
 };
 
@@ -55,7 +63,6 @@ void writeHtml(const char* name, Paragraph* paragraph) {
         }
 }
 */
-}  // namespace
 
 class ParagraphView1 : public ParagraphView_Base {
 protected:
@@ -737,10 +744,12 @@ protected:
             builder.addText(text4);
             builder.pop();
         } else {
-            // icu::UnicodeString unicode((UChar*) text.data(), SkToS32(text.size()));
-            // std::string str;
-            // unicode.toUTF8String(str);
-            // SkDebugf("Text: %s\n", str.c_str());
+            if (this->isVerbose()) {
+                icu::UnicodeString unicode((UChar*) text.data(), SkToS32(text.size()));
+                std::string str;
+                unicode.toUTF8String(str);
+                SkDebugf("Text: %s\n", str.c_str());
+            }
             builder.addText(text + expected);
         }
 
@@ -1296,7 +1305,9 @@ protected:
             auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
             if (rects.size() >= 1 && rects[0].rect.width() > 0) {
             } else {
-                SkDebugf("+[%d:%d): Bad\n", query.fX, query.fY);
+                if (this->isVerbose()) {
+                    SkDebugf("+[%d:%d): Bad\n", query.fX, query.fY);
+                }
             }
         }
 
@@ -1304,7 +1315,9 @@ protected:
             auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
             if (miss.empty()) {
             } else {
-                SkDebugf("-[%d:%d): Bad\n", query.fX, query.fY);
+                if (this->isVerbose()) {
+                    SkDebugf("-[%d:%d): Bad\n", query.fX, query.fY);
+                }
             }
         }
     }
@@ -1596,7 +1609,9 @@ protected:
                 icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
                 std::string str;
                 unicode.toUTF8String(str);
-                SkDebugf("Text:>%s<\n", str.data());
+                if (this->isVerbose()) {
+                    SkDebugf("Text:>%s<\n", str.data());
+                }
                 builder.addText(utf16text);
                 fParagraph = builder.Build();
             }
@@ -2031,9 +2046,11 @@ protected:
         auto w = 300;
 
         auto draw = [&](SkScalar width, SkScalar height, TextDirection td, TextAlign ta, const char* t) {
-            SkDebugf("draw '%s' dir:%s align:%s\n", t,
-                    td == TextDirection::kLtr ? "left" : "right",
-                    ta == TextAlign::kLeft ? "left" : "right");
+            if (this->isVerbose()) {
+                SkDebugf("draw '%s' dir:%s align:%s\n", t,
+                         td == TextDirection::kLtr ? "left" : "right",
+                         ta == TextAlign::kLeft ? "left" : "right");
+            }
             paragraph_style.setTextDirection(td);
             paragraph_style.setTextAlign(ta);
             text_style.setFontSize(20);
@@ -2058,21 +2075,27 @@ protected:
             paragraph->paint(canvas, 0, 0);
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             for (auto& line : impl->lines()) {
-                SkDebugf("line[%d]: %f + %f\n", &line - impl->lines().begin(), line.offset().fX, line.shift());
+                if (this->isVerbose()) {
+                    SkDebugf("line[%d]: %f + %f\n", &line - impl->lines().begin(), line.offset().fX, line.shift());
+                }
                 line.iterateThroughVisualRuns(true,
                     [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
                     *width = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
-                    SkDebugf("%d[%d: %d) @%f + %f %s\n", run->index(),
-                            textRange.start, textRange.end, runOffset, *width, run->leftToRight() ? "left" : "right");
+                    if (this->isVerbose()) {
+                        SkDebugf("%d[%d: %d) @%f + %f %s\n", run->index(),
+                                 textRange.start, textRange.end, runOffset, *width, run->leftToRight() ? "left" : "right");
+                    }
                     return true;
                 });
             }
             auto boxes = paragraph->getRectsForRange(0, 100, RectHeightStyle::kTight, RectWidthStyle::kTight);
             bool even = true;
             for (auto& box : boxes) {
-                SkDebugf("[%f:%f,%f:%f] %s\n",
-                        box.rect.fLeft, box.rect.fRight, box.rect.fTop, box.rect.fBottom,
-                        box.direction == TextDirection::kLtr ? "left" : "right");
+                if (this->isVerbose()) {
+                    SkDebugf("[%f:%f,%f:%f] %s\n",
+                             box.rect.fLeft, box.rect.fRight, box.rect.fTop, box.rect.fBottom,
+                             box.direction == TextDirection::kLtr ? "left" : "right");
+                }
                 canvas->drawRect(box.rect, even ? red : blue);
                 even = !even;
             }
@@ -2163,21 +2186,23 @@ protected:
         auto f2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
         auto i = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
 
-        SkDebugf("%d(%s) %d(%s) %d(%s)\n",
-                f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
-                f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
-                i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
+        if (this->isVerbose()) {
+            SkDebugf("%d(%s) %d(%s) %d(%s)\n",
+                     f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
+                     f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
+                     i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
 
-        auto rf1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
-        auto rf2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
-        auto rfi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+            auto rf1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+            auto rf2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+            auto rfi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
 
-        SkDebugf("f1: [%f:%f] %s\n",
-                rf1.rect.fLeft, rf1.rect.fRight, rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
-        SkDebugf("f2: [%f:%f] %s\n",
-                rf2.rect.fLeft, rf2.rect.fRight, rf2.direction == TextDirection::kRtl ? "rtl" : "ltr");
-        SkDebugf("i:  [%f:%f] %s\n",
-                rfi.rect.fLeft, rfi.rect.fRight, rfi.direction == TextDirection::kRtl ? "rtl" : "ltr");
+            SkDebugf("f1: [%f:%f] %s\n",
+                     rf1.rect.fLeft, rf1.rect.fRight, rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
+            SkDebugf("f2: [%f:%f] %s\n",
+                     rf2.rect.fLeft, rf2.rect.fRight, rf2.direction == TextDirection::kRtl ? "rtl" : "ltr");
+            SkDebugf("i:  [%f:%f] %s\n",
+                     rfi.rect.fLeft, rfi.rect.fRight, rfi.direction == TextDirection::kRtl ? "rtl" : "ltr");
+        }
     }
 
 private:
@@ -2221,13 +2246,17 @@ protected:
         for (size_t i = 0; i < text.size(); ++i) {
             auto result = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
             if (result.empty()) {
-                SkDebugf("empty [%d:%d)\n", i, i + 1);
+                if (this->isVerbose()) {
+                    SkDebugf("empty [%d:%d)\n", i, i + 1);
+                }
                 continue;
             }
             auto rect = result[0].rect;
             paint.setColor(colors[color++ % 5]);
             canvas->drawRect(rect, paint);
-            SkDebugf("rect [%d:%d): %f:%f\n", i, i + 1, rect.fLeft, rect.fRight);
+            if (this->isVerbose()) {
+                SkDebugf("rect [%d:%d): %f:%f\n", i, i + 1, rect.fLeft, rect.fRight);
+            }
         }
         paragraph->paint(canvas, 0, 0);
     }
@@ -2513,22 +2542,23 @@ protected:
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
         auto clusters = impl->clusters();
-        size_t c = 0;
-        SkDebugf("clusters\n");
-        for (auto& cluster: clusters) {
-          SkDebugf(""
-                   "%d: [%d:%d) %s\n", c++,
-              cluster.textRange().start, cluster.textRange().end,
-              cluster.isSoftBreak() ? "soft" :
-                cluster.isHardBreak() ? "hard" :
-                  cluster.isWhitespaces() ? "spaces" : ""
-              );
-        }
-        auto lines = impl->lines();
-        size_t i = 0;
-        SkDebugf("lines\n");
-        for (auto& line : lines) {
-          SkDebugf("%d: [%d:%d)\n", i++, line.trimmedText().start, line.trimmedText().end);
+        if (this->isVerbose()) {
+            size_t c = 0;
+            SkDebugf("clusters\n");
+            for (auto& cluster: clusters) {
+                SkDebugf("%d: [%d:%d) %s\n", c++,
+                         cluster.textRange().start, cluster.textRange().end,
+                         cluster.isSoftBreak() ? "soft" :
+                         cluster.isHardBreak() ? "hard" :
+                         cluster.isWhitespaces() ? "spaces" : "");
+            }
+
+            auto lines = impl->lines();
+            size_t i = 0;
+            SkDebugf("lines\n");
+            for (auto& line : lines) {
+                SkDebugf("%d: [%d:%d)\n", i++, line.trimmedText().start, line.trimmedText().end);
+            }
         }
 
         paragraph->paint(canvas, 0, 0);
@@ -2764,6 +2794,8 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+
+}  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
