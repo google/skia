@@ -23,6 +23,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
@@ -72,25 +73,6 @@ using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer
 using ICUBiDi  = resource<UBiDi         , decltype(ubidi_close)      , ubidi_close      >;
 using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
 using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
-
-HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
-    size_t size = asset->getLength();
-    HBBlob blob;
-    if (const void* base = asset->getMemoryBase()) {
-        blob.reset(hb_blob_create((char*)base, SkToUInt(size),
-                                  HB_MEMORY_MODE_READONLY, asset.release(),
-                                  [](void* p) { delete (SkStreamAsset*)p; }));
-    } else {
-        // SkDebugf("Extra SkStreamAsset copy\n");
-        void* ptr = size ? sk_malloc_throw(size) : nullptr;
-        asset->read(ptr, size);
-        blob.reset(hb_blob_create((char*)ptr, SkToUInt(size),
-                                  HB_MEMORY_MODE_READONLY, ptr, sk_free));
-    }
-    SkASSERT(blob);
-    hb_blob_make_immutable(blob.get());
-    return blob;
-}
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
@@ -266,31 +248,60 @@ hb_blob_t* skhb_get_table(hb_face_t* face, hb_tag_t tag, void* user_data) {
     }
     SkData* rawData = data.release();
     return hb_blob_create(reinterpret_cast<char*>(rawData->writable_data()), rawData->size(),
-                          HB_MEMORY_MODE_WRITABLE, rawData, [](void* ctx) {
+                          HB_MEMORY_MODE_READONLY, rawData, [](void* ctx) {
                               SkSafeUnref(((SkData*)ctx));
                           });
 }
 
-HBFont create_hb_font(const SkFont& font) {
-    SkASSERT(font.getTypeface());
-    int index;
-    std::unique_ptr<SkStreamAsset> typefaceAsset = font.getTypeface()->openStream(&index);
-    HBFace face;
-    if (!typefaceAsset) {
-        face.reset(hb_face_create_for_tables(
-            skhb_get_table,
-            reinterpret_cast<void *>(font.refTypeface().release()),
-            [](void* user_data){ SkSafeUnref(reinterpret_cast<SkTypeface*>(user_data)); }));
+HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
+    size_t size = asset->getLength();
+    HBBlob blob;
+    if (const void* base = asset->getMemoryBase()) {
+        blob.reset(hb_blob_create((char*)base, SkToUInt(size),
+                                  HB_MEMORY_MODE_READONLY, asset.release(),
+                                  [](void* p) { delete (SkStreamAsset*)p; }));
     } else {
+        // SkDebugf("Extra SkStreamAsset copy\n");
+        void* ptr = size ? sk_malloc_throw(size) : nullptr;
+        asset->read(ptr, size);
+        blob.reset(hb_blob_create((char*)ptr, SkToUInt(size),
+                                  HB_MEMORY_MODE_READONLY, ptr, sk_free));
+    }
+    SkASSERT(blob);
+    hb_blob_make_immutable(blob.get());
+    return blob;
+}
+
+static hb_user_data_key_t dataIdKey;
+
+HBFace create_hb_face(const SkTypeface& typeface) {
+    int index;
+    std::unique_ptr<SkStreamAsset> typefaceAsset = typeface.openStream(&index);
+    HBFace face;
+    if (typefaceAsset && typefaceAsset->getMemoryBase()) {
         HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
         face.reset(hb_face_create(blob.get(), (unsigned)index));
+    } else {
+        face.reset(hb_face_create_for_tables(
+            skhb_get_table,
+            const_cast<SkTypeface*>(SkRef(&typeface)),
+            [](void* user_data){ SkSafeUnref(reinterpret_cast<SkTypeface*>(user_data)); }));
     }
     SkASSERT(face);
     if (!face) {
         return nullptr;
     }
     hb_face_set_index(face.get(), (unsigned)index);
-    hb_face_set_upem(face.get(), font.getTypeface()->getUnitsPerEm());
+    hb_face_set_upem(face.get(), typeface.getUnitsPerEm());
+
+    hb_face_set_user_data(face.get(), &dataIdKey, const_cast<SkTypeface*>(&typeface), nullptr, false);
+
+    return face;
+}
+
+HBFont create_hb_font(const SkFont& font, const HBFace& face) {
+    void* dataId = hb_face_get_user_data(face.get(), &dataIdKey);
+    SkASSERT(dataId == font.getTypeface());
 
     HBFont otFont(hb_font_create(face.get()));
     SkASSERT(otFont);
@@ -652,6 +663,9 @@ protected:
 private:
     const sk_sp<SkFontMgr> fFontMgr;
     HBBuffer               fBuffer;
+
+    // An HBFace is expensive (it sanitizes the bits).
+    mutable SkTHashMap<SkFontID, HBFace> fCache;
 
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont&,
@@ -1319,7 +1333,12 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     hb_buffer_guess_segment_properties(buffer);
 
     // TODO: how to cache hbface (typeface) / hbfont (font)
-    HBFont hbFont(create_hb_font(font.currentFont()));
+    HBFace* hbFaceCached = fCache.find(font.currentFont().getTypeface()->uniqueID());
+    if (!hbFaceCached) {
+        HBFace hbFace(create_hb_face(*font.currentFont().getTypeface()));
+        hbFaceCached = fCache.set(font.currentFont().getTypeface()->uniqueID(), std::move(hbFace));
+    }
+    HBFont hbFont(create_hb_font(font.currentFont(), *hbFaceCached));
     if (!hbFont) {
         return run;
     }
