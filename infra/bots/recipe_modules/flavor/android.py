@@ -356,6 +356,12 @@ if actual_freq != str(freq):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
+    if self.m.vars.builder_cfg.get('model') == 'GalaxyS20':
+      # See skia:10184, should be moot once upgraded to Android 11?
+      self._adb('cp libGLES_mali.so to ' + self.device_dirs.bin_dir,
+                 'shell', 'cp',
+                '/vendor/lib64/egl/libGLES_mali.so',
+                self.device_dirs.bin_dir + 'libvulkan.so')
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
       self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
@@ -504,7 +510,8 @@ time.sleep(60)
   def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; %s%s; echo $? >%src' % (
+        'set -x; env LD_LIBRARY_PATH=%s %s%s; echo $? >%src' % (
+            self.device_dirs.bin_dir,
             self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
             self.device_dirs.bin_dir))
     self._adb('push %s' % sh,

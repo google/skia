@@ -895,13 +895,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
+      "set -x; env LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/dm.sh"
     ],
     "infra_step": true,
     "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x; env LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
