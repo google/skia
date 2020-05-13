@@ -46,6 +46,30 @@
       "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "887353e4_458ce51a",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-13T19:28:16Z",
+      "side": 1,
+      "message": "It\u0027s definitely possible that we\u0027ve got the names topsy-turvy here.  We want makeArray() to be the definitely safe if slow one, and makeArraySomething() to be a way to get an array of ints that\u0027s not zeroed.  If makeArraySomething() shouldn\u0027t be called makeArrayDefault(), let\u0027s rename it for sure.  I don\u0027t think anyone on the team knows the difference between value and default initialization but you, so we\u0027re relying on you to keep us straight here.",
+      "parentUuid": "0ae98f5a_f385cd1f",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
