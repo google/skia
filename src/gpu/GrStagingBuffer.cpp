@@ -13,7 +13,7 @@
 void GrStagingBuffer::markAvailable(void* data) {
     fData = data;
     fOffset = 0;
-    fGpu->markStagingBufferAvailable(this);
+    fGpu->moveStagingBufferFromBusyToAvailable(this);
 }
 
 void GrStagingBuffer::unmap() {

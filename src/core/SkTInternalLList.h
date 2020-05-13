@@ -185,8 +185,8 @@ public:
         return !fHead;
     }
 
-    T* head() { return fHead; }
-    T* tail() { return fTail; }
+    T* head() const { return fHead; }
+    T* tail() const { return fTail; }
 
     class Iter {
     public:
