@@ -76,7 +76,7 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     this->prepareCubicWedges(state);
 }
 
-bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrOpFlushState* flushState,
+bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Target* target,
                                                              int* numCountedCurves) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(!fDoStencilTriangleBuffer);
@@ -84,7 +84,7 @@ bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrOpFlushState* flu
 
     using GrTriangulator::Mode;
 
-    GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fTriangleBuffer, &fBaseTriangleVertex);
+    GrEagerDynamicVertexAllocator vertexAlloc(target, &fTriangleBuffer, &fBaseTriangleVertex);
     fTriangleVertexCount = GrTriangulator::PathToTriangles(fPath, 0, SkRect::MakeEmpty(),
                                                            &vertexAlloc, Mode::kSimpleInnerPolygons,
                                                            numCountedCurves);
@@ -94,7 +94,7 @@ bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrOpFlushState* flu
         return false;
     }
     if (((Flags::kStencilOnly | Flags::kWireframe) & fFlags) || GrAAType::kCoverage == fAAType ||
-        (flushState->appliedClip() && flushState->appliedClip()->hasStencilClip())) {
+        (target->appliedClip() && target->appliedClip()->hasStencilClip())) {
         // If we have certain flags, mixed samples, or a stencil clip then we unfortunately
         // can't fill the inner polygon directly. Indicate that these triangles need to be
         // stencilled.
@@ -106,7 +106,7 @@ bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrOpFlushState* flu
     return true;
 }
 
-void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushState,
+void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrMeshDrawOp::Target* target,
                                                         int* numCountedCurves) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(!fDoStencilTriangleBuffer);
@@ -116,7 +116,7 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrOpFlushState* flushSta
     // Each triangle has 3 vertices.
     int maxVertices = (fPath.countVerbs() - 1) * 3;
 
-    GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fTriangleBuffer, &fBaseTriangleVertex);
+    GrEagerDynamicVertexAllocator vertexAlloc(target, &fTriangleBuffer, &fBaseTriangleVertex);
     auto* vertexData = vertexAlloc.lock<SkPoint>(maxVertices);
     if (!vertexData) {
         return;
@@ -176,7 +176,7 @@ static void quad2cubic(const SkPoint pts[], SkPoint* out) {
     out[3] = pts[2];
 }
 
-void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numCountedCurves,
+void GrTessellatePathOp::prepareOuterCubics(GrMeshDrawOp::Target* target, int numCountedCurves,
                                             CubicDataAlignment alignment) {
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fStencilCubicsShader);
@@ -190,7 +190,7 @@ void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numC
     int instanceOrVertexCount = (instanceAligned) ? numCountedCurves : numCountedCurves * 4;
     int baseInstanceOrVertex;
 
-    auto* vertexData = static_cast<SkPoint*>(flushState->makeVertexSpace(
+    auto* vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
             instanceOrVertexStride, instanceOrVertexCount, &fCubicBuffer, &baseInstanceOrVertex));
     if (!vertexData) {
         return;
@@ -216,10 +216,10 @@ void GrTessellatePathOp::prepareOuterCubics(GrOpFlushState* flushState, int numC
     }
     SkASSERT(fCubicVertexCount == numCountedCurves * 4);
 
-    fStencilCubicsShader = flushState->allocator()->make<GrStencilCubicShader>(fViewMatrix);
+    fStencilCubicsShader = target->allocator()->make<GrStencilCubicShader>(fViewMatrix);
 }
 
-void GrTessellatePathOp::prepareCubicWedges(GrOpFlushState* flushState) {
+void GrTessellatePathOp::prepareCubicWedges(GrMeshDrawOp::Target* target) {
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fStencilCubicsShader);
 
@@ -227,7 +227,7 @@ void GrTessellatePathOp::prepareCubicWedges(GrOpFlushState* flushState) {
     // Each wedge has 5 vertices.
     int maxVertices = (fPath.countVerbs() + 1) * 5;
 
-    GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fCubicBuffer, &fBaseCubicVertex);
+    GrEagerDynamicVertexAllocator vertexAlloc(target, &fCubicBuffer, &fBaseCubicVertex);
     auto* vertexData = vertexAlloc.lock<SkPoint>(maxVertices);
     if (!vertexData) {
         return;
@@ -274,7 +274,7 @@ void GrTessellatePathOp::prepareCubicWedges(GrOpFlushState* flushState) {
     vertexAlloc.unlock(fCubicVertexCount);
 
     if (fCubicVertexCount) {
-        fStencilCubicsShader = flushState->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
+        fStencilCubicsShader = target->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
     }
 }
 
