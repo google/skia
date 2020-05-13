@@ -70,6 +70,30 @@
       "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb6ab1b5_15f2f983",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-13T19:32:58Z",
+      "side": 1,
+      "message": "This all looks right to me though?  makeArray() does value initialization, both at head and in my proposal, and makeArrayDefault() does default initialization, both at head in and in my proposal, right?",
+      "parentUuid": "887353e4_458ce51a",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "e25743ce9663dd7c0cc6c4a8f8676db1fb211b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
