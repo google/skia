@@ -72,6 +72,46 @@
     },
     {
       "key": {
+        "uuid": "8fbdf491_e86421c1",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T20:28:24Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d9995a_d1002ac4",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T20:28:24Z",
+      "side": 1,
+      "message": "can this fail? Can we at least assert its valid",
+      "range": {
+        "startLine": 76,
+        "startChar": 3,
+        "endLine": 76,
+        "endChar": 16
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a14c18e_b7430a12",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 8
@@ -88,6 +128,52 @@
         "startChar": 3,
         "endLine": 120,
         "endChar": 32
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a42d1674_a7335803",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T20:28:24Z",
+      "side": 1,
+      "message": "Random rant that is not a suggested change: I\u0027m surprised they make you go through the hassle of doing your own GPU-\u003eCPU fence here. Seems like the driver could just block on the GetCurrentBackBufferIndex call. Maybe this allows you to start recording commands and it is only the submission of work to the GPU of the next frame that need to block? Definitely like the vulkan model better here of using gpu semaphores for the swapchain synchronizatoin.",
+      "range": {
+        "startLine": 173,
+        "startChar": 25,
+        "endLine": 173,
+        "endChar": 95
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0651fee4_e4da308d",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T20:28:24Z",
+      "side": 1,
+      "message": "can we just do a single GrContext::flush(info) call before the loop?",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 204,
+        "endChar": 78
       },
       "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
