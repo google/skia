@@ -277,7 +277,7 @@ void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+    static std::unique_ptr<GrFragmentProcessor> Make1(GrRecordingContext* context,
                                                      const SkBitmap& bitmap);
 
     ~ColorTableEffect() override {}
@@ -368,12 +368,52 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* context,
+
+#include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrProxyProvider.h"
+
+static GrSurfaceProxyView foo(GrRecordingContext* context, const SkBitmap& bitmap) {
+    if (!bitmap.peekPixels(nullptr)) {
+        return {};
+    }
+
+    SkASSERT(bitmap.computeByteSize() == bitmap.height() * bitmap.width() * bitmap.bytesPerPixel());
+    SkASSERT(bitmap.computeByteSize() % 4 == 0);
+    size_t data32Count = bitmap.computeByteSize()/4;
+
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, data32Count, "SkTableColorFilter");
+
+    uint32_t *tmp = (uint32_t *) bitmap.getAddr(0, 0);
+    for (int i = 0; i < data32Count; ++i) {
+        builder[i] = tmp[i];
+    }
+    builder.finish();
+
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    if (sk_sp<GrTextureProxy> filterTable = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(filterTable->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(filterTable), kTopLeft_GrSurfaceOrigin, swizzle};
+    }
+
+    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+    auto view = maker.view(GrMipMapped::kNo);
+    if (!view) {
+        return {};
+    }
+
+    proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+    return view;
+}
+
+std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make1(GrRecordingContext* context,
                                                             const SkBitmap& bitmap) {
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    auto view = foo(context, bitmap);
     if (!view) {
         return nullptr;
     }
@@ -433,7 +473,7 @@ std::unique_ptr<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(
     SkBitmap bitmap;
     this->getTableAsBitmap(&bitmap);
 
-    return ColorTableEffect::Make(context, bitmap);
+    return ColorTableEffect::Make1(context, bitmap);
 }
 
 #endif // SK_SUPPORT_GPU

@@ -238,15 +238,25 @@ class GrUniqueKey : public GrResourceKey {
 private:
     typedef GrResourceKey INHERITED;
 
+    static uint32_t CreateUniqueID();
+
 public:
     typedef uint32_t Domain;
     /** Generate a Domain for unique keys. */
     static Domain GenerateDomain();
 
+    int fID;
+    bool fFancy = false;
+
     /** Creates an invalid unique key. It must be initialized using a Builder object before use. */
-    GrUniqueKey() : fTag(nullptr) {}
+    GrUniqueKey() : fTag(nullptr), fID(CreateUniqueID()) {
+    }
 
     GrUniqueKey(const GrUniqueKey& that) { *this = that; }
+
+    ~GrUniqueKey() {
+
+    }
 
     /** reset() returns the key to the invalid state. */
     using INHERITED::reset;
@@ -255,6 +265,8 @@ public:
 
     GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
+        fID = that.fID;
+        fFancy = that.fFancy;
         this->setCustomData(sk_ref_sp(that.getCustomData()));
         fTag = that.fTag;
         return *this;
@@ -334,6 +346,8 @@ public:
     GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fKey(key), fContextID(contextUniqueID) {
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
+
+//        SkDebugf("Posting inval msg for %d %d\n", fKey.fID, fKey.fFancy);
     }
 
     GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
