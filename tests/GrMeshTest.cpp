@@ -64,7 +64,7 @@ public:
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
 
-    GrOpFlushState* state() { return fState; }
+    GrMeshDrawOp::Target* target() { return fState; }
 
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fIndexBuffer2;
@@ -331,16 +331,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          // Make helper->fDrawIndirectBufferOffset nonzero.
                          sk_sp<const GrBuffer> dummyBuff;
                          size_t dummyOffset;
-                         helper->state()->makeDrawIndirectSpace(29, &dummyBuff, &dummyOffset);
-                         drawIndexedIndirect = helper->state()->makeDrawIndexedIndirectSpace(
+                         // Make a superfluous call to makeDrawIndirectSpace in order to test
+                         // "offsetInBytes!=0" for the actual call to makeDrawIndexedIndirectSpace.
+                         helper->target()->makeDrawIndirectSpace(29, &dummyBuff, &dummyOffset);
+                         drawIndexedIndirect = helper->target()->makeDrawIndexedIndirectSpace(
                                  kBoxCountY, &helper->fDrawIndirectBuffer,
                                  &helper->fDrawIndirectBufferOffset);
                      } else {
                          // Make helper->fDrawIndirectBufferOffset nonzero.
                          sk_sp<const GrBuffer> dummyBuff;
                          size_t dummyOffset;
-                         helper->state()->makeDrawIndexedIndirectSpace(7, &dummyBuff, &dummyOffset);
-                         drawIndirect = helper->state()->makeDrawIndirectSpace(
+                         // Make a superfluous call to makeDrawIndexedIndirectSpace in order to test
+                         // "offsetInBytes!=0" for the actual call to makeDrawIndirectSpace.
+                         helper->target()->makeDrawIndexedIndirectSpace(7, &dummyBuff, &dummyOffset);
+                         drawIndirect = helper->target()->makeDrawIndirectSpace(
                                  kBoxCountY, &helper->fDrawIndirectBuffer,
                                  &helper->fDrawIndirectBufferOffset);
                      }
