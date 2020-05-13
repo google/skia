@@ -38,12 +38,17 @@ public:
                                                 "m");
         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 "v");
+        SkString safeUnpremul_name;
+        const GrShaderVar safeUnpremul_args[] = {GrShaderVar("color", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf4_GrSLType, "safeUnpremul", 1, safeUnpremul_args,
+                "return half4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);\n",
+                &safeUnpremul_name);
         fragBuilder->codeAppendf(
-                "half4 inputColor = %s;\n@if (%s) {\n    half nonZeroAlpha = max(inputColor.w, "
-                "9.9999997473787516e-05);\n    inputColor = half4(inputColor.xyz / nonZeroAlpha, "
-                "inputColor.w);\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, "
-                "0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    "
-                "%s.xyz *= %s.w;\n}\n",
+                "half4 inputColor = %s;\n@if (%s) {\n    inputColor = "
+                "safeUnpremul(inputColor);\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = "
+                "clamp(%s, 0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) "
+                "{\n    %s.xyz *= %s.w;\n}\n",
                 args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),

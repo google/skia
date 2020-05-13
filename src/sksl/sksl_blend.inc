@@ -298,4 +298,9 @@ half4 blend(SkBlendMode mode, half4 src, half4 dst) {
     }
     return half4(0);  // Avoids "'blend' can exit without returning a value."
 }
+
+half4 safeUnpremul(half4 color) {
+    // The max() guards against division by zero when the incoming color is transparent black
+    return half4(color.rgb / max(color.a, 0.0001), color.a);
+}
 )SKSL"
