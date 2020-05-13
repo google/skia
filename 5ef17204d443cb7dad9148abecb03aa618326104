@@ -285,6 +285,30 @@
       "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1331fb12_6d0c101a",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-13T21:58:15Z",
+      "side": 1,
+      "message": "OK, I put a REPORTER_ASSERT call around it.",
+      "parentUuid": "43045b39_f0cc3e15",
+      "range": {
+        "startLine": 852,
+        "startChar": 13,
+        "endLine": 852,
+        "endChar": 23
+      },
+      "revId": "5ef17204d443cb7dad9148abecb03aa618326104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
