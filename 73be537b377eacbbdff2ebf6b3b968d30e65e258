@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a14c18e_b7430a12",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-13T18:06:12Z",
+      "side": 1,
+      "message": "I think I\u0027ll add a #define for this \"result \u003d\" + \"SkASSERT(SUCCEEDED)\" pattern. That\u0027ll fix the compile error.",
+      "range": {
+        "startLine": 118,
+        "startChar": 3,
+        "endLine": 120,
+        "endChar": 32
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
