@@ -19,29 +19,74 @@ static SkPath make_cubic_path() {
     SkRandom rand;
     SkPath path;
     for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-                float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
+        float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
         path.cubicTo(111.625f*x, 308.188f*x, 764.62f*x, -435.688f*x, 742.63f*x, 85.187f*x);
         path.cubicTo(764.62f*x, -435.688f*x, 111.625f*x, 308.188f*x, 0, 0);
     }
     return path;
 }
 
-static sk_sp<GrContext> make_tessellation_mock_context() {
-    GrMockOptions mockOptions;
-    mockOptions.fDrawInstancedSupport = true;
-    mockOptions.fTessellationSupport = true;
-    mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
-    return GrContext::MakeMock(&mockOptions);
-}
+// This is a dummy GrMeshDrawOp::Target implementation that just gives back pointers into
+// pre-allocated CPU buffers, rather than allocating and mapping GPU buffers.
+class BenchmarkTarget : public GrMeshDrawOp::Target {
+public:
+    void resetAllocator() { fAllocator.reset(); }
+    SkArenaAlloc* allocator() override { return &fAllocator; }
+    void putBackVertices(int vertices, size_t vertexStride) override { /* no-op */ }
+
+    void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
+                          int* startVertex) override {
+        if (vertexSize * vertexCount > sizeof(fStaticVertexData)) {
+            SK_ABORT(SkStringPrintf(
+                    "FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
+                    vertexSize * vertexCount, SK_ARRAY_COUNT(fStaticVertexData)).c_str());
+        }
+        return fStaticVertexData;
+    }
+
+    GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
+            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
+        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
+        if (drawCount > staticBufferCount) {
+            SK_ABORT(SkStringPrintf(
+                    "FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
+                    drawCount, staticBufferCount).c_str());
+        }
+        return fStaticDrawIndexedIndirectData;
+    }
+
+#define UNIMPL(...) __VA_ARGS__ override { SK_ABORT("unimplemented."); }
+    UNIMPL(void recordDraw(const GrGeometryProcessor*, const GrSimpleMesh[], int,
+                           const GrSurfaceProxy* const[], GrPrimitiveType))
+    UNIMPL(uint16_t* makeIndexSpace(int, sk_sp<const GrBuffer>*, int*))
+    UNIMPL(void* makeVertexSpaceAtLeast(size_t, int, int, sk_sp<const GrBuffer>*, int*, int*))
+    UNIMPL(uint16_t* makeIndexSpaceAtLeast(int, int, sk_sp<const GrBuffer>*, int*, int*))
+    UNIMPL(GrDrawIndirectCommand* makeDrawIndirectSpace(int, sk_sp<const GrBuffer>*, size_t*))
+    UNIMPL(void putBackIndices(int))
+    UNIMPL(GrRenderTargetProxy* proxy() const)
+    UNIMPL(const GrSurfaceProxyView* writeView() const)
+    UNIMPL(const GrAppliedClip* appliedClip() const)
+    UNIMPL(GrAppliedClip detachAppliedClip())
+    UNIMPL(const GrXferProcessor::DstProxyView& dstProxyView() const)
+    UNIMPL(GrResourceProvider* resourceProvider() const)
+    UNIMPL(GrStrikeCache* strikeCache() const)
+    UNIMPL(GrAtlasManager* atlasManager() const)
+    UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())
+    UNIMPL(const GrCaps& caps() const)
+    UNIMPL(GrDeferredUploadTarget* deferredUploadTarget())
+#undef UNIMPL
+
+private:
+    SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 5];
+    GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
+    SkSTArenaAlloc<1024 * 1024> fAllocator;
+};
 
 // This serves as a base class for benchmarking individual methods on GrTessellatePathOp.
 class GrTessellatePathOp::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
-            : fCtx(make_tessellation_mock_context())
-            , fOp(m, path, GrPaint(), GrAAType::kMSAA)
-            , fFlushState(fCtx->priv().getGpu(), fCtx->priv().resourceProvider(), nullptr,
-                          GrBufferAllocPool::CpuBufferCache::Make(6)) {
+            : fOp(m, path, GrPaint(), GrAAType::kMSAA) {
         fName.printf("tessellate_%s", subName);
     }
 
@@ -60,15 +105,15 @@ private:
             fOp.fDoFillTriangleBuffer = false;
             fOp.fCubicBuffer.reset();
             fOp.fStencilCubicsShader = nullptr;
-            this->runBench(&fFlushState, &fOp);
+            this->runBench(&fTarget, &fOp);
+            fTarget.resetAllocator();
         }
     }
 
-    virtual void runBench(GrOpFlushState*, GrTessellatePathOp*) = 0;
+    virtual void runBench(GrMeshDrawOp::Target*, GrTessellatePathOp*) = 0;
 
-    sk_sp<GrContext> fCtx;
     GrTessellatePathOp fOp;
-    GrOpFlushState fFlushState;
+    BenchmarkTarget fTarget;
     SkString fName;
 };
 
@@ -81,9 +126,9 @@ public:
                                                          kNumCubicsInChalkboard),
                                     SkMatrix::I()) {
     }
-    void runBench(GrOpFlushState* flushState, GrTessellatePathOp* op) override {
+    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
         int numBeziers;
-        op->prepareMiddleOutInnerTriangles(flushState, &numBeziers);
+        op->prepareMiddleOutInnerTriangles(target, &numBeziers);
     }
 };
 
@@ -95,8 +140,8 @@ public:
     OuterCubicsBench()
             : TestingOnly_Benchmark("prepareOuterCubics", make_cubic_path(), SkMatrix::I()) {
     }
-    void runBench(GrOpFlushState* flushState, GrTessellatePathOp* op) override {
-        op->prepareOuterCubics(flushState, kNumCubicsInChalkboard,
+    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
+        op->prepareOuterCubics(target, kNumCubicsInChalkboard,
                                CubicDataAlignment::kVertexBoundary);
     }
 };
@@ -109,8 +154,8 @@ public:
     CubicWedgesBench()
             : TestingOnly_Benchmark("prepareCubicWedges", make_cubic_path(), SkMatrix::I()) {
     }
-    void runBench(GrOpFlushState* flushState, GrTessellatePathOp* op) override {
-        op->prepareCubicWedges(flushState);
+    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
+        op->prepareCubicWedges(target);
     }
 };
 
