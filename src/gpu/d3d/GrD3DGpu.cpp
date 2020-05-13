@@ -116,6 +116,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
         if (sync == SyncQueue::kForce) {
             this->waitForQueueCompletion();
+            this->checkForFinishedCommandLists();
         }
         return true;
     }
@@ -1004,6 +1005,29 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
     SkASSERT(resource);
 
     fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
+}
+
+void GrD3DGpu::prepareSurfacesForBackendAccessAndExternalIO(
+        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+        const GrPrepareForExternalIORequests& externalRequests) {
+    SkASSERT(numProxies >= 0);
+    SkASSERT(!numProxies || proxies);
+
+    // prepare proxies by transitioning to PRESENT renderState
+    if (numProxies && access == SkSurface::BackendSurfaceAccess::kPresent) {
+        GrD3DTextureResource* resource;
+        for (int i = 0; i < numProxies; ++i) {
+            SkASSERT(proxies[i]->isInstantiated());
+            if (GrTexture* tex = proxies[i]->peekTexture()) {
+                resource = static_cast<GrD3DTexture*>(tex);
+            } else {
+                GrRenderTarget* rt = proxies[i]->peekRenderTarget();
+                SkASSERT(rt);
+                resource = static_cast<GrD3DRenderTarget*>(rt);
+            }
+            resource->prepareForPresent(this);
+        }
+    }
 }
 
 bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
