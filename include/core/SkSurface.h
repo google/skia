@@ -912,7 +912,12 @@ public:
         drawing and object lifetime. Call when interleaving Skia calls with native
         GPU calls.
     */
-    void flush();
+    void flushAndSubmit();
+
+    /**
+     * Deprecated.
+     */
+    void flush() { this->flushAndSubmit(); }
 
     enum class BackendSurfaceAccess {
         kNoAccess,  //!< back-end object will not be used by client
