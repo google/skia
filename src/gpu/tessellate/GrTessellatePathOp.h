@@ -8,7 +8,7 @@
 #ifndef GrTessellatePathOp_DEFINED
 #define GrTessellatePathOp_DEFINED
 
-#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 
 class GrAppliedHardClip;
 class GrStencilPathShader;
@@ -64,7 +64,7 @@ private:
     // Returns false if the inner triangles do not form a simple polygon (e.g., self intersection,
     // double winding). Non-simple polygons would need to split edges in order to avoid overlap,
     // and this is not an option as it would introduce T-junctions with the outer cubics.
-    bool prepareNonOverlappingInnerTriangles(GrOpFlushState*, int* numCountedCurves);
+    bool prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Target*, int* numCountedCurves);
 
     // Produces a "Red Book" style triangulation of the SkPath's inner polygon(s). The inner
     // polygons connect the endpoints of each verb. (i.e., they are the path that would result from
@@ -74,7 +74,7 @@ private:
     // This method emits the inner triangles with a "middle-out" topology. Middle-out can reduce
     // the load on the rasterizer by a great deal as compared to a linear triangle strip or fan.
     // See GrMiddleOutPolygonTriangulator.
-    void prepareMiddleOutInnerTriangles(GrOpFlushState*, int* numCountedCurves);
+    void prepareMiddleOutInnerTriangles(GrMeshDrawOp::Target*, int* numCountedCurves);
 
     enum class CubicDataAlignment : bool {
         kVertexBoundary,
@@ -84,7 +84,7 @@ private:
     // Writes an array of "outer" cubics from each bezier in the SkPath, converting any quadratics
     // to cubics. An outer cubic is an independent, 4-point closed contour consisting of a single
     // cubic curve. Stencilled together with the inner triangles, these define the complete path.
-    void prepareOuterCubics(GrOpFlushState* flushState, int numCountedCurves, CubicDataAlignment);
+    void prepareOuterCubics(GrMeshDrawOp::Target*, int numCountedCurves, CubicDataAlignment);
 
     // Writes an array of cubic "wedges" from the SkPath, converting any lines or quadratics to
     // cubics. A wedge is an independent, 5-point closed contour consisting of 4 cubic control
@@ -92,7 +92,7 @@ private:
     // stencilled, these wedges alone define the complete path.
     //
     // TODO: Eventually we want to use rational cubic wedges in order to support conics.
-    void prepareCubicWedges(GrOpFlushState*);
+    void prepareCubicWedges(GrMeshDrawOp::Target*);
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
     void drawStencilPass(GrOpFlushState*);
