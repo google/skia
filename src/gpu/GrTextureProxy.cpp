@@ -75,8 +75,9 @@ GrTextureProxy::~GrTextureProxy() {
     // In DDL-mode, uniquely keyed proxies keep their key even after their originating
     // proxy provider has gone away. In that case there is noone to send the invalid key
     // message to (Note: in this case we don't want to remove its cached resource).
-    if (fUniqueKey.isValid() && fProxyProvider) {
-        fProxyProvider->processInvalidUniqueKey(fUniqueKey, this,
+    if (fUniqueKey1.isValid() && fProxyProvider) {
+        SkDebugf("~GrTextureProxy w/ key %d\n", fUniqueKey1.fID);
+        fProxyProvider->processInvalidUniqueKey(fUniqueKey1, this,
                                                 GrProxyProvider::InvalidateGPUResource::kNo);
     } else {
         SkASSERT(!fProxyProvider);
@@ -88,7 +89,7 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, GrRenderable::kNo, fMipMapped,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
+                               fUniqueKey1.isValid() ? &fUniqueKey1 : nullptr)) {
         return false;
     }
 
@@ -153,7 +154,7 @@ bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* fi
 
 void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
     SkASSERT(key.isValid());
-    SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
+    SkASSERT(!fUniqueKey1.isValid()); // proxies can only ever get one uniqueKey
 
     if (fTarget && fSyncTargetKey) {
         if (!fTarget->getUniqueKey().isValid()) {
@@ -162,12 +163,21 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
         SkASSERT(fTarget->getUniqueKey() == key);
     }
 
-    fUniqueKey = key;
+    fUniqueKey1 = key;
+
+    if (this->height() == 4) {
+        fUniqueKey1.fFancy = true;
+        SkDebugf("setUniqueKey w/ %d on %dx%d\n", fUniqueKey1.fID, this->width(), this->height());
+    }
+
     fProxyProvider = proxyProvider;
 }
 
 void GrTextureProxy::clearUniqueKey() {
-    fUniqueKey.reset();
+    if (fUniqueKey1.fFancy) {
+        SkDebugf("clearUniqueKey w/ %d\n", fUniqueKey1.fID);
+    }
+    fUniqueKey1.reset();
     fProxyProvider = nullptr;
 }
 

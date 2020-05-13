@@ -368,12 +368,47 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+#include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrProxyProvider.h"
+
+static GrSurfaceProxyView foo(GrRecordingContext* context, const SkBitmap& bitmap) {
+
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 1, "SkTableColorFilter");
+    builder[0] = 1;
+    builder.finish();
+
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    if (sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(blurProfile->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(blurProfile), kTopLeft_GrSurfaceOrigin, swizzle};
+    }
+
+
+
+    if (!bitmap.peekPixels(nullptr)) {
+        return {};
+    }
+
+    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kDraw);
+    auto view = maker.view(GrMipMapped::kNo);
+    if (!view) {
+        return {};
+    }
+
+    proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+    return view;
+}
+
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* context,
                                                             const SkBitmap& bitmap) {
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    auto view = foo(context, bitmap);
     if (!view) {
         return nullptr;
     }
