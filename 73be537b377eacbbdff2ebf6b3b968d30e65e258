@@ -68,6 +68,29 @@
       "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4c61f43_f9b639c2",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-13T18:29:03Z",
+      "side": 1,
+      "message": "So GL is now built optionally isn\u0027t it? Should we redo all this now since each backend is optional (minus sw). Like can we build up the string instead of having a massive if else block covering all the combinations.",
+      "range": {
+        "startLine": 86,
+        "startChar": 1,
+        "endLine": 100,
+        "endChar": 6
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
