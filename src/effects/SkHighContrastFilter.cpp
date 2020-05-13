@@ -305,9 +305,8 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 
     fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
 
-    // Unpremultiply. The max() is to guard against 0 / 0.
-    fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.0001);");
-    fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+    // Unpremultiply.
+    fragBuilder->codeAppendf("color = unpremul(color);");
 
     if (hcfe.linearize()) {
         fragBuilder->codeAppend("color.rgb = color.rgb * color.rgb;");
