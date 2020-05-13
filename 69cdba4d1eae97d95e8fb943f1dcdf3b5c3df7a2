@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d71122f_1cdb2680",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-13T17:59:34Z",
+      "side": 1,
+      "message": "While we\u0027re here maybe this could be a little further clarified?\n\n/**\n * Call to ensure all reads/writes of the surface have been issued to the underlying 3D API.\n * Skia will correctly order its own draws and pixel operations. This must to be used\n * to ensure correct ordering when the surface backing store is accessed outside Skia\n * (e.g. direct use of the 3D API or a windowing system). GrContext has additional flush\n * and submit methods that apply to all surfaces and images created from a GrContext.\n */\n\nor something along those lines.",
+      "range": {
+        "startLine": 910,
+        "startChar": 0,
+        "endLine": 913,
+        "endChar": 18
+      },
+      "revId": "69cdba4d1eae97d95e8fb943f1dcdf3b5c3df7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b139277_a8b71701",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-13T17:59:34Z",
+      "side": 1,
+      "message": "one line?",
+      "revId": "69cdba4d1eae97d95e8fb943f1dcdf3b5c3df7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c66d6db_957476c8",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-13T17:59:34Z",
+      "side": 1,
+      "message": "Gotta do this for Android:\nbool submit(bool /*syncToCpu*/ \u003d false)",
+      "revId": "69cdba4d1eae97d95e8fb943f1dcdf3b5c3df7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
