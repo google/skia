@@ -211,6 +211,30 @@
       "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fff4a51e_7709e5f5",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-13T13:38:47Z",
+      "side": 1,
+      "message": "Responding to mtklein: Yes, that was the idea, but PS8 switches to a SkTLazy provider in the draw tiler, so I can simply re-init it on each tile iteration. That gets rid of setPostMatrix. Still thinking about the issue with device itself.",
+      "parentUuid": "fd04f0c0_5b181158",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 85
+      },
+      "revId": "7dbb798d77e5a0124c20e192b4d4d44b76883b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
