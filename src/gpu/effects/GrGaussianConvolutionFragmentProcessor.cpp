@@ -140,29 +140,23 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
         int halfWidth,
         float gaussianSigma,
         GrSamplerState::WrapMode wm,
-        const int bounds[2],
+        const SkIRect& subset,
+        const SkIRect* pixelDomain,
         const GrCaps& caps) {
     std::unique_ptr<GrFragmentProcessor> child;
-    GrSamplerState sampler;
-    switch (dir) {
-        case Direction::kX: sampler.setWrapModeX(wm); break;
-        case Direction::kY: sampler.setWrapModeY(wm); break;
-    }
-    if (bounds) {
-        SkASSERT(bounds[0] < bounds[1]);
-        SkRect subset;
+    GrSamplerState sampler(wm, GrSamplerState::Filter::kNearest);
+    if (pixelDomain) {
+        // Inset because we expect to be invoked at pixel centers.
+        SkRect domain = SkRect::Make(*pixelDomain).makeInset(0.5, 0.5f);
         switch (dir) {
-            case Direction::kX:
-                subset = SkRect::MakeLTRB(bounds[0], 0, bounds[1], view.height());
-                break;
-            case Direction::kY:
-                subset = SkRect::MakeLTRB(0, bounds[0], view.width(), bounds[1]);
-                break;
+            case Direction::kX: domain.outset(halfWidth, 0); break;
+            case Direction::kY: domain.outset(0, halfWidth); break;
         }
         child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
-                                            subset, caps);
+                                            SkRect::Make(subset), domain, caps);
     } else {
-        child = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I(), sampler, caps);
+        child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
+                                            SkRect::Make(subset), caps);
     }
     return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
             std::move(child), dir, halfWidth, gaussianSigma));
@@ -220,27 +214,33 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
         GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
 
-    Direction dir;
-    int bounds[2];
-    do {
-        if (d->fRandom->nextBool()) {
-            dir = Direction::kX;
-            bounds[0] = d->fRandom->nextRangeU(0, view.width() - 1);
-            bounds[1] = d->fRandom->nextRangeU(0, view.width() - 1);
-        } else {
-            dir = Direction::kY;
-            bounds[0] = d->fRandom->nextRangeU(0, view.height() - 1);
-            bounds[1] = d->fRandom->nextRangeU(0, view.height() - 1);
-        }
-    } while (bounds[0] == bounds[1]);
-    std::sort(bounds, bounds + 2);
+    Direction dir = d->fRandom->nextBool() ? Direction::kY : Direction::kX;
+    SkIRect subset{
+            static_cast<int>(d->fRandom->nextRangeU(0, view.width()  - 1)),
+            static_cast<int>(d->fRandom->nextRangeU(0, view.height() - 1)),
+            static_cast<int>(d->fRandom->nextRangeU(0, view.width()  - 1)),
+            static_cast<int>(d->fRandom->nextRangeU(0, view.height() - 1)),
+    };
+    subset.sort();
 
     auto wm = static_cast<GrSamplerState::WrapMode>(
             d->fRandom->nextULessThan(GrSamplerState::kWrapModeCount));
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
+    SkIRect temp;
+    SkIRect* domain = nullptr;
+    if (d->fRandom->nextBool()) {
+        temp = {
+                static_cast<int>(d->fRandom->nextRangeU(0, view.width()  - 1)),
+                static_cast<int>(d->fRandom->nextRangeU(0, view.height() - 1)),
+                static_cast<int>(d->fRandom->nextRangeU(0, view.width()  - 1)),
+                static_cast<int>(d->fRandom->nextRangeU(0, view.height() - 1)),
+        };
+        temp.sort();
+        domain = &temp;
+    }
 
     return GrGaussianConvolutionFragmentProcessor::Make(std::move(view), at, dir, radius, sigma, wm,
-                                                        bounds, *d->caps());
+                                                        subset, domain, *d->caps());
 }
 #endif
