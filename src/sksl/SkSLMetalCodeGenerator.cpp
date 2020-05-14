@@ -1478,52 +1478,55 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
-MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expression& e) {
-    switch (e.fKind) {
+MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expression* e) {
+    if (!e) {
+        return kNo_Requirements;
+    }
+    switch (e->fKind) {
         case Expression::kFunctionCall_Kind: {
-            const FunctionCall& f = (const FunctionCall&) e;
+            const FunctionCall& f = (const FunctionCall&) *e;
             Requirements result = this->requirements(f.fFunction);
-            for (const auto& e : f.fArguments) {
-                result |= this->requirements(*e);
+            for (const auto& arg : f.fArguments) {
+                result |= this->requirements(arg.get());
             }
             return result;
         }
         case Expression::kConstructor_Kind: {
-            const Constructor& c = (const Constructor&) e;
+            const Constructor& c = (const Constructor&) *e;
             Requirements result = kNo_Requirements;
-            for (const auto& e : c.fArguments) {
-                result |= this->requirements(*e);
+            for (const auto& arg : c.fArguments) {
+                result |= this->requirements(arg.get());
             }
             return result;
         }
         case Expression::kFieldAccess_Kind: {
-            const FieldAccess& f = (const FieldAccess&) e;
+            const FieldAccess& f = (const FieldAccess&) *e;
             if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
                 return kGlobals_Requirement;
             }
-            return this->requirements(*((const FieldAccess&) e).fBase);
+            return this->requirements(f.fBase.get());
         }
         case Expression::kSwizzle_Kind:
-            return this->requirements(*((const Swizzle&) e).fBase);
+            return this->requirements(((const Swizzle&) *e).fBase.get());
         case Expression::kBinary_Kind: {
-            const BinaryExpression& b = (const BinaryExpression&) e;
-            return this->requirements(*b.fLeft) | this->requirements(*b.fRight);
+            const BinaryExpression& b = (const BinaryExpression&) *e;
+            return this->requirements(b.fLeft.get()) | this->requirements(b.fRight.get());
         }
         case Expression::kIndex_Kind: {
-            const IndexExpression& idx = (const IndexExpression&) e;
-            return this->requirements(*idx.fBase) | this->requirements(*idx.fIndex);
+            const IndexExpression& idx = (const IndexExpression&) *e;
+            return this->requirements(idx.fBase.get()) | this->requirements(idx.fIndex.get());
         }
         case Expression::kPrefix_Kind:
-            return this->requirements(*((const PrefixExpression&) e).fOperand);
+            return this->requirements(((const PrefixExpression&) *e).fOperand.get());
         case Expression::kPostfix_Kind:
-            return this->requirements(*((const PostfixExpression&) e).fOperand);
+            return this->requirements(((const PostfixExpression&) *e).fOperand.get());
         case Expression::kTernary_Kind: {
-            const TernaryExpression& t = (const TernaryExpression&) e;
-            return this->requirements(*t.fTest) | this->requirements(*t.fIfTrue) |
-                   this->requirements(*t.fIfFalse);
+            const TernaryExpression& t = (const TernaryExpression&) *e;
+            return this->requirements(t.fTest.get()) | this->requirements(t.fIfTrue.get()) |
+                   this->requirements(t.fIfFalse.get());
         }
         case Expression::kVariableReference_Kind: {
-            const VariableReference& v = (const VariableReference&) e;
+            const VariableReference& v = (const VariableReference&) *e;
             Requirements result = kNo_Requirements;
             if (v.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                 result = kGlobals_Requirement | kFragCoord_Requirement;
@@ -1546,69 +1549,65 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
     }
 }
 
-MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statement& s) {
-    switch (s.fKind) {
+MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statement* s) {
+    if (!s) {
+        return kNo_Requirements;
+    }
+    switch (s->fKind) {
         case Statement::kBlock_Kind: {
             Requirements result = kNo_Requirements;
-            for (const auto& child : ((const Block&) s).fStatements) {
-                result |= this->requirements(*child);
+            for (const auto& child : ((const Block*) s)->fStatements) {
+                result |= this->requirements(child.get());
             }
             return result;
         }
         case Statement::kVarDeclaration_Kind: {
-            Requirements result = kNo_Requirements;
-            const VarDeclaration& var = (const VarDeclaration&) s;
-            if (var.fValue) {
-                result = this->requirements(*var.fValue);
-            }
-            return result;
+            const VarDeclaration& var = (const VarDeclaration&) *s;
+            return this->requirements(var.fValue.get());
         }
         case Statement::kVarDeclarations_Kind: {
             Requirements result = kNo_Requirements;
-            const VarDeclarations& decls = *((const VarDeclarationsStatement&) s).fDeclaration;
+            const VarDeclarations& decls = *((const VarDeclarationsStatement&) *s).fDeclaration;
             for (const auto& stmt : decls.fVars) {
-                result |= this->requirements(*stmt);
+                result |= this->requirements(stmt.get());
             }
             return result;
         }
         case Statement::kExpression_Kind:
-            return this->requirements(*((const ExpressionStatement&) s).fExpression);
+            return this->requirements(((const ExpressionStatement&) *s).fExpression.get());
         case Statement::kReturn_Kind: {
-            const ReturnStatement& r = (const ReturnStatement&) s;
-            if (r.fExpression) {
-                return this->requirements(*r.fExpression);
-            }
-            return kNo_Requirements;
+            const ReturnStatement& r = (const ReturnStatement&) *s;
+            return this->requirements(r.fExpression.get());
         }
         case Statement::kIf_Kind: {
-            const IfStatement& i = (const IfStatement&) s;
-            return this->requirements(*i.fTest) |
-                   this->requirements(*i.fIfTrue) |
-                   (i.fIfFalse ? this->requirements(*i.fIfFalse) : 0);
+            const IfStatement& i = (const IfStatement&) *s;
+            return this->requirements(i.fTest.get()) |
+                   this->requirements(i.fIfTrue.get()) |
+                   this->requirements(i.fIfFalse.get());
         }
         case Statement::kFor_Kind: {
-            const ForStatement& f = (const ForStatement&) s;
-            return this->requirements(*f.fInitializer) |
-                   this->requirements(*f.fTest) |
-                   this->requirements(*f.fNext) |
-                   this->requirements(*f.fStatement);
+            const ForStatement& f = (const ForStatement&) *s;
+            return this->requirements(f.fInitializer.get()) |
+                   this->requirements(f.fTest.get()) |
+                   this->requirements(f.fNext.get()) |
+                   this->requirements(f.fStatement.get());
         }
         case Statement::kWhile_Kind: {
-            const WhileStatement& w = (const WhileStatement&) s;
-            return this->requirements(*w.fTest) |
-                   this->requirements(*w.fStatement);
+            const WhileStatement& w = (const WhileStatement&) *s;
+            return this->requirements(w.fTest.get()) |
+                   this->requirements(w.fStatement.get());
         }
         case Statement::kDo_Kind: {
-            const DoStatement& d = (const DoStatement&) s;
-            return this->requirements(*d.fTest) |
-                   this->requirements(*d.fStatement);
+            const DoStatement& d = (const DoStatement&) *s;
+            return this->requirements(d.fTest.get()) |
+                   this->requirements(d.fStatement.get());
         }
         case Statement::kSwitch_Kind: {
-            const SwitchStatement& sw = (const SwitchStatement&) s;
-            Requirements result = this->requirements(*sw.fValue);
+            const SwitchStatement& sw = (const SwitchStatement&) *s;
+            Requirements result = this->requirements(sw.fValue.get());
             for (const auto& c : sw.fCases) {
                 for (const auto& st : c->fStatements) {
-                    result |= this->requirements(*st);
+                    result |= this->requirements(st.get());
                 }
             }
             return result;
@@ -1629,7 +1628,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
             if (ProgramElement::kFunction_Kind == e.fKind) {
                 const FunctionDefinition& def = (const FunctionDefinition&) e;
                 if (&def.fDeclaration == &f) {
-                    Requirements reqs = this->requirements(*def.fBody);
+                    Requirements reqs = this->requirements(def.fBody.get());
                     fRequirements[&f] = reqs;
                     return reqs;
                 }
