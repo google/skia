@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e0d5a639_50851294",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T14:22:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5e32ef80_ea742129",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "765f6ce6405cf8da9d24aef2cbff4276c5f3ad77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a724d3a3_130f0a10",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-14T14:09:35Z",
       "side": 1,
       "message": "This is safer, put I wonder if we can just assert the fences have been signaled. I mean they should have since we are flushing all and syncing with the cpu.",
+      "range": {
+        "startLine": 207,
+        "startChar": 8,
+        "endLine": 207,
+        "endChar": 60
+      },
+      "revId": "765f6ce6405cf8da9d24aef2cbff4276c5f3ad77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bce3065d_94c5e5ea",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T14:22:49Z",
+      "side": 1,
+      "message": "Tried it, but it asserted during a resize, so I think there\u0027s still a race condition.",
+      "parentUuid": "a724d3a3_130f0a10",
       "range": {
         "startLine": 207,
         "startChar": 8,
