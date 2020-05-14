@@ -51,16 +51,15 @@ private:
     const SkMatrixProvider& fParent;
 };
 
-class SkPostConcatMatrixProvider : public SkMatrixProvider {
+class SkPostTranslateMatrixProvider : public SkMatrixProvider {
 public:
-    SkPostConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& postMatrix)
+    SkPostTranslateMatrixProvider(const SkMatrixProvider& parent, SkScalar dx, SkScalar dy)
 #if defined(SK_SUPPORT_LEGACY_MATRIX44)
-            : SkMatrixProvider(SkMatrix::Concat(postMatrix, parent.localToDevice()))
+            : SkMatrixProvider(SkMatrix::Concat(SkMatrix::MakeTrans(dx, dy), parent.localToDevice()))
 #else
-            : SkMatrixProvider(SkM44(postMatrix) * parent.localToDevice44())
+            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44())
 #endif
-            , fParent(parent)
-            , fPostMatrix(postMatrix) {}
+            , fParent(parent) {}
 
     // Assume that the post-matrix doesn't apply to any marked matrices
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
@@ -69,7 +68,6 @@ public:
 
 private:
     const SkMatrixProvider& fParent;
-    const SkMatrix          fPostMatrix;
 };
 
 class SkPreConcatMatrixProvider : public SkMatrixProvider {

@@ -54,9 +54,9 @@ class SkDrawTiler {
     SkDraw          fDraw;
 
     // fCurr... are only used if fNeedTiling
-    SkTLazy<SkPostConcatMatrixProvider> fTileMatrixProvider;
-    SkRasterClip                        fTileRC;
-    SkIPoint                            fOrigin;
+    SkTLazy<SkPostTranslateMatrixProvider> fTileMatrixProvider;
+    SkRasterClip                           fTileRC;
+    SkIPoint                               fOrigin;
 
     bool            fDone, fNeedsTiling;
 
@@ -164,9 +164,9 @@ private:
         SkASSERT_RELEASE(success);
         // now don't use bounds, since fDst has the clipped dimensions.
 
-        fDraw.fMatrixProvider = fTileMatrixProvider.init(
-                fDevice->asMatrixProvider(),
-                SkMatrix::MakeTrans(SkIntToScalar(-fOrigin.x()), SkIntToScalar(-fOrigin.y())));
+        fDraw.fMatrixProvider = fTileMatrixProvider.init(fDevice->asMatrixProvider(),
+                                                         SkIntToScalar(-fOrigin.x()),
+                                                         SkIntToScalar(-fOrigin.y()));
         fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
                    SkRegion::kIntersect_Op);
