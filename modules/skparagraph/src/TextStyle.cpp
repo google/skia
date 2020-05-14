@@ -15,7 +15,8 @@ TextStyle::TextStyle() : fFontStyle() {
     // value to indicate no decoration color was set.
     fDecoration.fColor = SK_ColorTRANSPARENT;
     fDecoration.fStyle = TextDecorationStyle::kSolid;
-    fDecoration.fMode = TextDecorationMode::kGaps;
+    // TODO: switch back to kGaps when (if) switching flutter to skparagraph
+    fDecoration.fMode = TextDecorationMode::kThrough;
     // Thickness is applied as a multiplier to the default thickness of the font.
     fDecoration.fThicknessMultiplier = 1.0;
     fFontSize = 14.0;
