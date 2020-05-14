@@ -22,6 +22,30 @@
       "revId": "19dd02860abbccef036381bbbb646c1bd807a17a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ccb3072_2e29d519",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-14T14:23:58Z",
+      "side": 1,
+      "message": "That\u0027s not what is being cached. We cache font families and ellipses only. Stuff that we believe to be mostly static and small. (unless you envision closed captioning using a different font family for every line of text?)",
+      "parentUuid": "aa1bf594_33ce4597",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 26
+      },
+      "revId": "19dd02860abbccef036381bbbb646c1bd807a17a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
