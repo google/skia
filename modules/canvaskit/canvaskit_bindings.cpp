@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkEncodedImageFormat.h"
@@ -148,14 +149,16 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, in
     GrGLint stencil;
     glGetIntegerv(GL_STENCIL_BITS, &stencil);
 
-    info.fFormat = GL_RGBA8;
-    colorType = kRGBA_8888_SkColorType;
+    // info.fFormat = GL_RGBA8;
+    // colorType = kRGBA_8888_SkColorType;
+    info.fFormat = GL_RGBA16F;
+    colorType = kRGBA_F16_SkColorType;
 
     GrBackendRenderTarget target(width, height, 0, stencil, info);
-
+    const auto colorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kDisplayP3);
     sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
-                                                                    colorType, nullptr, nullptr));
+                                                                    colorType, colorSpace, nullptr));
     return surface;
 }
 
@@ -1258,7 +1261,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setAlphaf", &SkPaint::setAlphaf)
         .function("setBlendMode", &SkPaint::setBlendMode)
         .function("_setColor", optional_override([](SkPaint& self, uintptr_t /* float* */ cPtr) {
+            // Default sRGB
             self.setColor(ptrToSkColor4f(cPtr));
+        }))
+        .function("_setColorSp", optional_override([](SkPaint& self, uintptr_t /* float* */ cPtr,
+                sk_sp<SkColorSpace> colorSpace) {
+            self.setColor(ptrToSkColor4f(cPtr), colorSpace.get());
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
@@ -1271,6 +1279,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setStrokeMiter", &SkPaint::setStrokeMiter)
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
         .function("setStyle", &SkPaint::setStyle);
+
+    class_<SkColorSpace>("SkColorSpace")
+        .smart_ptr<sk_sp<SkColorSpace>>("sk_sp<SkColorSpace>")
+        .class_function("MakeSRGB", &SkColorSpace::MakeSRGB)
+        .class_function("MakeDisplayP3", optional_override([]()->sk_sp<SkColorSpace> {
+            return SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kDisplayP3);
+        }));
 
     class_<SkPathEffect>("SkPathEffect")
         .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>")
@@ -1457,6 +1472,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
         .function("_flush", select_overload<void()>(&SkSurface::flush))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
+        .function("imageInfo", optional_override([](SkSurface& self)->SimpleImageInfo {
+            const auto& ii = self.imageInfo();
+            return {ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
+        }))
         .function("height", &SkSurface::height)
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))

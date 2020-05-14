@@ -1099,6 +1099,12 @@ CanvasKit.onRuntimeInitialized = function() {
     CanvasKit._free(cPtr);
   }
 
+  CanvasKit.SkPaint.prototype.setColorSp = function(color4f, colorSpace) {
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    this._setColorSp(cPtr, colorSpace);
+    CanvasKit._free(cPtr);
+  }
+
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
     // Set up SkPictureRecorder
     var spr = new CanvasKit.SkPictureRecorder();
