@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bceee40a_4f9c17cf",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-14T23:22:02Z",
+      "side": 1,
+      "message": "You make a good point about implying bytes by using stride; let\u0027s keep it with the original perTriangleVertexAdvance.",
+      "parentUuid": "344c3f46_9128c843",
+      "range": {
+        "startLine": 43,
+        "startChar": 60,
+        "endLine": 43,
+        "endChar": 84
+      },
+      "revId": "01b9368c65ff736cc76f10d5e83f11dc39e30864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df39c2e4_4940e17d",
         "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
         "patchSetId": 2
