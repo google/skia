@@ -28,6 +28,7 @@ public:
 
     bool hasPerformedInitialClear() const { return fHasPerformedInitialClear; }
     void markHasPerformedInitialClear() { fHasPerformedInitialClear = true; }
+    void invalidateClearState() { fHasPerformedInitialClear = false; }
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.

@@ -272,6 +272,16 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();
             GrSurface* surface = static_cast<GrSurface*>(resource);
+            GrRenderTarget* rt = surface->asRenderTarget();
+            if (renderable == GrRenderable::kYes) {
+                SkASSERT(rt);
+                auto* stencil = rt->renderTargetPriv().getStencilAttachment();
+                if (stencil) {
+                    // Any prior attached stencil was kept valid with respect to the old resource's
+                    // logical dimensions and may not be valid for the new logical dimensions.
+                    stencil->invalidateClearState();
+                }
+            }
             return sk_sp<GrTexture>(surface->asTexture());
         }
     }

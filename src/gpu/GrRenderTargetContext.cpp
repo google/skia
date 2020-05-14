@@ -645,17 +645,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     // better to just keep the old flags instead of introducing mixed edge flags.
     GrQuadAAFlags oldFlags = quad->fEdgeFlags;
 
-    SkRect rtRect;
-    if (stencilSettings) {
-        // Must use size at which the rendertarget will ultimately be allocated so that stencil
-        // buffer updates on approximately sized render targets don't get corrupted.
-        rtRect = this->asSurfaceProxy()->backingStoreBoundsRect();
-    } else {
-        // Use the logical size of the render target, which allows for "fullscreen" clears even if
-        // the render target has an approximate backing fit
-        rtRect = SkRect::MakeWH(this->width(), this->height());
-    }
-
+    SkRect rtRect = this->asSurfaceProxy()->getBoundsRect();
     SkRect drawBounds = quad->fDevice.bounds();
     if (constColor) {
         // If the device quad is not finite, coerce into a finite quad. This is acceptable since it
