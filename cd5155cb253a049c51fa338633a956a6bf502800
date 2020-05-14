@@ -22,6 +22,30 @@
       "revId": "cd5155cb253a049c51fa338633a956a6bf502800",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "885484e1_0002eec2",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-14T18:00:26Z",
+      "side": 1,
+      "message": "This would lead to a lot more clearing. What if we modify the Ganesh internals to always enforce a stencil clip for stencil draws when logical dimensions !\u003d physical dimensions?",
+      "parentUuid": "96838214_824b2b4c",
+      "range": {
+        "startLine": 282,
+        "startChar": 20,
+        "endLine": 282,
+        "endChar": 52
+      },
+      "revId": "cd5155cb253a049c51fa338633a956a6bf502800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
