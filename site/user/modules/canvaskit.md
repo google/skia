@@ -51,25 +51,25 @@ Samples
 </style>
 
 <div id=demo>
-  <h3>Go beyond the HTML Canvas2D</h3>
+  <h3>Paragraph shaping, custom shaders, and perspective transformation</h3>
   <figure>
-    <canvas id=patheffect width=400 height=400></canvas>
+    <canvas id=shaping width=500 height=500></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/43b38b83ca77dabe47f18f31cafe83f3018b3a24e569db27fe711c70bc3f7d62"
+      <a href="https://jsfiddle.skia.org/canvaskit/56cb197c724dfdfad0c3d8133d4fcab587e4c4e7f31576e62c17251637d3745c"
           target=_blank rel=noopener>
-        Star JSFiddle</a>
+        SkParagraph JSFiddle</a>
     </figcaption>
   </figure>
-  <figure>
-    <canvas id=ink width=400 height=400></canvas>
-    <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
-          target=_blank rel=noopener>
-        Ink JSFiddle</a>
-    </figcaption>
-  </figure>
+  <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
+    target=_blank rel=noopener>
+    <canvas id=shader1 width=512 height=512></canvas>
+  </a>
+  <a href="https://jsfiddle.skia.org/canvaskit/4b7f2cb6683ad3254ac46e3bab62da9a09e994044b2e7512c93d166abeaa2549"
+    target=_blank rel=noopener>
+    <canvas id=3dcube width=512 height=512></canvas>
+  </a>
 
-  <h3>Skottie (click for fiddles)</h3>
+  <h3>Play back bodymovin lottie files with skottie (click for fiddles)</h3>
   <a href="https://jsfiddle.skia.org/canvaskit/092690b273b41076d2f00f0d43d004893d6bb9992c387c0385efa8e6f6bc83d7"
      target=_blank rel=noopener>
     <canvas id=sk_legos width=300 height=300></canvas>
@@ -87,21 +87,23 @@ Samples
     <canvas id=sk_onboarding width=500 height=500></canvas>
   </a>
 
-  <h3>SkParagraph (using ICU and Harfbuzz)</h3>
+  <h3>Go beyond the HTML Canvas2D</h3>
   <figure>
-    <canvas id=shaping width=500 height=500></canvas>
+    <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/56cb197c724dfdfad0c3d8133d4fcab587e4c4e7f31576e62c17251637d3745c"
+      <a href="https://jsfiddle.skia.org/canvaskit/43b38b83ca77dabe47f18f31cafe83f3018b3a24e569db27fe711c70bc3f7d62"
           target=_blank rel=noopener>
-        SkParagraph JSFiddle</a>
+        Star JSFiddle</a>
     </figcaption>
   </figure>
-
-  <h3>SKSL for writing custom shaders</h3>
-  <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
-    target=_blank rel=noopener>
-    <canvas id=shader1 width=512 height=512></canvas>
-  </a>
+  <figure>
+    <canvas id=ink width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
+          target=_blank rel=noopener>
+        Ink JSFiddle</a>
+    </figcaption>
+  </figure>
 
 </div>
 
