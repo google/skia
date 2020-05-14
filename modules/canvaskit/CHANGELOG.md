@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - CanvasKit colors are now represented with a TypedArray of four floats.
  - Safari now defaults to using WebGL1 instead of WebGL2 (skbug.com/10171)
+ - Calls to `getError` should be disabled. This may cause a performance improvement in some scenarios.
 
 ### Removed
  - SkPaint.setColorf is obsolete and removed. setColor accepts a CanvasKit color which is
@@ -30,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
  - `SkCanvas.concat44` has been folded into concat (which now takes 3x2, 3x3, or 4x4 matrices). It will
    be removed soon.
-   
+
 ### Fixed
  - Memory leak in paragraph binding code (https://github.com/flutter/flutter/issues/56938)
 

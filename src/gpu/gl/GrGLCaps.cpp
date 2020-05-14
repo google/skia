@@ -335,6 +335,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }  // No WebGL support
 
     fSkipErrorChecks = ctxInfo.driver() == kChromium_GrGLDriver;
+    if (GR_IS_GR_WEBGL(standard)) {
+        // Error checks are quite costly in webgl, especially in Chrome.
+        fSkipErrorChecks = true;
+    }
 
     /**************************************************************************
     * GrShaderCaps fields
