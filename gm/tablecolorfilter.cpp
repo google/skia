@@ -114,9 +114,38 @@ static sk_sp<SkColorFilter> make_cf3() {
     return SkTableColorFilter::MakeARGB(nullptr, table0, table1, table2);
 }
 
+typedef int Symbol;
+
+#include <vector>
+
+class Sudoku
+{
+public:
+     Sudoku(int size, Symbol* symbols) {
+       array2 = new char[size*size];
+
+       subRegions2 = new Point*[size];
+       for (int i = 0; i < size; ++i) {
+         subRegions2[i] = new Point[size];
+       }
+     }
+  private:
+     std::vector<std::vector<char>> array1;
+     char* array2;
+
+     struct Point { int x = 0; int y = 0; };
+
+     std::vector<std::vector<Point>> subRegions1;
+     Point** subRegions2;
+};
+
+
+
 class TableColorFilterGM : public skiagm::GM {
 public:
-    TableColorFilterGM() {}
+    TableColorFilterGM() {
+        Sudoku foo(9, nullptr);
+    }
 
 protected:
     SkString onShortName() override {
@@ -124,18 +153,17 @@ protected:
     }
 
     SkISize onISize() override {
-        return {700, 1650};
+        return {300, 180};
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
-
         static sk_sp<SkColorFilter> (*gColorFilterMakers[])() = {
-            make_null_cf, make_cf0, make_cf1, make_cf2, make_cf3
+            /*make_null_cf, make_cf0, make_cf1, make_cf2, */make_cf3
         };
-        static void (*gBitmapMakers[])(SkBitmap*) = { make_bm0, make_bm1 };
+        static void (*gBitmapMakers[])(SkBitmap*) = { make_bm0 /*, make_bm1 */ };
 
         // This test will be done once for each bitmap with the results stacked vertically.
         // For a single bitmap the resulting image will be the following:
@@ -172,12 +200,13 @@ protected:
 
             // Draws the rest of the first line for this bitmap
             // each draw being at xOffset of the previous one
-            for (unsigned i = 1; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
+            for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 x += xOffset;
                 paint.setColorFilter(gColorFilterMakers[i]());
                 canvas->drawBitmap(bm, x, y, &paint);
             }
 
+#if 0
             paint.setColorFilter(nullptr);
 
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
@@ -189,7 +218,7 @@ protected:
                 // each draw being at xOffset of the previous one
                 y += yOffset;
                 x = 0;
-                for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
+                for (unsigned j = 0; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
                     sk_sp<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
                     sk_sp<SkImageFilter> imageFilter2(SkImageFilters::ColorFilter(
                             std::move(colorFilter2), imageFilter1, nullptr));
@@ -198,6 +227,7 @@ protected:
                     x += xOffset;
                 }
             }
+#endif
 
             // Move down one line to the beginning of the block for next bitmap
             y += yOffset;

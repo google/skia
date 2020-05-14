@@ -82,7 +82,7 @@ public:
             // it. This just means that a future user of the resource will be filling it with unique
             // data. However, if the proxy has a unique key its attached resource should also
             // have that key.
-            SkASSERT(fUniqueKey == surface->getUniqueKey());
+            SkASSERT(fUniqueKey== surface->getUniqueKey());
         }
 #endif
 
