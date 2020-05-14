@@ -45,4 +45,24 @@ private:
     SkExecutor&          fExecutor;
 };
 
+/// Helper functions to execute work immediately or in a task group.
+static inline void SkExecuteWithTaskGroup(SkTaskGroup* groupOrNull,
+                                          std::function<void(void)> fn) {
+    if (groupOrNull) {
+        groupOrNull->add(std::move(fn));
+    } else {
+        fn();
+    }
+}
+static inline void SkBatchWithTaskGroup(SkTaskGroup* groupOrNull, int n,
+                                        std::function<void(int)> fn) {
+    if (groupOrNull) {
+        groupOrNull->batch(n, std::move(fn));
+    } else {
+        for (int i = 0; i < n; ++i) {
+            fn(i);
+        }
+    }
+}
+
 #endif//SkTaskGroup_DEFINED

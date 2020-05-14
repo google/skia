@@ -295,22 +295,19 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         GrContext* gpuThreadContext) {
     SkASSERT(recordingTaskGroup && gpuTaskGroup && gpuThreadContext);
 
-    for (int i = 0; i < this->numTiles(); ++i) {
+    // On a recording thread:
+    //    generate the tile's DDL
+    //    schedule gpu-thread processing of the DDL
+    // Note: a finer grained approach would be add a scheduling task which would evaluate
+    //       which DDLs were ready to be rendered based on their prerequisites
+    recordingTaskGroup->batch(this->numTiles(), [this, gpuTaskGroup, gpuThreadContext](int i) {
         TileData* tile = &fTiles[i];
+        tile->createDDL();
 
-        // On a recording thread:
-        //    generate the tile's DDL
-        //    schedule gpu-thread processing of the DDL
-        // Note: a finer grained approach would be add a scheduling task which would evaluate
-        //       which DDLs were ready to be rendered based on their prerequisites
-        recordingTaskGroup->add([tile, gpuTaskGroup, gpuThreadContext]() {
-                                    tile->createDDL();
-
-                                    gpuTaskGroup->add([gpuThreadContext, tile]() {
-                                        do_gpu_stuff(gpuThreadContext, tile);
-                                    });
-                                });
-    }
+        gpuTaskGroup->add([gpuThreadContext, tile]() {
+            do_gpu_stuff(gpuThreadContext, tile);
+        });
+    });
 
     recordingTaskGroup->add([this] { this->createComposeDDL(); });
 }
@@ -351,31 +348,17 @@ void DDLTileHelper::resetAllTiles() {
 void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
-    if (taskGroup) {
-        for (int i = 0; i < this->numTiles(); ++i) {
-            TileData* tile = &fTiles[i];
-
-            taskGroup->add([context, tile]() { TileData::CreateBackendTexture(context, tile); });
-        }
-    } else {
-        for (int i = 0; i < this->numTiles(); ++i) {
-            TileData::CreateBackendTexture(context, &fTiles[i]);
-        }
-    }
+    SkBatchWithTaskGroup(taskGroup, this->numTiles(), [this, context](int i) {
+        TileData* tile = &fTiles[i];
+        TileData::CreateBackendTexture(context, tile);
+    });
 }
 
 void DDLTileHelper::deleteBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
-    if (taskGroup) {
-        for (int i = 0; i < this->numTiles(); ++i) {
-            TileData* tile = &fTiles[i];
-
-            taskGroup->add([context, tile]() { TileData::DeleteBackendTexture(context, tile); });
-        }
-    } else {
-        for (int i = 0; i < this->numTiles(); ++i) {
-            TileData::DeleteBackendTexture(context, &fTiles[i]);
-        }
-    }
+    SkBatchWithTaskGroup(taskGroup, this->numTiles(), [this, context](int i) {
+        TileData* tile = &fTiles[i];
+        TileData::DeleteBackendTexture(context, tile);
+    });
 }

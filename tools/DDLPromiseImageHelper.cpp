@@ -257,33 +257,19 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
 void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
-    if (taskGroup) {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            PromiseImageInfo* info = &fImageInfo[i];
-
-            taskGroup->add([context, info]() { CreateBETexturesForPromiseImage(context, info); });
-        }
-    } else {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            CreateBETexturesForPromiseImage(context, &fImageInfo[i]);
-        }
-    }
+    SkBatchWithTaskGroup(taskGroup, fImageInfo.count(), [this, context](int i) {
+        PromiseImageInfo* info = &fImageInfo[i];
+        CreateBETexturesForPromiseImage(context, info);
+    });
 }
 
 void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
-    if (taskGroup) {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            PromiseImageInfo* info = &fImageInfo[i];
-
-            taskGroup->add([context, info]() { DeleteBETexturesForPromiseImage(context, info); });
-        }
-    } else {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            DeleteBETexturesForPromiseImage(context, &fImageInfo[i]);
-        }
-    }
+    SkBatchWithTaskGroup(taskGroup, fImageInfo.count(), [this, context](int i) {
+        PromiseImageInfo* info = &fImageInfo[i];
+        DeleteBETexturesForPromiseImage(context, info);
+    });
 }
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
