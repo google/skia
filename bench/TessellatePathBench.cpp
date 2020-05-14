@@ -7,9 +7,11 @@
 
 #include "bench/Benchmark.h"
 #include "include/gpu/GrContext.h"
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
+#include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
@@ -96,6 +98,7 @@ public:
     class MiddleOutInnerTrianglesBench;
     class OuterCubicsBench;
     class CubicWedgesBench;
+    class WangsFormulaBench;
 
 private:
     void onDraw(int loops, SkCanvas*) final {
@@ -132,7 +135,7 @@ public:
     }
 };
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench(););
+DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench(); );
 
 class GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench
         : public GrTessellatePathOp::TestingOnly_Benchmark {
@@ -146,7 +149,7 @@ public:
     }
 };
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench(););
+DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench(); );
 
 class GrTessellatePathOp::TestingOnly_Benchmark::CubicWedgesBench
         : public GrTessellatePathOp::TestingOnly_Benchmark {
@@ -160,3 +163,40 @@ public:
 };
 
 DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::CubicWedgesBench(););
+
+class GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench
+        : public GrTessellatePathOp::TestingOnly_Benchmark {
+public:
+    WangsFormulaBench(const char* suffix, const SkMatrix& matrix)
+            : TestingOnly_Benchmark(SkStringPrintf("wangs_formula_cubic_log2%s", suffix).c_str(),
+                                    make_cubic_path(), SkMatrix::I())
+            , fMatrix(matrix) {
+    }
+    void runBench(GrMeshDrawOp::Target*, GrTessellatePathOp* op) override {
+        int sum = 0;
+        GrVectorXform xform(fMatrix);
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(op->fPath)) {
+            if (verb == SkPathVerb::kCubic) {
+                sum += GrWangsFormula::cubic_log2(4, pts, xform);
+            }
+        }
+        // Don't let the compiler optimize away GrWangsFormula::cubic_log2.
+        if (sum <= 0) {
+            SK_ABORT("sum should be > 0.");
+        }
+    }
+private:
+    SkMatrix fMatrix;
+};
+
+DEF_BENCH(
+    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench("", SkMatrix::I());
+);
+DEF_BENCH(
+    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(
+            "_scale", SkMatrix::MakeScale(1.1f, 0.9f));
+);
+DEF_BENCH(
+    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(
+            "_affine", SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1));
+);
