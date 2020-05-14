@@ -39,6 +39,24 @@
       "revId": "ed72cec74457cee5dc170a72354d89f4c35a0a38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7724dad_f0047db5",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-14T20:48:14Z",
+      "side": 1,
+      "message": "Mainly because most (or all) flutter users are not aware of any settings. Also, it\u0027s important what should be the most convenient default value. I don\u0027t want ALL user to change the same setting just because the default value was not good enough.",
+      "parentUuid": "7d17c2ca_13004598",
+      "revId": "ed72cec74457cee5dc170a72354d89f4c35a0a38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
