@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce5f9550_abc74c11",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-14T15:18:43Z",
+      "side": 1,
+      "message": "This makes me feel a little squidgy, but it\u0027s private so I\u0027m fine with it.",
+      "range": {
+        "startLine": 216,
+        "startChar": 15,
+        "endLine": 216,
+        "endChar": 19
+      },
+      "revId": "ebf49001f841434e13c97f7a499a4dc1a65da52a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
