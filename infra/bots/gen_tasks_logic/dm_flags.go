@@ -277,6 +277,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("gltestthreading gm _ persp_shaders_bw")
 			blacklist("gltestthreading gm _ dftext_blob_persp")
 			blacklist("gltestthreading gm _ dftext")
+			blacklist("gltestthreading gm _ gpu_blur_utils")
+			blacklist("gltestthreading gm _ gpu_blur_utils_ref")
+			blacklist("gltestthreading gm _ gpu_blur_utils_subset_rect")
+			blacklist("gltestthreading gm _ gpu_blur_utils_subset_rect_ref")
 			// skbug.com/7523 - Flaky on various GPUs
 			blacklist("gltestthreading gm _ orientation")
 			// These GMs only differ in the low bits
