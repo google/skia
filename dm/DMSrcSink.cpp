@@ -1419,12 +1419,6 @@ bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
     SkISize size = surface->imageInfo().dimensions();
 
     SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
-    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
-        info.colorType() == kRGB_888x_SkColorType) {
-        // We don't currently support readbacks into these formats on the GPU backend. Convert to
-        // 32 bit.
-        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
-    }
     dst->allocPixels(info);
     return canvas->readPixels(*dst, 0, 0);
 }
