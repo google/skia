@@ -248,6 +248,8 @@ public:
 
     GrUniqueKey(const GrUniqueKey& that) { *this = that; }
 
+    ~GrUniqueKey() {}
+
     /** reset() returns the key to the invalid state. */
     using INHERITED::reset;
 

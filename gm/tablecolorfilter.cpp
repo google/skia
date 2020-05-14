@@ -131,7 +131,6 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
-
         static sk_sp<SkColorFilter> (*gColorFilterMakers[])() = {
             make_null_cf, make_cf0, make_cf1, make_cf2, make_cf3
         };
