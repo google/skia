@@ -40,10 +40,12 @@
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
 class GrMiddleOutPolygonTriangulator {
 public:
-    GrMiddleOutPolygonTriangulator(SkPoint* vertexData, int maxVertices)
-            : fTriangleData(reinterpret_cast<std::array<SkPoint, 3>*>(vertexData)) {
+    GrMiddleOutPolygonTriangulator(SkPoint* vertexData, int perTriangleVertexAdvance,
+                                   int maxPushVertexCalls)
+            : fVertexData(vertexData)
+            , fPerTriangleVertexAdvance(perTriangleVertexAdvance) {
         // Determine the deepest our stack can ever go.
-        int maxStackDepth = SkNextLog2(maxVertices) + 1;
+        int maxStackDepth = SkNextLog2(maxPushVertexCalls) + 1;
         if (maxStackDepth > kStackPreallocCount) {
             fVertexStack.reset(maxStackDepth);
         }
@@ -75,17 +77,15 @@ public:
         // (This is a stack-based implementation of the recursive example method from the class
         // comment.)
         while (vertexIdxDelta == fTop->fVertexIdxDelta) {
-            *fTriangleData++ = {fTop[-1].fPoint, fTop->fPoint, pt};
+            this->popTopTriangle(pt);
             vertexIdxDelta *= 2;
-            this->popTop();
         }
-        this->pushTop();
-        *fTop = {vertexIdxDelta, pt};
+        this->pushVertex(vertexIdxDelta, pt);
     }
 
     int close() {
-        if (fTop == &fVertexStack[0]) {  // The stack only contains one point (the starting point).
-            return fTotalClosedVertexCount;
+        if (fTop == fVertexStack) {  // The stack only contains one point (the starting point).
+            return fTotalClosedTriangleCount;
         }
         // We will count vertices by walking the stack backwards.
         int finalVertexCount = 1;
@@ -94,24 +94,23 @@ public:
         // vertexIdxDeltas match.
         const SkPoint& p0 = fVertexStack[0].fPoint;
         SkASSERT(fTop->fPoint != p0);  // We should have detected and handled this case earlier.
-        while (fTop > &fVertexStack[1]) {
-            *fTriangleData++ = {fTop[-1].fPoint, fTop->fPoint, p0};
+        while (fTop - 1 > fVertexStack) {
             finalVertexCount += fTop->fVertexIdxDelta;
-            this->popTop();
+            this->popTopTriangle(p0);
         }
+        SkASSERT(fTop == fVertexStack + 1);
         finalVertexCount += fTop->fVertexIdxDelta;
-        this->popTop();
-        SkASSERT(fTop == &fVertexStack[0]);
         SkASSERT(fVertexStack[0].fVertexIdxDelta == 0);
+        fTop = fVertexStack;
         int numTriangles = finalVertexCount - 2;
         SkASSERT(numTriangles >= 0);
-        fTotalClosedVertexCount += numTriangles * 3;
-        return fTotalClosedVertexCount;
+        fTotalClosedTriangleCount += numTriangles;
+        return fTotalClosedTriangleCount;
     }
 
     void closeAndMove(const SkPoint& startPt) {
         this->close();
-        SkASSERT(fTop == &fVertexStack[0]);  // The stack should only contain a starting point now.
+        SkASSERT(fTop == fVertexStack);  // The stack should only contain a starting point now.
         fTop->fPoint = startPt;  // Modify the starting point.
         SkASSERT(fTop->fVertexIdxDelta == 0);  // Ensure we are in the initial stack state.
     }
@@ -129,23 +128,30 @@ private:
         SkPoint fPoint;
     };
 
-    void pushTop() {
+    void pushVertex(int vertexIdxDelta, const SkPoint& point) {
         ++fTop;
         // We should never push deeper than fStackAllocCount.
-        SkASSERT(fTop < &fVertexStack[fStackAllocCount]);
+        SkASSERT(fTop < fVertexStack + fStackAllocCount);
+        fTop->fVertexIdxDelta = vertexIdxDelta;
+        fTop->fPoint = point;
     }
 
-    void popTop() {
-        SkASSERT(fTop > &fVertexStack[0]);  // We should never pop the starting point.
+    void popTopTriangle(const SkPoint& lastPt) {
+        SkASSERT(fTop > fVertexStack);  // We should never pop the starting point.
         --fTop;
+        fVertexData[0] = fTop[0].fPoint;
+        fVertexData[1] = fTop[1].fPoint;
+        fVertexData[2] = lastPt;
+        fVertexData += fPerTriangleVertexAdvance;
     }
 
     constexpr static int kStackPreallocCount = 32;
     SkAutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
     SkDEBUGCODE(int fStackAllocCount;)
     StackVertex* fTop;
-    std::array<SkPoint, 3>* fTriangleData;
-    int fTotalClosedVertexCount = 0;
+    SkPoint* fVertexData;
+    int fPerTriangleVertexAdvance;
+    int fTotalClosedTriangleCount = 0;
 };
 
 #endif

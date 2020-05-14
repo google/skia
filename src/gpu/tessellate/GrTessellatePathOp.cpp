@@ -122,7 +122,8 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrMeshDrawOp::Target* ta
         return;
     }
 
-    GrMiddleOutPolygonTriangulator middleOut(vertexData, maxVertices);
+    constexpr static int kNumVerticesPerTriangle = 3;
+    GrMiddleOutPolygonTriangulator middleOut(vertexData, kNumVerticesPerTriangle, maxVertices);
     int localCurveCount = 0;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
         switch (verb) {
@@ -147,7 +148,7 @@ void GrTessellatePathOp::prepareMiddleOutInnerTriangles(GrMeshDrawOp::Target* ta
                 SkUNREACHABLE;
         }
     }
-    fTriangleVertexCount = middleOut.close();
+    fTriangleVertexCount = middleOut.close() * kNumVerticesPerTriangle;
     *numCountedCurves = localCurveCount;
 
     vertexAlloc.unlock(fTriangleVertexCount);
