@@ -445,6 +445,8 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrTessellatePathOp.h",
   "$_src/gpu/tessellate/GrTessellationPathRenderer.cpp",
   "$_src/gpu/tessellate/GrTessellationPathRenderer.h",
+  "$_src/gpu/tessellate/GrVectorXform.h",
+  "$_src/gpu/tessellate/GrWangsFormula.h",
 
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
