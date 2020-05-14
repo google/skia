@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa1bf594_33ce4597",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-14T13:58:19Z",
+      "side": 1,
+      "message": "in a use case where a client keeps drawing new strings, a closed captions layer over a video for example, wouldn\u0027t they require a method to remove an item from this cache and free it?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 26
+      },
+      "revId": "19dd02860abbccef036381bbbb646c1bd807a17a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
