@@ -34,6 +34,24 @@
       "revId": "d1ac57b2c33b9d4b4f98d68609ff0220123c9b2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f75cc61b_6fb2ae94",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-14T17:00:40Z",
+      "side": 1,
+      "message": "Sure, but if the constructors / destructors are actually trivial then the optimizer can just elides the calls to them, but calling them (even if optimized out) makes a semantic difference to the compiler and avoids potential UB, especially the bit about potentially calling trivial destructors on memory that potentially hasn\u0027t been new\u0027ed. The only reason to do this seems to be if there is no default constructor or it isn\u0027t trivial, but I\u0027m not sure when you would want that. If someone really does want to do that, it seems easier to just use makeBytesAlignedTo to get the memory and then give it to some class to manage.",
+      "parentUuid": "a2af194a_2eab6c46",
+      "revId": "d1ac57b2c33b9d4b4f98d68609ff0220123c9b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
