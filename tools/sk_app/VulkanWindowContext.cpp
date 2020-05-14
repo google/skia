@@ -526,6 +526,7 @@ void VulkanWindowContext::swapBuffers() {
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &beSemaphore;
     surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
+    surface->getContext()->submit();
 
     // Submit present operation to present queue
     const VkPresentInfoKHR presentInfo =

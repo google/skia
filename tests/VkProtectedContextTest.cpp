@@ -308,6 +308,7 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -331,6 +332,7 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithAntiAlias, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -354,6 +356,7 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithBlendMode, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -379,6 +382,7 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithFilter, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -404,6 +408,7 @@ DEF_GPUTEST(VkProtectedContext_DrawThinPath, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -428,6 +433,7 @@ DEF_GPUTEST(VkProtectedContext_SaveLayer, reporter, options) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
@@ -457,9 +463,11 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface1->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface1->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface1->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
     surface2->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface2->getContext()->submit(true);
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface2->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }

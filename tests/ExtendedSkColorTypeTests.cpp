@@ -289,7 +289,7 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
         }
 
         img.reset();
-        context->flush();
+        context->flushAndSubmit();
         context->deleteBackendTexture(backendTex);
     }
 }

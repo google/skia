@@ -160,7 +160,7 @@ GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flus
     return as_IB(this)->onFlush(context, flushInfo);
 }
 
-void SkImage::flush(GrContext* context) { as_IB(this)->onFlush(context, {}); }
+void SkImage::flushAndSubmit(GrContext* context) { this->flush(context, {}); }
 
 #else
 

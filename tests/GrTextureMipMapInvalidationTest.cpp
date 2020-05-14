@@ -40,7 +40,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
         auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
-        surf1->flush();
+        surf1->flushAndSubmit();
 
         // No mipmaps initially
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
@@ -52,13 +52,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
         paint.setFilterQuality(kMedium_SkFilterQuality);
         surf2->getCanvas()->scale(0.2f, 0.2f);
         surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, &paint);
-        context->flush();
+        context->flushAndSubmit();
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
         REPORTER_ASSERT(reporter, !allocateMips || !mipsAreDirty(surf1.get()));
 
         // Changing the contents of the surface should invalidate the mipmap, but not de-allocate
         surf1->getCanvas()->drawCircle(128, 128, 100, SkPaint());
-        context->flush();
+        context->flushAndSubmit();
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
         REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
     }
