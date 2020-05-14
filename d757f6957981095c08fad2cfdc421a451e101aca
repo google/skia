@@ -16,6 +16,24 @@
       "revId": "d757f6957981095c08fad2cfdc421a451e101aca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1620fdb9_4c72faa4",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-14T19:32:01Z",
+      "side": 1,
+      "message": "Unfortunately, this method is static.",
+      "parentUuid": "e2424b4d_67b32d0d",
+      "revId": "d757f6957981095c08fad2cfdc421a451e101aca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
