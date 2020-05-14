@@ -200,7 +200,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), expectedProxyRefs, -1);
 
-                context->flush();
+                context->flushAndSubmit();
 
                 // just one from the 'proxy' sk_sp
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);

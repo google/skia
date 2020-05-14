@@ -85,7 +85,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     ///////////////////////////////// CONTEXT 1 ///////////////////////////////////
 
     // Use GL Context 1 to create a texture unknown to GrContext.
-    context1->flush();
+    context1->flushAndSubmit();
     static const int kSize = 100;
 
     CreateBackendTexture(context1.get(), &backendTexture1, kSize, kSize, kRGBA_8888_SkColorType,

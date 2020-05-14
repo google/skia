@@ -65,7 +65,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrOpsTaskFlushCount, reporter, ctxInfo) {
             canvas1->drawImageRect(image.get(), srcRect, dstRect, nullptr);
         }
     }
-    context->flush();
+    context->flushAndSubmit();
 
     // In total we make 2000 oplists. Our current limit on max oplists between flushes is 100, so we
     // should do 20 flushes while executing oplists. Additionaly we always do 1 flush at the end of

@@ -163,6 +163,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
             mainCtx->flush(info);
             break;
     }
+    mainCtx->submit();
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
     GrBackendTexture backendTexture = mainImage->getBackendTexture(false);
@@ -238,7 +239,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
                                                              nullptr));
 
     // Flush surface once without semaphores to make sure there is no peneding IO for it.
-    mainSurface->flush();
+    mainSurface->flushAndSubmit();
 
     GrBackendSemaphore semaphore;
     GrSemaphoresSubmitted submitted = mainSurface->flushAndSignalSemaphores(1, &semaphore);

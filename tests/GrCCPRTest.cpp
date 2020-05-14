@@ -121,7 +121,7 @@ public:
 
     void flush() const {
         SkASSERT(this->valid());
-        fCtx->flush();
+        fCtx->flushAndSubmit();
     }
 
 private:
