@@ -16,6 +16,24 @@
       "revId": "d1ac57b2c33b9d4b4f98d68609ff0220123c9b2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2af194a_2eab6c46",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-14T15:43:30Z",
+      "side": 1,
+      "message": "It basically does the alignment and counting math that makeBytesAlignedTo needs. I\u0027m trying to find a trade off where SkArenaAlloc will not self destruct during destructor time, and not having unwanted running of default constructors during allocation. It could be that this is something no one needs.",
+      "parentUuid": "7c501304_aec5047b",
+      "revId": "d1ac57b2c33b9d4b4f98d68609ff0220123c9b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
