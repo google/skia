@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0163041c_4d41f335",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-14T19:01:58Z",
+      "side": 1,
+      "message": "Probably want something more like\n\n\nChange default for underline to \u0027kThrough\u0027\n\nInstead of using \u0027kGaps\u0027 as the default use \u0027kThrough\u0027 since that\nis what is generally expected by default. The user can still set\nthe style to \u0027kGaps\u0027 if they wish.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 28
+      },
+      "revId": "ed72cec74457cee5dc170a72354d89f4c35a0a38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d17c2ca_13004598",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-14T19:01:58Z",
+      "side": 1,
+      "message": "Will they really need this as the default? Can they just set it if they want it?",
+      "revId": "ed72cec74457cee5dc170a72354d89f4c35a0a38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
