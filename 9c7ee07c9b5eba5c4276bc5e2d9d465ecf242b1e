@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2eb13322_7f47db71",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-14T17:39:04Z",
+      "side": 1,
+      "message": "I added this to prevent extra copies of SkSL-defined builtins in generated CPP. I think it works? (Without this, we were producing an emitFunction call for safeUnpremul in the color matrix cpp).",
+      "revId": "9c7ee07c9b5eba5c4276bc5e2d9d465ecf242b1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
