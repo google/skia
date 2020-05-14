@@ -30,13 +30,13 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
                                                        GrInternalSurfaceFlags surfaceFlags,
-                                                       UseAllocator useAllocator)
+                                                       UseAllocator useAllocator, bool foo)
         : GrSurfaceProxy(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         // for now textures w/ data are always wrapped
         , GrRenderTargetProxy(caps, format, dimensions, sampleCnt, fit, budgeted, isProtected,
                               surfaceFlags, useAllocator)
         , GrTextureProxy(format, dimensions, mipMapped, mipMapsStatus, fit, budgeted, isProtected,
-                         surfaceFlags, useAllocator) {
+                         surfaceFlags, useAllocator, foo) {
     this->initSurfaceFlags(caps);
 }
 
@@ -52,7 +52,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
                                                        GrInternalSurfaceFlags surfaceFlags,
-                                                       UseAllocator useAllocator)
+                                                       UseAllocator useAllocator, bool foo)
         : GrSurfaceProxy(std::move(callback), format, dimensions, fit, budgeted, isProtected,
                          surfaceFlags, useAllocator)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
@@ -61,7 +61,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                               budgeted, isProtected, surfaceFlags, useAllocator,
                               WrapsVkSecondaryCB::kNo)
         , GrTextureProxy(LazyInstantiateCallback(), format, dimensions, mipMapped, mipMapsStatus,
-                         fit, budgeted, isProtected, surfaceFlags, useAllocator) {
+                         fit, budgeted, isProtected, surfaceFlags, useAllocator, foo) {
     this->initSurfaceFlags(caps);
 }
 
@@ -69,10 +69,10 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
-                                                       UseAllocator useAllocator)
+                                                       UseAllocator useAllocator, bool foo)
         : GrSurfaceProxy(surf, SkBackingFit::kExact, useAllocator)
         , GrRenderTargetProxy(surf, useAllocator)
-        , GrTextureProxy(surf, useAllocator) {
+        , GrTextureProxy(surf, useAllocator, foo) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
     SkASSERT(fSurfaceFlags == fTarget->surfacePriv().flags());
