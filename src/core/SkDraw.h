@@ -82,6 +82,7 @@ public:
 
     void paintPaths(SkDrawableGlyphBuffer* drawables,
                     SkScalar scale,
+                    SkPoint origin,
                     const SkPaint& paint) const override;
 
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override;
