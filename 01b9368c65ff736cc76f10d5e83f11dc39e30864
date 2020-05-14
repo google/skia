@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "344c3f46_9128c843",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-14T22:31:54Z",
+      "side": 1,
+      "message": "I was concerned \"stride\" might imply bytes instead of advancing X SkPoints, but I don\u0027t have a strong preference. What do you think? Maybe:\n\nperTriangleSkPointAdvance?\nOr just perTriangleSkPointStride?",
+      "parentUuid": "f9077894_c9faebc7",
+      "range": {
+        "startLine": 43,
+        "startChar": 60,
+        "endLine": 43,
+        "endChar": 84
+      },
+      "revId": "01b9368c65ff736cc76f10d5e83f11dc39e30864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df39c2e4_4940e17d",
         "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
         "patchSetId": 2
