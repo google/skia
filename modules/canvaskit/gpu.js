@@ -10,38 +10,35 @@
         return defaultValue;
       }
 
-      function makeWebGLContext(canvas, attrs) {
-        var contextAttributes = {
-          alpha: get(attrs, 'alpha', 1),
-          depth: get(attrs, 'depth', 1),
-          stencil: get(attrs, 'stencil', 8),
-          antialias: get(attrs, 'antialias', 1),
-          premultipliedAlpha: get(attrs, 'premultipliedAlpha', 1),
-          preserveDrawingBuffer: get(attrs, 'preserveDrawingBuffer', 0),
-          preferLowPowerToHighPerformance: get(attrs, 'preferLowPowerToHighPerformance', 0),
-          failIfMajorPerformanceCaveat: get(attrs, 'failIfMajorPerformanceCaveat', 0),
-          majorVersion: get(attrs, 'majorVersion', 2),
-          minorVersion: get(attrs, 'minorVersion', 0),
-          enableExtensionsByDefault: get(attrs, 'enableExtensionsByDefault', 1),
-          explicitSwapControl: get(attrs, 'explicitSwapControl', 0),
-          renderViaOffscreenBackBuffer: get(attrs, 'renderViaOffscreenBackBuffer', 0),
-        };
+      CanvasKit.makeWebGLContextAsCurrent = function(canvas, attrs) {
         if (!canvas) {
-          SkDebug('null canvas passed into makeWebGLContext');
-          return 0;
+          throw 'null canvas passed into makeWebGLContext';
         }
+        var contextAttributes = {
+          'alpha': get(attrs, 'alpha', 1),
+          'depth': get(attrs, 'depth', 1),
+          'stencil': get(attrs, 'stencil', 8),
+          'antialias': get(attrs, 'antialias', 1),
+          'premultipliedAlpha': get(attrs, 'premultipliedAlpha', 1),
+          'preserveDrawingBuffer': get(attrs, 'preserveDrawingBuffer', 0),
+          'preferLowPowerToHighPerformance': get(attrs, 'preferLowPowerToHighPerformance', 0),
+          'failIfMajorPerformanceCaveat': get(attrs, 'failIfMajorPerformanceCaveat', 0),
+          'enableExtensionsByDefault': get(attrs, 'enableExtensionsByDefault', 1),
+          'explicitSwapControl': get(attrs, 'explicitSwapControl', 0),
+          'renderViaOffscreenBackBuffer': get(attrs, 'renderViaOffscreenBackBuffer', 0),
+        };
+
         // This check is from the emscripten version
         if (contextAttributes['explicitSwapControl']) {
-          SkDebug('explicitSwapControl is not supported');
-          return 0;
+          throw 'explicitSwapControl is not supported';
         }
-        // GL is an enscripten provided helper
-        // See https://github.com/emscripten-core/emscripten/blob/incoming/src/library_webgl.js
-        return GL.createContext(canvas, contextAttributes);
+        // Creates a WebGL context and sets it to be the current context.
+        this.createContext(canvas, true, true, contextAttributes);
       }
 
       CanvasKit.GetWebGLContext = function(canvas, attrs) {
-        return makeWebGLContext(canvas, attrs);
+        this.makeWebGLContextAsCurrent(canvas, attrs);
+        return CanvasKit.currentContext() || 0;
       };
 
       // arg can be of types:
@@ -51,7 +48,7 @@
       //          be used directly.
       // Width and height can be provided to override those on the canvas
       // element, or specify a height for when a context is provided.
-      CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height, webGLVersion) {
+      CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height) {
         var canvas = arg;
         if (canvas.tagName !== 'CANVAS') {
           canvas = document.getElementById(arg);
@@ -59,17 +56,9 @@
             throw 'Canvas with id ' + arg + ' was not found';
           }
         }
-        if (!webGLVersion) {
-          if (!!window['safari']) {
-            // Safari, by default, should use WebGL 1. skbug.com/10171
-            webGLVersion = 1;
-          } else {
-            webGLVersion = 2;
-          }
-        }
 
         // we are ok with all the other defaults.
-        var ctx = this.GetWebGLContext(canvas, {majorVersion: webGLVersion});
+        var ctx = this.GetWebGLContext(canvas);
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
