@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8d7b98bc_58d60f0a",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-14T19:46:23Z",
+      "side": 1,
+      "message": "Should we assert in here? Or can we get proxies created outside the DDL inserted here?",
+      "revId": "d757f6957981095c08fad2cfdc421a451e101aca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e2424b4d_67b32d0d",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 6
