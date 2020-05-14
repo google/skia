@@ -60,17 +60,17 @@ void SkOpContourBuilder::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkSca
     SkArenaAlloc* allocator = fContour->globalState()->allocator();
     switch (verb) {
         case SkPath::kQuad_Verb: {
-            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(3);
+            SkPoint* ptStorage = allocator->makeUninitializedArray<SkPoint>(3);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
             this->addQuad(ptStorage);
         } break;
         case SkPath::kConic_Verb: {
-            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(3);
+            SkPoint* ptStorage = allocator->makeUninitializedArray<SkPoint>(3);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
             this->addConic(ptStorage, weight);
         } break;
         case SkPath::kCubic_Verb: {
-            SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(4);
+            SkPoint* ptStorage = allocator->makeUninitializedArray<SkPoint>(4);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 4);
             this->addCubic(ptStorage);
         } break;
@@ -102,7 +102,7 @@ void SkOpContourBuilder::flush() {
     if (!fLastIsLine)
         return;
     SkArenaAlloc* allocator = fContour->globalState()->allocator();
-    SkPoint* ptStorage = allocator->makeArrayDefault<SkPoint>(2);
+    SkPoint* ptStorage = allocator->makeUninitializedArray<SkPoint>(2);
     memcpy(ptStorage, fLastLine, sizeof(fLastLine));
     (void) fContour->addLine(ptStorage);
     fLastIsLine = false;

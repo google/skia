@@ -483,7 +483,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
     // The amount 1024 is enough for buffers up to 10 sigma. The tmp bitmap will be
     // allocated on the heap.
     SkSTArenaAlloc<1024> alloc;
-    Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
+    Sk4u* buffer = alloc.makeUninitializedArray<Sk4u>(std::max(bufferSizeW, bufferSizeH));
 
     // Basic Plan: The three cases to handle
     // * Horizontal and Vertical - blur horizontally while copying values from the source to

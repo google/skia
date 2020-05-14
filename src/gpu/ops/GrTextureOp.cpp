@@ -413,7 +413,7 @@ private:
         }
 
         void allocatePrePreparedVertices(SkArenaAlloc* arena) {
-            fPrePreparedVertices = arena->makeArrayDefault<char>(this->totalSizeInBytes());
+            fPrePreparedVertices = arena->makeUninitializedArray<char>(this->totalSizeInBytes());
         }
 
     };

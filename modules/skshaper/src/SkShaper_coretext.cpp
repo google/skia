@@ -229,7 +229,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             SkASSERT(sizeof(CGGlyph) == sizeof(uint16_t));
 
-            CGSize* advances = arena.makeArrayDefault<CGSize>(runGlyphs);
+            CGSize* advances = arena.makeUninitializedArray<CGSize>(runGlyphs);
             CTRunGetAdvances(run, {0, runGlyphs}, advances);
             SkScalar adv = 0;
             for (CFIndex k = 0; k < runGlyphs; ++k) {
@@ -262,11 +262,11 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             CTRunGetGlyphs(run, {0, runGlyphs}, buffer.glyphs);
 
-            CGPoint* positions = arena.makeArrayDefault<CGPoint>(runGlyphs);
+            CGPoint* positions = arena.makeUninitializedArray<CGPoint>(runGlyphs);
             CTRunGetPositions(run, {0, runGlyphs}, positions);
             CFIndex* indices = nullptr;
             if (buffer.clusters) {
-                indices = arena.makeArrayDefault<CFIndex>(runGlyphs);
+                indices = arena.makeUninitializedArray<CFIndex>(runGlyphs);
                 CTRunGetStringIndices(run, {0, runGlyphs}, indices);
             }
 

@@ -210,11 +210,11 @@ SkRect SkAnalyticEdgeBuilder::recoverClip(const SkIRect& src) const {
 
 char* SkBasicEdgeBuilder::allocEdges(size_t n, size_t* size) {
     *size = sizeof(SkEdge);
-    return (char*)fAlloc.makeArrayDefault<SkEdge>(n);
+    return (char*) fAlloc.makeUninitializedArray<SkEdge>(n);
 }
 char* SkAnalyticEdgeBuilder::allocEdges(size_t n, size_t* size) {
     *size = sizeof(SkAnalyticEdge);
-    return (char*)fAlloc.makeArrayDefault<SkAnalyticEdge>(n);
+    return (char*) fAlloc.makeUninitializedArray<SkAnalyticEdge>(n);
 }
 
 // TODO: maybe get rid of buildPoly() entirely?
@@ -235,7 +235,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     char* edge = this->allocEdges(maxEdgeCount, &edgeSize);
 
     SkDEBUGCODE(char* edgeStart = edge);
-    char** edgePtr = fAlloc.makeArrayDefault<char*>(maxEdgeCount);
+    char** edgePtr = fAlloc.makeUninitializedArray<char*>(maxEdgeCount);
     fEdgeList = (void**)edgePtr;
 
     SkPathEdgeIter iter(path);

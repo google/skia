@@ -59,7 +59,7 @@ public:
             alignas(T) char data[sizeof(T)];
         };
         fApproxBytesAllocated += count * sizeof(T) + alignof(T);
-        return (T*)fAlloc.makeArrayDefault<RawBytes>(count);
+        return (T*) fAlloc.makeUninitializedArray<RawBytes>(count);
     }
 
     // Add a new command of type T to the end of this SkRecord.

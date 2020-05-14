@@ -48,7 +48,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     if (src.empty()) {
         return;
     }
-    auto stages = fAlloc->makeArrayDefault<StageList>(src.fNumStages);
+    auto stages = fAlloc->makeUninitializedArray<StageList>(src.fNumStages);
 
     int n = src.fNumStages;
     const StageList* st = src.fStages;
@@ -85,7 +85,7 @@ void SkRasterPipeline::dump() const {
 }
 
 void SkRasterPipeline::append_set_rgb(SkArenaAlloc* alloc, const float rgb[3]) {
-    auto arg = alloc->makeArrayDefault<float>(3);
+    auto arg = alloc->makeUninitializedArray<float>(3);
     arg[0] = rgb[0];
     arg[1] = rgb[1];
     arg[2] = rgb[2];
@@ -139,20 +139,20 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
         return;
     }
     if (mt == SkMatrix::kTranslate_Mask) {
-        float* trans = alloc->makeArrayDefault<float>(2);
+        float* trans = alloc->makeUninitializedArray<float>(2);
         trans[0] = matrix.getTranslateX();
         trans[1] = matrix.getTranslateY();
         this->append(SkRasterPipeline::matrix_translate, trans);
     } else if ((mt | (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) ==
                      (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
-        float* scaleTrans = alloc->makeArrayDefault<float>(4);
+        float* scaleTrans = alloc->makeUninitializedArray<float>(4);
         scaleTrans[0] = matrix.getScaleX();
         scaleTrans[1] = matrix.getScaleY();
         scaleTrans[2] = matrix.getTranslateX();
         scaleTrans[3] = matrix.getTranslateY();
         this->append(SkRasterPipeline::matrix_scale_translate, scaleTrans);
     } else {
-        float* storage = alloc->makeArrayDefault<float>(9);
+        float* storage = alloc->makeUninitializedArray<float>(9);
         if (matrix.asAffine(storage)) {
             // note: asAffine and the 2x3 stage really only need 6 entries
             this->append(SkRasterPipeline::matrix_2x3, storage);
