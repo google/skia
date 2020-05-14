@@ -29,12 +29,12 @@ Samples
     margin: 2px;
   }
 
-  #patheffect, #ink, #shaping {
+  #patheffect, #ink, #shaping, #shader1, #camera3d {
     width: 400px;
     height: 400px;
   }
 
-  #sk_legos, #sk_drinks, #sk_party, #sk_onboarding, #shader1 {
+  #sk_legos, #sk_drinks, #sk_party, #sk_onboarding {
     width: 300px;
     height: 300px;
   }
@@ -51,25 +51,33 @@ Samples
 </style>
 
 <div id=demo>
-  <h3>Go beyond the HTML Canvas2D</h3>
+  <h3>Paragraph shaping, custom shaders, and perspective transformation</h3>
   <figure>
-    <canvas id=patheffect width=400 height=400></canvas>
+    <canvas id=shaping width=500 height=500></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/43b38b83ca77dabe47f18f31cafe83f3018b3a24e569db27fe711c70bc3f7d62"
+      <a href="https://jsfiddle.skia.org/canvaskit/56cb197c724dfdfad0c3d8133d4fcab587e4c4e7f31576e62c17251637d3745c"
           target=_blank rel=noopener>
-        Star JSFiddle</a>
+        SkParagraph JSFiddle</a>
     </figcaption>
   </figure>
   <figure>
-    <canvas id=ink width=400 height=400></canvas>
+    <canvas id=shader1 width=512 height=512></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
+      <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
           target=_blank rel=noopener>
-        Ink JSFiddle</a>
+        Shader JSFiddle</a>
+    </figcaption>
+  </figure>
+  <figure>
+    <canvas id=camera3d width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/4b7f2cb6683ad3254ac46e3bab62da9a09e994044b2e7512c93d166abeaa2549"
+          target=_blank rel=noopener>
+        3D Cube JSFiddle</a>
     </figcaption>
   </figure>
 
-  <h3>Skottie (click for fiddles)</h3>
+  <h3>Play back bodymovin lottie files with skottie (click for fiddles)</h3>
   <a href="https://jsfiddle.skia.org/canvaskit/092690b273b41076d2f00f0d43d004893d6bb9992c387c0385efa8e6f6bc83d7"
      target=_blank rel=noopener>
     <canvas id=sk_legos width=300 height=300></canvas>
@@ -87,21 +95,23 @@ Samples
     <canvas id=sk_onboarding width=500 height=500></canvas>
   </a>
 
-  <h3>SkParagraph (using ICU and Harfbuzz)</h3>
+  <h3>Go beyond the HTML Canvas2D</h3>
   <figure>
-    <canvas id=shaping width=500 height=500></canvas>
+    <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/56cb197c724dfdfad0c3d8133d4fcab587e4c4e7f31576e62c17251637d3745c"
+      <a href="https://jsfiddle.skia.org/canvaskit/43b38b83ca77dabe47f18f31cafe83f3018b3a24e569db27fe711c70bc3f7d62"
           target=_blank rel=noopener>
-        SkParagraph JSFiddle</a>
+        Star JSFiddle</a>
     </figcaption>
   </figure>
-
-  <h3>SKSL for writing custom shaders</h3>
-  <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
-    target=_blank rel=noopener>
-    <canvas id=shader1 width=512 height=512></canvas>
-  </a>
+  <figure>
+    <canvas id=ink width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
+          target=_blank rel=noopener>
+        Ink JSFiddle</a>
+    </figcaption>
+  </figure>
 
 </div>
 
@@ -129,9 +139,11 @@ Samples
   let confettiJSON = null;
   let onboardingJSON = null;
   let fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
-  CanvasKitInit({
+  const ckLoaded = CanvasKitInit({
     locateFile: (file) => locate_file + file,
-  }).ready().then((CK) => {
+  }).ready();
+
+  ckLoaded.then((CK) => {
     CanvasKit = CK;
     DrawingExample(CanvasKit);
     InkExample(CanvasKit);
@@ -172,6 +184,10 @@ Samples
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     });
   });
+
+  const loadBrickTex = fetch('https://storage.googleapis.com/skia-cdn/misc/brickwork-texture.jpg').then((response) => response.arrayBuffer());
+  const loadBrickBump = fetch('https://storage.googleapis.com/skia-cdn/misc/brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
+  Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
 
   function preventScrolling(canvas) {
     canvas.addEventListener('touchmove', (e) => {
@@ -506,6 +522,330 @@ void main(float2 p, inout half4 color) {
       shader.delete();
     }
     requestAnimationFrame(drawFrame);
+  }
+
+  function Camera3D(canvas, textureImgData, normalImgData) {
+    const surface = CanvasKit.MakeCanvasSurface('camera3d');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const sizeX = document.getElementById('camera3d').width;
+    const sizeY = document.getElementById('camera3d').height;
+
+    let clickToWorld = CanvasKit.SkM44.identity();
+    let worldToClick = CanvasKit.SkM44.identity();
+    // rotation of the cube shown in the demo
+    let rotation = CanvasKit.SkM44.identity();
+    // temporary during a click and drag
+    let clickRotation = CanvasKit.SkM44.identity();
+
+    // A virtual sphere used for tumbling the object on screen.
+    const vSphereCenter = [sizeX/2, sizeY/2];
+    const vSphereRadius = Math.min(...vSphereCenter);
+
+    // The rounded rect used for each face
+    const margin = vSphereRadius / 20;
+    const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(margin, margin,
+      vSphereRadius - margin, vSphereRadius - margin), margin*2.5, margin*2.5);
+
+    const camNear = 0.05;
+    const camFar = 4;
+    const camAngle = Math.PI / 12;
+
+    const camEye = [0, 0, 1 / Math.tan(camAngle/2) - 1];
+    const camCOA = [0, 0, 0];
+    const camUp =  [0, 1, 0];
+
+    let mouseDown = false;
+    let clickDown = [0, 0]; // location of click down
+    let lastMouse = [0, 0]; // last mouse location
+
+    // keep spinning after mouse up. Also start spinning on load
+    let axis = [0.4, 1, 1];
+    let totalSpin = 0;
+    let spinRate = 0.1;
+    let lastRadians = 0;
+    let spinning = setInterval(keepSpinning, 30);
+
+    const imgscale = CanvasKit.SkMatrix.scaled(2, 2);
+    const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShader(
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+    const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShader(
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+    const children = [textureShader, normalShader];
+
+    const prog = `
+      in fragmentProcessor color_map;
+      in fragmentProcessor normal_map;
+
+      uniform float3   lightPos;
+      layout (marker=local_to_world)          uniform float4x4 localToWorld;
+      layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;
+
+      float3 convert_normal_sample(half4 c) {
+        float3 n = 2 * c.rgb - 1;
+        n.y = -n.y;
+        return n;
+      }
+
+      void main(float2 p, inout half4 color) {
+        float3 norm = convert_normal_sample(sample(normal_map, p));
+        float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
+
+        float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+        float3 light_dir = normalize(lightPos - plane_pos);
+
+        float ambient = 0.2;
+        float dp = dot(plane_norm, light_dir);
+        float scale = min(ambient + max(dp, 0), 1);
+
+        color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+      }
+`;
+
+    const fact = CanvasKit.SkRuntimeEffect.Make(prog);
+
+    // properties of light
+    let lightLocation = [...vSphereCenter];
+    let lightDistance = vSphereRadius;
+    let lightIconRadius = 12;
+    let draggingLight = false;
+
+    function computeLightWorldPos() {
+      return CanvasKit.SkVector.add(CanvasKit.SkVector.mulScalar([...vSphereCenter, 0], 0.5),
+        CanvasKit.SkVector.mulScalar(vSphereUnitV3(lightLocation), lightDistance));
+    }
+
+    let lightWorldPos = computeLightWorldPos();
+
+    function drawLight(canvas) {
+      const paint = new CanvasKit.SkPaint();
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.WHITE);
+      canvas.drawCircle(...lightLocation, lightIconRadius + 2, paint);
+      paint.setColor(CanvasKit.BLACK);
+      canvas.drawCircle(...lightLocation, lightIconRadius, paint);
+    }
+
+    // Takes an x and y rotation in radians and a scale and returns a 4x4 matrix used to draw a
+    // face of the cube in that orientation.
+    function faceM44(rx, ry, scale) {
+      return CanvasKit.SkM44.multiply(
+        CanvasKit.SkM44.rotated([0,1,0], ry),
+        CanvasKit.SkM44.rotated([1,0,0], rx),
+        CanvasKit.SkM44.translated([0, 0, scale]));
+    }
+
+    const faceScale = vSphereRadius/2
+    const faces = [
+      {matrix: faceM44(         0,         0, faceScale ), color:CanvasKit.RED}, // front
+      {matrix: faceM44(         0,   Math.PI, faceScale ), color:CanvasKit.GREEN}, // back
+
+      {matrix: faceM44( Math.PI/2,         0, faceScale ), color:CanvasKit.BLUE}, // top
+      {matrix: faceM44(-Math.PI/2,         0, faceScale ), color:CanvasKit.CYAN}, // bottom
+
+      {matrix: faceM44(         0, Math.PI/2, faceScale ), color:CanvasKit.MAGENTA}, // left
+      {matrix: faceM44(         0,-Math.PI/2, faceScale ), color:CanvasKit.YELLOW}, // right
+    ];
+
+    // Returns a component of the matrix m indicating whether it faces the camera.
+    // If it's positive for one of the matrices representing the face of the cube,
+    // that face is currently in front.
+    function front(m) {
+      // Is this invertible?
+      var m2 = CanvasKit.SkM44.invert(m);
+      if (m2 === null) {
+        m2 = CanvasKit.SkM44.identity();
+      }
+      // look at the sign of the z-scale of the inverse of m.
+      // that's the number in row 2, col 2.
+      return m2[10]
+    }
+
+    // Return the inverse of an SkM44. throw an error if it's not invertible
+    function mustInvert(m) {
+      var m2 = CanvasKit.SkM44.invert(m);
+      if (m2 === null) {
+        throw "Matrix not invertible";
+      }
+      return m2;
+    }
+
+    function saveCamera(canvas, /* rect */ area, /* scalar */ zscale) {
+      const camera = CanvasKit.SkM44.lookat(camEye, camCOA, camUp);
+      const perspective = CanvasKit.SkM44.perspective(camNear, camFar, camAngle);
+      // Calculate viewport scale. Even through we know these values are all constants in this
+      // example it might be handy to change the size later.
+      const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+      const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+      const viewport = CanvasKit.SkM44.multiply(
+        CanvasKit.SkM44.translated(center),
+        CanvasKit.SkM44.scaled(viewScale));
+
+      // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+      // as part of our "camera".
+      canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
+      canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+      // Mark the matrix to make it available to the shader by this name.
+      canvas.markCTM('local_to_world');
+    }
+
+    function setClickToWorld(canvas, matrix) {
+      const l2d = canvas.getLocalToDevice();
+      worldToClick = CanvasKit.SkM44.multiply(mustInvert(matrix), l2d);
+      clickToWorld = mustInvert(worldToClick);
+    }
+
+    function drawCubeFace(canvas, m, color) {
+      const trans = new CanvasKit.SkM44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
+      canvas.concat(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
+      const znormal = front(canvas.getLocalToDevice());
+      if (znormal < 0) {
+        return; // skip faces facing backwards
+      }
+      // Pad with space for two 4x4 matrices. Even though the shader uses a layout()
+      // statement to populate them, we still have to reserve space for them.
+      const uniforms = [...lightWorldPos, ...Array(32).fill(0)];
+      const paint = new CanvasKit.SkPaint();
+      paint.setAntiAlias(true);
+      const shader = fact.makeShaderWithChildren(uniforms, true /*=opaque*/, children);
+      paint.setShader(shader);
+      canvas.drawRRect(rr, paint);
+    }
+
+    function drawFrame(canvas) {
+      const clickM = canvas.getLocalToDevice();
+      canvas.save();
+      canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
+      // pass surface dimensions as viewport size.
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2);
+      setClickToWorld(canvas, clickM);
+      for (let f of faces) {
+        const saveCount = canvas.getSaveCount();
+        canvas.save();
+        drawCubeFace(canvas, CanvasKit.SkM44.multiply(clickRotation, rotation, f.matrix), f.color);
+        canvas.restoreToCount(saveCount);
+      }
+      canvas.restore();  // camera
+      canvas.restore();  // center the following content in the window
+
+      // draw virtual sphere outline.
+      const paint = new CanvasKit.SkPaint();
+      paint.setAntiAlias(true);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      paint.setColor(CanvasKit.Color(64, 255, 0, 1.0));
+      canvas.drawCircle(vSphereCenter[0], vSphereCenter[1], vSphereRadius, paint);
+      canvas.drawLine(vSphereCenter[0], vSphereCenter[1] - vSphereRadius,
+                       vSphereCenter[0], vSphereCenter[1] + vSphereRadius, paint);
+      canvas.drawLine(vSphereCenter[0] - vSphereRadius, vSphereCenter[1],
+                       vSphereCenter[0] + vSphereRadius, vSphereCenter[1], paint);
+
+      drawLight(canvas);
+    }
+
+    // convert a 2D point in the circle displayed on screen to a 3D unit vector.
+    // the virtual sphere is a technique selecting a 3D direction by clicking on a the projection
+    // of a hemisphere.
+    function vSphereUnitV3(p) {
+      // v = (v - fCenter) * (1 / fRadius);
+      let v = CanvasKit.SkVector.mulScalar(CanvasKit.SkVector.sub(p, vSphereCenter), 1/vSphereRadius);
+
+      // constrain the clicked point within the circle.
+      let len2 = CanvasKit.SkVector.lengthSquared(v);
+      if (len2 > 1) {
+          v = CanvasKit.SkVector.normalize(v);
+          len2 = 1;
+      }
+      // the closer to the edge of the circle you are, the closer z is to zero.
+      const z = Math.sqrt(1 - len2);
+      v.push(z);
+      return v;
+    }
+
+    function computeVSphereRotation(start, end) {
+      const u = vSphereUnitV3(start);
+      const v = vSphereUnitV3(end);
+      // Axis is in the scope of the Camera3D function so it can be used in keepSpinning.
+      axis = CanvasKit.SkVector.cross(u, v);
+      const sinValue = CanvasKit.SkVector.length(axis);
+      const cosValue = CanvasKit.SkVector.dot(u, v);
+
+      let m = new CanvasKit.SkM44.identity();
+      if (Math.abs(sinValue) > 0.000000001) {
+          m = CanvasKit.SkM44.rotatedUnitSinCos(
+            CanvasKit.SkVector.mulScalar(axis, 1/sinValue), sinValue, cosValue);
+          const radians = Math.atan(cosValue / sinValue);
+          spinRate = lastRadians - radians;
+          lastRadians = radians;
+      }
+      return m;
+    }
+
+    function keepSpinning() {
+      totalSpin += spinRate;
+      clickRotation = CanvasKit.SkM44.rotated(axis, totalSpin);
+      spinRate *= .998;
+      if (spinRate < 0.01) {
+        stopSpinning();
+      }
+      surface.requestAnimationFrame(drawFrame);
+    }
+
+    function stopSpinning() {
+        clearInterval(spinning);
+        rotation = CanvasKit.SkM44.multiply(clickRotation, rotation);
+        clickRotation = CanvasKit.SkM44.identity();
+    }
+
+    function interact(e) {
+      const type = e.type;
+      let eventPos = [e.offsetX, e.offsetY];
+      if (type === 'lostpointercapture' || type === 'pointerup' || type == 'pointerleave') {
+        if (draggingLight) {
+          draggingLight = false;
+        } else if (mouseDown) {
+          mouseDown = false;
+          if (spinRate > 0.02) {
+            stopSpinning();
+            spinning = setInterval(keepSpinning, 30);
+          }
+        } else {
+          return;
+        }
+        return;
+      } else if (type === 'pointermove') {
+        if (draggingLight) {
+          lightLocation = eventPos;
+          lightWorldPos = computeLightWorldPos();
+        } else if (mouseDown) {
+          lastMouse = eventPos;
+          clickRotation = computeVSphereRotation(clickDown, lastMouse);
+        } else {
+          return;
+        }
+      } else if (type === 'pointerdown') {
+        // Are we repositioning the light?
+        if (CanvasKit.SkVector.dist(eventPos, lightLocation) < lightIconRadius) {
+          draggingLight = true;
+          return;
+        }
+        stopSpinning();
+        mouseDown = true;
+        clickDown = eventPos;
+        lastMouse = eventPos;
+      }
+      surface.requestAnimationFrame(drawFrame);
+    };
+
+    document.getElementById('camera3d').addEventListener('pointermove', interact);
+    document.getElementById('camera3d').addEventListener('pointerdown', interact);
+    document.getElementById('camera3d').addEventListener('lostpointercapture', interact);
+    document.getElementById('camera3d').addEventListener('pointerleave', interact);
+    document.getElementById('camera3d').addEventListener('pointerup', interact);
+
+    surface.requestAnimationFrame(drawFrame);
   }
 
   }
