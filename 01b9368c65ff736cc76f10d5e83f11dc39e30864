@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9077894_c9faebc7",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-14T20:22:58Z",
+      "side": 1,
+      "message": "Do we want to use stride over advance for nomenclature?",
+      "range": {
+        "startLine": 43,
+        "startChar": 60,
+        "endLine": 43,
+        "endChar": 84
+      },
+      "revId": "01b9368c65ff736cc76f10d5e83f11dc39e30864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df39c2e4_4940e17d",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-14T20:22:58Z",
+      "side": 1,
+      "message": "I like these new names a lot",
+      "range": {
+        "startLine": 80,
+        "startChar": 10,
+        "endLine": 83,
+        "endChar": 24
+      },
+      "revId": "01b9368c65ff736cc76f10d5e83f11dc39e30864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b72a2b_1bc27faa",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-14T20:22:58Z",
+      "side": 1,
+      "message": "This 3 needs to match the \u0027* 3\u0027 in the triangle vertex count expression, right? Should we have it be a kStride constant?",
+      "range": {
+        "startLine": 125,
+        "startChar": 57,
+        "endLine": 125,
+        "endChar": 58
+      },
+      "revId": "01b9368c65ff736cc76f10d5e83f11dc39e30864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
