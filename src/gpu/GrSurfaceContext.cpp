@@ -502,11 +502,14 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
 }
 
 std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
-        const GrImageInfo& info,
-        GrSurfaceOrigin origin,
+        const SkImageInfo& info,
         const SkIRect& srcRect,
         SkSurface::RescaleGamma rescaleGamma,
         SkFilterQuality rescaleQuality) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
     auto rtProxy = this->asRenderTargetProxy();
     if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
         return nullptr;
@@ -526,6 +529,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
     int srcX = srcRect.fLeft;
     int srcY = srcRect.fTop;
     GrSurfaceProxyView texView = this->readSurfaceView();
+    SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
     SkAlphaType srcAlphaType = this->colorInfo().alphaType();
     if (!texView.asTextureProxy()) {
         texView = GrSurfaceProxyView::Copy(fContext, std::move(texView), GrMipMapped::kNo, srcRect,
@@ -536,6 +540,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         SkASSERT(texView.asTextureProxy());
         srcX = 0;
         srcY = 0;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 
     float sx = (float)info.width() / srcW;
@@ -567,22 +572,22 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
                                              kPremul_SkAlphaType);
         // We'll fall back to kRGBA_8888 if half float not supported.
         auto linearRTC = GrRenderTargetContext::MakeWithFallback(
-                fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kApprox, {srcW, srcH}, 1,
-                GrMipMapped::kNo, GrProtected::kNo, origin);
+                fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kExact, {srcW, srcH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!linearRTC) {
             return nullptr;
         }
-        // 1-to-1 draw can always be kFast.
         linearRTC->drawTexture(GrNoClip(), std::move(texView), srcAlphaType,
                                GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
                                SK_PMColor4fWHITE, SkRect::Make(srcRect), SkRect::MakeWH(srcW, srcH),
-                               GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                               SkMatrix::I(), std::move(xform));
+                               GrAA::kNo, GrQuadAAFlags::kNone, constraint, SkMatrix::I(),
+                               std::move(xform));
         texView = linearRTC->readSurfaceView();
         SkASSERT(texView.asTextureProxy());
         tempA = std::move(linearRTC);
         srcX = 0;
         srcY = 0;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     while (stepsX || stepsY) {
         int nextW = info.width();
@@ -613,13 +618,14 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         if (!stepsX && !stepsY) {
             // Might as well fold conversion to final info in the last step.
             cs = info.refColorSpace();
+            colorType = SkColorTypeToGrColorType(info.colorType());
             xform = GrColorSpaceXform::Make(input->colorInfo().colorSpace(),
                                             input->colorInfo().alphaType(), cs.get(),
                                             info.alphaType());
         }
-        tempB = GrRenderTargetContext::MakeWithFallback(fContext, colorType, std::move(cs),
-                                                        SkBackingFit::kApprox, {nextW, nextH}, 1,
-                                                        GrMipMapped::kNo, GrProtected::kNo, origin);
+        tempB = GrRenderTargetContext::MakeWithFallback(
+                fContext, colorType, std::move(cs), SkBackingFit::kExact, {nextW, nextH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempB) {
             return nullptr;
         }
@@ -650,11 +656,6 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
                                                                   : GrSamplerState::Filter::kBilerp;
             auto srcSubset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
-            // Minimizing draw with integer coord src and dev rects can always be kFast.
-            auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
-            if (stepsX <= 0 && stepsY <= 0) {
-                constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
-            }
             tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
                                SkBlendMode::kSrc, SK_PMColor4fWHITE, srcSubset, dstRect, GrAA::kNo,
                                GrQuadAAFlags::kNone, constraint, SkMatrix::I(), std::move(xform));
@@ -664,6 +665,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         srcX = srcY = 0;
         srcW = nextW;
         srcH = nextH;
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     SkASSERT(tempA);
     return tempA;
