@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fadb7fc3_e95a5d58",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cffbfc19_8e4d61fb",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 63
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa4c23ca_3dd37a81",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 8
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "79fd88af_f5c419b2",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa4c23ca_3dd37a81",
+      "range": {
+        "startLine": 1015,
+        "startChar": 7,
+        "endLine": 1016,
+        "endChar": 34
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fbdf491_e86421c1",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 8
@@ -86,6 +134,24 @@
       "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc44e44c_4a211ecb",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fbdf491_e86421c1",
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -112,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "8547198a_d8938537",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6d9995a_d1002ac4",
+      "range": {
+        "startLine": 76,
+        "startChar": 3,
+        "endLine": 76,
+        "endChar": 16
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a14c18e_b7430a12",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 8
@@ -135,6 +225,30 @@
     },
     {
       "key": {
+        "uuid": "bebdeaa7_2d7b73c2",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a14c18e_b7430a12",
+      "range": {
+        "startLine": 118,
+        "startChar": 3,
+        "endLine": 120,
+        "endChar": 32
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a42d1674_a7335803",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 8
@@ -146,6 +260,30 @@
       "writtenOn": "2020-05-13T20:28:24Z",
       "side": 1,
       "message": "Random rant that is not a suggested change: I\u0027m surprised they make you go through the hassle of doing your own GPU-\u003eCPU fence here. Seems like the driver could just block on the GetCurrentBackBufferIndex call. Maybe this allows you to start recording commands and it is only the submission of work to the GPU of the next frame that need to block? Definitely like the vulkan model better here of using gpu semaphores for the swapchain synchronizatoin.",
+      "range": {
+        "startLine": 173,
+        "startChar": 25,
+        "endLine": 173,
+        "endChar": 95
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10f94689_f74be2f0",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "I agree. I think this is something we\u0027ll have to tweak.",
+      "parentUuid": "a42d1674_a7335803",
       "range": {
         "startLine": 173,
         "startChar": 25,
@@ -178,6 +316,30 @@
       "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efdce977_964b4f04",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Yup, that works.",
+      "parentUuid": "0651fee4_e4da308d",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 204,
+        "endChar": 78
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -225,6 +387,30 @@
       "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b40af1c4_78c82a65",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-14T13:27:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1423a1f_d3fa3bf9",
+      "range": {
+        "startLine": 86,
+        "startChar": 1,
+        "endLine": 100,
+        "endChar": 6
+      },
+      "revId": "73be537b377eacbbdff2ebf6b3b968d30e65e258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
