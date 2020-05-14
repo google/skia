@@ -16,7 +16,7 @@
 #include "tools/Resources.h"
 
 static sk_sp<SkTypeface> make_tf() {
-    SkCustomTypefaceBuilder builder(128);
+    SkCustomTypefaceBuilder builder;
     SkFont font;
     font.setSize(1.0f);
     font.setHinting(SkFontHinting::kNone);

@@ -20,7 +20,7 @@ class SkStream;
 
 class SkCustomTypefaceBuilder {
 public:
-    SkCustomTypefaceBuilder(int numGlyphs);
+    SkCustomTypefaceBuilder();
 
     void setGlyph(SkGlyphID, float advance, const SkPath&);
     void setGlyph(SkGlyphID, float advance, const SkPath&, const SkPaint&);
@@ -30,7 +30,6 @@ public:
     sk_sp<SkTypeface> detach();
 
 private:
-    int fGlyphCount;
     std::vector<SkPath> fPaths;
     std::vector<float>  fAdvances;
 
