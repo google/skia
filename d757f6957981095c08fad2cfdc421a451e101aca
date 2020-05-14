@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2424b4d_67b32d0d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-14T19:30:37Z",
+      "side": 1,
+      "message": "Can we SkASSERT(!this-\u003eddlRecording())?",
+      "revId": "d757f6957981095c08fad2cfdc421a451e101aca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
