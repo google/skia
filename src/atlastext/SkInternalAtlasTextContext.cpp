@@ -70,7 +70,7 @@ GrDeferredUploadToken SkInternalAtlasTextContext::addASAPUpload(
 void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyphCnt,
                                             const SkMatrix& matrix, void* targetHandle) {
     auto vertexDataSize = sizeof(SkAtlasTextRenderer::SDFVertex) * 4 * glyphCnt;
-    auto vertexData = fArena.makeArrayDefault<char>(vertexDataSize);
+    auto vertexData = fArena.makeUninitializedArray<char>(vertexDataSize);
     memcpy(vertexData, srcVertexData, vertexDataSize);
     for (int i = 0; i < 4 * glyphCnt; ++i) {
         auto* vertex = reinterpret_cast<SkAtlasTextRenderer::SDFVertex*>(vertexData) + i;

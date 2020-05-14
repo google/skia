@@ -506,7 +506,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         //   stops:  (-inf)        t0            t1            t2  ...
         //
         // Both these arrays could end up shorter if any hard stops share the same t.
-        FB* fb = alloc->makeArrayDefault<FB>(fColorCount+1);
+        FB* fb = alloc->makeUninitializedArray<FB>(fColorCount + 1);
         std::vector<float> stops;  // TODO: SkSTArray?
         stops.reserve(fColorCount);
 

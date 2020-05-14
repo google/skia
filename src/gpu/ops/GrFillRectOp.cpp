@@ -262,7 +262,7 @@ private:
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
         const size_t totalVertexSizeInBytes = vertexSpec.vertexSize() * totalNumVertices;
 
-        fPrePreparedVertices = arena->makeArrayDefault<char>(totalVertexSizeInBytes);
+        fPrePreparedVertices = arena->makeUninitializedArray<char>(totalVertexSizeInBytes);
 
         this->tessellate(vertexSpec, fPrePreparedVertices);
     }

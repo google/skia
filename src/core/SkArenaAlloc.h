@@ -100,27 +100,15 @@ public:
     }
 
     template <typename T>
-    T* makeArrayDefault(size_t count) {
-        AssertRelease(SkTFitsIn<uint32_t>(count));
-        uint32_t safeCount = ToU32(count);
-        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
-
-        // If T is primitive then no initialization takes place.
-        for (size_t i = 0; i < safeCount; i++) {
-            new (&array[i]) T;
-        }
-        return array;
+    T* makeUninitializedArray(size_t count) {
+        static_assert(std::is_trivially_destructible<T>::value, "T must be trivially destructible");
+        return this->allocUninitializedArray<T>(count);
     }
 
     template <typename T>
     T* makeArray(size_t count) {
-        AssertRelease(SkTFitsIn<uint32_t>(count));
-        uint32_t safeCount = ToU32(count);
-        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
-
-        // If T is primitive then the memory is initialized. For example, an array of chars will
-        // be zeroed.
-        for (size_t i = 0; i < safeCount; i++) {
+        T* array = this->allocUninitializedArray<T>(count);
+        for (size_t i = 0; i < count; i++) {
             new (&array[i]) T();
         }
         return array;
@@ -128,12 +116,8 @@ public:
 
     template <typename T, typename Initializer>
     T* makeInitializedArray(size_t count, Initializer initializer) {
-        AssertRelease(SkTFitsIn<uint32_t>(count));
-        uint32_t safeCount = ToU32(count);
-        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
-
-        // Initialize array elements.
-        for (size_t i = 0; i < safeCount; i++) {
+        T* array = (T*)this->allocUninitializedArray<T>(count);
+        for (size_t i = 0; i < count; i++) {
             new (&array[i]) T(initializer(i));
         }
         return array;
@@ -185,7 +169,9 @@ private:
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
 
     template <typename T>
-    char* commonArrayAlloc(uint32_t count) {
+    T* allocUninitializedArray(size_t countZ) {
+        AssertRelease(SkTFitsIn<uint32_t>(countZ));
+        uint32_t count = ToU32(countZ);
         char* objStart;
         AssertRelease(count <= std::numeric_limits<uint32_t>::max() / sizeof(T));
         uint32_t arraySize = ToU32(count * sizeof(T));
@@ -221,7 +207,7 @@ private:
                 padding);
         }
 
-        return objStart;
+        return (T*)objStart;
     }
 
     char*          fDtorCursor;

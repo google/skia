@@ -629,13 +629,13 @@ GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
                                            const SkStrikeSpec& strikeSpec,
                                            GrMaskFormat format) {
     SkSpan<SubRun::PackedGlyphIDorGrGlyph> glyphs{
-       fAlloc.makeArrayDefault<SubRun::PackedGlyphIDorGrGlyph>(drawables.size()), drawables.size()};
+            fAlloc.makeUninitializedArray<SubRun::PackedGlyphIDorGrGlyph>(drawables.size()), drawables.size()};
     bool hasW = this->hasW(type);
 
     SkASSERT(!fInitialMatrix.hasPerspective() || hasW);
 
     size_t vertexDataSize = drawables.size() * GetVertexStride(format, hasW) * kVerticesPerGlyph;
-    SkSpan<char> vertexData{fAlloc.makeArrayDefault<char>(vertexDataSize), vertexDataSize};
+    SkSpan<char> vertexData{fAlloc.makeUninitializedArray<char>(vertexDataSize), vertexDataSize};
 
     SubRun* subRun = fAlloc.make<SubRun>(type, this, strikeSpec, format, glyphs, vertexData);
 

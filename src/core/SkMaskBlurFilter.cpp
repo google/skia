@@ -985,13 +985,13 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     SkASSERT(srcW >= 0 && srcH >= 0 && dstW >= 0 && dstH >= 0);
 
     auto bufferSize = std::max(planW.bufferSize(), planH.bufferSize());
-    auto buffer = alloc.makeArrayDefault<uint32_t>(bufferSize);
+    auto buffer = alloc.makeUninitializedArray<uint32_t>(bufferSize);
 
     // Blur both directions.
     int tmpW = srcH,
         tmpH = dstW;
 
-    auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
+    auto tmp = alloc.makeUninitializedArray<uint8_t>(tmpW * tmpH);
 
     // Blur horizontally, and transpose.
     const PlanGauss::Scan& scanW = planW.makeBlurScan(srcW, buffer);

@@ -180,7 +180,7 @@ const char* SkDOM::AttrIter::next(const char** value) {
 static char* dupstr(SkArenaAlloc* chunk, const char src[]) {
     SkASSERT(chunk && src);
     size_t  len = strlen(src);
-    char*   dst = chunk->makeArrayDefault<char>(len + 1);
+    char*   dst = chunk->makeUninitializedArray<char>(len + 1);
     memcpy(dst, src, len + 1);
     return dst;
 }
@@ -202,7 +202,7 @@ protected:
 
         int attrCount = fAttrs.count();
 
-        SkDOMAttr* attrs = fAlloc->makeArrayDefault<SkDOMAttr>(attrCount);
+        SkDOMAttr* attrs = fAlloc->makeUninitializedArray<SkDOMAttr>(attrCount);
         SkDOM::Node* node = fAlloc->make<SkDOM::Node>();
 
         node->fName = fElemName;

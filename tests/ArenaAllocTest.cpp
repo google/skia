@@ -80,12 +80,12 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, foo->y == 4.0f);
         REPORTER_ASSERT(r, created == 1);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.makeArrayDefault<int>(10);
+        arena.makeUninitializedArray<int>(10);
         int* zeroed = arena.makeArray<int>(10);
         for (int i = 0; i < 10; i++) {
             REPORTER_ASSERT(r, zeroed[i] == 0);
         }
-        Foo* fooArray = arena.makeArrayDefault<Foo>(10);
+        Foo* fooArray = arena.makeArray<Foo>(10);
         REPORTER_ASSERT(r, fooArray[3].x == -2);
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
@@ -106,12 +106,12 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, foo->y == 4.0f);
         REPORTER_ASSERT(r, created == 1);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.makeArrayDefault<int>(10);
+        arena.makeUninitializedArray<int>(10);
         int* zeroed = arena.makeArray<int>(10);
         for (int i = 0; i < 10; i++) {
             REPORTER_ASSERT(r, zeroed[i] == 0);
         }
-        Foo* fooArray = arena.makeArrayDefault<Foo>(10);
+        Foo* fooArray = arena.makeArray<Foo>(10);
         REPORTER_ASSERT(r, fooArray[3].x == -2);
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
@@ -133,12 +133,12 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, foo->y == 4.0f);
         REPORTER_ASSERT(r, created == 1);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.makeArrayDefault<int>(10);
+        arena.makeUninitializedArray<int>(10);
         int* zeroed = arena.makeArray<int>(10);
         for (int i = 0; i < 10; i++) {
             REPORTER_ASSERT(r, zeroed[i] == 0);
         }
-        Foo* fooArray = arena.makeArrayDefault<Foo>(10);
+        Foo* fooArray = arena.makeArray<Foo>(10);
         REPORTER_ASSERT(r, fooArray[3].x == -2);
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
@@ -150,7 +150,7 @@ DEF_TEST(ArenaAlloc, r) {
 
     {
         SkSTArenaAlloc<64> arena;
-        arena.makeArrayDefault<char>(256);
+        arena.makeUninitializedArray<char>(256);
         arena.reset();
         arena.reset();
     }
@@ -163,7 +163,7 @@ DEF_TEST(ArenaAlloc, r) {
         Start start;
         Node* current = nullptr;
         for (int i = 0; i < 128; i++) {
-            uint64_t* temp = arena.makeArrayDefault<uint64_t>(sizeof(Node) / sizeof(Node*));
+            uint64_t* temp = arena.makeUninitializedArray<uint64_t>(sizeof(Node) / sizeof(Node*));
             current = new (temp)Node(current);
         }
         start.start = current;
