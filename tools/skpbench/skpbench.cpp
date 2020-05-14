@@ -201,7 +201,8 @@ private:
     std::vector<SkDocumentPage> fFrames;
 };
 
-static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSync, Sample* sample,
+static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSync,
+                       Sample* sample, SkTaskGroup* recordingTaskGroup, SkTaskGroup* gpuTaskGroup,
                        std::chrono::high_resolution_clock::time_point* startStopTime) {
     using clock = std::chrono::high_resolution_clock;
 
@@ -220,12 +221,18 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
         // through a DDL.
         tiles->drawAllTilesDirectly(context);
     } else {
-        // TODO: Here we create all the DDLs, wait, and then draw them all. This should be updated
-        // to use the GPUDDLSink method of having a separate GPU thread.
-        tiles->createDDLsInParallel();
-        tiles->precompileAndDrawAllTiles(context);
+        tiles->kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, context);
+        recordingTaskGroup->wait();
     }
-    flush_with_sync(context, gpuSync);
+
+    if (gpuTaskGroup) {
+        gpuTaskGroup->add([&]{
+            flush_with_sync(context, gpuSync);
+        });
+        gpuTaskGroup->wait();
+    } else {
+        flush_with_sync(context, gpuSync);
+    }
 
     *startStopTime = clock::now();
 
@@ -235,8 +242,9 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
     }
 }
 
-static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
-                              SkPicture* inputPicture, std::vector<Sample>* samples) {
+static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrContext *context,
+                              sk_sp<SkSurface> dstSurface, SkPicture* inputPicture,
+                              std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
@@ -264,10 +272,24 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
 
     SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
 
+    // In comparable modes, there is no GPU thread. The following pointers are all null.
+    // Otherwise, we transfer testContext onto the GPU thread for the rest of this function.
+    std::unique_ptr<SkExecutor> gpuThread;
+    std::unique_ptr<SkTaskGroup> gpuTaskGroup;
+    std::unique_ptr<SkTaskGroup> recordingTaskGroup;
+    if (!FLAGS_comparableDDL && !FLAGS_comparableSKP) {
+        gpuThread = SkExecutor::MakeFIFOThreadPool(1, false);
+        recordingTaskGroup = std::unique_ptr<SkTaskGroup>(new SkTaskGroup);
+        gpuTaskGroup = std::unique_ptr<SkTaskGroup>(new SkTaskGroup(*gpuThread));
+        testContext->makeNotCurrent();
+        gpuTaskGroup->add([=]{ testContext->makeCurrent(); });
+    }
+
     clock::time_point startStopTime = clock::now();
 
     GpuSync gpuSync;
-    ddl_sample(context, &tiles, gpuSync, nullptr, &startStopTime);
+    ddl_sample(context, &tiles, gpuSync, nullptr, recordingTaskGroup.get(),
+               gpuTaskGroup.get(), &startStopTime);
 
     clock::duration cumulativeDuration = std::chrono::milliseconds(0);
 
@@ -277,11 +299,21 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
 
         do {
             tiles.resetAllTiles();
-            ddl_sample(context, &tiles, gpuSync, &sample, &startStopTime);
+            ddl_sample(context, &tiles, gpuSync, &sample, recordingTaskGroup.get(),
+                       gpuTaskGroup.get(), &startStopTime);
         } while (sample.fDuration < sampleDuration);
 
         cumulativeDuration += sample.fDuration;
     } while (cumulativeDuration < benchDuration || 0 == samples->size() % 2);
+
+    // Move the context back to this thread now that we're done benching.
+    if (gpuTaskGroup) {
+        gpuTaskGroup->add([=]{
+            testContext->makeNotCurrent();
+        });
+        gpuTaskGroup->wait();
+        testContext->makeCurrent();
+    }
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
@@ -577,7 +609,7 @@ int main(int argc, char** argv) {
     }
     if (!FLAGS_gpuClock) {
         if (FLAGS_ddl) {
-            run_ddl_benchmark(ctx, surface, skp.get(), &samples);
+            run_ddl_benchmark(testCtx, ctx, surface, skp.get(), &samples);
         } else if (!mskp) {
             auto s = std::make_unique<StaticSkp>(skp);
             run_benchmark(ctx, surface.get(), s.get(), &samples);
