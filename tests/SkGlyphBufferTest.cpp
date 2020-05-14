@@ -160,10 +160,10 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
-        drawable.startSource(source, {100, 100});
+        drawable.startSource(source);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
-            REPORTER_ASSERT(reporter, pos == positions[i] + SkPoint::Make(100, 100));
+            REPORTER_ASSERT(reporter, pos == positions[i]);
         }
     }
 
@@ -184,7 +184,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
-        drawable.startSource(source, {100, 100});
+        drawable.startSource(source);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             drawable.push_back(&glyphs[i], i);
         }

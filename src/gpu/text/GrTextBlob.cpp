@@ -50,7 +50,7 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
-        , fCurrentOrigin{textBlob->fInitialOrigin}
+        , fCurrentOrigin{this->needsTransform() ? SkPoint{0, 0} : textBlob->fInitialOrigin}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
     SkASSERT(type != kTransformedPath);
     textBlob->insertSubRun(this);
@@ -143,13 +143,14 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         packedIDCursor++;
     }
 
-    // Use the negative initial origin to make the fVertexBounds {0, 0} based.
-    SkPoint pt = fBlob->fInitialOrigin;
     if (!this->needsTransform()) {
+        // Use the negative initial origin to make the fVertexBounds {0, 0} based.
+        SkPoint pt = fBlob->fInitialOrigin;
+
         // If the box is in device space, then transform the source space origin to device space.
         pt = fBlob->fInitialMatrix.mapXY(pt.x(), pt.y());
+        fVertexBounds.offset(-pt);
     }
-    fVertexBounds.offset(-pt);
 }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }

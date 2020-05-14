@@ -106,7 +106,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateStrike();
 
-            fDrawable.startSource(fRejects.source(), drawOrigin);
+            fDrawable.startSource(fRejects.source());
             strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
@@ -115,7 +115,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkPaint pathPaint = runPaint;
             pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
-            bitmapDevice->paintPaths(&fDrawable, strikeSpec.strikeToSourceRatio(), pathPaint);
+            bitmapDevice->paintPaths(
+                    &fDrawable, strikeSpec.strikeToSourceRatio(), drawOrigin, pathPaint);
         }
         if (!fRejects.source().empty()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
@@ -167,7 +168,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
+                fDrawable.startSource(fRejects.source());
                 strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
 
@@ -212,7 +213,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startPaths(fRejects.source());
+                fDrawable.startSource(fRejects.source());
                 strike->prepareForPathDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
                 maxDimensionInSourceSpace =
@@ -235,7 +236,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
+                fDrawable.startSource(fRejects.source());
                 strike->prepareForMaskDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
                 SkASSERT(fRejects.source().empty());

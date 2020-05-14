@@ -50,7 +50,7 @@ public:
               fOverdrawCanvas{overdrawCanvas},
               fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
 
-    void paintPaths(SkDrawableGlyphBuffer*, SkScalar scale, const SkPaint& paint) const override {}
+    void paintPaths(SkDrawableGlyphBuffer*, SkScalar, SkPoint, const SkPaint&) const override {}
 
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override {
         for (auto t : drawables->drawable()) {
