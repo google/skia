@@ -1552,7 +1552,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
         mask.reset(nullptr);
-        context->flush();
+        context->flushAndSubmit();
         REPORTER_ASSERT(reporter, i + 1 == cache->countUniqueKeysWithTag(kTag));
     }
 

@@ -111,7 +111,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath, reporter, ctxInfo) {
              -8.94321693e-06f, -0.00173384184f, 0.998692870f);
     surface->getCanvas()->setMatrix(m);
     surface->getCanvas()->drawPath(path, paint);
-    surface->flush();
+    surface->flushAndSubmit();
 }
 
 DEF_GPUTEST(GrPathKeys, reporter, /* options */) {

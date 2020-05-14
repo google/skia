@@ -1208,7 +1208,7 @@ protected:
                              SkRect::MakeWH(shrunkPlaneSize.width(), shrunkPlaneSize.height()),
                              &paint);
 
-            s->flush();
+            s->flushAndSubmit();
         }
 
         SkISize shrunkImageSize = { imageSize.width() / 2, imageSize.height() / 2 };
@@ -1398,7 +1398,7 @@ protected:
         }
         if (auto context = canvas->getGrContext()) {
             if (!context->abandoned()) {
-                context->flush();
+                context->flushAndSubmit();
                 GrGpu* gpu = context->priv().getGpu();
                 SkASSERT(gpu);
                 gpu->testingOnly_flushGpuAndSync();
@@ -1547,7 +1547,7 @@ protected:
             }
         }
 
-        context->flush();
+        context->flushAndSubmit();
         GrGpu* gpu = context->priv().getGpu();
         SkASSERT(gpu);
         gpu->testingOnly_flushGpuAndSync();

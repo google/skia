@@ -46,12 +46,12 @@ void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     // to render an SkImage and add one additional resource for each image we'd like to fit.
     GrContext* context =  canvas->getGrContext();
     SkASSERT(context);
-    context->flush();
+    context->flushAndSubmit();
     context->priv().testingOnly_purgeAllUnlockedResources();
     sk_sp<SkImage> image;
     make_images(&image, 1);
     draw_image(canvas, image.get());
-    context->flush();
+    context->flushAndSubmit();
     int baselineCount;
     context->getResourceCacheUsage(&baselineCount, nullptr);
     baselineCount -= 1; // for the image's textures.

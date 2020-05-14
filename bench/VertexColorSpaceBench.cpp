@@ -333,7 +333,7 @@ public:
                 rtc->priv().testingOnly_addDrawOp(std::move(op));
             }
 
-            context->flush();
+            context->flushAndSubmit();
         }
     }
 

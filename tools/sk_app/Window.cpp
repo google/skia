@@ -89,7 +89,7 @@ void Window::onPaint() {
     this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
     this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
-    backbuffer->flush();
+    backbuffer->flushAndSubmit();
 
     fWindowContext->swapBuffers();
 }

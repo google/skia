@@ -51,7 +51,7 @@ void Sample::draw(SkCanvas* canvas) {
 #if SK_SUPPORT_GPU
         // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
         if (GrContext* context = canvas->getGrContext()) {
-            context->flush();
+            context->flushAndSubmit();
         }
 #endif
 

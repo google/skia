@@ -340,7 +340,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
 
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
-        context->flush();
+        context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
@@ -402,7 +402,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()),
                         "DDLSurfaceCharacterizationTest failed on parameter: %d\n", i);
 
-        context->flush();
+        context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
@@ -437,7 +437,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 #endif
 
-        context->flush();
+        context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
@@ -454,7 +454,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         if (s) {
             REPORTER_ASSERT(reporter, !s->draw(ddl.get())); // bc the DDL was made w/ textureability
 
-            context->flush();
+            context->flushAndSubmit();
             gpu->testingOnly_flushGpuAndSync();
             s = nullptr;
             params.cleanUpBackEnd(context, backend);
@@ -739,7 +739,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
 
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
-        context->flush();
+        context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
@@ -985,7 +985,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* canvas = recorder.getCanvas();
 
-    canvas->getGrContext()->flush();
+    canvas->getGrContext()->flushAndSubmit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1061,12 +1061,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         ddl = recorder.detach();
     }
 
-    context->flush();
+    context->flushAndSubmit();
 
     s->draw(ddl.get());
 
     GrFlushInfo flushInfo;
     s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
+    context->submit();
 
     REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
     REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
@@ -1078,6 +1079,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         GrFlushInfo flushInfoSyncCpu;
         flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
         s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfoSyncCpu);
+        context->submit(true);
     }
 
     REPORTER_ASSERT(reporter, fulfillInfo.fDone);

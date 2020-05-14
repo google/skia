@@ -389,7 +389,7 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         int executeTestValue = 0;
         rtc->priv().testingOnly_addDrawOp(LazyFailedInstantiationTestOp::Make(
                 ctx.get(), proxyProvider, &executeTestValue, failInstantiation));
-        ctx->flush();
+        ctx->flushAndSubmit();
 
         if (failInstantiation) {
             REPORTER_ASSERT(reporter, 1 == executeTestValue);

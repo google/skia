@@ -363,7 +363,7 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
         return;
     }
     surface->getCanvas()->drawImage(srcImage, 0, 0);
-    surface->flush();
+    surface->flushAndSubmit();
 
     std::vector<uint8_t> readbackData(kImageWidth * kImageHeight * 4);
     if (!surface->readPixels(SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,

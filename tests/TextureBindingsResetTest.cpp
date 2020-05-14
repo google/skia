@@ -68,7 +68,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     };
 
     // Initialize texture unit/target combo bindings to 0.
-    context->flush();
+    context->flushAndSubmit();
     resetBindings();
     context->resetContext();
 
@@ -96,7 +96,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     paint.setFilterQuality(kHigh_SkFilterQuality);
     surf->getCanvas()->drawImage(img, 0, 0, &paint);
     surf->getCanvas()->restore();
-    surf->flush();
+    surf->flushAndSubmit();
     context->resetGLTextureBindings();
     checkBindings();
     resetBindings();
@@ -124,7 +124,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
         REPORTER_ASSERT(reporter, img);
         surf->getCanvas()->drawImage(img, 0, 0);
         img.reset();
-        surf->flush();
+        surf->flushAndSubmit();
         context->resetGLTextureBindings();
         checkBindings();
         resetBindings();
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
             REPORTER_ASSERT(reporter, img);
             surf->getCanvas()->drawImage(img, 0, 0);
             img.reset();
-            surf->flush();
+            surf->flushAndSubmit();
             context->resetGLTextureBindings();
             checkBindings();
             resetBindings();

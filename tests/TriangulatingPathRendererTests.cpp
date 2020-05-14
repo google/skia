@@ -741,7 +741,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
         return;
     }
 
-    ctx->flush();
+    ctx->flushAndSubmit();
     // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
     rtc->discard();
 

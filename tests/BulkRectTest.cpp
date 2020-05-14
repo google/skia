@@ -72,7 +72,7 @@ static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* 
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    context->flush();
+    context->flushAndSubmit();
 
     delete[] quads;
 }
@@ -138,7 +138,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    context->flush();
+    context->flushAndSubmit();
 
     delete[] set;
 }

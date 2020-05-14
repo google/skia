@@ -841,8 +841,13 @@ public:
      */
     GrSemaphoresSubmitted flush(GrContext* context, const GrFlushInfo& flushInfo);
 
-    /** Version of flush() that uses a default GrFlushInfo. */
-    void flush(GrContext*);
+    /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
+        GPU.
+    */
+    void flushAndSubmit(GrContext*);
+
+    /** Deprecated. */
+    void flush(GrContext* context) { this->flushAndSubmit(context); }
 
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result

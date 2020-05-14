@@ -48,7 +48,7 @@ public:
         // this if-test protects against the case where the context is being destroyed
         // before having been fully created
         if (this->priv().getGpu()) {
-            this->flush();
+            this->flushAndSubmit();
         }
 
         delete fAtlasManager;
@@ -65,7 +65,7 @@ public:
     }
 
     void freeGpuResources() override {
-        this->flush();
+        this->flushAndSubmit();
         fAtlasManager->freeAll();
 
         INHERITED::freeGpuResources();

@@ -54,6 +54,7 @@ void TestContext::flushAndWaitOnSync(GrContext* context) {
     flushInfo.fFinishedContext = fFinishTrackers[fCurrentFlushIdx].get();
 
     context->flush(flushInfo);
+    context->submit();
 
     fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
 }

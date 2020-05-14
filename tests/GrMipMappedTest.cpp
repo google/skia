@@ -237,7 +237,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             // Must make sure the uses of the backend texture have finished (we possibly have a
             // queued up copy) before we delete the backend texture.
-            context->flush();
+            context->flushAndSubmit();
 
             context->priv().getGpu()->testingOnly_flushGpuAndSync();
 
@@ -304,7 +304,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent
             // to the gpu before we delete the backendHandle.
-            context->flush();
+            context->flushAndSubmit();
             context->priv().getGpu()->testingOnly_flushGpuAndSync();
             context->deleteBackendTexture(backendTex);
         }
@@ -337,14 +337,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo)
     SkPaint paint;
     // This should upload the image to a non mipped GrTextureProxy.
     surface->getCanvas()->drawImage(bmpImage, 0, 0, &paint);
-    surface->flush();
+    surface->flushAndSubmit();
 
     // Now set the filter quality to high so we use mip maps. We should find the non mipped texture
     // in the cache for the SkImage. Since the texture is 1x1 we should just use that texture
     // instead of trying to do a copy to a mipped texture.
     paint.setFilterQuality(kHigh_SkFilterQuality);
     surface->getCanvas()->drawImage(bmpImage, 0, 0, &paint);
-    surface->flush();
+    surface->flushAndSubmit();
 }
 
 // Create a new render target and draw 'mipmapView' into it using the provided 'filter'.
@@ -443,7 +443,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         SkASSERT(!mipmapProxy->mipMapsAreDirty());
 
         // Reset everything so we can go again, this time with the first draw not mipmapped.
-        context->flush();
+        context->flushAndSubmit();
 
         // Mip regen tasks don't get added as dependencies until makeClosed().
         REPORTER_ASSERT(reporter, rtc1Task->dependsOn(initialMipmapRegenTask));
@@ -486,7 +486,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         SkASSERT(!mipmapProxy->mipMapsAreDirty());
 
         // Mip regen tasks don't get added as dependencies until makeClosed().
-        context->flush();
+        context->flushAndSubmit();
         REPORTER_ASSERT(reporter, rtc2Task->dependsOn(mipRegenTask2));
     }
 }

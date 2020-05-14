@@ -83,7 +83,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1, nullptr);
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
-    surf->flush();
+    surf->flushAndSubmit();
 
     auto caps = static_cast<const GrGLCaps*>(context->priv().caps());
     // Now the texture should be in a known state.
@@ -95,7 +95,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
-    surf->flush();
+    surf->flushAndSubmit();
     REPORTER_ASSERT(reporter, params_valid(*parameters, caps));
 
     // Test invalidating from the copy.
@@ -129,6 +129,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     context->flush(flushInfo);
+    context->submit(true);
     context->deleteBackendTexture(backendTex);
 }
 #endif

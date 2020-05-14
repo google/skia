@@ -318,7 +318,7 @@ bool EGLTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
         return false;
     }
 
-    surface->flush();
+    surface->flushAndSubmit();
     GR_GL_CALL(fGLCtx->gl(), Flush());
     fFdHandle = fEGLDupNativeFenceFDANDROID(eglDisplay, eglsync);
 
@@ -361,6 +361,7 @@ void EGLTestHelper::doClientSync() {
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     this->grContext()->flush(flushInfo);
+    this->grContext()->submit(true);
 }
 #endif  // SK_GL
 
@@ -821,7 +822,7 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
 
 bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
                                                       sk_sp<SkSurface> surface) {
-    surface->flush();
+    surface->flushAndSubmit();
     surface.reset();
     GrBackendSemaphore semaphore;
     if (!this->setupSemaphoreForSignaling(reporter, &semaphore)) {
@@ -831,6 +832,7 @@ bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* report
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &semaphore;
     GrSemaphoresSubmitted submitted = fGrContext->flush(info);
+    fGrContext->submit();
     if (GrSemaphoresSubmitted::kNo == submitted) {
         ERRORF(reporter, "Failing call to flush on GrContext");
         return false;

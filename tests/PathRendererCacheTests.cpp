@@ -97,7 +97,7 @@ static void test_path(skiatest::Reporter* reporter,
 
     // Draw the path, check that new resource count matches expectations
     draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
-    ctx->flush();
+    ctx->flushAndSubmit();
     REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected));
 
     // Nothing should be purgeable yet
@@ -121,7 +121,7 @@ static void test_path(skiatest::Reporter* reporter,
         float scaleX = 1 + ((float)i + 1)/20.f;
         draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style, scaleX);
     }
-    ctx->flush();
+    ctx->flushAndSubmit();
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 20);
     cache->purgeAllUnlocked();
     // The listeners don't actually purge until we try to add another one.

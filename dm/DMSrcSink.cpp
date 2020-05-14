@@ -1467,7 +1467,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!result.isOk()) {
         return result;
     }
-    surface->flush();
+    surface->flushAndSubmit();
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
@@ -1708,6 +1708,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                                            GrFlushInfo flushInfoSyncCpu;
                                            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
                                            gpuThreadCtx->flush(flushInfoSyncCpu);
+                                           gpuThreadCtx->submit(true);
                                        });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
@@ -2178,6 +2179,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             GrFlushInfo flushInfoSyncCpu;
             flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
             context->flush(flushInfoSyncCpu);
+            context->submit(true);
         }
         return Result::Ok();
     };

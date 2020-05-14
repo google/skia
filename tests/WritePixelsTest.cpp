@@ -486,7 +486,7 @@ static sk_sp<SkSurface> create_surf(GrContext* context, int width, int height) {
                                              kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
-    surf->flush();
+    surf->flushAndSubmit();
     return surf;
 }
 

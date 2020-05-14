@@ -86,7 +86,7 @@ class FontRegenGM : public skiagm::GpuGM {
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 225, paint);
-        context->flush();
+        context->flushAndSubmit();
 
         paint.setColor(0xFF010101);
         canvas->drawTextBlob(fBlobs[0], 10, 305, paint);
@@ -142,7 +142,7 @@ class BadAppleGM : public skiagm::GpuGM {
         paint.setColor(0xFF111111);
         canvas->drawTextBlob(fBlobs[0], 10, 260, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 500, paint);
-        context->flush();
+        context->flushAndSubmit();
     }
 
 private:

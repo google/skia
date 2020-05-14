@@ -67,7 +67,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             // In case the test changed the current context make sure we move it back before
             // calling flush.
             ctxInfo.testContext()->makeCurrent();
-            ctxInfo.grContext()->flush();
+            ctxInfo.grContext()->flushAndSubmit();
         }
     }
 }

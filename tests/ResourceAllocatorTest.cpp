@@ -247,7 +247,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
     draw(context);
     draw(context);
     draw(context);
-    context->flush();
+    context->flushAndSubmit();
 
     context->setResourceCacheLimit(maxBytes);
 }

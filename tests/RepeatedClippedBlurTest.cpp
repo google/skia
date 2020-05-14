@@ -73,7 +73,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
     }
 
     // flush here just to clear the playing field
-    context->flush();
+    context->flushAndSubmit();
 
     size_t beforeBytes = cache->getResourceBytes();
 
@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
         dstCanvas->drawImageRect(filteredImg, outSubset, dstRect, nullptr);
 
         // Flush here to mimic Chrome's SkiaHelper::ApplyImageFilter
-        context->flush();
+        context->flushAndSubmit();
 
         clip.fRight -= 16;
     }

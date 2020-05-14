@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     canvas->drawImage(refImg, 0, 0);
     check_unfulfilled(promiseChecker, reporter);
 
-    surface->flush();
+    surface->flushAndSubmit();
     // We still own the image so we should not have called Release or Done.
     check_only_fulfilled(reporter, promiseChecker);
 
@@ -207,14 +207,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 0, 0);
 
-    surface->flush();
+    surface->flushAndSubmit();
 
     gpu->testingOnly_flushGpuAndSync();
     // Image should still be fulfilled from the first time we drew/flushed it.
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
@@ -222,7 +222,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     // We no longer own the image but the last draw is still unflushed.
     check_only_fulfilled(reporter, promiseChecker);
 
-    surface->flush();
+    surface->flushAndSubmit();
     // Flushing should have called Release. Depending on the backend and timing it may have called
     // done.
     check_all_flushed_but_not_synced(reporter, promiseChecker, ctx->backend());
@@ -291,7 +291,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             // to destroy the context (and instead will release-all-and-abandon).
             surface.reset();
 
-            ctx->flush();
+            ctx->flushAndSubmit();
             contextDeath(&factory, ctx);
 
             check_all_done(reporter, promiseChecker);
@@ -346,20 +346,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     // Relying on the asserts in the promiseImageChecker to ensure that fulfills and releases are
     // properly ordered.
     canvas->drawImage(image, 0, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     canvas->drawImage(image, 1, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     canvas->drawImage(image, 2, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     canvas->drawImage(image, 3, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     canvas->drawImage(image, 4, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     canvas->drawImage(image, 5, 0);
-    surface->flush();
+    surface->flushAndSubmit();
     // Must call these to ensure that all callbacks are performed before the checker is destroyed.
     image.reset();
-    ctx->flush();
+    ctx->flushAndSubmit();
     ctx->priv().getGpu()->testingOnly_flushGpuAndSync();
 
     ctx->deleteBackendTexture(backendTex);
@@ -417,7 +417,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     canvas->drawRect(SkRect::MakeWH(1,1), paint);
     paint.setShader(nullptr);
     refImg.reset();
-    surface->flush();
+    surface->flushAndSubmit();
     // We should only call each callback once and we should have made all the calls by this point.
     REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
     REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);

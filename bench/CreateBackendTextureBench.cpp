@@ -44,6 +44,7 @@ private:
         GrFlushInfo info;
         info.fFlags = kSyncCpu_GrFlushFlag;
         context->flush(info);
+        context->submit(true);
 
         for (int i = 0; i < fBackendTextures.count(); ++i) {
             if (fBackendTextures[i].isValid()) {
