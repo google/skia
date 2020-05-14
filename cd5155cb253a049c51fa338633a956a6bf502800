@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96838214_824b2b4c",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-14T16:47:54Z",
+      "side": 1,
+      "message": "If it turns out that GrRTCs are frequently made with the same logical dimensions (e.g. recreated per-frame), we may want to track the dimensions the stencil was cleared to so that we can skip this invalidate if the new and old logical size are the same.\n\nIf we don\u0027t have any perf regressions from this, I\u0027d rather keep it simple.",
+      "range": {
+        "startLine": 282,
+        "startChar": 20,
+        "endLine": 282,
+        "endChar": 52
+      },
+      "revId": "cd5155cb253a049c51fa338633a956a6bf502800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
