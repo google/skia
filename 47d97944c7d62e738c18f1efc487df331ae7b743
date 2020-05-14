@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80f50b5b_041f6e2f",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-14T19:23:16Z",
+      "side": 1,
+      "message": "Maybe add a comment like:\n// We\u0027re just going to use \u0027this\u0027 thread as the sole recording thread\n\n?",
+      "revId": "47d97944c7d62e738c18f1efc487df331ae7b743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61d84b52_e8cf8a01",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-14T19:23:16Z",
+      "side": 1,
+      "message": "We should probably decide how may recording threads we want to use for timing",
+      "revId": "47d97944c7d62e738c18f1efc487df331ae7b743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
