@@ -510,7 +510,7 @@ time.sleep(60)
   def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; env LD_LIBRARY_PATH=%s %s%s; echo $? >%src' % (
+        'set -x; LD_LIBRARY_PATH=%s %s%s; echo $? >%src' % (
             self.device_dirs.bin_dir,
             self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
             self.device_dirs.bin_dir))

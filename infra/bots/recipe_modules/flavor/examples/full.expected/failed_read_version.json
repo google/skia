@@ -1280,13 +1280,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; env LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "infra_step": true,
     "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; env LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },
