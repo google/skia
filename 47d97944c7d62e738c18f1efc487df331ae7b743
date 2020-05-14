@@ -33,6 +33,42 @@
       "revId": "47d97944c7d62e738c18f1efc487df331ae7b743",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f4f3175_4600879d",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-14T20:32:56Z",
+      "side": 1,
+      "message": "Clarified offline. Default is now num_cores but we can tweak from there.",
+      "parentUuid": "61d84b52_e8cf8a01",
+      "revId": "47d97944c7d62e738c18f1efc487df331ae7b743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e112f9c4_241fc731",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-14T20:32:56Z",
+      "side": 1,
+      "message": "Clarified all this and updated CL",
+      "parentUuid": "80f50b5b_041f6e2f",
+      "revId": "47d97944c7d62e738c18f1efc487df331ae7b743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
