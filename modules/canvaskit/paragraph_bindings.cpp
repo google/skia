@@ -48,8 +48,8 @@ struct SimpleTextStyle {
     SkScalar fontSize;
     SimpleFontStyle fontStyle;
 
-    uintptr_t /* const char** */ fontFamilies;
-    int numFontFamilies;
+    uintptr_t /* const char** */ fontFamiliesPtr;
+    int fontFamiliesLen;
 };
 
 para::TextStyle toTextStyle(const SimpleTextStyle& s) {
@@ -80,10 +80,10 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setDecorationThicknessMultiplier(s.decorationThickness);
     }
 
-    const char** fontFamilies = reinterpret_cast<const char**>(s.fontFamilies);
-    if (s.numFontFamilies > 0 && fontFamilies != nullptr) {
+    const char** fontFamilies = reinterpret_cast<const char**>(s.fontFamiliesPtr);
+    if (s.fontFamiliesLen > 0 && fontFamilies != nullptr) {
         std::vector<SkString> ff;
-        for (int i = 0; i< s.numFontFamilies; i++) {
+        for (int i = 0; i < s.fontFamiliesLen; i++) {
             ff.emplace_back(fontFamilies[i]);
         }
         ts.setFontFamilies(ff);
@@ -279,15 +279,15 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textStyle",         &SimpleParagraphStyle::textStyle);
 
     value_object<SimpleTextStyle>("TextStyle")
-        .field("colorPtr",            &SimpleTextStyle::colorPtr)
-        .field("foregroundColorPtr",  &SimpleTextStyle::foregroundColorPtr)
-        .field("backgroundColorPtr",  &SimpleTextStyle::backgroundColorPtr)
+        .field("_colorPtr",           &SimpleTextStyle::colorPtr)
+        .field("_foregroundColorPtr", &SimpleTextStyle::foregroundColorPtr)
+        .field("_backgroundColorPtr", &SimpleTextStyle::backgroundColorPtr)
         .field("decoration",          &SimpleTextStyle::decoration)
         .field("decorationThickness", &SimpleTextStyle::decorationThickness)
-        .field("_fontFamilies",       &SimpleTextStyle::fontFamilies)
+        .field("_fontFamiliesPtr",    &SimpleTextStyle::fontFamiliesPtr)
+        .field("_fontFamiliesLen",    &SimpleTextStyle::fontFamiliesLen)
         .field("fontSize",            &SimpleTextStyle::fontSize)
-        .field("fontStyle",           &SimpleTextStyle::fontStyle)
-        .field("_numFontFamilies",    &SimpleTextStyle::numFontFamilies);
+        .field("fontStyle",           &SimpleTextStyle::fontStyle);
 
     // The U stands for unsigned - we can't bind a generic/template object, so we have to specify it
     // with the type we are using.
