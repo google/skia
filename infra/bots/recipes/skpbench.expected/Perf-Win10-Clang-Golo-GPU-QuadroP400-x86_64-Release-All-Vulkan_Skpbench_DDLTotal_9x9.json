@@ -79,7 +79,7 @@
       "--ddl",
       "--gpuThreads",
       "0",
-      "--ddlNumAdditionalThreads",
+      "--ddlNumRecordingThreads",
       "9",
       "--ddlTilingWidthHeight",
       "3",
