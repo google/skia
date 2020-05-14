@@ -143,11 +143,9 @@ class SkDrawableGlyphBuffer {
 public:
     void ensureSize(size_t size);
 
-    // Load the buffer with SkPackedGlyphIDs and positions in source space.
-    void startSource(const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin);
-
-    // Use the original glyphIDs and positions.
-    void startPaths(const SkZip<const SkGlyphID, const SkPoint>& source);
+    // Load the buffer with SkPackedGlyphIDs and positions at (0, 0) ready to finish positioning
+    // during drawing.
+    void startSource(const SkZip<const SkGlyphID, const SkPoint>& source);
 
     // Load the buffer with SkPackedGlyphIDs and positions using the device transform.
     void startDevice(
