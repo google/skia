@@ -126,7 +126,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         SkCanvas* dstCanvas = dst->getCanvas();
 
         dstCanvas->clear(SK_ColorRED);
-        dst->flush();
+        dst->flushAndSubmit();
 
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
@@ -134,7 +134,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
                                          : SkColorFilters::SRGBToLinearGamma());
 
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
-        dst->flush();
+        dst->flushAndSubmit();
 
         sk_memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {

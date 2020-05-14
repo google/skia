@@ -99,6 +99,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
         GrFlushInfo flushInfo;
         flushInfo.fFlags = kSyncCpu_GrFlushFlag;
         gr->flush(flushInfo);
+        gr->submit(true);
         gr->deleteBackendTexture(backendTextures[0]);
         gr->deleteBackendTexture(backendTextures[1]);
         gr->deleteBackendTexture(backendTextures[2]);

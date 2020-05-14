@@ -122,7 +122,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
                             colorType, can, SkToBool(surf));
 
             surf.reset();
-            context->flush();
+            context->flushAndSubmit();
             context->deleteBackendTexture(backendTex);
         }
 
@@ -175,7 +175,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             }
 
             surf.reset();
-            context->flush();
+            context->flushAndSubmit();
             context->deleteBackendTexture(backendTex);
         }
 
@@ -191,7 +191,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d", colorType,
                             can, SkToBool(surf));
             surf.reset();
-            context->flush();
+            context->flushAndSubmit();
             if (backendRenderTarget.isValid()) {
                 gpu->deleteTestingOnlyBackendRenderTarget(backendRenderTarget);
             }
@@ -960,8 +960,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
         }
 
         surface->getCanvas()->clear(SK_ColorRED);
-        surface->flush();
-        gpu->testingOnly_flushGpuAndSync();
+        GrFlushInfo info;
+        info.fFlags = kSyncCpu_GrFlushFlag;
+        surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, info);
+        ctx->submit(true);
 
         // Now exercise the release proc
         REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);

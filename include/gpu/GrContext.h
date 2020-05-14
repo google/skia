@@ -329,7 +329,7 @@ public:
      * Regardleess of semaphore submission the context will still be flushed. It should be
      * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
      * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
-     * take this as a failure if they passed in semaphores to be submitted.
+     * take this as a failure if they passed in semaphores to be sujbmitted.
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo& info) {
         return this->flush(info, GrPrepareForExternalIORequests());

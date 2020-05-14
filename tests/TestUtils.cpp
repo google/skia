@@ -144,6 +144,7 @@ void DeleteBackendTexture(GrContext* context, const GrBackendTexture& backendTex
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     context->flush(flushInfo);
+    context->submit(true);
     context->deleteBackendTexture(backendTex);
 }
 

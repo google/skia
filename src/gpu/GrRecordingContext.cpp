@@ -63,7 +63,7 @@ static void textblobcache_overbudget_CB(void* data) {
     // GrRenderTargetContext to perform a necessary flush.  The solution is to move drawText calls
     // to below the GrContext level, but this is not trivial because they call drawPath on
     // SkGpuDevice.
-    direct->flush();
+    direct->flushAndSubmit();
 }
 
 bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {

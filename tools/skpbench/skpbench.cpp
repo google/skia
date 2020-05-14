@@ -286,7 +286,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
         dstSurface->draw(tiles.composeDDL());
-        dstSurface->flush();
+        dstSurface->flushAndSubmit();
     }
 
     tiles.resetAllTiles();
@@ -296,6 +296,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> dstSurface,
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     context->flush(flushInfo);
+    context->submit(true);
 
     promiseImageHelper.deleteAllFromGPU(nullptr, context);
 
@@ -335,6 +336,7 @@ static void run_benchmark(GrContext* context, SkSurface* surface, SkpProducer* s
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    context->submit(true);
 }
 
 static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer, GrContext* context,
@@ -402,6 +404,7 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer, GrContext* c
     GrFlushInfo flushInfo;
     flushInfo.fFlags = kSyncCpu_GrFlushFlag;
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    context->submit(true);
 }
 
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
@@ -621,6 +624,7 @@ static void flush_with_sync(GrContext* context, GpuSync& gpuSync) {
     flushInfo.fFinishedContext = gpuSync.newFlushTracker(context);
 
     context->flush(flushInfo);
+    context->submit();
 }
 
 static void draw_skp_and_flush_with_sync(GrContext* context, SkSurface* surface,
