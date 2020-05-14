@@ -76,6 +76,7 @@ GrTextureProxy::~GrTextureProxy() {
     // proxy provider has gone away. In that case there is noone to send the invalid key
     // message to (Note: in this case we don't want to remove its cached resource).
     if (fUniqueKey.isValid() && fProxyProvider) {
+        //SkDebugf("~GrTextureProxy w/ key %d\n", fUniqueKey.fID);
         fProxyProvider->processInvalidUniqueKey(fUniqueKey, this,
                                                 GrProxyProvider::InvalidateGPUResource::kNo);
     } else {
@@ -162,11 +163,19 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
         SkASSERT(fTarget->getUniqueKey() == key);
     }
 
-    fUniqueKey = key;
+    fUniqueKey= key;
+
+    if (this->height() == 4) {
+        fUniqueKey.fFancy = true;
+    }
+    //SkDebugf("setUniqueKey w/ %d on %dx%d\n", fUniqueKey.fID, this->width(), this->height());
+
     fProxyProvider = proxyProvider;
 }
 
 void GrTextureProxy::clearUniqueKey() {
+    //SkDebugf("clearUniqueKey w/ %d %d\n", fUniqueKey.fID, fUniqueKey.fFancy);
+
     fUniqueKey.reset();
     fProxyProvider = nullptr;
 }

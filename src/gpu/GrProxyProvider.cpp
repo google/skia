@@ -825,6 +825,8 @@ void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureP
 void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrTextureProxy* proxy,
                                                   InvalidateGPUResource invalidateGPUResource,
                                                   RemoveTableEntry removeTableEntry) {
+
+//        SkDebugf("resetting key %d on proxy %d\n", key.fID, proxy ? proxy->uniqueID().asUInt() : 0);
     SkASSERT(key.isValid());
 
     if (!proxy) {
