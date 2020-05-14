@@ -18,18 +18,21 @@ require (
 	github.com/jackc/pgx v3.2.0+incompatible // indirect
 	github.com/luci/gtreap v0.0.0-20161228054646-35df89791e8f // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/common v0.10.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/vektra/mockery v1.1.1 // indirect
-	go.chromium.org/luci v0.0.0-20200512212603-d4bc79d85e4a // indirect
-	go.skia.org/infra v0.0.0-20200512194548-951341df22eb
+	go.chromium.org/luci v0.0.0-20200514021706-fa8dd98fcf00 // indirect
+	go.skia.org/infra v0.0.0-20200513214741-b48b7541705b
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
+	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200513022744-65e69ff2d148 // indirect
+	golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c // indirect
+	golang.org/x/tools v0.0.0-20200513201620-d5fe73897c97 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.24.0
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
