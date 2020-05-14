@@ -144,7 +144,7 @@ public:
     void ensureSize(size_t size);
 
     // Load the buffer with SkPackedGlyphIDs and positions in source space.
-    void startSource(const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin);
+    void startSource(const SkZip<const SkGlyphID, const SkPoint>& source);
 
     // Use the original glyphIDs and positions.
     void startPaths(const SkZip<const SkGlyphID, const SkPoint>& source);

@@ -25,15 +25,12 @@ void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     fDrawableSize = 0;
 }
 
-void SkDrawableGlyphBuffer::startSource(
-        const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin) {
+void SkDrawableGlyphBuffer::startSource(const SkZip<const SkGlyphID, const SkPoint>& source) {
     fInputSize = source.size();
     fDrawableSize = 0;
 
-    // Map all the positions.
     auto positions = source.get<1>();
-    SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
-            fPositions, positions.data(), positions.size());
+    memcpy(fPositions, positions.data(), positions.size() * sizeof(SkPoint));
 
     // Convert from SkGlyphIDs to SkPackedGlyphIDs.
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
