@@ -245,9 +245,9 @@ protected:
 
     Requirements requirements(const FunctionDeclaration& f);
 
-    Requirements requirements(const Expression& e);
+    Requirements requirements(const Expression* e);
 
-    Requirements requirements(const Statement& e);
+    Requirements requirements(const Statement* s);
 
     typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
