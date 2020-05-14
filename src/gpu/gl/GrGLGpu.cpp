@@ -3611,7 +3611,6 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                  backendTexture.height(), GR_GL_TEXTURE_2D, 0, 0,
                                  backendTexture.width(), backendTexture.height(),
                                  colorType, texels.begin(), texels.count())) {
-            GL_CALL(DeleteTextures(1, &info.fID));
             return false;
         }
     } else if (data && data->type() == BackendTextureData::Type::kColor) {
@@ -3621,7 +3620,6 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         this->glCaps().getTexSubImageDefaultFormatTypeAndColorType(glFormat, &externalFormat,
                                                                    &externalType, &colorType);
         if (colorType == GrColorType::kUnknown) {
-            GL_CALL(DeleteTextures(1, &info.fID));
             return false;
         }
 
@@ -3630,7 +3628,6 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         auto rb = ii.minRowBytes();
         std::unique_ptr<char[]> pixelStorage(new char[rb * backendTexture.height()]);
         if (!GrClearImage(ii, pixelStorage.get(), rb, data->color())) {
-            GL_CALL(DeleteTextures(1, &info.fID));
             return false;
         }
 
