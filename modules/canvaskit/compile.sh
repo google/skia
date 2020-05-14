@@ -180,7 +180,7 @@ else
 fi
 
 if [[ $@ == *no_alias_font* ]]; then
-EXTRA_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
+EXTRA_CFLAGS+=" \"-DCANVASKIT_NO_ALIAS_FONT\""
 FONT_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
 fi
 
