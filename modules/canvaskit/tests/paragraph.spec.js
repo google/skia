@@ -1,4 +1,4 @@
-describe('CanvasKit\'s Path Behavior', function() {
+describe('Paragraph Behavior', function() {
     let container;
 
     let notoSerifFontBuffer = null;
@@ -213,9 +213,9 @@ describe('CanvasKit\'s Path Behavior', function() {
 
         const textStyle = new CanvasKit.TextStyle({
             color: CanvasKit.BLACK,
-                // The number 4 matches an emoji and looks strange w/o this additional style.
-                fontFamilies: ['Noto Serif'],
-                fontSize: 30,
+            // The number 4 matches an emoji and looks strange w/o this additional style.
+            fontFamilies: ['Noto Serif'],
+            fontSize: 30,
         });
 
         const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
@@ -335,8 +335,8 @@ describe('CanvasKit\'s Path Behavior', function() {
                 slant: CanvasKit.FontSlant.Italic,
             }
         });
-        builder.pushStyle(boldItalic)
-        builder.addText(`Bold, Expanded, Italic\n`)
+        builder.pushStyle(boldItalic);
+        builder.addText(`Bold, Expanded, Italic\n`);
         builder.pop();
         builder.addText(`back to normal`);
         const paragraph = builder.build();
@@ -355,7 +355,7 @@ describe('CanvasKit\'s Path Behavior', function() {
 
     it('should not crash if we omit font family on pushed textStyle', () => {
         const surface = CanvasKit.MakeCanvasSurface('test');
-        expect(surface).toBeTruthy('Could not make surface')
+        expect(surface).toBeTruthy('Could not make surface');
 
         const canvas = surface.getCanvas();
         const paint = new CanvasKit.SkPaint();
@@ -455,5 +455,4 @@ describe('CanvasKit\'s Path Behavior', function() {
         fontMgr.delete();
         builder.delete();
     });
-
 });
