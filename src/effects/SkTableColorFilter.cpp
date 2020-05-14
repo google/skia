@@ -18,6 +18,8 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrProxyProvider.h"
 
 static const uint8_t gIdentityTable[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -368,12 +370,49 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+static GrSurfaceProxyView find_or_create_view(GrRecordingContext* context, const SkBitmap& bitmap) {
+    if (!bitmap.peekPixels(nullptr)) {
+        return {};
+    }
+
+    SkASSERT(bitmap.computeByteSize() % 4 == 0);
+    int data32Count = bitmap.computeByteSize()/4;
+
+    SkASSERT(4*data32Count == bitmap.height() * bitmap.width() * bitmap.bytesPerPixel());
+
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, data32Count, "SkTableColorFilter");
+
+    uint32_t *tmp = (uint32_t *) bitmap.getAddr(0, 0);
+    for (int i = 0; i < data32Count; ++i) {
+        builder[i] = tmp[i];
+    }
+    builder.finish();
+
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    if (sk_sp<GrTextureProxy> filterTable = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(filterTable->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(filterTable), kTopLeft_GrSurfaceOrigin, swizzle};
+    }
+
+    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+    auto view = maker.view(GrMipMapped::kNo);
+    if (!view) {
+        return {};
+    }
+
+    proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+    return view;
+}
+
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* context,
                                                             const SkBitmap& bitmap) {
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    auto view = find_or_create_view(context, bitmap);
     if (!view) {
         return nullptr;
     }
