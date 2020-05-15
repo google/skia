@@ -99,6 +99,13 @@ enum class GrTexturable : bool {
     kYes = true
 };
 
+// A DDL recorder has its own proxy provider and proxy cache. This enum indicates if
+// a given proxy provider is one of these special ones.
+enum class GrDDLProvider : bool {
+    kNo = false,
+    kYes = true
+};
+
 /**
  *  Formats for masks, used by the font cache. Important that these are 0-based.
  */
