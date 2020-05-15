@@ -41,20 +41,20 @@
         return CanvasKit.currentContext() || 0;
       };
 
-      // arg can be of types:
-      //  - String - in which case it is interpreted as an id of a
-      //          canvas element.
-      //  - HTMLCanvasElement - in which the provided canvas element will
-      //          be used directly.
-      // Width and height can be provided to override those on the canvas
-      // element, or specify a height for when a context is provided.
-      CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height) {
-        var canvas = arg;
-        if (canvas.tagName !== 'CANVAS') {
-          canvas = document.getElementById(arg);
-          if (!canvas) {
+      // Accepts an object of named parameters.
+      // The object must have either canvasId or CanvasElement set. 
+      // Don't set both, it will just be confusing.
+      //  canvas - HTMLCanvasElement - The canvas element to associate a surface with.
+      //  id - String - An alternative method of specifying the canvas by id.
+      //    namedColorSettings - String - one of the supported combinations of color space and pixel format.
+      //      sRGB - default sRGB color space with RGBA 8888 pixel format
+      //      displayP3 - Display P3 D65 color space with Float 16 pixel format. 
+      CanvasKit.MakeWebGLCanvasSurface = function({canvas, id, namedColorSettings}) {
+        if (!canvas) {
+          canvas = document.getElementById(id);
+        }
+        if (!canvas || canvas.tagName !== 'CANVAS') {
             throw 'Canvas with id ' + arg + ' was not found';
-          }
         }
 
         // we are ok with all the other defaults.
@@ -62,10 +62,6 @@
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
-        }
-
-        if (!canvas && (!width || !height)) {
-          throw 'height and width must be provided with context';
         }
 
         var grcontext = this.MakeGrContext(ctx);
@@ -76,12 +72,10 @@
           grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
         }
 
-
-        // Maybe better to use clientWidth/height.  See:
-        // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-        var surface = this.MakeOnScreenGLSurface(grcontext,
-                                                 width  || canvas.width,
-                                                 height || canvas.height);
+        // Note that canvas.width/height here is used because it gives the size of the buffer we're
+        // rendering into. This may not be the same size the element is displayed on the page, which
+        // constrolled by css, and available in canvas.clientWidth/height.
+        var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height, namedColorSettings);
         if (!surface) {
           SkDebug('falling back from GPU implementation to a SW based one');
           // we need to throw away the old canvas (which was locked to
@@ -92,7 +86,10 @@
           // add a class so the user can detect that it was replaced.
           newCanvas.classList.add('ck-replaced');
 
-          return CanvasKit.MakeSWCanvasSurface(newCanvas);
+          return CanvasKit.MakeSWCanvasSurface({
+            'canvas': newCanvas,
+            'colorSpaceName': colorSpaceName,
+          });
         }
         surface._context = ctx;
         surface.grContext = grcontext;

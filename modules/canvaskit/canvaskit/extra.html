@@ -38,6 +38,10 @@
 <h2> Use of offscreen surfaces </h2>
 <canvas id=surfaces width=500 height=500></canvas>
 
+<h2> Support for extended color spaces </h2>
+<a href="chrome://flags/#force-color-profile">Force P3 profile</a>
+<canvas id=colorsupport width=300 height=300></canvas>
+
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -61,91 +65,92 @@
   }).ready();
   ckLoaded.then((CK) => {
     CanvasKit = CK;
-    // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'image_0.png': flightAnimGif,
-    });
-    ParticlesAPI1(CanvasKit);
+    // // Set bounds to fix the 4:3 resolution of the legos
+    // SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+    //               {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    // // Re-size to fit
+    // SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    // SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    // SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    // SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+    //   'image_0.png': flightAnimGif,
+    // });
+    // ParticlesAPI1(CanvasKit);
 
-    ParagraphAPI1(CanvasKit, robotoData);
+    // ParagraphAPI1(CanvasKit, robotoData);
 
-    RTShaderAPI1(CanvasKit);
+    // RTShaderAPI1(CanvasKit);
 
-    SkpExample(CanvasKit, skpData);
+    // SkpExample(CanvasKit, skpData);
 
-    SurfaceAPI1(CanvasKit);
+    // SurfaceAPI1(CanvasKit);
+    ColorSupport(CanvasKit);
   });
 
-  fetch(cdn + 'lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    });
-  });
+  // fetch(cdn + 'lego_loader.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     legoJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+  //                   {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+  //   });
+  // });
 
-  fetch(cdn + 'drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
+  // fetch(cdn + 'drinks.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     drinksJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+  //   });
+  // });
 
-  fetch(cdn + 'confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
+  // fetch(cdn + 'confetti.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     confettiJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+  //   });
+  // });
 
-  fetch(cdn + 'onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
+  // fetch(cdn + 'onboarding.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     onboardingJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+  //   });
+  // });
 
-  fetch(cdn + 'skottie_sample_multiframe.json').then((resp) => {
-    resp.text().then((str) => {
-      multiFrameJSON = str;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
+  // fetch(cdn + 'skottie_sample_multiframe.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     multiFrameJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+  //       'image_0.png': flightAnimGif,
+  //     });
+  //   });
+  // });
 
-  fetch(cdn + 'flightAnim.gif').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      flightAnimGif = buffer;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
+  // fetch(cdn + 'flightAnim.gif').then((resp) => {
+  //   resp.arrayBuffer().then((buffer) => {
+  //     flightAnimGif = buffer;
+  //     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+  //       'image_0.png': flightAnimGif,
+  //     });
+  //   });
+  // });
 
-  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      robotoData = buffer;
-      ParagraphAPI1(CanvasKit, robotoData);
-    });
-  });
+  // fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
+  //   resp.arrayBuffer().then((buffer) => {
+  //     robotoData = buffer;
+  //     ParagraphAPI1(CanvasKit, robotoData);
+  //   });
+  // });
 
-  fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
-    skpData = buffer;
-    SkpExample(CanvasKit, skpData);
-  });
+  // fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
+  //   skpData = buffer;
+  //   SkpExample(CanvasKit, skpData);
+  // });
 
-  const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
-  const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
-  const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
-  const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
-  Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
+  // const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
+  // const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
+  // const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
+  // const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
+  // Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
@@ -889,5 +894,35 @@ const curves = {
     document.getElementById('camera3d').addEventListener('pointerup', interact);
 
     surface.requestAnimationFrame(drawFrame);
+  }
+
+  function ColorSupport(CanvasKit) {
+    const sRGB = CanvasKit.SkColorSpace.MakeSRGB();
+    const displayP3 = CanvasKit.SkColorSpace.MakeDisplayP3();
+
+    const surface = CanvasKit.MakeCanvasSurface({
+      'id': 'colorsupport',
+      'namedColorSettings': CanvasKit.SupportedColorSettings.DisplayP3,
+    });
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+
+    // If the surface is correctly initialized with a higher bit depth color type,
+    // And chrome is compositing it into a buffer with the P3 color space,
+    // then the inner round rect should be distinct and less saturated than the full red background.
+    // Even if the monitor it is viewed on cannot accurately represent that color space.
+
+    let red = CanvasKit.Color4f(1, 0, 0, 1);
+    let paint = new CanvasKit.SkPaint();
+    paint.setColorSp(red, displayP3);
+    canvas.drawPaint(paint);
+    paint.setColorSp(red, sRGB);
+    canvas.drawRoundRect(CanvasKit.LTRBRect(50, 50, 250, 250), 30, 30, paint);
+
+    surface.flush();
+    surface.delete();
   }
 </script>
