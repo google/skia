@@ -105,7 +105,7 @@ void SkUserTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
 void SkUserTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     for (int gid = 0; gid < this->glyphCount(); ++gid) {
-        glyphToUnicode[gid] = 0;
+        glyphToUnicode[gid] = SkTo<SkUnichar>(gid);
     }
 }
 
@@ -119,7 +119,7 @@ void SkUserTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
 
 void SkUserTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = 0;
+        glyphs[i] = uni[i] < this->glyphCount() ? SkTo<SkGlyphID>(uni[i]) : 0;
     }
 }
 
