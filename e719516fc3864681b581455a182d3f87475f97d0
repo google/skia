@@ -22,6 +22,30 @@
       "revId": "e719516fc3864681b581455a182d3f87475f97d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d9bd16_ba8700c2",
+        "filename": "gm/bleed.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-15T14:49:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de875335_648308be",
+      "range": {
+        "startLine": 49,
+        "startChar": 100,
+        "endLine": 49,
+        "endChar": 101
+      },
+      "revId": "e719516fc3864681b581455a182d3f87475f97d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
