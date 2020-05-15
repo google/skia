@@ -795,7 +795,23 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
             fMultipleViewMatrices || that->fMultipleViewMatrices ||
             !SkMatrixPriv::CheapEqual(this->fMeshes[0].fViewMatrix, that->fMeshes[0].fViewMatrix);
 
-    // ... but we can't enable multiple view matrices if any of them have perspective, or our other
+    auto attrUsesViewMatrix = [](const SkVertices::Attribute& attr) {
+        using Usage = SkVertices::Attribute::Usage;
+        return (attr.fMarkerID == 0) &&
+               (attr.fUsage == Usage::kVector ||
+                attr.fUsage == Usage::kNormalVector ||
+                attr.fUsage == Usage::kPosition);
+    };
+
+    // We can't enable multiple view matrices if we have custom attributes that use it (we'll be
+    // uploading it as a uniform).
+    if (needMultipleViewMatrices &&
+        std::any_of(vThis.attributes(), vThis.attributes() + vThis.attributeCount(),
+                    attrUsesViewMatrix)) {
+        return CombineResult::kCannotCombine;
+    }
+
+    // We also can't enable multiple view matrices if any of them have perspective, or our other
     // varyings won't be interpolated correctly.
     if (needMultipleViewMatrices && (this->fMeshes[0].fViewMatrix.hasPerspective() ||
                                      that->fMeshes[0].fViewMatrix.hasPerspective())) {
