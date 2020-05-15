@@ -2164,8 +2164,11 @@ public:
     }
 
     /** Draws SkVertices vertices, a triangle mesh, using clip and SkMatrix.
-        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
-        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+        If paint contains an SkShader and vertices does not contain texCoords, the shader
+        is mapped using the vertices' positions.
+
+        If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
+        SkBlendMode mode combines vertices colors with SkShader.
 
         @param vertices  triangle mesh to draw
         @param mode      combines vertices colors with SkShader, if both are present
@@ -2183,8 +2186,11 @@ public:
     }
 
     /** Draws SkVertices vertices, a triangle mesh, using clip and SkMatrix.
-        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
-        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+        If paint contains an SkShader and vertices does not contain texCoords, the shader
+        is mapped using the vertices' positions.
+
+        If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
+        SkBlendMode mode combines vertices colors with SkShader.
 
         @param vertices  triangle mesh to draw
         @param mode      combines vertices colors with SkShader, if both are present
@@ -2217,7 +2223,8 @@ public:
         bottom-right, bottom-left order.
 
         If paint contains SkShader, SkPoint array texCoords maps SkShader as texture to
-        corners in top-left, top-right, bottom-right, bottom-left order.
+        corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
+        nullptr, SkShader is mapped using positions (derived from cubics).
 
         @param cubics     SkPath cubic array, sharing common points
         @param colors     color array, one for each corner
@@ -2245,7 +2252,8 @@ public:
         bottom-right, bottom-left order.
 
         If paint contains SkShader, SkPoint array texCoords maps SkShader as texture to
-        corners in top-left, top-right, bottom-right, bottom-left order.
+        corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
+        nullptr, SkShader is mapped using positions (derived from cubics).
 
         @param cubics     SkPath cubic array, sharing common points
         @param colors     color array, one for each corner
