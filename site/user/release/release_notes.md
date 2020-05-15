@@ -5,6 +5,69 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 84
+------------
+
+  * Add api on GrContext, updateBackendTexture that will upload new data to a
+    GrBackendTexture.
+    https://review.skia.org/288909
+
+  * Add GrContext getter to SkSurface.
+    https://review.skia.org/289479
+
+  * Deprecate GrContext and SkSurface flush() call and replace ith with flushAndSubmit().
+    This only effects the default flush call that takes no parameters.
+    https://review.skia.org/289478
+
+  * GrContext::createBackendTexture functions that initialize the texture no longer
+    guarantee that all the data has been uploaded and the gpu is done with the texture.
+    Instead the client can assume the upload work has been submitted to the gpu and they
+    must wait for that work to finish before deleting the texture. This can be done via
+    their own synchronization or by passing in a finish proc into the create calls which
+    will be called when it is safe to delete the texture (at least in terms of work
+    done during the create).
+    https://review.skia.org/286517
+
+  * Remove unused SkMaskFilter helpers: compbine, compose
+    Note: shadermaskfilter will likely be removed next (clipShader should serve)
+
+  * Add back SkCanvas::kPreserveLCDText_SaveLayerFlag to indicate that saveLayer()
+    will preserve LCD-text. All text in the layer must be drawn on opaque background
+    to ensure correct rendering.
+
+  * Add the new directory client_utils/ for code that is specific to a single client and
+    should be considered separate from Skia proper. Move SkFrontBufferedStream into the
+    subdir android/.
+
+  * SkBitmap and SkPixmap's erase() methods now treat their color parameters
+    consistently with the rest of Skia, with all SkColors and any untagged
+    SkColor4fs interpreted as sRGB, not as a color in the bitmap's color space.
+    SkPixmap::erase(SkColor4f) now takes an SkColorSpace, so you can pass
+    pixmap.colorSpace() if you want the old behavior.
+
+  * SkCamera.h and SkMatrix44.h are DEPRECATED.
+    Use SkM44 if you want to have 3d transformations.
+
+  * Changed Dilate and Erode image filters to take SkScalar for radius instead of int. While
+    the image filters themselves are defined in terms of discrete pixels, the radii provided by
+    the user are mapped through the CTM so taking ints forced over discretization. After mapping
+    through the CTM the radii are now rounded to pixels.
+    https://review.skia.org/281731
+    https://review.skia.org/282636
+
+  * Updated the contract of GrContext and SkSurface flush calls in regards to semaphores. Made it
+    clear that the caller is responsible for deleting any initialized semaphores after the flush
+    call regardless if we were able to submit them or not. Also, allows skia to only submit a
+    subset of the requested semaphores if we failed to create some.
+    https://review.skia.org/282265
+
+
+  * SkCanvas::drawVertices will now always fill the triangles specified by the vertices. Previously,
+    vertices with no colors and no (texture coordinates or shader) would be drawn in wireframe.
+    https://review.skia.org/282043
+
+* * *
+
 Milestone 83
 ------------
 
