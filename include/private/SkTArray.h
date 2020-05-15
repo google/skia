@@ -47,10 +47,23 @@ public:
     }
 
     SkTArray(SkTArray&& that) {
-        // TODO: If 'that' owns its memory why don't we just steal the pointer?
-        this->init(that.fCount);
-        that.move(fItemArray);
-        that.fCount = 0;
+        if (that.fOwnMemory) {
+            fItemArray = that.fItemArray;
+            fCount = that.fCount;
+            fAllocCount = that.fAllocCount;
+            fOwnMemory = true;
+            fReserved = that.fReserved;
+
+            that.fItemArray = nullptr;
+            that.fCount = 0;
+            that.fAllocCount = 0;
+            that.fOwnMemory = true;
+            that.fReserved = false;
+        } else {
+            this->init(that.fCount);
+            that.move(fItemArray);
+            that.fCount = 0;
+        }
     }
 
     /**
