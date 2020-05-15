@@ -14,7 +14,13 @@ class GrGpu;
 
 class GrStagingBuffer {
 public:
-    GrStagingBuffer(GrGpu* gpu, size_t size, void* data) : fGpu(gpu), fSize(size), fData(data) {}
+    enum class Type {
+        kUniform,
+        kTransfer
+    };
+
+    GrStagingBuffer(GrGpu* gpu, size_t size, Type type, void* data)
+        : fGpu(gpu), fSize(size), fType(type), fData(data) {}
     virtual ~GrStagingBuffer() {
         fGpu = nullptr;
     }
@@ -27,6 +33,7 @@ public:
         void*              fData;
     };
     size_t remaining() const { return fSize - fOffset; }
+    Type type() const { return fType;  }
     GrGpu* getGpu() const { return fGpu; }
     void unmap();
     Slice allocate(size_t size);
@@ -35,6 +42,7 @@ private:
 
     GrGpu*                 fGpu;
     size_t                 fSize;
+    Type                   fType;
     size_t                 fOffset = 0;
     void*                  fData;
 

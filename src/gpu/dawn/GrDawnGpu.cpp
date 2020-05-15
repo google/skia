@@ -683,7 +683,9 @@ GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
 }
 
-std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size) {
+std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size,
+                                                                GrStagingBuffer::Type type) {
+    SkASSERT(type == GrStagingBuffer::Type::kTransfer);
     wgpu::BufferDescriptor desc;
     desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
     desc.size = size;
