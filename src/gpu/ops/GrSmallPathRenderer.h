@@ -38,7 +38,8 @@ public:
     // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
     // default retainOnFreeGpuResources implementation).
 
-    void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t*, int) override {
+    void preFlush(GrOnFlushResourceProvider* onFlushRP,
+                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
         if (fAtlas) {
             fAtlas->instantiate(onFlushRP);
         }
@@ -50,6 +51,8 @@ public:
             fAtlas->compact(startTokenForNextFlush);
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////
 
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
@@ -76,6 +79,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
+    // override from DrawOpAtlas::EvictionCallback
     void evict(GrDrawOpAtlas::PlotLocator) override;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
