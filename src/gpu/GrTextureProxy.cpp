@@ -24,10 +24,13 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
-                               UseAllocator useAllocator)
+                               UseAllocator useAllocator,
+                               GrDDLProvider ddlProvider)
         : INHERITED(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
-        , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        , fMipMapsStatus(mipMapsStatus)
+        SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        , fDDLProxy(ddlProvider == GrDDLProvider::kYes)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
@@ -43,22 +46,28 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
-                               UseAllocator useAllocator)
+                               UseAllocator useAllocator,
+                               GrDDLProvider ddlProvider)
         : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
                     surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
-        , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        , fMipMapsStatus(mipMapsStatus)
+        SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        , fDDLProxy(ddlProvider == GrDDLProvider::kYes)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
 }
 
 // Wrapped version
-GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, UseAllocator useAllocator)
+GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
+                               UseAllocator useAllocator,
+                               GrDDLProvider ddlProvider)
         : INHERITED(std::move(surf), SkBackingFit::kExact, useAllocator)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
         , fMipMapsStatus(fTarget->asTexture()->texturePriv().mipMapsStatus())
-                  SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
+        , fDDLProxy(ddlProvider == GrDDLProvider::kYes)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
