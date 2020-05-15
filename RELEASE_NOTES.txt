@@ -4,7 +4,15 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 85
+------------
+
+  * <insert new release notes here>
+
+* * *
+
 Milestone 84
+------------
 
   * Add api on GrContext, updateBackendTexture that will upload new data to a
     GrBackendTexture.
@@ -67,6 +75,7 @@ Milestone 84
 * * *
 
 Milestone 83
+------------
 
   * Remove localmatrix option from SkShaders::[Blend, Lerp]
 
@@ -83,6 +92,7 @@ Milestone 83
 * * *
 
 Milestone 82
+------------
 
   * Removed drawBitmap and related functions from SkDevice; all public drawBitmap functions on
     SkCanvas automatically wrap the bitmap in an SkImage and call the equivalent drawImage function.
@@ -149,6 +159,7 @@ Milestone 82
 * * *
 
 Milestone 81
+------------
 
   * Added support for GL_NV_fence extension.
 
@@ -194,6 +205,7 @@ Milestone 81
 * * *
 
 Milestone 80
+------------
 
   * For Vulkan backend, we now require that the VkDevice, Queue, and Instance outlive
     either the destruction or abandoning of the GrContext. Additionally, all
@@ -235,6 +247,7 @@ Milestone 80
 * * *
 
 Milestone 79
+------------
 
   * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
     https://skia-review.googlesource.com/246296
@@ -299,6 +312,7 @@ Milestone 79
 * * *
 
 Milestone 78
+------------
 
   * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
     https://review.skia.org/230579
