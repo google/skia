@@ -72,8 +72,8 @@ DEF_TEST(SkScalerCacheMultiThread, Reporter) {
                 drawable.ensureSize(glyphCount);
                 rejects.setSource(local);
 
-                drawable.startDevice(rejects.source(), {0, 0}, SkMatrix::I(),
-                                     scalerCache.roundingSpec());
+                drawable.startBitmapDevice(rejects.source(), {0, 0}, SkMatrix::I(),
+                                           scalerCache.roundingSpec());
                 scalerCache.prepareForMaskDrawing(&drawable, &rejects);
                 rejects.flipRejectsToSource();
                 drawable.reset();
