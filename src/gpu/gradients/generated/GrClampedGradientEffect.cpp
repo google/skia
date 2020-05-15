@@ -38,8 +38,10 @@ public:
         SkString _sample1099;
         _sample1099 = this->invokeChild(_outer.gradLayout_index, args);
         fragBuilder->codeAppendf(
-                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
-                "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
+                "half4 t = %s;\nif (!%s && t.y < 0.0) { // begin scoped block\n    %s = "
+                "half4(0.0);\n} // end scoped block\n else if (t.x < 0.0) { // begin scoped "
+                "block\n    %s = %s;\n} // end scoped block\n else if (t.x > 1.0) { // begin "
+                "scoped block\n    %s = %s;\n} // end scoped block\n else {",
                 _sample1099.c_str(),
                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
                                                                                        : "false"),
@@ -49,10 +51,11 @@ public:
         SkString _input1767("t");
         SkString _sample1767;
         _sample1767 = this->invokeChild(_outer.colorizer_index, _input1767.c_str(), args);
-        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                                 args.fOutputColor, _sample1767.c_str(),
-                                 (_outer.makePremul ? "true" : "false"), args.fOutputColor,
-                                 args.fOutputColor);
+        fragBuilder->codeAppendf(
+                " // begin scoped block\n    %s = %s;\n} // end scoped block\n\n@if (%s) { // "
+                "begin scoped block\n    %s.xyz *= %s.w;\n} // end scoped block\n\n",
+                args.fOutputColor, _sample1767.c_str(), (_outer.makePremul ? "true" : "false"),
+                args.fOutputColor, args.fOutputColor);
     }
 
 private:

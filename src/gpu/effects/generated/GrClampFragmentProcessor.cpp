@@ -26,8 +26,9 @@ public:
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
         fragBuilder->codeAppendf(
-                "@if (%s) {\n    half alpha = clamp(%s.w, 0.0, 1.0);\n    %s = half4(clamp(%s.xyz, "
-                "0.0, alpha), alpha);\n} else {\n    %s = clamp(%s, 0.0, 1.0);\n}\n",
+                "@if (%s) { // begin scoped block\n    half alpha = clamp(%s.w, 0.0, 1.0);\n    %s "
+                "= half4(clamp(%s.xyz, 0.0, alpha), alpha);\n} // end scoped block\n else { // "
+                "begin scoped block\n    %s = clamp(%s, 0.0, 1.0);\n} // end scoped block\n\n",
                 (_outer.clampToPremul ? "true" : "false"), args.fInputColor, args.fOutputColor,
                 args.fInputColor, args.fOutputColor, args.fInputColor);
     }

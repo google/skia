@@ -35,8 +35,9 @@ public:
                                                                kHalf4_GrSLType, "uniformColor");
         }
         fragBuilder->codeAppendf(
-                "half4 constColor;\n@if (%s) {\n    constColor = %s;\n} else {\n    constColor = "
-                "half4(%f, %f, %f, %f);\n}",
+                "half4 constColor;\n@if (%s) { // begin scoped block\n    constColor = %s;\n} // "
+                "end scoped block\n else { // begin scoped block\n    constColor = half4(%f, %f, "
+                "%f, %f);\n}",
                 (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
@@ -45,7 +46,8 @@ public:
         SkString _input1992("constColor");
         SkString _sample1992;
         _sample1992 = this->invokeChild(_outer.fp_index, _input1992.c_str(), args);
-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
+        fragBuilder->codeAppendf(" // end scoped block\n\n%s = %s;\n", args.fOutputColor,
+                                 _sample1992.c_str());
     }
 
 private:

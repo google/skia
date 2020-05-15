@@ -78,20 +78,22 @@ public:
                 "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
                 "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
                 "(translatedFragPos.x >= threshold && translatedFragPos.x < middle.x + threshold) "
-                "{\n    translatedFragPos.x = threshold;\n} else if (translatedFragPos.x >= "
-                "middle.x + threshold) {\n    translatedFragPos.x -= middle.x - 1.0;\n}\nif "
-                "(translatedFragPos.y > threshold && translatedFragPos.y < middle.y + threshold) "
-                "{\n    translatedFragPos.y = threshold;",
+                "{ // begin scoped block\n    translatedFragPos.x = threshold;\n} // end scoped "
+                "block\n else if (translatedFragPos.x >= middle.x + threshold) { // begin scoped "
+                "block\n    translatedFragPos.x -= middle.x - 1.0;\n} // end scoped block\n\nif "
+                "(translatedFragPos.y > threshol",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar));
         fragBuilder->codeAppendf(
-                "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
-                "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
-                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
-                "sample(%s, float2(texCoord)).%s;\n",
+                "d && translatedFragPos.y < middle.y + threshold) { // begin scoped block\n    "
+                "translatedFragPos.y = threshold;\n} // end scoped block\n else if "
+                "(translatedFragPos.y >= middle.y + threshold) { // begin scoped block\n    "
+                "translatedFragPos.y -= middle.y - 1.0;\n} // end scoped block\n\nhalf2 proxyDims "
+                "= half2(2.0 * threshold + 1.0);\nhalf2 texCoord = translatedFragPos / "
+                "proxyDims;\n%s = %s * sample(%s, float2(texCoord)).%s;\n",
                 args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()

@@ -45,9 +45,10 @@ public:
         thresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                         kHalf_GrSLType, "threshold");
         fragBuilder->codeAppendf(
-                "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
-                "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "
-                "bias);\n",
+                "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) { // begin scoped block\n    "
+                "scale = %s;\n    bias = %s;\n} // end scoped block\n else { // begin scoped "
+                "block\n    scale = %s;\n    bias = %s;\n} // end scoped block\n\n%s = "
+                "half4(float(t) * scale + bias);\n",
                 args.fInputColor, args.fUniformHandler->getUniformCStr(thresholdVar),
                 args.fUniformHandler->getUniformCStr(scale01Var),
                 args.fUniformHandler->getUniformCStr(bias01Var),

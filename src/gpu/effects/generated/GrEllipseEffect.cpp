@@ -39,25 +39,29 @@ public:
         }
         fragBuilder->codeAppendf(
                 "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool medPrecision = "
-                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) {\n    d *= "
-                "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
-                "grad_dot = 4.0 * dot(Z, Z);\n@if (medPrecision) {\n    grad_dot = max(grad_dot, "
-                "6.1036000261083245e-05);\n} else {\n    grad_dot = max(grad_dot, "
-                "1.1754999560161448e-38);\n}\nfloat approx_dist = implicit * "
-                "inversesqrt(grad_dot);\n@if (medPrecision) {\n    approx_dist *= %s.x;\n}\nhalf "
-                "alph",
+                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) { // begin scoped "
+                "block\n    d *= %s.y;\n} // end scoped block\n\nfloat2 Z = d * %s.zw;\nfloat "
+                "implicit = dot(Z, d) - 1.0;\nfloat grad_dot = 4.0 * dot(Z, Z);\n@if "
+                "(medPrecision) { // begin scoped block\n    grad_dot = max(grad_dot, "
+                "6.1036000261083245e-05);\n} // end scoped block\n else { // begin scoped block\n  "
+                "  grad_dot = max(grad_dot, 1.1754999560161448e-38);\n} // end",
                 prevRadii.fX, prevRadii.fY, (medPrecision ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(ellipseVar),
                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
-                args.fUniformHandler->getUniformCStr(ellipseVar),
-                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)");
+                args.fUniformHandler->getUniformCStr(ellipseVar));
         fragBuilder->codeAppendf(
-                "a;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n "
-                "       break;\n    case 1:\n        alpha = clamp(0.5 - half(approx_dist), 0.0, "
-                "1.0);\n        break;\n    case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : "
-                "0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), "
-                "0.0, 1.0);\n        break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
-                (int)_outer.edgeType, args.fOutputColor, args.fInputColor);
+                " scoped block\n\nfloat approx_dist = implicit * inversesqrt(grad_dot);\n@if "
+                "(medPrecision) { // begin scoped block\n    approx_dist *= %s.x;\n} // end scoped "
+                "block\n\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > "
+                "0.0 ? 0.0 : 1.0;\n        break;\n    case 1:\n        alpha = clamp(0.5 - "
+                "half(approx_dist), 0.0, 1.0);\n        break;\n    case 2:\n        alpha = "
+                "approx_dist > 0.0 ? 1.0 : 0.0;\n        break;\n    case 3:\n        alpha = "
+                "clamp(0.5 + half(approx_dist), 0.0, 1.0);\n  ",
+                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
+                (int)_outer.edgeType);
+        fragBuilder->codeAppendf(
+                "      break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
+                args.fOutputColor, args.fInputColor);
     }
 
 private:

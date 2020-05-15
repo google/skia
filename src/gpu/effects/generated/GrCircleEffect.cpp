@@ -33,11 +33,13 @@ public:
         circleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kFloat4_GrSLType, "circle");
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
-                "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "
-                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}\n@if "
-                "((%d == 1 || %d == 3) || %d == 4) {\n    %s = %s * clamp(d, 0.0, 1.0);\n} else "
-                "{\n    %s = d > 0.5 ? %s : half4(0.0);\n}\n",
+                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) { "
+                "// begin scoped block\n    d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - "
+                "1.0) * %s.z);\n} // end scoped block\n else { // begin scoped block\n    d = "
+                "half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n} // end scoped "
+                "block\n\n@if ((%d == 1 || %d == 3) || %d == 4) { // begin scoped block\n    %s = "
+                "%s * clamp(d, 0.0, 1.0);\n} // end scoped block\n else { // begin scoped block\n  "
+                "  %s = d > 0.5 ? %s : half4(0.0)",
                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -47,6 +49,7 @@ public:
                 args.fUniformHandler->getUniformCStr(circleVar), (int)_outer.edgeType,
                 (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor, args.fInputColor,
                 args.fOutputColor, args.fInputColor);
+        fragBuilder->codeAppendf(";\n} // end scoped block\n\n");
     }
 
 private:

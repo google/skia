@@ -53,10 +53,10 @@ public:
                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
                 "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
                 "float2(half2(1.0, 1.0)) - delta);\ndelta *= float2(%s, %s);\nfloat weight = "
-                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) {\n    delta = float2(half2(2.0, 2.0)) "
-                "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
-                "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
-                "delta;\n    weight = min(min(delta_squared.x, delta_square",
+                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) { // begin scoped block\n    delta = "
+                "float2(half2(2.0, 2.0)) - delta;\n    float dist = length(delta);\n    dist = "
+                "max(2.0 - dist, 0.0);\n    weight = min(dist * dist, 1.0);\n} // end scoped "
+                "block\n else { // begin scoped block\n    float2 delta_squared = ",
                 sk_TransformedCoords2D_0.c_str(),
                 args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
@@ -66,7 +66,8 @@ public:
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
         fragBuilder->codeAppendf(
-                "d.y), 1.0);\n}\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
+                "delta * delta;\n    weight = min(min(delta_squared.x, delta_squared.y), 1.0);\n} "
+                "// end scoped block\n\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
                 args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()

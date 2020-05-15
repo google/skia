@@ -1,0 +1,380 @@
+From c2f1c75fa2f1adc7b95a75a689933f4ac066ccda Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Fri, 15 May 2020 13:25:25 -0400
+Subject: [PATCH 2/2] inlining finished
+
+---
+ src/sksl/SkSLCompiler.cpp            |  13 ++-
+ src/sksl/SkSLGLSLCodeGenerator.cpp   |   8 +-
+ src/sksl/SkSLIRGenerator.cpp         | 113 ++++++++++++++++++---------
+ src/sksl/SkSLIRGenerator.h           |   3 +-
+ src/sksl/ir/SkSLFunctionDefinition.h |   8 +-
+ tests/SkSLErrorTest.cpp              |   2 +-
+ tests/SkSLFPTest.cpp                 |   7 +-
+ tests/SkSLGLSLTest.cpp               |  11 ++-
+ 8 files changed, 115 insertions(+), 50 deletions(-)
+
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index f9e91b43a7..8340fe703a 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -803,8 +803,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
+                 var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
+                 (*undefinedVariables).insert(&var);
+-//                this->error(expr->fOffset,
+-  //                          "'" + var.fName + "' has not been assigned");
++                this->error(expr->fOffset,
++                            "'" + var.fName + "' has not been assigned");
+             }
+             break;
+         }
+@@ -1262,6 +1262,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
+                     break;
+                 case BasicBlock::Node::kExpression_Kind:
+                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
++                    if ((*cfg.fBlocks[i].fNodes[0].expression())->fKind ==
++                        Expression::kBoolLiteral_Kind) {
++                        // Function inlining can generate do { ... } while(false) loops which always
++                        // break, so the boolean condition is considered unreachable. Since not
++                        // being able to reach a literal is a non-issue in the first place, we
++                        // don't report an error in this case.
++                        continue;
++                    }
+                     break;
+             }
+             this->error(offset, String("unreachable"));
+@@ -1554,7 +1562,6 @@ bool Compiler::toGLSL(Program& program, String* out) {
+     StringStream buffer;
+     bool result = this->toGLSL(program, buffer);
+     if (result) {
+-        printf("%s\n", buffer.str().c_str());
+         *out = buffer.str();
+     }
+     return result;
+diff --git a/src/sksl/SkSLGLSLCodeGenerator.cpp b/src/sksl/SkSLGLSLCodeGenerator.cpp
+index cc4b4d436e..0aa7bbc667 100644
+--- a/src/sksl/SkSLGLSLCodeGenerator.cpp
++++ b/src/sksl/SkSLGLSLCodeGenerator.cpp
+@@ -1522,17 +1522,13 @@ void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statem
+ 
+ void GLSLCodeGenerator::writeBlock(const Block& b) {
+     if (b.fIsScope) {
+-        this->writeLine("{ // begin scoped block");
++        this->writeLine("{");
+         fIndentation++;
+-    } else {
+-        this->writeLine("// begin UNSCOPED block");
+     }
+     this->writeStatements(b.fStatements);
+     if (b.fIsScope) {
+         fIndentation--;
+-        this->writeLine("} // end scoped block");
+-    } else {
+-        this->writeLine("// end UNSCOPED block");
++        this->write("}");
+     }
+ }
+ 
+diff --git a/src/sksl/SkSLIRGenerator.cpp b/src/sksl/SkSLIRGenerator.cpp
+index e6785579e6..18f8a2b6b0 100644
+--- a/src/sksl/SkSLIRGenerator.cpp
++++ b/src/sksl/SkSLIRGenerator.cpp
+@@ -1734,7 +1734,15 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode&
+     if (!left) {
+         return nullptr;
+     }
++    Token::Kind op = expression.getToken().fKind;
++    bool oldCanInline = fCanInline;
++    if (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR) {
++        // can't inline the right side of a short-circuiting boolean, because our inlining
++        // approach runs things out of order
++        fCanInline = false;
++    }
+     std::unique_ptr<Expression> right = this->convertExpression(*(iter++));
++    fCanInline = oldCanInline;
+     if (!right) {
+         return nullptr;
+     }
+@@ -1753,7 +1761,6 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode&
+     } else {
+         rawRightType = &right->fType;
+     }
+-    Token::Kind op = expression.getToken().fKind;
+     if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType, &leftType, &rightType,
+                                &resultType, !Compiler::IsAssignment(op))) {
+         fErrors.error(expression.fOffset, String("type mismatch: '") +
+@@ -1862,15 +1869,23 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
+             }
+             return std::unique_ptr<Expression>(new Constructor(offset, c.fType, std::move(args)));
+         }
+-        case Expression::kExternalFunctionCall_Kind:
++        case Expression::kExternalFunctionCall_Kind: {
++            const ExternalFunctionCall& e = (const ExternalFunctionCall&) expression;
++            std::vector<std::unique_ptr<Expression>> args;
++            for (const auto& arg : e.fArguments) {
++                args.push_back(expr(arg));
++            }
++            return std::unique_ptr<Expression>(new ExternalFunctionCall(offset, e.fType,
++                                                                        e.fFunction,
++                                                                        std::move(args)));
++        }
+         case Expression::kExternalValue_Kind:
+-            abort();
+-        case Expression::kFieldAccess_Kind:
+-            printf("unsupported expression %s\n", expression.description().c_str());
+-            abort();
+-        case Expression::kFunctionReference_Kind:
+-            printf("unsupported expression %s\n", expression.description().c_str());
+-            abort();
++            return expression.clone();
++        case Expression::kFieldAccess_Kind: {
++            const FieldAccess& f = (const FieldAccess&) expression;
++            return std::unique_ptr<Expression>(new FieldAccess(expr(f.fBase), f.fFieldIndex,
++                                                               f.fOwnerKind));
++        }
+         case Expression::kFunctionCall_Kind: {
+             const FunctionCall& c = (const FunctionCall&) expression;
+             std::vector<std::unique_ptr<Expression>> args;
+@@ -1889,9 +1904,11 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
+             const PrefixExpression& p = (const PrefixExpression&) expression;
+             return std::unique_ptr<Expression>(new PrefixExpression(p.fOperator, expr(p.fOperand)));
+         }
+-        case Expression::kPostfix_Kind:
+-            printf("unsupported expression %s\n", expression.description().c_str());
+-            abort();
++        case Expression::kPostfix_Kind: {
++            const PostfixExpression& p = (const PostfixExpression&) expression;
++            return std::unique_ptr<Expression>(new PostfixExpression(expr(p.fOperand),
++                                                                     p.fOperator));
++        }
+         case Expression::kSetting_Kind:
+             return expression.clone();
+         case Expression::kSwizzle_Kind: {
+@@ -1914,8 +1931,9 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
+             }
+             return v.clone();
+         }
+-        case Expression::kTypeReference_Kind:
+         case Expression::kDefined_Kind:
++        case Expression::kFunctionReference_Kind:
++        case Expression::kTypeReference_Kind:
+             SkASSERT(false);
+             return nullptr;
+     }
+@@ -1924,7 +1942,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
+ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
+                                                         std::map<const Variable*,
+                                                                  const Variable*>* varMap,
+-                                                        const Variable& returnVar,
++                                                        const Variable* returnVar,
+                                                         const Statement& statement) {
+     auto stmt = [&](const std::unique_ptr<Statement>& s) {
+         if (s) {
+@@ -1988,11 +2006,11 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
+                                     std::unique_ptr<Expression>(new BinaryExpression(offset,
+                                         std::unique_ptr<Expression>(new VariableReference(
+                                                                 offset,
+-                                                                returnVar,
++                                                                *returnVar,
+                                                                 VariableReference::kWrite_RefKind)),
+                                         Token::Kind::TK_EQ,
+                                         expr(r.fExpression),
+-                                        returnVar.fType))));
++                                        returnVar->fType))));
+                 block.emplace_back(new BreakStatement(offset));
+                 return std::unique_ptr<Statement>(new Block(offset, std::move(block)));
+             } else {
+@@ -2037,7 +2055,12 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
+                     std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, &decls.fBaseType,
+                                                                          std::move(vars)))));
+         }
+-        case Statement::kWhile_Kind:
++        case Statement::kWhile_Kind: {
++            const WhileStatement& w = (const WhileStatement&) statement;
++            return std::unique_ptr<Statement>(new WhileStatement(offset,
++                                                              expr(w.fTest),
++                                                              stmt(w.fStatement)));
++        }
+         default:
+             printf("unsupported statement: %s\n", statement.description().c_str());
+             abort();
+@@ -2048,23 +2071,37 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
+                                                int offset,
+                                                const FunctionDefinition& function,
+                                                std::vector<std::unique_ptr<Expression>> arguments) {
++    // Inlining is more complicated here than in a typical compiler, because we have to have a
++    // high-level IR and can't just drop statements into the middle of an expression or even use
++    // gotos.
++    //
++    // Since we can't insert statements into an expression, we run the inline function as extra
++    // statements before the statement we're currently processing, relying on a lack of execution
++    // order guarantees. Since we can't use gotos (which are normally used to replace return
++    // statements), we wrap the whole function in a loop and use break statements to jump to the
++    // end.
+     std::vector<std::unique_ptr<Statement>> body;
+-    std::unique_ptr<String> name(new String());
+-    name->appendf("inlineResult%d", offset);
+-    String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+-    Variable* resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+-                                                  new Variable(-1, Modifiers(), namePtr->c_str(),
+-                                                               function.fDeclaration.fReturnType,
+-                                                               Variable::kLocal_Storage, -1,
+-                                                               nullptr)));
+-    // FIXME: do we actually need the declaration?
+-    std::vector<std::unique_ptr<VarDeclaration>> variables;
+-    variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
+-    fExtraStatements.emplace_back(new VarDeclarationsStatement(
++    Variable* resultVar;
++    if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
++        std::unique_ptr<String> name(new String());
++        name->appendf("inlineResult%d", offset);
++        String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
++        resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
++                                                     new Variable(-1, Modifiers(), namePtr->c_str(),
++                                                                  function.fDeclaration.fReturnType,
++                                                                  Variable::kLocal_Storage, -1,
++                                                                  nullptr)));
++        // FIXME: do we actually need the declaration?
++        std::vector<std::unique_ptr<VarDeclaration>> variables;
++        variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
++        fExtraStatements.emplace_back(new VarDeclarationsStatement(
+                         std::unique_ptr<VarDeclarations>(new VarDeclarations(offset,
+                                                                            &resultVar->fType,
+                                                                            std::move(variables)))));
+ 
++    } else {
++        resultVar = nullptr;
++    }
+     std::map<const Variable*, const Variable*> varMap;
+     // create variables to hold the arguments and assign the arguments to them
+     for (int i = 0; i < (int) arguments.size(); ++i) {
+@@ -2087,12 +2124,18 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
+                                                                                 std::move(vars)))));
+     }
+     for (const auto& s : ((Block&) *function.fBody).fStatements) {
+-        body.push_back(this->inlineStatement(offset, &varMap, *resultVar, *s));
++        body.push_back(this->inlineStatement(offset, &varMap, resultVar, *s));
++    }
++    fExtraStatements.emplace_back(new DoStatement(-1,
++                                std::unique_ptr<Statement>(new Block(-1, std::move(body))),
++                                std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false))));
++    if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
++        return std::unique_ptr<Expression>(new VariableReference(-1, *resultVar));
++    } else {
++        // it's a void function, so it doesn't actually result in anything, but we have to return
++        // something non-null as a standin
++        return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false));
+     }
+-    fExtraStatements.emplace_back(new ForStatement(-1, nullptr, nullptr, nullptr,
+-                                         std::unique_ptr<Statement>(new Block(-1, std::move(body))),
+-                                         nullptr));
+-    return std::unique_ptr<Expression>(new VariableReference(-1, *resultVar));
+ }
+ 
+ 
+@@ -2151,7 +2194,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
+                              VariableReference::kPointer_RefKind);
+         }
+     }
+-    if (function.fDefinition && function.fDefinition->canBeInlined()) {
++    if (fCanInline && function.fDefinition && function.fDefinition->canBeInlined()) {
+         return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
+     }
+     return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
+diff --git a/src/sksl/SkSLIRGenerator.h b/src/sksl/SkSLIRGenerator.h
+index 7602952018..dd3a23398b 100644
+--- a/src/sksl/SkSLIRGenerator.h
++++ b/src/sksl/SkSLIRGenerator.h
+@@ -94,7 +94,7 @@ private:
+                                                  const Expression& expression);
+     std::unique_ptr<Statement> inlineStatement(int offset,
+                                                std::map<const Variable*, const Variable*>* varMap,
+-                                               const Variable& returnVar,
++                                               const Variable* returnVar,
+                                                const Statement& statement);
+     std::unique_ptr<Expression> inlineCall(int offset, const FunctionDefinition& function,
+                                            std::vector<std::unique_ptr<Expression>> arguments);
+@@ -181,6 +181,7 @@ private:
+     Variable* fRTAdjust;
+     Variable* fRTAdjustInterfaceBlock;
+     int fRTAdjustFieldIndex;
++    bool fCanInline = true;
+ 
+     friend class AutoSymbolTable;
+     friend class AutoLoopLevel;
+diff --git a/src/sksl/ir/SkSLFunctionDefinition.h b/src/sksl/ir/SkSLFunctionDefinition.h
+index db3e83e0df..75fbd2a217 100644
+--- a/src/sksl/ir/SkSLFunctionDefinition.h
++++ b/src/sksl/ir/SkSLFunctionDefinition.h
+@@ -27,7 +27,13 @@ struct FunctionDefinition : public ProgramElement {
+     , fBody(std::move(body)) {}
+ 
+     bool canBeInlined() const {
+-        static const int INLINE_THRESHOLD = 50; // chosen arbitrarily
++        // we don't currently support inlining functions with out parameters
++        for (const auto p : fDeclaration.fParameters) {
++            if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
++                return false;
++            }
++        }
++        static const int INLINE_THRESHOLD = 50; // chosen arbitrarily, feel free to adjust
+         return fBody->nodeCount() < INLINE_THRESHOLD;
+     }
+ 
+diff --git a/tests/SkSLErrorTest.cpp b/tests/SkSLErrorTest.cpp
+index 53214d2584..73e364a2bc 100644
+--- a/tests/SkSLErrorTest.cpp
++++ b/tests/SkSLErrorTest.cpp
+@@ -371,7 +371,7 @@ DEF_TEST(SkSLUnreachable, r) {
+                  "void main() { if (true) return; else discard; return; }",
+                  "error: 1: unreachable\n1 error\n");
+     test_failure(r,
+-                 "void main() { return; while (true); }",
++                 "void main() { return; main(); }",
+                  "error: 1: unreachable\n1 error\n");
+ }
+ 
+diff --git a/tests/SkSLFPTest.cpp b/tests/SkSLFPTest.cpp
+index c1de765e09..413f46e246 100644
+--- a/tests/SkSLFPTest.cpp
++++ b/tests/SkSLFPTest.cpp
+@@ -784,8 +784,11 @@ DEF_TEST(SkSLFPFunction, r) {
+             "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
+             "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args, "
+                                       "\"return c.wzyx;\\n\", &flip_name);",
+-            "fragBuilder->codeAppendf(\"%s = %s(%s);\\n\", args.fOutputColor, flip_name.c_str(), "
+-                                      "args.fInputColor);"
++            "fragBuilder->codeAppendf(\"half4 inlineResult101;\\nhalf4 inlineArg101_0 = %s;\\ndo {"
++                                     "\\n    {\\n        inlineResult101 = inlineArg101_0.wzyx;\\n"
++                                     "        break;\\n    }\\n} while (false);\\n%s = "
++                                     "inlineResult101;\\n\\n\", args.fInputColor, "
++                                     "args.fOutputColor);"
+          });
+ }
+ 
+diff --git a/tests/SkSLGLSLTest.cpp b/tests/SkSLGLSLTest.cpp
+index a67ca25e94..d864726f04 100644
+--- a/tests/SkSLGLSLTest.cpp
++++ b/tests/SkSLGLSLTest.cpp
+@@ -111,7 +111,16 @@ DEF_TEST(SkSLFunctions, r) {
+          "    float y[2], z;\n"
+          "    y[0] = x;\n"
+          "    y[1] = x * 2.0;\n"
+-         "    z = foo(y);\n"
++         "    float inlineResult117;\n"
++         "    float[2] inlineArg117_0 = y;\n"
++         "    do {\n"
++         "        {\n"
++         "            inlineResult117 = inlineArg117_0[0] * inlineArg117_0[1];\n"
++         "            break;\n"
++         "        }\n"
++         "    } while (false);\n"
++         "    z = inlineResult117;\n"
++         "\n"
+          "    x = z;\n"
+          "}\n"
+          "void main() {\n"
+-- 
+2.26.2.761.g0e0b3e54be-goog
+

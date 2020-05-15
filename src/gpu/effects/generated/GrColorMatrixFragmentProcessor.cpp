@@ -39,11 +39,20 @@ public:
         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 "v");
         fragBuilder->codeAppendf(
-                "half4 inputColor = %s;\n@if (%s) {\n    inputColor = unpremul(inputColor);\n}\n%s "
-                "= %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, 0.0, 1.0);\n} else {\n    "
-                "%s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(mVar),
+                "half4 inputColor = %s;\n@if (%s) { // begin scoped block\n    // begin UNSCOPED "
+                "block\n    half4 inlineResult530;\n    half4 inlineArg530_0 = inputColor;\n    "
+                "for (; ; ) { // begin scoped block\n        { // begin scoped block\n            "
+                "inlineResult530 = half4(inlineArg530_0.xyz / max(inlineArg530_0.w, "
+                "9.9999997473787516e-05), inlineArg530_0.w);\n            break;\n        } // end "
+                "scoped block\n\n    } // end scoped block\n\n    inputColor = inlineResult530;\n  "
+                "  // end UNSCOPED block\n\n} // end scope",
+                args.fInputColor, (_outer.unpremulInput ? "true" : "false"));
+        fragBuilder->codeAppendf(
+                "d block\n\n%s = %s * inputColor + %s;\n@if (%s) { // begin scoped block\n    %s = "
+                "clamp(%s, 0.0, 1.0);\n} // end scoped block\n else { // begin scoped block\n    "
+                "%s.w = clamp(%s.w, 0.0, 1.0);\n} // end scoped block\n\n@if (%s) { // begin "
+                "scoped block\n    %s.xyz *= %s.w;\n} // end scoped block\n\n",
+                args.fOutputColor, args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),
                 (_outer.clampRGBOutput ? "true" : "false"), args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, (_outer.premulOutput ? "true" : "false"),
