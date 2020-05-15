@@ -162,6 +162,14 @@ SkTextBlob::~SkTextBlob() {
     } while (run);
 }
 
+void SkTextBlob::dump() const {
+    const auto* run = RunRecord::First(this);
+    do {
+        SkDebugf("   count=%d type=%d\n", run->glyphCount(), run->positioning());
+        run = RunRecord::Next(run);
+    } while (run);
+}
+
 namespace {
 
 union PositioningAndExtended {

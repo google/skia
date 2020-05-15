@@ -44,6 +44,7 @@ skia_utils_sources = [
   "$_src/utils/SkCustomTypeface.cpp",
   "$_src/utils/SkDashPath.cpp",
   "$_src/utils/SkDashPathPriv.h",
+  "$_src/utils/SkDumpCanvas.cpp",
   "$_src/utils/SkEventTracer.cpp",
   "$_src/utils/SkFloatToDecimal.cpp",
   "$_src/utils/SkFloatToDecimal.h",

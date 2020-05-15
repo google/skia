@@ -2591,6 +2591,11 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         bounds = &storage;
     }
 
+    {
+        SkPaint p;
+        p.setStyle(SkPaint::kStroke_Style);
+        this->drawRect(blob->bounds().makeOffset(x, y), p);
+    }
     // We cannot filter in the looper as we normally do, because the paint is
     // incomplete at this point (text-related attributes are embedded within blob run paints).
     DRAW_BEGIN(paint, bounds)

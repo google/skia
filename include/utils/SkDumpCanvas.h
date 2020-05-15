@@ -1,0 +1,79 @@
+/*
+ * Copyright 2020 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkDumpCanvas_DEFINED
+#define SkDumpCanvas_DEFINED
+
+#include "include/utils/SkNoDrawCanvas.h"
+
+class SK_API SkDumpCanvas : public SkNoDrawCanvas {
+public:
+    SkDumpCanvas(int width, int height);
+    ~SkDumpCanvas() override;
+
+protected:
+    void willSave() override;
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
+    bool onDoSaveBehind(const SkRect*) override;
+    void willRestore() override;
+
+    void onMarkCTM(const char*) override;
+    void didConcat44(const SkM44&) override;
+    void didConcat(const SkMatrix&) override;
+    void didSetMatrix(const SkMatrix&) override;
+    void didScale(SkScalar, SkScalar) override;
+    void didTranslate(SkScalar, SkScalar) override;
+
+    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
+    virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                const SkPaint& paint) override;
+    virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                             const SkPoint texCoords[4], SkBlendMode,
+                             const SkPaint& paint) override;
+
+    void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
+    void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
+    void onDrawRect(const SkRect&, const SkPaint&) override;
+    void onDrawRegion(const SkRegion&, const SkPaint&) override;
+    void onDrawOval(const SkRect&, const SkPaint&) override;
+    void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
+    void onDrawRRect(const SkRRect&, const SkPaint&) override;
+    void onDrawPath(const SkPath&, const SkPaint&) override;
+    void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
+    void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
+                         const SkPaint*, SrcRectConstraint) override;
+    void onDrawImageLattice(const SkImage*, const Lattice&, const SkRect&, const SkPaint*) override;
+    void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
+                         const SkPaint*) override;
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
+
+    void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
+    void onClipShader(sk_sp<SkShader>, SkClipOp) override;
+    void onClipRegion(const SkRegion&, SkClipOp) override;
+
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
+    void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
+
+    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&,
+                          SkBlendMode) override;
+    void onDrawEdgeAAImageSet(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
+                              const SkPaint*, SrcRectConstraint) override;
+
+    void onFlush() override;
+
+private:
+    typedef SkNoDrawCanvas INHERITED;
+};
+
+#endif

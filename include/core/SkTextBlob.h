@@ -30,6 +30,7 @@ private:
     class RunRecord;
 
 public:
+    void dump() const;
 
     /** Returns conservative bounding box. Uses SkPaint associated with each glyph to
         determine glyph bounds, and unions all bounds. Returned bounds may be

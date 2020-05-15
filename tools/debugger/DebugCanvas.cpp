@@ -228,7 +228,7 @@ DrawCommand* DebugCanvas::getDrawCommandAt(int index) {
 
 GrAuditTrail* DebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at  = nullptr;
-    GrContext*    ctx = canvas->getGrContext();
+    GrContext*    ctx = canvas ? canvas->getGrContext() : nullptr;
     if (ctx) {
         at = ctx->priv().auditTrail();
     }
