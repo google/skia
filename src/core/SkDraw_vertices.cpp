@@ -268,11 +268,13 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
     const uint16_t* indices = info.indices();
     const SkColor* colors = info.colors();
 
-    // make textures and shader mutually consistent
+    // No need for texCoords without shader. If shader is present without explicit texCoords,
+    // use positions instead.
     SkShader* shader = paint.getShader();
-    if (!(shader && textures)) {
-        shader = nullptr;
+    if (!shader) {
         textures = nullptr;
+    } else if (!textures) {
+        textures = positions;
     }
 
     // We can simplify things for certain blendmodes. This is for speed, and SkComposeShader
@@ -351,6 +353,14 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                                 // all opaque (and the blendmode will keep them that way
         }
 
+        // Positions as texCoords? The local matrix is always identity, so update once
+        if (textures == positions) {
+            SkMatrix localM;
+            if (!updater->update(ctm, &localM)) {
+                return;
+            }
+        }
+
         auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc,
                                                      fRC->clipShader());
         while (vertProc(&state)) {
@@ -360,9 +370,9 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
             }
 
             SkMatrix localM;
-            if (texture_to_matrix(state, positions, textures, &localM) &&
-                updater->update(ctm, &localM))
-            {
+            if ((textures == positions) ||
+                (texture_to_matrix(state, positions, textures, &localM) &&
+                 updater->update(ctm, &localM))) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
         }
@@ -378,7 +388,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
 
             const SkMatrixProvider* matrixProvider = fMatrixProvider;
             SkTLazy<SkPreConcatMatrixProvider> preConcatMatrixProvider;
-            if (textures) {
+            if (textures && (textures != positions)) {
                 SkMatrix localM;
                 if (!texture_to_matrix(state, positions, textures, &localM)) {
                     continue;
