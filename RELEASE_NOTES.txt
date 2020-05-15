@@ -9,6 +9,11 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * SkCanvas::drawVertices and drawPatch now support mapping an SkShader without explicit
+    texture coordinates. If they're not supplied, the local positions (vertex position or
+    patch cubic positions) will be directly used to sample the SkShader.
+    https://review.skia.org/290130
+
 * * *
 
 Milestone 84
