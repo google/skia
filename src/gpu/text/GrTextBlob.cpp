@@ -50,7 +50,7 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
-        , fCurrentOrigin{this->needsTransform() ? SkPoint{0, 0} : textBlob->fInitialOrigin}
+        , fCurrentOrigin{0,0}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
     SkASSERT(type != kTransformedPath);
     textBlob->insertSubRun(this);
@@ -111,7 +111,6 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         // Only floor the device coordinates.
         SkRect dstRect;
         if (!this->needsTransform()) {
-            pos = {SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y())};
             dstRect = dest_rect(*skGlyph, pos);
         } else {
             dstRect = dest_rect(*skGlyph, pos, strikeToSource);
@@ -141,15 +140,6 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
 
         packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
         packedIDCursor++;
-    }
-
-    if (!this->needsTransform()) {
-        // Use the negative initial origin to make the fVertexBounds {0, 0} based.
-        SkPoint pt = fBlob->fInitialOrigin;
-
-        // If the box is in device space, then transform the source space origin to device space.
-        pt = fBlob->fInitialMatrix.mapXY(pt.x(), pt.y());
-        fVertexBounds.offset(-pt);
     }
 }
 
@@ -228,19 +218,12 @@ void GrTextBlob::SubRun::translateVerticesIfNeeded(
         // If transform is needed, then the vertices are in source space, calculate the source
         // space translation.
         translation = drawOrigin - fCurrentOrigin;
+        fCurrentOrigin = drawOrigin;
     } else {
-        // Calculate the translation in source space to a translation in device space. Calculate
-        // the translation by mapping (0, 0) through both the current matrix, and the draw
-        // matrix, and taking the difference.
-        SkMatrix currentMatrix{fCurrentMatrix};
-        currentMatrix.preTranslate(fCurrentOrigin.x(), fCurrentOrigin.y());
-        SkPoint currentDeviceOrigin{0, 0};
-        currentMatrix.mapPoints(&currentDeviceOrigin, 1);
-        SkMatrix completeDrawMatrix{drawMatrix};
-        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-        SkPoint drawDeviceOrigin{0, 0};
-        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
-        translation = drawDeviceOrigin - currentDeviceOrigin;
+        // Calculate the translation in destination space.
+        SkPoint newOrigin = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y());
+        translation = newOrigin - fCurrentOrigin;
+        fCurrentOrigin = newOrigin;
     }
 
     if (translation != SkPoint{0, 0}) {
@@ -248,12 +231,18 @@ void GrTextBlob::SubRun::translateVerticesIfNeeded(
         for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
             SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
             for (int i = 0; i < 4; ++i) {
-                *vertexCursor += translation;
+                if (this->needsTransform()) {
+                    *vertexCursor += translation;
+                } else {
+                    // This should result in an integer, but floating point is not accurate. This
+                    // result should be very close to an integer; round to an integer.
+                    *vertexCursor = {SkScalarRoundToScalar(vertexCursor->x() + translation.x()),
+                                     SkScalarRoundToScalar(vertexCursor->y() + translation.y())};
+                }
                 vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
             }
         }
         fCurrentMatrix = drawMatrix;
-        fCurrentOrigin = drawOrigin;
     }
 }
 
@@ -529,7 +518,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
             if (!needsExactCTM) {
                 for (const auto& pathPos : subRun->fPaths) {
                     const SkPath& path = pathPos.fPath;
-                    const SkPoint pos = pathPos.fOrigin;                    // Transform the glyph to source space.
+                    const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
                     SkMatrix pathMatrix = strikeToSource;
                     pathMatrix.postTranslate(pos.x(), pos.y());
                     SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
