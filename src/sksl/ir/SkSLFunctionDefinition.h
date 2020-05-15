@@ -26,6 +26,17 @@ struct FunctionDefinition : public ProgramElement {
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
 
+    bool canBeInlined() const {
+        // we don't currently support inlining functions with out parameters
+        for (const auto p : fDeclaration.fParameters) {
+            if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
+                return false;
+            }
+        }
+        static const int INLINE_THRESHOLD = 50; // chosen arbitrarily, feel free to adjust
+        return fBody->nodeCount() < INLINE_THRESHOLD;
+    }
+
     std::unique_ptr<ProgramElement> clone() const override {
         return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
                                                                       fBody->clone()));

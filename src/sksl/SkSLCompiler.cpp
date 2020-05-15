@@ -1269,6 +1269,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     break;
                 case BasicBlock::Node::kExpression_Kind:
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
+                    if ((*cfg.fBlocks[i].fNodes[0].expression())->fKind ==
+                        Expression::kBoolLiteral_Kind) {
+                        // Function inlining can generate do { ... } while(false) loops which always
+                        // break, so the boolean condition is considered unreachable. Since not
+                        // being able to reach a literal is a non-issue in the first place, we
+                        // don't report an error in this case.
+                        continue;
+                    }
                     break;
             }
             this->error(offset, String("unreachable"));
