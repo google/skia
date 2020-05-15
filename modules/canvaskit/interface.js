@@ -1093,9 +1093,10 @@ CanvasKit.onRuntimeInitialized = function() {
     return copyColorFromWasm(cPtr);
   }
 
-  CanvasKit.SkPaint.prototype.setColor = function(color4f) {
+  CanvasKit.SkPaint.prototype.setColor = function(color4f, colorSpace) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
-    this._setColor(cPtr);
+    this._setColor(cPtr, colorSpace);
     CanvasKit._free(cPtr);
   }
 
@@ -1160,20 +1161,22 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   }
 
-  CanvasKit.SkShader.Color = function(color4f) {
+  CanvasKit.SkShader.Color = function(color4f, colorSpace) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
-    var result = CanvasKit.SkShader._Color(cPtr);
+    var result = CanvasKit.SkShader._Color(cPtr, colorSpace);
     CanvasKit._free(cPtr);
     return result;
   }
 
-  CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
+  CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, colorSpace, pos, mode, localMatrix, flags) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
+    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, colorSpace, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr);
 
     CanvasKit._free(localMatrixPtr);
@@ -1182,13 +1185,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return lgs;
   }
 
-  CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
+  CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, colorSpace, pos, mode, localMatrix, flags) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
+    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, colorSpace, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr);
 
     CanvasKit._free(localMatrixPtr);
@@ -1197,7 +1201,8 @@ CanvasKit.onRuntimeInitialized = function() {
     return rgs;
   }
 
-  CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle) {
+  CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, colorSpace, pos, mode, localMatrix, flags, startAngle, endAngle) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
@@ -1205,7 +1210,7 @@ CanvasKit.onRuntimeInitialized = function() {
     endAngle = endAngle || 360;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
+    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, colorSpace, posPtr,
                                                  colors.length, mode,
                                                  startAngle, endAngle, flags,
                                                  localMatrixPtr);
@@ -1217,7 +1222,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
-                                                            colors, pos, mode, localMatrix, flags) {
+                                                            colors, colorSpace, pos, mode, localMatrix, flags) {
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.MakeSRGB();
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
@@ -1225,7 +1231,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
     var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
                           start, startRadius, end, endRadius,
-                          colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr);
+                          colorPtr, colorSpace, posPtr, colors.length, mode, flags, localMatrixPtr);
 
     CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);

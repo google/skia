@@ -26,6 +26,8 @@
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
     }
 
+    // Note that color spaces are not supported in CPU surfaces due to the limitation
+    // of using an RGBA_8888 color type imposed by canvas.getContext('2d').putImageData
     CanvasKit.MakeSurface = function(width, height) {
       /* @dict */
       var imageInfo = {

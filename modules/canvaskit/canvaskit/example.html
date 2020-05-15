@@ -873,7 +873,7 @@
                                             points, texs, colors);
 
     let shader = CanvasKit.SkShader.MakeLinearGradient([0, 0], [250, 0],
-            colors, null, CanvasKit.TileMode.Clamp);
+            colors, null, null, CanvasKit.TileMode.Clamp);
     paint.setShader(shader);
 
     canvas.drawVertices(vertices, CanvasKit.BlendMode.Darken, paint);
@@ -901,7 +901,7 @@
     let transform = [2, 0, 0,
                      0, 2, 0,
                      0, 0, 1]
-    let shader = CanvasKit.SkShader.MakeRadialGradient([150,150], 130, colors,
+    let shader = CanvasKit.SkShader.MakeRadialGradient([150,150], 130, colors, null,
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
