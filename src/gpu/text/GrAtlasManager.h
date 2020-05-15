@@ -86,7 +86,8 @@ public:
 
     // GrOnFlushCallbackObject overrides
 
-    void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t*, int) override {
+    void preFlush(GrOnFlushResourceProvider* onFlushRP,
+                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
         for (int i = 0; i < kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->instantiate(onFlushRP);
@@ -95,7 +96,7 @@ public:
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* opsTaskIDs, int numOpsTaskIDs) override {
+                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
         for (int i = 0; i < kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->compact(startTokenForNextFlush);
