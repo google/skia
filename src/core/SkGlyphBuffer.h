@@ -148,7 +148,29 @@ public:
     void startSource(const SkZip<const SkGlyphID, const SkPoint>& source);
 
     // Load the buffer with SkPackedGlyphIDs and positions using the device transform.
-    void startDevice(
+    void startBitmapDevice(
+            const SkZip<const SkGlyphID, const SkPoint>& source,
+            SkPoint origin, const SkMatrix& viewMatrix,
+            const SkGlyphPositionRoundingSpec& roundingSpec);
+
+    // Load the buffer with SkPackedGlyphIDs, calculating positions so they can be constant.
+    //
+    // A final device position is computed in the following manner:
+    //  [x,y] = Floor[M][T][x',y']^t
+    // M is complicated but includes the rounding offsets for subpixel positioning.
+    // T is the translation matrix derived from the text blob origin.
+    // The final position is {Floor(x), Floor(y)}. If we want to move this position around in
+    // device space given a start origin T in source space and a end position T' in source space
+    // and new device matrix M', we need to calculate a suitable device space translation V. We
+    // know that V must be integer.
+    // V = [M'][T'](0,0)^t - [M][T](0,0)^t.
+    // V = Q' - Q
+    // So all the positions Ps are translated by V to translate from T to T' in source space. We can
+    // generate Ps such that we just need to add any Q' to the constant Ps to get a final positions.
+    // So, a single point P = {Floor(x)-Q_x, Floor(y)-Q_y}; this does not have to be integer.
+    // This allows positioning to be P + Q', which given ideal numbers would be an integer. Since
+    // the addition is done with floating point, it must be rounded.
+    void startGPUDevice(
             const SkZip<const SkGlyphID, const SkPoint>& source,
             SkPoint origin, const SkMatrix& viewMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
