@@ -22,6 +22,98 @@
       "revId": "acaf03dd2a03b0f32053c4ea0ae5c7ec63abc54d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41f0bd73_fdc08b8e",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-15T19:32:53Z",
+      "side": 1,
+      "message": "calculating?",
+      "range": {
+        "startLine": 156,
+        "startChar": 46,
+        "endLine": 156,
+        "endChar": 57
+      },
+      "revId": "acaf03dd2a03b0f32053c4ea0ae5c7ec63abc54d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06ad5d0c_9e6ed809",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-15T19:32:53Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 158,
+        "startChar": 43,
+        "endLine": 158,
+        "endChar": 47
+      },
+      "revId": "acaf03dd2a03b0f32053c4ea0ae5c7ec63abc54d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b975675a_300c200d",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-15T19:32:53Z",
+      "side": 1,
+      "message": "given ?",
+      "range": {
+        "startLine": 171,
+        "startChar": 51,
+        "endLine": 171,
+        "endChar": 56
+      },
+      "revId": "acaf03dd2a03b0f32053c4ea0ae5c7ec63abc54d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22463400_3ffc50d8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-15T19:32:53Z",
+      "side": 1,
+      "message": "why do we have to round here ?",
+      "range": {
+        "startLine": 237,
+        "startChar": 37,
+        "endLine": 237,
+        "endChar": 58
+      },
+      "revId": "acaf03dd2a03b0f32053c4ea0ae5c7ec63abc54d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
