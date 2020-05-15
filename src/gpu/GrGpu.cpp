@@ -946,17 +946,17 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
                                                   isProtected, std::move(callback), data);
 }
 
-GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
+GrStagingBuffer* GrGpu::findStagingBuffer(size_t size, GrStagingBuffer::Type type) {
 #ifdef SK_DEBUG
     this->validateStagingBuffers();
 #endif
     for (auto b : fActiveStagingBuffers) {
-        if (b->remaining() >= size) {
+        if (b->remaining() >= size && b->type() == type) {
             return b;
         }
     }
     for (auto b : fAvailableStagingBuffers) {
-        if (b->remaining() >= size) {
+        if (b->remaining() >= size && b->type() == type) {
             fAvailableStagingBuffers.remove(b);
             fActiveStagingBuffers.addToTail(b);
             return b;
@@ -964,18 +964,18 @@ GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
     }
     size = SkNextPow2(size);
     size = std::max(size, kMinStagingBufferSize);
-    std::unique_ptr<GrStagingBuffer> b = this->createStagingBuffer(size);
+    std::unique_ptr<GrStagingBuffer> b = this->createStagingBuffer(size, type);
     GrStagingBuffer* stagingBuffer = b.get();
     fStagingBuffers.push_back(std::move(b));
     fActiveStagingBuffers.addToTail(stagingBuffer);
     return stagingBuffer;
 }
 
-GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
+GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size, GrStagingBuffer::Type type) {
 #ifdef SK_DEBUG
     this->validateStagingBuffers();
 #endif
-    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size);
+    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size, type);
     return stagingBuffer->allocate(size);
 }
 

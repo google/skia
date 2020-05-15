@@ -365,7 +365,8 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
-        GrStagingBuffer::Slice stagingBuffer = this->allocateStagingBufferSlice(size);
+        GrStagingBuffer::Slice stagingBuffer = this->allocateStagingBufferSlice(
+                                                       size, GrStagingBuffer::Type::kTransfer);
         if (rowBytes == origRowBytes) {
             memcpy(stagingBuffer.fData, pixels, size);
         } else {
@@ -683,12 +684,14 @@ GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
 }
 
-std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size) {
+std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size,
+                                                                GrStagingBuffer::Type type) {
+    SkASSERT(type == GrStagingBuffer::Type::kTransfer);
     wgpu::BufferDescriptor desc;
     desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
     desc.size = size;
     wgpu::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
-    auto stagingBuffer = new GrDawnStagingBuffer(this, result.buffer, desc.size, result.data);
+    auto stagingBuffer = new GrDawnStagingBuffer(this, result.buffer, desc.size, type, result.data);
     return std::unique_ptr<GrStagingBuffer>(stagingBuffer);
 }
 
