@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9d4412c_512a8570",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-15T16:10:38Z",
+      "side": 1,
+      "message": "stepsX/Y were already updated at the top of the loop and might be 0 even if this step is scaling up in x or y.\n\nThis caused some junk from border of approx textures to show up in rescale GMs.",
+      "range": {
+        "startLine": 655,
+        "startChar": 16,
+        "endLine": 655,
+        "endChar": 42
+      },
+      "revId": "a2acf88aae561608d83318b732e26f9205d0ee9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
