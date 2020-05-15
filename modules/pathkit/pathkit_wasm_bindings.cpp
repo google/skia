@@ -259,30 +259,35 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
 //========================================================================================
 
 void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D or Canvas*/ ctx) {
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+    SkPath::Iter iter(path, false);
+    SkPoint pts[4];
+    SkPath::Verb verb;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
-            case SkPathVerb::kMove:
+            case SkPath::kMove_Verb:
                 ctx.call<void>("moveTo", pts[0].x(), pts[0].y());
                 break;
-            case SkPathVerb::kLine:
+            case SkPath::kLine_Verb:
                 ctx.call<void>("lineTo", pts[1].x(), pts[1].y());
                 break;
-            case SkPathVerb::kQuad:
+            case SkPath::kQuad_Verb:
                 ctx.call<void>("quadraticCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
                 break;
-            case SkPathVerb::kConic:
+            case SkPath::kConic_Verb:
                 SkPoint quads[5];
                 // approximate with 2^1=2 quads.
-                SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], *w, quads, 1);
+                SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
                 ctx.call<void>("quadraticCurveTo", quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
                 ctx.call<void>("quadraticCurveTo", quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
                 break;
-            case SkPathVerb::kCubic:
+            case SkPath::kCubic_Verb:
                 ctx.call<void>("bezierCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y(),
                                                    pts[3].x(), pts[3].y());
                 break;
-            case SkPathVerb::kClose:
+            case SkPath::kClose_Verb:
                 ctx.call<void>("closePath");
+                break;
+            case SkPath::kDone_Verb:
                 break;
         }
     }
