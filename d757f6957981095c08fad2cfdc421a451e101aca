@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7de02675_dee97bce",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-15T13:33:34Z",
+      "side": 1,
+      "message": "Done in the new CL.",
+      "parentUuid": "8d7b98bc_58d60f0a",
+      "revId": "d757f6957981095c08fad2cfdc421a451e101aca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2424b4d_67b32d0d",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 6
