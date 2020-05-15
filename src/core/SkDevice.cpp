@@ -96,8 +96,10 @@ bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
     // The marker stack stores CTM snapshots, which are "marker to global" matrices.
     // We ask for the (cached) inverse, which is a "global to marker" matrix.
     SkM44 globalToMarker;
-    if (fMarkerStack && fMarkerStack->findMarkerInverse(id, &globalToMarker)) {
+    // ID 0 is special, and refers to the CTM (local-to-global)
+    if (fMarkerStack && (id == 0 || fMarkerStack->findMarkerInverse(id, &globalToMarker))) {
         if (localToMarker) {
+            // globalToMarker will still be the identity if id is zero
             *localToMarker = globalToMarker * SkM44(fDeviceToGlobal) * fLocalToDevice;
         }
         return true;
