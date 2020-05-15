@@ -658,7 +658,9 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reversed,
                                                    const ClustersVisitor& visitor) const {
     // Walk through the clusters in the logical order (or reverse)
     SkSpan<const size_t> runs(fRunsInVisualOrder.data(), fRunsInVisualOrder.size());
-    directional_for_each(runs, reversed, [&](decltype(runs[0]) r) {
+    bool ignore = false;
+    directional_for_each(runs, !reversed, [&](decltype(runs[0]) r) {
+        if (ignore) return;
         auto run = this->fMaster->run(r);
         auto trimmedRange = fClusterRange.intersection(run.clusterRange());
         auto trailedRange = fGhostClusterRange.intersection(run.clusterRange());
@@ -666,12 +668,10 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reversed,
 
         auto trailed = fMaster->clusters(trailedRange);
         auto trimmed = fMaster->clusters(trimmedRange);
-        bool ignore = false;
         directional_for_each(trailed, reversed != run.leftToRight(), [&](Cluster& cluster) {
             if (ignore) return;
             bool ghost =  &cluster >= trimmed.end();
             if (!includeGhosts && ghost) {
-                ignore = true;
                 return;
             }
             if (!visitor(&cluster, ghost)) {

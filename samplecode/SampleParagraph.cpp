@@ -2795,6 +2795,39 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView44 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph44"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const std::u16string text = u"The quick brown fox \U0001f98a ate a zesty ham burger fons \U0001f354."
+                                    "The \U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467 laughed.";
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(7);
+        paragraph_style.setEllipsis(u"\u2026");
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
+        text_style.setFontSize(60);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(305);//width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2839,3 +2872,4 @@ DEF_SAMPLE(return new ParagraphView39();)
 DEF_SAMPLE(return new ParagraphView41();)
 DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
+DEF_SAMPLE(return new ParagraphView44();)
