@@ -72,6 +72,12 @@ IRNode* SymbolTable::takeOwnership(std::unique_ptr<IRNode> n) {
     return result;
 }
 
+String* SymbolTable::takeOwnership(std::unique_ptr<String> n) {
+    String* result = n.get();
+    fOwnedStrings.push_back(std::move(n));
+    return result;
+}
+
 void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
     this->takeOwnership(std::move(symbol));
@@ -114,7 +120,7 @@ void SymbolTable::markAllFunctionsBuiltin() {
                 break;
             case Symbol::kUnresolvedFunction_Kind:
                 for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
-                    if (!((FunctionDeclaration*)f)->fDefined) {
+                    if (!((FunctionDeclaration*)f)->fDefinition) {
                         ((FunctionDeclaration*)f)->fBuiltin = true;
                     }
                 }

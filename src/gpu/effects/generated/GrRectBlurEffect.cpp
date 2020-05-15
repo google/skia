@@ -43,13 +43,13 @@ public:
         invSixSigmaVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                           kHalf_GrSLType, "invSixSigma");
         fragBuilder->codeAppendf(
-                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) {\n    half x, "
-                "y;\n    @if (highp) {\n        x = max(half(%s.x - sk_FragCoord.x), "
-                "half(sk_FragCoord.x - %s.z));\n        y = max(half(%s.y - sk_FragCoord.y), "
-                "half(sk_FragCoord.y - %s.w));\n    } else {\n        x = max(half(float(%s.x) - "
-                "sk_FragCoord.x), half(sk_FragCoord.x - float(%s.z)));\n        y = "
-                "max(half(float(%s.y) - sk_FragCoord.y), half(sk_FragCoord.y - float(%s.w)));\n    "
-                "}\n    xCoverage = sample(%s, float2(half2(x * %s, 0.5))).",
+                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) { // begin "
+                "scoped block\n    half x, y;\n    @if (highp) { // begin scoped block\n        x "
+                "= max(half(%s.x - sk_FragCoord.x), half(sk_FragCoord.x - %s.z));\n        y = "
+                "max(half(%s.y - sk_FragCoord.y), half(sk_FragCoord.y - %s.w));\n    } // end "
+                "scoped block\n     else { // begin scoped block\n        x = max(half(float(%s.x) "
+                "- sk_FragCoord.x), half(sk_FragCoord.x - float(%s.z)));\n        y = "
+                "max(half(float(%s.y) - sk_FragCoord.y), half(sk_F",
                 (highp ? "true" : "false"), (_outer.isFast ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
@@ -57,18 +57,18 @@ public:
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+        fragBuilder->codeAppendf(
+                "ragCoord.y - float(%s.w)));\n    } // end scoped block\n\n    xCoverage = "
+                "sample(%s, float2(half2(x * %s, 0.5))).%s.w;\n    yCoverage = sample(%s, "
+                "float2(half2(y * %s, 0.5))).%s.w;\n    %s = (%s * xCoverage) * yCoverage;\n} // "
+                "end scoped block\n else { // begin scoped block\n    half l, r, t, b;\n    @if "
+                "(highp) { // begin scoped block\n        l = half(sk_FragCoord.x - %s.x);\n       "
+                " r = half(%s.z - sk_FragCoord.x);\n        t = half(sk_FragCoord.y - %s.y);\n     "
+                "   b = half(%s.w - sk_FragCoord.y);\n    }",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar));
-        fragBuilder->codeAppendf(
-                "%s.w;\n    yCoverage = sample(%s, float2(half2(y * %s, 0.5))).%s.w;\n    %s = (%s "
-                "* xCoverage) * yCoverage;\n} else {\n    half l, r, t, b;\n    @if (highp) {\n    "
-                "    l = half(sk_FragCoord.x - %s.x);\n        r = half(%s.z - sk_FragCoord.x);\n  "
-                "      t = half(sk_FragCoord.y - %s.y);\n        b = half(%s.w - "
-                "sk_FragCoord.y);\n    } else {\n        l = half(sk_FragCoord.x - float(%s.x));\n "
-                "       r = half(float(%s.z) - sk_FragCoord.x);\n        t = half(sk_FragCoord.y - "
-                "float(%s.y));\n        b = half(float(",
+                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
@@ -83,16 +83,18 @@ public:
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)");
         fragBuilder->codeAppendf(
-                "%s.w) - sk_FragCoord.y);\n    }\n    half il = 1.0 + l * %s;\n    half ir = 1.0 + "
-                "r * %s;\n    half it = 1.0 + t * %s;\n    half ib = 1.0 + b * %s;\n    xCoverage "
-                "= (1.0 - sample(%s, float2(half2(il, 0.5))).%s.w) - sample(%s, float2(half2(ir, "
-                "0.5))).%s.w;\n    yCoverage = (1.0 - sample(%s, float2(half2(it, 0.5))).%s.w) - "
-                "sample(%s, float2(half2(ib, 0.5))).%s.w;\n}\n%s = (%s * xCoverage) * yCoverage;\n",
+                " // end scoped block\n     else { // begin scoped block\n        l = "
+                "half(sk_FragCoord.x - float(%s.x));\n        r = half(float(%s.z) - "
+                "sk_FragCoord.x);\n        t = half(sk_FragCoord.y - float(%s.y));\n        b = "
+                "half(float(%s.w) - sk_FragCoord.y);\n    } // end scoped block\n\n    half il = "
+                "1.0 + l * %s;\n    half ir = 1.0 + r * %s;\n    half it = 1.0 + t * %s;\n    half "
+                "ib = 1.0 + b * %s;\n    xCoverage = (1.0 - sample(%s, float2(half2(il, "
+                "0.5))).%s.w) - sample(%s, float2(half2(ir, 0.5))).%s.w;\n    yC",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 args.fUniformHandler->getUniformCStr(invSixSigmaVar),
                 args.fUniformHandler->getUniformCStr(invSixSigmaVar),
@@ -107,7 +109,11 @@ public:
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
-                        .c_str(),
+                        .c_str());
+        fragBuilder->codeAppendf(
+                "overage = (1.0 - sample(%s, float2(half2(it, 0.5))).%s.w) - sample(%s, "
+                "float2(half2(ib, 0.5))).%s.w;\n} // end scoped block\n\n%s = (%s * xCoverage) * "
+                "yCoverage;\n",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])

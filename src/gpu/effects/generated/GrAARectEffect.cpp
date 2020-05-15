@@ -50,8 +50,9 @@ public:
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
                 args.fUniformHandler->getUniformCStr(rectUniformVar));
         fragBuilder->codeAppendf(
-                "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) {\n    "
-                "alpha = 1.0 - alpha;\n}\n%s = %s * alpha;\n",
+                "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) { // "
+                "begin scoped block\n    alpha = 1.0 - alpha;\n} // end scoped block\n\n%s = %s * "
+                "alpha;\n",
                 (int)_outer.edgeType,
                 (int)_outer.edgeType,
                 args.fOutputColor,

@@ -28,16 +28,36 @@ struct ForStatement : public Statement {
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
 
+    int nodeCount() const override {
+        int result = 1;
+        if (fInitializer) {
+            result += fInitializer->nodeCount();
+        }
+        if (fTest) {
+            result += fTest->nodeCount();
+        }
+        if (fNext) {
+            result += fNext->nodeCount();
+        }
+        result += fStatement->nodeCount();
+        return result;
+    }
+
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ForStatement(fOffset, fInitializer->clone(),
-                                                           fTest->clone(), fNext->clone(),
-                                                           fStatement->clone(), fSymbols));
+        return std::unique_ptr<Statement>(new ForStatement(fOffset,
+                                                     fInitializer ? fInitializer->clone() : nullptr,
+                                                     fTest ? fTest->clone() : nullptr,
+                                                     fNext ? fNext->clone() : nullptr,
+                                                     fStatement->clone(),
+                                                     fSymbols));
     }
 
     String description() const override {
         String result("for (");
         if (fInitializer) {
             result += fInitializer->description();
+        } else {
+            result += ";";
         }
         result += " ";
         if (fTest) {
