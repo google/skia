@@ -13,8 +13,9 @@
 
 class GrDawnStagingBuffer : public GrStagingBuffer {
 public:
-    GrDawnStagingBuffer(GrGpu* gpu, wgpu::Buffer buffer, size_t size, void* data)
-        : INHERITED(gpu, size, data), fBuffer(buffer) {}
+    GrDawnStagingBuffer(GrGpu* gpu, wgpu::Buffer buffer, size_t size, GrStagingBuffer::Type type,
+                        void* data)
+        : INHERITED(gpu, size, type, data), fBuffer(buffer) {}
     ~GrDawnStagingBuffer() override {}
     void           mapAsync();
     wgpu::Buffer   buffer() const { return fBuffer; }

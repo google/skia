@@ -157,6 +157,9 @@ private:
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t sizeInBytes, GrGpuBufferType, GrAccessPattern,
                                       const void*) override;
 
+    std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size,
+                                                         GrStagingBuffer::Type type) override;
+
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                       size_t rowBytes) override;

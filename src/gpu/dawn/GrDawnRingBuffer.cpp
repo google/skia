@@ -31,7 +31,8 @@ GrDawnRingBuffer::Slice GrDawnRingBuffer::allocate(int size) {
         fOffset = 0;
     }
 
-    GrStagingBuffer::Slice staging = fGpu->allocateStagingBufferSlice(size);
+    GrStagingBuffer::Slice staging = fGpu->allocateStagingBufferSlice(
+                                            size, GrStagingBuffer::Type::kTransfer);
     size_t offset = fOffset;
     fOffset += size;
     fOffset = GrDawnRoundRowBytes(fOffset);
