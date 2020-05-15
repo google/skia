@@ -22,17 +22,22 @@ public:
 
     /**
      * Convolve with a Gaussian kernel. Bounds limits the coords sampled by the effect along the
-     * axis indicated by Direction. The WrapMode is applied to the bounds interval. If bounds is
-     * nullptr then the full proxy width/height is used.
+     * axis indicated by Direction. The WrapMode is applied to the subset. If present, the
+     * pixelDomain indicates the domain of pixels that this effect will be called with. It should
+     * not account for outsetting due to the filter radius, this effect will handle that. It is
+     * assumed that the effect is only invoked at pixel centers within the pixelDomain, the
+     * effect will optimize for that, and may produce incorrect results if it is not the case. If
+     * pixelDomain is null then the effect will work correctly with any sample coordinates.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
-                                                     SkAlphaType alphaType,
-                                                     Direction dir,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView,
+                                                     SkAlphaType,
+                                                     Direction,
                                                      int halfWidth,
                                                      float gaussianSigma,
                                                      GrSamplerState::WrapMode,
-                                                     const int bounds[2],
-                                                     const GrCaps& caps);
+                                                     const SkIRect& subset,
+                                                     const SkIRect* pixelDomain,
+                                                     const GrCaps&);
 
     const char* name() const override { return "GaussianConvolution"; }
 
