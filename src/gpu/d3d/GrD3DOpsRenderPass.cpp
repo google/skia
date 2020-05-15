@@ -166,6 +166,6 @@ void GrD3DOpsRenderPass::onBegin() {
     }
 }
 
-void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    fGpu->clear(clip, color, fRenderTarget);
+void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+    fGpu->clear(scissor, color, fRenderTarget);
 }

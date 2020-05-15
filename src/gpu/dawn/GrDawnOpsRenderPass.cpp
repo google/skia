@@ -94,12 +94,15 @@ void GrDawnOpsRenderPass::submit() {
     fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
-void GrDawnOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrDawnOpsRenderPass::onClearStencilClip(const GrScissorState& scissor,
+                                             bool insideStencilMask) {
+    SkASSERT(!scissor.enabled());
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(wgpu::LoadOp::Load, wgpu::LoadOp::Clear);
 }
 
-void GrDawnOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrDawnOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+    SkASSERT(!scissor.enabled());
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(wgpu::LoadOp::Clear, wgpu::LoadOp::Load);
 }

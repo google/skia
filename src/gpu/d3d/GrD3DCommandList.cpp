@@ -150,12 +150,13 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
 
 void GrD3DCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
                                              const SkPMColor4f& color,
-                                             const GrFixedClip& clip) {
+                                             const GrScissorState& scissor) {
+    SkASSERT(!scissor.enabled()); // no cliprects for now
     this->addingWork();
     this->addResource(renderTarget->resource());
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
                                         color.vec(),
-                                        0, NULL); // no cliprects for now
+                                        0, NULL);
 }
 
 void GrD3DCommandList::addingWork() {
