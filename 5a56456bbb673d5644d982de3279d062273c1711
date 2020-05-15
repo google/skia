@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8ca3533_38551d59",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 3597,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-15T14:21:43Z",
+      "side": 1,
+      "message": "I don\u0027t think this check is needed. GrGpu::updateBackendTexture already has an SkASSERT(data);",
+      "range": {
+        "startLine": 3594,
+        "startChar": 4,
+        "endLine": 3597,
+        "endChar": 0
+      },
+      "revId": "5a56456bbb673d5644d982de3279d062273c1711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
