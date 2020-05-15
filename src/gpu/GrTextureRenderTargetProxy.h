@@ -38,7 +38,8 @@ private:
                                SkBudgeted,
                                GrProtected,
                                GrInternalSurfaceFlags,
-                               UseAllocator);
+                               UseAllocator,
+                               bool createdInDDL);
 
     // Lazy-callback version
     GrTextureRenderTargetProxy(const GrCaps&,
@@ -52,11 +53,13 @@ private:
                                SkBudgeted,
                                GrProtected,
                                GrInternalSurfaceFlags,
-                               UseAllocator);
+                               UseAllocator,
+                               bool createdInDDL);
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>,
-                               UseAllocator);
+                               UseAllocator,
+                               bool createdInDDL);
 
     void initSurfaceFlags(const GrCaps&);
 

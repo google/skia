@@ -223,6 +223,10 @@ public:
      */
     void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
 
+    // Each DDL recorder has its own proxy provider and proxy cache. This enum indicates if
+    // 'this' proxy provider is one of these special ones.
+    bool isDDLProvider() const;
+
     // TODO: remove these entry points - it is a bit sloppy to be getting context info from here
     uint32_t contextID() const;
     const GrCaps* caps() const;
