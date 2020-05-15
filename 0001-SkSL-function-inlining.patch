@@ -1,0 +1,2055 @@
+From 0436c83d8b115f4a94a49f1ed912d9e0214ea153 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Thu, 14 May 2020 14:52:58 -0400
+Subject: [PATCH 1/2] SkSL function inlining
+
+---
+ src/gpu/effects/generated/GrAARectEffect.cpp  |   5 +-
+ .../GrAlphaThresholdFragmentProcessor.cpp     |   9 +-
+ src/gpu/effects/generated/GrCircleEffect.cpp  |  13 +-
+ .../generated/GrClampFragmentProcessor.cpp    |   5 +-
+ .../GrColorMatrixFragmentProcessor.cpp        |  12 +-
+ src/gpu/effects/generated/GrEllipseEffect.cpp |  34 +-
+ .../effects/generated/GrMagnifierEffect.cpp   |  11 +-
+ .../GrOverrideInputFragmentProcessor.cpp      |   8 +-
+ .../effects/generated/GrRRectBlurEffect.cpp   |  18 +-
+ .../effects/generated/GrRectBlurEffect.cpp    |  58 ++--
+ .../generated/GrClampedGradientEffect.cpp     |  15 +-
+ .../GrDualIntervalGradientColorizer.cpp       |   7 +-
+ .../generated/GrSweepGradientLayout.cpp       |   7 +-
+ .../generated/GrTiledGradientEffect.cpp       |  22 +-
+ .../GrTwoPointConicalGradientLayout.cpp       |  74 +++--
+ .../GrUnrolledBinaryGradientColorizer.cpp     |  43 ++-
+ src/sksl/SkSLASTNode.cpp                      |   7 +-
+ src/sksl/SkSLCompiler.cpp                     |   5 +-
+ src/sksl/SkSLContext.h                        |   5 +
+ src/sksl/SkSLGLSLCodeGenerator.cpp            |  16 +-
+ src/sksl/SkSLIRGenerator.cpp                  | 300 +++++++++++++++++-
+ src/sksl/SkSLIRGenerator.h                    |  13 +
+ src/sksl/SkSLSectionAndParameterHelper.cpp    |  29 +-
+ src/sksl/SkSLSectionAndParameterHelper.h      |   4 +
+ src/sksl/ir/SkSLBinaryExpression.h            |   4 +
+ src/sksl/ir/SkSLBlock.h                       |  20 +-
+ src/sksl/ir/SkSLBoolLiteral.h                 |   4 +
+ src/sksl/ir/SkSLBreakStatement.h              |   4 +
+ src/sksl/ir/SkSLConstructor.h                 |   8 +
+ src/sksl/ir/SkSLContinueStatement.h           |   4 +
+ src/sksl/ir/SkSLDiscardStatement.h            |   4 +
+ src/sksl/ir/SkSLDoStatement.h                 |   4 +
+ src/sksl/ir/SkSLExpressionStatement.h         |   4 +
+ src/sksl/ir/SkSLExternalFunctionCall.h        |   8 +
+ src/sksl/ir/SkSLExternalValueReference.h      |   4 +
+ src/sksl/ir/SkSLFieldAccess.h                 |   4 +
+ src/sksl/ir/SkSLFloatLiteral.h                |   4 +
+ src/sksl/ir/SkSLForStatement.h                |  26 +-
+ src/sksl/ir/SkSLFunctionCall.h                |   8 +
+ src/sksl/ir/SkSLFunctionDeclaration.h         |   6 +-
+ src/sksl/ir/SkSLFunctionDefinition.h          |   5 +
+ src/sksl/ir/SkSLIRNode.h                      |   6 +
+ src/sksl/ir/SkSLIfStatement.h                 |   5 +
+ src/sksl/ir/SkSLIndexExpression.h             |   4 +
+ src/sksl/ir/SkSLIntLiteral.h                  |   4 +
+ src/sksl/ir/SkSLNop.h                         |   4 +
+ src/sksl/ir/SkSLNullLiteral.h                 |   4 +
+ src/sksl/ir/SkSLPostfixExpression.h           |   4 +
+ src/sksl/ir/SkSLPrefixExpression.h            |   4 +
+ src/sksl/ir/SkSLReturnStatement.h             |   4 +
+ src/sksl/ir/SkSLSetting.h                     |   4 +
+ src/sksl/ir/SkSLStatement.h                   |   1 -
+ src/sksl/ir/SkSLSwitchCase.h                  |  11 +
+ src/sksl/ir/SkSLSwitchStatement.h             |   8 +
+ src/sksl/ir/SkSLSwizzle.h                     |   4 +
+ src/sksl/ir/SkSLSymbol.h                      |   2 +-
+ src/sksl/ir/SkSLSymbolTable.cpp               |   8 +-
+ src/sksl/ir/SkSLSymbolTable.h                 |   4 +
+ src/sksl/ir/SkSLTernaryExpression.h           |   4 +
+ src/sksl/ir/SkSLVarDeclarations.h             |  32 +-
+ src/sksl/ir/SkSLVarDeclarationsStatement.h    |   4 +
+ src/sksl/ir/SkSLVariable.h                    |   4 +-
+ src/sksl/ir/SkSLVariableReference.h           |   4 +
+ src/sksl/ir/SkSLWhileStatement.h              |   4 +
+ 64 files changed, 797 insertions(+), 177 deletions(-)
+
+diff --git a/src/gpu/effects/generated/GrAARectEffect.cpp b/src/gpu/effects/generated/GrAARectEffect.cpp
+index 63f3a67364..c0e8d54a2d 100644
+--- a/src/gpu/effects/generated/GrAARectEffect.cpp
++++ b/src/gpu/effects/generated/GrAARectEffect.cpp
+@@ -50,8 +50,9 @@ public:
+                 args.fUniformHandler->getUniformCStr(rectUniformVar),
+                 args.fUniformHandler->getUniformCStr(rectUniformVar));
+         fragBuilder->codeAppendf(
+-                "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) {\n    "
+-                "alpha = 1.0 - alpha;\n}\n%s = %s * alpha;\n",
++                "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) { // "
++                "begin scoped block\n    alpha = 1.0 - alpha;\n} // end scoped block\n\n%s = %s * "
++                "alpha;\n",
+                 (int)_outer.edgeType,
+                 (int)_outer.edgeType,
+                 args.fOutputColor,
+diff --git a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+index 915684f122..e948d550b9 100644
+--- a/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.cpp
+@@ -45,10 +45,11 @@ public:
+                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
+         fragBuilder->codeAppendf(
+                 "half4 color = %s;\nhalf4 mask_color = sample(%s, %s).%s;\nif (mask_color.w < 0.5) "
+-                "{\n    if (color.w > %s) {\n        half scale = %s / color.w;\n        color.xyz "
+-                "*= scale;\n        color.w = %s;\n    }\n} else if (color.w < %s) {\n    half "
+-                "scale = %s / max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    "
+-                "color.w = %s;\n}\n%s = color;\n",
++                "{ // begin scoped block\n    if (color.w > %s) { // begin scoped block\n        "
++                "half scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = %s;\n  "
++                "  } // end scoped block\n\n} // end scoped block\n else if (color.w < %s) { // "
++                "begin scoped block\n    half scale = %s / max(0.0010000000474974513, color.w);\n  "
++                "  color.xyz *= scale;\n    color.w = %s;\n} // end scoped block\n\n%s = color;\n",
+                 args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+                 sk_TransformedCoords2D_0.c_str(),
+diff --git a/src/gpu/effects/generated/GrCircleEffect.cpp b/src/gpu/effects/generated/GrCircleEffect.cpp
+index 272d33234a..44360aa53b 100644
+--- a/src/gpu/effects/generated/GrCircleEffect.cpp
++++ b/src/gpu/effects/generated/GrCircleEffect.cpp
+@@ -33,11 +33,13 @@ public:
+         circleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                      kFloat4_GrSLType, "circle");
+         fragBuilder->codeAppendf(
+-                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
+-                "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "
+-                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}\n@if "
+-                "((%d == 1 || %d == 3) || %d == 4) {\n    %s = %s * clamp(d, 0.0, 1.0);\n} else "
+-                "{\n    %s = d > 0.5 ? %s : half4(0.0);\n}\n",
++                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) { "
++                "// begin scoped block\n    d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - "
++                "1.0) * %s.z);\n} // end scoped block\n else { // begin scoped block\n    d = "
++                "half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n} // end scoped "
++                "block\n\n@if ((%d == 1 || %d == 3) || %d == 4) { // begin scoped block\n    %s = "
++                "%s * clamp(d, 0.0, 1.0);\n} // end scoped block\n else { // begin scoped block\n  "
++                "  %s = d > 0.5 ? %s : half4(0.0)",
+                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
+                 args.fUniformHandler->getUniformCStr(circleVar),
+                 args.fUniformHandler->getUniformCStr(circleVar),
+@@ -47,6 +49,7 @@ public:
+                 args.fUniformHandler->getUniformCStr(circleVar), (int)_outer.edgeType,
+                 (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor, args.fInputColor,
+                 args.fOutputColor, args.fInputColor);
++        fragBuilder->codeAppendf(";\n} // end scoped block\n\n");
+     }
+ 
+ private:
+diff --git a/src/gpu/effects/generated/GrClampFragmentProcessor.cpp b/src/gpu/effects/generated/GrClampFragmentProcessor.cpp
+index 7d692b52de..ef3fb3d49a 100644
+--- a/src/gpu/effects/generated/GrClampFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrClampFragmentProcessor.cpp
+@@ -26,8 +26,9 @@ public:
+         auto clampToPremul = _outer.clampToPremul;
+         (void)clampToPremul;
+         fragBuilder->codeAppendf(
+-                "@if (%s) {\n    half alpha = clamp(%s.w, 0.0, 1.0);\n    %s = half4(clamp(%s.xyz, "
+-                "0.0, alpha), alpha);\n} else {\n    %s = clamp(%s, 0.0, 1.0);\n}\n",
++                "@if (%s) { // begin scoped block\n    half alpha = clamp(%s.w, 0.0, 1.0);\n    %s "
++                "= half4(clamp(%s.xyz, 0.0, alpha), alpha);\n} // end scoped block\n else { // "
++                "begin scoped block\n    %s = clamp(%s, 0.0, 1.0);\n} // end scoped block\n\n",
+                 (_outer.clampToPremul ? "true" : "false"), args.fInputColor, args.fOutputColor,
+                 args.fInputColor, args.fOutputColor, args.fInputColor);
+     }
+diff --git a/src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp b/src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp
+index 1f3091a88d..a3cdff96ea 100644
+--- a/src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp
+@@ -39,11 +39,13 @@ public:
+         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                 "v");
+         fragBuilder->codeAppendf(
+-                "half4 inputColor = %s;\n@if (%s) {\n    half nonZeroAlpha = max(inputColor.w, "
+-                "9.9999997473787516e-05);\n    inputColor = half4(inputColor.xyz / nonZeroAlpha, "
+-                "inputColor.w);\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, "
+-                "0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    "
+-                "%s.xyz *= %s.w;\n}\n",
++                "half4 inputColor = %s;\n@if (%s) { // begin scoped block\n    half nonZeroAlpha = "
++                "max(inputColor.w, 9.9999997473787516e-05);\n    inputColor = half4(inputColor.xyz "
++                "/ nonZeroAlpha, inputColor.w);\n} // end scoped block\n\n%s = %s * inputColor + "
++                "%s;\n@if (%s) { // begin scoped block\n    %s = clamp(%s, 0.0, 1.0);\n} // end "
++                "scoped block\n else { // begin scoped block\n    %s.w = clamp(%s.w, 0.0, 1.0);\n} "
++                "// end scoped block\n\n@if (%s) { // begin scoped block\n    %s.xyz *= %s.w;\n} "
++                "// end scoped block\n\n",
+                 args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
+                 args.fUniformHandler->getUniformCStr(mVar),
+                 args.fUniformHandler->getUniformCStr(vVar),
+diff --git a/src/gpu/effects/generated/GrEllipseEffect.cpp b/src/gpu/effects/generated/GrEllipseEffect.cpp
+index fa34903258..c5a967f636 100644
+--- a/src/gpu/effects/generated/GrEllipseEffect.cpp
++++ b/src/gpu/effects/generated/GrEllipseEffect.cpp
+@@ -39,25 +39,29 @@ public:
+         }
+         fragBuilder->codeAppendf(
+                 "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool medPrecision = "
+-                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) {\n    d *= "
+-                "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
+-                "grad_dot = 4.0 * dot(Z, Z);\n@if (medPrecision) {\n    grad_dot = max(grad_dot, "
+-                "6.1036000261083245e-05);\n} else {\n    grad_dot = max(grad_dot, "
+-                "1.1754999560161448e-38);\n}\nfloat approx_dist = implicit * "
+-                "inversesqrt(grad_dot);\n@if (medPrecision) {\n    approx_dist *= %s.x;\n}\nhalf "
+-                "alph",
++                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) { // begin scoped "
++                "block\n    d *= %s.y;\n} // end scoped block\n\nfloat2 Z = d * %s.zw;\nfloat "
++                "implicit = dot(Z, d) - 1.0;\nfloat grad_dot = 4.0 * dot(Z, Z);\n@if "
++                "(medPrecision) { // begin scoped block\n    grad_dot = max(grad_dot, "
++                "6.1036000261083245e-05);\n} // end scoped block\n else { // begin scoped block\n  "
++                "  grad_dot = max(grad_dot, 1.1754999560161448e-38);\n} // end",
+                 prevRadii.fX, prevRadii.fY, (medPrecision ? "true" : "false"),
+                 args.fUniformHandler->getUniformCStr(ellipseVar),
+                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
+-                args.fUniformHandler->getUniformCStr(ellipseVar),
+-                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)");
++                args.fUniformHandler->getUniformCStr(ellipseVar));
++        fragBuilder->codeAppendf(
++                " scoped block\n\nfloat approx_dist = implicit * inversesqrt(grad_dot);\n@if "
++                "(medPrecision) { // begin scoped block\n    approx_dist *= %s.x;\n} // end scoped "
++                "block\n\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > "
++                "0.0 ? 0.0 : 1.0;\n        break;\n    case 1:\n        alpha = clamp(0.5 - "
++                "half(approx_dist), 0.0, 1.0);\n        break;\n    case 2:\n        alpha = "
++                "approx_dist > 0.0 ? 1.0 : 0.0;\n        break;\n    case 3:\n        alpha = "
++                "clamp(0.5 + half(approx_dist), 0.0, 1.0);\n  ",
++                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
++                (int)_outer.edgeType);
+         fragBuilder->codeAppendf(
+-                "a;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n "
+-                "       break;\n    case 1:\n        alpha = clamp(0.5 - half(approx_dist), 0.0, "
+-                "1.0);\n        break;\n    case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : "
+-                "0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), "
+-                "0.0, 1.0);\n        break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
+-                (int)_outer.edgeType, args.fOutputColor, args.fInputColor);
++                "      break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
++                args.fOutputColor, args.fInputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/effects/generated/GrMagnifierEffect.cpp b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+index 0746fbf6c6..123b21367f 100644
+--- a/src/gpu/effects/generated/GrMagnifierEffect.cpp
++++ b/src/gpu/effects/generated/GrMagnifierEffect.cpp
+@@ -53,10 +53,10 @@ public:
+                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
+                 "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
+                 "float2(half2(1.0, 1.0)) - delta);\ndelta *= float2(%s, %s);\nfloat weight = "
+-                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) {\n    delta = float2(half2(2.0, 2.0)) "
+-                "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
+-                "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
+-                "delta;\n    weight = min(min(delta_squared.x, delta_square",
++                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) { // begin scoped block\n    delta = "
++                "float2(half2(2.0, 2.0)) - delta;\n    float dist = length(delta);\n    dist = "
++                "max(2.0 - dist, 0.0);\n    weight = min(dist * dist, 1.0);\n} // end scoped "
++                "block\n else { // begin scoped block\n    float2 delta_squared = ",
+                 sk_TransformedCoords2D_0.c_str(),
+                 args.fUniformHandler->getUniformCStr(offsetVar),
+                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
+@@ -66,7 +66,8 @@ public:
+                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
+                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
+         fragBuilder->codeAppendf(
+-                "d.y), 1.0);\n}\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
++                "delta * delta;\n    weight = min(min(delta_squared.x, delta_squared.y), 1.0);\n} "
++                "// end scoped block\n\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
+                 args.fOutputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+                 fragBuilder->getProgramBuilder()
+diff --git a/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp b/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
+index 0e34b53000..86114047b5 100644
+--- a/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
++++ b/src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp
+@@ -35,8 +35,9 @@ public:
+                                                                kHalf4_GrSLType, "uniformColor");
+         }
+         fragBuilder->codeAppendf(
+-                "half4 constColor;\n@if (%s) {\n    constColor = %s;\n} else {\n    constColor = "
+-                "half4(%f, %f, %f, %f);\n}",
++                "half4 constColor;\n@if (%s) { // begin scoped block\n    constColor = %s;\n} // "
++                "end scoped block\n else { // begin scoped block\n    constColor = half4(%f, %f, "
++                "%f, %f);\n}",
+                 (_outer.useUniform ? "true" : "false"),
+                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
+                                           : "half4(0)",
+@@ -45,7 +46,8 @@ public:
+         SkString _input1992("constColor");
+         SkString _sample1992;
+         _sample1992 = this->invokeChild(_outer.fp_index, _input1992.c_str(), args);
+-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
++        fragBuilder->codeAppendf(" // end scoped block\n\n%s = %s;\n", args.fOutputColor,
++                                 _sample1992.c_str());
+     }
+ 
+ private:
+diff --git a/src/gpu/effects/generated/GrRRectBlurEffect.cpp b/src/gpu/effects/generated/GrRRectBlurEffect.cpp
+index 74a49b102e..93b8f835f3 100644
+--- a/src/gpu/effects/generated/GrRRectBlurEffect.cpp
++++ b/src/gpu/effects/generated/GrRRectBlurEffect.cpp
+@@ -78,20 +78,22 @@ public:
+                 "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
+                 "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
+                 "(translatedFragPos.x >= threshold && translatedFragPos.x < middle.x + threshold) "
+-                "{\n    translatedFragPos.x = threshold;\n} else if (translatedFragPos.x >= "
+-                "middle.x + threshold) {\n    translatedFragPos.x -= middle.x - 1.0;\n}\nif "
+-                "(translatedFragPos.y > threshold && translatedFragPos.y < middle.y + threshold) "
+-                "{\n    translatedFragPos.y = threshold;",
++                "{ // begin scoped block\n    translatedFragPos.x = threshold;\n} // end scoped "
++                "block\n else if (translatedFragPos.x >= middle.x + threshold) { // begin scoped "
++                "block\n    translatedFragPos.x -= middle.x - 1.0;\n} // end scoped block\n\nif "
++                "(translatedFragPos.y > threshol",
+                 args.fUniformHandler->getUniformCStr(proxyRectVar),
+                 args.fUniformHandler->getUniformCStr(cornerRadiusVar),
+                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
+                 args.fUniformHandler->getUniformCStr(proxyRectVar),
+                 args.fUniformHandler->getUniformCStr(proxyRectVar));
+         fragBuilder->codeAppendf(
+-                "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
+-                "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
+-                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
+-                "sample(%s, float2(texCoord)).%s;\n",
++                "d && translatedFragPos.y < middle.y + threshold) { // begin scoped block\n    "
++                "translatedFragPos.y = threshold;\n} // end scoped block\n else if "
++                "(translatedFragPos.y >= middle.y + threshold) { // begin scoped block\n    "
++                "translatedFragPos.y -= middle.y - 1.0;\n} // end scoped block\n\nhalf2 proxyDims "
++                "= half2(2.0 * threshold + 1.0);\nhalf2 texCoord = translatedFragPos / "
++                "proxyDims;\n%s = %s * sample(%s, float2(texCoord)).%s;\n",
+                 args.fOutputColor, args.fInputColor,
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+                 fragBuilder->getProgramBuilder()
+diff --git a/src/gpu/effects/generated/GrRectBlurEffect.cpp b/src/gpu/effects/generated/GrRectBlurEffect.cpp
+index 1118069594..2077aa788c 100644
+--- a/src/gpu/effects/generated/GrRectBlurEffect.cpp
++++ b/src/gpu/effects/generated/GrRectBlurEffect.cpp
+@@ -43,13 +43,13 @@ public:
+         invSixSigmaVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                           kHalf_GrSLType, "invSixSigma");
+         fragBuilder->codeAppendf(
+-                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) {\n    half x, "
+-                "y;\n    @if (highp) {\n        x = max(half(%s.x - sk_FragCoord.x), "
+-                "half(sk_FragCoord.x - %s.z));\n        y = max(half(%s.y - sk_FragCoord.y), "
+-                "half(sk_FragCoord.y - %s.w));\n    } else {\n        x = max(half(float(%s.x) - "
+-                "sk_FragCoord.x), half(sk_FragCoord.x - float(%s.z)));\n        y = "
+-                "max(half(float(%s.y) - sk_FragCoord.y), half(sk_FragCoord.y - float(%s.w)));\n    "
+-                "}\n    xCoverage = sample(%s, float2(half2(x * %s, 0.5))).",
++                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) { // begin "
++                "scoped block\n    half x, y;\n    @if (highp) { // begin scoped block\n        x "
++                "= max(half(%s.x - sk_FragCoord.x), half(sk_FragCoord.x - %s.z));\n        y = "
++                "max(half(%s.y - sk_FragCoord.y), half(sk_FragCoord.y - %s.w));\n    } // end "
++                "scoped block\n     else { // begin scoped block\n        x = max(half(float(%s.x) "
++                "- sk_FragCoord.x), half(sk_FragCoord.x - float(%s.z)));\n        y = "
++                "max(half(float(%s.y) - sk_FragCoord.y), half(sk_F",
+                 (highp ? "true" : "false"), (_outer.isFast ? "true" : "false"),
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+@@ -57,18 +57,18 @@ public:
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
++                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
++        fragBuilder->codeAppendf(
++                "ragCoord.y - float(%s.w)));\n    } // end scoped block\n\n    xCoverage = "
++                "sample(%s, float2(half2(x * %s, 0.5))).%s.w;\n    yCoverage = sample(%s, "
++                "float2(half2(y * %s, 0.5))).%s.w;\n    %s = (%s * xCoverage) * yCoverage;\n} // "
++                "end scoped block\n else { // begin scoped block\n    half l, r, t, b;\n    @if "
++                "(highp) { // begin scoped block\n        l = half(sk_FragCoord.x - %s.x);\n       "
++                " r = half(%s.z - sk_FragCoord.x);\n        t = half(sk_FragCoord.y - %s.y);\n     "
++                "   b = half(%s.w - sk_FragCoord.y);\n    }",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+-                args.fUniformHandler->getUniformCStr(invSixSigmaVar));
+-        fragBuilder->codeAppendf(
+-                "%s.w;\n    yCoverage = sample(%s, float2(half2(y * %s, 0.5))).%s.w;\n    %s = (%s "
+-                "* xCoverage) * yCoverage;\n} else {\n    half l, r, t, b;\n    @if (highp) {\n    "
+-                "    l = half(sk_FragCoord.x - %s.x);\n        r = half(%s.z - sk_FragCoord.x);\n  "
+-                "      t = half(sk_FragCoord.y - %s.y);\n        b = half(%s.w - "
+-                "sk_FragCoord.y);\n    } else {\n        l = half(sk_FragCoord.x - float(%s.x));\n "
+-                "       r = half(float(%s.z) - sk_FragCoord.x);\n        t = half(sk_FragCoord.y - "
+-                "float(%s.y));\n        b = half(float(",
++                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
+                 fragBuilder->getProgramBuilder()
+                         ->samplerSwizzle(args.fTexSamplers[0])
+                         .asString()
+@@ -83,16 +83,18 @@ public:
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
++                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)");
++        fragBuilder->codeAppendf(
++                " // end scoped block\n     else { // begin scoped block\n        l = "
++                "half(sk_FragCoord.x - float(%s.x));\n        r = half(float(%s.z) - "
++                "sk_FragCoord.x);\n        t = half(sk_FragCoord.y - float(%s.y));\n        b = "
++                "half(float(%s.w) - sk_FragCoord.y);\n    } // end scoped block\n\n    half il = "
++                "1.0 + l * %s;\n    half ir = 1.0 + r * %s;\n    half it = 1.0 + t * %s;\n    half "
++                "ib = 1.0 + b * %s;\n    xCoverage = (1.0 - sample(%s, float2(half2(il, "
++                "0.5))).%s.w) - sample(%s, float2(half2(ir, 0.5))).%s.w;\n    yC",
++                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+-        fragBuilder->codeAppendf(
+-                "%s.w) - sk_FragCoord.y);\n    }\n    half il = 1.0 + l * %s;\n    half ir = 1.0 + "
+-                "r * %s;\n    half it = 1.0 + t * %s;\n    half ib = 1.0 + b * %s;\n    xCoverage "
+-                "= (1.0 - sample(%s, float2(half2(il, 0.5))).%s.w) - sample(%s, float2(half2(ir, "
+-                "0.5))).%s.w;\n    yCoverage = (1.0 - sample(%s, float2(half2(it, 0.5))).%s.w) - "
+-                "sample(%s, float2(half2(ib, 0.5))).%s.w;\n}\n%s = (%s * xCoverage) * yCoverage;\n",
+                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
+                 args.fUniformHandler->getUniformCStr(invSixSigmaVar),
+                 args.fUniformHandler->getUniformCStr(invSixSigmaVar),
+@@ -107,7 +109,11 @@ public:
+                 fragBuilder->getProgramBuilder()
+                         ->samplerSwizzle(args.fTexSamplers[0])
+                         .asString()
+-                        .c_str(),
++                        .c_str());
++        fragBuilder->codeAppendf(
++                "overage = (1.0 - sample(%s, float2(half2(it, 0.5))).%s.w) - sample(%s, "
++                "float2(half2(ib, 0.5))).%s.w;\n} // end scoped block\n\n%s = (%s * xCoverage) * "
++                "yCoverage;\n",
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
+                 fragBuilder->getProgramBuilder()
+                         ->samplerSwizzle(args.fTexSamplers[0])
+diff --git a/src/gpu/gradients/generated/GrClampedGradientEffect.cpp b/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
+index 044165365d..df97912370 100644
+--- a/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
++++ b/src/gpu/gradients/generated/GrClampedGradientEffect.cpp
+@@ -38,8 +38,10 @@ public:
+         SkString _sample1099;
+         _sample1099 = this->invokeChild(_outer.gradLayout_index, args);
+         fragBuilder->codeAppendf(
+-                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
+-                "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
++                "half4 t = %s;\nif (!%s && t.y < 0.0) { // begin scoped block\n    %s = "
++                "half4(0.0);\n} // end scoped block\n else if (t.x < 0.0) { // begin scoped "
++                "block\n    %s = %s;\n} // end scoped block\n else if (t.x > 1.0) { // begin "
++                "scoped block\n    %s = %s;\n} // end scoped block\n else {",
+                 _sample1099.c_str(),
+                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
+                                                                                        : "false"),
+@@ -49,10 +51,11 @@ public:
+         SkString _input1767("t");
+         SkString _sample1767;
+         _sample1767 = this->invokeChild(_outer.colorizer_index, _input1767.c_str(), args);
+-        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+-                                 args.fOutputColor, _sample1767.c_str(),
+-                                 (_outer.makePremul ? "true" : "false"), args.fOutputColor,
+-                                 args.fOutputColor);
++        fragBuilder->codeAppendf(
++                " // begin scoped block\n    %s = %s;\n} // end scoped block\n\n@if (%s) { // "
++                "begin scoped block\n    %s.xyz *= %s.w;\n} // end scoped block\n\n",
++                args.fOutputColor, _sample1767.c_str(), (_outer.makePremul ? "true" : "false"),
++                args.fOutputColor, args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrDualIntervalGradientColorizer.cpp b/src/gpu/gradients/generated/GrDualIntervalGradientColorizer.cpp
+index 88b50df48f..319032353c 100644
+--- a/src/gpu/gradients/generated/GrDualIntervalGradientColorizer.cpp
++++ b/src/gpu/gradients/generated/GrDualIntervalGradientColorizer.cpp
+@@ -45,9 +45,10 @@ public:
+         thresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                         kHalf_GrSLType, "threshold");
+         fragBuilder->codeAppendf(
+-                "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
+-                "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "
+-                "bias);\n",
++                "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) { // begin scoped block\n    "
++                "scale = %s;\n    bias = %s;\n} // end scoped block\n else { // begin scoped "
++                "block\n    scale = %s;\n    bias = %s;\n} // end scoped block\n\n%s = "
++                "half4(float(t) * scale + bias);\n",
+                 args.fInputColor, args.fUniformHandler->getUniformCStr(thresholdVar),
+                 args.fUniformHandler->getUniformCStr(scale01Var),
+                 args.fUniformHandler->getUniformCStr(bias01Var),
+diff --git a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+index cd4653a75e..395f954392 100644
+--- a/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrSweepGradientLayout.cpp
+@@ -36,9 +36,10 @@ public:
+         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
+                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
+         fragBuilder->codeAppendf(
+-                "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
+-                "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
+-                "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
++                "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) { // begin scoped block\n  "
++                "  angle = half(2.0 * atan(-%s.y, length(%s) - %s.x));\n} // end scoped block\n "
++                "else { // begin scoped block\n    angle = half(atan(-%s.y, -%s.x));\n} // end "
++                "scoped block\n\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
+                 "half4(t, 1.0, 0.0, 0.0);\n",
+                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
+                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
+diff --git a/src/gpu/gradients/generated/GrTiledGradientEffect.cpp b/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
+index 248e7f9303..24b63bfc86 100644
+--- a/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
++++ b/src/gpu/gradients/generated/GrTiledGradientEffect.cpp
+@@ -32,22 +32,26 @@ public:
+         SkString _sample453;
+         _sample453 = this->invokeChild(_outer.gradLayout_index, args);
+         fragBuilder->codeAppendf(
+-                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else {\n    @if "
+-                "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 - 2.0 * "
+-                "floor(t_1 * 0.5)) - 1.0;\n        if (sk_Caps.mustDoOpBetweenFloorAndAbs) {\n     "
+-                "       tiled_t = clamp(tiled_t, -1.0, 1.0);\n        }\n        t.x = "
+-                "abs(tiled_t);\n    } else {\n        t.x = fract(t.x);\n    }",
++                "half4 t = %s;\nif (!%s && t.y < 0.0) { // begin scoped block\n    %s = "
++                "half4(0.0);\n} // end scoped block\n else { // begin scoped block\n    @if (%s) { "
++                "// begin scoped block\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 "
++                "- 2.0 * floor(t_1 * 0.5)) - 1.0;\n        if (sk_Caps.mustDoOpBetweenFloorAndAbs) "
++                "{ // begin scoped block\n            tiled_t = clamp(tiled_t, -1.0, 1.0);\n       "
++                " } // end scoped block\n\n        t.x = abs(tiled_t);\n    } // end scoped "
++                "block\n     else { // begin scoped blo",
+                 _sample453.c_str(),
+                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
+                                                                                        : "false"),
+                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
++        fragBuilder->codeAppendf("ck\n        t.x = fract(t.x);\n    }");
+         SkString _input1464("t");
+         SkString _sample1464;
+         _sample1464 = this->invokeChild(_outer.colorizer_index, _input1464.c_str(), args);
+-        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+-                                 args.fOutputColor, _sample1464.c_str(),
+-                                 (_outer.makePremul ? "true" : "false"), args.fOutputColor,
+-                                 args.fOutputColor);
++        fragBuilder->codeAppendf(
++                " // end scoped block\n\n    %s = %s;\n} // end scoped block\n\n@if (%s) { // "
++                "begin scoped block\n    %s.xyz *= %s.w;\n} // end scoped block\n\n",
++                args.fOutputColor, _sample1464.c_str(), (_outer.makePremul ? "true" : "false"),
++                args.fOutputColor, args.fOutputColor);
+     }
+ 
+ private:
+diff --git a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+index 2f80228e6a..99e3e1900e 100644
+--- a/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
++++ b/src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.cpp
+@@ -46,46 +46,62 @@ public:
+                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
+         fragBuilder->codeAppendf(
+                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
+-                "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
+-                "         if (t >= 0.0) {\n                t = p.x + sqrt(t);\n            } else "
+-                "{\n                v = -1.0;\n            }\n        }\n        break;\n    case "
+-                "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
+-                "  t = length(p) - float(r0);\n            } else {\n                t = "
+-                "-length(p) - float(r0);\n       ",
++                "   { // begin scoped block\n            half r0_2 = %s.y;\n            t = "
++                "float(r0_2) - p.y * p.y;\n            if (t >= 0.0) { // begin scoped block\n     "
++                "           t = p.x + sqrt(t);\n            } // end scoped block\n             "
++                "else { // begin scoped block\n                v = -1.0;\n            } // end "
++                "scoped block\n\n        } // end scoped block\n\n        break;\n    case 0:\n    "
++                "    { // begin scoped block\n     ",
+                 sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
+-                args.fUniformHandler->getUniformCStr(focalParamsVar),
+-                args.fUniformHandler->getUniformCStr(focalParamsVar),
+-                (_outer.isRadiusIncreasing ? "true" : "false"));
++                args.fUniformHandler->getUniformCStr(focalParamsVar));
+         fragBuilder->codeAppendf(
+-                "     }\n        }\n        break;\n    case 2:\n        {\n            half invR1 "
+-                "= %s.x;\n            half fx = %s.y;\n            float x_t = -1.0;\n            "
+-                "@if (%s) {\n                x_t = dot(p, p) / p.x;\n            } else if (%s) "
+-                "{\n                x_t = length(p) - p.x * float(invR1);\n            } else {\n  "
+-                "              float temp = p.x * p.x - p.y * p.y;\n                if (temp >= "
+-                "0.0) {\n                    @if (%s || !%s) {\n                        x_t = "
+-                "-sqrt(temp) - p.x * float(invR1)",
++                "       half r0 = %s.x;\n            @if (%s) { // begin scoped block\n            "
++                "    t = length(p) - float(r0);\n            } // end scoped block\n             "
++                "else { // begin scoped block\n                t = -length(p) - float(r0);\n       "
++                "     } // end scoped block\n\n        } // end scoped block\n\n        break;\n   "
++                " case 2:\n        { // begin scoped block\n            half invR1 = %s.x;\n       "
++                "     half fx = %s.y;\n            float x_t = -1.0;\n            @if (%s) { // "
++                "begin scoped block\n     ",
++                args.fUniformHandler->getUniformCStr(focalParamsVar),
++                (_outer.isRadiusIncreasing ? "true" : "false"),
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+-                (_outer.isFocalOnCircle ? "true" : "false"),
++                (_outer.isFocalOnCircle ? "true" : "false"));
++        fragBuilder->codeAppendf(
++                "           x_t = dot(p, p) / p.x;\n            } // end scoped block\n            "
++                " else if (%s) { // begin scoped block\n                x_t = length(p) - p.x * "
++                "float(invR1);\n            } // end scoped block\n             else { // begin "
++                "scoped block\n                float temp = p.x * p.x - p.y * p.y;\n               "
++                " if (temp >= 0.0) { // begin scoped block\n                    @if (%s || !%s) { "
++                "// begin scoped block\n                        x_t = -sqrt(temp) - p.x * "
++                "float(invR1);\n                    }",
+                 (_outer.isWellBehaved ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
+                 (_outer.isRadiusIncreasing ? "true" : "false"));
+         fragBuilder->codeAppendf(
+-                ";\n                    } else {\n                        x_t = sqrt(temp) - p.x * "
+-                "float(invR1);\n                    }\n                }\n            }\n          "
+-                "  @if (!%s) {\n                if (x_t <= 0.0) {\n                    v = -1.0;\n "
+-                "               }\n            }\n            @if (%s) {\n                @if (%s) "
+-                "{\n                    t = x_t;\n                } else {\n                    t "
+-                "= x_t + float(fx);\n                }\n            } else {\n                @if "
+-                "(%s) {\n              ",
++                " // end scoped block\n                     else { // begin scoped block\n         "
++                "               x_t = sqrt(temp) - p.x * float(invR1);\n                    } // "
++                "end scoped block\n\n                } // end scoped block\n\n            } // end "
++                "scoped block\n\n            @if (!%s) { // begin scoped block\n                if "
++                "(x_t <= 0.0) { // begin scoped block\n                    v = -1.0;\n             "
++                "   } // end scoped block\n\n            } // end scoped block\n\n            @if "
++                "(%s) { // begin scoped ",
+                 (_outer.isWellBehaved ? "true" : "false"),
+-                (_outer.isRadiusIncreasing ? "true" : "false"),
++                (_outer.isRadiusIncreasing ? "true" : "false"));
++        fragBuilder->codeAppendf(
++                "block\n                @if (%s) { // begin scoped block\n                    t = "
++                "x_t;\n                } // end scoped block\n                 else { // begin "
++                "scoped block\n                    t = x_t + float(fx);\n                } // end "
++                "scoped block\n\n            } // end scoped block\n             else { // begin "
++                "scoped block\n                @if (%s) { // begin scoped block\n                  "
++                "  t = -x_t;\n                } // end scoped block\n                 else { // "
++                "begin scoped block\n           ",
+                 (_outer.isNativelyFocal ? "true" : "false"),
+                 (_outer.isNativelyFocal ? "true" : "false"));
+         fragBuilder->codeAppendf(
+-                "      t = -x_t;\n                } else {\n                    t = -x_t + "
+-                "float(fx);\n                }\n            }\n            @if (%s) {\n            "
+-                "    t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = "
+-                "half4(half(t), v, 0.0, 0.0);\n",
++                "         t = -x_t + float(fx);\n                } // end scoped block\n\n         "
++                "   } // end scoped block\n\n            @if (%s) { // begin scoped block\n        "
++                "        t = 1.0 - t;\n            } // end scoped block\n\n        } // end "
++                "scoped block\n\n        break;\n}\n%s = half4(half(t), v, 0.0, 0.0);\n",
+                 (_outer.isSwapped ? "true" : "false"), args.fOutputColor);
+     }
+ 
+diff --git a/src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp b/src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp
+index 3f5c5aca95..e87c0d5467 100644
+--- a/src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp
++++ b/src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp
+@@ -127,13 +127,13 @@ public:
+         thresholds9_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                              kHalf4_GrSLType, "thresholds9_13");
+         fragBuilder->codeAppendf(
+-                "half t = %s.x;\nfloat4 scale, bias;\nif (%d <= 4 || t < %s.w) {\n    if (%d <= 2 "
+-                "|| t < %s.y) {\n        if (%d <= 1 || t < %s.x) {\n            scale = %s;\n     "
+-                "       bias = %s;\n        } else {\n            scale = %s;\n            bias = "
+-                "%s;\n        }\n    } else {\n        if (%d <= 3 || t < %s.z) {\n            "
+-                "scale = %s;\n            bias = %s;\n        } else {\n            scale = %s;\n  "
+-                "          bias = %s;\n        }\n    }\n} else {\n    if (%d <= 6 || t < %s.y) "
+-                "{\n        if (%d <= 5 || t <",
++                "half t = %s.x;\nfloat4 scale, bias;\nif (%d <= 4 || t < %s.w) { // begin scoped "
++                "block\n    if (%d <= 2 || t < %s.y) { // begin scoped block\n        if (%d <= 1 "
++                "|| t < %s.x) { // begin scoped block\n            scale = %s;\n            bias = "
++                "%s;\n        } // end scoped block\n         else { // begin scoped block\n       "
++                "     scale = %s;\n            bias = %s;\n        } // end scoped block\n\n    } "
++                "// end scoped block\n     else { // begin scoped block\n        if (%d <= 3 || t "
++                "< %s.z) { // begin scoped",
+                 args.fInputColor, _outer.intervalCount,
+                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
+                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
+@@ -144,7 +144,15 @@ public:
+                                       : "float4(0)",
+                 bias2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(bias2_3Var)
+                                      : "float4(0)",
+-                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds1_7Var),
++                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds1_7Var));
++        fragBuilder->codeAppendf(
++                " block\n            scale = %s;\n            bias = %s;\n        } // end scoped "
++                "block\n         else { // begin scoped block\n            scale = %s;\n           "
++                " bias = %s;\n        } // end scoped block\n\n    } // end scoped block\n\n} // "
++                "end scoped block\n else { // begin scoped block\n    if (%d <= 6 || t < %s.y) { "
++                "// begin scoped block\n        if (%d <= 5 || t < %s.x) { // begin scoped block\n "
++                "           scale = %s;\n            bias = %s;\n        } // end scoped block\n   "
++                "      else { // begin sco",
+                 scale4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(scale4_5Var)
+                                       : "float4(0)",
+                 bias4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(bias4_5Var)
+@@ -154,18 +162,19 @@ public:
+                 bias6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(bias6_7Var)
+                                      : "float4(0)",
+                 _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+-                _outer.intervalCount);
+-        fragBuilder->codeAppendf(
+-                " %s.x) {\n            scale = %s;\n            bias = %s;\n        } else {\n     "
+-                "       scale = %s;\n            bias = %s;\n        }\n    } else {\n        if "
+-                "(%d <= 7 || t < %s.z) {\n            scale = %s;\n            bias = %s;\n        "
+-                "} else {\n            scale = %s;\n            bias = %s;\n        }\n    "
+-                "}\n}\n%s = half4(float(t) * scale + bias);\n",
+-                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
++                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                 scale8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(scale8_9Var)
+                                       : "float4(0)",
+                 bias8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(bias8_9Var)
+-                                     : "float4(0)",
++                                     : "float4(0)");
++        fragBuilder->codeAppendf(
++                "ped block\n            scale = %s;\n            bias = %s;\n        } // end "
++                "scoped block\n\n    } // end scoped block\n     else { // begin scoped block\n    "
++                "    if (%d <= 7 || t < %s.z) { // begin scoped block\n            scale = %s;\n   "
++                "         bias = %s;\n        } // end scoped block\n         else { // begin "
++                "scoped block\n            scale = %s;\n            bias = %s;\n        } // end "
++                "scoped block\n\n    } // end scoped block\n\n} // end scoped block\n\n%s = "
++                "half4(float(t) * scale + bias);\n",
+                 scale10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(scale10_11Var)
+                                         : "float4(0)",
+                 bias10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(bias10_11Var)
+diff --git a/src/sksl/SkSLASTNode.cpp b/src/sksl/SkSLASTNode.cpp
+index 7c5a2033a0..a74d5ab338 100644
+--- a/src/sksl/SkSLASTNode.cpp
++++ b/src/sksl/SkSLASTNode.cpp
+@@ -34,7 +34,7 @@ String ASTNode::description() const {
+             return "break";
+         case Kind::kCall: {
+             auto iter = this->begin();
+-            String result = iter->description();
++            String result = (iter++)->description();
+             result += "(";
+             const char* separator = "";
+             while (iter != this->end()) {
+@@ -230,6 +230,11 @@ String ASTNode::description() const {
+             }
+             return result;
+         }
++        case Kind::kWhile: {
++            return "while (" + this->begin()->description() + ") " +
++                   (this->begin() + 1)->description();
++
++        }
+         default:
+             SkASSERT(false);
+             return "<error>";
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index 9ac276a9e1..f9e91b43a7 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -803,8 +803,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
+                 var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
+                 (*undefinedVariables).insert(&var);
+-                this->error(expr->fOffset,
+-                            "'" + var.fName + "' has not been assigned");
++//                this->error(expr->fOffset,
++  //                          "'" + var.fName + "' has not been assigned");
+             }
+             break;
+         }
+@@ -1554,6 +1554,7 @@ bool Compiler::toGLSL(Program& program, String* out) {
+     StringStream buffer;
+     bool result = this->toGLSL(program, buffer);
+     if (result) {
++        printf("%s\n", buffer.str().c_str());
+         *out = buffer.str();
+     }
+     return result;
+diff --git a/src/sksl/SkSLContext.h b/src/sksl/SkSLContext.h
+index eb7659a072..39968d42bf 100644
+--- a/src/sksl/SkSLContext.h
++++ b/src/sksl/SkSLContext.h
+@@ -400,6 +400,11 @@ private:
+             return "<defined>";
+         }
+ 
++        int nodeCount() const override {
++            SkASSERT(false);
++            return 1;
++        }
++
+         std::unique_ptr<Expression> clone() const override {
+             return std::unique_ptr<Expression>(new Defined(fType));
+         }
+diff --git a/src/sksl/SkSLGLSLCodeGenerator.cpp b/src/sksl/SkSLGLSLCodeGenerator.cpp
+index e21c32c2c2..cc4b4d436e 100644
+--- a/src/sksl/SkSLGLSLCodeGenerator.cpp
++++ b/src/sksl/SkSLGLSLCodeGenerator.cpp
+@@ -1521,11 +1521,19 @@ void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statem
+ }
+ 
+ void GLSLCodeGenerator::writeBlock(const Block& b) {
+-    this->writeLine("{");
+-    fIndentation++;
++    if (b.fIsScope) {
++        this->writeLine("{ // begin scoped block");
++        fIndentation++;
++    } else {
++        this->writeLine("// begin UNSCOPED block");
++    }
+     this->writeStatements(b.fStatements);
+-    fIndentation--;
+-    this->write("}");
++    if (b.fIsScope) {
++        fIndentation--;
++        this->writeLine("} // end scoped block");
++    } else {
++        this->writeLine("// end UNSCOPED block");
++    }
+ }
+ 
+ void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
+diff --git a/src/sksl/SkSLIRGenerator.cpp b/src/sksl/SkSLIRGenerator.cpp
+index 5ab04abbaa..e6785579e6 100644
+--- a/src/sksl/SkSLIRGenerator.cpp
++++ b/src/sksl/SkSLIRGenerator.cpp
+@@ -182,7 +182,7 @@ void IRGenerator::finish() {
+     fSettings = nullptr;
+ }
+ 
+-std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
++std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& statement) {
+     switch (statement.fKind) {
+         case ASTNode::Kind::kBlock:
+             return this->convertBlock(statement);
+@@ -228,6 +228,24 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
+     }
+ }
+ 
++std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
++    std::vector<std::unique_ptr<Statement>> oldExtraStatements = std::move(fExtraStatements);
++    std::unique_ptr<Statement> result = this->convertSingleStatement(statement);
++    if (!result) {
++        fExtraStatements = std::move(oldExtraStatements);
++        return nullptr;
++    }
++    if (fExtraStatements.size()) {
++        fExtraStatements.push_back(std::move(result));
++        std::unique_ptr<Statement> block(new Block(-1, std::move(fExtraStatements), nullptr,
++                                                   false));
++        fExtraStatements = std::move(oldExtraStatements);
++        return block;
++    }
++    fExtraStatements = std::move(oldExtraStatements);
++    return result;
++}
++
+ std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
+     SkASSERT(block.fKind == ASTNode::Kind::kBlock);
+     AutoSymbolTable table(this);
+@@ -799,7 +817,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
+                                                                     pd.fModifiers,
+                                                                     name,
+                                                                     *type,
+-                                                                    Variable::kParameter_Storage)));
++                                                                    Variable::kParameter_Storage,
++                                                                    i)));
+         parameters.push_back(var);
+     }
+ 
+@@ -884,7 +903,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
+                             return;
+                         }
+                     }
+-                    if (other->fDefined && !other->fBuiltin) {
++                    if (other->fDefinition && !other->fBuiltin) {
+                         fErrors.error(f.fOffset, "duplicate definition of " +
+                                                  other->declaration());
+                     }
+@@ -907,7 +926,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
+         // compile body
+         SkASSERT(!fCurrentFunction);
+         fCurrentFunction = decl;
+-        decl->fDefined = true;
+         std::shared_ptr<SymbolTable> old = fSymbolTable;
+         AutoSymbolTable table(this);
+         if (fd.fName == "main" && fKind == Program::kPipelineStage_Kind) {
+@@ -940,6 +958,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
+         }
+         std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(f.fOffset, *decl,
+                                                                           std::move(body)));
++        decl->fDefinition = result.get();
+         result->fSource = &f;
+         fProgramElements->push_back(std::move(result));
+     }
+@@ -1099,7 +1118,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
+         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
+         ++currentValue;
+         auto var = std::unique_ptr<Variable>(new Variable(e.fOffset, modifiers, child.getString(),
+-                                                          *type, Variable::kGlobal_Storage,
++                                                          *type, Variable::kGlobal_Storage, -1,
+                                                           value.get()));
+         variables.push_back(var.get());
+         symbols->add(child.getString(), std::move(var));
+@@ -1811,6 +1830,272 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
+                                                              std::move(ifFalse)));
+ }
+ 
++std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
++                                                          std::map<const Variable*,
++                                                                   const Variable*>* varMap,
++                                                          const Expression& expression) {
++    auto expr = [&](const std::unique_ptr<Expression>& e) {
++        if (e) {
++            return this->inlineExpression(offset, varMap, *e);
++        }
++        return std::unique_ptr<Expression>(nullptr);
++    };
++    switch (expression.fKind) {
++        case Expression::kBinary_Kind: {
++            const BinaryExpression& b = (const BinaryExpression&) expression;
++            return std::unique_ptr<Expression>(new BinaryExpression(offset,
++                                                                    expr(b.fLeft),
++                                                                    b.fOperator,
++                                                                    expr(b.fRight),
++                                                                    b.fType));
++        }
++        case Expression::kBoolLiteral_Kind:
++        case Expression::kIntLiteral_Kind:
++        case Expression::kFloatLiteral_Kind:
++        case Expression::kNullLiteral_Kind:
++            return expression.clone();
++        case Expression::kConstructor_Kind: {
++            const Constructor& c = (const Constructor&) expression;
++            std::vector<std::unique_ptr<Expression>> args;
++            for (const auto& arg : c.fArguments) {
++                args.push_back(expr(arg));
++            }
++            return std::unique_ptr<Expression>(new Constructor(offset, c.fType, std::move(args)));
++        }
++        case Expression::kExternalFunctionCall_Kind:
++        case Expression::kExternalValue_Kind:
++            abort();
++        case Expression::kFieldAccess_Kind:
++            printf("unsupported expression %s\n", expression.description().c_str());
++            abort();
++        case Expression::kFunctionReference_Kind:
++            printf("unsupported expression %s\n", expression.description().c_str());
++            abort();
++        case Expression::kFunctionCall_Kind: {
++            const FunctionCall& c = (const FunctionCall&) expression;
++            std::vector<std::unique_ptr<Expression>> args;
++            for (const auto& arg : c.fArguments) {
++                args.push_back(expr(arg));
++            }
++            return std::unique_ptr<Expression>(new FunctionCall(offset, c.fType, c.fFunction,
++                                                                std::move(args)));
++        }
++        case Expression::kIndex_Kind: {
++            const IndexExpression& idx = (const IndexExpression&) expression;
++            return std::unique_ptr<Expression>(new IndexExpression(fContext, expr(idx.fBase),
++                                                                   expr(idx.fIndex)));
++        }
++        case Expression::kPrefix_Kind: {
++            const PrefixExpression& p = (const PrefixExpression&) expression;
++            return std::unique_ptr<Expression>(new PrefixExpression(p.fOperator, expr(p.fOperand)));
++        }
++        case Expression::kPostfix_Kind:
++            printf("unsupported expression %s\n", expression.description().c_str());
++            abort();
++        case Expression::kSetting_Kind:
++            return expression.clone();
++        case Expression::kSwizzle_Kind: {
++            const Swizzle& s = (const Swizzle&) expression;
++            return std::unique_ptr<Expression>(new Swizzle(fContext, expr(s.fBase), s.fComponents));
++        }
++        case Expression::kTernary_Kind: {
++            const TernaryExpression& t = (const TernaryExpression&) expression;
++            return std::unique_ptr<Expression>(new TernaryExpression(offset, expr(t.fTest),
++                                                                     expr(t.fIfTrue),
++                                                                     expr(t.fIfFalse)));
++        }
++        case Expression::kVariableReference_Kind: {
++            const VariableReference& v = (const VariableReference&) expression;
++            auto found = varMap->find(&v.fVariable);
++            if (found != varMap->end()) {
++                return std::unique_ptr<Expression>(new VariableReference(offset,
++                                                                         *found->second,
++                                                                         v.fRefKind));
++            }
++            return v.clone();
++        }
++        case Expression::kTypeReference_Kind:
++        case Expression::kDefined_Kind:
++            SkASSERT(false);
++            return nullptr;
++    }
++}
++
++std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
++                                                        std::map<const Variable*,
++                                                                 const Variable*>* varMap,
++                                                        const Variable& returnVar,
++                                                        const Statement& statement) {
++    auto stmt = [&](const std::unique_ptr<Statement>& s) {
++        if (s) {
++            return this->inlineStatement(offset, varMap, returnVar, *s);
++        }
++        return std::unique_ptr<Statement>(nullptr);
++    };
++    auto stmts = [&](const std::vector<std::unique_ptr<Statement>>& ss) {
++        std::vector<std::unique_ptr<Statement>> result;
++        for (const auto& s : ss) {
++            result.push_back(stmt(s));
++        }
++        return result;
++    };
++    auto expr = [&](const std::unique_ptr<Expression>& e) {
++        if (e) {
++            return this->inlineExpression(offset, varMap, *e);
++        }
++        return std::unique_ptr<Expression>(nullptr);
++    };
++    switch (statement.fKind) {
++        case Statement::kBlock_Kind: {
++            const Block& b = (const Block&) statement;
++            return std::unique_ptr<Statement>(new Block(offset, stmts(b.fStatements), b.fSymbols,
++                                                        b.fIsScope));
++        }
++        case Statement::kBreak_Kind:
++            return statement.clone();
++        case Statement::kContinue_Kind:
++            return statement.clone();
++        case Statement::kDiscard_Kind:
++            return statement.clone();
++        case Statement::kDo_Kind: {
++            const DoStatement& d = (const DoStatement&) statement;
++            return std::unique_ptr<Statement>(new DoStatement(offset,
++                                                              stmt(d.fStatement),
++                                                              expr(d.fTest)));
++        }
++        case Statement::kExpression_Kind: {
++            const ExpressionStatement& e = (const ExpressionStatement&) statement;
++            return std::unique_ptr<Statement>(new ExpressionStatement(expr(e.fExpression)));
++        }
++        case Statement::kFor_Kind: {
++            const ForStatement& f = (const ForStatement&) statement;
++            return std::unique_ptr<Statement>(new ForStatement(offset, stmt(f.fInitializer),
++                                                               expr(f.fTest), expr(f.fNext),
++                                                               stmt(f.fStatement), f.fSymbols));
++        }
++        case Statement::kIf_Kind: {
++            const IfStatement& i = (const IfStatement&) statement;
++            return std::unique_ptr<Statement>(new IfStatement(offset, i.fIsStatic, expr(i.fTest),
++                                                               stmt(i.fIfTrue), stmt(i.fIfFalse)));
++        }
++        case Statement::kNop_Kind:
++            return statement.clone();
++        case Statement::kReturn_Kind: {
++            const ReturnStatement& r = (const ReturnStatement&) statement;
++            if (r.fExpression) {
++                std::vector<std::unique_ptr<Statement>> block;
++                block.emplace_back(new ExpressionStatement(
++                                    std::unique_ptr<Expression>(new BinaryExpression(offset,
++                                        std::unique_ptr<Expression>(new VariableReference(
++                                                                offset,
++                                                                returnVar,
++                                                                VariableReference::kWrite_RefKind)),
++                                        Token::Kind::TK_EQ,
++                                        expr(r.fExpression),
++                                        returnVar.fType))));
++                block.emplace_back(new BreakStatement(offset));
++                return std::unique_ptr<Statement>(new Block(offset, std::move(block)));
++            } else {
++                return std::unique_ptr<Statement>(new BreakStatement(offset));
++            }
++        }
++        case Statement::kSwitch_Kind: {
++            const SwitchStatement& ss = (const SwitchStatement&) statement;
++            std::vector<std::unique_ptr<SwitchCase>> cases;
++            for (const auto& sc : ss.fCases) {
++                cases.emplace_back(new SwitchCase(offset, expr(sc->fValue),
++                                                  stmts(sc->fStatements)));
++            }
++            return std::unique_ptr<Statement>(new SwitchStatement(offset, ss.fIsStatic,
++                                                                  expr(ss.fValue),
++                                                                  std::move(cases),
++                                                                  ss.fSymbols));
++        }
++        case Statement::kVarDeclaration_Kind: {
++            const VarDeclaration& decl = (const VarDeclaration&) statement;
++            std::vector<std::unique_ptr<Expression>> sizes;
++            for (const auto& size : decl.fSizes) {
++                sizes.push_back(expr(size));
++            }
++            std::unique_ptr<Expression> initialValue = expr(decl.fValue);
++            const Variable* old = decl.fVar;
++            Variable* clone = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
++                                                   new Variable(offset, old->fModifiers, old->fName,
++                                                                  old->fType, old->fStorage, -1,
++                                                                  initialValue.get())));
++            (*varMap)[old] = clone;
++            return std::unique_ptr<Statement>(new VarDeclaration(clone, std::move(sizes),
++                                                                 std::move(initialValue)));
++        }
++        case Statement::kVarDeclarations_Kind: {
++            const VarDeclarations& decls = *((VarDeclarationsStatement&) statement).fDeclaration;
++            std::vector<std::unique_ptr<VarDeclaration>> vars;
++            for (const auto& var : decls.fVars) {
++                vars.emplace_back((VarDeclaration*) stmt(var).release());
++            }
++            return std::unique_ptr<Statement>(new VarDeclarationsStatement(
++                    std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, &decls.fBaseType,
++                                                                         std::move(vars)))));
++        }
++        case Statement::kWhile_Kind:
++        default:
++            printf("unsupported statement: %s\n", statement.description().c_str());
++            abort();
++    }
++}
++
++std::unique_ptr<Expression> IRGenerator::inlineCall(
++                                               int offset,
++                                               const FunctionDefinition& function,
++                                               std::vector<std::unique_ptr<Expression>> arguments) {
++    std::vector<std::unique_ptr<Statement>> body;
++    std::unique_ptr<String> name(new String());
++    name->appendf("inlineResult%d", offset);
++    String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
++    Variable* resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
++                                                  new Variable(-1, Modifiers(), namePtr->c_str(),
++                                                               function.fDeclaration.fReturnType,
++                                                               Variable::kLocal_Storage, -1,
++                                                               nullptr)));
++    // FIXME: do we actually need the declaration?
++    std::vector<std::unique_ptr<VarDeclaration>> variables;
++    variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
++    fExtraStatements.emplace_back(new VarDeclarationsStatement(
++                        std::unique_ptr<VarDeclarations>(new VarDeclarations(offset,
++                                                                           &resultVar->fType,
++                                                                           std::move(variables)))));
++
++    std::map<const Variable*, const Variable*> varMap;
++    // create variables to hold the arguments and assign the arguments to them
++    for (int i = 0; i < (int) arguments.size(); ++i) {
++        std::unique_ptr<String> argName(new String());
++        argName->appendf("inlineArg%d_%d", offset, i);
++        String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
++        Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
++                                                      new Variable(-1, Modifiers(),
++                                                                   argNamePtr->c_str(),
++                                                                   arguments[i]->fType,
++                                                                   Variable::kLocal_Storage,
++                                                                   -1,
++                                                                   arguments[i].get())));
++        varMap[function.fDeclaration.fParameters[i]] = argVar;
++        std::vector<std::unique_ptr<VarDeclaration>> vars;
++        vars.emplace_back(new VarDeclaration(argVar, {}, std::move(arguments[i])));
++        fExtraStatements.emplace_back(new VarDeclarationsStatement(
++                           std::unique_ptr<VarDeclarations>(new VarDeclarations(offset,
++                                                                                &argVar->fType,
++                                                                                std::move(vars)))));
++    }
++    for (const auto& s : ((Block&) *function.fBody).fStatements) {
++        body.push_back(this->inlineStatement(offset, &varMap, *resultVar, *s));
++    }
++    fExtraStatements.emplace_back(new ForStatement(-1, nullptr, nullptr, nullptr,
++                                         std::unique_ptr<Statement>(new Block(-1, std::move(body))),
++                                         nullptr));
++    return std::unique_ptr<Expression>(new VariableReference(-1, *resultVar));
++}
++
++
+ std::unique_ptr<Expression> IRGenerator::call(int offset,
+                                               const FunctionDeclaration& function,
+                                               std::vector<std::unique_ptr<Expression>> arguments) {
+@@ -1835,7 +2120,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
+         fErrors.error(offset, msg);
+         return nullptr;
+     }
+-    if (fKind == Program::kPipelineStage_Kind && !function.fDefined && !function.fBuiltin) {
++    if (fKind == Program::kPipelineStage_Kind && !function.fDefinition && !function.fBuiltin) {
+         String msg = "call to undefined function '" + function.fName + "'";
+         fErrors.error(offset, msg);
+         return nullptr;
+@@ -1866,6 +2151,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
+                              VariableReference::kPointer_RefKind);
+         }
+     }
++    if (function.fDefinition && function.fDefinition->canBeInlined()) {
++        return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
++    }
+     return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
+                                                           std::move(arguments)));
+ }
+diff --git a/src/sksl/SkSLIRGenerator.h b/src/sksl/SkSLIRGenerator.h
+index 51381e0c3a..7602952018 100644
+--- a/src/sksl/SkSLIRGenerator.h
++++ b/src/sksl/SkSLIRGenerator.h
+@@ -83,11 +83,21 @@ private:
+     std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTNode& decl,
+                                                             Variable::Storage storage);
+     void convertFunction(const ASTNode& f);
++    std::unique_ptr<Statement> convertSingleStatement(const ASTNode& statement);
+     std::unique_ptr<Statement> convertStatement(const ASTNode& statement);
+     std::unique_ptr<Expression> convertExpression(const ASTNode& expression);
+     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
+ 
+     const Type* convertType(const ASTNode& type);
++    std::unique_ptr<Expression> inlineExpression(int offset,
++                                                 std::map<const Variable*, const Variable*>* varMap,
++                                                 const Expression& expression);
++    std::unique_ptr<Statement> inlineStatement(int offset,
++                                               std::map<const Variable*, const Variable*>* varMap,
++                                               const Variable& returnVar,
++                                               const Statement& statement);
++    std::unique_ptr<Expression> inlineCall(int offset, const FunctionDefinition& function,
++                                           std::vector<std::unique_ptr<Expression>> arguments);
+     std::unique_ptr<Expression> call(int offset,
+                                      const FunctionDeclaration& function,
+                                      std::vector<std::unique_ptr<Expression>> arguments);
+@@ -156,6 +166,9 @@ private:
+     std::unordered_map<String, Program::Settings::Value> fCapsMap;
+     std::shared_ptr<SymbolTable> fRootSymbolTable;
+     std::shared_ptr<SymbolTable> fSymbolTable;
++    // additional statements that need to be inserted before the one that convertStatement is
++    // currently working on
++    std::vector<std::unique_ptr<Statement>> fExtraStatements;
+     // Symbols which have definitions in the include files. The bool tells us whether this
+     // intrinsic has been included already.
+     std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
+diff --git a/src/sksl/SkSLSectionAndParameterHelper.cpp b/src/sksl/SkSLSectionAndParameterHelper.cpp
+index a897386811..6d99548c7b 100644
+--- a/src/sksl/SkSLSectionAndParameterHelper.cpp
++++ b/src/sksl/SkSLSectionAndParameterHelper.cpp
+@@ -199,9 +199,9 @@ bool SectionAndParameterHelper::hasCoordOverrides(const Statement& s, const Vari
+         }
+         case Statement::kFor_Kind: {
+             const ForStatement& f = (const ForStatement&) s;
+-            return this->hasCoordOverrides(*f.fInitializer, fp) ||
+-                   this->hasCoordOverrides(*f.fTest, fp) ||
+-                   this->hasCoordOverrides(*f.fNext, fp) ||
++            return (f.fInitializer ? this->hasCoordOverrides(*f.fInitializer, fp) : 0) ||
++                   (f.fTest        ? this->hasCoordOverrides(*f.fTest, fp)        : 0) ||
++                   (f.fNext        ? this->hasCoordOverrides(*f.fNext, fp)        : 0) ||
+                    this->hasCoordOverrides(*f.fStatement, fp);
+         }
+         case Statement::kWhile_Kind: {
+@@ -228,7 +228,6 @@ bool SectionAndParameterHelper::hasCoordOverrides(const Statement& s, const Vari
+         case Statement::kBreak_Kind:
+         case Statement::kContinue_Kind:
+         case Statement::kDiscard_Kind:
+-        case Statement::kGroup_Kind:
+         case Statement::kNop_Kind:
+             return false;
+     }
+@@ -321,6 +320,13 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Expression& e, const Var
+     return SampleMatrix();
+ }
+ 
++SampleMatrix SectionAndParameterHelper::getMatrix(const Expression* e, const Variable& fp) {
++    if (e) {
++        return this->getMatrix(*e, fp);
++    }
++    return SampleMatrix();
++}
++
+ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Variable& fp) {
+     switch (s.fKind) {
+         case Statement::kBlock_Kind: {
+@@ -361,9 +367,9 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Vari
+         }
+         case Statement::kFor_Kind: {
+             const ForStatement& f = (const ForStatement&) s;
+-            return this->getMatrix(*f.fInitializer, fp).merge(
+-                   this->getMatrix(*f.fTest, fp).merge(
+-                   this->getMatrix(*f.fNext, fp).merge(
++            return this->getMatrix(f.fInitializer.get(), fp).merge(
++                   this->getMatrix(f.fTest.get(), fp).merge(
++                   this->getMatrix(f.fNext.get(), fp).merge(
+                    this->getMatrix(*f.fStatement, fp))));
+         }
+         case Statement::kWhile_Kind: {
+@@ -387,7 +393,6 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Vari
+         case Statement::kBreak_Kind:
+         case Statement::kContinue_Kind:
+         case Statement::kDiscard_Kind:
+-        case Statement::kGroup_Kind:
+         case Statement::kNop_Kind:
+             return SampleMatrix();
+     }
+@@ -395,4 +400,12 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Vari
+     return SampleMatrix();
+ }
+ 
++SampleMatrix SectionAndParameterHelper::getMatrix(const Statement* s, const Variable& fp) {
++    if (s) {
++        return this->getMatrix(*s, fp);
++    }
++    return SampleMatrix();
++}
++
++
+ }
+diff --git a/src/sksl/SkSLSectionAndParameterHelper.h b/src/sksl/SkSLSectionAndParameterHelper.h
+index d52302aabd..4bc7a47193 100644
+--- a/src/sksl/SkSLSectionAndParameterHelper.h
++++ b/src/sksl/SkSLSectionAndParameterHelper.h
+@@ -122,6 +122,10 @@ private:
+ 
+     SampleMatrix getMatrix(const Expression& e, const Variable& fp);
+ 
++    SampleMatrix getMatrix(const Statement* s, const Variable& fp);
++
++    SampleMatrix getMatrix(const Expression* e, const Variable& fp);
++
+     SampleMatrix getMatrix(const ProgramElement& p, const Variable& fp);
+ 
+     const Program& fProgram;
+diff --git a/src/sksl/ir/SkSLBinaryExpression.h b/src/sksl/ir/SkSLBinaryExpression.h
+index 9fc8683e95..f4a48e94df 100644
+--- a/src/sksl/ir/SkSLBinaryExpression.h
++++ b/src/sksl/ir/SkSLBinaryExpression.h
+@@ -45,6 +45,10 @@ struct BinaryExpression : public Expression {
+         return fLeft->hasProperty(property) || fRight->hasProperty(property);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fLeft->nodeCount() + fRight->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
+                                                                 fRight->clone(), fType));
+diff --git a/src/sksl/ir/SkSLBlock.h b/src/sksl/ir/SkSLBlock.h
+index 8a4449a01c..030cc8d94d 100644
+--- a/src/sksl/ir/SkSLBlock.h
++++ b/src/sksl/ir/SkSLBlock.h
+@@ -18,10 +18,11 @@ namespace SkSL {
+  */
+ struct Block : public Statement {
+     Block(int offset, std::vector<std::unique_ptr<Statement>> statements,
+-          const std::shared_ptr<SymbolTable> symbols = nullptr)
++          const std::shared_ptr<SymbolTable> symbols = nullptr, bool isScope = true)
+     : INHERITED(offset, kBlock_Kind)
+     , fSymbols(std::move(symbols))
+-    , fStatements(std::move(statements)) {}
++    , fStatements(std::move(statements))
++    , fIsScope(isScope) {}
+ 
+     bool isEmpty() const override {
+         for (const auto& s : fStatements) {
+@@ -32,12 +33,21 @@ struct Block : public Statement {
+         return true;
+     }
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& s : fStatements) {
++            result += s->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         std::vector<std::unique_ptr<Statement>> cloned;
+         for (const auto& s : fStatements) {
+             cloned.push_back(s->clone());
+         }
+-        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols));
++        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols,
++                                                    fIsScope));
+     }
+ 
+     String description() const override {
+@@ -54,6 +64,10 @@ struct Block : public Statement {
+     // because destroying statements can modify reference counts in symbols
+     const std::shared_ptr<SymbolTable> fSymbols;
+     std::vector<std::unique_ptr<Statement>> fStatements;
++    // if isScope is false, this is just a group of statements rather than an actual language-level
++    // block. This allows us to pass around multiple statements as if they were a single unit, with
++    // no semantic impact.    
++    bool fIsScope;
+ 
+     typedef Statement INHERITED;
+ };
+diff --git a/src/sksl/ir/SkSLBoolLiteral.h b/src/sksl/ir/SkSLBoolLiteral.h
+index 74f48ad9b3..85dd8c5d0b 100644
+--- a/src/sksl/ir/SkSLBoolLiteral.h
++++ b/src/sksl/ir/SkSLBoolLiteral.h
+@@ -38,6 +38,10 @@ struct BoolLiteral : public Expression {
+         return fValue == b.fValue;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
+     }
+diff --git a/src/sksl/ir/SkSLBreakStatement.h b/src/sksl/ir/SkSLBreakStatement.h
+index ae0c1987e9..daedece915 100644
+--- a/src/sksl/ir/SkSLBreakStatement.h
++++ b/src/sksl/ir/SkSLBreakStatement.h
+@@ -20,6 +20,10 @@ struct BreakStatement : public Statement {
+     BreakStatement(int offset)
+     : INHERITED(offset, kBreak_Kind) {}
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new BreakStatement(fOffset));
+     }
+diff --git a/src/sksl/ir/SkSLConstructor.h b/src/sksl/ir/SkSLConstructor.h
+index 524a6ad643..cdd6f84a94 100644
+--- a/src/sksl/ir/SkSLConstructor.h
++++ b/src/sksl/ir/SkSLConstructor.h
+@@ -59,6 +59,14 @@ struct Constructor : public Expression {
+         return false;
+     }
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& a : fArguments) {
++            result += a->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         std::vector<std::unique_ptr<Expression>> cloned;
+         for (const auto& arg : fArguments) {
+diff --git a/src/sksl/ir/SkSLContinueStatement.h b/src/sksl/ir/SkSLContinueStatement.h
+index ecd9c3f497..1e01ac8e0e 100644
+--- a/src/sksl/ir/SkSLContinueStatement.h
++++ b/src/sksl/ir/SkSLContinueStatement.h
+@@ -20,6 +20,10 @@ struct ContinueStatement : public Statement {
+     ContinueStatement(int offset)
+     : INHERITED(offset, kContinue_Kind) {}
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new ContinueStatement(fOffset));
+     }
+diff --git a/src/sksl/ir/SkSLDiscardStatement.h b/src/sksl/ir/SkSLDiscardStatement.h
+index 40f625c178..8cc7e3feec 100644
+--- a/src/sksl/ir/SkSLDiscardStatement.h
++++ b/src/sksl/ir/SkSLDiscardStatement.h
+@@ -20,6 +20,10 @@ struct DiscardStatement : public Statement {
+     DiscardStatement(int offset)
+     : INHERITED(offset, kDiscard_Kind) {}
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new DiscardStatement(fOffset));
+     }
+diff --git a/src/sksl/ir/SkSLDoStatement.h b/src/sksl/ir/SkSLDoStatement.h
+index 5cab5c8bcd..474aac7839 100644
+--- a/src/sksl/ir/SkSLDoStatement.h
++++ b/src/sksl/ir/SkSLDoStatement.h
+@@ -23,6 +23,10 @@ struct DoStatement : public Statement {
+     , fStatement(std::move(statement))
+     , fTest(std::move(test)) {}
+ 
++    int nodeCount() const override {
++        return 1 + fStatement->nodeCount() + fTest->nodeCount();
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
+                                                           fTest->clone()));
+diff --git a/src/sksl/ir/SkSLExpressionStatement.h b/src/sksl/ir/SkSLExpressionStatement.h
+index 80a8d316c7..b7cda1f599 100644
+--- a/src/sksl/ir/SkSLExpressionStatement.h
++++ b/src/sksl/ir/SkSLExpressionStatement.h
+@@ -21,6 +21,10 @@ struct ExpressionStatement : public Statement {
+     : INHERITED(expression->fOffset, kExpression_Kind)
+     , fExpression(std::move(expression)) {}
+ 
++    int nodeCount() const override {
++        return fExpression->nodeCount();
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new ExpressionStatement(fExpression->clone()));
+     }
+diff --git a/src/sksl/ir/SkSLExternalFunctionCall.h b/src/sksl/ir/SkSLExternalFunctionCall.h
+index deb1f4d5cd..bf70561a5d 100644
+--- a/src/sksl/ir/SkSLExternalFunctionCall.h
++++ b/src/sksl/ir/SkSLExternalFunctionCall.h
+@@ -36,6 +36,14 @@ struct ExternalFunctionCall : public Expression {
+         return false;
+     }
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& a : fArguments) {
++            result += a->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         std::vector<std::unique_ptr<Expression>> cloned;
+         for (const auto& arg : fArguments) {
+diff --git a/src/sksl/ir/SkSLExternalValueReference.h b/src/sksl/ir/SkSLExternalValueReference.h
+index aa0ec181ed..868c6c9bae 100644
+--- a/src/sksl/ir/SkSLExternalValueReference.h
++++ b/src/sksl/ir/SkSLExternalValueReference.h
+@@ -25,6 +25,10 @@ struct ExternalValueReference : public Expression {
+         return property == Property::kSideEffects;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     String description() const override {
+         return String(fValue->fName);
+     }
+diff --git a/src/sksl/ir/SkSLFieldAccess.h b/src/sksl/ir/SkSLFieldAccess.h
+index 59f4c166a1..6cba566340 100644
+--- a/src/sksl/ir/SkSLFieldAccess.h
++++ b/src/sksl/ir/SkSLFieldAccess.h
+@@ -35,6 +35,10 @@ struct FieldAccess : public Expression {
+         return fBase->hasProperty(property);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fBase->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
+                                                            fOwnerKind));
+diff --git a/src/sksl/ir/SkSLFloatLiteral.h b/src/sksl/ir/SkSLFloatLiteral.h
+index 79f5dcf701..9d81771994 100644
+--- a/src/sksl/ir/SkSLFloatLiteral.h
++++ b/src/sksl/ir/SkSLFloatLiteral.h
+@@ -53,6 +53,10 @@ struct FloatLiteral : public Expression {
+         return fValue;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
+     }
+diff --git a/src/sksl/ir/SkSLForStatement.h b/src/sksl/ir/SkSLForStatement.h
+index 4906e192a6..29c61bffa7 100644
+--- a/src/sksl/ir/SkSLForStatement.h
++++ b/src/sksl/ir/SkSLForStatement.h
+@@ -28,16 +28,36 @@ struct ForStatement : public Statement {
+     , fNext(std::move(next))
+     , fStatement(std::move(statement)) {}
+ 
++    int nodeCount() const override {
++        int result = 1;
++        if (fInitializer) {
++            result += fInitializer->nodeCount();
++        }
++        if (fTest) {
++            result += fTest->nodeCount();
++        }
++        if (fNext) {
++            result += fNext->nodeCount();
++        }
++        result += fStatement->nodeCount();
++        return result;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+-        return std::unique_ptr<Statement>(new ForStatement(fOffset, fInitializer->clone(),
+-                                                           fTest->clone(), fNext->clone(),
+-                                                           fStatement->clone(), fSymbols));
++        return std::unique_ptr<Statement>(new ForStatement(fOffset,
++                                                     fInitializer ? fInitializer->clone() : nullptr,
++                                                     fTest ? fTest->clone() : nullptr,
++                                                     fNext ? fNext->clone() : nullptr,
++                                                     fStatement->clone(),
++                                                     fSymbols));
+     }
+ 
+     String description() const override {
+         String result("for (");
+         if (fInitializer) {
+             result += fInitializer->description();
++        } else {
++            result += ";";
+         }
+         result += " ";
+         if (fTest) {
+diff --git a/src/sksl/ir/SkSLFunctionCall.h b/src/sksl/ir/SkSLFunctionCall.h
+index 296aa0b3ef..f575879de6 100644
+--- a/src/sksl/ir/SkSLFunctionCall.h
++++ b/src/sksl/ir/SkSLFunctionCall.h
+@@ -36,6 +36,14 @@ struct FunctionCall : public Expression {
+         return false;
+     }
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& a : fArguments) {
++            result += a->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         std::vector<std::unique_ptr<Expression>> cloned;
+         for (const auto& arg : fArguments) {
+diff --git a/src/sksl/ir/SkSLFunctionDeclaration.h b/src/sksl/ir/SkSLFunctionDeclaration.h
+index dffb9a3c98..006e016fa8 100644
+--- a/src/sksl/ir/SkSLFunctionDeclaration.h
++++ b/src/sksl/ir/SkSLFunctionDeclaration.h
+@@ -17,6 +17,8 @@
+ 
+ namespace SkSL {
+ 
++struct FunctionDefinition;
++
+ /**
+  * A function declaration (not a definition -- does not contain a body).
+  */
+@@ -24,7 +26,7 @@ struct FunctionDeclaration : public Symbol {
+     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
+                         std::vector<const Variable*> parameters, const Type& returnType)
+     : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
+-    , fDefined(false)
++    , fDefinition(nullptr)
+     , fBuiltin(false)
+     , fModifiers(modifiers)
+     , fParameters(std::move(parameters))
+@@ -107,7 +109,7 @@ struct FunctionDeclaration : public Symbol {
+         return true;
+     }
+ 
+-    mutable bool fDefined;
++    mutable FunctionDefinition* fDefinition;
+     bool fBuiltin;
+     Modifiers fModifiers;
+     const std::vector<const Variable*> fParameters;
+diff --git a/src/sksl/ir/SkSLFunctionDefinition.h b/src/sksl/ir/SkSLFunctionDefinition.h
+index 511a0f8c20..db3e83e0df 100644
+--- a/src/sksl/ir/SkSLFunctionDefinition.h
++++ b/src/sksl/ir/SkSLFunctionDefinition.h
+@@ -26,6 +26,11 @@ struct FunctionDefinition : public ProgramElement {
+     , fDeclaration(declaration)
+     , fBody(std::move(body)) {}
+ 
++    bool canBeInlined() const {
++        static const int INLINE_THRESHOLD = 50; // chosen arbitrarily
++        return fBody->nodeCount() < INLINE_THRESHOLD;
++    }
++
+     std::unique_ptr<ProgramElement> clone() const override {
+         return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
+                                                                       fBody->clone()));
+diff --git a/src/sksl/ir/SkSLIRNode.h b/src/sksl/ir/SkSLIRNode.h
+index ca9ea99998..cace825fe7 100644
+--- a/src/sksl/ir/SkSLIRNode.h
++++ b/src/sksl/ir/SkSLIRNode.h
+@@ -23,6 +23,12 @@ struct IRNode {
+ 
+     virtual ~IRNode() {}
+ 
++    virtual int nodeCount() const {
++        SkASSERT(false);
++        return 1;
++    }
++
++
+     virtual String description() const = 0;
+ 
+     // character offset of this element within the program being compiled, for error reporting
+diff --git a/src/sksl/ir/SkSLIfStatement.h b/src/sksl/ir/SkSLIfStatement.h
+index 5d0a22b647..6af6740b0f 100644
+--- a/src/sksl/ir/SkSLIfStatement.h
++++ b/src/sksl/ir/SkSLIfStatement.h
+@@ -25,6 +25,11 @@ struct IfStatement : public Statement {
+     , fIfTrue(std::move(ifTrue))
+     , fIfFalse(std::move(ifFalse)) {}
+ 
++    int nodeCount() const override {
++        return 1 + fTest->nodeCount() + fIfTrue->nodeCount() +
++               (fIfFalse ? fIfFalse->nodeCount() : 0);
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
+                 fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
+diff --git a/src/sksl/ir/SkSLIndexExpression.h b/src/sksl/ir/SkSLIndexExpression.h
+index 2b3a3a93d5..2018881354 100644
+--- a/src/sksl/ir/SkSLIndexExpression.h
++++ b/src/sksl/ir/SkSLIndexExpression.h
+@@ -62,6 +62,10 @@ struct IndexExpression : public Expression {
+         return fBase->hasProperty(property) || fIndex->hasProperty(property);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fBase->nodeCount() + fIndex->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
+                                                                &fType));
+diff --git a/src/sksl/ir/SkSLIntLiteral.h b/src/sksl/ir/SkSLIntLiteral.h
+index 6c686e135b..4977fbf0b8 100644
+--- a/src/sksl/ir/SkSLIntLiteral.h
++++ b/src/sksl/ir/SkSLIntLiteral.h
+@@ -56,6 +56,10 @@ struct IntLiteral : public Expression {
+         return fValue;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
+     }
+diff --git a/src/sksl/ir/SkSLNop.h b/src/sksl/ir/SkSLNop.h
+index 2ead371f87..787060d8b4 100644
+--- a/src/sksl/ir/SkSLNop.h
++++ b/src/sksl/ir/SkSLNop.h
+@@ -28,6 +28,10 @@ struct Nop : public Statement {
+         return String(";");
+     }
+ 
++    int nodeCount() const override {
++        return 0;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new Nop());
+     }
+diff --git a/src/sksl/ir/SkSLNullLiteral.h b/src/sksl/ir/SkSLNullLiteral.h
+index d04fc5cb20..0d04b77e22 100644
+--- a/src/sksl/ir/SkSLNullLiteral.h
++++ b/src/sksl/ir/SkSLNullLiteral.h
+@@ -39,6 +39,10 @@ struct NullLiteral : public Expression {
+         return true;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
+     }
+diff --git a/src/sksl/ir/SkSLPostfixExpression.h b/src/sksl/ir/SkSLPostfixExpression.h
+index d95f687e37..c6f89eb2d6 100644
+--- a/src/sksl/ir/SkSLPostfixExpression.h
++++ b/src/sksl/ir/SkSLPostfixExpression.h
+@@ -30,6 +30,10 @@ struct PostfixExpression : public Expression {
+         return fOperand->hasProperty(property);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fOperand->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new PostfixExpression(fOperand->clone(), fOperator));
+     }
+diff --git a/src/sksl/ir/SkSLPrefixExpression.h b/src/sksl/ir/SkSLPrefixExpression.h
+index 76f144b7fb..ab0363ec66 100644
+--- a/src/sksl/ir/SkSLPrefixExpression.h
++++ b/src/sksl/ir/SkSLPrefixExpression.h
+@@ -64,6 +64,10 @@ struct PrefixExpression : public Expression {
+         return -fOperand->getMatComponent(col, row);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fOperand->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
+     }
+diff --git a/src/sksl/ir/SkSLReturnStatement.h b/src/sksl/ir/SkSLReturnStatement.h
+index e61fa36c74..82b4678106 100644
+--- a/src/sksl/ir/SkSLReturnStatement.h
++++ b/src/sksl/ir/SkSLReturnStatement.h
+@@ -24,6 +24,10 @@ struct ReturnStatement : public Statement {
+     : INHERITED(expression->fOffset, kReturn_Kind)
+     , fExpression(std::move(expression)) {}
+ 
++    int nodeCount() const override {
++        return 1 + fExpression->nodeCount();
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         if (fExpression) {
+             return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
+diff --git a/src/sksl/ir/SkSLSetting.h b/src/sksl/ir/SkSLSetting.h
+index a47b42be91..9a69802b57 100644
+--- a/src/sksl/ir/SkSLSetting.h
++++ b/src/sksl/ir/SkSLSetting.h
+@@ -28,6 +28,10 @@ struct Setting : public Expression {
+     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                   const DefinitionMap& definitions) override;
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
+     }
+diff --git a/src/sksl/ir/SkSLStatement.h b/src/sksl/ir/SkSLStatement.h
+index ed8d33b142..2260cdd5a4 100644
+--- a/src/sksl/ir/SkSLStatement.h
++++ b/src/sksl/ir/SkSLStatement.h
+@@ -25,7 +25,6 @@ struct Statement : public IRNode {
+         kDo_Kind,
+         kExpression_Kind,
+         kFor_Kind,
+-        kGroup_Kind,
+         kIf_Kind,
+         kNop_Kind,
+         kReturn_Kind,
+diff --git a/src/sksl/ir/SkSLSwitchCase.h b/src/sksl/ir/SkSLSwitchCase.h
+index b1ddb012ec..dcfe956426 100644
+--- a/src/sksl/ir/SkSLSwitchCase.h
++++ b/src/sksl/ir/SkSLSwitchCase.h
+@@ -23,6 +23,17 @@ struct SwitchCase : public Statement {
+     , fValue(std::move(value))
+     , fStatements(std::move(statements)) {}
+ 
++    int nodeCount() const override {
++        int result = 1;
++        if (fValue) {
++            result += fValue->nodeCount();
++        }
++        for (const auto& s : fStatements) {
++            result += s->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         std::vector<std::unique_ptr<Statement>> cloned;
+         for (const auto& s : fStatements) {
+diff --git a/src/sksl/ir/SkSLSwitchStatement.h b/src/sksl/ir/SkSLSwitchStatement.h
+index 0777c5c5c6..a85420a695 100644
+--- a/src/sksl/ir/SkSLSwitchStatement.h
++++ b/src/sksl/ir/SkSLSwitchStatement.h
+@@ -28,6 +28,14 @@ struct SwitchStatement : public Statement {
+     , fSymbols(std::move(symbols))
+     , fCases(std::move(cases)) {}
+ 
++    int nodeCount() const override {
++        int result = 1 + fValue->nodeCount();
++        for (const auto& c : fCases) {
++            result += c->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         std::vector<std::unique_ptr<SwitchCase>> cloned;
+         for (const auto& s : fCases) {
+diff --git a/src/sksl/ir/SkSLSwizzle.h b/src/sksl/ir/SkSLSwizzle.h
+index 3428f287fa..59ff04cb8e 100644
+--- a/src/sksl/ir/SkSLSwizzle.h
++++ b/src/sksl/ir/SkSLSwizzle.h
+@@ -136,6 +136,10 @@ struct Swizzle : public Expression {
+         return fBase->hasProperty(property);
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fBase->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
+     }
+diff --git a/src/sksl/ir/SkSLSymbol.h b/src/sksl/ir/SkSLSymbol.h
+index 4ee4d3d90d..df606b88c4 100644
+--- a/src/sksl/ir/SkSLSymbol.h
++++ b/src/sksl/ir/SkSLSymbol.h
+@@ -30,7 +30,7 @@ struct Symbol : public IRNode {
+     , fKind(kind)
+     , fName(name) {}
+ 
+-    virtual ~Symbol() {}
++    virtual ~Symbol() override {}
+ 
+     Kind fKind;
+     StringFragment fName;
+diff --git a/src/sksl/ir/SkSLSymbolTable.cpp b/src/sksl/ir/SkSLSymbolTable.cpp
+index ed2cb4d565..9af584c22b 100644
+--- a/src/sksl/ir/SkSLSymbolTable.cpp
++++ b/src/sksl/ir/SkSLSymbolTable.cpp
+@@ -72,6 +72,12 @@ IRNode* SymbolTable::takeOwnership(std::unique_ptr<IRNode> n) {
+     return result;
+ }
+ 
++String* SymbolTable::takeOwnership(std::unique_ptr<String> n) {
++    String* result = n.get();
++    fOwnedStrings.push_back(std::move(n));
++    return result;
++}
++
+ void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
+     this->addWithoutOwnership(name, symbol.get());
+     this->takeOwnership(std::move(symbol));
+@@ -114,7 +120,7 @@ void SymbolTable::markAllFunctionsBuiltin() {
+                 break;
+             case Symbol::kUnresolvedFunction_Kind:
+                 for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
+-                    if (!((FunctionDeclaration*)f)->fDefined) {
++                    if (!((FunctionDeclaration*)f)->fDefinition) {
+                         ((FunctionDeclaration*)f)->fBuiltin = true;
+                     }
+                 }
+diff --git a/src/sksl/ir/SkSLSymbolTable.h b/src/sksl/ir/SkSLSymbolTable.h
+index 6969ba5e08..a3f89e2288 100644
+--- a/src/sksl/ir/SkSLSymbolTable.h
++++ b/src/sksl/ir/SkSLSymbolTable.h
+@@ -41,6 +41,8 @@ public:
+ 
+     IRNode* takeOwnership(std::unique_ptr<IRNode> n);
+ 
++    String* takeOwnership(std::unique_ptr<String> n);
++
+     void markAllFunctionsBuiltin();
+ 
+     std::unordered_map<StringFragment, const Symbol*>::iterator begin();
+@@ -56,6 +58,8 @@ private:
+ 
+     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
+ 
++    std::vector<std::unique_ptr<String>> fOwnedStrings;
++
+     std::unordered_map<StringFragment, const Symbol*> fSymbols;
+ 
+     ErrorReporter& fErrorReporter;
+diff --git a/src/sksl/ir/SkSLTernaryExpression.h b/src/sksl/ir/SkSLTernaryExpression.h
+index 80dcb8fada..9786357bda 100644
+--- a/src/sksl/ir/SkSLTernaryExpression.h
++++ b/src/sksl/ir/SkSLTernaryExpression.h
+@@ -36,6 +36,10 @@ struct TernaryExpression : public Expression {
+                fIfFalse->isConstantOrUniform();
+     }
+ 
++    int nodeCount() const override {
++        return fTest->nodeCount() + fIfTrue->nodeCount() + fIfFalse->nodeCount();
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
+                                                                  fIfTrue->clone(),
+diff --git a/src/sksl/ir/SkSLVarDeclarations.h b/src/sksl/ir/SkSLVarDeclarations.h
+index 82dbd8616d..86aafdb3db 100644
+--- a/src/sksl/ir/SkSLVarDeclarations.h
++++ b/src/sksl/ir/SkSLVarDeclarations.h
+@@ -29,6 +29,19 @@ struct VarDeclaration : public Statement {
+     , fSizes(std::move(sizes))
+     , fValue(std::move(value)) {}
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& s : fSizes) {
++            if (s) {
++                result += s->nodeCount();
++            }
++        }
++        if (fValue) {
++            result += fValue->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         std::vector<std::unique_ptr<Expression>> sizesClone;
+         for (const auto& s : fSizes) {
+@@ -77,6 +90,14 @@ struct VarDeclarations : public ProgramElement {
+         }
+     }
+ 
++    int nodeCount() const override {
++        int result = 1;
++        for (const auto& v : fVars) {
++            result += v->nodeCount();
++        }
++        return result;
++    }
++
+     std::unique_ptr<ProgramElement> clone() const override {
+         std::vector<std::unique_ptr<VarDeclaration>> cloned;
+         for (const auto& v : fVars) {
+@@ -91,8 +112,15 @@ struct VarDeclarations : public ProgramElement {
+         if (!fVars.size()) {
+             return String();
+         }
+-        String result = ((VarDeclaration&) *fVars[0]).fVar->fModifiers.description() +
+-                fBaseType.description() + " ";
++        String result;
++        for (const auto& var : fVars) {
++            if (var->fKind != Statement::kNop_Kind) {
++                SkASSERT(var->fKind == Statement::kVarDeclaration_Kind);
++                result = ((const VarDeclaration&) *var).fVar->fModifiers.description();
++                break;
++            }
++        }
++        result += fBaseType.description() + " ";
+         String separator;
+         for (const auto& var : fVars) {
+             result += separator;
+diff --git a/src/sksl/ir/SkSLVarDeclarationsStatement.h b/src/sksl/ir/SkSLVarDeclarationsStatement.h
+index 465b691936..eb7880f310 100644
+--- a/src/sksl/ir/SkSLVarDeclarationsStatement.h
++++ b/src/sksl/ir/SkSLVarDeclarationsStatement.h
+@@ -30,6 +30,10 @@ struct VarDeclarationsStatement : public Statement {
+         return true;
+     }
+ 
++    int nodeCount() const override {
++        return 1 + fDeclaration->nodeCount();
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         std::unique_ptr<VarDeclarations> cloned((VarDeclarations*) fDeclaration->clone().release());
+         return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));
+diff --git a/src/sksl/ir/SkSLVariable.h b/src/sksl/ir/SkSLVariable.h
+index a82cda70ab..65d95b4c05 100644
+--- a/src/sksl/ir/SkSLVariable.h
++++ b/src/sksl/ir/SkSLVariable.h
+@@ -31,11 +31,12 @@ struct Variable : public Symbol {
+     };
+ 
+     Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
+-             Storage storage, Expression* initialValue = nullptr)
++             Storage storage, int parameterSlot = -1, Expression* initialValue = nullptr)
+     : INHERITED(offset, kVariable_Kind, name)
+     , fModifiers(modifiers)
+     , fType(type)
+     , fStorage(storage)
++    , fParameterSlot(parameterSlot)
+     , fInitialValue(initialValue)
+     , fReadCount(0)
+     , fWriteCount(initialValue ? 1 : 0) {}
+@@ -66,6 +67,7 @@ struct Variable : public Symbol {
+     mutable Modifiers fModifiers;
+     const Type& fType;
+     const Storage fStorage;
++    const int fParameterSlot;
+ 
+     Expression* fInitialValue = nullptr;
+ 
+diff --git a/src/sksl/ir/SkSLVariableReference.h b/src/sksl/ir/SkSLVariableReference.h
+index 5d962b9ff2..c6751441dd 100644
+--- a/src/sksl/ir/SkSLVariableReference.h
++++ b/src/sksl/ir/SkSLVariableReference.h
+@@ -62,6 +62,10 @@ struct VariableReference : public Expression {
+         return (fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
+     }
+ 
++    int nodeCount() const override {
++        return 1;
++    }
++
+     std::unique_ptr<Expression> clone() const override {
+         return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
+     }
+diff --git a/src/sksl/ir/SkSLWhileStatement.h b/src/sksl/ir/SkSLWhileStatement.h
+index 8e311a090a..0782a01899 100644
+--- a/src/sksl/ir/SkSLWhileStatement.h
++++ b/src/sksl/ir/SkSLWhileStatement.h
+@@ -23,6 +23,10 @@ struct WhileStatement : public Statement {
+     , fTest(std::move(test))
+     , fStatement(std::move(statement)) {}
+ 
++    int nodeCount() const override {
++        return 1 + fTest->nodeCount() + fStatement->nodeCount();
++    }
++
+     std::unique_ptr<Statement> clone() const override {
+         return std::unique_ptr<Statement>(new WhileStatement(fOffset, fTest->clone(),
+                                                              fStatement->clone()));
+-- 
+2.26.2.761.g0e0b3e54be-goog
+
