@@ -73,7 +73,8 @@ public:
      */
     const GrUniqueKey& getUniqueKey() const {
 #ifdef SK_DEBUG
-        if (this->isInstantiated() && fUniqueKey.isValid() && fSyncTargetKey) {
+        if (this->isInstantiated() && fUniqueKey.isValid() && fSyncTargetKey &&
+            !fCreatedByDDLProvider) {
             GrSurface* surface = this->peekSurface();
             SkASSERT(surface);
 
@@ -116,7 +117,8 @@ protected:
                    SkBudgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
-                   UseAllocator);
+                   UseAllocator,
+                   bool createdByDDLProvider);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -137,15 +139,19 @@ protected:
                    SkBudgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
-                   UseAllocator);
+                   UseAllocator,
+                   bool createdByDDLProvider);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, UseAllocator);
+    GrTextureProxy(sk_sp<GrSurface>, UseAllocator, bool createdByDDLProvider);
 
     ~GrTextureProxy() override;
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
+    // By default uniqueKeys are propagated from a textureProxy to its backing GrTexture.
+    // Setting syncTargetKey to false disables this behavior and only keeps the unique key
+    // on the proxy.
     void setTargetKeySync(bool sync) { fSyncTargetKey = sync; }
 
 private:
@@ -172,6 +178,12 @@ private:
     SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus;)
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
+
+    // For GrTextureProxies created in a DDL recording thread it is possible for the uniqueKey
+    // to be cleared on the backing GrTexture while the uniqueKey remains on the proxy.
+    // Setting the fCreatedByDDLProvider flag loosens up asserts that the key of an instantiated
+    // uniquely-keyed textureProxy is also always set on the backing GrTexture.
+    bool             fCreatedByDDLProvider = false;
 
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
