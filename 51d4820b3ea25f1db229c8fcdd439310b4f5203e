@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f609379f_db34115e",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-15T21:05:28Z",
+      "side": 1,
+      "message": "Might be good to make this an\n\nenum class Direction : uint8_t { Forward, Reverse };\n\nIn any event, it\u0027s hard to see at the call sites what the boolean is doing. I suppose that goes for directional_for_each and all users of it. It would also make the name of this parameter \u0027direction\u0027 which could clarify what is currently a double negative below (the \u0027not reversed\u0027).",
+      "range": {
+        "startLine": 656,
+        "startChar": 51,
+        "endLine": 656,
+        "endChar": 55
+      },
+      "revId": "51d4820b3ea25f1db229c8fcdd439310b4f5203e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
