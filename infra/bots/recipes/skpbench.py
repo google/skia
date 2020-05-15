@@ -67,7 +67,7 @@ def skpbench_steps(api):
     skpbench_args += ['--gpuThreads', '0']
   if '9x9' in api.vars.builder_name:
     skpbench_args += [
-        '--ddlNumRecordingThreads', 9,
+        '--ddlNumAdditionalThreads', 9,
         '--ddlTilingWidthHeight', 3]
   if 'Android' in api.vars.builder_name:
     skpbench_args += [
