@@ -1967,6 +1967,17 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
         }
     }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // Preserve legacy behavior for Android: ignore the SkShader if there are no texCoords present
+    if (paint.getShader() &&
+        !(vertices->priv().hasTexCoords() || vertices->priv().hasCustomData())) {
+        SkPaint noShaderPaint(paint);
+        noShaderPaint.setShader(nullptr);
+        this->onDrawVerticesObject(vertices, mode, noShaderPaint);
+        return;
+    }
+#endif
+
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 

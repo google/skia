@@ -940,12 +940,11 @@ static bool init_vertices_paint(GrContext* context,
                                 const SkPaint& skPaint,
                                 const SkMatrixProvider& matrixProvider,
                                 SkBlendMode bmode,
-                                bool hasTexs,
                                 bool hasColors,
                                 GrPaint* grPaint) {
-    if (hasTexs && skPaint.getShader()) {
+    if (skPaint.getShader()) {
         if (hasColors) {
-            // When there are texs and colors the shader and colors are combined using bmode.
+            // When there are colors and a shader, the shader and colors are combined using bmode.
             return SkPaintToGrPaintWithXfermode(context, colorInfo, skPaint, matrixProvider, bmode,
                                                 grPaint);
         } else {
@@ -954,12 +953,11 @@ static bool init_vertices_paint(GrContext* context,
         }
     } else {
         if (hasColors) {
-            // We have colors, but either have no shader or no texture coords (which implies that
-            // we should ignore the shader).
+            // We have colors, but no shader.
             return SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, matrixProvider,
                                                       grPaint);
         } else {
-            // No colors and no shaders. Just draw with the paint color.
+            // No colors and no shader. Just draw with the paint color.
             return SkPaintToGrPaintNoShader(context, colorInfo, skPaint, matrixProvider, grPaint);
         }
     }
@@ -975,13 +973,9 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     const SkRuntimeEffect* effect =
             paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
 
-    // Pretend that we have tex coords when using custom per-vertex data. The shader is going to
-    // use those (rather than local coords), but our paint conversion remains the same.
     GrPaint grPaint;
-    bool hasColors = info.hasColors();
-    bool hasTexs = info.hasTexCoords() || info.hasCustomData();
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorInfo(), paint,
-                             this->asMatrixProvider(), mode, hasTexs, hasColors, &grPaint)) {
+                             this->asMatrixProvider(), mode, info.hasColors(), &grPaint)) {
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->asMatrixProvider(),
