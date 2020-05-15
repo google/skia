@@ -235,16 +235,20 @@ public:
                                           ShapeCache* shapeCache,
                                           ShapeDataList* shapeList,
                                           bool gammaCorrect,
-                                          const GrUserStencilSettings* stencilSettings) {
+                                          const GrUserStencilSettings* stencilSettings, bool foo) {
         return Helper::FactoryHelper<SmallPathOp>(context, std::move(paint), shape, viewMatrix,
                                                   atlas, shapeCache, shapeList, gammaCorrect,
-                                                  stencilSettings);
+                                                  stencilSettings, foo);
     }
+
+private:
+    friend class GrSimpleMeshDrawOpHelper;
+    friend class GrOpMemoryPool;
 
     SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrStyledShape& shape,
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
-                const GrUserStencilSettings* stencilSettings)
+                const GrUserStencilSettings* stencilSettings, bool)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         SkASSERT(shape.hasUnstyledKey());
@@ -268,6 +272,7 @@ public:
         fGammaCorrect = gammaCorrect;
     }
 
+public:
     const char* name() const override { return "SmallPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -884,7 +889,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     std::unique_ptr<GrDrawOp> op = SmallPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix, fAtlas.get(),
-            &fShapeCache, &fShapeList, args.fGammaCorrect, args.fUserStencilSettings);
+            &fShapeCache, &fShapeList, args.fGammaCorrect, args.fUserStencilSettings, true);
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
 
     return true;
@@ -946,7 +951,7 @@ std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
 
     return GrSmallPathRenderer::SmallPathOp::Make(context, std::move(paint), shape, viewMatrix,
                                                   atlas, shapeCache, shapeList, gammaCorrect,
-                                                  stencil);
+                                                  stencil, true);
 
 }
 

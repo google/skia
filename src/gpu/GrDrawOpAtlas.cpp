@@ -126,7 +126,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* gener
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
         , fGenerationCounter(generationCounter)
-        , fGenID(fGenerationCounter->next())
+        , fGenID(fGenerationCounter->next1())
         , fPlotLocator(fPageIndex, fPlotIndex, fGenID)
         , fData(nullptr)
         , fWidth(width)
@@ -221,7 +221,7 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
 void GrDrawOpAtlas::Plot::resetRects() {
     fRectanizer.reset();
 
-    fGenID = fGenerationCounter->next();
+    fGenID = fGenerationCounter->next1();
     fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = GrDeferredUploadToken::AlreadyFlushedToken();
     fLastUse = GrDeferredUploadToken::AlreadyFlushedToken();
@@ -248,7 +248,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(
         , fPlotWidth(plotWidth)
         , fPlotHeight(plotHeight)
         , fGenerationCounter(generationCounter)
-        , fAtlasGeneration(fGenerationCounter->next())
+        , fAtlasGeneration(fGenerationCounter->next1())
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
@@ -269,7 +269,7 @@ inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
         evictor->evict(plotLocator);
     }
 
-    fAtlasGeneration = fGenerationCounter->next();
+    fAtlasGeneration = fGenerationCounter->next1();
 }
 
 inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,

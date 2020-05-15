@@ -146,7 +146,7 @@ public:
     class GenerationCounter {
     public:
         static constexpr uint64_t kInvalidGeneration = 0;
-        uint64_t next() {
+        uint64_t next1() {
             return fGeneration++;
         }
 
