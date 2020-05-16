@@ -242,14 +242,13 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
 
     contentRect->offset(-rtcToSrcOffset);
 
+    // FIXME handle the fullscreen clear here.
     if (!top.isEmpty()) {
-        dstRenderTargetContext->clear(&top, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kYes);
+        dstRenderTargetContext->priv().clearAtleast(top, SK_PMColor4fTRANSPARENT);
     }
 
     if (!bottom.isEmpty()) {
-        dstRenderTargetContext->clear(&bottom, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kYes);
+        dstRenderTargetContext->priv().clearAtleast(bottom, SK_PMColor4fTRANSPARENT);
     }
 
     if (mid.isEmpty()) {

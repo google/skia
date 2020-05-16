@@ -753,7 +753,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     // clear the part that we care about.
     SkPMColor4f initialCoverage =
         InitialState::kAllIn == this->initialState() ? SK_PMColor4fWHITE : SK_PMColor4fTRANSPARENT;
-    rtc->priv().clear(clip, initialCoverage, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->priv().clearAtleast(clip.scissorRect(), initialCoverage);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
     SkMatrix translate;

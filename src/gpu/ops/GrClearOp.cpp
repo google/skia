@@ -17,45 +17,22 @@
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const GrScissorState& scissor,
                                            const SkPMColor4f& color,
-                                           GrSurfaceProxy* dstProxy) {
+                                           const GrSurfaceProxy* dstProxy) {
     const SkIRect rect = SkIRect::MakeSize(dstProxy->dimensions());
     if (scissor.enabled() && !SkIRect::Intersects(scissor.rect(), rect)) {
         return nullptr;
     }
 
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
     return pool->allocate<GrClearOp>(scissor, color, dstProxy);
 }
 
-std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
-                                           const SkIRect& rect,
-                                           const SkPMColor4f& color,
-                                           bool fullScreen) {
-    SkASSERT(fullScreen || !rect.isEmpty());
-
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-    return pool->allocate<GrClearOp>(rect, color, fullScreen);
-}
-
-GrClearOp::GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color, GrSurfaceProxy* proxy)
+GrClearOp::GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color,
+                     const GrSurfaceProxy* proxy)
         : INHERITED(ClassID())
         , fScissor(scissor)
         , fColor(color) {
-    const SkIRect rtRect = SkIRect::MakeSize(proxy->dimensions());
-    if (fScissor.enabled()) {
-        // Don't let scissors extend outside the RT. This may improve op combining.
-        if (!fScissor.intersect(rtRect)) {
-            SkASSERT(0);  // should be caught upstream
-            fScissor.set(SkIRect::MakeEmpty());
-        }
-
-        if (proxy->isFunctionallyExact() && fScissor.rect() == rtRect) {
-            fScissor.setDisabled();
-        }
-    }
-    this->setBounds(SkRect::Make(fScissor.enabled() ? fScissor.rect() : rtRect),
+    this->setBounds(scissor.enabled() ? SkRect::Make(scissor.rect()) : proxy->getBoundsRect(),
                     HasAABloat::kNo, IsHairline::kNo);
 }
 
