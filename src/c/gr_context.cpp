@@ -108,6 +108,10 @@ const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_
     return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeAssembledGLESInterface(ctx, get).release()), nullptr);
 }
 
+const gr_glinterface_t* gr_glinterface_assemble_webgl_interface(void* ctx, gr_gl_get_proc get) {
+    return SK_ONLY_GPU(ToGrGLInterface(GrGLMakeAssembledWebGLInterface(ctx, get).release()), nullptr);
+}
+
 void gr_glinterface_unref(const gr_glinterface_t* glInterface) {
     SK_ONLY_GPU(SkSafeUnref(AsGrGLInterface(glInterface)));
 }
