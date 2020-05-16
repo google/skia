@@ -28,8 +28,6 @@ GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps) : fAt
 
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
-    // This class should not have been added to the chain without tessellation support.
-    SkASSERT(args.fCaps->shaderCaps()->tessellationSupport());
     if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective()) {
         return CanDrawPath::kNo;
@@ -54,6 +52,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
+#if 1
     // See if the path is small and simple enough to atlas instead of drawing directly.
     //
     // NOTE: The atlas uses alpha8 coverage even for msaa render targets. We could theoretically
@@ -69,6 +68,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         renderTargetContext->addDrawOp(*args.fClip, std::move(op));
         return true;
     }
+#endif
 
     auto op = pool->allocate<GrTessellatePathOp>(
             *args.fViewMatrix, path, std::move(args.fPaint), args.fAAType);
