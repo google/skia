@@ -62,6 +62,22 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
+// Entry point just for the SkAtlasTextTarget
+std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> GrAtlasTextOp::Geometry::textTargetCreateVertexData(
+        int offset, int count) const {
+    std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> data{new GrTextBlob::Mask3DVertex[count][4]};
+
+    fSubRunPtr->fillTextTargetVertexData(data.get(), offset, count, fColor.toBytes_RGBA(),
+                                         fDrawOrigin);
+
+    return data;
+}
+
+void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
+    fSubRunPtr->fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
+                               fDrawMatrix, fDrawOrigin, fClipRect);
+}
+
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
                                                          GrPaint&& paint,
                                                          GrTextBlob::SubRun* subrun,
@@ -193,113 +209,6 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
     return analysis;
 }
 
-static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* blobVertices,
-                       size_t vertexStride, int glyphCount) {
-    for (int i = 0; i < glyphCount; ++i) {
-        const SkPoint* blobPositionLT = reinterpret_cast<const SkPoint*>(blobVertices);
-        const SkPoint* blobPositionRB =
-                reinterpret_cast<const SkPoint*>(blobVertices + 3 * vertexStride);
-
-        // positions for bitmap glyphs are pixel boundary aligned
-        SkIRect positionRect = SkIRect::MakeLTRB(SkScalarRoundToInt(blobPositionLT->fX),
-                                                 SkScalarRoundToInt(blobPositionLT->fY),
-                                                 SkScalarRoundToInt(blobPositionRB->fX),
-                                                 SkScalarRoundToInt(blobPositionRB->fY));
-        if (clipRect.contains(positionRect)) {
-            memcpy(currVertex, blobVertices, 4 * vertexStride);
-            currVertex += 4 * vertexStride;
-        } else {
-            // Pull out some more data that we'll need.
-            // In the LCD case the color will be garbage, but we'll overwrite it with the texcoords
-            // and it avoids a lot of conditionals.
-            auto color = *reinterpret_cast<const SkColor*>(blobVertices + sizeof(SkPoint));
-            size_t coordOffset = vertexStride - 2*sizeof(uint16_t);
-            auto* blobCoordsLT = reinterpret_cast<const uint16_t*>(blobVertices + coordOffset);
-            auto* blobCoordsRB = reinterpret_cast<const uint16_t*>(blobVertices + 3 * vertexStride +
-                                                                   coordOffset);
-            // Pull out the texel coordinates and texture index bits
-            uint16_t coordsRectL = blobCoordsLT[0];
-            uint16_t coordsRectT = blobCoordsLT[1];
-            uint16_t coordsRectR = blobCoordsRB[0];
-            uint16_t coordsRectB = blobCoordsRB[1];
-            int index0, index1;
-            std::tie(coordsRectL, coordsRectT, index0) =
-                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectL, coordsRectT);
-            std::tie(coordsRectR, coordsRectB, index1) =
-                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectR, coordsRectB);
-            SkASSERT(index0 == index1);
-
-            int positionRectWidth = positionRect.width();
-            int positionRectHeight = positionRect.height();
-            SkASSERT(positionRectWidth == (coordsRectR - coordsRectL));
-            SkASSERT(positionRectHeight == (coordsRectB - coordsRectT));
-
-            // Clip position and texCoords to the clipRect
-            unsigned int delta;
-            delta = std::min(std::max(clipRect.fLeft - positionRect.fLeft, 0), positionRectWidth);
-            coordsRectL += delta;
-            positionRect.fLeft += delta;
-
-            delta = std::min(std::max(clipRect.fTop - positionRect.fTop, 0), positionRectHeight);
-            coordsRectT += delta;
-            positionRect.fTop += delta;
-
-            delta = std::min(std::max(positionRect.fRight - clipRect.fRight, 0), positionRectWidth);
-            coordsRectR -= delta;
-            positionRect.fRight -= delta;
-
-            delta = std::min(std::max(positionRect.fBottom - clipRect.fBottom, 0), positionRectHeight);
-            coordsRectB -= delta;
-            positionRect.fBottom -= delta;
-
-            // Repack texel coordinates and index
-            std::tie(coordsRectL, coordsRectT) =
-                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectL, coordsRectT, index0);
-            std::tie(coordsRectR, coordsRectB) =
-                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectR, coordsRectB, index1);
-
-            // Set new positions and coords
-            SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fLeft;
-            currPosition->fY = positionRect.fTop;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            uint16_t* currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectL;
-            currCoords[1] = coordsRectT;
-            currVertex += vertexStride;
-
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fLeft;
-            currPosition->fY = positionRect.fBottom;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectL;
-            currCoords[1] = coordsRectB;
-            currVertex += vertexStride;
-
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fRight;
-            currPosition->fY = positionRect.fTop;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectR;
-            currCoords[1] = coordsRectT;
-            currVertex += vertexStride;
-
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fRight;
-            currPosition->fY = positionRect.fBottom;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectR;
-            currCoords[1] = coordsRectB;
-            currVertex += vertexStride;
-        }
-
-        blobVertices += 4 * vertexStride;
-    }
-}
-
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto resourceProvider = target->resourceProvider();
 
@@ -381,8 +290,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         SkASSERT((int)subRun->vertexStride() == vertexStride);
 
         subRun->prepareGrGlyphs(target->strikeCache());
-        subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
-        subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
 
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun,
@@ -409,39 +316,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             // Update all the vertices for glyphsRegenerate glyphs.
             if (glyphsRegenerated > 0) {
                 int quadBufferIndex = totalGlyphsRegened - quadBufferBegin;
-                int subRunIndex = totalGlyphsRegened - subRunBegin;
                 auto regeneratedQuadBuffer =
                         SkTAddOffset<char>(vertices, subRun->quadOffset(quadBufferIndex));
-                if (args.fClipRect.isEmpty()) {
-                    memcpy(regeneratedQuadBuffer,
-                           subRun->quadStart(subRunIndex),
-                           glyphsRegenerated * quadSize);
-                } else {
-                    SkASSERT(!vmPerspective);
-                    clip_quads(args.fClipRect,
-                               regeneratedQuadBuffer,
-                               subRun->quadStart(subRunIndex),
-                               vertexStride,
-                               glyphsRegenerated);
-                }
-                if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
-                    // We always do the distance field view matrix transformation after copying
-                    // rather than during blob vertex generation time in the blob as handling
-                    // successive arbitrary transformations would be complicated and accumulate
-                    // error.
-                    if (args.fDrawMatrix.hasPerspective()) {
-                        auto* pos = reinterpret_cast<SkPoint3*>(regeneratedQuadBuffer);
-                        SkMatrixPriv::MapHomogeneousPointsWithStride(
-                                args.fDrawMatrix, pos,
-                                vertexStride, pos,
-                                vertexStride,
-                                glyphsRegenerated * kVerticesPerGlyph);
-                    } else {
-                        auto* pos = reinterpret_cast<SkPoint*>(regeneratedQuadBuffer);
-                        SkMatrixPriv::MapPointsWithStride(args.fDrawMatrix, pos, vertexStride,
-                                                          glyphsRegenerated * kVerticesPerGlyph);
-                    }
-                }
+                int subRunIndex = totalGlyphsRegened - subRunBegin;
+                args.fillVertexData(regeneratedQuadBuffer, subRunIndex, glyphsRegenerated);
             }
 
             totalGlyphsRegened += glyphsRegenerated;
