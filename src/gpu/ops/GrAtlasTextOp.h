@@ -34,6 +34,9 @@ public:
         SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
+        std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> textTargetCreateVertexData(
+                int offset, int count) const;
+        void fillVertexData(void* dst, int offset, int count) const;
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext* context,
