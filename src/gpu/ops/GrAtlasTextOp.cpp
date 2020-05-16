@@ -43,7 +43,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
         , fDFGPFlags{DFGPFlags}
         , fGeoDataAllocSize{kMinGeometryAllocated}
         , fProcessors{std::move(paint)}
-        , fNumGlyphs{SkTo<int>(subrun->fGlyphs.size())} {
+        , fNumGlyphs{subrun->glyphCount()} {
     GrAtlasTextOp::Geometry& geometry = fGeoData[0];
 
     // Unref handled in ~GrAtlasTextOp().
@@ -390,7 +390,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
-        int subRunEnd = subRunBegin + subRun->fGlyphs.count();
+        int subRunEnd = subRunBegin + subRun->glyphCount();
 
         // Draw all the glyphs in the subRun.
         while (totalGlyphsRegened < subRunEnd) {
