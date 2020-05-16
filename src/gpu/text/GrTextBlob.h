@@ -351,6 +351,8 @@ public:
     char* quadStart(size_t index) const;
     size_t quadOffset(size_t index) const;
 
+    int glyphCount() const;
+
     void joinGlyphBounds(const SkRect& glyphBounds);
 
     bool drawAsDistanceFields() const;
@@ -382,7 +384,6 @@ public:
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
-    const SkSpan<PackedGlyphIDorGrGlyph> fGlyphs;
     const SkSpan<char> fVertexData;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
@@ -398,13 +399,13 @@ public:
     SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
-
+    const SkSpan<PackedGlyphIDorGrGlyph> fGlyphs;
 private:
+    bool hasW() const;
+
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
     // source space. The bounds are the joined rectangles of all the glyphs.
     SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
-    bool hasW() const;
-
 };  // SubRun
 
 #endif  // GrTextBlob_DEFINED
