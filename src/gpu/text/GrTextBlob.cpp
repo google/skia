@@ -46,12 +46,12 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         : fType{type}
         , fBlob{textBlob}
         , fMaskFormat{format}
-        , fGlyphs{glyphs}
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{0,0}
-        , fCurrentMatrix{textBlob->fInitialMatrix} {
+        , fCurrentMatrix{textBlob->fInitialMatrix}
+        , fGlyphs{glyphs} {
     SkASSERT(type != kTransformedPath);
     textBlob->insertSubRun(this);
 }
@@ -60,11 +60,11 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         : fType{kTransformedPath}
         , fBlob{textBlob}
         , fMaskFormat{kA8_GrMaskFormat}
-        , fGlyphs{SkSpan<PackedGlyphIDorGrGlyph>{}}
         , fVertexData{SkSpan<char>{}}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
-        , fPaths{} {
+        , fPaths{}
+        , fGlyphs{SkSpan<PackedGlyphIDorGrGlyph>{}} {
     textBlob->insertSubRun(this);
 }
 
@@ -175,6 +175,10 @@ char* GrTextBlob::SubRun::quadStart(size_t index) const {
 
 size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
     return index * kVerticesPerGlyph * this->vertexStride();
+}
+
+int GrTextBlob::SubRun::glyphCount() const {
+    return fGlyphs.count();
 }
 
 void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
@@ -306,6 +310,10 @@ SkRect GrTextBlob::SubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOr
         outBounds.roundOut();
     }
     return outBounds;
+}
+
+GrGlyph* GrTextBlob::SubRun::grGlyph(int i) const {
+    return fGlyphs[i].fGrGlyph;
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -544,7 +552,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 }
             }
         } else {
-            int glyphCount = subRun->fGlyphs.count();
+            int glyphCount = subRun->glyphCount();
             if (0 == glyphCount) {
                 continue;
             }
@@ -937,7 +945,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
-        GrGlyph* grGlyph = fSubRun->fGlyphs[i].fGrGlyph;
+        GrGlyph* grGlyph = fSubRun->grGlyph(i);
         SkASSERT(grGlyph);
 
         if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
@@ -974,7 +982,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
         auto [success, glyphsPlacedInAtlas] = this->updateTextureCoordinates(begin, end);
 
         // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == fSubRun->fGlyphs.count()) {
+        if (success && begin + glyphsPlacedInAtlas == fSubRun->glyphCount()) {
             // Need to get the freshest value of the atlas' generation because
             // updateTextureCoordinates may have changed it.
             fSubRun->fAtlasGeneration = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
@@ -982,7 +990,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
         return {success, glyphsPlacedInAtlas};
     } else {
         // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == fSubRun->fGlyphs.count()) {
+        if (end == fSubRun->glyphCount()) {
             // The atlas hasn't changed and the texture coordinates are all still valid. Update
             // all the plots used to the new use token.
             fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
