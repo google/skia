@@ -245,7 +245,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
         GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun, &context, atlasManager);
-        int subRunEnd = subRun->fGlyphs.count();
+        int subRunEnd = subRun->glyphCount();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
             auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
             if (!ok) {
