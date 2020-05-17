@@ -19,48 +19,6 @@ static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
     return prod / denom;
 }
 
-static SkScalar SkScalarDot(int count, const SkScalar a[], int step_a,
-                                       const SkScalar b[], int step_b) {
-    SkScalar prod = 0;
-    for (int i = 0; i < count; i++) {
-        prod += a[0] * b[0];
-        a += step_a;
-        b += step_b;
-    }
-    return prod;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkScalar SkPoint3D::normalize(SkUnit3D* unit) const {
-    SkScalar mag = SkScalarSqrt(fX*fX + fY*fY + fZ*fZ);
-    if (mag) {
-        SkScalar scale = SkScalarInvert(mag);
-        unit->fX = fX * scale;
-        unit->fY = fY * scale;
-        unit->fZ = fZ * scale;
-    } else {
-        unit->fX = unit->fY = unit->fZ = 0;
-    }
-    return mag;
-}
-
-SkScalar SkUnit3D::Dot(const SkUnit3D& a, const SkUnit3D& b) {
-    return a.fX * b.fX + a.fY * b.fY + a.fZ * b.fZ;
-}
-
-void SkUnit3D::Cross(const SkUnit3D& a, const SkUnit3D& b, SkUnit3D* cross) {
-    SkASSERT(cross);
-
-    // use x,y,z, in case &a == cross or &b == cross
-
-    SkScalar x = a.fY * b.fZ - a.fZ * b.fY;
-    SkScalar y = a.fZ * b.fX - a.fX * b.fY;
-    SkScalar z = a.fX * b.fY - a.fY * b.fX;
-
-    cross->set(x, y, z);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPatch3D::SkPatch3D() {
@@ -68,127 +26,27 @@ SkPatch3D::SkPatch3D() {
 }
 
 void SkPatch3D::reset() {
-    fOrigin.set(0, 0, 0);
-    fU.set(SK_Scalar1, 0, 0);
-    fV.set(0, -SK_Scalar1, 0);
+    fOrigin = {0, 0, 0};
+    fU = {SK_Scalar1, 0, 0};
+    fV = {0, -SK_Scalar1, 0};
 }
 
-void SkPatch3D::transform(const SkMatrix3D& m, SkPatch3D* dst) const {
+void SkPatch3D::transform(const SkM44& m, SkPatch3D* dst) const {
     if (dst == nullptr) {
         dst = (SkPatch3D*)this;
     }
-    m.mapVector(fU, &dst->fU);
-    m.mapVector(fV, &dst->fV);
-    m.mapPoint(fOrigin, &dst->fOrigin);
+    dst->fU = m * fU;
+    dst->fV = m * fV;
+    auto [x,y,z,_] = m.map(fOrigin.x, fOrigin.y, fOrigin.z, 1);
+    dst->fOrigin = {x, y, z};
 }
 
 SkScalar SkPatch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
-    SkScalar cx = fU.fY * fV.fZ - fU.fZ * fV.fY;
-    SkScalar cy = fU.fZ * fV.fX - fU.fX * fV.fY;
-    SkScalar cz = fU.fX * fV.fY - fU.fY * fV.fX;
+    SkScalar cx = fU.y * fV.z - fU.z * fV.y;
+    SkScalar cy = fU.z * fV.x - fU.x * fV.y;
+    SkScalar cz = fU.x * fV.y - fU.y * fV.x;
 
     return cx * dx + cy * dy + cz * dz;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkMatrix3D::reset() {
-    memset(fMat, 0, sizeof(fMat));
-    fMat[0][0] = fMat[1][1] = fMat[2][2] = SK_Scalar1;
-}
-
-void SkMatrix3D::setTranslate(SkScalar x, SkScalar y, SkScalar z) {
-    memset(fMat, 0, sizeof(fMat));
-    fMat[0][0] = x;
-    fMat[1][1] = y;
-    fMat[2][2] = z;
-}
-
-void SkMatrix3D::setRotateX(SkScalar degX) {
-    SkScalar r = SkDegreesToRadians(degX),
-             s = SkScalarSin(r),
-             c = SkScalarCos(r);
-    this->setRow(0, SK_Scalar1, 0, 0);
-    this->setRow(1, 0, c, -s);
-    this->setRow(2, 0, s, c);
-}
-
-void SkMatrix3D::setRotateY(SkScalar degY) {
-    SkScalar r = SkDegreesToRadians(degY),
-             s = SkScalarSin(r),
-             c = SkScalarCos(r);
-    this->setRow(0, c, 0, -s);
-    this->setRow(1, 0, SK_Scalar1, 0);
-    this->setRow(2, s, 0, c);
-}
-
-void SkMatrix3D::setRotateZ(SkScalar degZ) {
-    SkScalar r = SkDegreesToRadians(degZ),
-             s = SkScalarSin(r),
-             c = SkScalarCos(r);
-    this->setRow(0, c, -s, 0);
-    this->setRow(1, s, c, 0);
-    this->setRow(2, 0, 0, SK_Scalar1);
-}
-
-void SkMatrix3D::preTranslate(SkScalar x, SkScalar y, SkScalar z) {
-    SkScalar col[3] = { x, y, z};
-
-    for (int i = 0; i < 3; i++) {
-        fMat[i][3] += SkScalarDot(3, &fMat[i][0], 1, col, 1);
-    }
-}
-
-void SkMatrix3D::preRotateX(SkScalar degX) {
-    SkMatrix3D m;
-    m.setRotateX(degX);
-    this->setConcat(*this, m);
-}
-
-void SkMatrix3D::preRotateY(SkScalar degY) {
-    SkMatrix3D m;
-    m.setRotateY(degY);
-    this->setConcat(*this, m);
-}
-
-void SkMatrix3D::preRotateZ(SkScalar degZ) {
-    SkMatrix3D m;
-    m.setRotateZ(degZ);
-    this->setConcat(*this, m);
-}
-
-void SkMatrix3D::setConcat(const SkMatrix3D& a, const SkMatrix3D& b) {
-    SkMatrix3D  tmp;
-    SkMatrix3D* c = this;
-
-    if (this == &a || this == &b) {
-        c = &tmp;
-    }
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            c->fMat[i][j] = SkScalarDot(3, &a.fMat[i][0], 1, &b.fMat[0][j], 4);
-        }
-        c->fMat[i][3] = SkScalarDot(3, &a.fMat[i][0], 1,
-                                    &b.fMat[0][3], 4) + a.fMat[i][3];
-    }
-
-    if (c == &tmp) {
-        *this = tmp;
-    }
-}
-
-void SkMatrix3D::mapPoint(const SkPoint3D& src, SkPoint3D* dst) const {
-    SkScalar x = SkScalarDot(3, &fMat[0][0], 1, &src.fX, 1) + fMat[0][3];
-    SkScalar y = SkScalarDot(3, &fMat[1][0], 1, &src.fX, 1) + fMat[1][3];
-    SkScalar z = SkScalarDot(3, &fMat[2][0], 1, &src.fX, 1) + fMat[2][3];
-    dst->set(x, y, z);
-}
-
-void SkMatrix3D::mapVector(const SkVector3D& src, SkVector3D* dst) const {
-    SkScalar x = SkScalarDot(3, &fMat[0][0], 1, &src.fX, 1);
-    SkScalar y = SkScalarDot(3, &fMat[1][0], 1, &src.fX, 1);
-    SkScalar z = SkScalarDot(3, &fMat[2][0], 1, &src.fX, 1);
-    dst->set(x, y, z);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,11 +56,11 @@ SkCamera3D::SkCamera3D() {
 }
 
 void SkCamera3D::reset() {
-    fLocation.set(0, 0, -SkIntToScalar(576));   // 8 inches backward
-    fAxis.set(0, 0, SK_Scalar1);                // forward
-    fZenith.set(0, -SK_Scalar1, 0);             // up
+    fLocation = {0, 0, -SkIntToScalar(576)};   // 8 inches backward
+    fAxis = {0, 0, SK_Scalar1};                // forward
+    fZenith = {0, -SK_Scalar1, 0};             // up
 
-    fObserver.set(0, 0, fLocation.fZ);
+    fObserver = {0, 0, fLocation.z};
 
     fNeedToUpdate = true;
 }
@@ -212,28 +70,19 @@ void SkCamera3D::update() {
 }
 
 void SkCamera3D::doUpdate() const {
-    SkUnit3D    axis, zenith, cross;
+    SkV3    axis, zenith, cross;
 
     // construct a orthonormal basis of cross (x), zenith (y), and axis (z)
-    fAxis.normalize(&axis);
+    axis = fAxis.normalize();
 
-    {
-        SkScalar dot = SkUnit3D::Dot(SkUnit3D{fZenith.fX, fZenith.fY, fZenith.fZ}, axis);
+    zenith = fZenith - (axis * fZenith) * axis;
+    zenith = zenith.normalize();
 
-        zenith.fX = fZenith.fX - dot * axis.fX;
-        zenith.fY = fZenith.fY - dot * axis.fY;
-        zenith.fZ = fZenith.fZ - dot * axis.fZ;
-
-        SkPoint3D{zenith.fX, zenith.fY, zenith.fZ}.normalize(&zenith);
-    }
-
-    SkUnit3D::Cross(axis, zenith, &cross);
+    cross = axis.cross(zenith);
 
     {
         SkMatrix* orien = &fOrientation;
-        SkScalar x = fObserver.fX;
-        SkScalar y = fObserver.fY;
-        SkScalar z = fObserver.fZ;
+        auto [x, y, z] = fObserver;
 
         // Looking along the view axis we have:
         //
@@ -249,15 +98,15 @@ void SkCamera3D::doUpdate() const {
         // and scales in x and y relative to the negative of the observer's z value
         // (the observer is in the negative z direction).
 
-        orien->set(SkMatrix::kMScaleX, x * axis.fX - z * cross.fX);
-        orien->set(SkMatrix::kMSkewX,  x * axis.fY - z * cross.fY);
-        orien->set(SkMatrix::kMTransX, x * axis.fZ - z * cross.fZ);
-        orien->set(SkMatrix::kMSkewY,  y * axis.fX - z * zenith.fX);
-        orien->set(SkMatrix::kMScaleY, y * axis.fY - z * zenith.fY);
-        orien->set(SkMatrix::kMTransY, y * axis.fZ - z * zenith.fZ);
-        orien->set(SkMatrix::kMPersp0, axis.fX);
-        orien->set(SkMatrix::kMPersp1, axis.fY);
-        orien->set(SkMatrix::kMPersp2, axis.fZ);
+        orien->set(SkMatrix::kMScaleX, x * axis.x - z * cross.x);
+        orien->set(SkMatrix::kMSkewX,  x * axis.y - z * cross.y);
+        orien->set(SkMatrix::kMTransX, x * axis.z - z * cross.z);
+        orien->set(SkMatrix::kMSkewY,  y * axis.x - z * zenith.x);
+        orien->set(SkMatrix::kMScaleY, y * axis.y - z * zenith.y);
+        orien->set(SkMatrix::kMTransY, y * axis.z - z * zenith.z);
+        orien->set(SkMatrix::kMPersp0, axis.x);
+        orien->set(SkMatrix::kMPersp1, axis.y);
+        orien->set(SkMatrix::kMPersp2, axis.z);
     }
 }
 
@@ -269,15 +118,9 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
 
     const SkScalar* mapPtr = (const SkScalar*)(const void*)&fOrientation;
     const SkScalar* patchPtr;
-    SkPoint3D       diff;
-    SkScalar        dot;
 
-    diff.fX = quilt.fOrigin.fX - fLocation.fX;
-    diff.fY = quilt.fOrigin.fY - fLocation.fY;
-    diff.fZ = quilt.fOrigin.fZ - fLocation.fZ;
-
-    dot = SkUnit3D::Dot(SkUnit3D{diff.fX,   diff.fY,   diff.fZ},
-                        SkUnit3D{mapPtr[6], mapPtr[7], mapPtr[8]});
+    SkV3 diff = quilt.fOrigin - fLocation;
+    SkScalar dot = diff.dot({mapPtr[6], mapPtr[7], mapPtr[8]});
 
     // This multiplies fOrientation by the matrix [quilt.fU quilt.fV diff] -- U, V, and diff are
     // column vectors in the matrix -- then divides by the length of the projection of diff onto
@@ -307,7 +150,6 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 Sk3DView::Sk3DView() {
-    fInitialRec.fMatrix.reset();
     fRec = &fInitialRec;
 }
 
@@ -338,22 +180,22 @@ void Sk3DView::restore() {
 void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
     // the camera location is passed in inches, set in pt
     SkScalar lz = z * 72.0f;
-    fCamera.fLocation.set(x * 72.0f, y * 72.0f, lz);
-    fCamera.fObserver.set(0, 0, lz);
+    fCamera.fLocation = {x * 72.0f, y * 72.0f, lz};
+    fCamera.fObserver = {0, 0, lz};
     fCamera.update();
 
 }
 
 SkScalar Sk3DView::getCameraLocationX() const {
-    return fCamera.fLocation.fX / 72.0f;
+    return fCamera.fLocation.x / 72.0f;
 }
 
 SkScalar Sk3DView::getCameraLocationY() const {
-    return fCamera.fLocation.fY / 72.0f;
+    return fCamera.fLocation.y / 72.0f;
 }
 
 SkScalar Sk3DView::getCameraLocationZ() const {
-    return fCamera.fLocation.fZ / 72.0f;
+    return fCamera.fLocation.z / 72.0f;
 }
 #endif
 
@@ -362,15 +204,15 @@ void Sk3DView::translate(SkScalar x, SkScalar y, SkScalar z) {
 }
 
 void Sk3DView::rotateX(SkScalar deg) {
-    fRec->fMatrix.preRotateX(deg);
+    fRec->fMatrix.preConcat(SkM44::Rotate({1, 0, 0}, deg * SK_ScalarPI / 180));
 }
 
 void Sk3DView::rotateY(SkScalar deg) {
-    fRec->fMatrix.preRotateY(deg);
+    fRec->fMatrix.preConcat(SkM44::Rotate({0,-1, 0}, deg * SK_ScalarPI / 180));
 }
 
 void Sk3DView::rotateZ(SkScalar deg) {
-    fRec->fMatrix.preRotateZ(deg);
+    fRec->fMatrix.preConcat(SkM44::Rotate({0, 0, 1}, deg * SK_ScalarPI / 180));
 }
 
 SkScalar Sk3DView::dotWithNormal(SkScalar x, SkScalar y, SkScalar z) const {
