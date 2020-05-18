@@ -120,21 +120,13 @@ static NormalizationParams proxy_normalization_params(const GrSurfaceProxy* prox
     }
 }
 
-static SkRect inset_subset_for_bilerp(const NormalizationParams& params, const SkRect& subsetRect) {
-    // Normalized pixel size is also equal to iw and ih, so the insets for bilerp are just
-    // in those units and can be applied safely after normalization. However, if the subset is
-    // smaller than a texel, it should clamp to the center of that axis.
-    float dw = subsetRect.width() < params.fIW ? subsetRect.width() : params.fIW;
-    float dh = subsetRect.height() < params.fIH ? subsetRect.height() : params.fIH;
-    return subsetRect.makeInset(0.5f * dw, 0.5f * dh);
-}
-
 // Normalize the subset. If 'subsetRect' is null, it is assumed no subset constraint is desired,
 // so a sufficiently large rect is returned even if the quad ends up batched with an op that uses
-// subsets overall.
-static SkRect normalize_subset(GrSamplerState::Filter filter,
-                               const NormalizationParams& params,
-                               const SkRect* subsetRect) {
+// subsets overall. When there is a subset it will be inset based on the filter mode. Normalization
+// and y-flipping are applied as indicated by NormalizationParams.
+static SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
+                                         const NormalizationParams& params,
+                                         const SkRect* subsetRect) {
     static constexpr SkRect kLargeRect = {-100000, -100000, 1000000, 1000000};
     if (!subsetRect) {
         // Either the quad has no subset constraint and is batched with a subset constrained op
@@ -144,6 +136,16 @@ static SkRect normalize_subset(GrSamplerState::Filter filter,
     }
 
     auto ltrb = skvx::Vec<4, float>::Load(subsetRect);
+    auto flipHi = skvx::Vec<4, float>({1.f, 1.f, -1.f, -1.f});
+    if (filter == GrSamplerState::Filter::kNearest) {
+        // Make sure our insetting puts us at pixel centers.
+        ltrb = skvx::floor(ltrb*flipHi)*flipHi;
+    }
+    // Inset with pin to the rect center.
+    ltrb += skvx::Vec<4, float>({.5f, .5f, -.5f, -.5f});
+    auto mid = (skvx::shuffle<2, 3, 0, 1>(ltrb) + ltrb)*0.5f;
+    ltrb = skvx::min(ltrb*flipHi, mid*flipHi)*flipHi;
+
     // Normalize and offset
     ltrb = mad(ltrb, {params.fIW, params.fIH, params.fIW, params.fIH},
                {0.f, params.fYOffset, 0.f, params.fYOffset});
@@ -456,7 +458,7 @@ private:
         NormalizationParams params = proxy_normalization_params(proxyView.proxy(),
                                                                 proxyView.origin());
         normalize_src_quad(params, &quad->fLocal);
-        SkRect subset = normalize_subset(filter, params, subsetRect);
+        SkRect subset = normalize_and_inset_subset(filter, params, subsetRect);
 
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
@@ -577,7 +579,7 @@ private:
             // This subset may represent a no-op, otherwise it will have the origin and dimensions
             // of the texture applied to it. Insetting for bilinear filtering is deferred until
             // on[Pre]Prepare so that the overall filter can be lazily determined.
-            SkRect subset = normalize_subset(filter, proxyParams, subsetForQuad);
+            SkRect subset = normalize_and_inset_subset(filter, proxyParams, subsetForQuad);
 
             // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
             // ViewCountPair (this frequently happens when Chrome draws 9-patches).
@@ -689,21 +691,12 @@ private:
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
                 SkDEBUGCODE(int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad());
 
-                // Can just use top-left for origin here since we only need the dimensions to
-                // determine the texel size for insetting.
-                NormalizationParams params = proxy_normalization_params(
-                        op.fViewCountPairs[p].fProxy.get(), kTopLeft_GrSurfaceOrigin);
-
-                bool inset = texOp->fMetadata.filter() != GrSamplerState::Filter::kNearest;
-
                 for (int i = 0; i < quadCnt && iter.next(); ++i) {
                     SkASSERT(iter.isLocalValid());
                     const ColorSubsetAndAA& info = iter.metadata();
 
                     tessellator.append(iter.deviceQuad(), iter.localQuad(), info.fColor,
-                                       inset ? inset_subset_for_bilerp(params, info.fSubsetRect)
-                                             : info.fSubsetRect,
-                                       info.aaFlags());
+                                       info.fSubsetRect, info.aaFlags());
                 }
 
                 SkASSERT((totVerticesSeen + meshVertexCnt) * vertexSize
