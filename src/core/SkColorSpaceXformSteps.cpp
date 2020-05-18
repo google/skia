@@ -131,27 +131,16 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
     }
 }
 
-void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) const {
-#if defined(SK_LEGACY_SRGB_STAGE_CHOICE)
-    src_is_normalized = true;
-#endif
+void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool /*src_is_normalized*/) const {
     if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
     if (flags.linearize) {
-        if (src_is_normalized && srcTF_is_sRGB) {
-            p->append(SkRasterPipeline::from_srgb);
-        } else {
-            p->append_transfer_function(srcTF);
-        }
+        p->append_transfer_function(srcTF);
     }
     if (flags.gamut_transform) {
         p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
     }
     if (flags.encode) {
-        if (src_is_normalized && dstTF_is_sRGB) {
-            p->append(SkRasterPipeline::to_srgb);
-        } else {
-            p->append_transfer_function(dstTFInv);
-        }
+        p->append_transfer_function(dstTFInv);
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
