@@ -360,6 +360,8 @@ public:
     bool needsTransform() const;
     bool needsPadding() const;
 
+    SkRect dstRect(const SkGlyph& g, SkPoint pos) const;
+
     // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
     void prepareGrGlyphs(GrStrikeCache*);
     // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
