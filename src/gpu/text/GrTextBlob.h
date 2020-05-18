@@ -393,8 +393,6 @@ public:
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
     GrColor fCurrentColor;
-    // If the vertex data needTransform(), then fCurrentOrigin is in source space else it is in
-    // device space.
     SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
