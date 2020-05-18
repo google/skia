@@ -87,7 +87,7 @@ static sk_sp<SkSurface> make_gl_surface(GrContext* grContext, int width, int hei
         [viewController draw:rect
                         toCanvas:(surface->getCanvas())
                         atSize:CGSize{(CGFloat)width, (CGFloat)height}];
-        surface->flush();
+        surface->flushAndSubmit();
     }
     if (next) {
         [NSTimer scheduledTimerWithTimeInterval:std::max(0.0, next - SkTime::GetNSecs() * 1e-9)
