@@ -173,5 +173,6 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     return GrD3DPipelineState::Make(fGpu, fProgramInfo, std::move(rootSig),
                                     std::move(vertexShader), std::move(geometryShader),
                                     std::move(pixelShader), rt->dxgiFormat(),
-                                    rt->stencilDxgiFormat(), rt->sampleQualityLevel());
+                                    rt->stencilDxgiFormat(), rt->sampleQualityLevel(),
+                                    fUniformHandler.fUniforms, fUniformHandler.fCurrentUBOOffset);
 }

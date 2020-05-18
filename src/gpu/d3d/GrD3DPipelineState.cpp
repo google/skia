@@ -339,7 +339,9 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
                                                    gr_cp<ID3DBlob> pixelShader,
                                                    DXGI_FORMAT renderTargetFormat,
                                                    DXGI_FORMAT depthStencilFormat,
-                                                   unsigned int sampleQualityLevel) {
+                                                   unsigned int sampleQualityLevel,
+                                                   const UniformInfoArray& uniforms,
+                                                   uint32_t uniformSize) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
     psoDesc.pRootSignature = rootSig->rootSignature();
@@ -395,8 +397,11 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
             &psoDesc, IID_PPV_ARGS(&pipelineState));
     SkASSERT(SUCCEEDED(hr));
 
-    return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState)));
+    return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
+                                                            uniforms, uniformSize));
 }
 
-GrD3DPipelineState::GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState)
-        : fPipelineState(std::move(pipelineState)) {}
+GrD3DPipelineState::GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState,
+                                       const UniformInfoArray& uniforms, uint32_t uniformSize)
+    : fPipelineState(std::move(pipelineState))
+    , fDataManager(uniforms, uniformSize) {}

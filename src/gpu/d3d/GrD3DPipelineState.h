@@ -12,6 +12,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrManagedResource.h"
+#include "src/gpu/d3d/GrD3DPipelineStateDataManager.h"
 
 class GrD3DGpu;
 class GrD3DRootSignature;
@@ -19,6 +20,8 @@ class GrProgramInfo;
 
 class GrD3DPipelineState : public GrManagedResource {
 public:
+    using UniformInfoArray = GrD3DPipelineStateDataManager::UniformInfoArray;
+
     static sk_sp<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
                                           sk_sp<GrD3DRootSignature> rootSig,
                                           gr_cp<ID3DBlob> vertexShader,
@@ -26,7 +29,9 @@ public:
                                           gr_cp<ID3DBlob> pixelShader,
                                           DXGI_FORMAT renderTargetFormat,
                                           DXGI_FORMAT depthStencilFormat,
-                                          unsigned int sampleQualityLevel);
+                                          unsigned int sampleQualityLevel,
+                                          const UniformInfoArray& uniforms,
+                                          uint32_t uniformSize);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
@@ -43,10 +48,12 @@ public:
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
 
 private:
-    GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState);
+    GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState, const UniformInfoArray& uniforms,
+                       uint32_t uniformSize);
 
     gr_cp<ID3D12PipelineState> fPipelineState;
 
+    GrD3DPipelineStateDataManager fDataManager;
 };
 
 #endif
