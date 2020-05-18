@@ -872,6 +872,8 @@ go.skia.org/infra v0.0.0-20200515201715-a7a36bfa3904 h1:zBqjjxRqYNanPs/u1eG+OS5E
 go.skia.org/infra v0.0.0-20200515201715-a7a36bfa3904/go.mod h1:RgvrC4IwpwLL8pGY6Ky+jvo4ESN6QIhDCTLuQRMLS+Y=
 go.skia.org/infra v0.0.0-20200517003836-a97023535be0 h1:5Y3+W824N7nyN6jtRQ5nVIR4+F6X82yanNCKy3+mfZk=
 go.skia.org/infra v0.0.0-20200517003836-a97023535be0/go.mod h1:wUNkV36PKChD+FqXnbutU+CTrowS34zogZxR7dM9/Qw=
+go.skia.org/infra v0.0.0-20200517051906-a6ca5c350a27 h1:uoETWhQd19HZtOCpyrtJF2N40JKJRSBDc8r/H+RrFwE=
+go.skia.org/infra v0.0.0-20200517051906-a6ca5c350a27/go.mod h1:r4menQ81DCh2Z8F1VQrVwTF6MfjF+SjiNBNuhw/zOVk=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
