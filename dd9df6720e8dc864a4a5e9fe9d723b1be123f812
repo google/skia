@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9eb2088_2a4f2766",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-18T21:05:11Z",
+      "side": 1,
+      "message": "Just trying to remind myself of some of this works, for the non-aa mode we are still doing the at least half pixel stroke here. That\u0027s cause for non-aa lines we still always want to draw at least 1 pixel with along the line regardless of how thin the stroke width is?",
+      "range": {
+        "startLine": 421,
+        "startChar": 41,
+        "endLine": 421,
+        "endChar": 84
+      },
+      "revId": "dd9df6720e8dc864a4a5e9fe9d723b1be123f812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
