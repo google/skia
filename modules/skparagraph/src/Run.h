@@ -54,7 +54,11 @@ public:
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
-    ~Run() {}
+    Run(const Run&) = default;
+    Run& operator=(const Run&) = default;
+    Run(Run&&) = default;
+    Run& operator=(Run&&) = default;
+    ~Run() = default;
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
 
