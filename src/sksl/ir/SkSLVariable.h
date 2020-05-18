@@ -31,11 +31,12 @@ struct Variable : public Symbol {
     };
 
     Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
-             Storage storage, Expression* initialValue = nullptr)
+             Storage storage, int parameterSlot = -1, Expression* initialValue = nullptr)
     : INHERITED(offset, kVariable_Kind, name)
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)
+    , fParameterSlot(parameterSlot)
     , fInitialValue(initialValue)
     , fReadCount(0)
     , fWriteCount(initialValue ? 1 : 0) {}
@@ -66,6 +67,7 @@ struct Variable : public Symbol {
     mutable Modifiers fModifiers;
     const Type& fType;
     const Storage fStorage;
+    const int fParameterSlot;
 
     Expression* fInitialValue = nullptr;
 
