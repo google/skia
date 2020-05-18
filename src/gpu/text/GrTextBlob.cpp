@@ -68,36 +68,37 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
-static SkRect dest_rect(const SkGlyph& g, SkPoint origin) {
-    return SkRect::MakeXYWH(
-            SkIntToScalar(g.left()) + origin.x(),
-            SkIntToScalar(g.top())  + origin.y(),
-            SkIntToScalar(g.width()),
-            SkIntToScalar(g.height()));
-}
-
-static bool is_SDF(const SkGlyph& skGlyph) {
-    return skGlyph.maskFormat() == SkMask::kSDF_Format;
-}
-
-static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
-    if (!is_SDF(g)) {
-        return SkRect::MakeXYWH(
-                SkIntToScalar(g.left())   * textScale + origin.x(),
-                SkIntToScalar(g.top())    * textScale + origin.y(),
-                SkIntToScalar(g.width())  * textScale,
-                SkIntToScalar(g.height()) * textScale);
-    } else {
-        return SkRect::MakeXYWH(
-                (SkIntToScalar(g.left()) + SK_DistanceFieldInset) * textScale + origin.x(),
-                (SkIntToScalar(g.top())  + SK_DistanceFieldInset) * textScale + origin.y(),
-                (SkIntToScalar(g.width())  - 2 * SK_DistanceFieldInset) * textScale,
-                (SkIntToScalar(g.height()) - 2 * SK_DistanceFieldInset) * textScale);
+SkRect GrTextBlob::SubRun::dstRect(const SkGlyph &g, SkPoint pos) const {
+    int16_t l = g.left(),
+            t = g.top(),
+            r = l + g.width(),
+            b = t + g.height();
+    switch(fType) {
+        case kDirectMask: {
+            SkPoint LT = SkPoint::Make(l, t) + pos,
+                    RB = SkPoint::Make(r, b) + pos;
+            return SkRect::MakeLTRB(LT.x(), LT.y(), RB.x(), RB.y());
+        }
+        case kTransformedMask: {
+            SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
+            SkPoint LT = SkPoint::Make(l, t) * strikeToSource + pos,
+                    RB = SkPoint::Make(r, b) * strikeToSource + pos;
+            return SkRect::MakeLTRB(LT.x(), LT.y(), RB.x(), RB.y());
+        }
+        case kTransformedSDFT: {
+            SkASSERT(g.maskFormat() == SkMask::kSDF_Format);
+            SkPoint inset = {SK_DistanceFieldInset, SK_DistanceFieldInset};
+            SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
+            SkPoint LT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
+                    RB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
+            return SkRect::MakeLTRB(LT.x(), LT.y(), RB.x(), RB.y());
+        }
+        case kTransformedPath:
+            SK_ABORT("Paths not handled in vertex data");
     }
 }
 
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
-    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     SkASSERT(!this->isPrepared());
     PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
     char* vertexCursor = fVertexData.data();
@@ -109,12 +110,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     for (auto [variant, pos] : drawables) {
         SkGlyph* skGlyph = variant;
         // Only floor the device coordinates.
-        SkRect dstRect;
-        if (!this->needsTransform()) {
-            dstRect = dest_rect(*skGlyph, pos);
-        } else {
-            dstRect = dest_rect(*skGlyph, pos, strikeToSource);
-        }
+        SkRect dstRect = this->dstRect(*skGlyph, pos);
 
         this->joinGlyphBounds(dstRect);
 
