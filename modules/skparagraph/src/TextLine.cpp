@@ -489,7 +489,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
 
     auto attachEllipsis = [&](const Cluster* cluster){
         // Shape the ellipsis
-        Run* run = shapeEllipsis(ellipsis, cluster->run());
+        std::unique_ptr<Run> run = shapeEllipsis(ellipsis, cluster->run());
         run->fClusterStart = cluster->textRange().start;
         run->setMaster(fMaster);
 
@@ -500,7 +500,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
             return false;
         }
 
-        fEllipsis = std::make_shared<Run>(*run);
+        fEllipsis = std::move(run);
         fEllipsis->shift(width, 0);
         fAdvance.fX = width;
         return true;
@@ -517,13 +517,14 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     }
 }
 
-Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
+std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
         ShapeHandler(SkScalar lineHeight, const SkString& ellipsis)
             : fRun(nullptr), fLineHeight(lineHeight), fEllipsis(ellipsis) {}
-        Run* run() { return fRun; }
+        Run* run() & { return fRun.get(); }
+        std::unique_ptr<Run> run() && { return std::move(fRun); }
 
     private:
         void beginLine() override {}
@@ -533,7 +534,8 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         void commitRunInfo() override {}
 
         Buffer runBuffer(const RunInfo& info) override {
-            fRun = new  Run(nullptr, info, 0, fLineHeight, 0, 0);
+            SkASSERT(!fRun);
+            fRun = std::unique_ptr<Run>(new Run(nullptr, info, 0, fLineHeight, 0, 0));
             return fRun->newRunBuffer();
         }
 
@@ -546,7 +548,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
 
         void commitLine() override {}
 
-        Run* fRun;
+        std::unique_ptr<Run> fRun;
         SkScalar fLineHeight;
         SkString fEllipsis;
     };
@@ -558,7 +560,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
                   std::numeric_limits<SkScalar>::max(), &handler);
     handler.run()->fTextRange = TextRange(0, ellipsis.size());
     handler.run()->fMaster = fMaster;
-    return handler.run();
+    return std::move(handler).run();
 }
 
 TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
