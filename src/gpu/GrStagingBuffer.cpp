@@ -10,8 +10,8 @@
 
 #include "src/core/SkMathPriv.h"
 
-void GrStagingBuffer::markAvailable(void* data) {
-    fData = data;
+void GrStagingBuffer::markAvailable(void* mapPtr) {
+    fMapPtr = mapPtr;
     fOffset = 0;
     fGpu->moveStagingBufferFromBusyToAvailable(this);
 }
@@ -23,6 +23,6 @@ void GrStagingBuffer::unmap() {
 GrStagingBuffer::Slice GrStagingBuffer::allocate(size_t size) {
     size_t offset = fOffset;
     fOffset += size;
-    char* data = static_cast<char*>(fData) + offset;
-    return Slice(this, offset, data);
+    char* mapPtr = static_cast<char*>(fMapPtr) + offset;
+    return Slice(this, offset, mapPtr);
 }
