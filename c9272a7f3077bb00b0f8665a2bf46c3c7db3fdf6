@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "077dcaaf_fc81a08d",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-18T16:42:17Z",
+      "side": 1,
+      "message": "nit: gDataIdKey?",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 0
+      },
+      "revId": "c9272a7f3077bb00b0f8665a2bf46c3c7db3fdf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bead44b4_db90ba57",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-18T16:42:17Z",
+      "side": 1,
+      "message": "nit: document why we chose 100",
+      "range": {
+        "startLine": 1338,
+        "startChar": 47,
+        "endLine": 1338,
+        "endChar": 50
+      },
+      "revId": "c9272a7f3077bb00b0f8665a2bf46c3c7db3fdf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
