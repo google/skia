@@ -41,39 +41,52 @@ static sk_sp<SkTypeface> make_tf() {
 
 class UserFontGM : public skiagm::GM {
     sk_sp<SkTypeface> fTF;
-    sk_sp<SkTextBlob> fBlob;
 
-    SkPath fPath;
 public:
     UserFontGM() {}
 
     void onOnceBeforeDraw() override {
         fTF = make_tf();
+    }
 
-        SkFont font(fTF);
-        font.setSize(100);
+    static sk_sp<SkTextBlob> make_blob(sk_sp<SkTypeface> tf, float size) {
+        SkFont font(tf);
+        font.setSize(size);
         font.setEdging(SkFont::Edging::kAntiAlias);
-
-        fBlob = SkTextBlob::MakeFromString("User Typeface", font);
+        return SkTextBlob::MakeFromString("Typeface", font);
     }
 
     bool runAsBench() const override { return true; }
 
     SkString onShortName() override { return SkString("user_typeface"); }
 
-    SkISize onISize() override { return {512, 512}; }
+    SkISize onISize() override { return {810, 512}; }
 
     void onDraw(SkCanvas* canvas) override {
-        SkScalar x = 20,
-                 y = 250;
+        auto waterfall = [&](sk_sp<SkTypeface> tf) {
+            SkPaint paint;
+            paint.setAntiAlias(true);
 
-        SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawRect(fBlob->bounds().makeOffset(x, y), paint);
+            float x = 20,
+                  y = 16;
+            for (float size = 9; size <= 100; size *= 1.25f) {
+                auto blob = make_blob(tf, size);
 
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(SK_ColorRED);
-        canvas->drawTextBlob(fBlob, x, y, paint);
+                paint.setColor(0xFFCCCCCC);
+                paint.setStyle(SkPaint::kStroke_Style);
+                canvas->drawRect(blob->bounds().makeOffset(x, y), paint);
+
+                paint.setStyle(SkPaint::kFill_Style);
+                paint.setColor(SK_ColorBLACK);
+                canvas->drawTextBlob(blob, x, y, paint);
+
+                y += size * 1.5f;
+            }
+        };
+
+        waterfall(nullptr);
+        canvas->translate(400, 0);
+        waterfall(fTF);
     }
 };
 DEF_GM(return new UserFontGM;)
