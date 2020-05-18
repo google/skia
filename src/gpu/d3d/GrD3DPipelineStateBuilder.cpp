@@ -170,8 +170,17 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     }
 
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
-    return GrD3DPipelineState::Make(fGpu, fProgramInfo, std::move(rootSig),
-                                    std::move(vertexShader), std::move(geometryShader),
-                                    std::move(pixelShader), rt->dxgiFormat(),
-                                    rt->stencilDxgiFormat(), rt->sampleQualityLevel());
+    gr_cp<ID3D12PipelineState> pipelineState = GrD3DPipelineState::MakeD3D12PipelineState(
+            fGpu, fProgramInfo, std::move(rootSig), std::move(vertexShader),
+            std::move(geometryShader), std::move(pixelShader), rt->dxgiFormat(),
+            rt->stencilDxgiFormat(), rt->sampleQualityLevel());
+
+    return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
+                                                            fUniformHandles,
+                                                            fUniformHandler.fUniforms,
+                                                            fUniformHandler.fCurrentUBOOffset,
+                                                            std::move(fGeometryProcessor),
+                                                            std::move(fXferProcessor),
+                                                            std::move(fFragmentProcessors),
+                                                            fFragmentProcessorCnt));
 }

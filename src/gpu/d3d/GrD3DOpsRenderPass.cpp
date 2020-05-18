@@ -145,6 +145,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         return false;
     }
 
+    pipelineState->setData(fRenderTarget, info);
     fGpu->currentCommandList()->setPipelineState(std::move(pipelineState));
 
     set_stencil_ref(fGpu, info);
