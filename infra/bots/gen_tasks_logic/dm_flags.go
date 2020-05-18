@@ -269,10 +269,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("gltestthreading gm _ lcdoverlap")
 			blacklist("gltestthreading gm _ textbloblooper")
 			// All of these GMs are flaky, too:
-			blacklist("gltestthreading gm _ bleed_alpha_bmp")
-			blacklist("gltestthreading gm _ bleed_alpha_bmp_shader")
-			blacklist("gltestthreading gm _ bleed_alpha_image")
-			blacklist("gltestthreading gm _ bleed_alpha_image_shader")
 			blacklist("gltestthreading gm _ savelayer_with_backdrop")
 			blacklist("gltestthreading gm _ persp_shaders_bw")
 			blacklist("gltestthreading gm _ dftext_blob_persp")
@@ -656,7 +652,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// skia:4095
 	badSerializeGMs := []string{
-		"bleed_image",
+		"strict_constraint_no_red_allowed",
+		"fast_constraint_red_is_allowed",
 		"c_gms",
 		"colortype",
 		"colortype_xfermodes",
@@ -678,9 +675,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	badSerializeGMs = append(badSerializeGMs,
 		"bitmapfilters",
 		"bitmapshaders",
-		"bleed",
-		"bleed_alpha_bmp",
-		"bleed_alpha_bmp_shader",
 		"convex_poly_clip",
 		"extractalpha",
 		"filterbitmap_checkerboard_32_32_g8",
@@ -727,11 +721,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		blacklist("serialize-8888", "gm", "_", test)
 	}
 
-	if !b.matchOs("Mac") {
-		for _, test := range []string{"bleed_alpha_image", "bleed_alpha_image_shader"} {
-			blacklist("serialize-8888", "gm", "_", test)
-		}
-	}
 	// It looks like we skip these only for out-of-memory concerns.
 	if b.matchOs("Win", "Android") {
 		for _, test := range []string{"verylargebitmap", "verylarge_picture_image"} {
@@ -811,12 +800,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705
 		blacklist("_", "gm", "_", "bigblurs")
-		blacklist("_", "gm", "_", "bleed")
-		blacklist("_", "gm", "_", "bleed_alpha_bmp")
-		blacklist("_", "gm", "_", "bleed_alpha_bmp_shader")
-		blacklist("_", "gm", "_", "bleed_alpha_image")
-		blacklist("_", "gm", "_", "bleed_alpha_image_shader")
-		blacklist("_", "gm", "_", "bleed_image")
+		blacklist("_", "gm", "_", "strict_constraint_no_red_allowed")
+		blacklist("_", "gm", "_", "fast_constraint_red_is_allowed")
 		blacklist("_", "gm", "_", "dropshadowimagefilter")
 		blacklist("_", "gm", "_", "filterfastbounds")
 		blacklist(glPrefix, "gm", "_", "imageblurtiled")
