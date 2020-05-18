@@ -16,6 +16,24 @@
       "revId": "56cde4923f9f9157cbb13906fb6dc40ecc9a5c6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d5709ec_32a78a83",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-18T13:50:48Z",
+      "side": 1,
+      "message": "Wow, good catch -- that is awesome that C++ let\u0027s us type that :)",
+      "parentUuid": "719d678a_313c2d3d",
+      "revId": "56cde4923f9f9157cbb13906fb6dc40ecc9a5c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
