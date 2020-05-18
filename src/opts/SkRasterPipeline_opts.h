@@ -1932,22 +1932,13 @@ STAGE(to_srgb, Ctx::None) {
     auto fn = [](F l) {
         U32 sign;
         l = strip_sign(l, &sign);
-        // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW ) || defined(JUMPER_IS_SKX)
-        const float c = 1.130048394203f,
-                    d = 0.141357362270f;
-    #elif defined(JUMPER_IS_NEON)
-        const float c = 1.129999995232f,
-                    d = 0.141381442547f;
-    #else
-        const float c = 1.129999995232f,
-                    d = 0.141377761960f;
-    #endif
-        F t = rsqrt(l);
-        auto lo = l * 12.92f;
-        auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), c)
-                * rcp(d + t);
+        // This implementation used to use rsqrt/rcp, but we're too sensitive
+        // to precision differences to keep doing that.  Intel/AMD/ARM all
+        // vary, as does Intel even between rcpps and rcp14ps, etc.
+        F lo = l * 12.92f,
+          t  = 1.0f/sqrt_(l),
+          hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), 1.129999995232f)
+             / (0.141377761960f + t);
         return apply_sign(if_then_else(l < 0.00465985f, lo, hi), sign);
     };
     r = fn(r);
