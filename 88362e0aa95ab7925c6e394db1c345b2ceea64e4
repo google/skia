@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "398002dd_9c794dcc",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-18T14:56:46Z",
+      "side": 1,
+      "message": "Previously could have leaked the ellipsis run here.",
+      "revId": "88362e0aa95ab7925c6e394db1c345b2ceea64e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
