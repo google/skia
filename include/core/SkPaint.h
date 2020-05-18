@@ -316,9 +316,10 @@ public:
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
-    /** Sets the thickness of the pen used by the paint to
-        outline the shape.
-        Has no effect if width is less than zero.
+    /** Sets the thickness of the pen used by the paint to outline the shape.
+        A stroke-width of zero is treated as "hairline" width. Hairlines are always exactly one
+        pixel wide in device space (their thickness does not change as the canvas is scaled).
+        Negative stroke-widths are invalid; setting a negative width will have no effect.
 
         @param width  zero thickness for hairline; greater than zero for pen thickness
 
