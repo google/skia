@@ -22,6 +22,30 @@
       "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "481a0a80_2850879e",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-18T20:25:40Z",
+      "side": 1,
+      "message": "Just tested PDFs with a Fiddle and it appears hairlines actually work as you\u0027d want them to. They stay 1px in size as you zoom in and out.\n\nhttps://fiddle.skia.org/c/fc022c8ec326d2cd1371837b84f7c82b",
+      "parentUuid": "03dd206a_463ed381",
+      "range": {
+        "startLine": 320,
+        "startChar": 85,
+        "endLine": 321,
+        "endChar": 34
+      },
+      "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
