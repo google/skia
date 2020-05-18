@@ -125,8 +125,6 @@ namespace SK_OPTS_NS {
     SI F   max(F a, F b)        { return fmaxf(a,b); }
     SI F   abs_  (F v)          { return fabsf(v); }
     SI F   floor_(F v)          { return floorf(v); }
-    SI F   rcp   (F v)          { return 1.0f / v; }
-    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
     SI F    sqrt_(F v)          { return sqrtf(v); }
     SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
     SI U16 pack(U32 v)          { return (U16)v; }
@@ -198,8 +196,6 @@ namespace SK_OPTS_NS {
     SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
     SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
     SI F   abs_  (F v)                           { return vabsq_f32(v);            }
-    SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
 
@@ -359,8 +355,6 @@ namespace SK_OPTS_NS {
     SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
     SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
     SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
-    SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
-    SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
     SI F    sqrt_(F v)          { return _mm256_sqrt_ps (v);    }
     SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
@@ -689,8 +683,6 @@ namespace SK_OPTS_NS {
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    SI F   rcp   (F v)         { return _mm_rcp_ps  (v);    }
-    SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
     SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
     SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
@@ -1436,12 +1428,12 @@ BLEND_MODE(exclusion)  { return s + d - two(s*d); }
 BLEND_MODE(colorburn) {
     return if_then_else(d == da,    d +    s*inv(da),
            if_then_else(s ==  0, /* s + */ d*inv(sa),
-                                 sa*(da - min(da, (da-d)*sa*rcp(s))) + s*inv(da) + d*inv(sa)));
+                                 sa*(da - min(da, (da-d)*sa/s)) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(colordodge) {
     return if_then_else(d ==  0, /* d + */ s*inv(da),
            if_then_else(s == sa,    s +    d*inv(sa),
-                                 sa*min(da, (d*sa)*rcp(sa - s)) + s*inv(da) + d*inv(sa)));
+                                 sa*min(da, (d*sa)/(sa - s)) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(hardlight) {
     return s*inv(da) + d*inv(sa)
@@ -1463,7 +1455,7 @@ BLEND_MODE(softlight) {
     //    3. light src, light dst?
     F darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
       darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
-      liteDst = rcp(rsqrt(m)) - m,                 // Used in case 3.
+      liteDst = sqrt_(m) - m,                      // Used in case 3.
       liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
@@ -1933,21 +1925,12 @@ STAGE(to_srgb, Ctx::None) {
         U32 sign;
         l = strip_sign(l, &sign);
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW ) || defined(JUMPER_IS_SKX)
-        const float c = 1.130048394203f,
-                    d = 0.141357362270f;
-    #elif defined(JUMPER_IS_NEON)
-        const float c = 1.129999995232f,
-                    d = 0.141381442547f;
-    #else
         const float c = 1.129999995232f,
                     d = 0.141377761960f;
-    #endif
-        F t = rsqrt(l);
+        F t = 1.0f/sqrt_(l);
         auto lo = l * 12.92f;
         auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), c)
-                * rcp(d + t);
+                / (d + t);
         return apply_sign(if_then_else(l < 0.00465985f, lo, hi), sign);
     };
     r = fn(r);
@@ -2437,8 +2420,8 @@ STAGE(matrix_perspective, const float* m) {
     auto R = mad(r,m[0], mad(g,m[1], m[2])),
          G = mad(r,m[3], mad(g,m[4], m[5])),
          Z = mad(r,m[6], mad(g,m[7], m[8]));
-    r = R * rcp(Z);
-    g = G * rcp(Z);
+    r = R / Z;
+    g = G / Z;
 }
 
 SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
@@ -3184,27 +3167,6 @@ SI F min(F x, F y) { return if_then_else(x < y, x, y); }
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
-SI F rcp(F x) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-    __m256 lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
-#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
-    __m128 lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
-#elif defined(JUMPER_IS_NEON)
-    auto rcp = [](float32x4_t v) {
-        auto est = vrecpeq_f32(v);
-        return vrecpsq_f32(v,est)*est;
-    };
-    float32x4_t lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(rcp(lo), rcp(hi));
-#else
-    return 1.0f / x;
-#endif
-}
 SI F sqrt_(F x) {
 #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
     __m256 lo,hi;
@@ -3287,8 +3249,8 @@ STAGE_GG(matrix_perspective, const float* m) {
     auto X = mad(x,m[0], mad(y,m[1], m[2])),
          Y = mad(x,m[3], mad(y,m[4], m[5])),
          Z = mad(x,m[6], mad(y,m[7], m[8]));
-    x = X * rcp(Z);
-    y = Y * rcp(Z);
+    x = X / Z;
+    y = Y / Z;
 }
 
 STAGE_PP(uniform_color, const SkRasterPipeline_UniformColorCtx* c) {
