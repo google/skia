@@ -49,7 +49,7 @@ public:
     // Bulk API for drawing quads with a single op
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     static void AddFillRectOps(GrRenderTargetContext*,
-                               const GrClip& clip,
+                               const GrClip* clip,
                                GrRecordingContext*,
                                GrPaint&&,
                                GrAAType,

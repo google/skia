@@ -10,7 +10,6 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrAuditTrail.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -240,7 +239,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
         paint.addColorFragmentProcessor(std::move(fp));
 
         tempCtx->asRenderTargetContext()->fillRectToRect(
-                GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                 SkRect::MakeWH(dstInfo.width(), dstInfo.height()),
                 SkRect::MakeXYWH(pt.fX, pt.fY, dstInfo.width(), dstInfo.height()));
 
@@ -426,7 +425,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
             paint.addColorFragmentProcessor(std::move(fp));
             this->asRenderTargetContext()->fillRectToRect(
-                    GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                    nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeXYWH(pt.fX, pt.fY, srcInfo.width(), srcInfo.height()),
                     SkRect::MakeWH(srcInfo.width(), srcInfo.height()));
         } else {
@@ -573,7 +572,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             return nullptr;
         }
         // 1-to-1 draw can always be kFast.
-        linearRTC->drawTexture(GrNoClip(), std::move(texView), srcAlphaType,
+        linearRTC->drawTexture(nullptr, std::move(texView), srcAlphaType,
                                GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
                                SK_PMColor4fWHITE, SkRect::Make(srcRect), SkRect::MakeWH(srcW, srcH),
                                GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -644,7 +643,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            tempB->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+            tempB->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
                                     dstRect);
         } else {
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
@@ -655,7 +654,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             if (nextW <= srcW && nextH <= srcH) {
                 constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
             }
-            tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
+            tempB->drawTexture(nullptr, std::move(texView), srcAlphaType, filter,
                                SkBlendMode::kSrc, SK_PMColor4fWHITE, srcSubset, dstRect, GrAA::kNo,
                                GrQuadAAFlags::kNone, constraint, SkMatrix::I(), std::move(xform));
         }
@@ -742,4 +741,3 @@ void GrSurfaceContext::validate() const {
     this->onValidate();
 }
 #endif
-

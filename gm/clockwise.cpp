@@ -23,7 +23,6 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -257,7 +256,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
                          {0, 0, 100, 200}, {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
@@ -272,7 +271,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
                          {0, 0, 100, 200}, {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
