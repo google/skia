@@ -10,10 +10,10 @@
 
 #include "src/core/SkMathPriv.h"
 
-static void callback(WGPUBufferMapAsyncStatus status, void* data, uint64_t dataLength,
+static void callback(WGPUBufferMapAsyncStatus status, void* mapPtr, uint64_t dataLength,
                      void* userData) {
     GrDawnStagingBuffer* buffer = static_cast<GrDawnStagingBuffer*>(userData);
-    buffer->markAvailable(data);
+    buffer->markAvailable(mapPtr);
 }
 
 GrDawnGpu* GrDawnStagingBuffer::getDawnGpu() const {

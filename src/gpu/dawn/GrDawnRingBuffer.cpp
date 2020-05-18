@@ -38,5 +38,5 @@ GrDawnRingBuffer::Slice GrDawnRingBuffer::allocate(int size) {
     wgpu::Buffer srcBuffer = static_cast<GrDawnStagingBuffer*>(staging.fBuffer)->buffer();
     fGpu->getCopyEncoder().CopyBufferToBuffer(srcBuffer, staging.fOffset,
                                               fBuffer, offset, size);
-    return Slice(fBuffer, offset, staging.fData);
+    return Slice(fBuffer, offset, staging.fOffsetMapPtr);
 }

@@ -14,17 +14,18 @@ class GrGpu;
 
 class GrStagingBuffer {
 public:
-    GrStagingBuffer(GrGpu* gpu, size_t size, void* data) : fGpu(gpu), fSize(size), fData(data) {}
+    GrStagingBuffer(GrGpu* gpu, size_t size, void* mapPtr)
+        : fGpu(gpu), fSize(size), fMapPtr(mapPtr) {}
     virtual ~GrStagingBuffer() {
         fGpu = nullptr;
     }
-    void markAvailable(void* data);
+    void markAvailable(void* mapPtr);
     struct Slice {
-        Slice(GrStagingBuffer* buffer, int offset, void* data)
-          : fBuffer(buffer), fOffset(offset), fData(data) {}
+        Slice(GrStagingBuffer* buffer, int offset, void* offsetMapPtr)
+          : fBuffer(buffer), fOffset(offset), fOffsetMapPtr(offsetMapPtr) {}
         GrStagingBuffer*   fBuffer;
         int                fOffset;
-        void*              fData;
+        void*              fOffsetMapPtr; // already offset within buffer's mapPtr
     };
     size_t remaining() const { return fSize - fOffset; }
     GrGpu* getGpu() const { return fGpu; }
@@ -36,7 +37,7 @@ private:
     GrGpu*                 fGpu;
     size_t                 fSize;
     size_t                 fOffset = 0;
-    void*                  fData;
+    void*                  fMapPtr;
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrStagingBuffer);
 };
