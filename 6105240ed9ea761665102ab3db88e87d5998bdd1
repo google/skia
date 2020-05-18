@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03dd206a_463ed381",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-18T20:22:14Z",
+      "side": 1,
+      "message": "Reading this made me remember we have vector backends (PDF, SVG, XPS). I\u0027m not sure how we handle hairlines in those. I have guesses but I\u0027m not sure. Probably worth double checking. +bungeman and +fmalita for that.",
+      "range": {
+        "startLine": 320,
+        "startChar": 85,
+        "endLine": 321,
+        "endChar": 34
+      },
+      "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
