@@ -21,7 +21,7 @@ class GrD3DPipelineState;
 class GrD3DRenderTarget;
 class GrD3DTextureResource;
 
-class GrFixedClip;
+class GrScissorState;
 
 class GrD3DCommandList {
 public:
@@ -63,7 +63,7 @@ public:
                            const D3D12_BOX* srcBox);
 
     void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
-                               const GrFixedClip& clip);
+                               const GrScissorState& scissor);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
