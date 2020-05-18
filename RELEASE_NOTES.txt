@@ -7,6 +7,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 85
 ------------
 
+  * Add color space parameter to SkBitmap::allocN32Pixels
+
   * <insert new release notes here>
 
 * * *
