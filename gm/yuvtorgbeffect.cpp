@@ -362,7 +362,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->drawRect(
-                            GrNoClip(), std::move(grPaint), GrAA::kYes, ctm, rect);
+                            nullptr, std::move(grPaint), GrAA::kYes, ctm, rect);
                 }
                 x += rect.width() + kTestPad;
             }

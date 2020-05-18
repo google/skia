@@ -38,7 +38,6 @@ static void draw_path(GrContext* ctx,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-    GrNoClip noClip;
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyledShape shape(path, style);
@@ -51,7 +50,7 @@ static void draw_path(GrContext* ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
-                                      &noClip,
+                                      nullptr,
                                       &clipConservativeBounds,
                                       &matrix,
                                       &shape,

@@ -40,7 +40,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
+        rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
         TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
                        "RectangleTexture-basic-draw");
     }

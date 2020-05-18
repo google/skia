@@ -505,7 +505,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                        const SkSurfaceProps& props,
                        const SkPaint& paint,
                        const SkPMColor4f& filteredColor,
-                       const GrClip& clip,
+                       const GrClip* clip,
                        const SkMatrixProvider& deviceMatrix,
                        SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
@@ -569,8 +569,11 @@ void GrTextBlob::addOp(GrTextTarget* target,
             // and we have an axis-aligned rectangular non-AA clip
             if (!subRun->drawAsDistanceFields() &&
                 !subRun->needsTransform() &&
-                clip.isRRect(rtBounds, &clipRRect, &aa) &&
-                clipRRect.isRect() && GrAA::kNo == aa) {
+                (!clip || (clip->isRRect(rtBounds, &clipRRect, &aa) &&
+                           clipRRect.isRect() && GrAA::kNo == aa))) {
+                if (!clip) {
+                    clipRRect = SkRRect::MakeRect(rtBounds);
+                }
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
                 SkRect subRunBounds = subRun->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
@@ -588,7 +591,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                                    paint, filteredColor, props, target);
             if (op) {
                 if (skipClip) {
-                    target->addDrawOp(GrNoClip(), std::move(op));
+                    target->addDrawOp(nullptr, std::move(op));
                 }
                 else {
                     target->addDrawOp(clip, std::move(op));

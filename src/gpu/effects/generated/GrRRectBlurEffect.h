@@ -67,7 +67,7 @@ public:
         GrPaint paint;
 
         rtc->clear(SK_PMColor4fTRANSPARENT);
-        rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
+        rtc->drawRRect(nullptr, std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 
         GrSurfaceProxyView srcView = rtc->readSurfaceView();

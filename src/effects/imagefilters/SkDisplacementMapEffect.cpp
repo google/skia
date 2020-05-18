@@ -367,7 +367,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
             return nullptr;
         }
 
-        renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
+        renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
                                       SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();

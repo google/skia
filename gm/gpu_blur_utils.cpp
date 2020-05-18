@@ -103,7 +103,7 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 985, 740) {
                     paint.addColorFragmentProcessor(std::move(fp));
                     static constexpr float kAlpha = 0.2f;
                     paint.setColor4f({kAlpha, kAlpha, kAlpha, kAlpha});
-                    rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m,
+                    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m,
                                   SkRect::Make(testArea));
                 }
                 // Blur using the rect and draw on top.
@@ -117,7 +117,7 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 985, 740) {
                                                                            SkBlendMode::kSrcOver);
                     paint.addColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                    rtc->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, m,
+                    rtc->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, m,
                                         SkRect::Make(dstRect), SkRect::Make(blurView.dimensions()));
                 }
                 // Show the rect that's being blurred.
@@ -130,7 +130,7 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 985, 740) {
                     stroke.setStrokeWidth(1.f);
                     GrStyle style(stroke);
                     auto srcR = SkRect::Make(srcRect).makeOutset(0.5f, 0.5f);
-                    rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, srcR, &style);
+                    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, srcR, &style);
                 }
                 // Show the outline of the dst rect. Mostly for kDecal but also allows visual
                 // confirmation that the resulting blur is the right size and in the right place.
@@ -143,7 +143,7 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 985, 740) {
                     stroke.setStrokeWidth(1.f);
                     GrStyle style(stroke);
                     auto dstR = SkRect::Make(dstRect).makeOutset(0.5f, 0.5f);
-                    rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, dstR, &style);
+                    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, dstR, &style);
                 }
                 trans.fX += testArea.width() + kPad;
             }

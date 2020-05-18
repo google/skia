@@ -1272,14 +1272,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "GrAAHairlinePathRenderer::onDrawPath");
     SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
 
-    SkIRect devClipBounds = args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
-                                                              args.fRenderTargetContext->height());
     SkPath path;
     args.fShape->asPath(&path);
     std::unique_ptr<GrDrawOp> op =
             AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
-                               args.fShape->style(), devClipBounds, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+                               args.fShape->style(), *args.fClipConservativeBounds,
+                               args.fUserStencilSettings);
+    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

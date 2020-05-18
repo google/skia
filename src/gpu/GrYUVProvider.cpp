@@ -191,7 +191,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
                                      yuvSizeInfo.fSizes[0].fHeight);
 
     SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, r.width(), r.height());
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, r);
+    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
 
     SkASSERT(renderTargetContext->asTextureProxy());
     return renderTargetContext->readSurfaceView();

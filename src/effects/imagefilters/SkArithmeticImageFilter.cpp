@@ -403,7 +403,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
+    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
                                   SkRect::Make(bounds));
 
     return SkSpecialImage::MakeDeferredFromGpu(context,

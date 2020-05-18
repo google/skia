@@ -167,11 +167,8 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!fFlushing);
 
-    GrRenderTargetContext* rtc = args.fRenderTargetContext;
-    SkIRect clipIBounds = args.fClip->getConservativeBounds(rtc->width(), rtc->height());
-
-    auto op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, *args.fViewMatrix, *args.fShape,
-                                    std::move(args.fPaint));
+    auto op = GrCCDrawPathsOp::Make(args.fContext, *args.fClipConservativeBounds, *args.fViewMatrix,
+                                    *args.fShape, std::move(args.fPaint));
     this->recordOp(std::move(op), args);
     return true;
 }
@@ -183,7 +180,7 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
             op->cast<GrCCDrawPathsOp>()->addToOwningPerOpsTaskPaths(
                     sk_ref_sp(this->lookupPendingPaths(opsTaskID)));
         };
-        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op),
+        args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op),
                                              addToOwningPerOpsTaskPaths);
     }
 }

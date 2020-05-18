@@ -208,7 +208,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         paint.addColorFragmentProcessor(
                 std::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-        rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+        rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::MakeIWH(this->width(), this->height()));
 
         // Add label.
