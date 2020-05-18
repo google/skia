@@ -70,6 +70,30 @@
       "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d182eb9_bd011807",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-18T20:33:39Z",
+      "side": 1,
+      "message": "https://stackoverflow.com/questions/1039714/2d-rendering-and-zooming-in-with-svg\n\nLooks like there\u0027s an effect meant for this:\n\n  vector-effect\u003d\"non-scaling-stroke\"",
+      "parentUuid": "99777969_346d63ee",
+      "range": {
+        "startLine": 320,
+        "startChar": 85,
+        "endLine": 321,
+        "endChar": 34
+      },
+      "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
