@@ -46,6 +46,30 @@
       "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99777969_346d63ee",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-18T20:26:53Z",
+      "side": 1,
+      "message": "For SVG I don\u0027t think we handle hairlines, though it wouldn\u0027t be very hard to add.",
+      "parentUuid": "481a0a80_2850879e",
+      "range": {
+        "startLine": 320,
+        "startChar": 85,
+        "endLine": 321,
+        "endChar": 34
+      },
+      "revId": "6105240ed9ea761665102ab3db88e87d5998bdd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
