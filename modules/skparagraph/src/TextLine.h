@@ -11,6 +11,8 @@
 #include "modules/skparagraph/src/Run.h"
 #include "src/core/SkSpan.h"
 
+#include <memory>
+
 namespace skia {
 namespace textlayout {
 
@@ -108,7 +110,7 @@ public:
 
 private:
 
-    Run* shapeEllipsis(const SkString& ellipsis, Run* run);
+    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
     void paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
@@ -130,7 +132,7 @@ private:
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Let right
     SkScalar fWidthWithSpaces;
-    std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
+    std::unique_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     InternalLineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
     InternalLineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
     bool fHasBackground;
