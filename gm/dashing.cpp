@@ -66,12 +66,9 @@ class DashingGM : public skiagm::GM {
     SkISize onISize() override { return {640, 340}; }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr struct {
+        struct Intervals {
             int fOnInterval;
             int fOffInterval;
-        } gData[] = {
-            { 1, 1 },
-            { 4, 1 },
         };
 
         SkPaint paint;
@@ -80,16 +77,16 @@ class DashingGM : public skiagm::GM {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->translate(0, SK_ScalarHalf);
         for (int width = 0; width <= 2; ++width) {
-            for (size_t data = 0; data < SK_ARRAY_COUNT(gData); ++data) {
-                for (int aa = 0; aa <= 1; ++aa) {
+            for (const Intervals& data : {Intervals{1, 1},
+                                          Intervals{4, 1}}) {
+                for (bool aa : {false, true}) {
                     int w = width * width * width;
-                    paint.setAntiAlias(SkToBool(aa));
+                    paint.setAntiAlias(aa);
                     paint.setStrokeWidth(SkIntToScalar(w));
 
                     int scale = w ? w : 1;
 
-                    drawline(canvas, gData[data].fOnInterval * scale,
-                             gData[data].fOffInterval * scale,
+                    drawline(canvas, data.fOnInterval * scale, data.fOffInterval * scale,
                              paint);
                     canvas->translate(0, SkIntToScalar(20));
                 }
@@ -321,13 +318,9 @@ class Dashing4GM : public skiagm::GM {
     SkISize onISize() override { return {640, 1100}; }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr struct {
+        struct Intervals {
             int fOnInterval;
             int fOffInterval;
-        } gData[] = {
-            { 1, 1 },
-            { 4, 2 },
-            { 0, 4 }, // test for zero length on interval
         };
 
         SkPaint paint;
@@ -337,20 +330,19 @@ class Dashing4GM : public skiagm::GM {
         canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
 
         for (int width = 0; width <= 2; ++width) {
-            for (size_t data = 0; data < SK_ARRAY_COUNT(gData); ++data) {
-                for (int aa = 0; aa <= 1; ++aa) {
-                    for (int cap = 0; cap <= 1; ++cap) {
+            for (const Intervals& data : {Intervals{1, 1},
+                                          Intervals{4, 2},
+                                          Intervals{0, 4}}) { // test for zero length on interval
+                for (bool aa : {false, true}) {
+                    for (auto cap : {SkPaint::kRound_Cap, SkPaint::kSquare_Cap}) {
                         int w = width * width * width;
-                        paint.setAntiAlias(SkToBool(aa));
+                        paint.setAntiAlias(aa);
                         paint.setStrokeWidth(SkIntToScalar(w));
-
-                        SkToBool(cap) ? paint.setStrokeCap(SkPaint::kSquare_Cap)
-                            : paint.setStrokeCap(SkPaint::kRound_Cap);
+                        paint.setStrokeCap(cap);
 
                         int scale = w ? w : 1;
 
-                        drawline(canvas, gData[data].fOnInterval * scale,
-                                 gData[data].fOffInterval * scale,
+                        drawline(canvas, data.fOnInterval * scale, data.fOffInterval * scale,
                                  paint);
                         canvas->translate(0, SkIntToScalar(20));
                     }
