@@ -690,7 +690,8 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
-        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset,
+                                                                0, false, false);
         TextRange testRange(run->fClusterStart, run->fClusterStart + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
@@ -704,7 +705,8 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
     }
 
     if (styleType == StyleType::kNone) {
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, 0, false, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset,
+                                                                0, false, false);
         if (clipContext.clip.height() > 0) {
             visitor(textRange, TextStyle(), clipContext);
             return clipContext.clip.width();
@@ -757,13 +759,14 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         }
 
         // We have the style and the text
-        auto textRange = TextRange(start, start + size);
+        auto runStyleTextRange = TextRange(start, start + size);
         // Measure the text
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(runStyleTextRange, run, runOffset,
+                                                                textOffsetInRun, false, false);
         if (clipContext.clip.height() == 0) {
             continue;
         }
-        visitor(textRange, *prevStyle, clipContext);
+        visitor(runStyleTextRange, *prevStyle, clipContext);
         textOffsetInRun += clipContext.clip.width();
 
         // Start all over again
