@@ -361,9 +361,6 @@ DEF_TEST(SkSLUnreachable, r) {
     test_failure(r,
                  "void main() { return; return; }",
                  "error: 1: unreachable\n1 error\n");
-    test_failure(r,
-                 "void main() { for (;;) { continue; int x = 1; } }",
-                 "error: 1: unreachable\n1 error\n");
 /*    test_failure(r,
                  "void main() { for (;;) { } return; }",
                  "error: 1: unreachable\n1 error\n");*/
@@ -371,7 +368,7 @@ DEF_TEST(SkSLUnreachable, r) {
                  "void main() { if (true) return; else discard; return; }",
                  "error: 1: unreachable\n1 error\n");
     test_failure(r,
-                 "void main() { return; while (true); }",
+                 "void main() { return; main(); }",
                  "error: 1: unreachable\n1 error\n");
 }
 
@@ -388,9 +385,6 @@ DEF_TEST(SkSLBreakOutsideLoop, r) {
 }
 
 DEF_TEST(SkSLContinueOutsideLoop, r) {
-    test_failure(r,
-                 "void foo() { for(;;); continue; }",
-                 "error: 1: continue statement must be inside a loop\n1 error\n");
     test_failure(r,
                  "void foo() { switch (1) { default: continue; } }",
                  "error: 1: continue statement must be inside a loop\n1 error\n");
