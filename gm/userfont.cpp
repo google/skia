@@ -21,6 +21,12 @@ static sk_sp<SkTypeface> make_tf() {
     font.setSize(1.0f);
     font.setHinting(SkFontHinting::kNone);
 
+    {
+        SkFontMetrics metrics;
+        font.getMetrics(&metrics);
+        builder.setMetrics(metrics);
+    }
+
     // Steal the first 128 chars from the default font
     for (SkGlyphID index = 0; index <= 127; ++index) {
         SkGlyphID glyph = font.unicharToGlyph(index);
@@ -39,6 +45,12 @@ static sk_sp<SkTypeface> make_tf() {
 
 #include "include/core/SkTextBlob.h"
 
+static sk_sp<SkTypeface> round_trip(sk_sp<SkTypeface> tf) {
+    auto data = tf->serialize();
+    SkMemoryStream stream(data->data(), data->size());
+    return SkTypeface::MakeDeserialize(&stream);
+}
+
 class UserFontGM : public skiagm::GM {
     sk_sp<SkTypeface> fTF;
 
@@ -47,12 +59,15 @@ public:
 
     void onOnceBeforeDraw() override {
         fTF = make_tf();
+        // test serialization
+        fTF = round_trip(fTF);
     }
 
-    static sk_sp<SkTextBlob> make_blob(sk_sp<SkTypeface> tf, float size) {
+    static sk_sp<SkTextBlob> make_blob(sk_sp<SkTypeface> tf, float size, float* spacing) {
         SkFont font(tf);
         font.setSize(size);
         font.setEdging(SkFont::Edging::kAntiAlias);
+        *spacing = font.getMetrics(nullptr);
         return SkTextBlob::MakeFromString("Typeface", font);
     }
 
@@ -60,17 +75,24 @@ public:
 
     SkString onShortName() override { return SkString("user_typeface"); }
 
-    SkISize onISize() override { return {810, 512}; }
+    SkISize onISize() override { return {810, 452}; }
 
     void onDraw(SkCanvas* canvas) override {
         auto waterfall = [&](sk_sp<SkTypeface> tf) {
             SkPaint paint;
             paint.setAntiAlias(true);
 
+            float spacing;
             float x = 20,
                   y = 16;
             for (float size = 9; size <= 100; size *= 1.25f) {
-                auto blob = make_blob(tf, size);
+                auto blob = make_blob(tf, size, &spacing);
+
+                // shared baseline
+                if (tf == nullptr) {
+                    paint.setColor(0xFFDDDDDD);
+                    canvas->drawRect({0, y, 810, y+1}, paint);
+                }
 
                 paint.setColor(0xFFCCCCCC);
                 paint.setStyle(SkPaint::kStroke_Style);
@@ -80,7 +102,7 @@ public:
                 paint.setColor(SK_ColorBLACK);
                 canvas->drawTextBlob(blob, x, y, paint);
 
-                y += size * 1.5f;
+                y += SkScalarRoundToInt(spacing * 1.25f + 2);
             }
         };
 
