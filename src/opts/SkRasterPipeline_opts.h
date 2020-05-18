@@ -978,11 +978,7 @@ SI F approx_exp(F x) {
 }
 
 SI F approx_powf(F x, F y) {
-#if defined(SK_LEGACY_APPROX_POWF_SPECIALCASE)
-    return if_then_else((x == 0)         , 0
-#else
     return if_then_else((x == 0)|(x == 1), x
-#endif
                                          , approx_pow2(approx_log2(x) * y));
 }
 
