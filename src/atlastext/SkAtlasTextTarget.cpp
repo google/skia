@@ -96,9 +96,9 @@ public:
 
     /** GrTextTarget overrides */
 
-    void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
+    void addDrawOp(const GrClip*, std::unique_ptr<GrAtlasTextOp> op) override;
 
-    void drawShape(const GrClip&,
+    void drawShape(const GrClip*,
                    const SkPaint&,
                    const SkMatrixProvider&,
                    const GrStyledShape&) override {
@@ -170,13 +170,13 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
         SkSimpleMatrixProvider matrixProvider(this->ctm());
-        atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), matrixProvider, props,
+        atlasTextContext->drawGlyphRunList(grContext, this, nullptr, matrixProvider, props,
                                            glyphRunList);
     }
 }
 
-void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {
-    SkASSERT(clip.quickContains(SkRect::MakeIWH(fWidth, fHeight)));
+void SkInternalAtlasTextTarget::addDrawOp(const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op) {
+    SkASSERT(!clip || clip->quickContains(SkRect::MakeIWH(fWidth, fHeight)));
     // The SkAtlasTextRenderer currently only handles grayscale SDF glyphs.
     if (op->maskType() != GrAtlasTextOp::kGrayscaleDistanceField_MaskType) {
         return;
