@@ -191,10 +191,10 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                              srcAlphaType, direction, radius, sigma, mode);
     };
 
+    // FIXME handle the fullscreen clear here.
     if (!top.isEmpty()) {
         if (mode == SkTileMode::kDecal) {
-            dstRenderTargetContext->clear(&top, SK_PMColor4fTRANSPARENT,
-                                          GrRenderTargetContext::CanClearFullscreen::kYes);
+            dstRenderTargetContext->priv().clearAtleast(top, SK_PMColor4fTRANSPARENT);
         } else {
             convolve(top);
         }
@@ -202,8 +202,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
 
     if (!bottom.isEmpty()) {
         if (mode == SkTileMode::kDecal) {
-            dstRenderTargetContext->clear(&bottom, SK_PMColor4fTRANSPARENT,
-                                          GrRenderTargetContext::CanClearFullscreen::kYes);
+            dstRenderTargetContext->priv().clearAtleast(bottom, SK_PMColor4fTRANSPARENT);
         } else {
             convolve(bottom);
         }
