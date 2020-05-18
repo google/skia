@@ -581,10 +581,11 @@ public:
         @param width     pixel column count; must be zero or greater
         @param height    pixel row count; must be zero or greater
         @param isOpaque  true if pixels do not have transparency
+        @param cs        color space to use
 
         example: https://fiddle.skia.org/c/@Bitmap_allocN32Pixels
     */
-    void allocN32Pixels(int width, int height, bool isOpaque = false);
+    void allocN32Pixels(int width, int height, bool isOpaque = false, sk_sp<SkColorSpace> cs = nullptr);
 
     /** Sets SkImageInfo to info following the rules in setInfo(), and creates SkPixelRef
         containing pixels and rowBytes. releaseProc, if not nullptr, is called

@@ -218,9 +218,9 @@ bool SkBitmap::tryAllocN32Pixels(int width, int height, bool isOpaque) {
     return this->tryAllocPixels(info);
 }
 
-void SkBitmap::allocN32Pixels(int width, int height, bool isOpaque) {
+void SkBitmap::allocN32Pixels(int width, int height, bool isOpaque, sk_sp<SkColorSpace> cs) {
     SkImageInfo info = SkImageInfo::MakeN32(width, height,
-                                        isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+                                        isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType, cs);
     this->allocPixels(info);
 }
 
