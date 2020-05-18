@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5c789eae_230096fe",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-18T18:42:22Z",
+      "side": 1,
+      "message": "Done. The weird thing about this is there is no global here, it\u0027s just to have a unique address. Also made this debug only since it\u0027s all in support of an assert.",
+      "parentUuid": "077dcaaf_fc81a08d",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 0
+      },
+      "revId": "c9272a7f3077bb00b0f8665a2bf46c3c7db3fdf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bead44b4_db90ba57",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "c9272a7f3077bb00b0f8665a2bf46c3c7db3fdf6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2205a5_3b6a7030",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-18T18:42:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bead44b4_db90ba57",
+      "range": {
+        "startLine": 1338,
+        "startChar": 47,
+        "endLine": 1338,
+        "endChar": 50
+      },
+      "revId": "c9272a7f3077bb00b0f8665a2bf46c3c7db3fdf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
