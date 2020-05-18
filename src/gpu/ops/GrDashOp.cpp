@@ -167,9 +167,9 @@ static void setup_dashed_rect(const SkRect& rect,
     // 'dashRect' gets interpolated over the rendered 'rect'. For y we want the perpendicular signed
     // distance from the stroke center line in device space. 'perpScale' is the scale factor applied
     // to the y dimension of 'rect' isolated from 'matrix'.
-    SkScalar halfDevRectHeight =  rect.height()*perpScale/2.f;
+    SkScalar halfDevRectHeight = rect.height() * perpScale / 2.f;
     SkRect dashRect = { offset       - bloatX, -halfDevRectHeight,
-                        offset + len + bloatX,  halfDevRectHeight};
+                        offset + len + bloatX,  halfDevRectHeight };
 
     if (kRound_DashCap == cap) {
         SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
@@ -311,9 +311,8 @@ private:
         SkMatrix& combinedMatrix = fLines[0].fSrcRotInv;
         combinedMatrix.postConcat(geometry.fViewMatrix);
 
-        IsHairline zeroArea = geometry.fSrcStrokeWidth ? IsHairline::kNo
-                                                             : IsHairline::kYes;
-        HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat ::kNo : HasAABloat::kYes;
+        IsHairline zeroArea = geometry.fSrcStrokeWidth ? IsHairline::kNo : IsHairline::kYes;
+        HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat::kNo : HasAABloat::kYes;
         this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
     }
 
@@ -418,18 +417,15 @@ private:
 
             bool hasCap = SkPaint::kButt_Cap != cap;
 
-            // We always want to at least stroke out half a pixel on each side in device space
-            // so 0.5f / perpScale gives us this min in src space
-            SkScalar halfSrcStroke =
-                    std::max(args.fSrcStrokeWidth * 0.5f, 0.5f / args.fPerpendicularScale);
-
-            SkScalar strokeAdj;
-            if (!hasCap) {
-                strokeAdj = 0.f;
-            } else {
-                strokeAdj = halfSrcStroke;
+            SkScalar halfSrcStroke = args.fSrcStrokeWidth * 0.5f;
+            if (halfSrcStroke == 0.0f || this->aaMode() != AAMode::kCoverageWithMSAA) {
+                // In the non-MSAA case, we always want to at least stroke out half a pixel on each
+                // side in device space. 0.5f / fPerpendicularScale gives us this min in src space.
+                // This is also necessary when the stroke width is zero, to allow hairlines to draw.
+                halfSrcStroke = std::max(halfSrcStroke, 0.5f / args.fPerpendicularScale);
             }
 
+            SkScalar strokeAdj = hasCap ? halfSrcStroke : 0.0f;
             SkScalar startAdj = 0;
 
             bool lineDone = false;
@@ -536,14 +532,20 @@ private:
             }
             SkScalar startOffset = devIntervals[1] * 0.5f + devPhase;
 
-            // For EdgeAA, we bloat in X & Y for both square and round caps.
-            // For MSAA, we don't bloat at all for square caps, and bloat in Y only for round caps.
-            SkScalar devBloatX = this->aaMode() == AAMode::kCoverage ? 0.5f : 0.0f;
-            SkScalar devBloatY;
-            if (SkPaint::kRound_Cap == cap && this->aaMode() == AAMode::kCoverageWithMSAA) {
-                devBloatY = 0.5f;
-            } else {
-                devBloatY = devBloatX;
+            SkScalar devBloatX = 0.0f;
+            SkScalar devBloatY = 0.0f;
+            switch (this->aaMode()) {
+                case AAMode::kNone:
+                    break;
+                case AAMode::kCoverage:
+                    // For EdgeAA, we bloat in X & Y for both square and round caps.
+                    devBloatX = 0.5f;
+                    devBloatY = 0.5f;
+                    break;
+                case AAMode::kCoverageWithMSAA:
+                    // For MSAA, we only bloat in Y for round caps.
+                    devBloatY = (cap == SkPaint::kRound_Cap) ? 0.5f : 0.0f;
+                    break;
             }
 
             SkScalar bloatX = devBloatX / args.fParallelScale;
@@ -782,7 +784,7 @@ std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrRecordingContext* context,
     SkScalar strokeWidth = lineData.fSrcStrokeWidth * lineData.fPerpendicularScale;
 
     if (SkPaint::kSquare_Cap == cap && 0 != lineData.fSrcStrokeWidth) {
-        // add cap to on interveal and remove from off interval
+        // add cap to on interval and remove from off interval
         offInterval -= strokeWidth;
     }
 
