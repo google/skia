@@ -172,7 +172,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         drawable.ensureSize(100);
         SkMatrix matrix = SkMatrix::MakeScale(0.5);
         SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
-        drawable.startBitmapDevice(source, {100, 100}, matrix, rounding);
+        drawable.startDevice(source, {100, 100}, matrix, rounding);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, glyphIDs[i] == packedID.packedID().glyphID());
             REPORTER_ASSERT(reporter,
