@@ -30,6 +30,10 @@ struct PostfixExpression : public Expression {
         return fOperand->hasProperty(property);
     }
 
+    int nodeCount() const override {
+        return 1 + fOperand->nodeCount();
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new PostfixExpression(fOperand->clone(), fOperator));
     }

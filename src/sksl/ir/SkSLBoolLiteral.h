@@ -38,6 +38,10 @@ struct BoolLiteral : public Expression {
         return fValue == b.fValue;
     }
 
+    int nodeCount() const override {
+        return 1;
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
     }

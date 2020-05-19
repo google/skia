@@ -30,7 +30,7 @@ struct Symbol : public IRNode {
     , fKind(kind)
     , fName(name) {}
 
-    virtual ~Symbol() {}
+    virtual ~Symbol() override {}
 
     Kind fKind;
     StringFragment fName;
