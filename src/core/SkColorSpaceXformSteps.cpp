@@ -132,6 +132,9 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 }
 
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) const {
+#ifndef SK_LEGACY_SRGB_STAGES
+    src_is_normalized = false;
+#endif
     if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
     if (flags.linearize) {
         if (src_is_normalized && srcTF_is_sRGB) {
