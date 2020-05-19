@@ -161,7 +161,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
 
 void GrD3DOpsRenderPass::onBegin() {
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fGpu->clear(GrScissorState(), fClearColor, fRenderTarget);
+        fGpu->clear(GrScissorState(fRenderTarget->dimensions()), fClearColor, fRenderTarget);
     }
 }
 
