@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "397c79fa_dbe63c2f",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-19T15:10:32Z",
+      "side": 1,
+      "message": "Yeah, a static helper is what I meant -- too many meanings for the word static.",
+      "parentUuid": "3a24e844_63fd208a",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 94
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed33ac20_f42e48bb",
         "filename": "src/gpu/d3d/GrD3DPipelineState.h",
         "patchSetId": 5
