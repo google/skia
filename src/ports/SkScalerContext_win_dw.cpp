@@ -368,6 +368,15 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
     }
+
+    // The GDI measuring modes don't seem to work well with CBDT fonts (DWrite.dll 10.0.18362.836).
+    if (fMeasuringMode != DWRITE_MEASURING_MODE_NATURAL) {
+        constexpr UINT32 CBDTTag = DWRITE_MAKE_OPENTYPE_TAG('C','B','D','T');
+        AutoDWriteTable CBDT(typeface->fDWriteFontFace.get(), CBDTTag);
+        if (CBDT.fExists) {
+            fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+        }
+    }
 }
 
 SkScalerContext_DW::~SkScalerContext_DW() {
