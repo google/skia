@@ -287,9 +287,11 @@ SI F approx_exp2(F x) {
 #else
     F fract = x - floor_(x);
 
-    I32 bits = cast<I32>((1.0f * (1<<23)) * (x + 121.274057500f
-                                               -   1.490129070f*fract
-                                               +  27.728023300f/(4.84252568f - fract)));
+    F fbits = (1.0f * (1<<23)) * (x + 121.274057500f
+                                    -   1.490129070f*fract
+                                    +  27.728023300f/(4.84252568f - fract));
+    I32 bits = cast<I32>(max_(fbits, F0));
+
     return bit_pun<F>(bits);
 #endif
 }
