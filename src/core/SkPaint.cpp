@@ -109,6 +109,10 @@ void SkPaint::setStyle(Style style) {
     }
 }
 
+void SkPaint::setStroke(bool isStroke) {
+    fBitfields.fStyle = isStroke ? kStroke_Style : kFill_Style;
+}
+
 void SkPaint::setColor(SkColor color) {
     fColor4f = SkColor4f::FromColor(color);
 }

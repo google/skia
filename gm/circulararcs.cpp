@@ -77,13 +77,13 @@ void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
 #define DEF_ARC_GM(name) DEF_SIMPLE_GM(circular_arcs_##name, canvas, kW, kH)
 
 DEF_ARC_GM(fill) {
-    auto setFill = [] (SkPaint*p) { p->setStyle(SkPaint::kFill_Style); };
+    auto setFill = [] (SkPaint*p) { p->setStroke(false); };
     draw_arcs(canvas, setFill);
 }
 
 DEF_ARC_GM(hairline) {
     auto setHairline = [] (SkPaint* p) {
-        p->setStyle(SkPaint::kStroke_Style);
+        p->setStroke(true);
         p->setStrokeWidth(0.f);
     };
     draw_arcs(canvas, setHairline);
@@ -91,7 +91,7 @@ DEF_ARC_GM(hairline) {
 
 DEF_ARC_GM(stroke_butt) {
     auto setStroke = [](SkPaint* p) {
-        p->setStyle(SkPaint::kStroke_Style);
+        p->setStroke(true);
         p->setStrokeCap(SkPaint::kButt_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -99,7 +99,7 @@ DEF_ARC_GM(stroke_butt) {
 
 DEF_ARC_GM(stroke_square) {
     auto setStroke = [] (SkPaint* p) {
-        p->setStyle(SkPaint::kStroke_Style);
+        p->setStroke(true);
         p->setStrokeCap(SkPaint::kSquare_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -107,7 +107,7 @@ DEF_ARC_GM(stroke_square) {
 
 DEF_ARC_GM(stroke_round) {
     auto setStroke = [] (SkPaint* p) {
-        p->setStyle(SkPaint::kStroke_Style);
+        p->setStroke(true);
         p->setStrokeCap(SkPaint::kRound_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -174,16 +174,16 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     // fill
     paints.push_back();
     // stroke
-    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(kS / 6.f);
     // hairline
-    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(0.f);
     // stroke and fill
     paints.push_back().setStyle(SkPaint::kStrokeAndFill_Style);
     paints.back().setStrokeWidth(kS / 6.f);
     // dash effect
-    paints.push_back().setStyle(SkPaint::kStroke_Style);
+    paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(kS / 6.f);
     constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
     paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 2, 0.f));
@@ -235,7 +235,7 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
     SkPaint p0;
     p0.setColor(SK_ColorRED);
     p0.setStrokeWidth(15.f);
-    p0.setStyle(SkPaint::kStroke_Style);
+    p0.setStroke(true);
     p0.setAlpha(100);
     canvas->translate(20, 0);
     canvas->drawPath(path, p0);
@@ -251,7 +251,7 @@ DEF_SIMPLE_GM(crbug_888453, canvas, 480, 150) {
     SkPaint fill;
     fill.setAntiAlias(true);
     SkPaint hairline = fill;
-    hairline.setStyle(SkPaint::kStroke_Style);
+    hairline.setStroke(true);
     SkPaint stroke = hairline;
     stroke.setStrokeWidth(2.0f);
     int x = 4;
@@ -323,7 +323,7 @@ DEF_SIMPLE_GM(circular_arc_stroke_matrix, canvas, 820, 1090) {
             SkPaint paint;
             paint.setStrokeCap(cap);
             paint.setAntiAlias(true);
-            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStroke(true);
             paint.setStrokeWidth(kStrokeWidth);
             canvas->save();
                 canvas->translate(x * (2*kRadius + kPad), y * (2*kRadius + kPad));
