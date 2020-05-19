@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e19fdfb_5b3df6b7",
+        "filename": "include/private/SkSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-19T16:47:14Z",
+      "side": 1,
+      "message": "Looks like this guy is also out-of-line?",
+      "revId": "f562523a1bc15a9a3a241eebaddab2ff864e028b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
