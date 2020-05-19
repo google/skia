@@ -86,15 +86,18 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
     // Each set of rects is drawn in one test area so they probably should not abut or overlap
     // to visualize the blurs separately.
     const std::vector<SkIRect> dstRectSets[] = {
+            // encloses source bounds.
             {
                     srcRect.makeOutset(srcW/5, srcH/5)
             },
 
+            // partial overlap from above/below.
             {
                     SkIRect::MakeXYWH(srcRect.x(), srcRect.y() + 3*srcH/4, srcW, srcH),
                     SkIRect::MakeXYWH(srcRect.x(), srcRect.y() - 3*srcH/4, srcW, srcH)
             },
 
+            // adjacent to each side of src bounds.
             {
                     srcRect.makeOffset(    0,  srcH),
                     srcRect.makeOffset( srcW,     0),
@@ -102,6 +105,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                     srcRect.makeOffset(-srcW,     0),
             },
 
+            // fully outside src bounds in one direction.
             {
                     SkIRect::MakeXYWH(-6.f*srcW/8.f, -7.f*srcH/8.f,  4.f*srcW/8.f, 20.f*srcH/8.f)
                             .makeOffset(srcRect.topLeft()),
@@ -110,6 +114,18 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                     SkIRect::MakeXYWH(10.f*srcW/8.f, -3.f*srcH/8.f,  4.f*srcW/8.f, 16.f*srcH/8.f)
                             .makeOffset(srcRect.topLeft()),
                     SkIRect::MakeXYWH(-7.f*srcW/8.f, 14.f*srcH/8.f, 18.f*srcW/8.f,  1.f*srcH/8.f)
+                            .makeOffset(srcRect.topLeft()),
+            },
+
+            // outside of src bounds in both directions.
+            {
+                    SkIRect::MakeXYWH(-5.f*srcW/8.f, -5.f*srcH/8.f, 2.f*srcW/8.f, 2.f*srcH/8.f)
+                            .makeOffset(srcRect.topLeft()),
+                    SkIRect::MakeXYWH(-5.f*srcW/8.f, 12.f*srcH/8.f, 2.f*srcW/8.f, 2.f*srcH/8.f)
+                            .makeOffset(srcRect.topLeft()),
+                    SkIRect::MakeXYWH(12.f*srcW/8.f, -5.f*srcH/8.f, 2.f*srcW/8.f, 2.f*srcH/8.f)
+                            .makeOffset(srcRect.topLeft()),
+                    SkIRect::MakeXYWH(12.f*srcW/8.f, 12.f*srcH/8.f, 2.f*srcW/8.f, 2.f*srcH/8.f)
                             .makeOffset(srcRect.topLeft()),
             },
     };
@@ -229,14 +245,14 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
     }
 }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 765, 765) { run(ctx, rtc, false, false); }
+DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, rtc, canvas, 765, 955) { run(ctx, rtc, false, false); }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_ref, ctx, rtc, canvas, 765, 765) { run(ctx, rtc, false, true); }
+DEF_SIMPLE_GPU_GM(gpu_blur_utils_ref, ctx, rtc, canvas, 765, 955) { run(ctx, rtc, false, true); }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_rect, ctx, rtc, canvas, 765, 765) {
+DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_rect, ctx, rtc, canvas, 485, 730) {
     run(ctx, rtc, true, false);
 }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_ref, ctx, rtc, canvas, 765, 765) {
+DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_ref, ctx, rtc, canvas, 485, 730) {
     run(ctx, rtc, true, true);
 }

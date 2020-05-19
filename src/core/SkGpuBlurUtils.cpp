@@ -27,9 +27,7 @@ using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
 static int sigma_radius(float sigma) {
     SkASSERT(sigma >= 0);
-    int radius = static_cast<int>(ceilf(sigma * 3.0f));
-    SkASSERT(radius <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
-    return radius;
+    return static_cast<int>(ceilf(sigma * 3.0f));
 }
 
 /**
@@ -275,6 +273,7 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
                                                                 int radiusY,
                                                                 SkTileMode mode,
                                                                 SkBackingFit fit) {
+    SkASSERT(sigmaX || sigmaY);
     std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
     if (sigmaX > 0.0f) {
         SkBackingFit xFit = sigmaY > 0 ? SkBackingFit::kApprox : fit;
@@ -282,11 +281,9 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
         // clip these in a tile-mode dependent way to ensure the tile-mode gets implemented
         // correctly. However, if we're not going to do a y-pass then we must use the original
         // dstBounds without clipping to produce the correct output size.
-        int dstTop    = dstBounds.top();
-        int dstBottom = dstBounds.bottom();
+        SkIRect xPassDstBounds = dstBounds;
         if (sigmaY) {
-            dstTop    -= radiusY;
-            dstBottom += radiusY;
+            xPassDstBounds.outset(0, radiusY);
             if (mode == SkTileMode::kRepeat || mode == SkTileMode::kMirror) {
                 int srcH = srcBounds.height();
                 int srcTop = srcBounds.top();
@@ -297,38 +294,59 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
 
                 float floatH = srcH;
                 // First row above the dst rect where we should restart the tile mode.
-                int n = sk_float_floor2int_no_saturate((dstTop - srcTop)/floatH);
+                int n = sk_float_floor2int_no_saturate((xPassDstBounds.top() - srcTop)/floatH);
                 int topClip = srcTop + n*srcH;
 
                 // First row above below the dst rect where we should restart the tile mode.
-                n = sk_float_ceil2int_no_saturate((dstBottom - srcBounds.bottom())/floatH);
+                n = sk_float_ceil2int_no_saturate(
+                        (xPassDstBounds.bottom() - srcBounds.bottom())/floatH);
                 int bottomClip = srcBounds.bottom() + n*srcH;
 
-                dstTop    = std::max(dstTop,    topClip);
-                dstBottom = std::min(dstBottom, bottomClip);
+                xPassDstBounds.fTop    = std::max(xPassDstBounds.top(),    topClip);
+                xPassDstBounds.fBottom = std::min(xPassDstBounds.bottom(), bottomClip);
             } else {
-                if (dstBottom <= srcBounds.top()) {
+                if (xPassDstBounds.fBottom <= srcBounds.top()) {
                     if (mode == SkTileMode::kDecal) {
                         return nullptr;
                     }
-                    dstTop = srcBounds.top();
-                    dstBottom = dstTop + 1;
-                } else if (dstTop >= srcBounds.bottom()) {
+                    xPassDstBounds.fTop = srcBounds.top();
+                    xPassDstBounds.fBottom = xPassDstBounds.fTop + 1;
+                } else if (xPassDstBounds.fTop >= srcBounds.bottom()) {
                     if (mode == SkTileMode::kDecal) {
                         return nullptr;
                     }
-                    dstBottom = srcBounds.bottom();
-                    dstTop = dstBottom - 1;
+                    xPassDstBounds.fBottom = srcBounds.bottom();
+                    xPassDstBounds.fTop = xPassDstBounds.fBottom - 1;
                 } else {
-                    dstTop    = std::max(dstTop,    srcBounds.top());
-                    dstBottom = std::min(dstBottom, srcBounds.bottom());
+                    xPassDstBounds.fTop    = std::max(xPassDstBounds.fTop,    srcBounds.top());
+                    xPassDstBounds.fBottom = std::min(xPassDstBounds.fBottom, srcBounds.bottom());
+                }
+                int leftSrcEdge  = srcBounds.fLeft  - radiusX ;
+                int rightSrcEdge = srcBounds.fRight + radiusX;
+                if (mode == SkTileMode::kClamp) {
+                    // In clamp the column just outside the src bounds has the same value as the
+                    // column just inside, unlike decal.
+                    leftSrcEdge  += 1;
+                    rightSrcEdge -= 1;
+                }
+                if (xPassDstBounds.fRight <= leftSrcEdge) {
+                    if (mode == SkTileMode::kDecal) {
+                        return nullptr;
+                    }
+                    xPassDstBounds.fLeft = xPassDstBounds.fRight - 1;
+                } else {
+                    xPassDstBounds.fLeft = std::max(xPassDstBounds.fLeft, leftSrcEdge);
+                }
+                if (xPassDstBounds.fLeft >= rightSrcEdge) {
+                    if (mode == SkTileMode::kDecal) {
+                        return nullptr;
+                    }
+                    xPassDstBounds.fRight = xPassDstBounds.fLeft + 1;
+                } else {
+                    xPassDstBounds.fRight = std::min(xPassDstBounds.fRight, rightSrcEdge);
                 }
             }
         }
-        auto xPassDstBounds = SkIRect::MakeLTRB(dstBounds.left(),
-                                                dstTop,
-                                                dstBounds.right(),
-                                                dstBottom);
         dstRenderTargetContext = convolve_gaussian(
                 context, std::move(srcView), srcColorType, srcAlphaType, srcBounds, xPassDstBounds,
                 Direction::kX, radiusX, sigmaX, mode, colorSpace, xFit);
@@ -336,8 +354,8 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
             return nullptr;
         }
         srcView = dstRenderTargetContext->readSurfaceView();
-        int newDstBoundsOffset = dstBounds.top() - xPassDstBounds.top();
-        dstBounds = SkIRect::MakeSize(dstBounds.size()).makeOffset(0, newDstBoundsOffset);
+        SkIVector newDstBoundsOffset = dstBounds.topLeft() - xPassDstBounds.topLeft();
+        dstBounds = SkIRect::MakeSize(dstBounds.size()).makeOffset(newDstBoundsOffset);
         srcBounds = SkIRect::MakeSize(xPassDstBounds.size());
     }
 
@@ -368,8 +386,8 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     GrColorType srcColorType,
                                                     SkAlphaType srcAlphaType,
                                                     sk_sp<SkColorSpace> colorSpace,
-                                                    const SkIRect& dstBounds,
-                                                    const SkIRect& srcBounds,
+                                                    SkIRect dstBounds,
+                                                    SkIRect srcBounds,
                                                     float sigmaX,
                                                     float sigmaY,
                                                     SkTileMode mode,
@@ -390,9 +408,67 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         return nullptr;
     }
 
+    // Attempt to reduce the srcBounds in order to detect that we can set the sigmas to zero or
+    // to reduce the amount of work to rescale the source if sigmas are large. TODO: Could consider
+    // how to minimize the required source bounds for repeat/mirror modes.
+    if (mode == SkTileMode::kClamp || mode == SkTileMode::kDecal) {
+        int radiusX = sigma_radius(sigmaX);
+        int radiusY = sigma_radius(sigmaY);
+        SkIRect reach = dstBounds.makeOutset(radiusX, radiusY);
+        SkIRect intersection;
+        if (!intersection.intersect(reach, srcBounds)) {
+            if (mode == SkTileMode::kDecal) {
+                return nullptr;
+            } else {
+                if (reach.fLeft >= srcBounds.fRight) {
+                    srcBounds.fLeft = srcBounds.fRight - 1;
+                } else if (reach.fRight <= srcBounds.fLeft) {
+                    srcBounds.fRight = srcBounds.fLeft + 1;
+                }
+                if (reach.fTop >= srcBounds.fBottom) {
+                    srcBounds.fTop = srcBounds.fBottom - 1;
+                } else if (reach.fBottom <= srcBounds.fTop) {
+                    srcBounds.fBottom = srcBounds.fTop + 1;
+                }
+            }
+        } else {
+            srcBounds = intersection;
+        }
+    }
+
+    if (mode != SkTileMode::kDecal) {
+        // All non-decal tile modes are equivalent for one pixel width/height src and amount to a
+        // single color value repeated at each column/row. Applying the normalized kernel to that
+        // column/row yields that same color. So no blurring is necessary.
+        if (srcBounds.width() == 1) {
+            sigmaX = 0.f;
+        }
+        if (srcBounds.height() == 1) {
+            sigmaY = 0.f;
+        }
+    }
+
+    // If we determined that there is no blurring necessary in either direction then just do a
+    // a draw that applies the tile mode.
+    if (!sigmaX && !sigmaY) {
+        auto result = GrRenderTargetContext::Make(context, srcColorType, std::move(colorSpace), fit,
+                                                  dstBounds.size());
+        GrSamplerState sampler(SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest);
+        auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
+                                              sampler, SkRect::Make(srcBounds),
+                                              SkRect::Make(dstBounds), *context->priv().caps());
+        GrPaint paint;
+        paint.addColorFragmentProcessor(std::move(fp));
+        result->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                         SkRect::Make(dstBounds.size()));
+        return result;
+    }
+
     if (sigmaX <= MAX_BLUR_SIGMA && sigmaY <= MAX_BLUR_SIGMA) {
         int radiusX = sigma_radius(sigmaX);
         int radiusY = sigma_radius(sigmaY);
+        SkASSERT(radiusX <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
+        SkASSERT(radiusY <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
         // For really small blurs (certainly no wider than 5x5 on desktop GPUs) it is faster to just
         // launch a single non separable kernel vs two launches.
         const int kernelSize = (2 * radiusX + 1) * (2 * radiusY + 1);
@@ -407,16 +483,13 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                  radiusX, radiusY, mode, fit);
     }
 
-    // TODO: Can we examine the src/dst bounds and mode to determine that part of the srcBounds can
-    // be omitted from the rescaling?
-
     float scaleX = sigmaX > MAX_BLUR_SIGMA ? MAX_BLUR_SIGMA/sigmaX : 1.f;
     float scaleY = sigmaY > MAX_BLUR_SIGMA ? MAX_BLUR_SIGMA/sigmaY : 1.f;
     // We round down here so that when we recalculate sigmas we know they will be below
     // MAX_BLUR_SIGMA.
     SkISize rescaledSize = {sk_float_floor2int(srcBounds.width() *scaleX),
                             sk_float_floor2int(srcBounds.height()*scaleY)};
-    if (rescaledSize.isZero()) {
+    if (rescaledSize.isEmpty()) {
         // TODO: Handle this degenerate case.
         return nullptr;
     }
@@ -461,7 +534,6 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     return reexpand(context, std::move(rtc), scaledDstBounds, dstBounds.size(),
                     std::move(colorSpace), fit);
 }
-
 }
 
 #endif
