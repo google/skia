@@ -40,7 +40,8 @@ private:
     }
     // Allocates space in fAtlas if the path is small and simple enough, and if there is room.
     bool tryAddPathToAtlas(const GrCaps&, const SkMatrix&, const SkPath&, GrAAType,
-                           SkIRect* devIBounds, SkIVector* devToAtlasOffset);
+                           SkIRect* devIBounds, SkIPoint16* locationInAtlas,
+                           bool* transposedInAtlas);
     void renderAtlas(GrOnFlushResourceProvider*);
 
     GrDynamicAtlas fAtlas;

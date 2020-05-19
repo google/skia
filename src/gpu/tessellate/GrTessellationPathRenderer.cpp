@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
+#include "src/core/SkIPoint16.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -21,9 +22,17 @@
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
 
+// The atlas is only used for small-area paths, which means at least one dimension of every path is
+// guaranteed to be quite small. So if we transpose tall paths, then every path will have a small
+// height, which lends very well to efficient pow2 atlas packing.
+constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPow2;
+
+// Ensure every path in the atlas falls in or below the 128px high rectanizer band.
+constexpr static int kMaxAtlasPathHeight = 128;
+
 GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps) : fAtlas(
         GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
-        std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()), caps) {
+        std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()), caps, kAtlasAlgorithm) {
 }
 
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
@@ -60,13 +69,14 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     // render the sample mask to an integer texture, but such a scheme would probably require
     // GL_EXT_post_depth_coverage, which appears to have low adoption.
     SkIRect devIBounds;
-    SkIVector devToAtlasOffset;
+    SkIPoint16 locationInAtlas;
+    bool transposedInAtlas;
     if (this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, path,
-                                args.fAAType, &devIBounds, &devToAtlasOffset)) {
+                                args.fAAType, &devIBounds, &locationInAtlas, &transposedInAtlas)) {
         auto op = pool->allocate<GrDrawAtlasPathOp>(
                 renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
-                devIBounds, devToAtlasOffset, *args.fViewMatrix, std::move(args.fPaint));
-        renderTargetContext->addDrawOp(*args.fClip, std::move(op));
+                devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
+                std::move(args.fPaint)); renderTargetContext->addDrawOp(*args.fClip, std::move(op));
         return true;
     }
 
@@ -78,36 +88,57 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 bool GrTessellationPathRenderer::tryAddPathToAtlas(
         const GrCaps& caps, const SkMatrix& viewMatrix, const SkPath& path, GrAAType aaType,
-        SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
+        SkIRect* devIBounds, SkIPoint16* locationInAtlas, bool* transposedInAtlas) {
     if (!caps.multisampleDisableSupport() && GrAAType::kNone == aaType) {
         return false;
     }
 
-    // Atlas paths require their points to be transformed on CPU. Check if the path has too many
-    // points to justify this CPU transformation.
-    if (path.countPoints() > 150) {
+    // Atlas paths require their points to be transformed on the CPU and copied into an "uber path".
+    // Check if this path has too many points to justify this extra work.
+    if (path.countPoints() > 200) {
         return false;
     }
 
-    // Check if the path is too large for an atlas.
     SkRect devBounds;
     viewMatrix.mapRect(&devBounds, path.getBounds());
-    if (devBounds.height() * devBounds.width() > 100 * 100 ||
-        std::max(devBounds.height(), devBounds.width()) > kMaxAtlasSize / 2) {
+    devBounds.roundOut(devIBounds);
+
+    // Transpose tall paths in the atlas. Since we limit ourselves to small-area paths, this
+    // guarantees that every atlas entry has a small height, which lends very well to efficient pow2
+    // atlas packing.
+    int maxDimenstion = devIBounds->width();
+    int minDimension = devIBounds->height();
+    *transposedInAtlas = minDimension > maxDimenstion;
+    if (*transposedInAtlas) {
+        std::swap(minDimension, maxDimenstion);
+    }
+
+    // Check if the path is too large for an atlas. Since we use "minDimension" for height in the
+    // atlas, limiting to kMaxAtlasPathHeight^2 pixels guarantees height <= kMaxAtlasPathHeight.
+    if (maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
+        maxDimenstion > kMaxAtlasSize / 2) {
         return false;
     }
 
-    devBounds.roundOut(devIBounds);
-    if (!fAtlas.addRect(*devIBounds, devToAtlasOffset)) {
+    if (!fAtlas.addRect(maxDimenstion, minDimension, locationInAtlas)) {
         return false;
     }
 
     SkMatrix atlasMatrix = viewMatrix;
-    atlasMatrix.postTranslate(devToAtlasOffset->x(), devToAtlasOffset->y());
+    if (*transposedInAtlas) {
+        std::swap(atlasMatrix[0], atlasMatrix[3]);
+        std::swap(atlasMatrix[1], atlasMatrix[4]);
+        float tx=atlasMatrix.getTranslateX(), ty=atlasMatrix.getTranslateY();
+        atlasMatrix.setTranslateX(ty - devIBounds->y() + locationInAtlas->x());
+        atlasMatrix.setTranslateY(tx - devIBounds->x() + locationInAtlas->y());
+    } else {
+        atlasMatrix.postTranslate(locationInAtlas->x() - devIBounds->x(),
+                                  locationInAtlas->y() - devIBounds->y());
+    }
 
     // Concatenate this path onto our uber path that matches its fill and AA types.
     SkPath* uberPath = this->getAtlasUberPath(path.getFillType(), GrAAType::kNone != aaType);
-    uberPath->moveTo(devToAtlasOffset->x(), devToAtlasOffset->y());  // Implicit moveTo(0,0).
+    uberPath->moveTo(locationInAtlas->x(), locationInAtlas->y());  // Implicit moveTo(0,0).
     uberPath->addPath(path, atlasMatrix);
     return true;
 }
