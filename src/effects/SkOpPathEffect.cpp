@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkOpPE.h"
@@ -89,21 +90,41 @@ sk_sp<SkFlattenable> SkMatrixPE::CreateProc(SkReadBuffer& buffer) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkPathEffect> SkStrokePathEffect::Make(SkScalar width, SkPaint::Join join, SkPaint::Cap cap,
-                                             SkScalar miter) {
+                                             SkScalar miter, bool strokeAndFill) {
     if (!SkScalarsAreFinite(width, miter) || width < 0 || miter < 0) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkStrokePE(width, join, cap, miter));
+    if (width == 0) {
+        strokeAndFill = false;
+    }
+    return sk_sp<SkPathEffect>(new SkStrokePE(width, join, cap, miter, strokeAndFill));
 }
 
-SkStrokePE::SkStrokePE(SkScalar width, SkPaint::Join join, SkPaint::Cap cap, SkScalar miter)
-    : fWidth(width), fMiter(miter), fJoin(join), fCap(cap) {}
+sk_sp<SkPathEffect> SkStrokePathEffect::Make(const SkPaint& paint, bool strokeAndFill) {
+    return Make(paint.getStrokeWidth(), paint.getStrokeJoin(), paint.getStrokeCap(),
+                paint.getStrokeMiter(), strokeAndFill);
+}
+
+SkStrokePE::SkStrokePE(SkScalar width, SkPaint::Join join, SkPaint::Cap cap, SkScalar miter,
+                       bool strokeAndFill)
+    : fWidth(width), fMiter(miter), fJoin(join), fCap(cap), fStrokeAndFill(strokeAndFill) {}
 
 bool SkStrokePE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
     rec.setStrokeStyle(fWidth);
     rec.setStrokeParams(fCap, fJoin, fMiter);
-    return rec.applyToPath(dst, src);
+    if (!rec.applyToPath(dst, src)) {
+        return false;
+    }
+    if (fStrokeAndFill) {
+        // lifted from SkStroke.cpp as an attempt to handle winding directions
+        if (SkPathPriv::CheapIsFirstDirection(src, SkPathPriv::kCCW_FirstDirection)) {
+            dst->reverseAddPath(src);
+        } else {
+            dst->addPath(src);
+        }
+    }
+    return true;
 }
 
 void SkStrokePE::flatten(SkWriteBuffer& buffer) const {
@@ -111,6 +132,7 @@ void SkStrokePE::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fMiter);
     buffer.write32(fJoin);
     buffer.write32(fCap);
+    buffer.writeBool(fStrokeAndFill);
 }
 
 sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
@@ -118,7 +140,15 @@ sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
     SkScalar miter = buffer.readScalar();
     SkPaint::Join join = buffer.read32LE(SkPaint::kLast_Join);
     SkPaint::Cap cap = buffer.read32LE(SkPaint::kLast_Cap);
-    return buffer.isValid() ? SkStrokePathEffect::Make(width, join, cap, miter) : nullptr;
+
+    bool strokeAndFill = false;
+    if (!buffer.isVersionLT(SkPicturePriv::kStrokeAndFillPathEffect_Version)) {
+        strokeAndFill = buffer.readBool();
+    }
+
+    return buffer.isValid() ?
+           SkStrokePathEffect::Make(width, join, cap, miter, strokeAndFill) :
+           nullptr;
 }
 
 
