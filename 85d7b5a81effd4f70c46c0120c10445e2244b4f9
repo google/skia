@@ -22,6 +22,30 @@
       "revId": "85d7b5a81effd4f70c46c0120c10445e2244b4f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1f910e1_b538687f",
+        "filename": "gm/userfont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-19T16:40:41Z",
+      "side": 1,
+      "message": "Does it matter, or are we just shooting for lots of bits (given that our output is floats)? If the name is confusing, I\u0027m happy to just change it to big_size or something.",
+      "parentUuid": "f62f1201_516c5abe",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "85d7b5a81effd4f70c46c0120c10445e2244b4f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
