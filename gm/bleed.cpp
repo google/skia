@@ -253,12 +253,18 @@ protected:
                 this->drawCase4(canvas, kCol1X, kRow3Y, aa, kLow_SkFilterQuality);
                 this->drawCase5(canvas, kCol1X, kRow4Y, aa, kLow_SkFilterQuality);
 
-                // Then draw a column with high filtering
-                this->drawCase1(canvas, kCol2X, kRow0Y, aa, kHigh_SkFilterQuality);
-                this->drawCase2(canvas, kCol2X, kRow1Y, aa, kHigh_SkFilterQuality);
-                this->drawCase3(canvas, kCol2X, kRow2Y, aa, kHigh_SkFilterQuality);
-                this->drawCase4(canvas, kCol2X, kRow3Y, aa, kHigh_SkFilterQuality);
-                this->drawCase5(canvas, kCol2X, kRow4Y, aa, kHigh_SkFilterQuality);
+                // Then draw a column with high filtering. Skip it if in kStrict mode and MIP
+                // mapping will be used. On GPU we allow bleeding at non-base levels because
+                // building a new MIP chain for the subset is expensive.
+                SkScalar scales[2];
+                SkAssertResult(matrices[m].getMinMaxScales(scales));
+                if (fConstraint != SkCanvas::kStrict_SrcRectConstraint || scales[0] >= 1.f) {
+                    this->drawCase1(canvas, kCol2X, kRow0Y, aa, kHigh_SkFilterQuality);
+                    this->drawCase2(canvas, kCol2X, kRow1Y, aa, kHigh_SkFilterQuality);
+                    this->drawCase3(canvas, kCol2X, kRow2Y, aa, kHigh_SkFilterQuality);
+                    this->drawCase4(canvas, kCol2X, kRow3Y, aa, kHigh_SkFilterQuality);
+                    this->drawCase5(canvas, kCol2X, kRow4Y, aa, kHigh_SkFilterQuality);
+                }
 
                 SkPoint corners[] = { { 0, 0 },{ 0, kBottom },{ kWidth, kBottom },{ kWidth, 0 } };
                 matrices[m].mapPoints(corners, 4);
