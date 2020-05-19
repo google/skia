@@ -617,8 +617,11 @@ void GrStyledShape::simplify() {
 bool GrStyledShape::simplifyStroke(bool originallyClosed) {
     // For stroke+filled rects, a mitered shape becomes a larger rect and a rounded shape
     // becomes a round rect.
-    if (!fStyle.hasPathEffect() && fShape.isRect() &&
-        fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+    if (!fStyle.hasPathEffect() && fShape.isRect()
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        && fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style
+#endif
+        ) {
         if (fStyle.strokeRec().getJoin() == SkPaint::kBevel_Join ||
             (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
              fStyle.strokeRec().getMiter() < SK_ScalarSqrt2)) {
@@ -681,6 +684,7 @@ bool GrStyledShape::simplifyStroke(bool originallyClosed) {
     if (fStyle.isSimpleFill()) {
         fShape.reset();
         return true;
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     } else if (fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         // Stroke only
         SkStrokeRec rec = fStyle.strokeRec();
@@ -688,6 +692,7 @@ bool GrStyledShape::simplifyStroke(bool originallyClosed) {
         fStyle = GrStyle(rec, nullptr);
         styleSimplified = true;
         strokeAndFilled = true;
+#endif
     }
 
     // A point or line that was formed by a degenerate closed shape needs its style updated to

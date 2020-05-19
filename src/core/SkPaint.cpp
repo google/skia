@@ -303,7 +303,7 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
     packed >>= 2;
     paint->setStrokeJoin(safe.checkLE(packed & 0x3, SkPaint::kLast_Join));
     packed >>= 2;
-    paint->setStyle(safe.checkLE(packed & 0x3, SkPaint::kStrokeAndFill_Style));
+    paint->setStyle(safe.checkLE(packed & 0x3, SkPaint::kLast_Style));
     packed >>= 2;
     paint->setFilterQuality(safe.checkLE(packed & 0x3, kLast_SkFilterQuality));
     packed >>= 2;
@@ -369,7 +369,7 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
     uint32_t tmp = buffer.readUInt();
     paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
     paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
-    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
+    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kLast_Style));
     paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
     sk_sp<SkTypeface> tf;
