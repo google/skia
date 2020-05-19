@@ -639,6 +639,10 @@ optional("gpu") {
   if (is_debug) {
     public_defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
+
+  if (skia_enable_intel_msaa) {
+    public_defines += [ "SK_ENABLE_INTEL_MSAA" ]
+  }
 }
 
 optional("gif") {
