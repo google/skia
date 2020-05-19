@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27349a9d_32e3bfc3",
+        "filename": "src/gpu/d3d/GrD3DStagingBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:34:28Z",
+      "side": 1,
+      "message": "After the Make here do we need or an assert:\nif (!buffer) {\n    return nullptr;\n}",
+      "range": {
+        "startLine": 14,
+        "startChar": 3,
+        "endLine": 16,
+        "endChar": 76
+      },
+      "revId": "4562ac3cfb90032ce3ff853e96053ebd334d2f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
