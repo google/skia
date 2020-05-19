@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "156fc1d5_89d6b939",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T14:53:12Z",
+      "side": 1,
+      "message": "Okay yeah I guess that is what I was thinking once we start putting the data into actually uniform buffers there could be some failures there. But happy to wait on adding a failure check till you decide how to do that step.",
+      "parentUuid": "6807a64c_550be298",
+      "range": {
+        "startLine": 148,
+        "startChar": 4,
+        "endLine": 148,
+        "endChar": 48
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e2cc4581_a093efb1",
         "filename": "src/gpu/d3d/GrD3DPipelineState.h",
         "patchSetId": 5
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "This was to avoid having a giant parameter list, because I\u0027ll have to pass through the additional params to the GrD3DPipelineState constructor to store the uniforms, processors, etc.  I also considered making it a private static function in GrD3DPipelineStateBuilder, if that works better.",
       "parentUuid": "e2cc4581_a093efb1",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 94
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a24e844_63fd208a",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T14:53:12Z",
+      "side": 1,
+      "message": "The long parameter list doesn\u0027t seem like a big issue to me since you have to type all the params anyway either in one function together or in two functions called one after the other. And we only do this in one place.\n\nSo yeah I\u0027d go either to a combined GrD3DPipelineState::Make call or move all the creation of the ID3D12PipelineState to the builder, which I don\u0027t think even needs to be a static member of the class. Couldn\u0027t it just be a static helper in the cpp?",
+      "parentUuid": "956e863b_6805d84a",
       "range": {
         "startLine": 26,
         "startChar": 3,
