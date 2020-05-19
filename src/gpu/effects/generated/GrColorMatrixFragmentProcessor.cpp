@@ -39,13 +39,9 @@ public:
         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 "v");
         fragBuilder->codeAppendf(
-                "half4 inputColor = %s;\n@if (%s) {\n    half4 inlineResult530;\n    half4 "
-                "inlineArg530_0 = inputColor;\n    do {\n        {\n            inlineResult530 = "
-                "half4(inlineArg530_0.xyz / max(inlineArg530_0.w, 9.9999997473787516e-05), "
-                "inlineArg530_0.w);\n            break;\n        }\n    } while (false);\n    "
-                "inputColor = inlineResult530;\n\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    "
-                "%s = clamp(%s, 0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if "
-                "(%s) {\n    %s.xyz *= %s.w;\n}\n",
+                "half4 inputColor = %s;\n@if (%s) {\n    inputColor = unpremul(inputColor);\n}\n%s "
+                "= %s * inputColor + %s;\n@if (%s) {\n    %s = clamp(%s, 0.0, 1.0);\n} else {\n    "
+                "%s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                 args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),

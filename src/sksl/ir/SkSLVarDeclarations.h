@@ -29,19 +29,6 @@ struct VarDeclaration : public Statement {
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
-    int nodeCount() const override {
-        int result = 1;
-        for (const auto& s : fSizes) {
-            if (s) {
-                result += s->nodeCount();
-            }
-        }
-        if (fValue) {
-            result += fValue->nodeCount();
-        }
-        return result;
-    }
-
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;
         for (const auto& s : fSizes) {
@@ -90,14 +77,6 @@ struct VarDeclarations : public ProgramElement {
         }
     }
 
-    int nodeCount() const override {
-        int result = 1;
-        for (const auto& v : fVars) {
-            result += v->nodeCount();
-        }
-        return result;
-    }
-
     std::unique_ptr<ProgramElement> clone() const override {
         std::vector<std::unique_ptr<VarDeclaration>> cloned;
         for (const auto& v : fVars) {
@@ -112,15 +91,8 @@ struct VarDeclarations : public ProgramElement {
         if (!fVars.size()) {
             return String();
         }
-        String result;
-        for (const auto& var : fVars) {
-            if (var->fKind != Statement::kNop_Kind) {
-                SkASSERT(var->fKind == Statement::kVarDeclaration_Kind);
-                result = ((const VarDeclaration&) *var).fVar->fModifiers.description();
-                break;
-            }
-        }
-        result += fBaseType.description() + " ";
+        String result = ((VarDeclaration&) *fVars[0]).fVar->fModifiers.description() +
+                fBaseType.description() + " ";
         String separator;
         for (const auto& var : fVars) {
             result += separator;
