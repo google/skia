@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6807a64c_550be298",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-19T14:46:39Z",
+      "side": 1,
+      "message": "There\u0027s no failure point that I can see. It\u0027s calling a bunch of setData() methods which all return void.\n\nAnd my plan is to either add a separate bindUniforms() method or combine the binding step in and rename it. If there\u0027s a failure point then, I\u0027ll add the bool.",
+      "parentUuid": "6c7e288c_25f40cb0",
+      "range": {
+        "startLine": 148,
+        "startChar": 4,
+        "endLine": 148,
+        "endChar": 48
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e2cc4581_a093efb1",
         "filename": "src/gpu/d3d/GrD3DPipelineState.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-19T13:47:04Z",
       "side": 1,
       "message": "I\u0027m confused about this change. We are not every using the ID3D12PipelineState returned by this besides just putting in directly into a GrD3DPipelineState object. So why not leave the original Make function. Within that make function you can obviously pull out a private helper function to make the ID3D12PipelineState but I don\u0027t see any reason for this to be a public factory here.",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 94
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "956e863b_6805d84a",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-19T14:46:39Z",
+      "side": 1,
+      "message": "This was to avoid having a giant parameter list, because I\u0027ll have to pass through the additional params to the GrD3DPipelineState constructor to store the uniforms, processors, etc.  I also considered making it a private static function in GrD3DPipelineStateBuilder, if that works better.",
+      "parentUuid": "e2cc4581_a093efb1",
       "range": {
         "startLine": 26,
         "startChar": 3,
