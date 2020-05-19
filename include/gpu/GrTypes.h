@@ -227,12 +227,15 @@ static const uint32_t kAll_GrBackendState = 0xffffffff;
 
 enum GrFlushFlags {
     kNone_GrFlushFlags = 0,
-    // flush will wait till all submitted GPU work is finished before returning.
+    // Deprecated: Use syncCpu call on submit instead.
     kSyncCpu_GrFlushFlag = 0x1,
 };
 
 typedef void* GrGpuFinishedContext;
 typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+
+typedef void* GrGpuSubmittedContext;
+typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool success);
 
 /**
  * Struct to supply options to flush calls.
@@ -251,13 +254,24 @@ typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
  * from this flush call and all previous flush calls has finished on the GPU. If the flush call
  * fails due to an error and nothing ends up getting sent to the GPU, the finished proc is called
  * immediately.
+ *
+ * If a submittedProc is provided, the submittedProc will be called when all work from this flush
+ * call is submitted to the GPU. If the flush call fails due to an error and nothing will get sent
+ * to the GPU, the submitted proc is called immediately. It is possibly that when work is finally
+ * submitted, that the submission actual fails. In this case we will not reattempt to do the
+ * submission. Skia notifies the client of these via the success bool passed into the submittedProc.
+ * The submittedProc is useful to the client to know when semaphores that were sent with the flush
+ * have actually been submitted to the GPU so that they can be waited on (or deleted if the submit
+ * fails).
  */
 struct GrFlushInfo {
-    GrFlushFlags         fFlags = kNone_GrFlushFlags;
-    int                  fNumSemaphores = 0;
-    GrBackendSemaphore*  fSignalSemaphores = nullptr;
-    GrGpuFinishedProc    fFinishedProc = nullptr;
-    GrGpuFinishedContext fFinishedContext = nullptr;
+    GrFlushFlags          fFlags = kNone_GrFlushFlags;
+    int                   fNumSemaphores = 0;
+    GrBackendSemaphore*   fSignalSemaphores = nullptr;
+    GrGpuFinishedProc     fFinishedProc = nullptr;
+    GrGpuFinishedContext  fFinishedContext = nullptr;
+    GrGpuSubmittedProc    fSubmittedProc = nullptr;
+    GrGpuSubmittedContext fSubmittedContext = nullptr;
 };
 
 /**
