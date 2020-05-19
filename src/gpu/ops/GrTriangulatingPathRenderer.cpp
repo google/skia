@@ -11,12 +11,12 @@
 #include "src/core/SkGeometry.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSimpleMesh.h"
@@ -419,12 +419,11 @@ private:
 bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrTriangulatingPathRenderer::onDrawPath");
-    SkIRect clipBoundsI = args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
-                                                            args.fRenderTargetContext->height());
+
     std::unique_ptr<GrDrawOp> op = TriangulatingPathOp::Make(
-            args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix, clipBoundsI,
-            args.fAAType, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+            args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
+            *args.fClipConservativeBounds, args.fAAType, args.fUserStencilSettings);
+    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

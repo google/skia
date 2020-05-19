@@ -537,7 +537,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                              GrPaint&& paint,
                                              GrAAType aaType,
                                              const GrUserStencilSettings& userStencilSettings,
-                                             const GrClip& clip,
+                                             const GrClip* clip,
                                              const SkMatrix& viewMatrix,
                                              const GrStyledShape& shape,
                                              bool stencilOnly) {
@@ -705,7 +705,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     return this->internalDrawPath(
             args.fRenderTargetContext, std::move(args.fPaint), aaType, *args.fUserStencilSettings,
-            *args.fClip, *args.fViewMatrix, *args.fShape, false);
+            args.fClip, *args.fViewMatrix, *args.fShape, false);
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
@@ -720,7 +720,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     this->internalDrawPath(
             args.fRenderTargetContext, std::move(paint), aaType, GrUserStencilSettings::kUnused,
-            *args.fClip, *args.fViewMatrix, *args.fShape, true);
+            args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

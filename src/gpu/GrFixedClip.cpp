@@ -63,8 +63,3 @@ bool GrFixedClip::apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRec
 
     return true;
 }
-
-const GrFixedClip& GrFixedClip::Disabled() {
-    static const GrFixedClip disabled = GrFixedClip();
-    return disabled;
-}
