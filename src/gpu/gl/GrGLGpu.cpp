@@ -2045,9 +2045,11 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
     GrGLenum externalFormat = 0;
     GrGLenum externalType = 0;
+
+    SkDebugf("getReadPixelsFormat surfaceColorType=%d, dstColorType=%d\n", surfaceColorType, dstColorType);
     this->glCaps().getReadPixelsFormat(surface->backendFormat().asGLFormat(),
-                                       surfaceColorType,
-                                       dstColorType,
+                                       surfaceColorType, // I saw kRGBA_F16 here
+                                       dstColorType, //kRGBA_F32
                                        &externalFormat,
                                        &externalType);
     if (!externalFormat || !externalType) {

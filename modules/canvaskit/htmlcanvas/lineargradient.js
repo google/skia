@@ -60,7 +60,7 @@ function LinearCanvasGradient(x1, y1, x2, y2) {
 
     this._dispose();
     this._shader = CanvasKit.SkShader.MakeLinearGradient([sx1, sy1], [sx2, sy2],
-      this._colors, this._pos, CanvasKit.TileMode.Clamp);
+      this._colors, null, this._pos, CanvasKit.TileMode.Clamp);
     return this._shader;
   }
 }
