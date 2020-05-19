@@ -54,7 +54,7 @@ static void show_zero_len_dash(SkCanvas* canvas) {
     SkPaint paint;
 
     drawline(canvas, 2, 2, paint, SkIntToScalar(0));
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(SkIntToScalar(2));
     canvas->translate(0, SkIntToScalar(20));
     drawline(canvas, 4, 4, paint, SkIntToScalar(0));
@@ -72,7 +72,7 @@ class DashingGM : public skiagm::GM {
         };
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->translate(0, SK_ScalarHalf);
@@ -156,7 +156,7 @@ class Dashing2GM : public skiagm::GM {
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(SkIntToScalar(6));
 
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(120), SkIntToScalar(120));
@@ -204,7 +204,7 @@ class Dashing3GM : public skiagm::GM {
                          bool circles) {
         SkPaint p;
         p.setColor(SK_ColorBLACK);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(SkIntToScalar(strokeWidth));
 
         if (circles) {
@@ -324,7 +324,7 @@ class Dashing4GM : public skiagm::GM {
         };
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
@@ -430,7 +430,7 @@ private:
         };
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         paint.setAntiAlias(fDoAA);
 
@@ -489,7 +489,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     }
     SkPaint p;
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
@@ -501,7 +501,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
 DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
     SkPaint p;
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(80);
 
     const SkScalar intervals[] = { 2, 2 };
@@ -512,7 +512,7 @@ DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
 DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
     SkPaint p;
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(2);
 
     SkPath wavy;
@@ -527,7 +527,7 @@ DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
 DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     SkPaint p;
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(10);
     p.setStrokeCap(SkPaint::kRound_Cap);
     p.setStrokeJoin(SkPaint::kRound_Join);
@@ -546,7 +546,7 @@ DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
     SkPaint dashPaint;
     dashPaint.setPathEffect(SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0.f));
     SkASSERT(dashPaint.getPathEffect());
-    dashPaint.setStyle(SkPaint::kStroke_Style);
+    dashPaint.setStroke(true);
     dashPaint.setStrokeWidth(20.f);
     static constexpr struct {
         SkPoint fA, fB;

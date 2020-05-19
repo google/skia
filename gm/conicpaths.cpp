@@ -112,7 +112,7 @@ protected:
                 for (int aa = 0; aa < 2; ++aa) {
                     paint.setAntiAlias(SkToBool(aa));
                     for (int fh = 0; fh < 2; ++fh) {
-                        paint.setStyle(fh ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
+                        paint.setStroke(fh != 0);
 
                         const SkRect& bounds = fPaths[p].getBounds();
                         canvas->save();
@@ -148,7 +148,7 @@ DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
     SkScalar radius = 1096.702150363923f;
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     canvas->drawCircle(c, radius, paint);
     SkPath path;
     path.moveTo(288.88884710654133f, -280.26680862609f);
@@ -164,7 +164,7 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
     SkScalar radius = 1096.702150363923f;
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     canvas->drawCircle(c, radius, paint);
 }
 
@@ -174,7 +174,7 @@ DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     SkRect r = SkRect::MakeXYWH(-520, -520, 5000, 4000);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(100);
     canvas->drawOval(r, paint);
     r.offset(-15, -15);
@@ -188,7 +188,7 @@ DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     canvas->rotate(1.0f);
     r.offset(55, 55);
     paint.setColor(SK_ColorGRAY);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(100);
     canvas->drawOval(r, paint);
     r.offset(-15, -15);

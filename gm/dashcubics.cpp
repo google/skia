@@ -31,7 +31,7 @@ static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
                    SkPaint::Join join) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeJoin(join);
     paint.setStrokeWidth(42);
     canvas->drawPath(path, paint);
@@ -119,7 +119,7 @@ protected:
 
         SkPaint hairlinePaint;
         hairlinePaint.setAntiAlias(true);
-        hairlinePaint.setStyle(SkPaint::kStroke_Style);
+        hairlinePaint.setStroke(true);
         hairlinePaint.setStrokeCap(SkPaint::kRound_Cap);
         hairlinePaint.setStrokeWidth(2);
         SkPaint normalPaint = hairlinePaint;
