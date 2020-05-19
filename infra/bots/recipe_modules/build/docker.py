@@ -14,9 +14,6 @@ IMAGES = {
     'gcc-debian10-x86': (
         'gcr.io/skia-public/gcc-debian10-x86@sha256:'
         'b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203'),
-    'gcc-debian10-mips64el': (
-        'gcr.io/skia-public/gcc-debian10-mips64el@sha256:'
-        'c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540'),
 }
 
 
@@ -76,10 +73,6 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian10'
     elif target_arch == 'x86':
       image_name = 'gcc-debian10-x86'
-    elif target_arch in ['mips64el', 'loongson3a']:
-      image_name = 'gcc-debian10-mips64el'
-      args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
-      args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
