@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrDataUtils.h"
 
+#include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
@@ -595,7 +596,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         if (hasConversion) {
             loadSwizzle.apply(&pipeline);
             if (srcIsSRGB) {
-                pipeline.append(SkRasterPipeline::from_srgb);
+                pipeline.append_transfer_function(*skcms_sRGB_TransferFunction());
             }
             if (alphaOrCSConversion) {
                 steps->apply(&pipeline, srcIsNormalized);
@@ -606,14 +607,14 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             if (doLumToAlpha) {
                 pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
                 // If we ever needed to convert from linear-encoded gray to sRGB-encoded
-                // gray we'd have a problem here because the subsequent to_srgb stage
+                // gray we'd have a problem here because the subsequent transfer function stage
                 // ignores the alpha channel (where we just stashed the gray). There are
                 // several ways that could be fixed but given our current set of color types
                 // this should never happen.
                 SkASSERT(!dstIsSRGB);
             }
             if (dstIsSRGB) {
-                pipeline.append(SkRasterPipeline::to_srgb);
+                pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
             }
             storeSwizzle.apply(&pipeline);
         } else {
@@ -664,14 +665,14 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f
     if (doLumToAlpha) {
         pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
         // If we ever needed to convert from linear-encoded gray to sRGB-encoded
-        // gray we'd have a problem here because the subsequent to_srgb stage
+        // gray we'd have a problem here because the subsequent transfer function stage
         // ignores the alpha channel (where we just stashed the gray). There are
         // several ways that could be fixed but given our current set of color types
         // this should never happen.
         SkASSERT(!dstIsSRGB);
     }
     if (dstIsSRGB) {
-        pipeline.append(SkRasterPipeline::to_srgb);
+        pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
     }
     storeSwizzle.apply(&pipeline);
     SkRasterPipeline_MemoryCtx dstCtx{dst, SkToInt(dstRB/dstInfo.bpp())};
