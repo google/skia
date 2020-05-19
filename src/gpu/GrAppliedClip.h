@@ -21,12 +21,7 @@
  */
 class GrAppliedHardClip {
 public:
-    static const GrAppliedHardClip& Disabled() {
-        static GrAppliedHardClip kDisabled;
-        return kDisabled;
-    }
-
-    GrAppliedHardClip() = default;
+    GrAppliedHardClip(const SkISize& rtDims) : fScissorState(rtDims) {}
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
     GrAppliedHardClip(const GrAppliedHardClip&) = delete;
 
@@ -34,6 +29,8 @@ public:
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     uint32_t stencilStackID() const { return fStencilStackID; }
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fStencilStackID; }
+
+
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
@@ -59,6 +56,19 @@ public:
         fStencilStackID = stencilStackID;
     }
 
+    void finish(const SkISize& logicalRTDimensions, bool drawUsesStencil) {
+        if (drawUsesStencil || this->hasStencilClip()) {
+            // Stencil-modifying draws cannot touch pixels outside the logical dimensions of the
+            // render target in order to preserve the guarantee that the GrRTC leaves the stencil
+            // bits set to 0 when it's done.
+            SkAssertResult(fScissorState.intersect(SkIRect::MakeSize(logicalRTDimensions)));
+        } else {
+            // Color-only draws have no such restriction, so if the only scissor test is to match
+            // the logical dimensions of the render target we can drop the test.
+            fScissorState.relaxTest(logicalRTDimensions);
+        }
+    }
+
     bool doesClip() const {
         return fScissorState.enabled() || this->hasStencilClip() || fWindowRectsState.enabled();
     }
@@ -81,7 +91,14 @@ private:
  */
 class GrAppliedClip {
 public:
-    GrAppliedClip() = default;
+    static GrAppliedClip Disabled() {
+        // The size doesn't really matter here since it's returned as const& so an actual scissor
+        // will never be set on it, and applied clips are not used to query or bounds test like
+        /// the GrClip is.
+        return GrAppliedClip({1 << 29, 1 << 29});
+    }
+
+    GrAppliedClip(const SkISize& rtDims) : fHardClip(rtDims) {}
     GrAppliedClip(GrAppliedClip&& that) = default;
     GrAppliedClip(const GrAppliedClip&) = delete;
 
