@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4e107870_1f48a758",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bd4915b_60e0d209",
+      "range": {
+        "startLine": 315,
+        "startChar": 12,
+        "endLine": 315,
+        "endChar": 13
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9e59520_f93bc5ec",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-12T19:42:13Z",
       "side": 1,
       "message": "Given this, maybe the rest of this comment isn\u0027t really relevant?",
+      "range": {
+        "startLine": 319,
+        "startChar": 7,
+        "endLine": 319,
+        "endChar": 84
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efff2349_21a650f2",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "b9e59520_f93bc5ec",
       "range": {
         "startLine": 319,
         "startChar": 7,
@@ -68,6 +116,30 @@
       "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e0c3c61_fedca191",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "No longer have the submit flag.",
+      "parentUuid": "f5a0b142_9a5f90fe",
+      "range": {
+        "startLine": 340,
+        "startChar": 93,
+        "endLine": 341,
+        "endChar": 22
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -166,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "b0d240e7_db24667c",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "I am going to implement the submitted callback in the next follow on CL. I\u0027d rather land this as is for now to make sure we don\u0027t see any major regressions from using the submit API. The callbacks are also just a helper so the client doesn\u0027t need to keep track of which flushes have been submitted by which submit calls. But technically everything could be done with this CL only if the client does more manual tracking.",
+      "parentUuid": "ec90548d_0fbbe24b",
+      "range": {
+        "startLine": 433,
+        "startChar": 4,
+        "endLine": 433,
+        "endChar": 9
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3f3a9279_a4e30463",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 3
@@ -186,6 +282,30 @@
       "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "775c444a_c2fd3807",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "Remove submit flag so there isn\u0027t any reason for this anyways now.",
+      "parentUuid": "3f3a9279_a4e30463",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 40
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -236,6 +356,30 @@
     },
     {
       "key": {
+        "uuid": "950126bb_aed81ee6",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "Landed changes as suggested here.",
+      "parentUuid": "ea8448a2_c82c0a43",
+      "range": {
+        "startLine": 574,
+        "startChar": 8,
+        "endLine": 574,
+        "endChar": 58
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c98478bc_fd31e2e4",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -271,6 +415,30 @@
       "side": 1,
       "message": "Personally, I think we should be moving towards removing flushIfNecessary(). I think most of our clients want explicit control over when things like this happen. Many of our allocations have been moved to flush time anyway and most clients explicitly make texture-backed images rather than using the SW image cache.",
       "parentUuid": "c98478bc_fd31e2e4",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 941,
+        "endChar": 37
+      },
+      "revId": "684bbbfcca0db40d294b4d9bf50936d8749e9b81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16e9ec12_86597345",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T15:52:05Z",
+      "side": 1,
+      "message": "Yeah I know that\u0027s our longer term goal. For now I think I\u0027ll leave the submit here to keep things work as they do today. Hopefully we can just remove the whole function sooner rather than later.",
+      "parentUuid": "0d8e5a17_68a2345c",
       "range": {
         "startLine": 941,
         "startChar": 0,
