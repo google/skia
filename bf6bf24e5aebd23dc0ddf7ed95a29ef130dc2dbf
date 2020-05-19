@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e79c2f63_f02d55b8",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-19T19:05:22Z",
+      "side": 1,
+      "message": "Now there is no flag, though, right?",
+      "range": {
+        "startLine": 935,
+        "startChar": 41,
+        "endLine": 935,
+        "endChar": 67
+      },
+      "revId": "bf6bf24e5aebd23dc0ddf7ed95a29ef130dc2dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd362394_e08b1d5e",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-19T19:05:22Z",
+      "side": 1,
+      "message": "no flag?",
+      "range": {
+        "startLine": 354,
+        "startChar": 44,
+        "endLine": 354,
+        "endChar": 70
+      },
+      "revId": "bf6bf24e5aebd23dc0ddf7ed95a29ef130dc2dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
