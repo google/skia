@@ -44,7 +44,7 @@ void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkRegion tmp;
     SkPath path;
     rgn.getBoundaryPath(&path);
-    path.transform(SkMatrix::MakeTrans(-origin));
+    path.transform(SkMatrix::Translate(-origin));
     fClipStack.clipPath(path, SkMatrix::I(), op, false);
 }
 

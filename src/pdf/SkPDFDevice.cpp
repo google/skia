@@ -740,7 +740,7 @@ struct PositionedGlyph {
 static SkRect get_glyph_bounds_device_space(const SkGlyph* glyph,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
-    SkRect glyphBounds = SkMatrix::MakeScale(xScale, yScale).mapRect(glyph->rect());
+    SkRect glyphBounds = SkMatrix::Scale(xScale, yScale).mapRect(glyph->rect());
     glyphBounds.offset(xy);
     ctm.mapRect(&glyphBounds); // now in dev space.
     return glyphBounds;
@@ -1000,7 +1000,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
         return;
     }
 
-    SkMatrix matrix = SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y));
+    SkMatrix matrix = SkMatrix::Translate(SkIntToScalar(x), SkIntToScalar(y));
     ScopedContentEntry content(this, &this->cs(), matrix, paint);
     if (!content) {
         return;
