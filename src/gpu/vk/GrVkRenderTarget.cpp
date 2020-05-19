@@ -233,9 +233,9 @@ bool GrVkRenderTarget::completeStencilAttachment() {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     // If we have a previous renderpass or framebuffer it will have been made without stencil, so
     // we set it to null to trigger creating a new one the next time we need it.
-    if (fCachedSimpleRenderPass) {
-        fCachedSimpleRenderPass->unref();
-        fCachedSimpleRenderPass = nullptr;
+    if (fCachedSimpleRenderPass1) {
+        fCachedSimpleRenderPass1->unref();
+        fCachedSimpleRenderPass1 = nullptr;
     }
     if (fCachedFramebuffer) {
         fCachedFramebuffer->unref();
