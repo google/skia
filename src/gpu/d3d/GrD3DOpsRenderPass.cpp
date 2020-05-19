@@ -12,9 +12,12 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
+#include "src/gpu/d3d/GrD3DRenderTarget.h"
+#include "src/gpu/d3d/GrD3DTexture.h"
 
 GrD3DOpsRenderPass::GrD3DOpsRenderPass(GrD3DGpu* gpu) : fGpu(gpu) {}
 
@@ -26,6 +29,15 @@ bool GrD3DOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const S
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
     this->INHERITED::set(rt, origin);
+
+    for (int i = 0; i < sampledProxies.count(); ++i) {
+        if (sampledProxies[i]->isInstantiated()) {
+            SkASSERT(sampledProxies[i]->asTextureProxy());
+            GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(sampledProxies[i]->peekTexture());
+            SkASSERT(d3dTex);
+            d3dTex->setResourceState(fGpu, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        }
+    }
 
     fBounds = bounds;
 
@@ -40,6 +52,13 @@ bool GrD3DOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const S
 GrD3DOpsRenderPass::~GrD3DOpsRenderPass() {}
 
 GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
+
+void GrD3DOpsRenderPass::onBegin() {
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        GrFixedClip clip;
+        fGpu->clear(clip, fClearColor, fRenderTarget);
+    }
+}
 
 void set_stencil_ref(GrD3DGpu* gpu, const GrProgramInfo& info) {
     GrStencilSettings stencilSettings = info.nonGLStencilSettings();
@@ -139,14 +158,16 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         fCurrentPipelineBounds.setEmpty();
     }
 
-    sk_sp<GrD3DPipelineState> pipelineState =
+    fCurrentPipelineState =
             fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, info);
-    if (!pipelineState) {
+    if (!fCurrentPipelineState) {
         return false;
     }
 
-    pipelineState->setData(fRenderTarget, info);
-    fGpu->currentCommandList()->setPipelineState(std::move(pipelineState));
+    fCurrentPipelineState->setData(fRenderTarget, info);
+    fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
+
+    // TODO: bind uniforms (either a new method or in pipelineState->setData())
 
     set_stencil_ref(fGpu, info);
     set_blend_factor(fGpu, info);
@@ -160,11 +181,50 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     return true;
 }
 
-void GrD3DOpsRenderPass::onBegin() {
-    if (GrLoadOp::kClear == fColorLoadOp) {
-        GrFixedClip clip;
-        fGpu->clear(clip, fClearColor, fRenderTarget);
+#ifdef SK_DEBUG
+void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrD3DGpu* gpu) {
+    SkASSERT(!tex->isProtected() || (rt->isProtected() && gpu->protectedContext()));
+    GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(tex);
+    SkASSERT(SkToBool(d3dTex->currentState() & D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+}
+#endif
+
+bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
+                                        const GrSurfaceProxy* const primProcTextures[],
+                                        const GrPipeline& pipeline) {
+    SkASSERT(fCurrentPipelineState);
+#ifdef SK_DEBUG
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        check_sampled_texture(primProcTextures[i]->peekTexture(), fRenderTarget, fGpu);
     }
+    GrFragmentProcessor::PipelineTextureSamplerRange textureSamplerRange(pipeline);
+    for (auto [sampler, fp] : textureSamplerRange) {
+        check_sampled_texture(sampler.peekTexture(), fRenderTarget, fGpu);
+    }
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+        check_sampled_texture(dstTexture, fRenderTarget, fGpu);
+    }
+#endif
+
+    // TODO: possibly check for success once we start binding properly
+    fCurrentPipelineState->setAndBindTextures(primProc, primProcTextures, pipeline);
+
+    return true;
+}
+
+void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                                       const GrBuffer* vertexBuffer,
+                                       GrPrimitiveRestart primRestart) {
+    SkASSERT(GrPrimitiveRestart::kNo == primRestart);
+    SkASSERT(fCurrentPipelineState);
+    SkASSERT(!fGpu->caps()->usePrimitiveRestart());  // Ignore primitiveRestart parameter.
+
+    GrD3DDirectCommandList* currCmdList = fGpu->currentCommandList();
+    SkASSERT(currCmdList);
+
+    // TODO: do we need a memory barrier here?
+
+    fCurrentPipelineState->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, currCmdList);
 }
 
 void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
