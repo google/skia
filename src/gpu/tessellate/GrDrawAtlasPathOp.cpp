@@ -19,7 +19,7 @@ namespace {
 
 constexpr static GrGeometryProcessor::Attribute kInstanceAttribs[] = {
         {"devibounds", kInt4_GrVertexAttribType, kInt4_GrSLType},
-        {"dev_to_atlas_offset", kInt2_GrVertexAttribType, kInt2_GrSLType},
+        {"atlas_location", kInt2_GrVertexAttribType, kInt2_GrSLType},
         {"color", kFloat4_GrVertexAttribType, kHalf4_GrSLType},
         {"viewmatrix_scaleskew", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
         {"viewmatrix_trans", kFloat2_GrVertexAttribType, kFloat2_GrSLType}};
@@ -73,8 +73,14 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
 
         args.fVertBuilder->codeAppendf(R"(
                 float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
-                float2 devcoord = mix(float2(devibounds.xy), float2(devibounds.zw), T);
-                float2 atlascoord = devcoord + float2(dev_to_atlas_offset);
+                float2 devtopleft = float2(devibounds.xy);
+                float2 devcoord = abs(float2(devibounds.zw)) * T + devtopleft;
+                float2 atlascoord = devcoord - devtopleft;
+                // Negative height indicates that the path is transposed.
+                if (devibounds.w < 0) {
+                    atlascoord = atlascoord.yx;
+                }
+                atlascoord += atlas_location;
                 %s = atlascoord * %s;)",
                 atlasCoord.vsOut(), atlasAdjust);
 
