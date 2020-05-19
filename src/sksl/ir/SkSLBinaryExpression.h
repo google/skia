@@ -45,6 +45,10 @@ struct BinaryExpression : public Expression {
         return fLeft->hasProperty(property) || fRight->hasProperty(property);
     }
 
+    int nodeCount() const override {
+        return 1 + fLeft->nodeCount() + fRight->nodeCount();
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
                                                                 fRight->clone(), fType));

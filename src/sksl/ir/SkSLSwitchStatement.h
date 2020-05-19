@@ -28,6 +28,14 @@ struct SwitchStatement : public Statement {
     , fSymbols(std::move(symbols))
     , fCases(std::move(cases)) {}
 
+    int nodeCount() const override {
+        int result = 1 + fValue->nodeCount();
+        for (const auto& c : fCases) {
+            result += c->nodeCount();
+        }
+        return result;
+    }
+
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<SwitchCase>> cloned;
         for (const auto& s : fCases) {
