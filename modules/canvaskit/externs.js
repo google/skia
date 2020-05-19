@@ -259,6 +259,13 @@ var CanvasKit = {
     scaled: function() {},
   },
 
+  SkColorSpace: {
+    Equals: function {},
+    MakeSRGB: function() {},
+    MakeDisplayP3: function() {},
+    MakeAdobeRGB: function() {},
+  },
+
   SkContourMeasureIter: {
     next: function() {},
   },
@@ -769,6 +776,12 @@ var CanvasKit = {
     Miter: {},
     Round: {},
     Bevel: {},
+  },
+
+  SupportedColorSettings: {
+    SRGB: {},
+    DisplayP3: {},
+    AdobeRGB: {},
   },
 
   TextAlign: {

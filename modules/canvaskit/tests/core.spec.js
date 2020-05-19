@@ -116,6 +116,7 @@ describe('Core canvas behavior', () => {
                 const imageInfo = {
                     alphaType: CanvasKit.AlphaType.Unpremul,
                     colorType: CanvasKit.ColorType.RGBA_8888,
+                    colorSpace: CanvasKit.SkColorSpace.MakeSRGB(),
                     width: img.width(),
                     height: img.height(),
                 };
@@ -172,7 +173,8 @@ describe('Core canvas behavior', () => {
               0,   0, 255, 255, // opaque blue
             255,   0, 255, 100, // transparent purple
         ]);
-        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888);
+        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888,
+            CanvasKit.SkColorSpace.MakeSRGB());
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
     });
@@ -182,6 +184,7 @@ describe('Core canvas behavior', () => {
         const shader = CanvasKit.SkShader.MakeSweepGradient(
             100, 100, // X, Y coordinates
             [CanvasKit.GREEN, CanvasKit.BLUE],
+            null, // color space
             [0.0, 1.0],
             CanvasKit.TileMode.Clamp,
         );
@@ -211,6 +214,7 @@ describe('Core canvas behavior', () => {
         const lgs = CanvasKit.SkShader.MakeLinearGradient(
             [0, 0], [50, 100], // start and stop points
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror
         );
@@ -222,6 +226,7 @@ describe('Core canvas behavior', () => {
         const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 0], [150, 100], // start and stop points
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -235,6 +240,7 @@ describe('Core canvas behavior', () => {
         const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
             [0, 100], [50, 200], // start and stop points
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
@@ -247,6 +253,7 @@ describe('Core canvas behavior', () => {
         const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 100], [150, 200], // start and stop points
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
@@ -279,6 +286,7 @@ describe('Core canvas behavior', () => {
         const rgs = CanvasKit.SkShader.MakeRadialGradient(
             [50, 50], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror
         );
@@ -290,6 +298,7 @@ describe('Core canvas behavior', () => {
         const rgsPremul = CanvasKit.SkShader.MakeRadialGradient(
             [150, 50], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -303,6 +312,7 @@ describe('Core canvas behavior', () => {
         const rgsSkew = CanvasKit.SkShader.MakeRadialGradient(
             [50, 150], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100)
@@ -315,6 +325,7 @@ describe('Core canvas behavior', () => {
         const rgsSkewPremul = CanvasKit.SkShader.MakeRadialGradient(
             [150, 150], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100),
@@ -349,6 +360,7 @@ describe('Core canvas behavior', () => {
             [80, 10], 15, // start, radius
             [10, 110], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror
         );
@@ -361,6 +373,7 @@ describe('Core canvas behavior', () => {
             [180, 10], 15, // start, radius
             [110, 110], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -375,6 +388,7 @@ describe('Core canvas behavior', () => {
             [80, 110], 15, // start, radius
             [10, 210], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100)
@@ -388,6 +402,7 @@ describe('Core canvas behavior', () => {
             [180, 110], 15, // start, radius
             [110, 210], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            null, // color space
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
@@ -585,12 +600,105 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
     });
 
+    describe('ColorSpace Support', () => {
+        it('Can create an SRGB 8888 surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeSRGB();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.SRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_8888);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+        fit('Can create a Display P3 surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeDisplayP3();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.DisplayP3);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+        it('Can create an Adobe RGB surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeAdobeRGB();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.AdobeRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+
+        it('combine draws from several color spaces', () => {
+            const sRGB = CanvasKit.SkColorSpace.MakeSRGB();
+            const displayP3 = CanvasKit.SkColorSpace.MakeDisplayP3();
+            const adobeRGB = CanvasKit.SkColorSpace.MakeAdobeRGB();
+
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.AdobeRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            const canvas = surface.getCanvas();
+
+            let paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.RED, adobeRGB);
+            canvas.drawPaint(paint);
+            paint.setColor(CanvasKit.RED, displayP3); // 93.7
+            canvas.drawRect(CanvasKit.LTRBRect(200, 0, 400, 600), paint);
+            paint.setColor(CanvasKit.RED, sRGB); // 85.9
+            canvas.drawRect(CanvasKit.LTRBRect(400, 0, 600, 600), paint);
+
+            // this test paints three bands of red, each the maximum red that a color space supports.
+            // They are each represented by skia by some color in the Adobe RGB space of the surface,
+            // as floats between 0 and 1.
+
+            // reportSurface cannot handle f16 buffer yet, check correctness here.
+            // readPixels gives a Uint8Array. For this surface, for one pixel, it's
+            // length should be 16 bytes or 4 32-bit floats. Skia is opting to use 32 bits even though
+            // we asked to use fewer, and if we don't parrot that implementation detail back to it,
+            // we can't copy out the pixels.
+            const pixel = surface.getCanvas().readPixels(100, 300, 1, 1,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, adobeRGB);
+            expect(pixel.length).toEqual(8);
+            for (const element of pixel) {
+                console.log(element);
+            }
+
+        });
+    }); // end describe('ColorSpace Support')
+
     describe('DOMMatrix support', () => {
         gm('sweep_gradient_dommatrix', (canvas) => {
             const paint = new CanvasKit.SkPaint();
             const shader = CanvasKit.SkShader.MakeSweepGradient(
                 100, 100, // x y coordinates
                 [CanvasKit.GREEN, CanvasKit.BLUE],
+                null, // color space
                 [0.0, 1.0],
                 CanvasKit.TileMode.Clamp,
                 new DOMMatrix().translate(-10, 100),
