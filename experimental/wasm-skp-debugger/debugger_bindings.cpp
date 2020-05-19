@@ -498,7 +498,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
     .function("width", &SkSurface::width)
     .function("height", &SkSurface::height)
-    .function("_flush", select_overload<void()>(&SkSurface::flush))
+    .function("_flush", select_overload<void()>(&SkSurface::flushAndSubmit))
     .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
   class_<SkCanvas>("SkCanvas")
     .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
