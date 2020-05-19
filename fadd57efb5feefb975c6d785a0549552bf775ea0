@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57ba1a23_627b6646",
+        "filename": "src/gpu/d3d/GrD3DBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T20:27:28Z",
+      "side": 1,
+      "message": "accidental \\n?",
+      "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f92652e3_07223af9",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T20:27:28Z",
+      "side": 1,
+      "message": "Does d3d need to do this here? Vulkan does cause we can\u0027t change the layout inside of the render pass, but I think d3d could just do it in onBindTextures if you wanted. However, this does allow us to avoid have to iterate over all the samplers again to get the textures so probably more efficient to do it here since we already have the info.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
