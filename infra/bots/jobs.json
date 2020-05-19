@@ -1,9 +1,5 @@
 [
   "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker",
-  "Build-Debian10-GCC-loongson3a-Debug-Docker",
-  "Build-Debian10-GCC-loongson3a-Release-Docker",
-  "Build-Debian10-GCC-mips64el-Debug-Docker",
-  "Build-Debian10-GCC-mips64el-Release-Docker",
   "Build-Debian10-GCC-x86-Debug-Docker",
   "Build-Debian10-GCC-x86-Release-Docker",
   "Build-Debian10-GCC-x86_64-Debug-Docker",

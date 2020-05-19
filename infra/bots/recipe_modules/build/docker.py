@@ -76,10 +76,6 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian10'
     elif target_arch == 'x86':
       image_name = 'gcc-debian10-x86'
-    elif target_arch in ['mips64el', 'loongson3a']:
-      image_name = 'gcc-debian10-mips64el'
-      args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
-      args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
