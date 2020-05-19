@@ -39,6 +39,7 @@ public:
     CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
 
 private:
+    SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
     bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
         out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpsTaskID(), fPath,
@@ -47,7 +48,7 @@ private:
         return true;
     }
     bool quickContains(const SkRect&) const final { return false; }
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
+    bool isRRect(SkRRect* rr, GrAA*) const final { return false; }
 
     GrCoverageCountingPathRenderer* const fCCPR;
     const SkPath fPath;
