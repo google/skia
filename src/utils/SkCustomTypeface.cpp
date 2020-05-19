@@ -11,6 +11,35 @@
 #include "include/utils/SkCustomTypeface.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 
+static SkFontMetrics scale_fontmetrics(const SkFontMetrics& src, float sx, float sy) {
+    SkFontMetrics dst = src;
+
+    #define SCALE_X(field)  dst.field *= sx
+    #define SCALE_Y(field)  dst.field *= sy
+
+    SCALE_X(fAvgCharWidth);
+    SCALE_X(fMaxCharWidth);
+    SCALE_X(fXMin);
+    SCALE_X(fXMax);
+
+    SCALE_Y(fTop);
+    SCALE_Y(fAscent);
+    SCALE_Y(fDescent);
+    SCALE_Y(fBottom);
+    SCALE_Y(fLeading);
+    SCALE_Y(fXHeight);
+    SCALE_Y(fCapHeight);
+    SCALE_Y(fUnderlineThickness);
+    SCALE_Y(fUnderlinePosition);
+    SCALE_Y(fStrikeoutThickness);
+    SCALE_Y(fStrikeoutPosition);
+
+    #undef SCALE_X
+    #undef SCALE_Y
+
+    return dst;
+}
+
 class SkUserTypeface final : public SkTypeface {
 private:
     friend class SkCustomTypefaceBuilder;
@@ -67,6 +96,10 @@ private:
 
 SkCustomTypefaceBuilder::SkCustomTypefaceBuilder() {
     sk_bzero(&fMetrics, sizeof(fMetrics));
+}
+
+void SkCustomTypefaceBuilder::setMetrics(const SkFontMetrics& fm, float scale) {
+    fMetrics = scale_fontmetrics(fm, scale, scale);
 }
 
 void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance, const SkPath& path) {
@@ -186,33 +219,8 @@ protected:
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
-        // for safety, assign everything, and then post-scale as needed
-        *metrics = this->userTF()->fMetrics;
-
         auto [sx, sy] = fMatrix.mapXY(1, 1);
-
-#define SCALE_X(field)  metrics->field *= sx
-#define SCALE_Y(field)  metrics->field *= sy
-
-        SCALE_X(fAvgCharWidth);
-        SCALE_X(fMaxCharWidth);
-        SCALE_X(fXMin);
-        SCALE_X(fXMax);
-
-        SCALE_Y(fTop);
-        SCALE_Y(fAscent);
-        SCALE_Y(fDescent);
-        SCALE_Y(fBottom);
-        SCALE_Y(fLeading);
-        SCALE_Y(fXHeight);
-        SCALE_Y(fCapHeight);
-        SCALE_Y(fUnderlineThickness);
-        SCALE_Y(fUnderlinePosition);
-        SCALE_Y(fStrikeoutThickness);
-        SCALE_Y(fStrikeoutPosition);
-
-#undef SCALE_X
-#undef SCALE_Y
+        *metrics = scale_fontmetrics(this->userTF()->fMetrics, sx, sy);
     }
 
 private:
