@@ -245,9 +245,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     GrFlushInfo flushInfo;
     flushInfo.fNumSemaphores = 1;
     flushInfo.fSignalSemaphores = &semaphore;
-    GrSemaphoresSubmitted submitted = mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess,
-                                                         flushInfo);
+    GrSemaphoresSubmitted submitted =
+            mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
+    ctx->submit();
 
 #ifdef SK_GL
     if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
