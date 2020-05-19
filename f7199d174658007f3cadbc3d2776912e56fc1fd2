@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a6566f3_565eb341",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-19T13:13:31Z",
+      "side": 1,
+      "message": "Put the indentation adjustment inside the if(), too?",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea41f33c_7f5cd75f",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-19T13:13:31Z",
+      "side": 1,
+      "message": "Can this be pure virtual, rather than SkASSERT(false) ?",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d72241_b9f01118",
+        "filename": "src/sksl/ir/SkSLSwitchCase.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-19T13:13:31Z",
+      "side": 1,
+      "message": "I know that the details of the node counts aren\u0027t super important, as it\u0027s all relative, but even relative to others, this seems odd? The case values are always going to be some kind literal, but the case itself is also counted, so it\u0027s basically 2x number of cases? Maybe that\u0027s fair, given how complex switches are at the lower level?",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56ff9d6f_3953be7a",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-19T13:13:31Z",
+      "side": 1,
+      "message": "I\u0027ve looked at everything except the important part (going to do that next). For the GLSL code generator (following file/test), it seems like leaving in the definition of functions that have been inlined is okay, because the GLSL compiler will just rip them out (though it may still spend time parsing and compiling them). For FP -\u003e CPP, it seems like marking them unused and not including this code would be helpful, to cut down on the work involved when the FP is used at runtime?",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
