@@ -282,7 +282,9 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     }
 
     // Failing that, try to grab a new one from the resource cache
-    return proxy->priv().createSurface(fResourceProvider);
+    sk_sp<GrSurface> tmp = proxy->priv().createSurface(fResourceProvider);
+
+    return tmp;
 }
 
 // Remove any intervals that end before the current index. Return their GrSurfaces
@@ -409,11 +411,13 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
                 SkASSERT(surface->getUniqueKey() == texProxy->getUniqueKey());
             }
 
-#if GR_ALLOCATION_SPEW
-            SkDebugf("Assigning %d to %d\n",
+//#if GR_ALLOCATION_SPEW
+            SkDebugf("Assigning RT%d to P%d - numSamples %d numStencilSamples %d\n",
                  surface->uniqueID().asUInt(),
-                 cur->proxy()->uniqueID().asUInt());
-#endif
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->asRenderTargetProxy() ? cur->proxy()->asRenderTargetProxy()->numSamples() : -1,
+                 cur->proxy()->asRenderTargetProxy() ? cur->proxy()->asRenderTargetProxy()->numStencilSamples() : -1);
+//#endif
 
             cur->assign(std::move(surface));
         } else {

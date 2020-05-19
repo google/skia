@@ -947,6 +947,8 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
     SkASSERT(numRequiredSamples > 0);
 
     if (numRequiredSamples > fNumStencilSamples) {
+        SkDebugf("Updating stencil to %d on P%d\n", numRequiredSamples,
+                 this->asRenderTargetProxy()->uniqueID().asUInt());
         fNumStencilSamples = numRequiredSamples;
         this->asRenderTargetProxy()->setNeedsStencil(fNumStencilSamples);
     }

@@ -92,8 +92,9 @@ public:
                         } else {
                             static constexpr SkISize kDimensions = {1234, 567};
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    kDimensions, desc.fFormat, desc.fRenderable, desc.fSampleCnt,
-                                    desc.fMipMapped, desc.fBudgeted, desc.fProtected);
+                                    kDimensions, desc.fFormat, desc.fRenderable, desc.fSampleCnt1,
+                                    desc.fStencilSampleCnt, desc.fMipMapped, desc.fBudgeted,
+                                    desc.fProtected);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return texture;
                         }
@@ -230,8 +231,10 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                                                            GrRenderable::kNo);
 
     auto tex = ctx->priv().resourceProvider()->createTexture({kSize, kSize}, format,
-                                                             GrRenderable::kNo, 1, GrMipMapped::kNo,
-                                                             SkBudgeted::kNo, GrProtected::kNo);
+                                                             GrRenderable::kNo, 1, 0,
+                                                             GrMipMapped::kNo,
+                                                             SkBudgeted::kNo,
+                                                             GrProtected::kNo);
     using LazyInstantiationResult = GrSurfaceProxy::LazyCallbackResult;
     for (bool doInstantiate : {true, false}) {
         for (bool releaseCallback : {false, true}) {
@@ -338,8 +341,8 @@ private:
                         return {};
                     }
                     return {rp->createTexture(desc.fDimensions, desc.fFormat, desc.fRenderable,
-                                              desc.fSampleCnt, desc.fMipMapped, desc.fBudgeted,
-                                              desc.fProtected),
+                                              desc.fSampleCnt1, desc.fStencilSampleCnt,
+                                              desc.fMipMapped, desc.fBudgeted, desc.fProtected),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
                 format, dims, GrRenderable::kNo, 1, GrMipMapped::kNo,

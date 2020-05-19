@@ -93,7 +93,7 @@ private:
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }
     const char* getResourceType() const override { return "Buffer Object"; }
-    void computeScratchKey(GrScratchKey* key) const override;
+    void computeScratchKey(GrScratchKey* key, int numStencilSamples) const override;
 
     size_t            fSizeInBytes;
     GrAccessPattern   fAccessPattern;

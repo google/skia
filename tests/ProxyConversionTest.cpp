@@ -41,15 +41,15 @@ static sk_sp<GrSurfaceProxy> make_offscreen_rt(GrProxyProvider* provider,
                                                SkISize dimensions,
                                                GrColorType colorType) {
     return provider->testingOnly_createInstantiatedProxy(dimensions, colorType, GrRenderable::kYes,
-                                                         1, SkBackingFit::kExact, SkBudgeted::kYes,
-                                                         GrProtected::kNo);
+                                                         1, 0, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_texture(GrProxyProvider* provider,
                                           SkISize dimensions,
                                           GrColorType colorType,
                                           GrRenderable renderable) {
-    return provider->testingOnly_createInstantiatedProxy(dimensions, colorType, renderable, 1,
+    return provider->testingOnly_createInstantiatedProxy(dimensions, colorType, renderable, 1, 0,
                                                          SkBackingFit::kExact, SkBudgeted::kYes,
                                                          GrProtected::kNo);
 }

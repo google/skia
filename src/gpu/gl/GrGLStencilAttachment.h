@@ -36,7 +36,7 @@ public:
         : GrStencilAttachment(gpu, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(idDesc.fRenderbufferID) {
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(SkBudgeted::kYes, 0);
     }
 
     GrGLuint renderbufferID() const {

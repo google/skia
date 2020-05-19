@@ -76,8 +76,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipMapped::kNo,
-                               nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes,
+                               GrMipMapped::kNo, nullptr)) {
         return false;
     }
 
@@ -97,7 +97,8 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
-                                                       GrRenderable::kYes, GrMipMapped::kNo);
+                                                       fNumStencilSamples, GrRenderable::kYes,
+                                                       GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -137,6 +138,7 @@ GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
             GrRenderable::kYes,
             GrMipMapped::kNo,
             this->numSamples(),
+            this->numStencilSamples(),
             this->backendFormat(),
             this->isProtected(),
             this->isBudgeted(),

@@ -120,6 +120,7 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   int renderTargetStencilSampleCnt,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected,
                                    GrColorType textureColorType,
@@ -134,6 +135,7 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   int renderTargetStencilSampleCnt,
                                    GrMipMapped mipMapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
@@ -829,6 +831,7 @@ private:
                                          const GrBackendFormat&,
                                          GrRenderable,
                                          int renderTargetSampleCnt,
+                                         int renderTargetStencilSampleCnt,
                                          SkBudgeted,
                                          GrProtected,
                                          int mipLevelCnt,

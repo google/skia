@@ -53,6 +53,7 @@ public:
                                   SkISize dimensions,
                                   GrRenderable,
                                   int sampleCnt,
+                                  int stencilSampleCnt,
                                   GrMipMapped,
                                   GrProtected,
                                   GrScratchKey* key);

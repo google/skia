@@ -29,27 +29,34 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     zoomOut.setScale(0.7f, 0.7f, 128.f, 128.f);
 
     const SkRect layerRect = SkRect::MakeWH(256.f, 256.f);
+#if 1
     canvas->saveLayer(layerRect, nullptr);
     canvas->clipRRect(rrect, true);
     canvas->drawPaint(p);
     canvas->restore();
+#endif
 
     canvas->concat(zoomOut);
     p.setColor(SK_ColorBLUE);
+#if 0
     canvas->saveLayer(layerRect, nullptr);
     canvas->clipRRect(rrect, false);
     canvas->drawPaint(p);
     canvas->restore();
+#endif
 
     constexpr SkPoint kPts[] = {{0.f, 0.f}, {256.f, 256.f}};
     constexpr SkColor kColors1[] = {SK_ColorCYAN, SK_ColorGREEN};
     p.setShader(SkGradientShader::MakeLinear(kPts, kColors1, nullptr, 2, SkTileMode::kClamp));
     canvas->concat(zoomOut);
+#if 0
     canvas->saveLayer(layerRect, nullptr);
     canvas->clipRRect(rrect, true);
     canvas->drawPaint(p);
     canvas->restore();
+#endif
 
+#if 1
     constexpr SkColor kColors2[] = {SK_ColorMAGENTA, SK_ColorGRAY};
     p.setShader(SkGradientShader::MakeRadial({128.f, 128.f}, 128.f, kColors2, nullptr, 2,
                                              SkTileMode::kClamp));
@@ -58,4 +65,5 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     canvas->clipRRect(rrect, false);
     canvas->drawPaint(p);
     canvas->restore();
+#endif
 }

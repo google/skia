@@ -85,7 +85,7 @@ protected:
         fIdleProcs.reset();
     }
     virtual void callIdleProcsOnBehalfOfResource() {}
-    void computeScratchKey(GrScratchKey*) const override;
+    void computeScratchKey(GrScratchKey*, int numStencilSamples) const override;
 
 private:
     size_t onGpuMemorySize() const override;

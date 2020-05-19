@@ -23,7 +23,10 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const SkISize& dimensions, int sample
         : INHERITED(gpu, dimensions, isProtected)
         , fSampleCnt(sampleCount)
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
-        , fStencilAttachment(stencil) {}
+        , fStencilAttachment(stencil) {
+    SkDebugf("GrRenderTarget RT%d stencil = %d\n", this->uniqueID().asUInt(),
+             SkToBool(fStencilAttachment));
+}
 
 GrRenderTarget::~GrRenderTarget() = default;
 
@@ -62,6 +65,8 @@ void GrRenderTargetPriv::attachStencilAttachment(sk_sp<GrStencilAttachment> sten
         // we're not actually adding one.
         return;
     }
+
+    SkDebugf("Attaching stencil to RT%d\n", this->fRenderTarget->uniqueID().asUInt());
 
     fRenderTarget->fStencilAttachment = std::move(stencil);
     if (!fRenderTarget->completeStencilAttachment()) {

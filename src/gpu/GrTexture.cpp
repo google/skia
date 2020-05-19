@@ -15,6 +15,8 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -82,18 +84,21 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
     return true;
 }
 
-void GrTexture::computeScratchKey(GrScratchKey* key) const {
+void GrTexture::computeScratchKey(GrScratchKey* key, int numStencilSamples) const {
     if (!this->getGpu()->caps()->isFormatCompressed(this->backendFormat())) {
         int sampleCount = 1;
+        int stencilSampleCount = 0;
         GrRenderable renderable = GrRenderable::kNo;
         if (const auto* rt = this->asRenderTarget()) {
             sampleCount = rt->numSamples();
+            stencilSampleCount = numStencilSamples;
             renderable = GrRenderable::kYes;
         }
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         GrTexturePriv::ComputeScratchKey(*this->getGpu()->caps(), this->backendFormat(),
-                                         this->dimensions(), renderable, sampleCount,
-                                         this->texturePriv().mipMapped(), isProtected, key);
+                                         this->dimensions(), renderable, sampleCount, 
+                                         stencilSampleCount, this->texturePriv().mipMapped(),
+                                         isProtected, key);
     }
 }
 
@@ -102,6 +107,7 @@ void GrTexturePriv::ComputeScratchKey(const GrCaps& caps,
                                       SkISize dimensions,
                                       GrRenderable renderable,
                                       int sampleCnt,
+                                      int stencilSampleCnt,
                                       GrMipMapped mipMapped,
                                       GrProtected isProtected,
                                       GrScratchKey* key) {
@@ -113,7 +119,8 @@ void GrTexturePriv::ComputeScratchKey(const GrCaps& caps,
     SkASSERT(static_cast<uint32_t>(mipMapped) <= 1);
     SkASSERT(static_cast<uint32_t>(isProtected) <= 1);
     SkASSERT(static_cast<uint32_t>(renderable) <= 1);
-    SkASSERT(static_cast<uint32_t>(sampleCnt) < (1 << (32 - 3)));
+    SkASSERT(static_cast<uint32_t>(sampleCnt) < (1 << (16 - 3)));
+    SkASSERT(static_cast<uint32_t>(stencilSampleCnt) < (1 << 16));
 
     uint64_t formatKey = caps.computeFormatKey(format);
 
@@ -122,8 +129,9 @@ void GrTexturePriv::ComputeScratchKey(const GrCaps& caps,
     builder[1] = dimensions.height();
     builder[2] = formatKey & 0xFFFFFFFF;
     builder[3] = (formatKey >> 32) & 0xFFFFFFFF;
-    builder[4] = (static_cast<uint32_t>(mipMapped)   << 0)
-               | (static_cast<uint32_t>(isProtected) << 1)
-               | (static_cast<uint32_t>(renderable)  << 2)
-               | (static_cast<uint32_t>(sampleCnt)   << 3);
+    builder[4] = (static_cast<uint32_t>(mipMapped)        << 0)
+               | (static_cast<uint32_t>(isProtected)      << 1)
+               | (static_cast<uint32_t>(renderable)       << 2)
+               | (static_cast<uint32_t>(sampleCnt)        << 3)
+               | (static_cast<uint32_t>(stencilSampleCnt) << 16);
 }

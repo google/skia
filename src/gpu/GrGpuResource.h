@@ -193,7 +193,7 @@ public:
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
     // fully initialized (i.e. only from the constructors of the final class).
-    void registerWithCache(SkBudgeted);
+    void registerWithCache(SkBudgeted, int numStencilSamples);
 
     // This must be called by every GrGpuObject that references any wrapped backend objects. It
     // should be called once the object is fully initialized (i.e. only from the constructors of the
@@ -241,7 +241,7 @@ private:
      * resources and populate the scratchKey with the key.
      * By default resources are not recycled as scratch.
      **/
-    virtual void computeScratchKey(GrScratchKey*) const {}
+    virtual void computeScratchKey(GrScratchKey*, int numStencilSamples) const {}
 
     /**
      * Removes references to objects in the underlying 3D API without freeing them.
