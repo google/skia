@@ -264,7 +264,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
     if (backgroundView.asTextureProxy()) {
         SkRect bgSubset = SkRect::Make(background->subset());
-        SkMatrix bgMatrix = SkMatrix::MakeTrans(
+        SkMatrix bgMatrix = SkMatrix::Translate(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
@@ -279,7 +279,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
     if (foregroundView.asTextureProxy()) {
         SkRect fgSubset = SkRect::Make(foreground->subset());
-        SkMatrix fgMatrix = SkMatrix::MakeTrans(
+        SkMatrix fgMatrix = SkMatrix::Translate(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
         auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),

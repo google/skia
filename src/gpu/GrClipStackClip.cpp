@@ -79,7 +79,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
                                                                const GrCaps& caps) {
     GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                 GrSamplerState::Filter::kNearest);
-    auto m = SkMatrix::MakeTrans(-devBound.fLeft, -devBound.fTop);
+    auto m = SkMatrix::Translate(-devBound.fLeft, -devBound.fTop);
     auto subset = SkRect::Make(devBound.size());
     // We scissor to devBounds. The mask's texel centers are aligned to device space
     // pixel centers. Hence this domain of texture coordinates.

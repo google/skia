@@ -120,7 +120,7 @@ public:
             SkPathPriv::UpdatePathPoint(path, fPtIdx, pt + fCurr - fPrev);
         } else {
             path->transform(
-                    SkMatrix::MakeTrans(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()), path);
+                    SkMatrix::Translate(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()), path);
         }
     }
 

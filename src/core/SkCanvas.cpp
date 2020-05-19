@@ -930,7 +930,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         toRoot = SkMatrix::I();
         layerMatrix = ctm;
     } else if (ctm.decomposeScale(&scale, &toRoot)) {
-        layerMatrix = SkMatrix::MakeScale(scale.fWidth, scale.fHeight);
+        layerMatrix = SkMatrix::Scale(scale.fWidth, scale.fHeight);
     } else {
         // Perspective, for now, do no scaling of the layer itself.
         // TODO (michaelludwig) - perhaps it'd be better to explore a heuristic scale pulled from
@@ -2680,7 +2680,7 @@ void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
 #endif
     RETURN_ON_NULL(dr);
     if (x || y) {
-        SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+        SkMatrix matrix = SkMatrix::Translate(x, y);
         this->onDrawDrawable(dr, &matrix);
     } else {
         this->onDrawDrawable(dr, nullptr);

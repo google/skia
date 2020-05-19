@@ -41,7 +41,7 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
         SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
     };
     const SkPoint pts[] = {{kShaderSize / 4, 0}, {3 * kShaderSize / 4, kShaderSize}};
-    const SkMatrix localMatrix = SkMatrix::MakeScale(shaderScale, shaderScale);
+    const SkMatrix localMatrix = SkMatrix::Scale(shaderScale, shaderScale);
 
     sk_sp<SkShader> grad = SkGradientShader::MakeLinear(pts, colors, nullptr,
                                                         SK_ARRAY_COUNT(colors),
@@ -51,8 +51,8 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
     return shaderScale == 1
         ? grad
         : sk_make_sp<SkLocalMatrixShader>(
-              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::MakeTrans(-10, 0)),
-              SkMatrix::MakeTrans(10, 0));
+              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::Translate(-10, 0)),
+              SkMatrix::Translate(10, 0));
 }
 
 static sk_sp<SkShader> make_shader2() {
@@ -384,7 +384,7 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
         }
     )";
     auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
-    SkMatrix scale = SkMatrix::MakeScale(2);
+    SkMatrix scale = SkMatrix::Scale(2, 2);
     sk_sp<SkShader> children[] = {
         GetResourceAsImage("images/mandrill_256.png")->makeShader(),
         GetResourceAsImage("images/color_wheel.png")->makeShader(scale),
