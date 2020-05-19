@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c7e288c_25f40cb0",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "Is there any worry about this call failing to upload data? Should it be returning a bool to say we didn\u0027t do it and should drop draw?",
+      "range": {
+        "startLine": 148,
+        "startChar": 4,
+        "endLine": 148,
+        "endChar": 48
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2cc4581_a093efb1",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "I\u0027m confused about this change. We are not every using the ID3D12PipelineState returned by this besides just putting in directly into a GrD3DPipelineState object. So why not leave the original Make function. Within that make function you can obviously pull out a private helper function to make the ID3D12PipelineState but I don\u0027t see any reason for this to be a public factory here.",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 94
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed33ac20_f42e48bb",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "d3d",
+      "range": {
+        "startLine": 62,
+        "startChar": 75,
+        "endLine": 62,
+        "endChar": 81
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5c93e4c_85c1a93e",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "d3d",
+      "range": {
+        "startLine": 78,
+        "startChar": 77,
+        "endLine": 78,
+        "endChar": 84
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29654c09_f9f81b0e",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "100",
+      "range": {
+        "startLine": 78,
+        "startChar": 100,
+        "endLine": 78,
+        "endChar": 102
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3d5d94f_e114ed11",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-19T13:47:04Z",
+      "side": 1,
+      "message": "GrD3D",
+      "range": {
+        "startLine": 106,
+        "startChar": 25,
+        "endLine": 106,
+        "endChar": 42
+      },
+      "revId": "ef77a24b7cc6c5983be5ef3c1d74d58da8d96f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
