@@ -381,6 +381,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
 // add local variables defined by this node to the set
 void Compiler::addDefinitions(const BasicBlock::Node& node,
                               DefinitionMap* definitions) {
+    printf("addDefinitions: %s\n", node.description().c_str());
     switch (node.fKind) {
         case BasicBlock::Node::kExpression_Kind: {
             SkASSERT(node.expression());
@@ -451,7 +452,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             const Statement* stmt = (Statement*) node.statement()->get();
             if (stmt->fKind == Statement::kVarDeclaration_Kind) {
                 VarDeclaration& vd = (VarDeclaration&) *stmt;
+                printf("    varDeclarations: %s\n", vd.description().c_str());
                 if (vd.fValue) {
+                    printf("    defining %s to %s\n", String(vd.fVar->fName).c_str(), vd.fValue->description().c_str());
                     (*definitions)[vd.fVar] = &vd.fValue;
                 }
             }
@@ -1255,6 +1258,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
 }
 
 void Compiler::scanCFG(FunctionDefinition& f) {
+    printf("scanCFG: %s\n", f.description().c_str());
     CFG cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
 
@@ -1269,6 +1273,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     break;
                 case BasicBlock::Node::kExpression_Kind:
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
+                    if ((*cfg.fBlocks[i].fNodes[0].expression())->fKind ==
+                        Expression::kBoolLiteral_Kind) {
+                        // Function inlining can generate do { ... } while(false) loops which always
+                        // break, so the boolean condition is considered unreachable. Since not
+                        // being able to reach a literal is a non-issue in the first place, we
+                        // don't report an error in this case.
+                        continue;
+                    }
                     break;
             }
             this->error(offset, String("unreachable"));

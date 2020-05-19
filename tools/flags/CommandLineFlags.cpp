@@ -358,7 +358,9 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 
 namespace {
 
-template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const char* name) {
+template <typename Strings> bool ShouldSkipImpl(const Strings& rawStrings, const char* name) {
+    SkTArray<const char*> strings;
+    strings.push_back("xfermodes3");
     int    count      = strings.count();
     size_t testLen    = strlen(name);
     bool   anyExclude = count == 0;
