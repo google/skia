@@ -235,6 +235,11 @@ public:
     */
     void setStyle(Style style);
 
+    /**
+     *  Set paint's style to kStroke if true, or kFill if false.
+     */
+    void setStroke(bool);
+
     /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
         a color component.
