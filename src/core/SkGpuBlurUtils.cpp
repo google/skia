@@ -190,11 +190,16 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         convolve_gaussian_1d(dstRenderTargetContext.get(), srcView, srcBounds, rtcToSrcOffset, rect,
                              srcAlphaType, direction, radius, sigma, mode);
     };
+    auto clear = [&](SkIRect rect) {
+        // Transform rect into the render target's coord system.
+        rect.offset(-rtcToSrcOffset);
+        dstRenderTargetContext->clear(&rect, SK_PMColor4fTRANSPARENT,
+        GrRenderTargetContext::CanClearFullscreen::kYes);
+    };
 
     if (!top.isEmpty()) {
         if (mode == SkTileMode::kDecal) {
-            dstRenderTargetContext->clear(&top, SK_PMColor4fTRANSPARENT,
-                                          GrRenderTargetContext::CanClearFullscreen::kYes);
+            clear(top);
         } else {
             convolve(top);
         }
@@ -202,8 +207,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
 
     if (!bottom.isEmpty()) {
         if (mode == SkTileMode::kDecal) {
-            dstRenderTargetContext->clear(&bottom, SK_PMColor4fTRANSPARENT,
-                                          GrRenderTargetContext::CanClearFullscreen::kYes);
+            clear(bottom);
         } else {
             convolve(bottom);
         }
