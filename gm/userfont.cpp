@@ -18,13 +18,19 @@
 static sk_sp<SkTypeface> make_tf() {
     SkCustomTypefaceBuilder builder;
     SkFont font;
-    font.setSize(1.0f);
+    const float upem = font.getTypefaceOrDefault()->getUnitsPerEm();
+
+    // request a big size, to improve precision at the fontscaler level
+    font.setSize(upem);
     font.setHinting(SkFontHinting::kNone);
+
+    // so we can scale our paths back down to 1-point
+    const SkMatrix scale = SkMatrix::Scale(1.0f/upem, 1.0f/upem);
 
     {
         SkFontMetrics metrics;
         font.getMetrics(&metrics);
-        builder.setMetrics(metrics);
+        builder.setMetrics(metrics, 1.0f/upem);
     }
 
     // Steal the first 128 chars from the default font
@@ -37,7 +43,7 @@ static sk_sp<SkTypeface> make_tf() {
         font.getPath(glyph, &path);
 
         // we use the charcode to be our glyph index, since we have no cmap table
-        builder.setGlyph(index, width, path);
+        builder.setGlyph(index, width/upem, path.makeTransform(scale));
     }
 
     return builder.detach();

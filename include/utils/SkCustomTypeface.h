@@ -28,7 +28,7 @@ public:
     void setGlyph(SkGlyphID, float advance, sk_sp<SkImage>, float scale);
     void setGlyph(SkGlyphID, float advance, sk_sp<SkPicture>);
 
-    void setMetrics(const SkFontMetrics& fm) { fMetrics = fm; }
+    void setMetrics(const SkFontMetrics& fm, float scale = 1);
 
     sk_sp<SkTypeface> detach();
 

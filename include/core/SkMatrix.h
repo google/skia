@@ -63,24 +63,9 @@ public:
         @param sy  vertical scale factor
         @return    SkMatrix with scale
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
+    static SkMatrix SK_WARN_UNUSED_RESULT Scale(SkScalar sx, SkScalar sy) {
         SkMatrix m;
         m.setScale(sx, sy);
-        return m;
-    }
-
-    /** Sets SkMatrix to scale by (scale, scale). Returned matrix is:
-
-            | scale   0   0 |
-            |   0   scale 0 |
-            |   0     0   1 |
-
-        @param scale  horizontal and vertical scale factor
-        @return       SkMatrix with scale
-    */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
-        SkMatrix m;
-        m.setScale(scale, scale);
         return m;
     }
 
@@ -94,23 +79,27 @@ public:
         @param dy  vertical translation
         @return    SkMatrix with translation
     */
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
+    static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkScalar dx, SkScalar dy) {
         SkMatrix m;
         m.setTranslate(dx, dy);
         return m;
     }
+    static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkVector t) { return Translate(t.x(), t.y()); }
+    static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkIVector t) { return Translate(t.x(), t.y()); }
 
-    /** Sets SkMatrix to translate by (t.x(), t.y()). Returned matrix is:
-
-            | 1 0 t.x() |
-            | 0 1 t.y() |
-            | 0 0 1     |
-
-        @param t  translation vector
-        @return   SkMatrix with translation
-    */
+    // DEPRECATED
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
+        return Translate(dx, dy);
+    }
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
+        return Scale(sx, sy);
+    }
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
+        return Scale(scale, scale);
+    }
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.x(), t.y()); }
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkIVector t) { return MakeTrans(t.x(), t.y()); }
+    // end DEPRECATED
 
     /** Sets SkMatrix to:
 
