@@ -122,10 +122,6 @@ private:
 
     SampleMatrix getMatrix(const Expression& e, const Variable& fp);
 
-    SampleMatrix getMatrix(const Statement* s, const Variable& fp);
-
-    SampleMatrix getMatrix(const Expression* e, const Variable& fp);
-
     SampleMatrix getMatrix(const ProgramElement& p, const Variable& fp);
 
     const Program& fProgram;

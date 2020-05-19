@@ -2987,6 +2987,14 @@ void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStre
 }
 
 void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& out) {
+    // We believe the do loop code below will work, but Skia doesn't actually use them and
+    // adequately testing this code in the absence of Skia exercising it isn't straightforward. For
+    // the time being, we just fail with an error due to the lack of testing. If you encounter this
+    // message, simply remove the error call below to see whether our do loop support actually
+    // works.
+    fErrors.error(d.fOffset, "internal error: do loop support has been disabled in SPIR-V, see "
+                  "SkSLSPIRVCodeGenerator.cpp for details");
+
     SpvId header = this->nextId();
     SpvId start = this->nextId();
     SpvId next = this->nextId();

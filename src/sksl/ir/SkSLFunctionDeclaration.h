@@ -17,8 +17,6 @@
 
 namespace SkSL {
 
-struct FunctionDefinition;
-
 /**
  * A function declaration (not a definition -- does not contain a body).
  */
@@ -26,7 +24,7 @@ struct FunctionDeclaration : public Symbol {
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
-    , fDefinition(nullptr)
+    , fDefined(false)
     , fBuiltin(false)
     , fModifiers(modifiers)
     , fParameters(std::move(parameters))
@@ -109,7 +107,7 @@ struct FunctionDeclaration : public Symbol {
         return true;
     }
 
-    mutable FunctionDefinition* fDefinition;
+    mutable bool fDefined;
     bool fBuiltin;
     Modifiers fModifiers;
     const std::vector<const Variable*> fParameters;
