@@ -34,7 +34,7 @@ String ASTNode::description() const {
             return "break";
         case Kind::kCall: {
             auto iter = this->begin();
-            String result = iter->description();
+            String result = (iter++)->description();
             result += "(";
             const char* separator = "";
             while (iter != this->end()) {
@@ -229,6 +229,11 @@ String ASTNode::description() const {
                 separator = ", ";
             }
             return result;
+        }
+        case Kind::kWhile: {
+            return "while (" + this->begin()->description() + ") " +
+                   (this->begin() + 1)->description();
+
         }
         default:
             SkASSERT(false);
