@@ -47,7 +47,8 @@ private:
 
 class SkStrokePE : public SkPathEffect {
 public:
-    SkStrokePE(SkScalar width, SkPaint::Join, SkPaint::Cap, SkScalar miter);
+    SkStrokePE(SkScalar width, SkPaint::Join, SkPaint::Cap, SkScalar miter,
+               bool strokeAndFill);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -61,6 +62,7 @@ private:
                     fMiter;
     SkPaint::Join   fJoin;
     SkPaint::Cap    fCap;
+    bool            fStrokeAndFill;
 
     typedef SkPathEffect INHERITED;
 };

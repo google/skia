@@ -237,3 +237,50 @@ private:
 };
 DEF_GM(return new ComboPathEfectsGM;)
 
+// Test that we can replicate SkPaint::kStrokeAndFill_Style
+// with a patheffect. We expect the 2nd and 3rd columns to draw the same.
+DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 450, 450) {
+
+    SkPaint strokePaint;
+    strokePaint.setStyle(SkPaint::kStrokeAndFill_Style);
+    strokePaint.setStrokeWidth(20);
+    strokePaint.setStrokeJoin(SkPaint::kRound_Join);
+
+    typedef void (*Maker)(SkPath*);
+    const Maker makers[] = {
+        [](SkPath* path) {
+            path->addOval({0, 0, 100, 100}, SkPathDirection::kCW);
+        },
+        [](SkPath* path) {
+            path->addOval({0, 0, 100, 100}, SkPathDirection::kCCW);
+        },
+        [](SkPath* path) {
+            path->moveTo(0, 0).lineTo(100, 100).lineTo(0, 100).lineTo(100, 0).close();
+        },
+    };
+
+    canvas->translate(20, 20);
+    for (auto maker : makers) {
+        SkPath path;
+        maker(&path);
+
+        SkPaint paint;
+        paint.setStroke(true);
+        // show the skeleton
+        canvas->drawPath(path, paint);
+
+        canvas->save();
+        canvas->translate(150, 0);
+        // show kStrokeAndFill_Style
+        canvas->drawPath(path, strokePaint);
+
+        canvas->translate(150, 0);
+        paint.setStroke(false);
+        paint.setPathEffect(SkStrokePathEffect::Make(strokePaint, true));
+        // show the simulator in the patheffect
+        canvas->drawPath(path, paint);
+        canvas->restore();
+
+        canvas->translate(0, 150);
+    }
+}

@@ -32,7 +32,9 @@ public:
 class SK_API SkStrokePathEffect {
 public:
     static sk_sp<SkPathEffect> Make(SkScalar width, SkPaint::Join, SkPaint::Cap,
-                                    SkScalar miter = 4);
+                                    SkScalar miter = 4, bool strokeAndFill = false);
+    // extracts the stroke properties from the paint: width, join, cap, miter
+    static sk_sp<SkPathEffect> Make(const SkPaint&, bool strokeAndFill = false);
 };
 
 #endif
