@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0e5fcfc_6f37c1ec",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-19T21:18:01Z",
+      "side": 1,
+      "message": "This check here makes clears with window rectangles always become a draw, even though the public clear API still accepts a GrFixedClip. In a later CL the clear calls will be simplified to take only a scissor rect (or no rect for fullscreen).",
+      "range": {
+        "startLine": 561,
+        "startChar": 59,
+        "endLine": 561,
+        "endChar": 85
+      },
+      "revId": "264a9efff1b39e0f375957c8785e66873c45d5a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39b18aee_c3b62403",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-19T21:18:01Z",
+      "side": 1,
+      "message": "As with color clears, this makes window rectangle-clipped stencil clears do an axis-aligned draw. When testing locally on some benchmarks, the draw vs. native clear made no difference in performance: the significant part was that window rectangles were used.",
+      "range": {
+        "startLine": 986,
+        "startChar": 25,
+        "endLine": 986,
+        "endChar": 51
+      },
+      "revId": "264a9efff1b39e0f375957c8785e66873c45d5a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
