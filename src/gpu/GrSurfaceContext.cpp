@@ -275,7 +275,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
     }
 
     direct->priv().flushSurface(srcProxy);
-
+    direct->submit();
     if (!direct->priv().getGpu()->readPixels(srcSurface, pt.fX, pt.fY, dstInfo.width(),
                                              dstInfo.height(), this->colorInfo().colorType(),
                                              supportedRead.fColorType, readDst, readRB)) {
