@@ -9,9 +9,6 @@ Milestone 85
 
   * <insert new release notes here>
 
-  * Remove deprecated version of flush calls on GrContext and SkSurface.
-    https://review.skia.org/2290540
-
   * SkCanvas::drawVertices and drawPatch now support mapping an SkShader without explicit
     texture coordinates. If they're not supplied, the local positions (vertex position or
     patch cubic positions) will be directly used to sample the SkShader.
