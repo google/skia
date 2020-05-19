@@ -19,7 +19,6 @@ uniform half blurRadius;
     #include "src/core/SkGpuBlurUtils.h"
     #include "src/core/SkRRectPriv.h"
     #include "src/gpu/GrCaps.h"
-    #include "src/gpu/GrClip.h"
     #include "src/gpu/GrPaint.h"
     #include "src/gpu/GrProxyProvider.h"
     #include "src/gpu/GrRecordingContextPriv.h"
