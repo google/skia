@@ -84,11 +84,12 @@ static float exp2f_(float x) {
 
     // Before we cast fbits to int32_t, check for out of range values to pacify UBSAN.
     // INT_MAX is not exactly representable as a float, so exclude it as effectively infinite.
-    // INT_MIN is a power of 2 and exactly representable as a float, so it's fine.
+    // Negative values are effectively underflow - we'll end up returning a (different) negative
+    // value, which makes no sense. So clamp to zero.
     if (fbits >= (float)INT_MAX) {
         return INFINITY_;
-    } else if (fbits < (float)INT_MIN) {
-        return -INFINITY_;
+    } else if (fbits < 0) {
+        return 0;
     }
 
     int32_t bits = (int32_t)fbits;
