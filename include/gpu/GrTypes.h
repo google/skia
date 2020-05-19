@@ -227,7 +227,7 @@ static const uint32_t kAll_GrBackendState = 0xffffffff;
 
 enum GrFlushFlags {
     kNone_GrFlushFlags = 0,
-    // Deprecated: Use syncCpu call on submit instead.
+    // flush will wait till all submitted GPU work is finished before returning.
     kSyncCpu_GrFlushFlag = 0x1,
 };
 
