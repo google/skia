@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a22be586_64001e78",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-05-19T13:32:26Z",
+      "side": 1,
+      "message": "Derp. Fixed.",
+      "parentUuid": "3a6566f3_565eb341",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea41f33c_7f5cd75f",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2020-05-19T13:13:31Z",
       "side": 1,
       "message": "Can this be pure virtual, rather than SkASSERT(false) ?",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d932fd9_675fe872",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-05-19T13:32:26Z",
+      "side": 1,
+      "message": "That\u0027s actually how I initially wrote it. But there are several nodes that can\u0027t actually show up in a finished tree (such as SkSLTypeReference), so I ended up with something like four separate implementations that looked exactly like this and decided it would be better to put it in the base class.",
+      "parentUuid": "ea41f33c_7f5cd75f",
       "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "dab55d3f_37beb3e8",
+        "filename": "src/sksl/ir/SkSLSwitchCase.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-05-19T13:32:26Z",
+      "side": 1,
+      "message": "I decided to go with a literal \"number of nodes\" rule everywhere for consistency - so e.g. 1 + 1 is likewise three nodes, one for each of the literals and one for the binary node itself. \"case 1: break;\" being three nodes is just following the same rule.\n\nAs you say, I don\u0027t think the exact numbers are super important, but I think the rules are at least consistent.",
+      "parentUuid": "b9d72241_b9f01118",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "56ff9d6f_3953be7a",
         "filename": "tests/SkSLFPTest.cpp",
         "patchSetId": 10
@@ -70,6 +130,24 @@
       "writtenOn": "2020-05-19T13:13:31Z",
       "side": 1,
       "message": "I\u0027ve looked at everything except the important part (going to do that next). For the GLSL code generator (following file/test), it seems like leaving in the definition of functions that have been inlined is okay, because the GLSL compiler will just rip them out (though it may still spend time parsing and compiling them). For FP -\u003e CPP, it seems like marking them unused and not including this code would be helpful, to cut down on the work involved when the FP is used at runtime?",
+      "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52163db3_2b00bc26",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-05-19T13:32:26Z",
+      "side": 1,
+      "message": "Planned for a followup CL.",
+      "parentUuid": "56ff9d6f_3953be7a",
       "revId": "f7199d174658007f3cadbc3d2776912e56fc1fd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
