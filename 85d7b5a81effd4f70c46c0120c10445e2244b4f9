@@ -70,6 +70,30 @@
       "revId": "85d7b5a81effd4f70c46c0120c10445e2244b4f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89e3129c_028aeacd",
+        "filename": "gm/userfont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-19T16:51:19Z",
+      "side": 1,
+      "message": "I\u0027ll make the change. I don\u0027t there there is a wrong number, since we just want lots of bits.",
+      "parentUuid": "99797766_8f5a48f2",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "85d7b5a81effd4f70c46c0120c10445e2244b4f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
