@@ -732,4 +732,10 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
 }
 #endif
 
+void SkSurface::flushAndSubmit() {
+    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    SkASSERT(this->getContext());
+    this->getContext()->submit();
+}
+
 #endif
