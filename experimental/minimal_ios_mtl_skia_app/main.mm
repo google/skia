@@ -67,7 +67,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     draw_example(surface.get(), fPaint, rotation);
 
     // Must flush *and* present for this to work!
-    surface->flush();
+    surface->flushAndSubmit();
     surface = nullptr;
 
     id<MTLCommandBuffer> commandBuffer = [[self metalQueue] commandBuffer];

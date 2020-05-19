@@ -55,7 +55,7 @@
         return;
     }
     [viewController draw:rect toCanvas:surface->getCanvas() atSize:size];
-    surface->flush();
+    surface->flushAndSubmit();
     surface = nullptr;
 
     id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
