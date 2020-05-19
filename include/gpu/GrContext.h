@@ -312,6 +312,11 @@ public:
     void flushAndSubmit() { this->flush(GrFlushInfo(), GrPrepareForExternalIORequests()); }
 
     /**
+     * Deprecated.
+     */
+    void flush() { this->flushAndSubmit(); }
+
+    /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      *
      * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will have
@@ -346,6 +351,33 @@ public:
      * declaration of GrPreopareForExternalIORequests for more details.
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo&, const GrPrepareForExternalIORequests&);
+
+    /**
+     * Deprecated.
+     */
+    GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
+                                GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr) {
+        GrFlushInfo info;
+        info.fFlags = flags;
+        info.fNumSemaphores = numSemaphores;
+        info.fSignalSemaphores = signalSemaphores;
+        info.fFinishedProc = finishedProc;
+        info.fFinishedContext = finishedContext;
+        return this->flush(info);
+    }
+
+    /**
+     * Deprecated.
+     */
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
+                                                   GrBackendSemaphore signalSemaphores[]) {
+        GrFlushInfo info;
+        info.fNumSemaphores = numSemaphores;
+        info.fSignalSemaphores = signalSemaphores;
+        return this->flush(info);
+    }
 
     /**
      * Placeholder no-op submit call.
