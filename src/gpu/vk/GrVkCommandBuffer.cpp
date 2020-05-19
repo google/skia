@@ -472,7 +472,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
     SkASSERT(!fActiveRenderPass);
     SkASSERT(renderPass->isCompatible(*target));
 
-    const GrVkFramebuffer* framebuffer = target->getFramebuffer();
+    const GrVkFramebuffer* framebuffer = target->getFramebuffer(renderPass->hasStencilAttachment());
     if (!framebuffer) {
         return false;
     }
