@@ -34,7 +34,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     // We don't support creating external GrVkTextures
     SkASSERT(!info.fYcbcrConversionInfo.isValid() || !info.fYcbcrConversionInfo.fExternalFormat);
-    this->registerWithCache(budgeted);
+    this->registerWithCache(budgeted, 0);
     if (GrVkFormatIsCompressed(info.fFormat)) {
         this->setReadOnly();
     }

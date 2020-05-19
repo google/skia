@@ -319,7 +319,7 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
         }
     }
 
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(SkBudgeted::kYes, 0);
 }
 
 void GrGLPath::onRelease() {

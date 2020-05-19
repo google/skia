@@ -115,6 +115,7 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                             const GrBackendFormat& format,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
+                                            int renderTargetStencilSampleCnt,
                                             SkBudgeted budgeted,
                                             GrProtected isProtected,
                                             int mipLevelCount,
@@ -141,11 +142,14 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                      format,
                                      renderable,
                                      renderTargetSampleCnt,
+                                     renderTargetStencilSampleCnt,
                                      budgeted,
                                      isProtected,
                                      mipLevelCount,
                                      levelClearMask);
     if (tex) {
+        //$$
+
         SkASSERT(tex->backendFormat() == format);
         SkASSERT(GrRenderable::kNo == renderable || tex->asRenderTarget());
         if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
@@ -164,6 +168,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
+                                      int renderTargetStencilSampleCnt,
                                       GrMipMapped mipMapped,
                                       SkBudgeted budgeted,
                                       GrProtected isProtected) {
@@ -175,7 +180,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
     uint32_t levelClearMask =
             this->caps()->shouldInitializeTextures() ? (1 << mipLevelCount) - 1 : 0;
     auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
-                                         budgeted, isProtected, mipLevelCount, levelClearMask);
+                                         renderTargetStencilSampleCnt, budgeted, isProtected, mipLevelCount, levelClearMask);
     if (tex && mipMapped == GrMipMapped::kYes && levelClearMask) {
         tex->texturePriv().markMipMapsClean();
     }
@@ -186,6 +191,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
+                                      int renderTargetStencilSampleCnt,
                                       SkBudgeted budgeted,
                                       GrProtected isProtected,
                                       GrColorType textureColorType,
@@ -215,6 +221,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
     }
 
     auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
+                                         renderTargetStencilSampleCnt,
                                          budgeted, isProtected, texelLevelCount, levelClearMask);
     if (tex) {
         bool markMipLevelsClean = false;

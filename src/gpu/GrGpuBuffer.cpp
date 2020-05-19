@@ -61,7 +61,7 @@ void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType in
     }
 }
 
-void GrGpuBuffer::computeScratchKey(GrScratchKey* key) const {
+void GrGpuBuffer::computeScratchKey(GrScratchKey* key, int) const {
     if (SkIsPow2(fSizeInBytes) && kDynamic_GrAccessPattern == fAccessPattern) {
         ComputeScratchKeyForDynamicVBO(fSizeInBytes, fIntendedType, key);
     }

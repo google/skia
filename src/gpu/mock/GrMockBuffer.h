@@ -17,7 +17,7 @@ public:
     GrMockBuffer(GrMockGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
                  GrAccessPattern accessPattern)
             : INHERITED(gpu, sizeInBytes, type, accessPattern) {
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(SkBudgeted::kYes, 0);
     }
 
 private:

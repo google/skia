@@ -121,6 +121,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         const GrBackendFormat& format,
         GrRenderable renderable,
         int renderTargetSampleCnt,
+        int renderTargetStencilSampleCnt,
         SkBackingFit fit,
         SkBudgeted budgeted,
         GrProtected isProtected) {
@@ -144,10 +145,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
 
     if (SkBackingFit::kApprox == fit) {
         tex = resourceProvider->createApproxTexture(dimensions, format, renderable,
-                                                    renderTargetSampleCnt, isProtected);
+                                                    renderTargetSampleCnt, renderTargetStencilSampleCnt, isProtected);
     } else {
         tex = resourceProvider->createTexture(dimensions, format, renderable, renderTargetSampleCnt,
-                                              GrMipMapped::kNo, budgeted, isProtected);
+                                              renderTargetStencilSampleCnt, GrMipMapped::kNo, budgeted, isProtected);
     }
     if (!tex) {
         return nullptr;
@@ -161,6 +162,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         GrColorType colorType,
         GrRenderable renderable,
         int renderTargetSampleCnt,
+        int renderTargetStencilSampleCnt,
         SkBackingFit fit,
         SkBudgeted budgeted,
         GrProtected isProtected) {
@@ -173,6 +175,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                                      format,
                                                      renderable,
                                                      renderTargetSampleCnt,
+                                                     renderTargetStencilSampleCnt,
                                                      fit,
                                                      budgeted,
                                                      isProtected);
@@ -328,7 +331,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
                 auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc.fDimensions, desc.fFormat, colorType, desc.fRenderable,
-                        desc.fSampleCnt, desc.fBudgeted, desc.fFit, desc.fProtected, mipLevel));
+                        desc.fSampleCnt1, desc.fStencilSampleCnt, desc.fBudgeted, desc.fFit,
+                        desc.fProtected, mipLevel));
             },
             format, dims, GrRenderable::kNo, 1, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
             GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes);
@@ -375,7 +379,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                     SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
-                        desc.fDimensions, desc.fFormat, colorType, GrRenderable::kNo, 1,
+                        desc.fDimensions, desc.fFormat, colorType, GrRenderable::kNo, 1, 0,
                         desc.fBudgeted, GrProtected::kNo, texels.get(), mipLevelCount));
             },
             format, dims, GrRenderable::kNo, 1, GrMipMapped::kYes, GrMipMapsStatus::kValid,

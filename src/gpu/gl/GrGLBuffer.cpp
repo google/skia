@@ -123,7 +123,7 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
         }
     }
     VALIDATE();
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(SkBudgeted::kYes, 0);
     if (!fBufferID) {
         this->resourcePriv().removeScratchKey();
     }

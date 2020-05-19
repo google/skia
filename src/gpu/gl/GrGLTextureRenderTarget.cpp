@@ -15,13 +15,14 @@
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  SkBudgeted budgeted,
                                                  int sampleCount,
+                                                 int stencilSampleCount,
                                                  const GrGLTexture::Desc& texDesc,
                                                  const GrGLRenderTarget::IDs& rtIDs,
                                                  GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, texDesc.fSize, GrProtected::kNo)
         , GrGLTexture(gpu, texDesc, nullptr, mipMapsStatus)
         , GrGLRenderTarget(gpu, texDesc.fSize, texDesc.fFormat, sampleCount, rtIDs) {
-    this->registerWithCache(budgeted);
+    this->registerWithCache(budgeted, stencilSampleCount);
 }
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,

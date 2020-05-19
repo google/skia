@@ -120,8 +120,9 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
     const GrUniqueKey& key = this->getUniqueKey();
 
-    if (!this->instantiateImpl(resourceProvider, this->numSamples(), GrRenderable::kYes,
-                               this->mipMapped(), key.isValid() ? &key : nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, this->numSamples(), this->numStencilSamples(),
+                               GrRenderable::kYes, this->mipMapped(),
+                               key.isValid() ? &key : nullptr)) {
         return false;
     }
     if (key.isValid()) {
@@ -137,6 +138,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numSamples(),
+                                                       this->numStencilSamples(),
                                                        GrRenderable::kYes, this->mipMapped());
     if (!surface) {
         return nullptr;
@@ -163,6 +165,7 @@ GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const
             GrRenderable::kYes,
             this->mipMapped(),
             this->numSamples(),
+            this->numStencilSamples(),
             this->backendFormat(),
             this->isProtected(),
             this->isBudgeted(),

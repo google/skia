@@ -49,6 +49,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
+                                                   int renderTargetStencilSampleCnt,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
                                                    const GrMipLevel texels[],
@@ -69,7 +70,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
     // Current rule is that you can provide no level data, just the base, or all the levels.
     bool hasPixels = mipLevelCount && texels[0].fPixels;
     auto scratch = this->getExactScratch(dimensions, format, renderable, renderTargetSampleCnt,
-                                         budgeted, mipMapped, isProtected);
+                                         renderTargetStencilSampleCnt, budgeted, mipMapped,
+                                         isProtected);
     if (scratch) {
         if (!hasPixels) {
             return scratch;
@@ -86,7 +88,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
             return nullptr;
         }
     }
-    return fGpu->createTexture(dimensions, format, renderable, renderTargetSampleCnt, budgeted,
+    return fGpu->createTexture(dimensions, format, renderable, renderTargetSampleCnt, renderTargetStencilSampleCnt, budgeted,
                                isProtected, colorType, tempColorType, tmpTexels.get(),
                                mipLevelCount);
 }
@@ -95,11 +97,13 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      GrRenderable renderable,
                                                      int renderTargetSampleCnt,
+                                                     int renderTargetStencilSampleCnt,
                                                      SkBudgeted budgeted,
                                                      GrMipMapped mipMapped,
                                                      GrProtected isProtected) {
     sk_sp<GrTexture> tex(this->refScratchTexture(dimensions, format, renderable,
-                                                 renderTargetSampleCnt, mipMapped, isProtected));
+                                                 renderTargetSampleCnt, renderTargetStencilSampleCnt,
+                                                 mipMapped, isProtected));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -112,6 +116,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
+                                                   int renderTargetStencilSampleCnt,
                                                    SkBudgeted budgeted,
                                                    SkBackingFit fit,
                                                    GrProtected isProtected,
@@ -132,14 +137,15 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
         }
 
         auto tex = this->createApproxTexture(dimensions, format, renderable, renderTargetSampleCnt,
-                                             isProtected);
+                                             renderTargetStencilSampleCnt, isProtected);
         if (!tex) {
             return nullptr;
         }
         return this->writePixels(std::move(tex), colorType, dimensions, &mipLevel, 1);
     } else {
         return this->createTexture(dimensions, format, colorType, renderable, renderTargetSampleCnt,
-                                   budgeted, isProtected, &mipLevel, 1);
+                                   renderTargetStencilSampleCnt, budgeted, isProtected, &mipLevel,
+                                   1);
     }
 }
 
@@ -161,6 +167,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    const GrBackendFormat& format,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
+                                                   int renderTargetStencilSampleCnt,
                                                    GrMipMapped mipMapped,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected) {
@@ -179,15 +186,16 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
     SkASSERT(!this->caps()->isFormatCompressed(format));
 
     // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
-    sk_sp<GrTexture> tex =
-            this->getExactScratch(dimensions, format, renderable, renderTargetSampleCnt, budgeted,
-                                  mipMapped, isProtected);
+    sk_sp<GrTexture> tex = this->getExactScratch(dimensions, format, renderable,
+                                                 renderTargetSampleCnt, 
+                                                 renderTargetStencilSampleCnt, budgeted,
+                                                 mipMapped, isProtected);
     if (tex) {
         return tex;
     }
 
-    return fGpu->createTexture(dimensions, format, renderable, renderTargetSampleCnt, mipMapped,
-                               budgeted, isProtected);
+    return fGpu->createTexture(dimensions, format, renderable, renderTargetSampleCnt,
+                               renderTargetStencilSampleCnt, mipMapped, budgeted, isProtected);
 }
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
@@ -223,6 +231,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                                          const GrBackendFormat& format,
                                                          GrRenderable renderable,
                                                          int renderTargetSampleCnt,
+                                                         int renderTargetStencilSampleCnt,
                                                          GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
 
@@ -242,11 +251,12 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
     auto copyDimensions = MakeApprox(dimensions);
 
     if (auto tex = this->refScratchTexture(copyDimensions, format, renderable,
-                                           renderTargetSampleCnt, GrMipMapped::kNo, isProtected)) {
+                                           renderTargetSampleCnt, renderTargetStencilSampleCnt,
+                                           GrMipMapped::kNo, isProtected)) {
         return tex;
     }
 
-    return fGpu->createTexture(copyDimensions, format, renderable, renderTargetSampleCnt,
+    return fGpu->createTexture(copyDimensions, format, renderable, renderTargetSampleCnt, renderTargetStencilSampleCnt,
                                GrMipMapped::kNo, SkBudgeted::kYes, isProtected);
 }
 
@@ -254,6 +264,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
                                                        const GrBackendFormat& format,
                                                        GrRenderable renderable,
                                                        int renderTargetSampleCnt,
+                                                       int renderTargetStencilSampleCnt,
                                                        GrMipMapped mipMapped,
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
@@ -267,7 +278,8 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
-                                         renderTargetSampleCnt, mipMapped, isProtected, &key);
+                                         renderTargetSampleCnt, renderTargetStencilSampleCnt,
+                                         mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();

@@ -16,6 +16,16 @@ class GrStencilSettings;
 
 class GrProgramInfo {
 public:
+
+    static uint32_t foo() {
+        static std::atomic<uint32_t> nextID{1};
+        uint32_t id;
+        do {
+            id = nextID++;
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
     GrProgramInfo(int numSamples,
                   int numStencilSamples,
                   const GrBackendFormat& backendFormat,
@@ -32,7 +42,8 @@ public:
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fPrimitiveType(primitiveType)
-            , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
+            , fTessellationPatchVertexCount(tessellationPatchVertexCount)
+            , fUniqueID(foo()) {
         SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
@@ -43,6 +54,9 @@ public:
         fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
 
         SkDEBUGCODE(this->validate(false);)
+
+        SkDebugf("GrProgramInfo ctor PI%d numSamples %d numStencilSamples %d stencilEnabled %d\n",
+                 fUniqueID, numSamples, numStencilSamples, this->isStencilEnabled());
     }
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
@@ -101,6 +115,9 @@ private:
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
+
+public:
+    const uint32_t                        fUniqueID;
 };
 
 #endif

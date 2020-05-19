@@ -24,7 +24,7 @@ public:
                   GrMipMapsStatus mipMapsStatus,
                   const GrMockTextureInfo& info)
             : GrMockTexture(gpu, dimensions, isProtected, mipMapsStatus, info) {
-        this->registerWithCache(budgeted);
+        this->registerWithCache(budgeted, 0);
     }
 
     GrMockTexture(GrMockGpu* gpu,
@@ -91,7 +91,7 @@ public:
             : GrSurface(gpu, dimensions, isProtected)
             , INHERITED(gpu, dimensions, sampleCnt, isProtected)
             , fInfo(info) {
-        this->registerWithCache(budgeted);
+        this->registerWithCache(budgeted, 0);
     }
 
     enum Wrapped { kWrapped };
@@ -160,7 +160,7 @@ public:
             : GrSurface(gpu, dimensions, isProtected)
             , GrMockTexture(gpu, dimensions, isProtected, mipMapsStatus, texInfo)
             , GrMockRenderTarget(gpu, dimensions, sampleCnt, isProtected, rtInfo) {
-        this->registerWithCache(budgeted);
+        this->registerWithCache(budgeted, 0);
     }
 
     // Renderable wrapped backend texture.
@@ -214,7 +214,7 @@ private:
     }
 
     // This avoids an inherits via dominance warning on MSVC.
-    void computeScratchKey(GrScratchKey* key) const override { GrTexture::computeScratchKey(key); }
+    void computeScratchKey(GrScratchKey* key, int) const override { GrTexture::computeScratchKey(key, 0); }
 };
 
 #endif

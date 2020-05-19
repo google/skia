@@ -14,7 +14,7 @@ GrVkMeshBuffer::GrVkMeshBuffer(GrVkGpu* gpu, GrGpuBufferType bufferType,
         : GrGpuBuffer(gpu, desc.fSizeInBytes, bufferType,
                       desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern)
         , GrVkBuffer(desc, bufferResource) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(SkBudgeted::kYes, 0);
 }
 
 static GrVkBuffer::Type vk_mesh_buffer_type_from_gr_bufer_type(GrGpuBufferType bufferType) {

@@ -29,6 +29,7 @@ public:
     static sk_sp<GrVkTextureRenderTarget> MakeNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
                                                                      SkISize dimensions,
                                                                      int sampleCnt,
+                                                                     int stencilSampleCnt,
                                                                      const GrVkImage::ImageDesc&,
                                                                      GrMipMapsStatus);
 
@@ -61,6 +62,7 @@ private:
                             SkBudgeted budgeted,
                             SkISize dimensions,
                             int sampleCnt,
+                            int stencilSampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,
@@ -74,6 +76,7 @@ private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
                             SkISize dimensions,
+                            int stencilSampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrVkImageLayout> layout,
                             const GrVkImageView* texView,

@@ -253,6 +253,7 @@ public:
                                                               const GrBackendFormat& format,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
+                                                              int renderTargetStencilSampleCnt,
                                                               SkBackingFit fit,
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);
@@ -262,6 +263,7 @@ public:
                                                               GrColorType colorType,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
+                                                              int renderTargetStencilSampleCnt,
                                                               SkBackingFit fit,
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);

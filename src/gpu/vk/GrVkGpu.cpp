@@ -1038,6 +1038,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
+                                          int renderTargetStencilSampleCnt,
                                           SkBudgeted budgeted,
                                           GrProtected isProtected,
                                           int mipLevelCount,
@@ -1080,7 +1081,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
         tex = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, dimensions, renderTargetSampleCnt, imageDesc, mipMapsStatus);
+                this, budgeted, dimensions, renderTargetSampleCnt, renderTargetStencilSampleCnt, imageDesc, mipMapsStatus);
     } else {
         tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipMapsStatus);
     }
@@ -2332,7 +2333,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         copySurface = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, SkBudgeted::kYes, {width, height}, 1, imageDesc,
+                this, SkBudgeted::kYes, {width, height}, 1, 0, imageDesc,
                 GrMipMapsStatus::kNotAllocated);
         if (!copySurface) {
             return false;

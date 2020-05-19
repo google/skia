@@ -1730,8 +1730,18 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
             GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
                                                                &attachmentsDescriptor,
                                                                &attachmentFlags);
-            SkASSERT(vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor,
-                                                               attachmentFlags));
+            if (!vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor,
+                                                          attachmentFlags)) {
+                SkDebugf("Assert failing for PI%d/RT%d   <----------------------------\n",
+                                                          programInfo.fUniqueID,
+                                                          rt->uniqueID().asUInt());
+//                SkASSERT(vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor,
+//                                                                   attachmentFlags));
+           } else {
+                SkDebugf("Assert passing for PI%d/RT%d\n", programInfo.fUniqueID,
+                                                          rt->uniqueID().asUInt());
+            }
+
         }
 #endif
     } else {

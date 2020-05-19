@@ -93,8 +93,8 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     auto format =
             provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
     sk_sp<GrTexture> tex(provider->createTexture({size, size}, format, GrRenderable::kYes,
-                                                 sampleCount, GrMipMapped::kNo, budgeted,
-                                                 GrProtected::kNo));
+                                                 sampleCount, sampleCount, GrMipMapped::kNo,
+                                                 budgeted, GrProtected::kNo));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -258,7 +258,7 @@ public:
         , fProperty(kA_SimulatedProperty)
         , fIsScratch(false) {
         ++fNumAlive;
-        this->registerWithCache(budgeted);
+        this->registerWithCache(budgeted, 0);
     }
 
     static TestResource* CreateScratch(GrGpu* gpu, SkBudgeted budgeted,
@@ -302,7 +302,7 @@ private:
         , fProperty(property)
         , fIsScratch(true) {
         ++fNumAlive;
-        this->registerWithCache(budgeted);
+        this->registerWithCache(budgeted, 0);
     }
 
     // Constructor for simulating resources that wrap backend objects.
@@ -316,7 +316,7 @@ private:
         this->registerWithCacheWrapped(cacheable);
     }
 
-    void computeScratchKey(GrScratchKey* key) const override {
+    void computeScratchKey(GrScratchKey* key, int) const override {
         if (fIsScratch) {
             ComputeScratchKey(fProperty, key);
         }
@@ -1608,7 +1608,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             SkISize dims,
                                             int sampleCnt) {
     auto format = provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
-    return provider->createTexture(dims, format, renderable, sampleCnt, GrMipMapped::kNo,
+    return provider->createTexture(dims, format, renderable, sampleCnt, 0, GrMipMapped::kNo,
                                    SkBudgeted::kYes, GrProtected::kNo);
 }
 

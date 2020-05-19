@@ -22,6 +22,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  SkBudgeted budgeted,
                                                  SkISize dimensions,
                                                  int sampleCnt,
+                                                 int stencilSampleCnt,
                                                  const GrVkImageInfo& info,
                                                  sk_sp<GrVkImageLayout> layout,
                                                  const GrVkImageView* texView,
@@ -38,12 +39,13 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                            std::move(msaaLayout), colorAttachmentView, resolveAttachmentView,
                            GrBackendObjectOwnership::kOwned) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
-    this->registerWithCache(budgeted);
+    this->registerWithCache(budgeted, stencilSampleCnt);
 }
 
 GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                                                  SkBudgeted budgeted,
                                                  SkISize dimensions,
+                                                 int stencilSampleCnt,
                                                  const GrVkImageInfo& info,
                                                  sk_sp<GrVkImageLayout> layout,
                                                  const GrVkImageView* texView,
@@ -55,7 +57,7 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
                       GrBackendObjectOwnership::kOwned)
         , GrVkRenderTarget(gpu, dimensions, info, layout, colorAttachmentView,
                            GrBackendObjectOwnership::kOwned) {
-    this->registerWithCache(budgeted);
+    this->registerWithCache(budgeted, stencilSampleCnt);
 }
 
 GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
@@ -178,6 +180,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
         SkBudgeted budgeted,
         SkISize dimensions,
         int sampleCnt,
+        int stencilSampleCnt,
         const GrVkImage::ImageDesc& imageDesc,
         GrMipMapsStatus mipMapsStatus) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
@@ -196,12 +199,12 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
     }
     if (sampleCnt > 1) {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-                gpu, budgeted, dimensions, sampleCnt, info, std::move(layout), views.imageView,
+                gpu, budgeted, dimensions, sampleCnt, stencilSampleCnt, info, std::move(layout), views.imageView,
                 views.msInfo, std::move(views.msLayout), views.colorAttachmentView,
                 views.resolveAttachmentView, mipMapsStatus));
     } else {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-                gpu, budgeted, dimensions, info, std::move(layout), views.imageView,
+                gpu, budgeted, dimensions, stencilSampleCnt, info, std::move(layout), views.imageView,
                 views.colorAttachmentView, mipMapsStatus));
     }
 }

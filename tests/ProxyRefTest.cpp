@@ -35,7 +35,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     return proxyProvider->testingOnly_createInstantiatedProxy(
-            {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1,
+            {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1, 0,
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 }
 

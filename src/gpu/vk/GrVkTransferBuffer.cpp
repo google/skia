@@ -36,7 +36,7 @@ GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& des
                                                  : GrGpuBufferType::kXferGpuToCpu,
                     kStream_GrAccessPattern)
         , GrVkBuffer(desc, bufferResource) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(SkBudgeted::kYes, 0);
 }
 
 void GrVkTransferBuffer::onRelease() {

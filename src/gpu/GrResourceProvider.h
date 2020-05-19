@@ -63,6 +63,7 @@ public:
                                          const GrBackendFormat& format,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
+                                         int renderTargetStencilSampleCnt,
                                          GrProtected isProtected);
 
     /** Create an exact fit texture with no initial data to upload. */
@@ -70,6 +71,7 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   int renderTargetStencilSampleCnt,
                                    GrMipMapped mipMapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
@@ -84,6 +86,7 @@ public:
                                    GrColorType colorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   int renderTargetStencilSampleCnt,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected,
                                    const GrMipLevel texels[],
@@ -99,6 +102,7 @@ public:
                                    GrColorType srcColorType,
                                    GrRenderable,
                                    int renderTargetSampleCnt,
+                                   int renderTargetStencilSampleCnt,
                                    SkBudgeted,
                                    SkBackingFit,
                                    GrProtected,
@@ -314,6 +318,7 @@ private:
                                        const GrBackendFormat&,
                                        GrRenderable,
                                        int renderTargetSampleCnt,
+                                       int renderTargetStencilSampleCnt,
                                        GrMipMapped,
                                        GrProtected);
 
@@ -325,6 +330,7 @@ private:
                                      const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
+                                     int renderTargetStencilSampleCnt,
                                      SkBudgeted,
                                      GrMipMapped,
                                      GrProtected);

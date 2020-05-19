@@ -49,7 +49,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const Desc& desc,
                     TextureTypeFromTarget(desc.fTarget), mipMapsStatus)
         , fParameters(sk_make_sp<GrGLTextureParameters>()) {
     this->init(desc);
-    this->registerWithCache(budgeted);
+    this->registerWithCache(budgeted, 0);
     if (GrGLFormatIsCompressed(desc.fFormat)) {
         this->setReadOnly();
     }

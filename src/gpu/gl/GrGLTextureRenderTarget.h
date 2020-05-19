@@ -27,6 +27,7 @@ public:
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             SkBudgeted budgeted,
                             int sampleCount,
+                            int stencilSampleCount,
                             const GrGLTexture::Desc& texDesc,
                             const GrGLRenderTarget::IDs&,
                             GrMipMapsStatus);

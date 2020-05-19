@@ -185,6 +185,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                                            GrPrimitiveType primitiveType) {
     GrRenderTargetProxy* outputProxy = writeView->asRenderTargetProxy();
 
+    SkDebugf("creating PI for P%d\n", outputProxy->uniqueID().asUInt());
     auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
                                           outputProxy->numStencilSamples(),
                                           outputProxy->backendFormat(),

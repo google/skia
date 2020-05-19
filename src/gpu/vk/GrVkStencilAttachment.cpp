@@ -22,7 +22,7 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
     : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
     , GrVkImage(gpu, info, std::move(layout), GrBackendObjectOwnership::kOwned)
     , fStencilView(stencilView) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(SkBudgeted::kYes, 0);
     stencilView->ref();
 }
 

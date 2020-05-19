@@ -519,6 +519,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
     GrStencilAttachment* stencil = nullptr;
     if (int numStencilSamples = proxy->numStencilSamples()) {
+        SkDebugf("Attaching SB to P%d\n", proxy->uniqueID().asUInt());
         if (!flushState->resourceProvider()->attachStencilAttachment(
                 renderTarget, numStencilSamples)) {
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");

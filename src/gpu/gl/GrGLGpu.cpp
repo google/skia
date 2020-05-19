@@ -1270,6 +1270,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
+                                          int renderTargetStencilSampleCnt,
                                           SkBudgeted budgeted,
                                           GrProtected isProtected,
                                           int mipLevelCount,
@@ -1310,7 +1311,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             return return_null_texture();
         }
         tex = sk_make_sp<GrGLTextureRenderTarget>(
-                this, budgeted, renderTargetSampleCnt, texDesc, rtIDDesc, mipMapsStatus);
+                this, budgeted, renderTargetSampleCnt, renderTargetStencilSampleCnt, texDesc, rtIDDesc, mipMapsStatus);
         tex->baseLevelWasBoundToFBO();
     } else {
         tex = sk_make_sp<GrGLTexture>(this, budgeted, texDesc, mipMapsStatus);

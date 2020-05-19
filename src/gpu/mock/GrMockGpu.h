@@ -66,6 +66,7 @@ private:
                                      const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
+                                     int renderTargetStencilSampleCnt,
                                      SkBudgeted,
                                      GrProtected,
                                      int mipLevelCount,

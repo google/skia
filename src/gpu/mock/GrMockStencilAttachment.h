@@ -15,7 +15,7 @@ class GrMockStencilAttachment : public GrStencilAttachment {
 public:
     GrMockStencilAttachment(GrMockGpu* gpu, int width, int height, int bits, int sampleCnt)
             : INHERITED(gpu, width, height, bits, sampleCnt) {
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(SkBudgeted::kYes, 0);
     }
 
 private:
