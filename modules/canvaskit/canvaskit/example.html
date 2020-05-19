@@ -36,6 +36,7 @@
 <canvas id=gradient1 width=300 height=300></canvas>
 <canvas id=patheffect width=300 height=300></canvas>
 <canvas id=paths width=200 height=200></canvas>
+<canvas id=pathperson width=300 height=300></canvas>
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
@@ -63,6 +64,7 @@
     DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);
     InkExample(CanvasKit);
+    PathPersonExample(CanvasKit);
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -173,6 +175,38 @@
     // paint.delete();
     // textPaint.delete();
     // textFont.delete();
+  }
+
+  function PathPersonExample(CanvasKit) {
+    const surface = CanvasKit.MakeSWCanvasSurface('pathperson');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    function drawFrame(canvas) {
+      const paint = new CanvasKit.SkPaint();
+      paint.setStrokeWidth(1.0);
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+      const path = new CanvasKit.SkPath();
+      path.moveTo(10, 10);
+      path.lineTo(100, 10);
+      path.moveTo(10, 10);
+      path.lineTo(10, 200);
+      path.moveTo(10, 100);
+      path.lineTo(100,100);
+      path.moveTo(10, 200);
+      path.lineTo(100, 200);
+
+      canvas.drawPath(path, paint);
+      path.delete();
+      paint.delete();
+    }
+    // Intentionally just draw frame once
+    surface.drawOnce(drawFrame);
   }
 
   function PathExample(CanvasKit) {
