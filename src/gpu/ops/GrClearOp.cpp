@@ -16,24 +16,16 @@
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const GrScissorState& scissor,
-                                           const SkPMColor4f& color,
-                                           const GrSurfaceProxy* dstProxy) {
-    const SkIRect rect = SkIRect::MakeSize(dstProxy->dimensions());
-    if (scissor.enabled() && !SkIRect::Intersects(scissor.rect(), rect)) {
-        return nullptr;
-    }
-
+                                           const SkPMColor4f& color) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrClearOp>(scissor, color, dstProxy);
+    return pool->allocate<GrClearOp>(scissor, color);
 }
 
-GrClearOp::GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color,
-                     const GrSurfaceProxy* proxy)
+GrClearOp::GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color)
         : INHERITED(ClassID())
         , fScissor(scissor)
         , fColor(color) {
-    this->setBounds(scissor.enabled() ? SkRect::Make(scissor.rect()) : proxy->getBoundsRect(),
-                    HasAABloat::kNo, IsHairline::kNo);
+    this->setBounds(SkRect::Make(scissor.rect()), HasAABloat::kNo, IsHairline::kNo);
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
