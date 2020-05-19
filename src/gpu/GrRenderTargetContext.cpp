@@ -1901,7 +1901,6 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
-    directContext->submit();
 }
 
 void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -2154,7 +2153,6 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
-    direct->submit();
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
