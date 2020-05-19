@@ -1869,30 +1869,30 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
     return bufferState->fGLTarget;
 }
 
-void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
+void GrGLGpu::clear(const GrScissorState& scissor, const SkPMColor4f& color,
                     GrRenderTarget* target, GrSurfaceOrigin origin) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
     SkASSERT(!this->caps()->performColorClearsAsDraws());
-    SkASSERT(!clip.scissorEnabled() || !this->caps()->performPartialClearsAsDraws());
+    SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
 
     this->handleDirtyContext();
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
-    if (clip.scissorEnabled()) {
-        this->flushRenderTarget(glRT, origin, clip.scissorRect());
+    if (scissor.enabled()) {
+        this->flushRenderTarget(glRT, origin, scissor.rect());
     } else {
         this->flushRenderTarget(glRT);
     }
-    this->flushScissor(clip.scissorState(), glRT->width(), glRT->height(), origin);
-    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
+    this->flushScissor(scissor, glRT->width(), glRT->height(), origin);
+    this->disableWindowRectangles();
     this->flushColorWrite(true);
     this->flushClearColor(color);
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
-void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+/*void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     SkASSERT(!this->caps()->performStencilClearsAsDraws());
 
     if (!target) {
@@ -1912,7 +1912,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
-}
+}*/
 
 static bool use_tiled_rendering(const GrGLCaps& glCaps,
                                 const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
@@ -2011,11 +2011,11 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt,
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = false);
 }
 
-void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
-                               bool insideStencilMask,
+void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask,
                                GrRenderTarget* target, GrSurfaceOrigin origin) {
     SkASSERT(target);
     SkASSERT(!this->caps()->performStencilClearsAsDraws());
+    SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
     this->handleDirtyContext();
 
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
@@ -2046,8 +2046,8 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
 
-    this->flushScissor(clip.scissorState(), glRT->width(), glRT->height(), origin);
-    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
+    this->flushScissor(scissor, glRT->width(), glRT->height(), origin);
+    this->disableWindowRectangles();
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
@@ -2280,11 +2280,10 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
     fHWBoundRenderTargetUniqueID.makeInvalid();
     if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
         // Apple's extension uses the scissor as the blit bounds.
-        GrScissorState scissorState;
-        scissorState.set(resolveRect);
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
-        this->flushScissor(scissorState, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
+        this->flushScissor(GrScissorState(resolveRect), rt->width(), rt->height(),
+                           kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
