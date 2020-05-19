@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f62f1201_516c5abe",
+        "filename": "gm/userfont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-19T16:32:03Z",
+      "side": 1,
+      "message": "Seems upem should just be font.getTypefaceOrDefault()-\u003egetUnitsPerEm()?",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "85d7b5a81effd4f70c46c0120c10445e2244b4f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
