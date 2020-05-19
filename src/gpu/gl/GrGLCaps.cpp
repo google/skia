@@ -1042,12 +1042,14 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
         }
     }
 
+#ifndef SK_ENABLE_INTEL_MSAA
     // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
     // we've seen driver crashes in the wild. We don't have data on Gen11 yet.
     // chromium:527565, chromium:983926
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         fMSFBOType = kNone_MSFBOType;
     }
+#endif
 }
 
 void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
