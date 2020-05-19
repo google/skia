@@ -125,6 +125,7 @@ private:
     SkVector fCurrentPixelsPerMeter;
 
     SkTArray<TypefaceUse, true> fTypefaces;
+    SkTArray<TypefaceUse, true>* fTopTypefaces;
 
     /** Creates a GUID based id and places it into buffer.
         buffer should have space for at least GUID_ID_LEN wide characters.
