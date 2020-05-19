@@ -132,7 +132,7 @@ void TestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) co
     *isLocal = false;
 }
 
-void TestTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+void TestTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
     for (int i = 0; i < count; ++i) {
         glyphs[i] = fTestFont->glyphForUnichar(uni[i]);
     }
