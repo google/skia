@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d4631e3_abb2110d",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-19T21:34:53Z",
+      "side": 1,
+      "message": "I did debate this logic a little bit. We could always add the logicalRTDimensions as a scissor, even if the high-level GrClip that was based on the logical dimensions didn\u0027t think a scissor was needed. This would clip large draws to the logical dimensions at the cost of the scissor test, but that may be outweighed by the reduced pixel bandwidth. Since the logical rt dimensions aren\u0027t changing across draws, it won\u0027t hurt batching. \n\nWhat are people\u0027s thoughts? \n\nThe one place where relaxing the test is still critical is fullscreen clears on tiled architectures, since then the change from a scissor\u0027ed clear is big. However, that can call relaxTest directly so we can address them separately.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "5c688dcde05ff25fb19d41d1e0825d1b96a06506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
