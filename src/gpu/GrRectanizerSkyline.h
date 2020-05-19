@@ -9,17 +9,21 @@
 #define GrRectanizerSkyline_DEFINED
 
 #include "include/private/SkTDArray.h"
-#include "src/core/SkIPoint16.h"
+#include "src/gpu/GrRectanizer.h"
 
 // Pack rectangles and track the current silhouette
 // Based, in part, on Jukka Jylanki's work at http://clb.demon.fi
-class GrRectanizerSkyline {
+//
+// Mark this class final in an effort to avoid the vtable when this subclass is used explicitly.
+class GrRectanizerSkyline final : public GrRectanizer {
 public:
-    GrRectanizerSkyline(int w, int h) : fWidth{w}, fHeight{h} {
+    GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {
         this->reset();
     }
 
-    void reset() {
+    ~GrRectanizerSkyline() final { }
+
+    void reset() final {
         fAreaSoFar = 0;
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);
@@ -28,10 +32,11 @@ public:
         seg->fWidth = this->width();
     }
 
-    bool addRect(int w, int h, SkIPoint16* loc);
+    bool addRect(int w, int h, SkIPoint16* loc) final;
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
+    float percentFull() const final {
+        return fAreaSoFar / ((float)this->width() * this->height());
+    }
 
 private:
     struct SkylineSegment {
@@ -39,6 +44,10 @@ private:
         int  fY;
         int  fWidth;
     };
+
+    SkTDArray<SkylineSegment> fSkyline;
+
+    int32_t fAreaSoFar;
 
     // Can a width x height rectangle fit in the free space represented by
     // the skyline segments >= 'skylineIndex'? If so, return true and fill in
@@ -49,10 +58,7 @@ private:
     // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
-    const int fWidth;
-    const int fHeight;
-    SkTDArray<SkylineSegment> fSkyline;
-    int32_t fAreaSoFar;
+    typedef GrRectanizer INHERITED;
 };
 
-#endif  // GrRectanizerSkyline_DEFINED
+#endif
