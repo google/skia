@@ -22,6 +22,30 @@
       "revId": "4562ac3cfb90032ce3ff853e96053ebd334d2f88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b45de10_d8186c86",
+        "filename": "src/gpu/d3d/GrD3DStagingBuffer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-19T15:06:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27349a9d_32e3bfc3",
+      "range": {
+        "startLine": 14,
+        "startChar": 3,
+        "endLine": 16,
+        "endChar": 76
+      },
+      "revId": "4562ac3cfb90032ce3ff853e96053ebd334d2f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
