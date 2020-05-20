@@ -255,6 +255,49 @@ describe('Canvas Behavior', () => {
         final.delete();
     });
 
+    gm('blendmodes_canvas', (canvas) => {
+        // A list of 9 different arbitrary colors, each color is layered on top of
+        // the others using different blendmodes.
+        const colors = [
+            CanvasKit.RED,
+            CanvasKit.BLUE,
+            CanvasKit.GREEN,
+            CanvasKit.MAGENTA,
+            CanvasKit.CYAN,
+            CanvasKit.YELLOW,
+            CanvasKit.BLACK,
+            CanvasKit.WHITE,
+            CanvasKit.TRANSPARENT
+        ];
+        const blendModeNames = Object.keys(CanvasKit.BlendMode).filter((key) => key !== 'values');
+        const drawSize = colors.length * blendModeNames.length;
+
+        let column = 0;
+        for (const color of colors) {
+            for (const blendModeName of blendModeNames) {
+                const blendMode = CanvasKit.BlendMode[blendModeName];
+
+                canvas.save();
+                canvas.clipRect(CanvasKit.LTRBRect(column, 0, column+1, drawSize), CanvasKit.ClipOp.Intersect, true);
+                canvas.drawColor(color, blendMode);
+                canvas.restore();
+                column++;
+            }
+        }
+        let row = 0;
+        for (const color of colors) {
+            for (const blendModeName of blendModeNames) {
+                const blendMode = CanvasKit.BlendMode[blendModeName];
+
+                canvas.save();
+                canvas.clipRect(CanvasKit.LTRBRect(0, row, drawSize, row+1), CanvasKit.ClipOp.Intersect, true);
+                canvas.drawColor(color, blendMode);
+                canvas.restore();
+                row++;
+            }
+        }
+    });
+
     gm('colorfilters_malloc_canvas', (canvas) => {
         const paint = new CanvasKit.SkPaint();
 
