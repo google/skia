@@ -46,6 +46,75 @@
       "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85f017cb_0fd45778",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-20T18:47:40Z",
+      "side": 1,
+      "message": "nit: can just say if you want...\n\ncanvas-\u003esave();\ncanvas-\u003eclipRect(extendHeight(context).makeOffset(this-\u003eoffset()));",
+      "range": {
+        "startLine": 349,
+        "startChar": 25,
+        "endLine": 349,
+        "endChar": 29
+      },
+      "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e726a754_6f3bd23b",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-20T18:47:40Z",
+      "side": 1,
+      "message": "canvas-\u003edrawRect(clip.makeOffset(this-\u003eoffset()), ...)",
+      "range": {
+        "startLine": 363,
+        "startChar": 25,
+        "endLine": 363,
+        "endChar": 29
+      },
+      "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bb34791_d9e49d84",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-20T18:47:40Z",
+      "side": 1,
+      "message": "SkAutoCanvasRestore acr(canvas, true);",
+      "range": {
+        "startLine": 399,
+        "startChar": 4,
+        "endLine": 399,
+        "endChar": 10
+      },
+      "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
