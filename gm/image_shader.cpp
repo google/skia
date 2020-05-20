@@ -122,7 +122,7 @@ protected:
         canvas->translate(0, 120);
 
         const SkTileMode tile = SkTileMode::kRepeat;
-        const SkMatrix localM = SkMatrix::MakeTrans(-50, -50);
+        const SkMatrix localM = SkMatrix::Translate(-50, -50);
         SkPaint paint;
         paint.setShader(image->makeShader(tile, tile, &localM));
         paint.setAntiAlias(true);

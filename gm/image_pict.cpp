@@ -94,7 +94,7 @@ protected:
     }
 
     void drawSet(SkCanvas* canvas) const {
-        SkMatrix matrix = SkMatrix::MakeTrans(-100, -100);
+        SkMatrix matrix = SkMatrix::Translate(-100, -100);
         canvas->drawPicture(fPicture, &matrix, nullptr);
         canvas->drawImage(fImage0.get(), 150, 0);
         canvas->drawImage(fImage1.get(), 300, 0);
@@ -294,7 +294,7 @@ protected:
     }
 
     void drawSet(SkCanvas* canvas) const {
-        SkMatrix matrix = SkMatrix::MakeTrans(-100, -100);
+        SkMatrix matrix = SkMatrix::Translate(-100, -100);
         canvas->drawPicture(fPicture, &matrix, nullptr);
 
         // Draw the tex first, so it doesn't hit a lucky cache from the raster version. This

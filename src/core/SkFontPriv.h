@@ -37,7 +37,7 @@ public:
      *  Return a matrix that applies the paint's text values: size, scale, skew
      */
     static SkMatrix MakeTextMatrix(SkScalar size, SkScalar scaleX, SkScalar skewX) {
-        SkMatrix m = SkMatrix::MakeScale(size * scaleX, size);
+        SkMatrix m = SkMatrix::Scale(size * scaleX, size);
         if (skewX) {
             m.postSkew(skewX, 0);
         }

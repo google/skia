@@ -21,10 +21,10 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
     // Test that rotations/mirrors of the rrect path are still rrect paths and the returned
     // parameters for the transformed paths are correct.
     static const SkMatrix kMatrices[] = {
-        SkMatrix::MakeScale(1, 1),
-        SkMatrix::MakeScale(-1, 1),
-        SkMatrix::MakeScale(1, -1),
-        SkMatrix::MakeScale(-1, -1),
+        SkMatrix::Scale( 1,  1),
+        SkMatrix::Scale(-1,  1),
+        SkMatrix::Scale( 1, -1),
+        SkMatrix::Scale(-1, -1),
     };
     for (auto& m : kMatrices) {
         SkPath xformed;
