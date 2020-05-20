@@ -648,4 +648,57 @@ describe('Canvas Behavior', () => {
         path.delete();
     });
 
+    pause_gm('particles_canvas', (canvas) => {
+        const curveParticles = {
+            "MaxCount": 1000,
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 2
+            },
+            "EffectCode": [
+               "void effectSpawn(inout Effect effect) {",
+               "  effect.rate = 200;",
+               "  effect.color = float4(1, 0, 0, 1);",
+               "}",
+               ""
+            ],
+            "Code": [
+               "void spawn(inout Particle p) {",
+               "  p.lifetime = 3 + rand(p.seed);",
+               "  p.vel.y = -50;",
+               "}",
+               "",
+               "void update(inout Particle p) {",
+               "  float w = mix(15, 3, p.age);",
+               "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));",
+               "  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }",
+               "",
+               "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;",
+               "}",
+               ""
+            ],
+            "Bindings": []
+        };
+        
+        const particles = CanvasKit.MakeParticles(JSON.stringify(curveParticles));
+        particles.start(0, true);
+
+        canvas.clear(CanvasKit.BLACK);
+        canvas.translate(100, 250);
+
+        // Draw a 5x4 set of different times in the particle system
+        // like a filmstrip of motion of particles
+        for (let x = 0; x < 500; x += 100) {
+            for (let y = 0; y < 400; y += 100) {
+                canvas.save();
+                canvas.translate(x, y);
+
+                const particleTime = x/100 + y/1000;
+                particles.update(particleTime);
+
+                particles.draw(canvas);
+                canvas.restore();
+            }
+        }
+    });
 });
