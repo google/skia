@@ -70,7 +70,7 @@ function RadialCanvasGradient(x1, y1, r1, x2, y2, r2) {
 
     this._dispose();
     this._shader = CanvasKit.SkShader.MakeTwoPointConicalGradient(
-        [sx1, sy1], sr1, [sx2, sy2], sr2, this._colors, this._pos,
+        [sx1, sy1], sr1, [sx2, sy2], sr2, this._colors, null, this._pos,
         CanvasKit.TileMode.Clamp);
     return this._shader;
   }
