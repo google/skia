@@ -32,23 +32,36 @@ public:
     bool hasStencilClip() const { return SK_InvalidGenID != fStencilStackID; }
     void setStencilClip(uint32_t stencilStackID) { fStencilStackID = stencilStackID; }
 
-    bool quickContains(const SkRect& rect) const override {
-        return !this->hasStencilClip() && fFixedClip.quickContains(rect);
-    }
     SkIRect getConservativeBounds() const override {
         return fFixedClip.getConservativeBounds();
     }
-    bool isRRect(SkRRect* rr, GrAA* aa) const override {
-        return !this->hasStencilClip() && fFixedClip.isRRect(rr, aa);
-    }
-    bool apply(GrAppliedHardClip* out, SkRect* bounds) const override {
-        if (!fFixedClip.apply(out, bounds)) {
-            return false;
+
+    ClipEffect apply(GrAppliedHardClip* out, SkRect* bounds) const override {
+        ClipEffect effect = fFixedClip.apply(out, bounds);
+        if (effect == ClipEffect::kNoDraw) {
+            // Stencil won't bring back coverage
+            return ClipEffect::kNoDraw;
         }
         if (this->hasStencilClip()) {
             out->addStencilClip(fStencilStackID);
+            effect = ClipEffect::kClipped;
         }
-        return true;
+        return effect;
+    }
+
+    bool preApply(const SkRect& drawBounds, ClipEffect* effect,
+                  SkRRect* rrect, GrAA* aa) const override {
+        if (this->hasStencilClip()) {
+            // Report kNoDraw if it's offscreen, but cannot report kUnclipped due to stencil
+            if (!drawBounds.intersects(SkRect::Make(fFixedClip.scissorRect()))) {
+                *effect = ClipEffect::kNoDraw;
+            } else {
+                *effect = ClipEffect::kClipped;
+            }
+            return false;
+        } else {
+            return fFixedClip.preApply(drawBounds, effect, rrect, aa);
+        }
     }
 
 private:

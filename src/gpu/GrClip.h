@@ -21,12 +21,18 @@ class GrContext;
  */
 class GrClip {
 public:
+    enum class ClipEffect {
+        // The clip conservatively modifies the draw's coverage but doesn't eliminate the draw
+        kClipped,
+        // The clip definitely does not modify the draw's coverage and the draw can be performed
+        // without clipping
+        kUnclipped,
+        // The clip definitely eliminates all of the draw's coverage and the draw can be skipped
+        kNoDraw
+    };
+
     virtual ~GrClip() {}
 
-    virtual bool quickContains(const SkRect&) const = 0;
-    virtual bool quickContains(const SkRRect& rrect) const {
-        return this->quickContains(rrect.getBounds());
-    }
     /**
      * Compute a conservative pixel bounds restricted to the given render target dimensions.
      * The returned bounds represent the limits of pixels that can be drawn; anything outside of the
@@ -39,24 +45,44 @@ public:
      * To determine the appropriate clipping implementation the GrClip subclass must know whether
      * the draw will enable HW AA or uses the stencil buffer. On input 'bounds' is a conservative
      * bounds of the draw that is to be clipped. After return 'bounds' has been intersected with a
-     * conservative bounds of the clip. A return value of false indicates that the draw can be
-     * skipped as it is fully clipped out.
+     * conservative bounds of the clip.
      */
-    virtual bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
-                       bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
+    virtual ClipEffect apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
+                             bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
 
     /**
-     * This method quickly and conservatively determines whether the entire clip is equivalent to
-     * intersection with a rrect. Moreover, the returned rrect need not be contained by the render
-     * target bounds. We assume all draws will be implicitly clipped by the render target bounds.
+     * Perform preliminary, conservative analysis on the draw bounds as if it were provided to
+     * apply(). This returns true if 'effect' is set to kClipped and the only element clipping the
+     * draw bounds can be represented as an intersection with a round rect or rect. In this case,
+     * 'rrect' and 'aa' are set to that element. 'rrect' will not necessarily be contained in the
+     * render target bounds, but it will intersect them.
      *
-     * @param rrect    If return is true rrect will contain the rrect equivalent to the clip within
-     *                 rtBounds.
-     * @param aa       If return is true aa will indicate whether the rrect clip is antialiased.
-     * @return true if the clip is equivalent to a single rrect, false otherwise.
-     *
+     * When false is returned, 'rrect' and 'aa' are not modified but 'effect' will still reflect
+     * the results of any analysis that was performed. If the draw bounds do not intersect the
+     * clip's render target bounds, effect must be set to kNoDraw. If the only clipping done to the
+     * draw would be the automatic render target bounds clip, 'effect' is set to kUnclipped. In
+     * either of these cases, this means that the potentially complex GrClip can be replaced with
+     * a null clip. 'effect' can still be set kClipped if false is returned when the GrClip affects
+     * the draw and it is not representable as a rrect.
      */
-    virtual bool isRRect(SkRRect* rrect, GrAA* aa) const = 0;
+    virtual bool preApply(const SkRect& drawBounds, ClipEffect* effect,
+                          SkRRect* rrect, GrAA* aa) const = 0;
+
+
+    //                       {
+    //     SkRect clipBounds = SkRect::Make(this->getConservativeBounds());
+    //     if (clipBounds.contains(drawBounds)) {
+    //         *effect = ClipEffect::kUnclipped;
+    //     } else if (!clipBounds.intersects(drawBounds)) {
+    //         *effect = ClipEffect::kNoDraw;
+    //     } else {
+    //         // FIXME except this should be kUnclipped if conservativeBounds was just the rt bounds because the clip was wide open.
+    //         // GrClip can't handle this case because the public API does not differentiate that.
+    //         // So maybe we don't bother having a default impl;
+    //         *effect = ClipEffect::kClipped;
+    //     }
+    //     return false;
+    // }
 
     /**
      * This is the maximum distance that a draw may extend beyond a clip's boundary and still count
@@ -147,10 +173,10 @@ public:
      * return 'bounds' has been intersected with a conservative bounds of the clip. A return value
      * of false indicates that the draw can be skipped as it is fully clipped out.
      */
-    virtual bool apply(GrAppliedHardClip* out, SkRect* bounds) const = 0;
+    virtual ClipEffect apply(GrAppliedHardClip* out, SkRect* bounds) const = 0;
 
 private:
-    bool apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
+    ClipEffect apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
         return this->apply(&out->hardClip(), bounds);
     }

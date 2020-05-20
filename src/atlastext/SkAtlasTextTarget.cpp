@@ -176,7 +176,9 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
 }
 
 void SkInternalAtlasTextTarget::addDrawOp(const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op) {
-    SkASSERT(!clip || clip->quickContains(SkRect::MakeIWH(fWidth, fHeight)));
+    // Assert that there's no actual clip for the internal atlas.
+    SkASSERT(!clip);
+
     // The SkAtlasTextRenderer currently only handles grayscale SDF glyphs.
     if (op->maskType() != GrAtlasTextOp::kGrayscaleDistanceField_MaskType) {
         return;

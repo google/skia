@@ -40,15 +40,22 @@ public:
 
 private:
     SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
-    bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+
+    bool preApply(const SkRect& drawBounds, ClipEffect* effect,
+                  SkRRect* rrect, GrAA* aa) const override {
+        *effect = fPath.getBounds().intersects(drawBounds) ? ClipEffect::kClipped
+                                                           : ClipEffect::kNoDraw;
+        return false;
+    }
+
+    ClipEffect apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
+                     bool hasUserStencilSettings, GrAppliedClip* out,
+                     SkRect* bounds) const override {
         out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpsTaskID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     *context->priv().caps()));
-        return true;
+        return ClipEffect::kClipped;
     }
-    bool quickContains(const SkRect&) const final { return false; }
-    bool isRRect(SkRRect* rr, GrAA*) const final { return false; }
 
     GrCoverageCountingPathRenderer* const fCCPR;
     const SkPath fPath;
