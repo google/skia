@@ -12,6 +12,7 @@
 
 class GrAppliedHardClip;
 class GrStencilPathShader;
+class GrResolveLevelCounter;
 
 // Renders paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by
 // GPU tessellation shaders. This Op doesn't apply analytic AA, so it requires a render target that
@@ -74,7 +75,8 @@ private:
     // This method emits the inner triangles with a "middle-out" topology. Middle-out can reduce
     // the load on the rasterizer by a great deal as compared to a linear triangle strip or fan.
     // See GrMiddleOutPolygonTriangulator.
-    void prepareMiddleOutInnerTriangles(GrMeshDrawOp::Target*, int* numCountedCurves);
+    void prepareMiddleOutTrianglesAndCubics(GrMeshDrawOp::Target*, GrResolveLevelCounter*,
+                                            bool drawTrianglesSeparately);
 
     enum class CubicDataAlignment : bool {
         kVertexBoundary,
@@ -84,7 +86,26 @@ private:
     // Writes an array of "outer" cubics from each bezier in the SkPath, converting any quadratics
     // to cubics. An outer cubic is an independent, 4-point closed contour consisting of a single
     // cubic curve. Stencilled together with the inner triangles, these define the complete path.
-    void prepareOuterCubics(GrMeshDrawOp::Target*, int numCountedCurves, CubicDataAlignment);
+    void prepareOuterCubics(GrMeshDrawOp::Target*, int numCubics, CubicDataAlignment,
+                            const GrResolveLevelCounter* = nullptr);
+
+
+    // For performance reasons we can often express triangles as an indirect cubic draw and sneak
+    // them in alongside the other indirect draws. This prepareOuterCubics variant allows the caller
+    // to provide a mapped cubic buffer with triangles already written into 4-point instances at the
+    // beginnig. If numTrianglesAtBeginnigOfData is nonzero, we add an extra indirect draw that
+    // renders these triangles.
+    void prepareOuterCubicsWithTriangles(GrMeshDrawOp::Target*, SkPoint* cubicData,
+                                         int numTrianglesAtBeginnigOfData, int numCubics,
+                                         const GrResolveLevelCounter* = nullptr);
+
+    // Writes GrDrawIndexedIndirectCommand data to fIndirectDrawBuffer for each counted
+    // resolveLevel. Returns the starting instance location for each resolveLevel. After a
+    // successful call to this method, this class will render fCubicBuffer with an indexed-indirect
+    // draw instead of using hardware tessellation.
+    void prepareIndirectDraws(GrMeshDrawOp::Target*, const GrResolveLevelCounter&,
+                              SkPoint* instanceData, int numTrianglesAtBeginnigOfData,
+                              SkPoint* instanceLocations[]);
 
     // Writes an array of cubic "wedges" from the SkPath, converting any lines or quadratics to
     // cubics. A wedge is an independent, 5-point closed contour consisting of 4 cubic control
@@ -92,7 +113,7 @@ private:
     // stencilled, these wedges alone define the complete path.
     //
     // TODO: Eventually we want to use rational cubic wedges in order to support conics.
-    void prepareCubicWedges(GrMeshDrawOp::Target*);
+    void prepareStencilWedges(GrMeshDrawOp::Target*);
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
     void drawStencilPass(GrOpFlushState*);
@@ -136,6 +157,13 @@ private:
     int fBaseCubicVertex;
     int fCubicVertexCount;
     GrStencilPathShader* fStencilCubicsShader = nullptr;
+
+    // If fIndirectDrawBuffer is non-null, then we issue an indexed-indirect draw instead of using
+    // hardware tessellation. This is oftentimes faster than tessellation, and other times it serves
+    // as a polyfill when tessellation just isn't supported.
+    sk_sp<const GrBuffer> fIndirectDrawBuffer;
+    size_t fIndirectDrawOffset;
+    int fIndirectDrawCount;
 
     friend class GrOpMemoryPool;  // For ctor.
 
