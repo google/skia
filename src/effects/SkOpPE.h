@@ -65,5 +65,20 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
+class SkStrokeAndFillPE : public SkPathEffect {
+public:
+    SkStrokeAndFillPE() {}
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+    // TODO: override onComputeFastBounds (I think)
+
+private:
+    SK_FLATTENABLE_HOOKS(SkStrokeAndFillPE)
+
+    typedef SkPathEffect INHERITED;
+};
+
 #endif
 

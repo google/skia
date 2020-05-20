@@ -121,4 +121,43 @@ sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
     return buffer.isValid() ? SkStrokePathEffect::Make(width, join, cap, miter) : nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "include/effects/SkStrokeAndFillPathEffect.h"
+#include "src/core/SkPathPriv.h"
+
+sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
+    return sk_sp<SkPathEffect>(new SkStrokeAndFillPE);
+}
+
+void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}
+
+bool SkStrokeAndFillPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                     const SkRect*) const {
+    // This one is weird, since we exist to allow this paint-style to go away. If we see it,
+    // just let the normal machine run its course.
+    if (rec->getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+        *dst = src;
+        return true;
+    }
+
+    if (rec->getStyle() == SkStrokeRec::kStroke_Style) {
+        if (!rec->applyToPath(dst, src)) {
+            return false;
+        }
+        // lifted from SkStroke.cpp as an attempt to handle winding directions
+        if (SkPathPriv::CheapIsFirstDirection(src, SkPathPriv::kCCW_FirstDirection)) {
+            dst->reverseAddPath(src);
+        } else {
+            dst->addPath(src);
+        }
+    } else {
+        *dst = src;
+    }
+    rec->setFillStyle();
+    return true;
+}
+
+sk_sp<SkFlattenable> SkStrokeAndFillPE::CreateProc(SkReadBuffer& buffer) {
+    return SkStrokeAndFillPathEffect::Make();
+}

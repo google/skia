@@ -96,6 +96,7 @@
         SK_REGISTER_FLATTENABLE(SkPath1DPathEffect);
         SK_REGISTER_FLATTENABLE(SkPath2DPathEffect);
         SK_REGISTER_FLATTENABLE(SkStrokePE);
+        SK_REGISTER_FLATTENABLE(SkStrokeAndFillPE);
         SK_REGISTER_FLATTENABLE(SkTrimPE);
         SkPathEffect::RegisterFlattenables();
 
