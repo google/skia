@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e534958_e72a6579",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "nit: wrap markdown to 100 cols wide",
+      "range": {
+        "startLine": 10,
+        "startChar": 100,
+        "endLine": 10,
+        "endChar": 103
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39a3c060_50580086",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "Chrome (and only Chrome?)",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1fef383_87c5b1e2",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "Is there a default?",
+      "range": {
+        "startLine": 23,
+        "startChar": 48,
+        "endLine": 23,
+        "endChar": 56
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc125454_ad750ea5",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "I would put this one under Breaking, not Removed",
+      "range": {
+        "startLine": 26,
+        "startChar": 14,
+        "endLine": 26,
+        "endChar": 31
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3e53288_1d1d74c6",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 10
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "Memory leak here.",
+      "range": {
+        "startLine": 1128,
+        "startChar": 41,
+        "endLine": 1128,
+        "endChar": 49
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d30a2eca_baf33c03",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 10
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "Is this duplicated in both example and extra?",
+      "range": {
+        "startLine": 248,
+        "startChar": 11,
+        "endLine": 248,
+        "endChar": 22
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a44e539_74707bdc",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 10
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "memory leak",
+      "range": {
+        "startLine": 264,
+        "startChar": 41,
+        "endLine": 264,
+        "endChar": 49
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5ec8157_0b2d4d13",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 10
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "call delete on all of these.",
+      "range": {
+        "startLine": 901,
+        "startChar": 10,
+        "endLine": 901,
+        "endChar": 14
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "137a1b16_94189d42",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 1719,
+        "startChar": 27,
+        "endLine": 1719,
+        "endChar": 29
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c3b5ef6_894f9832",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "memory leak.",
+      "range": {
+        "startLine": 40,
+        "startChar": 45,
+        "endLine": 40,
+        "endChar": 53
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12fc41ac_ce1b9d5c",
+        "filename": "modules/canvaskit/htmlcanvas/canvas2dcontext.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "memory leak. clean up after img.delete()",
+      "range": {
+        "startLine": 852,
+        "startChar": 57,
+        "endLine": 852,
+        "endChar": 65
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae96133b_2db4c89f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "This (and all the calls below) are memory leaks. MakeSRGB allocates an SkColorSpace on the heap and it is never deleted. These things are immutable, right? How about we cache one for use as the default?",
+      "range": {
+        "startLine": 1014,
+        "startChar": 54,
+        "endLine": 1014,
+        "endChar": 62
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82febb31_234c8ad4",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "memory leak: please call delete on it. Here and below.",
+      "range": {
+        "startLine": 119,
+        "startChar": 55,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "427fd542_02626e7e",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T19:40:27Z",
+      "side": 1,
+      "message": "Don\u0027t forget to call delete on these.",
+      "range": {
+        "startLine": 649,
+        "startChar": 18,
+        "endLine": 649,
+        "endChar": 22
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
