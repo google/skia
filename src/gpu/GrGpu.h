@@ -843,6 +843,8 @@ private:
     void validateStagingBuffers() const;
 #endif
 
+    void callSubmittedProcs(bool success);
+
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
@@ -853,6 +855,15 @@ private:
     StagingBufferList                fAvailableStagingBuffers;
     StagingBufferList                fActiveStagingBuffers;
     StagingBufferList                fBusyStagingBuffers;
+
+    struct SubmittedProc {
+        SubmittedProc(GrGpuSubmittedProc proc, GrGpuSubmittedContext context)
+                : fProc(proc), fContext(context) {}
+
+        GrGpuSubmittedProc fProc;
+        GrGpuSubmittedContext fContext;
+    };
+    SkSTArray<4, SubmittedProc> fSubmittedProcs;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;
