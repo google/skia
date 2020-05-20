@@ -472,7 +472,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
     SkASSERT(!fActiveRenderPass);
     SkASSERT(renderPass->isCompatible(*target));
 
-    const GrVkFramebuffer* framebuffer = target->getFramebuffer();
+    const GrVkFramebuffer* framebuffer = target->getFramebuffer(renderPass->hasStencilAttachment());
     if (!framebuffer) {
         return false;
     }
@@ -499,7 +499,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
-    target->addResources(*this);
+    target->addResources(*this, renderPass->hasStencilAttachment());
     return true;
 }
 

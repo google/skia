@@ -94,6 +94,7 @@ public:
     // index value.
     bool colorAttachmentIndex(uint32_t* index) const;
     bool stencilAttachmentIndex(uint32_t* index) const;
+    bool hasStencilAttachment() const { return fAttachmentFlags & kStencil_AttachmentFlag; }
 
     // Returns whether or not the structure of a RenderTarget matches that of the VkRenderPass in
     // this object. Specifically this compares that the number of attachments, format of

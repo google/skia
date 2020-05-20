@@ -61,7 +61,8 @@ GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-                             const SkPMColor4f& clearColor) {
+                             const SkPMColor4f& clearColor,
+                             bool withStencil) {
 
     VkAttachmentLoadOp loadOp;
     VkAttachmentStoreOp storeOp;
@@ -87,8 +88,11 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                 false);
 
     // If we are using a stencil attachment we also need to update its layout
-    if (GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment()) {
-        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+    if (withStencil) {
+        GrVkStencilAttachment* vkStencil =
+                (GrVkStencilAttachment*) fRenderTarget->renderTargetPriv().getStencilAttachment();
+        SkASSERT(vkStencil);
+
         // We need the write and read access bits since we may load and store the stencil.
         // The initial load happens in the VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT so we
         // wait there.
@@ -101,7 +105,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     }
 
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
+            vkRT->compatibleRenderPassHandle(withStencil);
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,
@@ -109,7 +113,9 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     } else {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
-                                                                     vkStencilOps);
+                                                                     vkStencilOps,
+                                                                     nullptr,
+                                                                     withStencil);
     }
     if (!fCurrentRenderPass) {
         return false;
@@ -128,7 +134,8 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             fCurrentRenderPass = nullptr;
             return false;
         }
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(), fCurrentRenderPass);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil),
+                                              fCurrentRenderPass);
     }
 
     if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
@@ -196,7 +203,8 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
+bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
+                            GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
@@ -227,7 +235,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const Sk
         return this->initWrapped();
     }
 
-    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor);
+    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor, SkToBool(stencil));
 }
 
 void GrVkOpsRenderPass::reset() {
@@ -374,8 +382,10 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                               VK_ATTACHMENT_STORE_OP_STORE);
 
+    bool withStencil = fCurrentRenderPass->hasStencilAttachment();
+
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
+            vkRT->compatibleRenderPassHandle(withStencil);
     SkASSERT(fCurrentRenderPass);
     fCurrentRenderPass->unref();
     if (rpHandle.isValid()) {
@@ -385,7 +395,9 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     } else {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
-                                                                     vkStencilOps);
+                                                                     vkStencilOps,
+                                                                     nullptr,
+                                                                     withStencil);
     }
     if (!fCurrentRenderPass) {
         return;
@@ -402,7 +414,8 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
             fCurrentRenderPass = nullptr;
             return;
         }
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(), fCurrentRenderPass);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil),
+                                              fCurrentRenderPass);
     }
 
     // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the

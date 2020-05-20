@@ -57,7 +57,8 @@ public:
     // non null it will be set to a handle that can be used in the furutre to quickly return a
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
-                                                   CompatibleRPHandle* compatibleHandle = nullptr);
+                                                   CompatibleRPHandle* compatibleHandle,
+                                                   bool withStencil);
     const GrVkRenderPass* findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor*,
                                                    GrVkRenderPass::AttachmentFlags,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
@@ -73,7 +74,8 @@ public:
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
-                                         CompatibleRPHandle* compatibleHandle = nullptr);
+                                         CompatibleRPHandle* compatibleHandle,
+                                         bool withStencil);
 
     // The CompatibleRPHandle must be a valid handle previously set by a call to findRenderPass or
     // findCompatibleRenderPass.

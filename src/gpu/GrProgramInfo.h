@@ -49,6 +49,7 @@ public:
 
     int numSamples() const { return fNumSamples; }
     int numStencilSamples() const { return fNumStencilSamples; }
+    bool isStencilEnabled() const { return fPipeline->isStencilEnabled(); }
 
     int numRasterSamples() const {
         return fPipeline->isStencilEnabled() ? fNumStencilSamples : fNumSamples;

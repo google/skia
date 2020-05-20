@@ -102,12 +102,13 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programI
 // RenderPasses as needed that are compatible with the framebuffer.
 const GrVkRenderPass*
 GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
-                                               CompatibleRPHandle* compatibleHandle) {
+                                               CompatibleRPHandle* compatibleHandle,
+                                               bool withStencil) {
     // Get attachment information from render target. This includes which attachments the render
     // target has (color, stencil) and the attachments format and sample count.
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderPass::AttachmentsDescriptor attachmentsDesc;
-    target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags);
+    target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withStencil);
 
     return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, compatibleHandle);
 }
@@ -164,11 +165,12 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      GrVkRenderTarget* target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
-                                                     CompatibleRPHandle* compatibleHandle) {
+                                                     CompatibleRPHandle* compatibleHandle,
+                                                     bool withStencil) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target->compatibleRenderPassHandle();
+    *pRPHandle = target->compatibleRenderPassHandle(withStencil);
     if (!pRPHandle->isValid()) {
         return nullptr;
     }
