@@ -22,6 +22,30 @@
       "revId": "b0ed97ace45014e0917d707b31137785ce67dcb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "068002da_bb609a7a",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-20T16:57:32Z",
+      "side": 1,
+      "message": "Right - I originally was passing the \u0027withStencil\u0027 bool in here too but didn\u0027t like seeing that surfaced on a GrGpu virtual.",
+      "parentUuid": "f7bb9a09_b2436dbd",
+      "range": {
+        "startLine": 358,
+        "startChar": 11,
+        "endLine": 358,
+        "endChar": 40
+      },
+      "revId": "b0ed97ace45014e0917d707b31137785ce67dcb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
