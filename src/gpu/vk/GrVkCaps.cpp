@@ -1716,9 +1716,11 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+
     // TODO: support failure in getSimpleRenderPass
-    SkASSERT(vkRT->getSimpleRenderPass());
-    vkRT->getSimpleRenderPass()->genKey(&b);
+    const GrVkRenderPass* rp = vkRT->getSimpleRenderPass();
+    SkASSERT(rp);
+    rp->genKey(&b);
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, true);
