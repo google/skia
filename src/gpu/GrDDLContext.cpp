@@ -77,10 +77,10 @@ private:
 
         const GrCaps* caps = this->caps();
 
-        if (this->backend() == GrBackendApi::kVulkan ||
+        if (this->backend() == GrBackendApi::kDirect3D ||
             this->backend() == GrBackendApi::kMetal ||
             this->backend() == GrBackendApi::kDawn) {
-            // Currently, Vulkan, Metal and Dawn require a live renderTarget to
+            // Currently, D3D, Metal and Dawn require a live renderTarget to
             // compute the key
             return;
         }
