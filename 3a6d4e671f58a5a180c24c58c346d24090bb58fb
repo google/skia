@@ -186,6 +186,69 @@
     },
     {
       "key": {
+        "uuid": "6f950589_c1be0c6f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "The default colorspace is nullptr, so no need for the if/else check here, just add sii.colorSpace to the existing Make call.",
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e35518ec_87b64216",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "DisplayP3 generally refers to DisplayP3 gamut, and sRGB transfer function, so I\u0027d change this one to SkNamedTransferFn::kSRGB. Adobe is fine as 2.2.",
+      "range": {
+        "startLine": 143,
+        "startChar": 51,
+        "endLine": 143,
+        "endChar": 76
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0643ea7_be2c40bf",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1324,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "SkNamedTransferFn::kSRGB here, too",
+      "range": {
+        "startLine": 1324,
+        "startChar": 41,
+        "endLine": 1324,
+        "endChar": 66
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "137a1b16_94189d42",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 10
@@ -202,6 +265,29 @@
         "startChar": 27,
         "endLine": 1719,
         "endChar": 29
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "085297de_c91e1f5c",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be a blocker - we can still support any color space with 8888 color format. In fact, Chrome typically sticks to 8888 even when rendering in P3, just to save on memory + performance. I guess it is limited because of how this is exposed in CK right now, though? (Where the only non-sRGB color spaces are tied to F16)?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
       },
       "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -272,6 +358,46 @@
         "endLine": 1014,
         "endChar": 62
       },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1decec26_814d11a1",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "For calls like this, will nil colorSpace eventually degrade to a nullptr when we reach the native SkPaint call? If so, no need to do the (colorSpace || MakeSRGB()) thing - that behavior is in SkPaint itself.",
+      "range": {
+        "startLine": 1105,
+        "startChar": 0,
+        "endLine": 1108,
+        "endChar": 0
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "465f87f8_0c8ae86d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-20T20:28:31Z",
+      "side": 1,
+      "message": "Ditto on all of these for color and gradient shaders...",
       "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
