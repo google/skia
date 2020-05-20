@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4b711f2f_372af5b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11779
+      },
+      "writtenOn": "2020-05-20T20:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c52e5d11_92e10c42",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 3
+      },
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0138aa70_97f151e5",
         "filename": "modules/canvaskit/tests/canvas.spec.js",
         "patchSetId": 2
