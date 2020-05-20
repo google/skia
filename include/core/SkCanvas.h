@@ -1645,10 +1645,6 @@ public:
         current CTM, so will reflect the dst rect geometry and is equivalent to
         drawRect(dst).
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within image; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param image       SkImage containing pixels, dimensions, and format
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
