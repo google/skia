@@ -445,15 +445,6 @@ private:
         SkASSERT(!subsetRect ||
                  !subsetRect->contains(proxyView.proxy()->backingStoreBoundsRect()));
 
-        // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
-        // If we don't have (or determined we don't need) coverage AA then we can skip using a
-        // subset.
-        if (subsetRect && filter == GrSamplerState::Filter::kNearest &&
-            aaType != GrAAType::kCoverage) {
-            subsetRect = nullptr;
-            fMetadata.fSubset = static_cast<uint16_t>(Subset::kNo);
-        }
-
         // Normalize src coordinates and the subset (if set)
         NormalizationParams params = proxy_normalization_params(proxyView.proxy(),
                                                                 proxyView.origin());
