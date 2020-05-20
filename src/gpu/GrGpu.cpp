@@ -685,6 +685,11 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
     if (info.fFinishedProc) {
         this->addFinishedProc(info.fFinishedProc, info.fFinishedContext);
     }
+
+    if (info.fSubmittedProc) {
+        fSubmittedProcs.emplace_back(info.fSubmittedProc, info.fSubmittedContext);
+    }
+
     this->prepareSurfacesForBackendAccessAndExternalIO(proxies, numProxies, access,
                                                        externalRequests);
 }
@@ -699,7 +704,16 @@ bool GrGpu::submitToGpu(bool syncCpu) {
 
     bool submitted = this->onSubmitToGpu(syncCpu);
 
+    this->callSubmittedProcs(submitted);
+
     return submitted;
+}
+
+void GrGpu::callSubmittedProcs(bool success) {
+    for (int i = 0; i < fSubmittedProcs.count(); ++i) {
+        fSubmittedProcs[i].fProc(fSubmittedProcs[i].fContext, success);
+    }
+    fSubmittedProcs.reset();
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
