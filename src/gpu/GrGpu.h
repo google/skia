@@ -350,8 +350,14 @@ public:
 
     // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
+    // If a 'stencil' is provided it will be the one bound to 'renderTarget'. If one is not
+    // provided but 'renderTarget' has a stencil buffer then that is a signal that the
+    // render target's stencil buffer should be ignored.
     virtual GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkIRect& bounds,
+            GrRenderTarget* renderTarget,
+            GrStencilAttachment* stencil,
+            GrSurfaceOrigin,
+            const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) = 0;

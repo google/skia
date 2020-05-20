@@ -93,7 +93,8 @@ void GrD3DGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
-    GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
+    GrRenderTarget* rt, GrStencilAttachment*,
+    GrSurfaceOrigin origin, const SkIRect& bounds,
     const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
     const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
