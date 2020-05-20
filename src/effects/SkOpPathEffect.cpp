@@ -132,6 +132,19 @@ sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
 
 void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}
 
+static bool known_to_be_opposite_directions(const SkPath& a, const SkPath& b) {
+    auto a_dir = SkPathPriv::kUnknown_FirstDirection,
+         b_dir = SkPathPriv::kUnknown_FirstDirection;
+    (void)SkPathPriv::CheapComputeFirstDirection(a, &a_dir);
+    (void)SkPathPriv::CheapComputeFirstDirection(b, &b_dir);
+
+    return (a_dir == SkPathPriv::kCCW_FirstDirection &&
+            b_dir == SkPathPriv::kCW_FirstDirection)
+            ||
+           (a_dir == SkPathPriv::kCW_FirstDirection &&
+            b_dir == SkPathPriv::kCCW_FirstDirection);
+}
+
 bool SkStrokeAndFillPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                      const SkRect*) const {
     // This one is weird, since we exist to allow this paint-style to go away. If we see it,
@@ -145,8 +158,8 @@ bool SkStrokeAndFillPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec
         if (!rec->applyToPath(dst, src)) {
             return false;
         }
-        // lifted from SkStroke.cpp as an attempt to handle winding directions
-        if (SkPathPriv::CheapIsFirstDirection(src, SkPathPriv::kCCW_FirstDirection)) {
+
+        if (known_to_be_opposite_directions(src, *dst)) {
             dst->reverseAddPath(src);
         } else {
             dst->addPath(src);
