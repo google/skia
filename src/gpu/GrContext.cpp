@@ -319,21 +319,26 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
         return GrSemaphoresSubmitted::kNo;
     }
 
-    bool submitted = false;
-    if (this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      info, externalRequests)) {
-        bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag);
-        submitted = this->drawingManager()->submitToGpu(forceSync);
-    }
+    bool flushed = this->drawingManager()->flush(
+            nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, info, externalRequests);
 
-    if (!submitted || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
+    if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
     }
     return GrSemaphoresSubmitted::kYes;
 }
 
-bool GrContext::submit(bool syncToCpu) {
-    return true;
+bool GrContext::submit(bool syncCpu) {
+    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        return false;
+    }
+
+    if (!fGpu) {
+        return false;
+    }
+
+    return fGpu->submitToGpu(syncCpu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,16 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * GrContext submit is now required to be called in order to send GPU work to the
+    actual GPU. The flush calls simply produces 3D API specific objects that are ready
+    to be submitted (e.g. command buffers). For the GL backend, the flush will still
+    send commands to the driver. However, clients should still assume the must call
+    submit which is where any glFlush that is need for sync objects will be called. There,
+    are flushAndSubmit() functions of GrContext, SkSurface, and SkImage that will act
+    like the previous flush() functions. This will flush the work and immediately call
+    submit.
+    https://review.skia.org/289033
+
   * Remove deprecated version of flush calls on GrContext and SkSurface.
     https://review.skia.org/2290540
 

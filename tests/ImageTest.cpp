@@ -1379,55 +1379,55 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     // Flush all the setup work we did above and then make little lambda that reports the flush
     // count delta since the last time it was called.
     c->flushAndSubmit();
-    auto numFlushes = [c, flushCnt = c->priv().getGpu()->stats()->numSubmitToGpus()]() mutable {
+    auto numSubmits = [c, submitCnt = c->priv().getGpu()->stats()->numSubmitToGpus()]() mutable {
         int curr = c->priv().getGpu()->stats()->numSubmitToGpus();
-        int n = curr - flushCnt;
-        flushCnt = curr;
+        int n = curr - submitCnt;
+        submitCnt = curr;
         return n;
     };
 
-    // Images aren't used therefore flush is ignored.
+    // Images aren't used therefore flush is ignored, but submit is still called.
     i0->flushAndSubmit(c);
     i1->flushAndSubmit(c);
     i2->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    REPORTER_ASSERT(reporter, numSubmits() == 3);
 
     // Syncing forces the flush to happen even if the images aren't used.
     GrFlushInfo syncInfo;
     syncInfo.fFlags = kSyncCpu_GrFlushFlag;
     i0->flush(c, syncInfo);
     c->submit(true);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     i1->flush(c, syncInfo);
     c->submit(true);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     i2->flush(c, syncInfo);
     c->submit(true);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Use image 1
     s->getCanvas()->drawImage(i1, 0, 0);
-    // Flushing image 0 should do nothing.
+    // Flushing image 0 should do nothing, but submit is still called.
     i0->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 1 should flush.
     i1->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
-    // Flushing image 2 should do nothing.
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
+    // Flushing image 2 should do nothing, but submit is still called.
     i2->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Use image 2
     s->getCanvas()->drawImage(i2, 0, 0);
-    // Flushing image 0 should do nothing.
+    // Flushing image 0 should do nothing, but submit is still called.
     i0->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
-    // Flushing image 1 do nothing.
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
+    // Flushing image 1 do nothing, but submit is still called.
     i1->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush.
     i2->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Since we just did a simple image draw it should not have been flattened.
     REPORTER_ASSERT(reporter,
                     !static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
@@ -1439,35 +1439,35 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
-    // Flushing image 0 should do nothing.
+    // Flushing image 0 should do nothing, but submit is still called.
     i0->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
-    // Flushing image 1 do nothing.
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
+    // Flushing image 1 do nothing, but submit is still called.
     i1->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush.
     i2->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Test case where flatten happens before the first flush.
     i2 = make_yuva_image(c);
     // On some systems where preferVRAMUseOverFlushes is false (ANGLE on Windows) the above may
     // actually flush in order to make textures for the YUV planes. TODO: Remove this when we
     // make the YUVA planes from backend textures rather than pixmaps that GrContext must upload.
-    // Calling numFlushes rebases the flush count from here.
-    numFlushes();
+    // Calling numSubmits rebases the flush count from here.
+    numSubmits();
     as_IB(i2.get())->view(c);
     REPORTER_ASSERT(reporter,
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
-    // Flushing image 0 should do nothing.
+    // Flushing image 0 should do nothing, but submit is still called.
     i0->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
-    // Flushing image 1 do nothing.
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
+    // Flushing image 1 do nothing, but submit is still called.
     i1->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 0);
-    // Flushing image 2 should flush.
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
+    // Flushing image 2 should flush, but submit is still called.
     i2->flushAndSubmit(c);
-    REPORTER_ASSERT(reporter, numFlushes() == 1);
+    REPORTER_ASSERT(reporter, numSubmits() == 1);
 }

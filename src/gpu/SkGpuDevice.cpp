@@ -1061,6 +1061,7 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 
 void SkGpuDevice::flush() {
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    this->context()->submit();
 }
 
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
