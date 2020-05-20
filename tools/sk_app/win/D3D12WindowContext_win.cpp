@@ -189,6 +189,7 @@ void D3D12WindowContext::swapBuffers() {
 
     GrFlushInfo info;
     surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
+    fContext->submit();
 
     GR_D3D_CALL_ERRCHECK(fSwapChain->Present(1, 0));
 
@@ -198,9 +199,9 @@ void D3D12WindowContext::swapBuffers() {
 
 void D3D12WindowContext::resize(int width, int height) {
     // Clean up any outstanding resources in command lists
-    GrFlushInfo info;
-    info.fFlags = kSyncCpu_GrFlushFlag;
-    fContext->flush(info);
+    fContext->flush({});
+    fContext->submit(true);
+
     // release the previous surface and backbuffer resources
     for (int i = 0; i < kNumFrames; ++i) {
         // Let present complete
