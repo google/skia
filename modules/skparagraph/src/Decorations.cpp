@@ -7,7 +7,7 @@ namespace skia {
 namespace textlayout {
 
 static const float kDoubleDecorationSpacing = 3.0f;
-void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline, SkScalar shift) {
+void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline, SkPoint offset) {
     if (textStyle.getDecorationType() == TextDecoration::kNoDecoration) {
         return;
     }
@@ -76,9 +76,6 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               break;
           default:break;
         }
-
-        canvas->save();
-        canvas->restore();
     }
 }
 
