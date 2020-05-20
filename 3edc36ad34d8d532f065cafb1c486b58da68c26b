@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c0dd019_25d3f031",
+        "filename": "gm/strokefill.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-20T20:56:52Z",
+      "side": 1,
+      "message": "here and below: indent?",
+      "revId": "3edc36ad34d8d532f065cafb1c486b58da68c26b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1d7d334_f2b6b1d1",
+        "filename": "src/effects/SkOpPathEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-20T20:56:52Z",
+      "side": 1,
+      "message": "After trying to rewrite a couple of times, I concede this is the most readable form after all :)",
+      "range": {
+        "startLine": 141,
+        "startChar": 11,
+        "endLine": 145,
+        "endChar": 53
+      },
+      "revId": "3edc36ad34d8d532f065cafb1c486b58da68c26b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
