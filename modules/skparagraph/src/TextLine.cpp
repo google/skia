@@ -189,8 +189,7 @@ SkRect TextLine::calculateBoundaries() {
         boundaries.fBottom += shadowRect.fBottom;
     }
 
-    boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
-    boundaries.offset(this->fShift, 0);     // Shift produced by formatting
+    boundaries.offset(this->offset());         // Line offset from the beginning of the para
     boundaries.offset(0, this->baseline()); // Down by baseline
 
     return boundaries;
@@ -200,9 +199,6 @@ void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
     }
-
-    textCanvas->save();
-    textCanvas->translate(this->offset().fX, this->offset().fY);
 
     if (fHasBackground) {
         this->iterateThroughVisualRuns(false,
@@ -257,8 +253,6 @@ void TextLine::paint(SkCanvas* textCanvas) {
                 return true;
         });
     }
-
-    textCanvas->restore();
 }
 
 void TextLine::format(TextAlign align, SkScalar maxWidth) {
@@ -348,19 +342,21 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
     SkTextBlobBuilder builder;
     context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
-    canvas->save();
     if (context.clippingNeeded) {
-        canvas->clipRect(extendHeight(context));
+        canvas->save();
+        canvas->clipRect(extendHeight(context).makeOffset(this->offset()));
     }
 
-    canvas->translate(context.fTextShift, 0);
-    canvas->drawTextBlob(builder.make(), 0, 0, paint);
-    canvas->restore();
+    canvas->drawTextBlob(builder.make(), this->offset().fX + context.fTextShift, this->offset().fY, paint);
+
+    if (context.clippingNeeded) {
+        canvas->restore();
+    }
 }
 
 void TextLine::paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
     if (style.hasBackground()) {
-        canvas->drawRect(context.clip, style.getBackground());
+        canvas->drawRect(context.clip.makeOffset(this->offset()), style.getBackground());
     }
 }
 
@@ -379,24 +375,28 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
 
         SkTextBlobBuilder builder;
         context.run->copyTo(builder, context.pos, context.size, SkVector::Make(0, shiftDown));
-        canvas->save();
-        SkRect clip = context.clip;
-        clip.offset(shadow.fOffset);
+
         if (context.clippingNeeded) {
-            canvas->clipRect(extendHeight(context));
+            canvas->save();
+            SkRect clip = extendHeight(context);
+            clip.offset(this->offset());
+            canvas->clipRect(clip);
         }
-        canvas->translate(context.fTextShift, 0);
-        canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(), paint);
-        canvas->restore();
+        canvas->drawTextBlob(builder.make(), this->offset().fX + context.fTextShift + shadow.fOffset.x(), this->offset().fY + shadow.fOffset.y(), paint);
+
+        if (context.clippingNeeded) {
+            canvas->restore();
+        }
     }
 }
 
 void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
 
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->translate(this->offset().fX, this->offset().fY);
     Decorations decorations;
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
-    decorations.paint(canvas, style, context, correctedBaseline, this->fShift);
-
+    decorations.paint(canvas, style, context, correctedBaseline, this->offset());
 }
 
 void TextLine::justify(SkScalar maxWidth) {
