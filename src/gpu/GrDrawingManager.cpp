@@ -229,6 +229,9 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
@@ -245,12 +248,18 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
             canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
         }
         if (canSkip) {
+            if (info.fSubmittedProc) {
+                info.fSubmittedProc(info.fSubmittedContext, true);
+            }
             return false;
         }
     }
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
@@ -260,6 +269,9 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
 
     GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
@@ -515,6 +527,12 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
                                                       SkSurface::BackendSurfaceAccess access,
                                                       const GrFlushInfo& info) {
     if (this->wasAbandoned()) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
     SkDEBUGCODE(this->validate());
@@ -523,11 +541,23 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
     GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
