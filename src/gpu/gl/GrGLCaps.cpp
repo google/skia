@@ -3942,8 +3942,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #ifdef SK_BUILD_FOR_MAC
     // On a MacBookPro 11.5 running MacOS 10.13 with a Radeon M370X the TransferPixelsFrom test
     // fails when transferring out from a GL_RG8 texture using GL_RG/GL_UNSIGNED_BYTE.
+    // The same error also occurs in MacOS 10.15 with a Radeon Pro 5300M.
     formatWorkarounds->fDisallowDirectRG8ReadPixels =
             ctxInfo.renderer() == kAMDRadeonR9M3xx_GrGLRenderer ||
+            ctxInfo.renderer() == kAMDRadeonPro5xxx_GrGLRenderer ||
             ctxInfo.renderer() == kAMDRadeonProVegaxx_GrGLRenderer;
 #endif
 
