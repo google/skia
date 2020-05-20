@@ -237,3 +237,58 @@ private:
 };
 DEF_GM(return new ComboPathEfectsGM;)
 
+#include "include/effects/SkStrokeAndFillPathEffect.h"
+
+// Test that we can replicate SkPaint::kStrokeAndFill_Style
+// with a patheffect. We expect the 2nd and 3rd columns to draw the same.
+DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
+    const float kStrokeWidth = 20;
+
+    typedef void (*Maker)(SkPath*);
+    const Maker makers[] = {
+        [](SkPath* path) {
+            path->addOval({0, 0, 100, 100}, SkPathDirection::kCW);
+        },
+        [](SkPath* path) {
+            path->addOval({0, 0, 100, 100}, SkPathDirection::kCCW);
+        },
+        [](SkPath* path) {
+            path->moveTo(0, 0).lineTo(100, 100).lineTo(0, 100).lineTo(100, 0).close();
+        },
+    };
+
+    const struct {
+        SkPaint::Style  fStyle;
+        float           fWidth;
+        bool            fUsePE;
+        bool            fExpectStrokeAndFill;
+    } rec[] = {
+        { SkPaint::kStroke_Style,                   0, false, false },
+        { SkPaint::kFill_Style,                     0,  true, false },
+        { SkPaint::kStroke_Style,                   0,  true, false },
+        { SkPaint::kStrokeAndFill_Style, kStrokeWidth, false, true  },
+        { SkPaint::kStroke_Style,        kStrokeWidth,  true, true  },
+        { SkPaint::kStrokeAndFill_Style, kStrokeWidth,  true, true  },
+    };
+
+    SkPaint paint;
+    canvas->translate(20, 20);
+    for (auto maker : makers) {
+        SkPath path;
+        maker(&path);
+
+        canvas->save();
+        for (const auto& r : rec) {
+            paint.setStyle(r.fStyle);
+            paint.setStrokeWidth(r.fWidth);
+            paint.setPathEffect(r.fUsePE ? SkStrokeAndFillPathEffect::Make() : nullptr);
+            paint.setColor(r.fExpectStrokeAndFill ? SK_ColorGRAY : SK_ColorBLACK);
+
+            canvas->drawPath(path, paint);
+            canvas->translate(150, 0);
+        }
+        canvas->restore();
+
+        canvas->translate(0, 150);
+    }
+}
