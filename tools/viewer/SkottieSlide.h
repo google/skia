@@ -53,7 +53,8 @@ private:
     bool                               fShowAnimationInval = false,
                                        fShowAnimationStats = false,
                                        fShowUI             = false,
-                                       fDraggingProgress   = false;
+                                       fDraggingProgress   = false,
+                                       fPreferGlyphPaths   = false;
 
     typedef Slide INHERITED;
 };
