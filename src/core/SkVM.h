@@ -871,11 +871,13 @@ namespace skvm {
     static inline I32 max(I32 x, I32a y) { return x->max(x,y); }
     static inline I32 max(int x, I32  y) { return y->max(x,y); }
 
-    static inline I32 operator==(I32 x, I32a y) { return x->eq(x,y); }
-    static inline I32 operator==(int x, I32  y) { return y->eq(x,y); }
+    static inline I32 operator==(I32 x, I32 y) { return x->eq(x,y); }
+    static inline I32 operator==(I32 x, int y) { return x->eq(x,y); }
+    static inline I32 operator==(int x, I32 y) { return y->eq(x,y); }
 
-    static inline I32 operator!=(I32 x, I32a y) { return x->neq(x,y); }
-    static inline I32 operator!=(int x, I32  y) { return y->neq(x,y); }
+    static inline I32 operator!=(I32 x, I32 y) { return x->neq(x,y); }
+    static inline I32 operator!=(I32 x, int y) { return x->neq(x,y); }
+    static inline I32 operator!=(int x, I32 y) { return y->neq(x,y); }
 
     static inline I32 operator< (I32 x, I32a y) { return x->lt(x,y); }
     static inline I32 operator< (int x, I32  y) { return y->lt(x,y); }
@@ -908,11 +910,13 @@ namespace skvm {
     static inline F32 max(F32   x, F32a y) { return x->max(x,y); }
     static inline F32 max(float x, F32  y) { return y->max(x,y); }
 
-    static inline I32 operator==(F32   x, F32a y) { return x->eq(x,y); }
-    static inline I32 operator==(float x, F32  y) { return y->eq(x,y); }
+    static inline I32 operator==(F32   x, F32   y) { return x->eq(x,y); }
+    static inline I32 operator==(F32   x, float y) { return x->eq(x,y); }
+    static inline I32 operator==(float x, F32   y) { return y->eq(x,y); }
 
-    static inline I32 operator!=(F32   x, F32a y) { return x->neq(x,y); }
-    static inline I32 operator!=(float x, F32  y) { return y->neq(x,y); }
+    static inline I32 operator!=(F32   x, F32   y) { return x->neq(x,y); }
+    static inline I32 operator!=(F32   x, float y) { return x->neq(x,y); }
+    static inline I32 operator!=(float x, F32   y) { return y->neq(x,y); }
 
     static inline I32 operator< (F32   x, F32a y) { return x->lt(x,y); }
     static inline I32 operator< (float x, F32  y) { return y->lt(x,y); }
