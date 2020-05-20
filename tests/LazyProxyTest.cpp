@@ -181,14 +181,19 @@ public:
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
 
-        bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
-                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+        bool preApply(const SkRect& drawBounds, ClipEffect* effect,
+                    SkRRect* rrect, GrAA* aa) const override {
+            *effect = ClipEffect::kClipped;
+            return false;
+        }
+
+        ClipEffect apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+                         bool hasUserStencilSettings, GrAppliedClip* out,
+                         SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
-            return true;
+            return ClipEffect::kClipped;
         }
-        bool quickContains(const SkRect&) const final { return false; }
-        bool isRRect(SkRRect* rr, GrAA*) const final { return false; }
 
         LazyProxyTest* const fTest;
         GrTextureProxy* fAtlas;

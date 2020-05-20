@@ -559,26 +559,34 @@ void GrTextBlob::addOp(GrTextTarget* target,
 
             bool skipClip = false;
             SkIRect clipRect = SkIRect::MakeEmpty();
-            SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
-            SkRRect clipRRect = SkRRect::MakeRect(rtBounds);
-            GrAA aa;
             // We can clip geometrically if we're not using SDFs or transformed glyphs,
             // and we have an axis-aligned rectangular non-AA clip
-            if (!subRun->drawAsDistanceFields() &&
-                !subRun->needsTransform() &&
-                (!clip || (clip->isRRect(&clipRRect, &aa) &&
-                           clipRRect.isRect() && GrAA::kNo == aa))) {
-                // We only need to do clipping work if the subrun isn't contained by the clip
+            if (!subRun->drawAsDistanceFields() && !subRun->needsTransform()) {
                 SkRect subRunBounds = subRun->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-                if (!clipRRect.getBounds().contains(subRunBounds)) {
-                    // If the subrun is completely outside, don't add an op for it
-                    if (!clipRRect.getBounds().intersects(subRunBounds)) {
+                if (clip) {
+                    SkRRect clipRRect;
+                    GrAA aa;
+                    GrClip::ClipEffect effect;
+                    if (clip->preApply(subRunBounds, &effect, &clipRRect, &aa) &&
+                        clipRRect.isRect() && GrAA::kNo == aa) {
+                        // We can apply the non-AA rectangular clip directly within the op.
+                        skipClip = true;
+                        clipRRect.rect().round(&clipRect);
+                    } else if (effect == GrClip::ClipEffect::kNoDraw) {
+                        // The subrun is completely outside, so don't add an op for it
                         continue;
-                    } else {
-                        clipRRect.getBounds().round(&clipRect);
+                    } else if (effect == GrClip::ClipEffect::kUnclipped) {
+                        // No clipping work since the subrun is contained by the clip
+                        skipClip = true;
                     }
+                } else {
+                    // Already no clipping, so skip the subrun if it's off screen.
+                    if (!subRunBounds.intersects(SkRect::MakeWH(target->width(),
+                                                                target->height()))) {
+                        continue;
+                    }
+                    skipClip = true;
                 }
-                skipClip = true;
             }
 
             auto op = this->makeOp(*subRun, deviceMatrix, drawOrigin, clipRect,

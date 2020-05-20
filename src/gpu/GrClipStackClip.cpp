@@ -34,32 +34,25 @@ typedef GrReducedClip::ElementList ElementList;
 
 const char GrClipStackClip::kMaskTestTag[] = "clip_mask";
 
-bool GrClipStackClip::quickContains(const SkRect& rect) const {
-    if (!fStack || fStack->isWideOpen()) {
-        return SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight).contains(rect);
-    }
-    return fStack->quickContains(rect);
-}
-
-bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
-    if (!fStack || fStack->isWideOpen()) {
-        return SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight).contains(rrect.getBounds());
-    }
-    return fStack->quickContains(rrect);
-}
-
-bool GrClipStackClip::isRRect(SkRRect* rr, GrAA* aa) const {
-    if (!fStack) {
+bool GrClipStackClip::preApply(const SkRect& drawBounds, GrClip::ClipEffect* effect,
+                               SkRRect* rrect, GrAA* aa) const {
+    SkIRect deviceRect = SkIRect::MakeSize(fDeviceSize);
+    SkRect rect = SkRect::Make(deviceRect);
+    if (!rect.intersect(drawBounds) || (fStack && fStack->isEmpty(deviceRect))) {
+        *effect = ClipEffect::kNoDraw;
+        return false;
+    } else if (!fStack || fStack->isWideOpen()) {
+        *effect = ClipEffect::kUnclipped;
         return false;
     }
 
-    SkRect rtBounds = SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight);
+    *effect = ClipEffect::kClipped;
     bool isAA;
-    if (fStack->isRRect(rtBounds, rr, &isAA)) {
+    bool isRRect = fStack->isRRect(rect, rrect, &isAA);
+    if (isRRect) {
         *aa = GrAA(isAA);
-        return true;
     }
-    return false;
+    return isRRect;
 }
 
 SkIRect GrClipStackClip::getConservativeBounds() const {
@@ -197,18 +190,19 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
-                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
-                            SkRect* bounds) const {
+GrClip::ClipEffect GrClipStackClip::apply(GrRecordingContext* context,
+                                          GrRenderTargetContext* renderTargetContext,
+                                          bool useHWAA, bool hasUserStencilSettings,
+                                          GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(renderTargetContext->width() == fDeviceSize.fWidth &&
              renderTargetContext->height() == fDeviceSize.fHeight);
     SkRect devBounds = SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight);
     if (!devBounds.intersect(*bounds)) {
-        return false;
+        return ClipEffect::kNoDraw;
     }
 
     if (!fStack || fStack->isWideOpen()) {
-        return true;
+        return ClipEffect::kUnclipped;
     }
 
     // An default count of 4 was chosen because of the common pattern in Blink of:
@@ -233,23 +227,27 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
                               maxWindowRectangles, maxAnalyticFPs, ccpr ? maxAnalyticFPs : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
-        return false;
+        return ClipEffect::kNoDraw;
     }
 
+    ClipEffect effect = ClipEffect::kUnclipped;
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
         out->hardClip().addScissor(reducedClip.scissor(), bounds);
+        effect = ClipEffect::kClipped;
     }
 
     if (!reducedClip.windowRectangles().empty()) {
         out->hardClip().addWindowRectangles(reducedClip.windowRectangles(),
                                             GrWindowRectsState::Mode::kExclusive);
+        effect = ClipEffect::kClipped;
     }
 
     if (!reducedClip.maskElements().isEmpty()) {
         if (!this->applyClipMask(context, renderTargetContext, reducedClip, hasUserStencilSettings,
                                  out)) {
-            return false;
+            return ClipEffect::kNoDraw;
         }
+        effect = ClipEffect::kClipped;
     }
 
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
@@ -257,9 +255,10 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
     uint32_t opsTaskID = renderTargetContext->getOpsTask()->uniqueID();
     if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, opsTaskID)) {
         out->addCoverageFP(std::move(clipFPs));
+        effect = ClipEffect::kClipped;
     }
 
-    return true;
+    return effect;
 }
 
 bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
