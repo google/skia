@@ -164,11 +164,12 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      GrVkRenderTarget* target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
-                                                     CompatibleRPHandle* compatibleHandle) {
+                                                     CompatibleRPHandle* compatibleHandle,
+                                                     bool withStencil) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target->compatibleRenderPassHandle();
+    *pRPHandle = target->compatibleRenderPassHandle(withStencil);
     if (!pRPHandle->isValid()) {
         return nullptr;
     }

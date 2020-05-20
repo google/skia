@@ -43,7 +43,7 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
-    const GrVkFramebuffer* getFramebuffer();
+    const GrVkFramebuffer* getFramebuffer(bool withStencil);
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView; }
     const GrManagedResource* msaaImageResource() const {
         if (fMSAAImage) {
@@ -56,20 +56,30 @@ public:
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
-    const GrVkRenderPass* getSimpleRenderPass();
-    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle() {
+    const GrVkRenderPass* getSimpleRenderPass(bool withStencil);
+    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(bool withStencil) {
         SkASSERT(!this->wrapsSecondaryCommandBuffer());
-        if (!fCompatibleRPHandle.isValid()) {
-            SkASSERT(!fCachedSimpleRenderPass);
-            this->createSimpleRenderPass();
+
+        if (withStencil) {
+            if (!fCompatibleStencilRPHandle.isValid()) {
+                SkASSERT(!fCachedStencilRenderPass);
+                this->createSimpleRenderPass(withStencil);
+            }
+            SkASSERT(fCompatibleStencilRPHandle.isValid() == SkToBool(fCachedStencilRenderPass));
+            return fCompatibleStencilRPHandle;
+        } else {
+            if (!fCompatibleRPHandle1.isValid()) {
+                SkASSERT(!fCachedSimpleRenderPass1);
+                this->createSimpleRenderPass(withStencil);
+            }
+            SkASSERT(fCompatibleRPHandle1.isValid() == SkToBool(fCachedSimpleRenderPass1));
+            return fCompatibleRPHandle1;
         }
-        SkASSERT(fCompatibleRPHandle.isValid() == SkToBool(fCachedSimpleRenderPass));
-        return fCompatibleRPHandle;
     }
     const GrVkRenderPass* externalRenderPass() const {
         SkASSERT(this->wrapsSecondaryCommandBuffer());
         // We use the cached simple render pass to hold the external render pass.
-        return fCachedSimpleRenderPass;
+        return fCachedSimpleRenderPass1;
     }
 
     bool wrapsSecondaryCommandBuffer() const { return fSecondaryCommandBuffer != VK_NULL_HANDLE; }
@@ -96,7 +106,7 @@ public:
                                                  GrVkRenderPass::AttachmentsDescriptor* desc,
                                                  GrVkRenderPass::AttachmentFlags* flags);
 
-    void addResources(GrVkCommandBuffer& commandBuffer);
+    void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil);
 
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
         fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
@@ -162,8 +172,8 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    const GrVkRenderPass* createSimpleRenderPass();
-    const GrVkFramebuffer* createFramebuffer();
+    const GrVkRenderPass* createSimpleRenderPass(bool withStencil);
+    const GrVkFramebuffer* createFramebuffer(bool withStencil);
 
     bool completeStencilAttachment() override;
 
@@ -180,13 +190,17 @@ private:
     std::unique_ptr<GrVkImage> fMSAAImage;
     const GrVkImageView*       fResolveAttachmentView;
 
-    const GrVkFramebuffer*     fCachedFramebuffer;
+    const GrVkFramebuffer*     fCachedFramebuffer1;
+    const GrVkFramebuffer*     fCachedStencilFramebuffer;
 
     // This is a cached pointer to a simple render pass. The render target should unref it
     // once it is done with it.
-    const GrVkRenderPass*      fCachedSimpleRenderPass;
+    const GrVkRenderPass*      fCachedSimpleRenderPass1;
+    const GrVkRenderPass*      fCachedStencilRenderPass;
+
     // This is a handle to be used to quickly get compatible GrVkRenderPasses for this render target
-    GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
+    GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle1;
+    GrVkResourceProvider::CompatibleRPHandle fCompatibleStencilRPHandle;
 
     // If this render target wraps an external VkCommandBuffer, then this handle will be that
     // VkCommandBuffer and not VK_NULL_HANDLE. In this case the render target will not be backed by

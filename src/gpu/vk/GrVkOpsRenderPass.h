@@ -35,7 +35,8 @@ public:
     bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-             const SkTArray<GrSurfaceProxy*, true>& sampledProxies);
+             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+             bool withStencil);
     void reset();
 
     void submit();
@@ -47,7 +48,8 @@ public:
 private:
     bool init(const GrOpsRenderPass::LoadAndStoreInfo&,
               const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-              const SkPMColor4f& clearColor);
+              const SkPMColor4f& clearColor,
+              bool withStencil);
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
     // command buffer.
@@ -86,7 +88,7 @@ private:
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
-    void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
+    void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer, bool withStencil);
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;

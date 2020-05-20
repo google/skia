@@ -73,7 +73,8 @@ public:
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
-                                         CompatibleRPHandle* compatibleHandle = nullptr);
+                                         CompatibleRPHandle* compatibleHandle,
+                                         bool withStencil);
 
     // The CompatibleRPHandle must be a valid handle previously set by a call to findRenderPass or
     // findCompatibleRenderPass.

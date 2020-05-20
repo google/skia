@@ -1716,13 +1716,14 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
     if (rt) {
+        bool stencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
         // TODO: support failure in getSimpleRenderPass
-        SkASSERT(vkRT->getSimpleRenderPass());
-        vkRT->getSimpleRenderPass()->genKey(&b);
+        SkASSERT(vkRT->getSimpleRenderPass(stencil));
+        vkRT->getSimpleRenderPass(stencil)->genKey(&b);
 
 #ifdef SK_DEBUG
-        if (!vkRT->getSimpleRenderPass()->isExternal()) {
+        if (!vkRT->getSimpleRenderPass(stencil)->isExternal()) {
             // This is to ensure ReconstructAttachmentsDescriptor keeps matching
             // getSimpleRenderPass' result
             GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
@@ -1730,8 +1731,8 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
             GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
                                                                &attachmentsDescriptor,
                                                                &attachmentFlags);
-            SkASSERT(vkRT->getSimpleRenderPass()->isCompatible(attachmentsDescriptor,
-                                                               attachmentFlags));
+            SkASSERT(vkRT->getSimpleRenderPass(stencil)->isCompatible(attachmentsDescriptor,
+                                                                      attachmentFlags));
         }
 #endif
     } else {
