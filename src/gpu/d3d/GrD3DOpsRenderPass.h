@@ -14,6 +14,7 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrD3DGpu;
+class GrD3DPipelineState;
 
 class GrD3DOpsRenderPass : public GrOpsRenderPass {
 public:
@@ -38,11 +39,9 @@ private:
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override {}
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
-                        const GrPipeline&) override {
-        return true;
-    }
+                        const GrPipeline&) override;
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                       const GrBuffer* vertexBuffer, GrPrimitiveRestart) override {}
+                       const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
     void onDraw(int vertexCount, int baseVertex) override {}
     void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                        uint16_t maxIndexValue, int baseVertex) override {}
@@ -56,6 +55,9 @@ private:
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
     GrD3DGpu* fGpu;
+
+    sk_sp<GrD3DPipelineState> fCurrentPipelineState;
+
     SkIRect fBounds;
     SkIRect fCurrentPipelineBounds;
 

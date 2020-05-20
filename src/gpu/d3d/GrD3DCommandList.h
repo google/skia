@@ -62,9 +62,6 @@ public:
                            const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                            const D3D12_BOX* srcBox);
 
-    void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
-                               const GrFixedClip& clip);
-
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
     void addResource(sk_sp<GrManagedResource> resource) {
@@ -121,7 +118,13 @@ public:
     void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
     void setScissorRects(unsigned int numRects, const D3D12_RECT* rects);
     void setViewports(unsigned int numViewports, const D3D12_VIEWPORT* viewports);
+    void setVertexBuffers(unsigned int startSlot,
+                          const GrD3DBuffer* vertexBuffer, size_t vertexStride,
+                          const GrD3DBuffer* instanceBuffer, size_t instanceStride);
+    void setIndexBuffer(const GrD3DBuffer* indexBuffer);
 
+    void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
+                               const GrFixedClip& clip);
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                            gr_cp<ID3D12GraphicsCommandList> commandList);

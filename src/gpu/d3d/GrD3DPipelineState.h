@@ -15,6 +15,7 @@
 #include "src/gpu/d3d/GrD3DPipelineStateDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
+class GrD3DDirectCommandList;
 class GrD3DGpu;
 class GrD3DRootSignature;
 class GrProgramInfo;
@@ -27,10 +28,13 @@ public:
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,
+                       uint32_t numSamplers,
                        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragProcessors,
-                       int fragmentProcessorCnt);
+                       int fragmentProcessorCnt,
+                       size_t vertexStride,
+                       size_t instanceStride);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
@@ -47,6 +51,13 @@ public:
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
 
     void setData(const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+
+    void setAndBindTextures(const GrPrimitiveProcessor& primProc,
+                            const GrSurfaceProxy* const primProcTextures[],
+                            const GrPipeline& pipeline);
+
+    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                     const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
 
 private:
     /**
@@ -101,6 +112,10 @@ private:
     int fFragmentProcessorCnt;
 
     GrD3DPipelineStateDataManager fDataManager;
+
+    int fNumSamplers;
+    size_t fVertexStride;
+    size_t fInstanceStride;
 };
 
 #endif

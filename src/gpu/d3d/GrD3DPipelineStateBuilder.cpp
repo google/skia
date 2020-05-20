@@ -536,7 +536,8 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         return nullptr;
     }
 
-    if (this->primitiveProcessor().willUseGeoShader()) {
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    if (primProc.willUseGeoShader()) {
         this->compileD3DProgram(SkSL::Program::kGeometry_Kind, fGS.fCompilerString, settings,
                                 &geometryShader, &geomInputs);
         if (!geometryShader.get()) {
@@ -560,8 +561,11 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                                             fUniformHandles,
                                                             fUniformHandler.fUniforms,
                                                             fUniformHandler.fCurrentUBOOffset,
+                                                            fUniformHandler.fSamplers.count(),
                                                             std::move(fGeometryProcessor),
                                                             std::move(fXferProcessor),
                                                             std::move(fFragmentProcessors),
-                                                            fFragmentProcessorCnt));
+                                                            fFragmentProcessorCnt,
+                                                            primProc.vertexStride(),
+                                                            primProc.instanceStride()));
 }
