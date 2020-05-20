@@ -480,33 +480,38 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         static constexpr char kRadeonStr[] = "Radeon ";
         if (const char* amdString = strstr(rendererString, kRadeonStr)) {
             amdString += strlen(kRadeonStr);
-            char amdGeneration, amdTier, amdRevision;
             // Sometimes there is a (TM) and sometimes not.
             static constexpr char kTMStr[] = "(TM) ";
             if (!strncmp(amdString, kTMStr, strlen(kTMStr))) {
                 amdString += strlen(kTMStr);
             }
-            n = sscanf(amdString, "R9 M%c%c%c", &amdGeneration, &amdTier, &amdRevision);
-            if (3 == n) {
-                if ('3' == amdGeneration) {
-                    return kAMDRadeonR9M3xx_GrGLRenderer;
-                } else if ('4' == amdGeneration) {
-                    return kAMDRadeonR9M4xx_GrGLRenderer;
-                }
-            }
 
             char amd0, amd1, amd2;
+            int amdModel;
+            n = sscanf(amdString, "R9 M3%c%c", &amd0, &amd1);
+            if (2 == n && isdigit(amd0) && isdigit(amd1)) {
+                return kAMDRadeonR9M3xx_GrGLRenderer;
+            }
+
+            n = sscanf(amdString, "R9 M4%c%c", &amd0, &amd1);
+            if (2 == n && isdigit(amd0) && isdigit(amd1)) {
+                return kAMDRadeonR9M4xx_GrGLRenderer;
+            }
+
             n = sscanf(amdString, "HD 7%c%c%c Series", &amd0, &amd1, &amd2);
-            if (3 == n) {
+            if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
                 return kAMDRadeonHD7xxx_GrGLRenderer;
             }
 
-            int amdVegaModel=0;
-            n = sscanf(amdString, "Pro Vega %i", &amdVegaModel);
+            n = sscanf(amdString, "Pro 5%c%c%c", &amd0, &amd1, &amd2);
+            if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
+                return kAMDRadeonPro5xxx_GrGLRenderer;
+            }
+
+            n = sscanf(amdString, "Pro Vega %i", &amdModel);
             if (1 == n) {
                 return kAMDRadeonProVegaxx_GrGLRenderer;
             }
-
         }
 
         if (strstr(rendererString, "llvmpipe")) {
