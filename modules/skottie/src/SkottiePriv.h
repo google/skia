@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTHash.h"
+#include "include/utils/SkCustomTypeface.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGScene.h"
@@ -63,10 +64,12 @@ public:
     AnimationInfo parse(const skjson::ObjectValue&);
 
     struct FontInfo {
-        SkString                  fFamily,
-                                  fStyle;
-        SkScalar                  fAscentPct;
-        sk_sp<SkTypeface>         fTypeface;
+        SkString                fFamily,
+                                fStyle,
+                                fPath;
+        SkScalar                fAscentPct;
+        sk_sp<SkTypeface>       fTypeface;
+        SkCustomTypefaceBuilder fCustomBuilder;
 
         bool matches(const char family[], const char style[]) const;
     };
@@ -181,6 +184,10 @@ private:
     void parseAssets(const skjson::ArrayValue*);
     void parseFonts (const skjson::ObjectValue* jfonts,
                      const skjson::ArrayValue* jchars);
+
+    // Return true iff all fonts were resolved.
+    bool resolveNativeTypefaces();
+    bool resolveEmbeddedTypefaces(const skjson::ArrayValue& jchars);
 
     void dispatchMarkers(const skjson::ArrayValue*) const;
 

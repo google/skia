@@ -96,7 +96,12 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     };
 
     auto logger = sk_make_sp<Logger>();
-    skottie::Animation::Builder builder;
+
+    uint32_t flags = 0;
+    if (fPreferGlyphPaths) {
+        flags |= skottie::Animation::Builder::kPreferEmbeddedFonts;
+    }
+    skottie::Animation::Builder builder(flags);
 
     auto resource_provider =
             skresources::DataURIResourceProviderProxy::Make(
@@ -221,9 +226,11 @@ bool SkottieSlide::onChar(SkUnichar c) {
     switch (c) {
     case 'I':
         fShowAnimationStats = !fShowAnimationStats;
-        break;
-    default:
-        break;
+        return true;
+    case 'G':
+        fPreferGlyphPaths = !fPreferGlyphPaths;
+        this->load(fWinSize.width(), fWinSize.height());
+        return true;
     }
 
     return INHERITED::onChar(c);
