@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c52e5d11_92e10c42",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T20:18:27Z",
+      "side": 1,
+      "message": "nit: I like to add [canvaskit] to the beginning of my commit messages to help people scanning through the commit history pick the changes out.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 3
+      },
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0138aa70_97f151e5",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T20:18:27Z",
+      "side": 1,
+      "message": "maybe add a comment explaining how these colors get used and that the choice/order was arbitrary (sometimes we pick specific colors to test certain edge cases. I like to call out when something is picked for aesthetic reasons or for no reason at all.)",
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5861c951_4d0a2505",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T20:18:27Z",
+      "side": 1,
+      "message": "https://google.github.io/styleguide/jsguide.html#features-functions-arrow-functions\n\n\"Tip: Always using parentheses even for single-parameter arrow functions can avoid situations where adding parameters, but forgetting to add parentheses, may result in parseable code which no longer works as intended.\"",
+      "range": {
+        "startLine": 270,
+        "startChar": 71,
+        "endLine": 270,
+        "endChar": 74
+      },
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "981a5232_a9945c92",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T20:18:27Z",
+      "side": 1,
+      "message": "Maybe just call this column, to be more clear? i on line 186 should be row, right?\n\nI strive to make my tests as readable as possible, because:\n1) we don\u0027t have tests for our tests, so my reviewers have to be able to determine correctness essentially by reading the code.\n2) tests are where people unfamiliar with the code tend to turn first, so we want to be kind to them.",
+      "range": {
+        "startLine": 273,
+        "startChar": 11,
+        "endLine": 273,
+        "endChar": 13
+      },
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ce01ff_a26ee55c",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-20T20:18:27Z",
+      "side": 1,
+      "message": "I don\u0027t think this is always magenta, right? Same for line 292?",
+      "range": {
+        "startLine": 279,
+        "startChar": 24,
+        "endLine": 279,
+        "endChar": 31
+      },
+      "revId": "9369b8c577c1632323bb1bfcda75357ade8d09de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
