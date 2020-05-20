@@ -255,6 +255,49 @@ describe('Canvas Behavior', () => {
         final.delete();
     });
 
+    gm('blendmodes_canvas', (canvas) => {
+        const colors = [
+            CanvasKit.RED,
+            CanvasKit.BLUE,
+            CanvasKit.GREEN,
+            CanvasKit.MAGENTA,
+            CanvasKit.CYAN,
+            CanvasKit.YELLOW,
+            CanvasKit.BLACK,
+            CanvasKit.WHITE,
+            CanvasKit.TRANSPARENT
+        ];
+        const blendModeNames = Object.keys(CanvasKit.BlendMode).filter(key=>key!=='values');
+        const drawSize = colors.length * blendModeNames.length;
+
+        let i = 0;
+        for (const color of colors) {
+            for (const blendModeName of blendModeNames) {
+                const blendMode = CanvasKit.BlendMode[blendModeName];
+
+                canvas.save();
+                // draw magenta around the outside edge of an rrect.
+                canvas.clipRect(CanvasKit.LTRBRect(i, 0, i+1, drawSize), CanvasKit.ClipOp.Intersect, true);
+                canvas.drawColor(color, blendMode);
+                canvas.restore();
+                i++;
+            }
+        }
+        i = 0;
+        for (const color of colors) {
+            for (const blendModeName of blendModeNames) {
+                const blendMode = CanvasKit.BlendMode[blendModeName];
+
+                canvas.save();
+                // draw magenta around the outside edge of an rrect.
+                canvas.clipRect(CanvasKit.LTRBRect(0, i, drawSize, i+1), CanvasKit.ClipOp.Intersect, true);
+                canvas.drawColor(color, blendMode);
+                canvas.restore();
+                i++;
+            }
+        }
+    });
+
     gm('colorfilters_malloc_canvas', (canvas) => {
         const paint = new CanvasKit.SkPaint();
 
