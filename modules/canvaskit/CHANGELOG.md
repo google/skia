@@ -6,6 +6,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Support for wide-gamut color spaces DisplayP3 and AdobeRGB. However, correct representation on a WCG monitor
+   requires that chrome be forced to render everything to the DisplayP3 or AdobeRGB profile, since there is not
+   yet any way to indicate to the browser that a canvas element has a non-sRGB color space. See color support
+   example in extra.html. Only supported for WebGL2 backed surfaces.
+ - Added `SkSurface.reportBackendType` which returns either 'CPU' or 'GPU'.
+ - Added `SkSurface.imageInfo` which returns an ImageInfo object describing the size and color properties of
+   the surface. colorSpace is added to ImageInfo everywhere it is used.
+
+### Changed
+ - `CanvasKit.MakeCanvasSurface` accepts a new enum specifying one of the three color space and pixel format
+   combinations supported by CanvasKit. 
+ - all `_Make*Shader` functions now accept a color space argument just after the colors array. Passing null
+   will make it behave as it did before.
+ - `SkPaint.setColor` accepts a new color space argument.
+
+### Removed
+ - `CanvasKit.MakeCanvasSurface` no longer accepts width/height arguments to override those on the canvas element.
+   use the canvas element's width/height attributes to dictate the size of the drawing area, and use CSS width/height
+   to set the size it will appear on the page (it is rescaled after drawing when css sizing applies)
+
 ## [0.15.0] - 2020-05-14
 
 ### Added
