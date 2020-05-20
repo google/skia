@@ -148,16 +148,6 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
-void GrD3DCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
-                                             const SkPMColor4f& color,
-                                             const GrFixedClip& clip) {
-    this->addingWork();
-    this->addResource(renderTarget->resource());
-    fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
-                                        color.vec(),
-                                        0, NULL); // no cliprects for now
-}
-
 void GrD3DCommandList::addingWork() {
     this->submitResourceBarriers();
     fHasWork = true;
@@ -217,6 +207,51 @@ void GrD3DDirectCommandList::setViewports(unsigned int numViewports,
     SkASSERT(fIsActive);
     fCommandList->RSSetViewports(numViewports, viewports);
 }
+
+void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
+                                              const GrD3DBuffer* vertexBuffer,
+                                              size_t vertexStride,
+                                              const GrD3DBuffer* instanceBuffer,
+                                              size_t instanceStride) {
+    this->addingWork();
+    this->addResource(vertexBuffer->resource());
+
+    D3D12_VERTEX_BUFFER_VIEW views[2];
+    int numViews = 0;
+    views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
+    views[numViews].SizeInBytes = vertexBuffer->size();
+    views[numViews++].StrideInBytes = vertexStride;
+    if (instanceBuffer) {
+        this->addResource(instanceBuffer->resource());
+        views[numViews].BufferLocation = instanceBuffer->d3dResource()->GetGPUVirtualAddress();
+        views[numViews].SizeInBytes = instanceBuffer->size();
+        views[numViews++].StrideInBytes = instanceStride;
+    }
+
+    fCommandList->IASetVertexBuffers(startSlot, numViews, views);
+}
+
+void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
+    this->addingWork();
+    this->addResource(indexBuffer->resource());
+
+    D3D12_INDEX_BUFFER_VIEW view = {};
+    view.BufferLocation = indexBuffer->d3dResource()->GetGPUVirtualAddress();
+    view.SizeInBytes = indexBuffer->size();
+    view.Format = DXGI_FORMAT_R16_UINT;
+    fCommandList->IASetIndexBuffer(&view);
+}
+
+void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
+                                                   const SkPMColor4f& color,
+                                                   const GrFixedClip& clip) {
+    this->addingWork();
+    this->addResource(renderTarget->resource());
+    fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
+                                        color.vec(),
+                                        0, NULL); // no cliprects for now
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
