@@ -234,7 +234,7 @@ bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
 
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
-    target.getAttachmentsDescriptor(&desc, &flags);
+    target.getAttachmentsDescriptor(&desc, &flags, this->hasStencilAttachment());
 
     return this->isCompatible(desc, flags);
 }
