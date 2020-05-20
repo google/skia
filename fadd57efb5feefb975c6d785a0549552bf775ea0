@@ -105,6 +105,30 @@
       "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6643b11b_416348fe",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-20T14:10:31Z",
+      "side": 1,
+      "message": "Yup that\u0027s seems like the right thing to do",
+      "parentUuid": "ef58a5ee_0d5754f1",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
