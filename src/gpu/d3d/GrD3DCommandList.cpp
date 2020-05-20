@@ -178,6 +178,11 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
+    // TBD: does setting the same root signature incur the same penalty as changing it?
+    const sk_sp<GrD3DRootSignature>& rootSig = pipelineState->rootSignature();
+    fCommandList->SetGraphicsRootSignature(rootSig->rootSignature());
+    this->addResource(rootSig);
+
     fCommandList->SetPipelineState(pipelineState->pipelineState());
     this->addResource(std::move(pipelineState));
 }
@@ -206,6 +211,12 @@ void GrD3DDirectCommandList::setViewports(unsigned int numViewports,
                                           const D3D12_VIEWPORT* viewports) {
     SkASSERT(fIsActive);
     fCommandList->RSSetViewports(numViewports, viewports);
+}
+
+void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSig) {
+    SkASSERT(fIsActive);
+    fCommandList->SetGraphicsRootSignature(rootSig->rootSignature());
+    this->addResource(rootSig);
 }
 
 void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
@@ -242,6 +253,24 @@ void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
     fCommandList->IASetIndexBuffer(&view);
 }
 
+void GrD3DDirectCommandList::drawInstanced(unsigned int vertexCount, unsigned int instanceCount,
+                                           unsigned int startVertex, unsigned int startInstance) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    fCommandList->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
+}
+
+void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
+                                                  unsigned int instanceCount,
+                                                  unsigned int startIndex,
+                                                  unsigned int baseVertex,
+                                                  unsigned int startInstance) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    fCommandList->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex,
+                                       startInstance);
+}
+
 void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
                                                    const GrFixedClip& clip) {
@@ -251,7 +280,6 @@ void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarg
                                         color.vec(),
                                         0, NULL); // no cliprects for now
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
