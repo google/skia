@@ -2,6 +2,121 @@
   "comments": [
     {
       "key": {
+        "uuid": "d8a1469e_a869503f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "Add some motivation for this?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 39
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa169db0_5ed3a92d",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "nit: maybe put the link to the spec here?",
+      "range": {
+        "startLine": 9,
+        "startChar": 14,
+        "endLine": 9,
+        "endChar": 64
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cdbadd4_fc8efc00",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "nit: could be const?",
+      "range": {
+        "startLine": 79,
+        "startChar": 55,
+        "endLine": 79,
+        "endChar": 63
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec30378b_808de269",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "Is there a specific case where that\u0027s not true?",
+      "range": {
+        "startLine": 115,
+        "startChar": 11,
+        "endLine": 115,
+        "endChar": 30
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8992999_450f1ca3",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "Just so I understand - first_frame_only means we\u0027ll write out an niE file, whether the image is animated or not. !first_frame_only means we\u0027ll write an niA file, again, regardless of whether the image is animated?",
+      "range": {
+        "startLine": 168,
+        "startChar": 13,
+        "endLine": 168,
+        "endChar": 29
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c91980a_097652e9",
         "filename": "tools/convert-to-nia.cpp",
         "patchSetId": 2
@@ -13,6 +128,24 @@
       "writtenOn": "2020-05-20T13:14:38Z",
       "side": 1,
       "message": "IIUC, by not setting opts.kPriorFrame, I\u0027m decoding from the first frame on every loop iteration, which has quadratic complexity. Is there a simple code snippet I can copy/paste to cache the required frame? I\u0027d rather keep just a single prior frame in memory, not all of them.",
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9d9998e_4bec6163",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-20T15:17:07Z",
+      "side": 1,
+      "message": "https://skia.googlesource.com/skia/+/40b4de2/dm/DMSrcSink.cpp#458 + https://skia.googlesource.com/skia/+/40b4de2/dm/DMSrcSink.cpp#484 show how we do it in DM.",
+      "parentUuid": "6c91980a_097652e9",
       "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
