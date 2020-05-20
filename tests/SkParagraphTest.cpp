@@ -3923,7 +3923,7 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
             SkString("Also a fake font"),
             SkString("So fake it is obvious"),
             SkString("Next one should be a real font..."),
-            SkString("Roboto"),
+            SkString("Roboto"), // Should take this for unresolved
             SkString("another fake one in between"),
             SkString("Homemade Apple"),
     });

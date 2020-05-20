@@ -287,6 +287,11 @@ void ParagraphImpl::buildClusterTable() {
         }
 
         run.setClusterRange(runStart, fClusters.size());
+        SkDebugf("run[%d:%d) + %d [%d: %d): %f\n", run.fTextRange.start, run.fTextRange.end, run.fClusterStart, runStart, fClusters.size(), run.advance().fX);
+        for (auto i = runStart; i < fClusters.size(); ++i) {
+            auto& cluster = fClusters[i];
+            SkDebugf("cluster[%d] [%d:%d) [%d:%d): %f\n", i, cluster.fTextRange.start, cluster.fTextRange.end, cluster.fStart, cluster.fEnd, cluster.fWidth);
+        }
         fMaxIntrinsicWidth += run.advance().fX;
     }
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);

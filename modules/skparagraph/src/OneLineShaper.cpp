@@ -100,9 +100,16 @@ void OneLineShaper::fillGaps(size_t startingCount) {
     GlyphIndex resolvedGlyphsStart = 0;
 
     auto count = fUnresolvedBlocks.size();
+    TextRange lastUnresolved;
     for (size_t i = 0; i < count; ++i) {
         auto front = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
+
+        if (lastUnresolved == front.fText) {
+            // Remove duplicates
+            continue;
+        }
+        lastUnresolved = front.fText;
         fUnresolvedBlocks.push(front);
         if (i < startingCount) {
             // Skip the first ones
