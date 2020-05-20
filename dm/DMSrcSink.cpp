@@ -1131,6 +1131,9 @@ Result BisectSrc::draw(SkCanvas* canvas) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_ENABLE_SKOTTIE)
+static DEFINE_bool(useLottieGlyphPaths, false,
+                   "Prioritize embedded glyph paths over native fonts.");
+
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Result SkottieSrc::draw(SkCanvas* canvas) const {
@@ -1144,7 +1147,12 @@ Result SkottieSrc::draw(SkCanvas* canvas) const {
     auto precomp_interceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(resource_provider,
                                                                            kInterceptPrefix);
-    auto animation = skottie::Animation::Builder()
+    uint32_t flags = 0;
+    if (FLAGS_useLottieGlyphPaths) {
+        flags |= skottie::Animation::Builder::kPreferEmbeddedFonts;
+    }
+
+    auto animation = skottie::Animation::Builder(flags)
         .setResourceProvider(std::move(resource_provider))
         .setPrecompInterceptor(std::move(precomp_interceptor))
         .makeFromFile(fPath.c_str());

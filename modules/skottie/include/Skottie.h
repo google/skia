@@ -68,9 +68,11 @@ public:
     class Builder final {
     public:
         enum Flags : uint32_t {
-            kDeferImageLoading = 0x01, // Normally, all static image frames are resolved at
-                                       // load time via ImageAsset::getFrame(0).  With this flag,
-                                       // frames are only resolved when needed, at seek() time.
+            kDeferImageLoading   = 0x01, // Normally, all static image frames are resolved at
+                                         // load time via ImageAsset::getFrame(0).  With this flag,
+                                         // frames are only resolved when needed, at seek() time.
+            kPreferEmbeddedFonts = 0x02, // Attempt to use the embedded fonts (glyph paths,
+                                         // normally used as fallback) over native Skia typefaces.
         };
 
         explicit Builder(uint32_t flags = 0);
