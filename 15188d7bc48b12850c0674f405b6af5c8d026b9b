@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96def3a4_c5d40198",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-20T19:44:12Z",
+      "side": 1,
+      "message": "just a suggestion:\n\ncanvas-\u003eclipRect(extendedHeight(...).makeOffset(...));",
+      "range": {
+        "startLine": 383,
+        "startChar": 29,
+        "endLine": 383,
+        "endChar": 33
+      },
+      "revId": "15188d7bc48b12850c0674f405b6af5c8d026b9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
