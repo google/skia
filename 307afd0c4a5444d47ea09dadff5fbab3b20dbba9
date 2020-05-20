@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c91980a_097652e9",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-20T13:14:38Z",
+      "side": 1,
+      "message": "IIUC, by not setting opts.kPriorFrame, I\u0027m decoding from the first frame on every loop iteration, which has quadratic complexity. Is there a simple code snippet I can copy/paste to cache the required frame? I\u0027d rather keep just a single prior frame in memory, not all of them.",
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
