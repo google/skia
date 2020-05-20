@@ -351,8 +351,7 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
             cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
                                                        initialVertexColor, forceW);
         } else {
-            cachedBlob = textBlobCache->makeBlob(glyphRunList, drawMatrix,
-                                                 initialVertexColor, forceW);
+            cachedBlob = GrTextBlob::Make(glyphRunList, drawMatrix, initialVertexColor, forceW);
         }
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -395,7 +394,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = direct->priv().getTextBlobCache()->makeBlob(glyphRunList, drawMatrix, color, false);
+        blob = GrTextBlob::Make(glyphRunList, drawMatrix, color, false);
         SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,
