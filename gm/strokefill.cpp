@@ -21,6 +21,13 @@
 #include "src/core/SkTextFormatParams.h"
 #include "tools/ToolUtils.h"
 
+#include "include/effects/SkStrokeAndFillPathEffect.h"
+static void set_strokeandfill(SkPaint* paint) {
+    SkASSERT(paint->getPathEffect() == nullptr);
+    paint->setPathEffect(SkStrokeAndFillPathEffect::Make());
+    paint->setStroke(true);
+}
+
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Papyrus"));
  * paint.getTextPath("H", 1, 100, 80, &textPath);
@@ -248,7 +255,7 @@ static void path_bold(SkCanvas* canvas, const SkPath& path,
                       const SkPaint& paint, float textSize) {
         SkPaint p(paint);
         canvas->drawPath(path, p);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
+    set_strokeandfill(&p);
         SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
                 kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
                 kStdFakeBoldInterpLength);
@@ -279,7 +286,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
 
         show_bold(canvas, "Hi There", x + SkIntToScalar(430), y, paint, font);
 
-        paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    set_strokeandfill(&paint);
 
         SkPath path;
         path.setFillType(SkPathFillType::kWinding);
