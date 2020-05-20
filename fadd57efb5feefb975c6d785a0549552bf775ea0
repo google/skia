@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7bb1744d_cf10d018",
+        "filename": "src/gpu/d3d/GrD3DBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-20T13:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57ba1a23_627b6646",
+      "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f92652e3_07223af9",
         "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
         "patchSetId": 1
@@ -63,6 +81,30 @@
       "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef58a5ee_0d5754f1",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-20T13:37:00Z",
+      "side": 1,
+      "message": "Looks like that works, going with that.",
+      "parentUuid": "1d77fc51_4c850490",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "fadd57efb5feefb975c6d785a0549552bf775ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
