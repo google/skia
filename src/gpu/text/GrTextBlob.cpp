@@ -152,13 +152,13 @@ size_t GrTextBlob::SubRun::vertexStride() const {
     return GetVertexStride(this->maskFormat(), this->hasW());
 }
 size_t GrTextBlob::SubRun::colorOffset() const {
-    return this->hasW() ? offsetof(SDFT3DVertex, color) : offsetof(Mask2DVertex, color);
+    return this->hasW() ? offsetof(Mask3DVertex, color) : offsetof(Mask2DVertex, color);
 }
 
 size_t GrTextBlob::SubRun::texCoordOffset() const {
     switch (fMaskFormat) {
         case kA8_GrMaskFormat:
-            return this->hasW() ? offsetof(SDFT3DVertex, atlasPos)
+            return this->hasW() ? offsetof(Mask3DVertex, atlasPos)
                                 : offsetof(Mask2DVertex, atlasPos);
         case kARGB_GrMaskFormat:
             return this->hasW() ? offsetof(ARGB3DVertex, atlasPos)
@@ -338,20 +338,20 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     static_assert(alignof(ARGB2DVertex) <= alignof(Mask2DVertex));
     size_t quadSize = sizeof(Mask2DVertex) * kVerticesPerGlyph;
     if (drawMatrix.hasPerspective() || forceWForDistanceFields) {
-        static_assert(sizeof(ARGB3DVertex) <= sizeof(SDFT3DVertex));
-        static_assert(alignof(ARGB3DVertex) <= alignof(SDFT3DVertex));
-        quadSize = sizeof(SDFT3DVertex) * kVerticesPerGlyph;
+        static_assert(sizeof(ARGB3DVertex) <= sizeof(Mask3DVertex));
+        static_assert(alignof(ARGB3DVertex) <= alignof(Mask3DVertex));
+        quadSize = sizeof(Mask3DVertex) * kVerticesPerGlyph;
     }
 
     // We can use the alignment of SDFT3DVertex as a proxy for all Vertex alignments.
-    static_assert(alignof(SDFT3DVertex) >= alignof(Mask2DVertex));
+    static_assert(alignof(Mask3DVertex) >= alignof(Mask2DVertex));
     // Assume there is no padding needed between glyph pointers and vertices.
-    static_assert(alignof(GrGlyph*) >= alignof(SDFT3DVertex));
+    static_assert(alignof(GrGlyph*) >= alignof(Mask3DVertex));
 
     // In the arena, the layout is GrGlyph*... | SDFT3DVertex... | SubRun, so there is no padding
     // between GrGlyph* and SDFT3DVertex, but padding is needed between the Mask2DVertex array
     // and the SubRun.
-    size_t vertexToSubRunPadding = alignof(SDFT3DVertex) - alignof(SubRun);
+    size_t vertexToSubRunPadding = alignof(Mask3DVertex) - alignof(SubRun);
     size_t arenaSize =
             sizeof(GrGlyph*) * glyphRunList.totalGlyphCount()
           + quadSize * glyphRunList.totalGlyphCount()
@@ -401,7 +401,7 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
 size_t GrTextBlob::GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
     switch (maskFormat) {
         case kA8_GrMaskFormat:
-            return hasWCoord ? sizeof(SDFT3DVertex) : sizeof(Mask2DVertex);
+            return hasWCoord ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
         case kARGB_GrMaskFormat:
             return hasWCoord ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
         default:
