@@ -2161,7 +2161,8 @@ GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
+        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        bool withStencil) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
     }
