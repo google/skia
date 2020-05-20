@@ -22,6 +22,30 @@
       "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72327a23_2dc7897f",
+        "filename": "modules/skparagraph/src/Decorations.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-20T18:41:34Z",
+      "side": 1,
+      "message": "It\u0027s not used, it\u0027s for future when I do the decorations.\nDecorations are slightly harder to do and I am going to do it soon... \nBut since it does not matter for performance and Mike wants to see it as soon as possible I would leave decorations out.\nAlso, there is ZERO testing for decorations.",
+      "parentUuid": "f6e86226_9e65bde0",
+      "range": {
+        "startLine": 15,
+        "startChar": 116,
+        "endLine": 15,
+        "endChar": 132
+      },
+      "revId": "28d19754b1b6aa725d35d115e2abff31c38205b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
