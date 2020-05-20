@@ -116,6 +116,7 @@ describe('Core canvas behavior', () => {
                 const imageInfo = {
                     alphaType: CanvasKit.AlphaType.Unpremul,
                     colorType: CanvasKit.ColorType.RGBA_8888,
+                    colorSpace: CanvasKit.SkColorSpace.MakeSRGB(),
                     width: img.width(),
                     height: img.height(),
                 };
@@ -172,7 +173,8 @@ describe('Core canvas behavior', () => {
               0,   0, 255, 255, // opaque blue
             255,   0, 255, 100, // transparent purple
         ]);
-        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888);
+        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888,
+            CanvasKit.SkColorSpace.MakeSRGB());
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
     });
@@ -305,7 +307,8 @@ describe('Core canvas behavior', () => {
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100)
+            CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100),
+            null, // color space
         );
         paint.setShader(rgsSkew);
         r = CanvasKit.LTRBRect(0, 100, 100, 200);
@@ -318,7 +321,8 @@ describe('Core canvas behavior', () => {
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100),
-            1 // interpolate colors in premul
+            1, // interpolate colors in premul
+            null, // color space
         );
         paint.setShader(rgsSkewPremul);
         r = CanvasKit.LTRBRect(100, 100, 200, 200);
@@ -350,7 +354,8 @@ describe('Core canvas behavior', () => {
             [10, 110], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
-            CanvasKit.TileMode.Mirror
+            CanvasKit.TileMode.Mirror,
+            null, // color space
         );
         paint.setShader(cgs);
         let r = CanvasKit.LTRBRect(0, 0, 100, 100);
@@ -365,6 +370,7 @@ describe('Core canvas behavior', () => {
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
             1, // interpolate colors in premul
+            null, // color space
         );
         paint.setShader(cgsPremul);
         r = CanvasKit.LTRBRect(100, 0, 200, 100);
@@ -377,7 +383,8 @@ describe('Core canvas behavior', () => {
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100)
+            CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
+            null, // color space
         );
         paint.setShader(cgs45);
         r = CanvasKit.LTRBRect(0, 100, 100, 200);
@@ -391,7 +398,8 @@ describe('Core canvas behavior', () => {
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
-            1 // interpolate colors in premul
+            1, // interpolate colors in premul
+            null, // color space
         );
         paint.setShader(cgs45Premul);
         r = CanvasKit.LTRBRect(100, 100, 200, 200);
@@ -584,6 +592,87 @@ describe('Core canvas behavior', () => {
         paint.setColor(CanvasKit.Color4f(3.3, 2.2, 1.1, 0.5));
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
     });
+
+    describe('ColorSpace Support', () => {
+        it('Can create an SRGB 8888 surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeSRGB();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.SRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_8888);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+        it('Can create a Display P3 surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeDisplayP3();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.DisplayP3);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+        it('Can create an Adobe RGB surface', () => {
+            const colorSpace = CanvasKit.SkColorSpace.MakeAdobeRGB();
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.AdobeRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            let info = surface.imageInfo()
+            expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
+            expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
+            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+                .toBeTruthy("Surface not created with correct color space.");
+
+            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            expect(pixels).toBeTruthy('Could not read pixels from surface');
+        });
+
+        it('combine draws from several color spaces', () => {
+            const sRGB = CanvasKit.SkColorSpace.MakeSRGB();
+            const displayP3 = CanvasKit.SkColorSpace.MakeDisplayP3();
+            const adobeRGB = CanvasKit.SkColorSpace.MakeAdobeRGB();
+
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SupportedColorSettings.AdobeRGB);
+            expect(surface).toBeTruthy('Could not make surface');
+            if (surface.reportBackendType() !== 'GPU') {
+                console.log('Not expecting color space support in cpu backed suface.');
+                return;
+            }
+            const canvas = surface.getCanvas();
+
+            let paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.RED, adobeRGB);
+            canvas.drawPaint(paint);
+            paint.setColor(CanvasKit.RED, displayP3); // 93.7 in adobeRGB
+            canvas.drawRect(CanvasKit.LTRBRect(200, 0, 400, 600), paint);
+            paint.setColor(CanvasKit.RED, sRGB); // 85.9 in adobeRGB
+            canvas.drawRect(CanvasKit.LTRBRect(400, 0, 600, 600), paint);
+
+            // this test paints three bands of red, each the maximum red that a color space supports.
+            // They are each represented by skia by some color in the Adobe RGB space of the surface,
+            // as floats between 0 and 1.
+
+            // TODO(nifong) readpixels and verify correctness after f32 readpixels bug is fixed
+        });
+    }); // end describe('ColorSpace Support')
 
     describe('DOMMatrix support', () => {
         gm('sweep_gradient_dommatrix', (canvas) => {
