@@ -259,6 +259,13 @@ var CanvasKit = {
     scaled: function() {},
   },
 
+  SkColorSpace: {
+    Equals: function() {},
+    MakeSRGB: function() {},
+    MakeDisplayP3: function() {},
+    MakeAdobeRGB: function() {},
+  },
+
   SkContourMeasureIter: {
     next: function() {},
   },
@@ -520,6 +527,7 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.SkCanvas} */
     getCanvas: function() {},
+    imageInfo: function() {},
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},
@@ -769,6 +777,12 @@ var CanvasKit = {
     Miter: {},
     Round: {},
     Bevel: {},
+  },
+
+  SupportedColorSettings: {
+    SRGB: {},
+    DisplayP3: {},
+    AdobeRGB: {},
   },
 
   TextAlign: {
