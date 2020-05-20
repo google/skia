@@ -22,6 +22,30 @@
       "revId": "0037d7edc94ae3b915c25bb2791924808fd8ebdd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93580139_b22f4377",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-20T17:31:09Z",
+      "side": 1,
+      "message": "This is a value struct, and the f does not add understanding.",
+      "parentUuid": "c7aba10b_f5dc22ee",
+      "range": {
+        "startLine": 141,
+        "startChar": 17,
+        "endLine": 141,
+        "endChar": 18
+      },
+      "revId": "0037d7edc94ae3b915c25bb2791924808fd8ebdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
