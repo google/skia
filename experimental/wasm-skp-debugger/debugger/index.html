@@ -10,7 +10,7 @@ let surface;
 
 DebuggerInit({
   locateFile: (file) => '/node_modules/debugger/bin/'+file,
-}).ready().then((Debugger) => {
+}).then((Debugger) => {
   const player = new Debugger.SkpDebugPlayer();
 
   // Define an event handler for the file input dialog
