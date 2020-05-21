@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "59790970_ba2e0df0",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T20:31:24Z",
+      "side": 1,
+      "message": "Yep, today GrRTC doesn\u0027t take an alpha type and we assume its kPremul.",
+      "parentUuid": "d2050b27_7aa9ebb2",
+      "range": {
+        "startLine": 245,
+        "startChar": 10,
+        "endLine": 245,
+        "endChar": 14
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10022b9c_9be0960a",
         "filename": "gm/windowrectangles.cpp",
         "patchSetId": 10
