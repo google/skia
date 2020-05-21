@@ -209,8 +209,7 @@ void SkGpuDevice::clearAll() {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
 
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fRenderTargetContext->clear(&rect, SK_PMColor4fTRANSPARENT,
-                                GrRenderTargetContext::CanClearFullscreen::kYes);
+    fRenderTargetContext->priv().clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
 }
 
 void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext> rtc,

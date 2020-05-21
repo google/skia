@@ -394,8 +394,7 @@ public:
                 nullptr);
 
         // clear the atlas
-        rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                   GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(SK_PMColor4fTRANSPARENT);
 
         int blocksInAtlas = 0;
         for (int i = 0; i < lists.count(); ++i) {
@@ -405,7 +404,7 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color(), GrRenderTargetContext::CanClearFullscreen::kNo);
+                rtc->clear(r, op->color());
 #else
                 GrPaint paint;
                 paint.setColor4f(op->color());
@@ -470,7 +469,7 @@ static GrSurfaceProxyView make_upstream_image(GrContext* context, AtlasObject* o
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {3 * kDrawnTileSize, kDrawnTileSize});
 
-    rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear({ 1, 0, 0, 1 });
 
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
@@ -584,7 +583,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kFinalWidth, kFinalHeight});
 
-    rtc->clear(nullptr, SK_PMColor4fWHITE, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(SK_PMColor4fWHITE);
 
     // Note that this doesn't include the third texture proxy
     for (int i = 0; i < kNumViews - 1; ++i) {

@@ -148,22 +148,17 @@ public:
      */
     void discard();
 
-    enum class CanClearFullscreen : bool {
-        kNo = false,
-        kYes = true
-    };
-
     /**
-     * Clear the entire or rect of the render target, ignoring any clips.
-     * @param rect  the rect to clear or the whole thing if rect is NULL.
+     * Clear the rect of the render target to the given color.
+     * @param rect  the rect to clear to
      * @param color the color to clear to.
-     * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
-     *                           tiling platforms where that is an optimization.
      */
-    void clear(const SkIRect* rect, const SkPMColor4f& color, CanClearFullscreen);
-
+    void clear(const SkIRect& rect, const SkPMColor4f& color) {
+        this->internalClear(&rect, color);
+    }
+    // Clears the entire render target to the color.
     void clear(const SkPMColor4f& color) {
-        return this->clear(nullptr, color, CanClearFullscreen::kYes);
+        this->internalClear(nullptr, color);
     }
 
     /**
@@ -622,8 +617,9 @@ private:
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
 
-    void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
-    void internalStencilClear(const GrFixedClip&, bool insideStencilMask);
+    void internalClear(const SkIRect* scissor, const SkPMColor4f&,
+                       bool upgradePartialToFull = false);
+    void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
 
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,

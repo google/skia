@@ -354,7 +354,7 @@ DrawResult SampleLocationsGM::onDraw(
             0xffff>()
     );
 
-    offscreenRTC->clear(nullptr, {0,1,0,1}, GrRenderTargetContext::CanClearFullscreen::kYes);
+    offscreenRTC->clear({0,1,0,1});
 
     // Stencil.
     offscreenRTC->priv().testingOnly_addDrawOp(
