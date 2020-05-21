@@ -9,6 +9,8 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Move SkBitmapRegionDecoder into client_utils/android.
+
   * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
     This factory existed to work around issues with GL_TEXTURE_RECTANGLE that existed
     in Chrome's command buffer. Those issues have since been resolved. Use

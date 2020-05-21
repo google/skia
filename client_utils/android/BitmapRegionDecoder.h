@@ -9,8 +9,6 @@
 #define BitmapRegionDecoder_DEFINED
 
 #include "client_utils/android/BRDAllocator.h"
-// Temporary, until Android switches to the new class.
-#include "include/android/SkBitmapRegionDecoder.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
@@ -18,33 +16,33 @@
 namespace android {
 namespace skia {
 
-class BitmapRegionDecoder final : public SkBitmapRegionDecoder {
+class BitmapRegionDecoder final {
 public:
     static std::unique_ptr<BitmapRegionDecoder> Make(sk_sp<SkData> data);
 
     bool decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator,
                       const SkIRect& desiredSubset, int sampleSize,
                       SkColorType colorType, bool requireUnpremul,
-                      sk_sp<SkColorSpace> prefColorSpace) override;
+                      sk_sp<SkColorSpace> prefColorSpace);
 
-    SkEncodedImageFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
+    SkEncodedImageFormat getEncodedFormat() { return fCodec->getEncodedFormat(); }
 
-    SkColorType computeOutputColorType(SkColorType requestedColorType) override {
+    SkColorType computeOutputColorType(SkColorType requestedColorType) {
         return fCodec->computeOutputColorType(requestedColorType);
     }
 
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
-            sk_sp<SkColorSpace> prefColorSpace = nullptr) override {
+            sk_sp<SkColorSpace> prefColorSpace = nullptr) {
         return fCodec->computeOutputColorSpace(outputColorType, prefColorSpace);
     }
+
+    int width() const;
+    int height() const;
 
 private:
     BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec);
 
     std::unique_ptr<SkAndroidCodec> fCodec;
-
-    typedef SkBitmapRegionDecoder INHERITED;
-
 };
 
 } // namespace skia
