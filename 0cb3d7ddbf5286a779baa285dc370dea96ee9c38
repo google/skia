@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "23c82603_15a2a090",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T15:43:30Z",
+      "side": 1,
+      "message": "Yep, my next CL changes the clear function signature and then GrStencilMaskHelper will choose between doing a draw (window rects) or a clear (no window rects).",
+      "parentUuid": "8477af54_31423721",
+      "range": {
+        "startLine": 984,
+        "startChar": 28,
+        "endLine": 985,
+        "endChar": 52
+      },
+      "revId": "0cb3d7ddbf5286a779baa285dc370dea96ee9c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "756c033f_706b7f61",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 11
@@ -39,6 +63,24 @@
       "revId": "0cb3d7ddbf5286a779baa285dc370dea96ee9c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f7d0a8_4070decc",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T15:43:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "756c033f_706b7f61",
+      "revId": "0cb3d7ddbf5286a779baa285dc370dea96ee9c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
