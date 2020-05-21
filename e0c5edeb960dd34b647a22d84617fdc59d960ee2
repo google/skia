@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90b37945_1117256f",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T20:37:56Z",
+      "side": 1,
+      "message": "additional cleanup:\nWe can use backticks `` and multi line strings here, which makes for easier editing, IMO\n\nBoth for EffectCode and Code",
+      "revId": "e0c5edeb960dd34b647a22d84617fdc59d960ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
