@@ -479,8 +479,7 @@ void GrRenderTargetContext::discard() {
 }
 
 SkIRect GrRenderTargetContext::getClipBounds(const GrClip* clip) const {
-    return clip ? clip->getConservativeBounds(this->width(), this->height())
-                : SkIRect::MakeSize(this->dimensions());
+    return clip ? clip->getConservativeBounds() : SkIRect::MakeSize(this->dimensions());
 }
 
 static void clear_to_grpaint(const SkPMColor4f& color, GrPaint* paint) {
@@ -670,7 +669,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     GrAA clipAA = stencilSettings ? *aa : GrAA::kNo;
     bool axisAlignedClip = true;
     if (clip && !clip->quickContains(rtRect)) {
-        if (!clip->isRRect(rtRect, &clipRRect, &clipAA)) {
+        if (!clip->isRRect(&clipRRect, &clipAA)) {
             axisAlignedClip = false;
         }
     }
@@ -986,8 +985,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
     // during this clip application.
     GrAppliedHardClip appliedClip(fRenderTargetContext->asSurfaceProxy()->backingStoreDimensions());
-    if (clip && !clip->apply(fRenderTargetContext->width(), fRenderTargetContext->height(),
-                             &appliedClip, &bounds)) {
+    if (clip && !clip->apply(&appliedClip, &bounds)) {
         return;
     }
     // else see FIXME above; we'd normally want to check path bounds with render target bounds,

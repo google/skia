@@ -130,7 +130,7 @@ static SkIRect determine_clipped_src_rect(int width, int height,
                                           const SkMatrix& srcToDstRect,
                                           const SkISize& imageDimensions,
                                           const SkRect* srcRectPtr) {
-    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds(width, height)
+    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds()
                                    : SkIRect::MakeWH(width, height);
     SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
     if (!inv.invert(&inv)) {
