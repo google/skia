@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cc95552_3d34ff9f",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:08:41Z",
+      "side": 1,
+      "message": "Excellent, thank you.\n\nTwo notes after looking at this in Gold:\n1) draw a background first (canvas.clear(CanvasKit.WHITE)) (or maybe a light-grey)\n2) Maybe label the rows/columns with the blendModeName (using CanvasKit.drawText) so the gm is a bit self-documented?",
+      "range": {
+        "startLine": 260,
+        "startChar": 38,
+        "endLine": 260,
+        "endChar": 48
+      },
+      "revId": "589907cf145774392eb129687087da9f7d0d50bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
