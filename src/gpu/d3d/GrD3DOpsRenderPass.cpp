@@ -107,6 +107,7 @@ void set_primitive_topology(GrD3DGpu* gpu, const GrProgramInfo& info) {
         default:
             SkUNREACHABLE;
     }
+    gpu->currentCommandList()->setPrimitiveTopology(topology);
 }
 
 void set_scissor_rects(GrD3DGpu* gpu, const GrRenderTarget* renderTarget, GrSurfaceOrigin rtOrigin,
@@ -156,6 +157,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     }
 
     fCurrentPipelineState->setData(fRenderTarget, info);
+    fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
 
     // TODO: bind uniforms (either a new method or in pipelineState->setData())
@@ -215,6 +217,21 @@ void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
     // TODO: do we need a memory barrier here?
 
     fCurrentPipelineState->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, currCmdList);
+}
+
+void GrD3DOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                                            int baseVertex) {
+    SkASSERT(fCurrentPipelineState);
+    fGpu->currentCommandList()->drawInstanced(vertexCount, instanceCount, baseVertex, baseInstance);
+    fGpu->stats()->incNumDraws();
+}
+
+void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
+                                                int baseInstance, int baseVertex) {
+    SkASSERT(fCurrentPipelineState);
+    fGpu->currentCommandList()->drawIndexedInstanced(indexCount, instanceCount, baseIndex,
+                                                     baseVertex, baseInstance);
+    fGpu->stats()->incNumDraws();
 }
 
 void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
