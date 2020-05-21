@@ -126,7 +126,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
         , fRenderTargetContext(std::move(renderTargetContext))
-        , fClip(&this->cs()) {
+        , fClip(fRenderTargetContext->dimensions(), &this->cs()) {
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
@@ -725,7 +725,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
                 SkClipStack dstRectClip(this->cs());
                 dstRectClip.clipDevRect(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
                                  SkClipOp::kIntersect);
-                GrClipStackClip clip(&dstRectClip);
+                GrClipStackClip clip(fRenderTargetContext->dimensions(), &dstRectClip);
                 SkMatrix local = SkMatrix::Concat(SkMatrix::MakeRectToRect(
                         dstRect, srcRect, SkMatrix::kFill_ScaleToFit), ctm);
                 fRenderTargetContext->fillRectWithLocalMatrix(&clip, std::move(grPaint),
