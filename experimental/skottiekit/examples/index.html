@@ -14,7 +14,7 @@
     // loadKit resolves with SkottieKit.
     const loadKit = SkottieKitInit({
       locateFile: (file) => '/bin/'+file,
-    }).ready();
+    });
 
     loadKit.then(() => {
       const n = performance.now();

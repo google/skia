@@ -36,7 +36,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
 
       const loadKit = CanvasKitInit({
         locateFile: (file) => '/static/' + file,
-      }).ready();
+      });
 
       const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
         return resp.text()
