@@ -18,7 +18,7 @@
           'alpha': get(attrs, 'alpha', 1),
           'depth': get(attrs, 'depth', 1),
           'stencil': get(attrs, 'stencil', 8),
-          'antialias': get(attrs, 'antialias', 1),
+          'antialias': get(attrs, 'antialias', 0),
           'premultipliedAlpha': get(attrs, 'premultipliedAlpha', 1),
           'preserveDrawingBuffer': get(attrs, 'preserveDrawingBuffer', 0),
           'preferLowPowerToHighPerformance': get(attrs, 'preferLowPowerToHighPerformance', 0),
