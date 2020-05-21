@@ -123,7 +123,7 @@ public:
      */
     std::unique_ptr<GrRenderTargetContext> rescale(const GrImageInfo& info,
                                                    GrSurfaceOrigin,
-                                                   const SkIRect& srcRect,
+                                                   SkIRect srcRect,
                                                    SkSurface::RescaleGamma,
                                                    SkFilterQuality);
 
