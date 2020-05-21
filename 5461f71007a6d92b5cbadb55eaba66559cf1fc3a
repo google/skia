@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4fd7919_d0c5d897",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2632,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-21T19:58:28Z",
+      "side": 1,
+      "message": "paper trail?\n\n// Currently can overflow if we see too many glyphs in one draw, so we artifically\n// abort if we see more than N...\n// TODO: can consider unrolling a few at a time if this limit becomes a problem.",
+      "range": {
+        "startLine": 2632,
+        "startChar": 0,
+        "endLine": 2632,
+        "endChar": 0
+      },
+      "revId": "5461f71007a6d92b5cbadb55eaba66559cf1fc3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
