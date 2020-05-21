@@ -10,16 +10,16 @@ To use the library, run `npm install canvaskit-wasm` and then simply include it:
     <script src="/node_modules/canvaskit-wasm/bin/canvaskit.js"></script>
     CanvasKitInit({
         locateFile: (file) => '/node_modules/canvaskit-wasm/bin/'+file,
-    }).ready().then((CanvasKit) => {
+    }).then((CanvasKit) => {
         // Code goes here using CanvasKit
     });
 
 As with all npm packages, there's a freely available CDN via unpkg.com:
 
-    <script src="https://unpkg.com/canvaskit-wasm@0.3.0/bin/canvaskit.js"></script>
+    <script src="https://unpkg.com/canvaskit-wasm@0.16.0/bin/canvaskit.js"></script>
     CanvasKitInit({
-         locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.3.0/bin/'+file,
-    }).ready().then(...)
+         locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.16.0/bin/'+file,
+    }).then(...)
 
 ## Node
 To use CanvasKit in Node, it's similar to the browser:
@@ -27,7 +27,7 @@ To use CanvasKit in Node, it's similar to the browser:
     const CanvasKitInit = require('/node_modules/canvaskit-wasm/bin/canvaskit.js');
     CanvasKitInit({
         locateFile: (file) => __dirname + '/bin/'+file,
-    }).ready().then((CanvasKit) => {
+    }).then((CanvasKit) => {
         // Code goes here using CanvasKit
     });
 
@@ -41,7 +41,7 @@ used with a few configuration changes.
 In the JS code, use require():
 
     const CanvasKitInit = require('canvaskit-wasm/bin/canvaskit.js')
-    CanvasKitInit().ready().then((CanvasKit) => {
+    CanvasKitInit().then((CanvasKit) => {
         // Code goes here using CanvasKit
     });
 
