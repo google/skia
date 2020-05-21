@@ -590,7 +590,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     for (int i = 0; i < kNumViews - 1; ++i) {
         SkRect r = SkRect::MakeXYWH(i*3*kDrawnTileSize, 0, 3*kDrawnTileSize, kDrawnTileSize);
 
-        SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
+        SkMatrix t = SkMatrix::Translate(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
         auto fp = GrTextureEffect::Make(std::move(views[i]), kPremul_SkAlphaType, t);

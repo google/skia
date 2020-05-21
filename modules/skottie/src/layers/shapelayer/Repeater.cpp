@@ -49,7 +49,7 @@ private:
             const auto t = fOffset + index;
 
             // Position, scale & rotation are "scaled" by index/offset.
-            SkMatrix m = SkMatrix::MakeTrans(-fAnchorPoint.x,
+            SkMatrix m = SkMatrix::Translate(-fAnchorPoint.x,
                                              -fAnchorPoint.y);
             m.postScale(std::pow(fScale.x * .01f, fOffset),
                         std::pow(fScale.y * .01f, fOffset));

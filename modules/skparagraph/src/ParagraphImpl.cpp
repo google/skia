@@ -234,7 +234,7 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         fState = kDrawn;
     }
 
-    SkMatrix matrix = SkMatrix::MakeTrans(x + fOrigin.fLeft, y + fOrigin.fTop);
+    SkMatrix matrix = SkMatrix::Translate(x + fOrigin.fLeft, y + fOrigin.fTop);
     canvas->drawPicture(fPicture, &matrix, nullptr);
 }
 

@@ -338,7 +338,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         }
         const auto isProtected = colorView.proxy()->isProtected();
 
-        SkMatrix offsetMatrix = SkMatrix::MakeTrans(SkIntToScalar(colorOffset.fX - displOffset.fX),
+        SkMatrix offsetMatrix = SkMatrix::Translate(SkIntToScalar(colorOffset.fX - displOffset.fX),
                                                     SkIntToScalar(colorOffset.fY - displOffset.fY));
 
         std::unique_ptr<GrFragmentProcessor> fp =
@@ -472,12 +472,12 @@ std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::Make(SkColorChanne
                                                   GrSamplerState::Filter::kNearest);
     auto colorEffect = GrTextureEffect::MakeSubset(std::move(color),
                                                    kPremul_SkAlphaType,
-                                                   SkMatrix::MakeTrans(colorSubset.topLeft()),
+                                                   SkMatrix::Translate(colorSubset.topLeft()),
                                                    kColorSampler,
                                                    SkRect::Make(colorSubset),
                                                    caps);
 
-    auto dispM = SkMatrix::Concat(SkMatrix::MakeTrans(displSubset.topLeft()), offsetMatrix);
+    auto dispM = SkMatrix::Concat(SkMatrix::Translate(displSubset.topLeft()), offsetMatrix);
     auto dispEffect = GrTextureEffect::Make(std::move(displacement),
                                             kPremul_SkAlphaType,
                                             dispM,

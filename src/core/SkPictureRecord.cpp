@@ -241,11 +241,11 @@ void SkPictureRecord::didConcat44(const SkM44& m) {
 }
 
 void SkPictureRecord::didScale(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeScale(x, y));
+    this->didConcat(SkMatrix::Scale(x, y));
 }
 
 void SkPictureRecord::didTranslate(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeTrans(x, y));
+    this->didConcat(SkMatrix::Translate(x, y));
 }
 
 void SkPictureRecord::didConcat(const SkMatrix& matrix) {

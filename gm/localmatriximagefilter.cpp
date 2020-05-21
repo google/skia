@@ -59,9 +59,9 @@ DEF_SIMPLE_GM(localmatriximagefilter, canvas, 640, 640) {
     };
 
     const SkMatrix matrices[] = {
-        SkMatrix::MakeScale(SK_ScalarHalf, SK_ScalarHalf),
-        SkMatrix::MakeScale(2, 2),
-        SkMatrix::MakeTrans(10, 10)
+        SkMatrix::Scale(SK_ScalarHalf, SK_ScalarHalf),
+        SkMatrix::Scale(2, 2),
+        SkMatrix::Translate(10, 10)
     };
 
     const SkScalar spacer = image0->width() * 3.0f / 2;

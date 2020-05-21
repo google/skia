@@ -74,8 +74,8 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
         },
     };
 
-    static const auto inner = SkMatrix::MakeScale(2, 2),
-                      outer = SkMatrix::MakeTrans(20, 20);
+    static const auto inner = SkMatrix::Scale(2, 2),
+                      outer = SkMatrix::Translate(20, 20);
 
     SkPaint border;
     border.setAntiAlias(true);

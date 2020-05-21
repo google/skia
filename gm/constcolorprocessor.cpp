@@ -101,7 +101,7 @@ protected:
                     // translate by x,y for the canvas draws and the test target draws.
                     canvas->save();
                     canvas->translate(x, y);
-                    const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
+                    const SkMatrix viewMatrix = SkMatrix::Translate(x, y);
                     SkSimpleMatrixProvider matrixProvider(viewMatrix);
 
                     // rect to draw

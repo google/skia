@@ -92,10 +92,10 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize 
     }
 
     if (!fSimple) {
-        fMatrix = SkMatrix::MakeTrans(-fCropRect.fLeft, -fCropRect.fTop);
+        fMatrix = SkMatrix::Translate(-fCropRect.fLeft, -fCropRect.fTop);
         float scaleX = (float) fScaledSize.width()  / fDecodeInfo.width();
         float scaleY = (float) fScaledSize.height() / fDecodeInfo.height();
-        fMatrix.preConcat(SkMatrix::MakeScale(scaleX, scaleY));
+        fMatrix.preConcat(SkMatrix::Scale(scaleX, scaleY));
     }
     this->decodeNextFrame();
 }

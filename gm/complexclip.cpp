@@ -239,7 +239,7 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     canvas->translate(img->width() + 10, img->height() + 10);
     canvas->clipShader(sh, SkClipOp::kIntersect);
     canvas->save();
-    SkMatrix lm = SkMatrix::MakeScale(1.0f / 5);
+    SkMatrix lm = SkMatrix::Scale(1.0f/5, 1.0f/5);
     canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm));
     canvas->drawImage(img, 0, 0, nullptr);
 

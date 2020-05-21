@@ -143,7 +143,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
         for (int t = 0; t < kSkTileModeCount; ++t) {
             auto mode = static_cast<SkTileMode>(t);
             GrSamplerState sampler(SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest);
-            SkMatrix m = SkMatrix::MakeTrans(trans.x() - testArea.x(), trans.y() - testArea.y());
+            SkMatrix m = SkMatrix::Translate(trans.x() - testArea.x(), trans.y() - testArea.y());
             // Draw the src subset in the tile mode faded as a reference before drawing the blur
             // on top.
             {
@@ -169,7 +169,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                 refSrc->clear(SK_PMColor4fWHITE);
                 // Setup an effect to put the original src rect at the correct logical place
                 // in the temp where the temp's origin is at the top left of refRect.
-                SkMatrix tm = SkMatrix::MakeTrans(refRect.left(), refRect.top());
+                SkMatrix tm = SkMatrix::Translate(refRect.left(), refRect.top());
                 auto fp = GrTextureEffect::MakeSubset(src, kPremul_SkAlphaType, tm, sampler,
                                                       SkRect::Make(srcRect), caps);
                 GrPaint paint;

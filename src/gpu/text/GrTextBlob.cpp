@@ -520,8 +520,8 @@ void GrTextBlob::addOp(GrTextTarget* target,
 
             // Calculate the matrix that maps the path glyphs from their size in the strike to
             // the graphics source space.
-            SkMatrix strikeToSource = SkMatrix::MakeScale(
-                    subRun->fStrikeSpec.strikeToSourceRatio());
+            SkScalar scale = subRun->fStrikeSpec.strikeToSourceRatio();
+            SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
             strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
             if (!needsExactCTM) {
                 for (const auto& pathPos : subRun->fPaths) {

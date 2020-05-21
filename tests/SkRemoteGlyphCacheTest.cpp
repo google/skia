@@ -686,7 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkFont font;
 
     // A scale transform forces fallback to dft.
-    SkMatrix matrix = SkMatrix::MakeScale(16);
+    SkMatrix matrix = SkMatrix::Scale(16, 16);
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
     GrTextContext::Options options;
     GrTextContext::SanitizeOptions(&options);

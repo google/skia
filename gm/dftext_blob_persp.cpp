@@ -131,8 +131,8 @@ private:
                 persp.setPerspY(-0.0015f);
                 break;
         }
-        persp = SkMatrix::Concat(persp, SkMatrix::MakeTrans(-x, -y));
-        persp = SkMatrix::Concat(SkMatrix::MakeTrans(x, y), persp);
+        persp = SkMatrix::Concat(persp, SkMatrix::Translate(-x, -y));
+        persp = SkMatrix::Concat(SkMatrix::Translate(x, y), persp);
         canvas->concat(persp);
         if (TranslateWithMatrix::kYes == translateWithMatrix) {
             canvas->translate(x, y);

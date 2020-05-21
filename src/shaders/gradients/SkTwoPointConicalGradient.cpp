@@ -62,7 +62,7 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
         }
         // Concentric case: we can pretend we're radial (with a tiny twist).
         const SkScalar scale = sk_ieee_float_divide(1, std::max(r0, r1));
-        gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
+        gradientMatrix = SkMatrix::Translate(-c1.x(), -c1.y());
         gradientMatrix.postScale(scale, scale);
 
         gradientType = Type::kRadial;
@@ -188,8 +188,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         auto scale =  std::max(fRadius1, fRadius2) / dRadius;
         auto bias  = -fRadius1 / dRadius;
 
-        p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
-                                                 SkMatrix::MakeScale(scale, 1)));
+        p->append_matrix(alloc, SkMatrix::Translate(bias, 0) * SkMatrix::Scale(scale, 1));
         return;
     }
 

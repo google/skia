@@ -74,7 +74,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
                 dimensions.height() == yDimensions.height() / 2 + 1) {
                 sy = 0.5f;
             }
-            *planeMatrix.writable() = SkMatrix::MakeScale(sx, sy);
+            *planeMatrix.writable() = SkMatrix::Scale(sx, sy);
             planeMatrix.writable()->preConcat(localMatrix);
             planeFilter = subsampledPlaneFilterMode;
             if (subset) {

@@ -121,7 +121,7 @@ protected:
             SkScalar x = 0;
 
             for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
-                const SkMatrix m = SkMatrix::MakeTrans(x, y);
+                const SkMatrix m = SkMatrix::Translate(x, y);
                 SkPath p;
                 path->transform(m, &p);
 
