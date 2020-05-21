@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8465e91_542a709c",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-21T18:54:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52a32338_e77c60b8",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 927,
+        "endChar": 38
+      },
+      "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "873e9cd3_4a4de01e",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0307e81f_c5d94b9e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-21T18:54:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "873e9cd3_4a4de01e",
+      "range": {
+        "startLine": 13,
+        "startChar": 25,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
