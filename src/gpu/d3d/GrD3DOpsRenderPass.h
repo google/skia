@@ -56,9 +56,9 @@ private:
     void onDrawIndirect(const GrBuffer*, size_t offset, int drawCount) override {}
     void onDrawIndexedIndirect(const GrBuffer*, size_t offset, int drawCount) override {}
 
-    void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
 
-    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override {}
 
     GrD3DGpu* fGpu;
 

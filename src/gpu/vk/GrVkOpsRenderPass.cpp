@@ -265,13 +265,11 @@ bool GrVkOpsRenderPass::wrapsSecondaryCommandBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrVkOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
-
-    SkASSERT(!clip.hasWindowRectangles());
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
@@ -293,14 +291,13 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideS
     VkClearRect clearRect;
     // Flip rect if necessary
     SkIRect vkRect;
-    if (!clip.scissorEnabled()) {
+    if (!scissor.enabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
     } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
-        vkRect = clip.scissorRect();
+        vkRect = scissor.rect();
     } else {
-        const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
-                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.rect().fLeft, fRenderTarget->height() - scissor.rect().fBottom,
+                       scissor.rect().fRight, fRenderTarget->height() - scissor.rect().fTop);
     }
 
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
@@ -321,14 +318,11 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideS
     fCurrentCBIsEmpty = false;
 }
 
-void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
-
-    // parent class should never let us get here with no RT
-    SkASSERT(!clip.hasWindowRectangles());
 
     VkClearColorValue vkColor = {{color.fR, color.fG, color.fB, color.fA}};
 
@@ -338,20 +332,19 @@ void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& colo
     // load op (e.g. if we needed to execute a wait op). Thus we also have the empty check here.
     // TODO: Make the waitOp a RenderTask instead so we can clear out the GrOpsTask for a clear. We
     // can then reenable this assert assuming we can't get messed up by a waitOp.
-    //SkASSERT(!fCurrentCBIsEmpty || clip.scissorEnabled());
+    //SkASSERT(!fCurrentCBIsEmpty || scissor);
 
     // We always do a sub rect clear with clearAttachments since we are inside a render pass
     VkClearRect clearRect;
     // Flip rect if necessary
     SkIRect vkRect;
-    if (!clip.scissorEnabled()) {
+    if (!scissor.enabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
     } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
-        vkRect = clip.scissorRect();
+        vkRect = scissor.rect();
     } else {
-        const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
-                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.rect().fLeft, fRenderTarget->height() - scissor.rect().fBottom,
+                       scissor.rect().fRight, fRenderTarget->height() - scissor.rect().fTop);
     }
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
     clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
@@ -682,4 +675,3 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
     drawable->draw(info);
     fGpu->addDrawable(std::move(drawable));
 }
-

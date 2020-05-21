@@ -46,8 +46,7 @@ GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
 
 void GrD3DOpsRenderPass::onBegin() {
     if (GrLoadOp::kClear == fColorLoadOp) {
-        GrFixedClip clip;
-        fGpu->clear(clip, fClearColor, fRenderTarget);
+        fGpu->clear(GrScissorState(), fClearColor, fRenderTarget);
     }
 }
 
@@ -234,6 +233,6 @@ void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, i
     fGpu->stats()->incNumDraws();
 }
 
-void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    fGpu->clear(clip, color, fRenderTarget);
+void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+    fGpu->clear(scissor, color, fRenderTarget);
 }
