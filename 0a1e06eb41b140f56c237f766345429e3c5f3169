@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d2050b27_7aa9ebb2",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:18:54Z",
+      "side": 1,
+      "message": "I could add an SK_PMColor4fBLACK, I\u0027d rather not add the overload since most use of separate R,G,B,A fields would be in our own tests and an initializer list isn\u0027t that hard to read. It\u0027s definitely important that we preserve the expectation that the color is premul.\n\nRegarding Brian\u0027s comments, I like that currently the type is consistent with the color type of GrPaint. I think this would mean that if we have other alpha types for a GrRTC, we\u0027d correct the values to maintain expectations. Do all GrRTCs have kPremul currently?",
+      "parentUuid": "4f03f374_f03e4382",
+      "range": {
+        "startLine": 245,
+        "startChar": 10,
+        "endLine": 245,
+        "endChar": 14
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10022b9c_9be0960a",
         "filename": "gm/windowrectangles.cpp",
         "patchSetId": 10
@@ -60,6 +84,24 @@
       "writtenOn": "2020-05-21T18:54:54Z",
       "side": 1,
       "message": "Will this turn into a scissored clear when the backing size is larger than the logical size?",
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9190c11a_29eb31b6",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:18:54Z",
+      "side": 1,
+      "message": "Currently yes, we could add a check that says if we\u0027re writing 0s to the stencil then turn a logical dimension clear into a full backing store clear. I don\u0027t think it\u0027d be right to allow writing 1s into that padded content.",
+      "parentUuid": "10022b9c_9be0960a",
       "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -83,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "6f94475a_ac2df7a0",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:18:54Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "582908b1_9ce3292e",
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c6958b8_63fbcd83",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -94,6 +154,30 @@
       "writtenOn": "2020-05-21T18:54:54Z",
       "side": 1,
       "message": "What about scratch textures? Would it be cheaper on some devices to scissor the logical bounds rather than clearing the whole thing?",
+      "range": {
+        "startLine": 520,
+        "startChar": 9,
+        "endLine": 520,
+        "endChar": 15
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0922404_1de5ed49",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:18:54Z",
+      "side": 1,
+      "message": "quite possibly. This is maintaining existing behavior, but we can experiment with changing the policy to scissor more at the end. We have the same question when doing regular drawing into a scratch render target. Would scissoring to the logical bounds to reduce potential overdraw be worth it? vs. no test enabled but hitting extra pixels.",
+      "parentUuid": "3c6958b8_63fbcd83",
       "range": {
         "startLine": 520,
         "startChar": 9,
