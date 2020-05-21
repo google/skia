@@ -46,6 +46,30 @@
       "revId": "e1dc9a30c61e66ecdcb01077e372ddfe5b4abff8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed8e8b03_45278b94",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T23:20:15Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure it came from the Chrome implementation but I don\u0027t know why it was done this way. In neither case are the intermediate sizes guaranteed to be powers of two. The old implementation snapped to the largest power of two *multiple* of the final size that is smaller than the initial size. Maybe it had something to do with the custom multistep shaders? I\u0027d have to refamiliarize myself with how those worked.\n\nIf a step goes smaller than ceil(prev-width/2) with bilerp then some pixels from the prev step wont contribute to the next step.",
+      "parentUuid": "defdc30a_d2e9e424",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 82
+      },
+      "revId": "e1dc9a30c61e66ecdcb01077e372ddfe5b4abff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
