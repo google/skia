@@ -175,10 +175,10 @@ protected:
         rotate.setRotate(25.f);
         static const SkMatrix kMatrices[]{
                 SkMatrix::I(),
-                SkMatrix::MakeScale(1.2f),
+            SkMatrix::Scale(1.2f, 1.2f),
                 SkMatrix::MakeAll(1, 0, 0, 0, -1, 0, 0, 0, 1),  // y flipper
                 SkMatrix::MakeAll(-1, 0, 0, 0, 1, 0, 0, 0, 1),  // x flipper
-                SkMatrix::MakeScale(0.7f),
+            SkMatrix::Scale(0.7f, 0.7f),
                 rotate,
                 SkMatrix::Concat(
                         SkMatrix::Concat(SkMatrix::MakeAll(-1, 0, 0, 0, 1, 0, 0, 0, 1), rotate),

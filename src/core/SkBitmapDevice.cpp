@@ -574,7 +574,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fRC = &fRCStack.rc();
         paint.writable()->setShader(src->fBitmap.makeShader());
         draw.drawBitmap(*src->fCoverage.get(),
-                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
+                        SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
     } else {
         BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);
     }
@@ -628,7 +628,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     if (SkImageFilter* filter = paint->getImageFilter()) {
         SkIPoint offset = SkIPoint::Make(0, 0);
         const SkMatrix matrix = SkMatrix::Concat(
-            SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->localToDevice());
+            SkMatrix::Translate(SkIntToScalar(-x), SkIntToScalar(-y)), this->localToDevice());
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), fBitmap.colorType(),
@@ -679,7 +679,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
         // (while compensating in the shader matrix).
         mask = sk_ref_sp(clipImage);
         maskMatrix = totalMatrix;
-        shaderMatrix = SkMatrix::Concat(totalInverse, SkMatrix::MakeTrans(x, y));
+        shaderMatrix = totalInverse * SkMatrix::Translate(x, y);
 
         // If the mask is not fully contained within the src layer, we must clip.
         if (!srcBounds.contains(clipBounds)) {
@@ -698,7 +698,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
         mask = surf->makeImageSnapshot();
         maskMatrix = SkMatrix::I();
-        shaderMatrix = SkMatrix::MakeTrans(x - maskBounds.x(), y - maskBounds.y());
+        shaderMatrix = SkMatrix::Translate(x - maskBounds.x(), y - maskBounds.y());
     }
 
     SkAutoDeviceTransformRestore adr(this, maskMatrix);

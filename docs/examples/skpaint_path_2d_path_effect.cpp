@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
         path.lineTo(pts[i] * scale, pts[i + 1] * scale);
     }
     path.close();
-    SkMatrix matrix = SkMatrix::MakeScale(4 * scale);
+    SkMatrix matrix = SkMatrix::Scale(4 * scale, 4 * scale);
     SkPaint paint;
     paint.setPathEffect(SkPath2DPathEffect::Make(matrix, path));
     paint.setAntiAlias(true);
