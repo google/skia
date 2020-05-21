@@ -16,6 +16,24 @@
       "revId": "ee332f660baff2bbee0a146cb2eddf1e07b93038",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5d3cf35_c1ac2b48",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-21T01:32:03Z",
+      "side": 1,
+      "message": "Understood. I think I prefer it next to the other unconditional inits like fTopLayer and fSurfaceBase.",
+      "parentUuid": "5c939a7c_b78bee22",
+      "revId": "ee332f660baff2bbee0a146cb2eddf1e07b93038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
