@@ -194,7 +194,7 @@ DEF_BENCH(
 );
 DEF_BENCH(
     return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(
-            "_scale", SkMatrix::MakeScale(1.1f, 0.9f));
+            "_scale", SkMatrix::Scale(1.1f, 0.9f));
 );
 DEF_BENCH(
     return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(

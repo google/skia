@@ -61,12 +61,12 @@ private:
 
     void onDrawContent(SkCanvas* canvas) override {
         if (fDom) {
-            canvas->setMatrix(SkMatrix::MakeScale(3));
+            canvas->setMatrix(SkMatrix::Scale(3, 3));
             canvas->clipRect(SkRect::MakeLTRB(0, 0, 400, 400));
             switch (fState) {
                 case kZoomIn:
                     fDelta += 0.2f;
-                    canvas->concat(SkMatrix::MakeScale(fDelta));
+                    canvas->scale(fDelta, fDelta);
                     break;
                 case kScroll:
                     if (fAnimationLoop > kAnimationIterations/2) {
@@ -74,12 +74,12 @@ private:
                     } else {
                         fDelta -= 80.f;
                     }
-                    canvas->concat(SkMatrix::MakeScale(fDelta));
+                    canvas->scale(fDelta, fDelta);
                     canvas->translate(fDelta, 0);
                     break;
                 case kZoomOut:
                     fDelta += 0.2f;
-                    canvas->concat(SkMatrix::MakeScale(fDelta));
+                    canvas->scale(fDelta, fDelta);
                     break;
             }
 

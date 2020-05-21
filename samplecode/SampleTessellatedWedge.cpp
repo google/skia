@@ -32,8 +32,8 @@ public:
             float theta = 2*3.1415926535897932384626433832785 * i / numSides;
             fPath.lineTo(std::cos(theta), std::sin(theta));
         }
-        fPath.transform(SkMatrix::MakeScale(200, 200));
-        fPath.transform(SkMatrix::MakeTrans(300, 300));
+        fPath.transform(SkMatrix::Scale(200, 200));
+        fPath.transform(SkMatrix::Translate(300, 300));
 #else
         fPath.moveTo(100, 200);
         fPath.cubicTo(100, 100, 400, 100, 400, 200);
@@ -120,7 +120,7 @@ public:
             SkPathPriv::UpdatePathPoint(path, fPtIdx, pt + fCurr - fPrev);
         } else {
             path->transform(
-                    SkMatrix::MakeTrans(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()), path);
+                    SkMatrix::Translate(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()), path);
         }
     }
 

@@ -53,7 +53,7 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
         return false;
     }
 
-    SkMatrix matrix = SkMatrix::MakeTrans(-SkIntToScalar(maskRect.fLeft),
+    SkMatrix matrix = SkMatrix::Translate(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(
