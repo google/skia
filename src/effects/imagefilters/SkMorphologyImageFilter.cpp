@@ -589,7 +589,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                               dstRect.width(), radius.fHeight);
         SkPMColor4f clearColor = MorphType::kErode == morphType
                 ? SK_PMColor4fWHITE : SK_PMColor4fTRANSPARENT;
-        dstRTContext->clear(&clearRect, clearColor, GrRenderTargetContext::CanClearFullscreen::kNo);
+        dstRTContext->clear(clearRect, clearColor);
 
         srcView = dstRTContext->readSurfaceView();
         srcAlphaType = dstRTContext->colorInfo().alphaType();
