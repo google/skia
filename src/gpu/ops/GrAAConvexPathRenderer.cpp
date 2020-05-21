@@ -915,7 +915,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     std::unique_ptr<GrDrawOp> op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
                                                         *args.fViewMatrix,
                                                         path, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 
