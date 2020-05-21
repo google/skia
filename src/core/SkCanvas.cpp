@@ -511,6 +511,7 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = nullptr;
+    fDeviceClipBounds = {0, 0, 0, 0};
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
