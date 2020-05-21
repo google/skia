@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f03f374_f03e4382",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T18:54:54Z",
+      "side": 1,
+      "message": "What do you think about adding an overload that takes\n\n  clear(float r, float g, float b, float a)?\n\nTo confusing with premul/unpremul?",
+      "range": {
+        "startLine": 245,
+        "startChar": 10,
+        "endLine": 245,
+        "endChar": 14
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10022b9c_9be0960a",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T18:54:54Z",
+      "side": 1,
+      "message": "Will this turn into a scissored clear when the backing size is larger than the logical size?",
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "582908b1_9ce3292e",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T18:54:54Z",
+      "side": 1,
+      "message": "Love the new name!",
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c6958b8_63fbcd83",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T18:54:54Z",
+      "side": 1,
+      "message": "What about scratch textures? Would it be cheaper on some devices to scissor the logical bounds rather than clearing the whole thing?",
+      "range": {
+        "startLine": 520,
+        "startChar": 9,
+        "endLine": 520,
+        "endChar": 15
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
