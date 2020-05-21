@@ -18,7 +18,7 @@
   var CanvasKit = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).ready().then((CK) => {
+  }).then((CK) => {
     CanvasKit = CK;
     ViewerMain(CanvasKit);
   });
