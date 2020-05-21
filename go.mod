@@ -23,7 +23,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/vektra/mockery v1.1.2 // indirect
 	go.chromium.org/luci v0.0.0-20200521015543-ca04aca21808 // indirect
-	go.skia.org/infra v0.0.0-20200521012806-adfecbf4d12b
+	go.skia.org/infra v0.0.0-20200521174639-5a4c3706743c
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
