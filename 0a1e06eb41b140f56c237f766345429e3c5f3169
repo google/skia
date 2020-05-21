@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a9815a29_becde2b1",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T19:26:27Z",
+      "side": 1,
+      "message": "Should we only take float rgba[4]? Assume for a minute GrRenderTargetContext allowed all SkAlphaTypes. Would clear be \"raw\" and always punch in the exact values passed or would we make it change alpha to 1.f for kOpaque or unpremul the SkPMColor4f if the RTC was kUnpremul?",
+      "parentUuid": "4f03f374_f03e4382",
+      "range": {
+        "startLine": 245,
+        "startChar": 10,
+        "endLine": 245,
+        "endChar": 14
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10022b9c_9be0960a",
         "filename": "gm/windowrectangles.cpp",
         "patchSetId": 10
