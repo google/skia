@@ -20,6 +20,7 @@
 
 GrD3DPipelineState::GrD3DPipelineState(
         gr_cp<ID3D12PipelineState> pipelineState,
+        sk_sp<GrD3DRootSignature> rootSignature,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms, uint32_t uniformSize,
         uint32_t numSamplers,
@@ -30,6 +31,7 @@ GrD3DPipelineState::GrD3DPipelineState(
         size_t vertexStride,
         size_t instanceStride)
     : fPipelineState(std::move(pipelineState))
+    , fRootSignature(std::move(rootSignature))
     , fBuiltinUniformHandles(builtinUniformHandles)
     , fGeometryProcessor(std::move(geometryProcessor))
     , fXferProcessor(std::move(xferProcessor))

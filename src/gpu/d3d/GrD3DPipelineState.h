@@ -25,6 +25,7 @@ public:
     using UniformInfoArray = GrD3DPipelineStateDataManager::UniformInfoArray;
 
     GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState,
+                       sk_sp<GrD3DRootSignature> rootSignature,
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,
@@ -49,6 +50,7 @@ public:
     void freeGPUData() const override {}
 
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
+    const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
     void setData(const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
 
@@ -100,6 +102,7 @@ private:
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     gr_cp<ID3D12PipelineState> fPipelineState;
+    sk_sp<GrD3DRootSignature> fRootSignature;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;

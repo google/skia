@@ -423,23 +423,23 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
 
 static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType primitiveType) {
     switch (primitiveType) {
-    case GrPrimitiveType::kTriangles:
-    case GrPrimitiveType::kTriangleStrip: //fall through
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    case GrPrimitiveType::kPoints:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-    case GrPrimitiveType::kLines: // fall through
-    case GrPrimitiveType::kLineStrip:
-        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-    case GrPrimitiveType::kPatches: // fall through, unsupported
-    case GrPrimitiveType::kPath: // fall through, unsupported
-    default:
-        SkUNREACHABLE;
+        case GrPrimitiveType::kTriangles:
+        case GrPrimitiveType::kTriangleStrip: //fall through
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+        case GrPrimitiveType::kPoints:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+        case GrPrimitiveType::kLines: // fall through
+        case GrPrimitiveType::kLineStrip:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+        case GrPrimitiveType::kPatches: // fall through, unsupported
+        case GrPrimitiveType::kPath: // fall through, unsupported
+        default:
+            SkUNREACHABLE;
     }
 }
 
 gr_cp<ID3D12PipelineState> create_pipeline_state(
-    GrD3DGpu* gpu, const GrProgramInfo& programInfo, sk_sp<GrD3DRootSignature> rootSig,
+    GrD3DGpu* gpu, const GrProgramInfo& programInfo, const sk_sp<GrD3DRootSignature>& rootSig,
     gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> geometryShader, gr_cp<ID3DBlob> pixelShader,
     DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthStencilFormat,
     unsigned int sampleQualityLevel) {
@@ -553,11 +553,12 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
 
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
     gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
-            fGpu, fProgramInfo, std::move(rootSig), std::move(vertexShader),
+            fGpu, fProgramInfo, rootSig, std::move(vertexShader),
             std::move(geometryShader), std::move(pixelShader), rt->dxgiFormat(),
             rt->stencilDxgiFormat(), rt->sampleQualityLevel());
 
     return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
+                                                            std::move(rootSig),
                                                             fUniformHandles,
                                                             fUniformHandler.fUniforms,
                                                             fUniformHandler.fCurrentUBOOffset,

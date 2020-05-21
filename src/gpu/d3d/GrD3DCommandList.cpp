@@ -49,6 +49,7 @@ void GrD3DCommandList::reset() {
     SkASSERT(SUCCEEDED(hr));
     SkDEBUGCODE(hr = ) fCommandList->Reset(fAllocator.get(), nullptr);
     SkASSERT(SUCCEEDED(hr));
+    this->onReset();
 
     this->releaseResources();
 
@@ -173,7 +174,22 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                                gr_cp<ID3D12GraphicsCommandList> commandList)
-    : GrD3DCommandList(std::move(allocator), std::move(commandList)) {
+    : GrD3DCommandList(std::move(allocator), std::move(commandList))
+    , fCurrentRootSignature(nullptr)
+    , fCurrentVertexBuffer(nullptr)
+    , fCurrentVertexStride(0)
+    , fCurrentInstanceBuffer(nullptr)
+    , fCurrentInstanceStride(0)
+    , fCurrentIndexBuffer(nullptr) {
+}
+
+void GrD3DDirectCommandList::onReset() {
+    fCurrentRootSignature = nullptr;
+    fCurrentVertexBuffer = nullptr;
+    fCurrentVertexStride = 0;
+    fCurrentInstanceBuffer = nullptr;
+    fCurrentInstanceStride = 0;
+    fCurrentIndexBuffer = nullptr;
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
@@ -208,38 +224,74 @@ void GrD3DDirectCommandList::setViewports(unsigned int numViewports,
     fCommandList->RSSetViewports(numViewports, viewports);
 }
 
+void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSig) {
+    SkASSERT(fIsActive);
+    if (fCurrentRootSignature != rootSig.get()) {
+        fCommandList->SetGraphicsRootSignature(rootSig->rootSignature());
+        this->addResource(rootSig);
+        fCurrentRootSignature = rootSig.get();
+    }
+}
+
 void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
                                               const GrD3DBuffer* vertexBuffer,
                                               size_t vertexStride,
                                               const GrD3DBuffer* instanceBuffer,
                                               size_t instanceStride) {
-    this->addingWork();
-    this->addResource(vertexBuffer->resource());
+    if (fCurrentVertexBuffer != vertexBuffer || fCurrentVertexStride != vertexStride ||
+        fCurrentInstanceBuffer != instanceBuffer || fCurrentInstanceStride != instanceStride) {
+        this->addingWork();
+        this->addResource(vertexBuffer->resource());
 
-    D3D12_VERTEX_BUFFER_VIEW views[2];
-    int numViews = 0;
-    views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
-    views[numViews].SizeInBytes = vertexBuffer->size();
-    views[numViews++].StrideInBytes = vertexStride;
-    if (instanceBuffer) {
-        this->addResource(instanceBuffer->resource());
-        views[numViews].BufferLocation = instanceBuffer->d3dResource()->GetGPUVirtualAddress();
-        views[numViews].SizeInBytes = instanceBuffer->size();
-        views[numViews++].StrideInBytes = instanceStride;
+        D3D12_VERTEX_BUFFER_VIEW views[2];
+        int numViews = 0;
+        views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
+        views[numViews].SizeInBytes = vertexBuffer->size();
+        views[numViews++].StrideInBytes = vertexStride;
+        if (instanceBuffer) {
+            this->addResource(instanceBuffer->resource());
+            views[numViews].BufferLocation = instanceBuffer->d3dResource()->GetGPUVirtualAddress();
+            views[numViews].SizeInBytes = instanceBuffer->size();
+            views[numViews++].StrideInBytes = instanceStride;
+        }
+        fCommandList->IASetVertexBuffers(startSlot, numViews, views);
+
+        fCurrentVertexBuffer = vertexBuffer;
+        fCurrentVertexStride = vertexStride;
+        fCurrentInstanceBuffer = instanceBuffer;
+        fCurrentInstanceStride = instanceStride;
     }
-
-    fCommandList->IASetVertexBuffers(startSlot, numViews, views);
 }
 
 void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
-    this->addingWork();
-    this->addResource(indexBuffer->resource());
+    if (fCurrentIndexBuffer != indexBuffer) {
+        this->addingWork();
+        this->addResource(indexBuffer->resource());
 
-    D3D12_INDEX_BUFFER_VIEW view = {};
-    view.BufferLocation = indexBuffer->d3dResource()->GetGPUVirtualAddress();
-    view.SizeInBytes = indexBuffer->size();
-    view.Format = DXGI_FORMAT_R16_UINT;
-    fCommandList->IASetIndexBuffer(&view);
+        D3D12_INDEX_BUFFER_VIEW view = {};
+        view.BufferLocation = indexBuffer->d3dResource()->GetGPUVirtualAddress();
+        view.SizeInBytes = indexBuffer->size();
+        view.Format = DXGI_FORMAT_R16_UINT;
+        fCommandList->IASetIndexBuffer(&view);
+    }
+}
+
+void GrD3DDirectCommandList::drawInstanced(unsigned int vertexCount, unsigned int instanceCount,
+                                           unsigned int startVertex, unsigned int startInstance) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    fCommandList->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
+}
+
+void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
+                                                  unsigned int instanceCount,
+                                                  unsigned int startIndex,
+                                                  unsigned int baseVertex,
+                                                  unsigned int startInstance) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    fCommandList->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex,
+                                       startInstance);
 }
 
 void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
@@ -251,7 +303,6 @@ void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarg
                                         color.vec(),
                                         0, NULL); // no cliprects for now
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

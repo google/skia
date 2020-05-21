@@ -19,13 +19,14 @@ class GrD3DGpu;
 class GrD3DBuffer;
 class GrD3DPipelineState;
 class GrD3DRenderTarget;
+class GrD3DRootSignature;
 class GrD3DTextureResource;
 
 class GrFixedClip;
 
 class GrD3DCommandList {
 public:
-    ~GrD3DCommandList() {
+    virtual ~GrD3DCommandList() {
         this->releaseResources();
     }
 
@@ -89,6 +90,7 @@ protected:
                      gr_cp<ID3D12GraphicsCommandList> commandList);
 
     void addingWork();
+    virtual void onReset() {}
 
     void submitResourceBarriers();
 
@@ -111,6 +113,8 @@ class GrD3DDirectCommandList : public GrD3DCommandList {
 public:
     static std::unique_ptr<GrD3DDirectCommandList> Make(ID3D12Device* device);
 
+    ~GrD3DDirectCommandList() override = default;
+
     void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
 
     void setStencilRef(unsigned int stencilRef);
@@ -118,16 +122,31 @@ public:
     void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
     void setScissorRects(unsigned int numRects, const D3D12_RECT* rects);
     void setViewports(unsigned int numViewports, const D3D12_VIEWPORT* viewports);
+    void setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSignature);
     void setVertexBuffers(unsigned int startSlot,
                           const GrD3DBuffer* vertexBuffer, size_t vertexStride,
                           const GrD3DBuffer* instanceBuffer, size_t instanceStride);
     void setIndexBuffer(const GrD3DBuffer* indexBuffer);
+    void drawInstanced(unsigned int vertexCount, unsigned int instanceCount,
+                       unsigned int startVertex, unsigned int startInstance);
+    void drawIndexedInstanced(unsigned int indexCount, unsigned int instanceCount,
+                              unsigned int startIndex, unsigned int baseVertex,
+                              unsigned int startInstance);
 
     void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
                                const GrFixedClip& clip);
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                            gr_cp<ID3D12GraphicsCommandList> commandList);
+
+    void onReset() override;
+
+    const GrD3DRootSignature* fCurrentRootSignature;
+    const GrD3DBuffer* fCurrentVertexBuffer;
+    size_t fCurrentVertexStride;
+    const GrD3DBuffer* fCurrentInstanceBuffer;
+    size_t fCurrentInstanceStride;
+    const GrD3DBuffer* fCurrentIndexBuffer;
 };
 
 class GrD3DCopyCommandList : public GrD3DCommandList {
