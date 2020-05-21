@@ -15,7 +15,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
