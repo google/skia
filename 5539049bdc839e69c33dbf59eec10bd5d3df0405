@@ -22,6 +22,30 @@
       "revId": "5539049bdc839e69c33dbf59eec10bd5d3df0405",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed3498b8_a5c774d3",
+        "filename": "gm/bleed.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-21T22:44:58Z",
+      "side": 1,
+      "message": "I actually tried to update it so that all five rects would be drawn in one batch, but I ran into a snag. Specifically, they don\u0027t all share one SkPaint, and the batch API does not support multiple SkPaints. (The first three *do* share a common SkPaint, so you could still get some batching if you needed to, but it would be more complicated, and that\u0027s not really what this test is trying to explore.)\n\nThis test also seems to have exposed a latent bug in SKP serialization for these DrawEdgeAAImageSet ops, and so I can\u0027t submit it until I first implement a fix for https://crbug.com/skia/10278 as the trybots fail on the serialize-8888 test. Specifically, they don\u0027t seem to serialize the filter quality anywhere, so the SKP re-render of the low-quality-filtered objects comes out in high quality.\n\nThanks for the review--I\u0027ll make a separate CL for the serialization issue then come back to this.",
+      "parentUuid": "207d7e99_b786c1bf",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 53
+      },
+      "revId": "5539049bdc839e69c33dbf59eec10bd5d3df0405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
