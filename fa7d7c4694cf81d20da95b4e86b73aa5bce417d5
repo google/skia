@@ -22,6 +22,30 @@
       "revId": "fa7d7c4694cf81d20da95b4e86b73aa5bce417d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5454b5b6_969311ea",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2640,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-21T19:56:35Z",
+      "side": 1,
+      "message": "Srry! Am idiot. Please see correct code.",
+      "parentUuid": "8ea934c3_24f87d3d",
+      "range": {
+        "startLine": 2640,
+        "startChar": 8,
+        "endLine": 2640,
+        "endChar": 18
+      },
+      "revId": "fa7d7c4694cf81d20da95b4e86b73aa5bce417d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
