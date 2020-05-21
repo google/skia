@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "726eb30b_a5e9194d",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-21T13:46:46Z",
+      "side": 1,
+      "message": "No need for multiple strings/lines. It could just be one long string. The formatting of the existing data that\u0027s checked in is really so that it\u0027s easy to read in Gerrit during code reviews.",
+      "parentUuid": "2565b646_42693efa",
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "246f15b9_6ebb2357",
         "filename": "modules/canvaskit/tests/canvas.spec.js",
         "patchSetId": 2
