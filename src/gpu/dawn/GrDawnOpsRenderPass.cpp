@@ -7,7 +7,6 @@
 
 #include "src/gpu/dawn/GrDawnOpsRenderPass.h"
 
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
