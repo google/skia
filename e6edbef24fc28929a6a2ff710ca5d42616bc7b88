@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ba52c1e_5b0e4d20",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T15:15:02Z",
+      "side": 1,
+      "message": "In the bulk texture op constructor, we try and apply the same set of optimizations per entry that we did for the single texture op case.  This is equivalent (hopefully) to the checks I commented on below in the Make() function.",
+      "range": {
+        "startLine": 530,
+        "startChar": 16,
+        "endLine": 530,
+        "endChar": 83
+      },
+      "revId": "e6edbef24fc28929a6a2ff710ca5d42616bc7b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "251061f3_dbd33cc1",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T15:15:02Z",
+      "side": 1,
+      "message": "The first term in this condition matches one of the tests done below in Make(), but the comparison to filter and coverage is the same as the bad optimization you removed in the single op constructor.  We should probably drop them from this check or draws using the bulk API will produce the same artifacts we see in bleed. It\u0027s a hole in our GMs that we don\u0027t leverage the bulk API to the same degree.\n\nAt this point, the bulk API doesn\u0027t let you cleanly provide a separate subset from the src rect, so there\u0027s not a great place to add the better optimization that checks if the subset rect contains the local coords/src rect bounds.",
+      "range": {
+        "startLine": 560,
+        "startChar": 19,
+        "endLine": 562,
+        "endChar": 54
+      },
+      "revId": "e6edbef24fc28929a6a2ff710ca5d42616bc7b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28f4d859_2e2a0e7e",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T15:15:02Z",
+      "side": 1,
+      "message": "Here are additional optimization attempts for the single-texture op case that probably give us the most bang for buck. These were done here and not in the TextureOp constructor so that we\u0027d be consistent if we fell back to the GrFillRectOp due to blend mode.\n\nI don\u0027t think these are incorrect, but could be where we put the local coord bounds check vs. subset optimization.",
+      "range": {
+        "startLine": 1004,
+        "startChar": 4,
+        "endLine": 1012,
+        "endChar": 5
+      },
+      "revId": "e6edbef24fc28929a6a2ff710ca5d42616bc7b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
