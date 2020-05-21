@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "8477af54_31423721",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T15:38:08Z",
+      "side": 1,
+      "message": "Is this still true? Will the test be moved higher up then?",
+      "range": {
+        "startLine": 984,
+        "startChar": 28,
+        "endLine": 985,
+        "endChar": 52
+      },
+      "revId": "0cb3d7ddbf5286a779baa285dc370dea96ee9c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "756c033f_706b7f61",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-21T15:38:08Z",
+      "side": 1,
+      "message": "Ah, missed this part. Ok, this addresses my performance concerns then.",
+      "revId": "0cb3d7ddbf5286a779baa285dc370dea96ee9c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fedeac8c_c3bb7215",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 11
