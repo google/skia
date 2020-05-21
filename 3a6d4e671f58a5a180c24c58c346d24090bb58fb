@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "92672433_31f0aa39",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:31:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "93fec18b_9e21a9ea",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1fef383_87c5b1e2",
         "filename": "modules/canvaskit/CHANGELOG.md",
         "patchSetId": 10
@@ -187,6 +211,30 @@
       "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e3ffa63_e6dfa6f7",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:31:01Z",
+      "side": 1,
+      "message": "I think it\u0027s fine that you removed it. I don\u0027t think you should add it back in. I just wanted to make it more clear in these release notes that the behavior changed. (Breaking probably gets read more carefully than \"removed\")",
+      "parentUuid": "a33c80e3_279dd076",
+      "range": {
+        "startLine": 26,
+        "startChar": 14,
+        "endLine": 26,
+        "endChar": 31
+      },
+      "revId": "3a6d4e671f58a5a180c24c58c346d24090bb58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

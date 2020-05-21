@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52a32338_e77c60b8",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:31:01Z",
+      "side": 1,
+      "message": "I wouldn\u0027t expect these to be needed down here (only if you were modifying the prototype). Otherwise, your changes on lines 264-266 should be sufficient.",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 927,
+        "endChar": 38
+      },
+      "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "873e9cd3_4a4de01e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:31:01Z",
+      "side": 1,
+      "message": "If closure is giving you a tough time with these, maybe\nCanvasKit.SkColorSpace[\u0027SRGB\u0027] \u003d CanvasKit.SkColorSpace._MakeSRGB();",
+      "range": {
+        "startLine": 13,
+        "startChar": 25,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3fca273_3be4da5b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:31:01Z",
+      "side": 1,
+      "message": "I did not know this. Thanks for commenting :)",
+      "range": {
+        "startLine": 1112,
+        "startChar": 7,
+        "endLine": 1112,
+        "endChar": 40
+      },
+      "revId": "7e5fcba3df80b42da3602b1936432d578e89f4d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
