@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3448edf1_67967070",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-21T13:11:04Z",
+      "side": 1,
+      "message": "I think I prefer not having this here and directly calling the setGraphicsRootSignature function instead from GrD3DOpsRenderPass::onBindPipeline. I like that each of the functions on GrD3DCommandList mirror the d3d call they make. Any extra logic should be done outside this class.",
+      "range": {
+        "startLine": 182,
+        "startChar": 1,
+        "endLine": 184,
+        "endChar": 31
+      },
+      "revId": "d0649ca866215739850ee3658655d771b14b2773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
