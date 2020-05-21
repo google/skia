@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "129415cb_5f5a5ace",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T19:33:32Z",
+      "side": 1,
+      "message": "This is the important part of the change. For the first step down the old code picked the largest power of two multiple of the final size that was less than the source size. Now we repeatedly halve and if there is a step where the scale factor gets clamped it is at the last/smallest step. This matters for performance where the old code could produce in the worst case a downsample by 1 pixel as the first step/largest size.",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 82
+      },
+      "revId": "e1dc9a30c61e66ecdcb01077e372ddfe5b4abff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
