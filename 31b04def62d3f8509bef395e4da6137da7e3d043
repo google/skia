@@ -1,0 +1,114 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2565b646_42693efa",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:15:01Z",
+      "side": 1,
+      "message": "Question for Brian: Do we have to split the code into lines or is that an artifact from multi-line strings in C++? If we don\u0027t have to, I\u0027d probably write this with backticks.",
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "246f15b9_6ebb2357",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:15:01Z",
+      "side": 1,
+      "message": "\u003e Found trailing space\n\nPlease fix.",
+      "parentUuid": "9c725e4f_eb4874af",
+      "range": {
+        "startLine": 682,
+        "startChar": 0,
+        "endLine": 682,
+        "endChar": 7
+      },
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a25e7dd6_de9be802",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:15:01Z",
+      "side": 1,
+      "message": "Is this translate needed? Could we start at 0,0?",
+      "range": {
+        "startLine": 687,
+        "startChar": 8,
+        "endLine": 687,
+        "endChar": 14
+      },
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be3b0d86_1cae79a8",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:15:01Z",
+      "side": 1,
+      "message": "Any particular (no pun intended) reason to not go with a 5x5? When we draw skotties for gold, we do a 5x5 filmstrip.",
+      "range": {
+        "startLine": 689,
+        "startChar": 18,
+        "endLine": 689,
+        "endChar": 21
+      },
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec291c89_057b70c0",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T13:15:01Z",
+      "side": 1,
+      "message": "I\u0027m not quite sure I follow - doesn\u0027t this make the time \"jump\" a bit between rows? I would expect x/100 + y/500 to make this a \"smooth\" animation, but maybe I\u0027m missing something.\n\nMaybe add a comment describing the intended timepattern of the film strip.",
+      "range": {
+        "startLine": 696,
+        "startChar": 37,
+        "endLine": 696,
+        "endChar": 51
+      },
+      "revId": "31b04def62d3f8509bef395e4da6137da7e3d043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
