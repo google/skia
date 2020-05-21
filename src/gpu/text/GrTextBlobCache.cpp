@@ -15,11 +15,11 @@ static inline bool SkShouldPostMessageToBus(
     return msg.fContextID == msgBusUniqueID;
 }
 
-GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t uniqueID)
+GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID)
         : fPurgeMore(purgeMore)
         , fSizeBudget(kDefaultBudget)
-        , fUniqueID(uniqueID)
-        , fPurgeBlobInbox(uniqueID) { }
+        , fMessageBusID(messageBusID)
+        , fPurgeBlobInbox(messageBusID) { }
 
 GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
@@ -32,7 +32,7 @@ GrTextBlobCache::makeCachedBlob(const SkGlyphRunList& glyphRunList, const GrText
     sk_sp<GrTextBlob> cacheBlob(GrTextBlob::Make(glyphRunList, viewMatrix, color, forceW));
     cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
     this->add(cacheBlob);
-    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fUniqueID);
+    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
     return cacheBlob;
 }
 

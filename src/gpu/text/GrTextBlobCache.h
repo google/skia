@@ -22,7 +22,7 @@ public:
      // The callback function used by the cache when it is still over budget after a purge.
     using PurgeMore = std::function<void()>;
 
-    GrTextBlobCache(PurgeMore purgeMore, uint32_t uniqueID);
+    GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID);
     ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
@@ -90,7 +90,9 @@ private:
     PurgeMore fPurgeMore;
     size_t fSizeBudget;
     size_t fCurrentSize{0};
-    uint32_t fUniqueID;      // unique id to use for messaging
+
+    // In practice 'messageBusID' is always the unique ID of the owning GrContext
+    uint32_t fMessageBusID;
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };
 
