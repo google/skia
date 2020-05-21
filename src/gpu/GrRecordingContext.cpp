@@ -50,9 +50,8 @@ GrRecordingContext::~GrRecordingContext() { }
 /**
  * TODO: move textblob draw calls below context (see comment below)
  */
-static void textblobcache_overbudget_CB(void* data) {
-    SkASSERT(data);
-    GrRecordingContext* context = reinterpret_cast<GrRecordingContext*>(data);
+static void textblobcache_overbudget_CB(GrRecordingContext* context) {
+    SkASSERT(context != nullptr);
 
     GrContext* direct = context->priv().asDirectContext();
     if (!direct) {
@@ -72,8 +71,11 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
-                                             this->contextID()));
+    auto purgeMore = [this]() {
+        textblobcache_overbudget_CB(this);
+    };
+
+    fTextBlobCache.reset(new GrTextBlobCache(purgeMore, this->contextID()));
 
     return true;
 }
