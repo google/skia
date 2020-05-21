@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "a7ae9b37_d7c867ba",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:52:31Z",
+      "side": 1,
+      "message": "I added an SK_PMColor4fBLACK expression to SkColorData and updated clockwise.cpp and some tests that also just called clear({0, 0, 0, 1}).\n\nI added a note to the internalClear() definition saying it will need new logic if we ever support non-premul render target contexts.",
+      "parentUuid": "d2050b27_7aa9ebb2",
+      "range": {
+        "startLine": 245,
+        "startChar": 10,
+        "endLine": 245,
+        "endChar": 14
+      },
+      "revId": "0a1e06eb41b140f56c237f766345429e3c5f3169",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10022b9c_9be0960a",
         "filename": "gm/windowrectangles.cpp",
         "patchSetId": 10
