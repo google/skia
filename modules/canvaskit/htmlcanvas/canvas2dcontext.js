@@ -848,7 +848,8 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     var img = CanvasKit.MakeImage(imageData.data, imageData.width, imageData.height,
                                   CanvasKit.AlphaType.Unpremul,
-                                  CanvasKit.ColorType.RGBA_8888);
+                                  CanvasKit.ColorType.RGBA_8888,
+                                  CanvasKit.SkColorSpace.SRGB);
     var src = CanvasKit.XYWHRect(dirtyX, dirtyY, dirtyWidth, dirtyHeight);
     var dst = CanvasKit.XYWHRect(x+dirtyX, y+dirtyY, dirtyWidth, dirtyHeight);
     var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
