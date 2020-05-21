@@ -366,7 +366,7 @@ bool AnimationBuilder::resolveEmbeddedTypefaces(const skjson::ArrayValue& jchars
         static constexpr float kPtScale = 0.01f;
 
         // Normalize the path and advance for 1pt.
-        path.transform(SkMatrix::MakeScale(kPtScale, kPtScale));
+        path.transform(SkMatrix::Scale(kPtScale, kPtScale));
 
         current_font->fCustomBuilder.setGlyph(glyph_id, advance * kPtScale, path);
     }

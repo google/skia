@@ -1915,7 +1915,7 @@ DEF_TEST(ImageSourceBounds, reporter) {
     REPORTER_ASSERT(reporter,
                     input == source1->filterBounds(input, SkMatrix::I(),
                                                    SkImageFilter::kReverse_MapDirection, &input));
-    SkMatrix scale(SkMatrix::MakeScale(2));
+    SkMatrix scale(SkMatrix::Scale(2, 2));
     SkIRect scaledBounds = SkIRect::MakeWH(128, 128);
     REPORTER_ASSERT(reporter,
                     scaledBounds == source1->filterBounds(input, scale,

@@ -28,7 +28,7 @@ in uniform half outerThreshold;
 }
 
 @coordTransform(mask) {
-    SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
+    SkMatrix::Translate(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
 }
 
 @cpp {
