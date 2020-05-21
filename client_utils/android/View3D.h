@@ -7,27 +7,23 @@
 
 //  Inspired by Rob Johnson's most excellent QuickDraw GX sample code
 
-#ifndef SkCamera_DEFINED
-#define SkCamera_DEFINED
+#ifndef View3D_DEFINED
+#define View3D_DEFINED
 
 #include "include/core/SkM44.h"
-#include "include/core/SkMatrix.h"
-#include "include/private/SkNoncopyable.h"
-
-// NOTE -- This entire header / impl is deprecated, and will be removed from Skia soon.
-//
-// Skia now has support for a 4x matrix (SkM44) in SkCanvas.
-//
 
 class SkCanvas;
+class SkMatrix;
 
-// DEPRECATED
-class SkPatch3D {
+namespace android {
+namespace skia {
+
+class Patch3D {
 public:
-    SkPatch3D();
+    Patch3D();
 
     void    reset();
-    void    transform(const SkM44&, SkPatch3D* dst = nullptr) const;
+    void    transform(const SkM44&, Patch3D* dst = nullptr) const;
 
     // dot a unit vector with the patch's normal
     SkScalar dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const;
@@ -39,22 +35,21 @@ public:
     void rotate(SkScalar /*x*/, SkScalar /*y*/, SkScalar /*z*/) {}
     void rotateDegrees(SkScalar /*x*/, SkScalar /*y*/, SkScalar /*z*/) {}
 
-private:
-public: // make public for SkDraw3D for now
-    SkV3  fU, fV;
     SkV3  fOrigin;
 
-    friend class SkCamera3D;
+private:
+    SkV3  fU, fV;
+
+    friend class Camera3D;
 };
 
-// DEPRECATED
-class SkCamera3D {
+class Camera3D {
 public:
-    SkCamera3D();
+    Camera3D();
 
     void reset();
     void update();
-    void patchToMatrix(const SkPatch3D&, SkMatrix* matrix) const;
+    void patchToMatrix(const Patch3D&, SkMatrix* matrix) const;
 
     SkV3   fLocation;   // origin of the camera's space
     SkV3   fAxis;       // view direction
@@ -68,11 +63,10 @@ private:
     void doUpdate() const;
 };
 
-// DEPRECATED
-class SK_API Sk3DView : SkNoncopyable {
+class View3D {
 public:
-    Sk3DView();
-    ~Sk3DView();
+    View3D();
+    virtual ~View3D(); // temporarily virtual until Android switches from Sk3DView.
 
     void save();
     void restore();
@@ -99,9 +93,13 @@ private:
         Rec*    fNext;
         SkM44   fMatrix;
     };
-    Rec*        fRec;
-    Rec         fInitialRec;
-    SkCamera3D  fCamera;
-};
+    Rec*     fRec;
+    Rec      fInitialRec;
+    Camera3D fCamera;
 
-#endif
+    View3D(const View3D&) = delete;
+    View3D& operator=(const View3D&) = delete;
+};
+} // namespace skia
+} // namespace android
+#endif // View3D_DEFINED
