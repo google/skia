@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "207d7e99_b786c1bf",
+        "filename": "gm/bleed.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T21:00:49Z",
+      "side": 1,
+      "message": "Just using the api with a singleton test should be sufficient in this case to test our constraint handling.\n\nIf it were easy, it would be interesting to also have a variant that drew an entire column with one call to DrawEdgeAAImageSet, since the only thing that changes along the column are the rects and images. But the GM isn\u0027t very convenient that way and I don\u0027t want to introduce too many new constraint GMs when we had just got rid of so many redundant ones previously.\n\nI am really just musing out loud, but let\u0027s leave this as is for now since it will go through the different SkCanvas, SkGpuDevice, and TextureOp functions still.",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 53
+      },
+      "revId": "5539049bdc839e69c33dbf59eec10bd5d3df0405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
