@@ -63,11 +63,11 @@ uint32_t GrRenderTargetContextPriv::testingOnly_getOpsTaskID() {
 }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
-    this->testingOnly_addDrawOp(GrNoClip(), std::move(op));
+    this->testingOnly_addDrawOp(nullptr, std::move(op), {});
 }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(
-        const GrClip& clip,
+        const GrClip* clip,
         std::unique_ptr<GrDrawOp> op,
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER

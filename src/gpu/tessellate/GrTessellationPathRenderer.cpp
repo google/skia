@@ -76,13 +76,14 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         auto op = pool->allocate<GrDrawAtlasPathOp>(
                 renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
-                std::move(args.fPaint)); renderTargetContext->addDrawOp(*args.fClip, std::move(op));
+                std::move(args.fPaint));
+        renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
 
     auto op = pool->allocate<GrTessellatePathOp>(
             *args.fViewMatrix, path, std::move(args.fPaint), args.fAAType);
-    renderTargetContext->addDrawOp(*args.fClip, std::move(op));
+    renderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 
@@ -151,7 +152,7 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     auto op = args.fContext->priv().opMemoryPool()->allocate<GrTessellatePathOp>(
             *args.fViewMatrix, path, GrPaint(), aaType, GrTessellatePathOp::Flags::kStencilOnly);
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
 }
 
 void GrTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
@@ -201,7 +202,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
             auto op = onFlushRP->opMemoryPool()->allocate<GrTessellatePathOp>(
                     SkMatrix::I(), *uberPath, GrPaint(), aaType,
                     GrTessellatePathOp::Flags::kStencilOnly);
-            rtc->addDrawOp(GrNoClip(), std::move(op));
+            rtc->addDrawOp(nullptr, std::move(op));
         }
     }
 
@@ -237,7 +238,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
 
     auto coverOp = GrFillRectOp::Make(rtc->surfPriv().getContext(), std::move(paint),
                                       GrAAType::kMSAA, &drawQuad, stencil, fillRectFlags);
-    rtc->addDrawOp(GrNoClip(), std::move(coverOp));
+    rtc->addDrawOp(nullptr, std::move(coverOp));
 
     if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
         onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->asTextureProxy()),
