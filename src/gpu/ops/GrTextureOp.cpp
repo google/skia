@@ -417,9 +417,7 @@ private:
         void allocatePrePreparedVertices(SkArenaAlloc* arena) {
             fPrePreparedVertices = arena->makeArrayDefault<char>(this->totalSizeInBytes());
         }
-
     };
-
     // If subsetRect is not null it will be used to apply a strict src rect-style constraint.
     TextureOp(GrSurfaceProxyView proxyView,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
@@ -446,10 +444,12 @@ private:
                  !subsetRect->contains(proxyView.proxy()->backingStoreBoundsRect()));
 
         // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
-        // If we don't have (or determined we don't need) coverage AA then we can skip using a
+        // If we don't have (or determined we don't need) coverage AA, then we can skip using a
         // subset.
         if (subsetRect && filter == GrSamplerState::Filter::kNearest &&
-            aaType != GrAAType::kCoverage) {
+            aaType != GrAAType::kCoverage &&
+            quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
+            quad->fLocal.quadType() == GrQuad::Type::kAxisAligned) {
             subsetRect = nullptr;
             fMetadata.fSubset = static_cast<uint16_t>(Subset::kNo);
         }
