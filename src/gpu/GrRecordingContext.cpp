@@ -36,7 +36,7 @@ GrRecordingContext::ProgramData::ProgramData(ProgramData&& other)
         , fInfo(other.fInfo) {
 }
 
-GrRecordingContext::ProgramData::~ProgramData() {}
+GrRecordingContext::ProgramData::~ProgramData() = default;
 
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
@@ -45,26 +45,7 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
         , fAuditTrail(new GrAuditTrail()) {
 }
 
-GrRecordingContext::~GrRecordingContext() { }
-
-/**
- * TODO: move textblob draw calls below context (see comment below)
- */
-static void textblobcache_overbudget_CB(void* data) {
-    SkASSERT(data);
-    GrRecordingContext* context = reinterpret_cast<GrRecordingContext*>(data);
-
-    GrContext* direct = context->priv().asDirectContext();
-    if (!direct) {
-        return;
-    }
-
-    // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
-    // GrRenderTargetContext to perform a necessary flush.  The solution is to move drawText calls
-    // to below the GrContext level, but this is not trivial because they call drawPath on
-    // SkGpuDevice.
-    direct->flushAndSubmit();
-}
+GrRecordingContext::~GrRecordingContext() = default;
 
 bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
 
@@ -72,8 +53,19 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
-                                             this->contextID()));
+    auto overBudget = [this]() {
+        if (GrContext* direct = this->priv().asDirectContext(); direct != nullptr) {
+
+            // TODO: move text blob draw calls below context
+            // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
+            // GrRenderTargetContext to perform a necessary flush. The solution is to move drawText
+            // calls to below the GrContext level, but this is not trivial because they call
+            // drawPath on SkGpuDevice.
+            direct->flushAndSubmit();
+        }
+    };
+
+    fTextBlobCache.reset(new GrTextBlobCache(overBudget, this->contextID()));
 
     return true;
 }
