@@ -12,7 +12,6 @@
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
-class GrFixedClip;
 class GrHardClip;
 class GrPath;
 class GrRenderTargetPriv;
