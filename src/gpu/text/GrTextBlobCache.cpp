@@ -15,14 +15,11 @@ static inline bool SkShouldPostMessageToBus(
     return msg.fContextID == msgBusUniqueID;
 }
 
-GrTextBlobCache::GrTextBlobCache(GrTextBlobCache::PFOverBudgetCB cb, void* data, uint32_t uniqueID)
-        : fCallback(cb)
-        , fData(data)
+GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t uniqueID)
+        : fPurgeMore(purgeMore)
         , fSizeBudget(kDefaultBudget)
         , fUniqueID(uniqueID)
-        , fPurgeBlobInbox(uniqueID) {
-    SkASSERT(cb != nullptr && data != nullptr);
-}
+        , fPurgeBlobInbox(uniqueID) { }
 
 GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
@@ -133,7 +130,7 @@ void GrTextBlobCache::checkPurge(GrTextBlob* blob) {
         // use the call back and try to free some more.  If we are still overbudget after this,
         // then this single textblob is over our budget
         if (blob && lruBlob == blob) {
-            (*fCallback)(fData);
+            fPurgeMore();
         }
 
     #ifdef SPEW_BUDGET_MESSAGE

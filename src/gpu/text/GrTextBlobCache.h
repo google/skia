@@ -15,12 +15,14 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/gpu/text/GrTextBlob.h"
 
+#include <functional>
+
 class GrTextBlobCache {
 public:
      // The callback function used by the cache when it is still over budget after a purge.
-    using PFOverBudgetCB = void (*)(void* data);
+    using PurgeMore = std::function<void()>;
 
-    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID);
+    GrTextBlobCache(PurgeMore purgeMore, uint32_t uniqueID);
     ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
@@ -85,8 +87,7 @@ private:
 
     TextBlobList fBlobList;
     SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache;
-    PFOverBudgetCB fCallback;
-    void* fData;
+    PurgeMore fPurgeMore;
     size_t fSizeBudget;
     size_t fCurrentSize{0};
     uint32_t fUniqueID;      // unique id to use for messaging
