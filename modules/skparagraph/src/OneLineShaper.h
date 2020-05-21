@@ -69,7 +69,6 @@ private:
 #ifdef SK_DEBUG
     void printState();
 #endif
-    void dropUnresolved();
     void finish(TextRange text, SkScalar height, SkScalar& advanceX);
 
     void beginLine() override {}
@@ -109,7 +108,7 @@ private:
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;
-    std::queue<RunBlock> fUnresolvedBlocks;
+    std::deque<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
 
     // Keeping all resolved typefaces
