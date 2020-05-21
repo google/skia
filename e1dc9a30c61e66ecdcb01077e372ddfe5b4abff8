@@ -22,6 +22,30 @@
       "revId": "e1dc9a30c61e66ecdcb01077e372ddfe5b4abff8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "defdc30a_d2e9e424",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-21T20:47:00Z",
+      "side": 1,
+      "message": "Was this strategy originally from Chrome\u0027s async readback behavior, where its shaders tried to take advantage of pow2 reductions to inline some of the steps?\n\nIf we don\u0027t have anything beneficial from pow2, this makes sense to just halve right away. I haven\u0027t been able to think of something that would bring us back to pow2 dimensions that would avoid the issue you described while also not losing quality. I would expect that going from directly from original size to largest pow2 less than half original size would potentially be too large a downsample. And if we have to do a semi-wasted rescale step to match final size, it makes the most sense to put it at the end.\n\nI guess we could consider some heuristic like if the step would get us to within 10% of the pow2 size, or 10% of the final size, just snap to that.",
+      "parentUuid": "129415cb_5f5a5ace",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 82
+      },
+      "revId": "e1dc9a30c61e66ecdcb01077e372ddfe5b4abff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
