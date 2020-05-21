@@ -2629,6 +2629,19 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
+
+    // Overflow if more than 2^21 glyphs stopping a buffer overflow latter in the stack.
+    // See chromium:1080481
+    // TODO: can consider unrolling a few at a time if this limit becomes a problem.
+    int totalGlyphCount = 0;
+    constexpr int kMaxGlyphCount = 1 << 21;
+    SkTextBlob::Iter i(*blob);
+    SkTextBlob::Iter::Run r;
+    while (i.next(&r)) {
+        int glyphsLeft = kMaxGlyphCount - totalGlyphCount;
+        RETURN_ON_FALSE(r.fGlyphCount <= glyphsLeft);
+        totalGlyphCount += r.fGlyphCount;
+    }
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
