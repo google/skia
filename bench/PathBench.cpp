@@ -58,7 +58,7 @@ protected:
         SkPath path;
         this->makePath(&path);
         if (fFlags & kBig_Flag) {
-            const SkMatrix m = SkMatrix::MakeScale(SkIntToScalar(10), SkIntToScalar(10));
+            const SkMatrix m = SkMatrix::Scale(10, 10);
             path.transform(m);
         }
 

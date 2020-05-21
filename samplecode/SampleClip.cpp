@@ -505,7 +505,7 @@ class HalfPlaneView3 : public SampleCameraView {
     void onOnceBeforeDraw() override {
         fPath = make_path();
         fShader = GetResourceAsImage("images/mandrill_128.png")
-                        ->makeShader(SkMatrix::MakeScale(3, 3));
+                        ->makeShader(SkMatrix::Scale(3, 3));
     }
 
     bool onChar(SkUnichar uni) override {
