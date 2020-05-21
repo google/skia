@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKitInit(...)` now directly returns a Promise. As such, `CanvasKitInit(...).ready()`
    has been removed.
 
+### Fixed
+ - WebGL context is no longer created with "antialias" flag. Using "antialias" caused poor AA
+   quality in Ganesh when trying to do coverage-based AA with MSAA unknowingly enabled. It also
+   reduced performance.
+
 ## [0.15.0] - 2020-05-14
 
 ### Added
