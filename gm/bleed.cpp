@@ -112,24 +112,35 @@ std::tuple<sk_sp<SkImage>, SkIRect> make_ringed_image(int width, int height) {
  */
 class SrcRectConstraintGM : public skiagm::GM {
 public:
-    SrcRectConstraintGM(SkCanvas::SrcRectConstraint constraint) : fConstraint(constraint) {}
+    SrcRectConstraintGM(const char* shortName, SkCanvas::SrcRectConstraint constraint, bool batch)
+        : fShortName(shortName)
+        , fConstraint(constraint)
+        , fBatch(batch) {}
 
 protected:
-    SkString onShortName() override {
-        switch (fConstraint) {
-            case SkCanvas::kStrict_SrcRectConstraint:
-                return SkString("strict_constraint_no_red_allowed");
-            case SkCanvas::kFast_SrcRectConstraint:
-                return SkString("fast_constraint_red_is_allowed");
-        }
-        SkUNREACHABLE;
-    }
-
+    SkString onShortName() override { return fShortName; }
     SkISize onISize() override { return SkISize::Make(800, 1000); }
+
+    void drawImage(SkCanvas* canvas, sk_sp<SkImage> image,
+                   SkIRect srcRect, SkRect dstRect, SkPaint* paint) {
+        if (fBatch) {
+            SkCanvas::ImageSetEntry imageSetEntry[1];
+            imageSetEntry[0].fImage = image;
+            imageSetEntry[0].fSrcRect = SkRect::Make(srcRect);
+            imageSetEntry[0].fDstRect = dstRect;
+            imageSetEntry[0].fAAFlags = paint->isAntiAlias() ? SkCanvas::kAll_QuadAAFlags
+                                                             : SkCanvas::kNone_QuadAAFlags;
+            canvas->experimental_DrawEdgeAAImageSet(imageSetEntry, SK_ARRAY_COUNT(imageSetEntry),
+                                                    /*dstClips=*/nullptr,
+                                                    /*preViewMatrices=*/nullptr,
+                                                    paint, fConstraint);
+        } else {
+            canvas->drawImageRect(image.get(), srcRect, dstRect, paint, fConstraint);
+        }
+    }
 
     // Draw the area of interest of the small image
     void drawCase1(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
-
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
@@ -138,7 +149,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        canvas->drawImageRect(fSmallImage.get(), fSmallSrcRect, dst, &paint, fConstraint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
     }
 
     // Draw the area of interest of the large image
@@ -151,7 +162,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        canvas->drawImageRect(fBigImage.get(), fBigSrcRect, dst, &paint, fConstraint);
+        drawImage(canvas, fBigImage, fBigSrcRect, dst, &paint);
     }
 
     // Draw upper-left 1/4 of the area of interest of the large image
@@ -168,7 +179,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        canvas->drawImageRect(fBigImage.get(), src, dst, &paint, fConstraint);
+        drawImage(canvas, fBigImage, src, dst, &paint);
     }
 
     // Draw the area of interest of the small image with a normal blur
@@ -183,7 +194,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        canvas->drawImageRect(fSmallImage.get(), fSmallSrcRect, dst, &paint, fConstraint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
     }
 
     // Draw the area of interest of the small image with a outer blur
@@ -198,7 +209,7 @@ protected:
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        canvas->drawImageRect(fSmallImage.get(), fSmallSrcRect, dst, &paint, fConstraint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
     }
 
     void onOnceBeforeDraw() override {
@@ -299,16 +310,25 @@ private:
     static constexpr int kSmallSize = 6;
     static constexpr int kMaxTileSize = 32;
 
+    SkString fShortName;
     sk_sp<SkImage> fBigImage;
     sk_sp<SkImage> fSmallImage;
     SkIRect fBigSrcRect;
     SkIRect fSmallSrcRect;
     SkCanvas::SrcRectConstraint fConstraint;
+    bool fBatch = false;
     typedef GM INHERITED;
 };
 
-DEF_GM(return new SrcRectConstraintGM(SkCanvas::kStrict_SrcRectConstraint););
-DEF_GM(return new SrcRectConstraintGM(SkCanvas::kFast_SrcRectConstraint););
+DEF_GM(return new SrcRectConstraintGM("strict_constraint_no_red_allowed",
+                                      SkCanvas::kStrict_SrcRectConstraint,
+                                      /*batch=*/false););
+DEF_GM(return new SrcRectConstraintGM("strict_constraint_batch_no_red_allowed",
+                                      SkCanvas::kStrict_SrcRectConstraint,
+                                      /*batch=*/true););
+DEF_GM(return new SrcRectConstraintGM("fast_constraint_red_is_allowed",
+                                      SkCanvas::kFast_SrcRectConstraint,
+                                      /*batch=*/false););
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
