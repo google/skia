@@ -104,17 +104,13 @@ public:
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
-    void clear(const GrFixedClip&, const SkPMColor4f&, GrRenderTarget*, GrSurfaceOrigin);
+    void clear(const GrScissorState&, const SkPMColor4f&, GrRenderTarget*, GrSurfaceOrigin);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
     // function on GrGLOpsrenderPass.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
+    void clearStencilClip(const GrScissorState&, bool insideStencilMask,
                           GrRenderTarget*, GrSurfaceOrigin);
-
-    // FIXME (michaelludwig): Can this go away and just use clearStencilClip() + marking the
-    // stencil buffer as not dirty?
-    void clearStencil(GrRenderTarget*, int clearValue);
 
     void beginCommandBuffer(GrRenderTarget*, const SkIRect& bounds, GrSurfaceOrigin,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
