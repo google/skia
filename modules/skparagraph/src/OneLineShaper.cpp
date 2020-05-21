@@ -231,16 +231,6 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
     }
 }
 
-void OneLineShaper::increment(TextIndex& index) {
-    auto text = fCurrentRun->fMaster->text();
-    auto cluster = text.begin() + index;
-
-    if (cluster < text.end()) {
-        utf8_next(&cluster, text.end());
-        index = cluster - text.begin();
-    }
-}
-
 // Make it [left:right) regardless of a text direction
 TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
 

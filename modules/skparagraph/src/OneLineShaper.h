@@ -96,7 +96,6 @@ private:
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
     ClusterRange normalizeTextRange(GlyphRange glyphRange);
-    void increment(TextIndex& index);
     void fillGaps(size_t);
 
     ParagraphImpl* fParagraph;
