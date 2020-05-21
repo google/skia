@@ -259,6 +259,17 @@ var CanvasKit = {
     scaled: function() {},
   },
 
+  SkColorSpace: {
+    Equals: function() {},
+    SRGB: {},
+    DISPLAY_P3: {},
+    ADOBE_RGB: {},
+    // private API (from C++ bindings)
+    _MakeSRGB: function() {},
+    _MakeDisplayP3: function() {},
+    _MakeAdobeRGB: function() {},
+  },
+
   SkContourMeasureIter: {
     next: function() {},
   },
@@ -520,6 +531,7 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.SkCanvas} */
     getCanvas: function() {},
+    imageInfo: function() {},
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},
@@ -909,6 +921,10 @@ CanvasKit.SkColorBuilder.prototype.build = function() {};
 CanvasKit.SkColorBuilder.prototype.delete = function() {};
 CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
+
+CanvasKit.SkColorSpace.SRGB = {};
+CanvasKit.SkColorSpace.DISPLAY_P3 = {};
+CanvasKit.SkColorSpace.ADOBE_RGB = {};
 
 CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.SkRuntimeEffect.prototype.makeShaderWithChildren = function() {};
