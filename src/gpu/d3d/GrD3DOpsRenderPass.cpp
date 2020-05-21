@@ -46,7 +46,7 @@ GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
 
 void GrD3DOpsRenderPass::onBegin() {
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fGpu->clear(GrScissorState(), fClearColor, fRenderTarget);
+        fGpu->clear(GrScissorState(fRenderTarget->dimensions()), fClearColor, fRenderTarget);
     }
 }
 
