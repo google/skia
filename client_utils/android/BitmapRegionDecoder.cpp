@@ -34,9 +34,16 @@ std::unique_ptr<BitmapRegionDecoder> BitmapRegionDecoder::Make(sk_sp<SkData> dat
 }
 
 BitmapRegionDecoder::BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec)
-    : INHERITED(codec->getInfo().width(), codec->getInfo().height())
-    , fCodec(std::move(codec))
+    : fCodec(std::move(codec))
 {}
+
+int BitmapRegionDecoder::width() const {
+    return fCodec->getInfo().width();
+}
+
+int BitmapRegionDecoder::height() const {
+    return fCodec->getInfo().height();
+}
 
 bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator,
         const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,

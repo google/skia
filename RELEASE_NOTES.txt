@@ -9,6 +9,8 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Move SkBitmapRegionDecoder into client_utils/android.
+
   * GrContext submit is now required to be called in order to send GPU work to the
     actual GPU. The flush calls simply produces 3D API specific objects that are ready
     to be submitted (e.g. command buffers). For the GL backend, the flush will still
