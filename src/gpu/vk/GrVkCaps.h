@@ -261,6 +261,7 @@ private:
         GrSwizzle fWriteSwizzle;
     };
 
+public:
     struct FormatInfo {
         uint32_t colorTypeFlags(GrColorType colorType) const {
             for (int i = 0; i < fColorTypeInfoCount; ++i) {
