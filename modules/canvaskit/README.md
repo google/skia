@@ -51,9 +51,9 @@ sdk and verified/fixed any build issues that have arisen.
   5. Edit `$SKIA_ROOT/infra/canvaskit/docker/Makefile` to have the same version
      from step 2. It's easiest to keep the `emsdk-base` and `canvaskit-emsdk` versions
      be in lock-step.
-  6. In `$SKIA_ROOT/infra/canvaskit/docker/`, make `publish_canvaskit_emsdk`.
+  6. In `$SKIA_ROOT/infra/canvaskit/docker/`, run `make publish_canvaskit_emsdk`.
   7. In `$SKIA_ROOT/infra/bots/recipe_modules/build/`, update `canvaskit.py`
-     and `pathkit.py` to have `DOCKER_IMAAGE` point to the desired tagged Docker
+     and `pathkit.py` to have `DOCKER_IMAGE` point to the desired tagged Docker
      containers from steps 2 and 5 (which should be the same).
   9. In `$SKIA_ROOT/infra/bots/`, run `make train` to re-train the recipes.
   10. Optional: Run something like `git grep 1\\.38\\.` in `$SKIA_ROOT` to see if

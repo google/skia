@@ -53,7 +53,7 @@
 
   PathKitInit({
     locateFile: (file) => '/node_modules/pathkit-wasm/bin/'+file,
-  }).ready().then((PathKit) => {
+  }).then((PathKit) => {
     window.PathKit = PathKit;
     OutputsExample(PathKit);
     Path2DExample(PathKit);

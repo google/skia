@@ -59,7 +59,7 @@
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).ready().then((CK) => {
+  }).then((CK) => {
     CanvasKit = CK;
     DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);

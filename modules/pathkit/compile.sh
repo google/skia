@@ -110,9 +110,9 @@ echo "Generating WASM"
 ${EMCXX} $RELEASE_CONF -std=c++17 \
 -I. \
 --bind \
+--no-entry \
 --pre-js $BASE_DIR/helper.js \
 --pre-js $BASE_DIR/chaining.js \
---post-js $BASE_DIR/ready.js \
 -DSK_DISABLE_READBUFFER=1 \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \

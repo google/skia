@@ -5,7 +5,7 @@ To use the library, run `npm install pathkit-asmjs` and then simply include it:
     <script src="/node_modules/pathkit-asmjs/bin/pathkit.js"></script>
     PathKitInit({
         locateFile: (file) => '/node_modules/pathkit-asmjs/bin/'+file,
-    }).ready().then((PathKit) => {
+    }).then((PathKit) => {
         // Code goes here using PathKit
     });
 
@@ -14,7 +14,7 @@ a global `PathKitInit` that can be called to load the WASM code. The `locateFile
 is used to tell the JS loader where to find the .js.mem file. By default, it will
 look for /pathkit.js.mem, so if this is not the case, use `locateFile` to configure
 this properly.
-The `PathKit` object returned upon resolution of the .ready() Promise is fully loaded and ready to use.
+The `PathKit` object returned upon resolution of the PathKitInit Promise is fully loaded and ready to use.
 
 See the [API page](https://skia.org/user/modules/pathkit) and
 [example.html](https://github.com/google/skia/blob/master/modules/pathkit/npm-asmjs/example.html)
@@ -29,7 +29,7 @@ used with just a few configuration changes.
 In the JS code, use require():
 
     const PathKitInit = require('pathkit-asmjs/bin/pathkit.js')
-    PathKitInit().ready().then((PathKit) => {
+    PathKitInit().then((PathKit) => {
         // Code goes here using PathKit
     })
 
