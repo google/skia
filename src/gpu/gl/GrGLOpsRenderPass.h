@@ -69,8 +69,8 @@ private:
     void onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) override;
     void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                int drawCount) override;
-    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
-    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
+    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
     GrGLGpu* fGpu;
     SkIRect fContentBounds;
@@ -89,4 +89,3 @@ private:
 };
 
 #endif
-

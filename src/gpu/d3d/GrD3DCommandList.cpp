@@ -7,6 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DCommandList.h"
 
+#include "src/gpu/GrScissorState.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
@@ -296,12 +297,13 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
 
 void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
-                                                   const GrFixedClip& clip) {
+                                                   const GrScissorState& scissor) {
+    SkASSERT(!scissor.enabled()); // no cliprects for now
     this->addingWork();
     this->addResource(renderTarget->resource());
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
                                         color.vec(),
-                                        0, NULL); // no cliprects for now
+                                        0, NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

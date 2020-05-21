@@ -558,7 +558,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                     fContext, SkIRect::MakeEmpty(), color, /* fullscreen */ true));
         }
     } else {
-        if (this->caps()->performPartialClearsAsDraws()) {
+        if (this->caps()->performPartialClearsAsDraws() || clip.hasWindowRectangles()) {
             // performPartialClearsAsDraws() also returns true if any clear has to be a draw.
             GrPaint paint;
             clear_to_grpaint(color, &paint);
@@ -567,7 +567,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                             GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                         SkRect::Make(clip.scissorRect())));
         } else {
-            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
+            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip.scissorState(), color,
                                                      this->asSurfaceProxy()));
             // This version of the clear op factory can return null if the clip doesn't intersect
             // with the surface proxy's boundary
@@ -979,18 +979,23 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool insideStencilMask) {
     this->setNeedsStencil(/* useMixedSamplesIfNotMSAA = */ false);
 
-    if (this->caps()->performStencilClearsAsDraws()) {
+    bool clearWithDraw = this->caps()->performStencilClearsAsDraws() ||
+                         (clip.scissorEnabled() && this->caps()->performPartialClearsAsDraws());
+    // TODO(michaelludwig): internalStencilClear will eventually just take a GrScissorState so
+    // we won't need to check window rectangles here.
+    if (clearWithDraw || clip.hasWindowRectangles()) {
         const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
-        SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
+        SkRect rect = clip.scissorEnabled() ? SkRect::Make(clip.scissorRect())
+                                            : SkRect::MakeWH(this->width(), this->height());
 
         // Configure the paint to have no impact on the color buffer
         GrPaint paint;
         paint.setXPFactory(GrDisableColorXPFactory::Get());
         this->addDrawOp(clip, GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                                          rtRect, ss));
+                                                          rect, ss));
     } else {
-        std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(fContext, clip, insideStencilMask,
-                                                            this->asRenderTargetProxy()));
+        std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(
+                fContext, clip.scissorState(), insideStencilMask, this->asRenderTargetProxy()));
         if (!op) {
             return;
         }

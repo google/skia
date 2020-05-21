@@ -22,7 +22,7 @@ class GrD3DRenderTarget;
 class GrD3DRootSignature;
 class GrD3DTextureResource;
 
-class GrFixedClip;
+class GrScissorState;
 
 class GrD3DCommandList {
 public:
@@ -134,7 +134,7 @@ public:
                               unsigned int startInstance);
 
     void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
-                               const GrFixedClip& clip);
+                               const GrScissorState& scissor);
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                            gr_cp<ID3D12GraphicsCommandList> commandList);

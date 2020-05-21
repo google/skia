@@ -8,8 +8,8 @@
 #ifndef GrClearStencilClipOp_DEFINED
 #define GrClearStencilClipOp_DEFINED
 
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrScissorState.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrOpFlushState;
@@ -20,7 +20,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrOp> Make(GrRecordingContext* context,
-                                      const GrFixedClip& clip,
+                                      const GrScissorState& scissor,
                                       bool insideStencilMask,
                                       GrRenderTargetProxy* proxy);
 
@@ -29,8 +29,8 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string("Scissor [");
-        if (fClip.scissorEnabled()) {
-            const SkIRect& r = fClip.scissorRect();
+        if (fScissor.enabled()) {
+            const SkIRect& r = fScissor.rect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         } else {
             string.append("disabled");
@@ -44,13 +44,13 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrClearStencilClipOp(const GrFixedClip& clip, bool insideStencilMask,
+    GrClearStencilClipOp(const GrScissorState& scissor, bool insideStencilMask,
                          GrRenderTargetProxy* proxy)
             : INHERITED(ClassID())
-            , fClip(clip)
+            , fScissor(scissor)
             , fInsideStencilMask(insideStencilMask) {
         const SkRect& bounds =
-                fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect()) : proxy->getBoundsRect();
+                fScissor.enabled() ? SkRect::Make(fScissor.rect()) : proxy->getBoundsRect();
         this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
@@ -63,8 +63,8 @@ private:
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    const GrFixedClip fClip;
-    const bool        fInsideStencilMask;
+    const GrScissorState fScissor;
+    const bool           fInsideStencilMask;
 
     typedef GrOp INHERITED;
 };

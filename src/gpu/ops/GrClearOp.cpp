@@ -15,17 +15,17 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
-                                           const GrFixedClip& clip,
+                                           const GrScissorState& scissor,
                                            const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy) {
     const SkIRect rect = SkIRect::MakeSize(dstProxy->dimensions());
-    if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
+    if (scissor.enabled() && !SkIRect::Intersects(scissor.rect(), rect)) {
         return nullptr;
     }
 
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrClearOp>(clip, color, dstProxy);
+    return pool->allocate<GrClearOp>(scissor, color, dstProxy);
 }
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
@@ -39,27 +39,27 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
     return pool->allocate<GrClearOp>(rect, color, fullScreen);
 }
 
-GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy)
+GrClearOp::GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color, GrSurfaceProxy* proxy)
         : INHERITED(ClassID())
-        , fClip(clip)
+        , fScissor(scissor)
         , fColor(color) {
     const SkIRect rtRect = SkIRect::MakeSize(proxy->dimensions());
-    if (fClip.scissorEnabled()) {
+    if (fScissor.enabled()) {
         // Don't let scissors extend outside the RT. This may improve op combining.
-        if (!fClip.intersect(rtRect)) {
+        if (!fScissor.intersect(rtRect)) {
             SkASSERT(0);  // should be caught upstream
-            fClip = GrFixedClip(SkIRect::MakeEmpty());
+            fScissor.set(SkIRect::MakeEmpty());
         }
 
-        if (proxy->isFunctionallyExact() && fClip.scissorRect() == rtRect) {
-            fClip.disableScissor();
+        if (proxy->isFunctionallyExact() && fScissor.rect() == rtRect) {
+            fScissor.setDisabled();
         }
     }
-    this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
+    this->setBounds(SkRect::Make(fScissor.enabled() ? fScissor.rect() : rtRect),
                     HasAABloat::kNo, IsHairline::kNo);
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->opsRenderPass());
-    state->opsRenderPass()->clear(fClip, fColor);
+    state->opsRenderPass()->clear(fScissor, fColor);
 }
