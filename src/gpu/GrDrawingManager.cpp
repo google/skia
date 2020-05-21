@@ -222,8 +222,8 @@ void GrDrawingManager::freeGpuResources() {
 
 // MDB TODO: make use of the 'proxy' parameter.
 bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
-        SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
-        const GrPrepareForExternalIORequests& externalRequests) {
+                             SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
+                             const GrPrepareForExternalIORequests& externalRequests) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
