@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6846e1f4_ced3cb6b",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-21T18:53:06Z",
+      "side": 1,
+      "message": "This should go below line 7 and above line 9, since 0.15.0 has already been shipped",
+      "range": {
+        "startLine": 11,
+        "startChar": 2,
+        "endLine": 11,
+        "endChar": 3
+      },
+      "revId": "e4d1f3282783e533018e50a63aa2caa931c0d54e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
