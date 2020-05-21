@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73c92060_96c90535",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-21T17:32:04Z",
+      "side": 1,
+      "message": "typo ?",
+      "range": {
+        "startLine": 12,
+        "startChar": 69,
+        "endLine": 12,
+        "endChar": 74
+      },
+      "revId": "152b56329e33a482cfd2e3f5e160f034509aae90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ebf2a64_8fadd910",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-21T17:32:04Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 12,
+        "startChar": 20,
+        "endLine": 12,
+        "endChar": 28
+      },
+      "revId": "152b56329e33a482cfd2e3f5e160f034509aae90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58c654c8_bb68fd12",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-21T17:32:04Z",
+      "side": 1,
+      "message": "I think we always keep these on the left",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 30
+      },
+      "revId": "152b56329e33a482cfd2e3f5e160f034509aae90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
