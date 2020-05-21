@@ -58,7 +58,7 @@
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
   const ckLoaded = CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).ready();
+  });
   ckLoaded.then((CK) => {
     CanvasKit = CK;
     // Set bounds to fix the 4:3 resolution of the legos
