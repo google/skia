@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae7751ce_cdfe803c",
+        "filename": "src/gpu/d3d/GrD3DCommandList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-21T15:25:51Z",
+      "side": 1,
+      "message": "maybe just store the raw ptr here to avoid the extra ref and unref. The setRootSig function is already taking a ref when we call addResource so we don\u0027t have to worry about it being valid still.",
+      "range": {
+        "startLine": 142,
+        "startChar": 3,
+        "endLine": 142,
+        "endChar": 30
+      },
+      "revId": "6ac5eee9ee18d8229d1d420dd4b2deb5b461be08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
