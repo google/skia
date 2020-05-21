@@ -4,7 +4,7 @@
 // HASH=2956aeb50fa862cdb13995e1e56a4bc8
 REG_FIDDLE(Matrix_MakeScale_2, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
-    canvas->concat(SkMatrix::MakeScale(4));
+    canvas->concat(SkMatrix::Scale(4, 4));
     canvas->drawBitmap(source, 0, 0);
 }
 }  // END FIDDLE

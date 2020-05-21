@@ -1385,7 +1385,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         SkScalar tx = SkScalarRoundToScalar(sx * alignedRect.x()) - sx * alignedRect.x();
         SkScalar ty = SkScalarRoundToScalar(sy * alignedRect.y()) - sy * alignedRect.y();
 
-        SkMatrix xform = SkMatrix::MakeScale(sx, sy);
+        SkMatrix xform = SkMatrix::Scale(sx, sy);
         xform.postTranslate(tx, ty);
         xform.mapRect(&alignedRect);
         xform.mapRect(&rect);

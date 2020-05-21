@@ -154,7 +154,7 @@ protected:
                                                                   std::move(fp1),
                                                                   drawRect,
                                                                   localRect.makeOffset(kT),
-                                                                  SkMatrix::MakeTrans(-kT))) {
+                                                                  SkMatrix::Translate(-kT))) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
 
@@ -164,7 +164,7 @@ protected:
                     // rather than a texture subset as a comparison.
                     drawRect = localRect.makeOffset(x, y);
                     SkMatrix subsetTextureMatrix = SkMatrix::Concat(
-                            SkMatrix::MakeTrans(-texelSubset.topLeft()), textureMatrices[tm]);
+                            SkMatrix::Translate(-texelSubset.topLeft()), textureMatrices[tm]);
 
                     auto fp2 = GrTextureEffect::Make(subsetView, fBitmap.alphaType(),
                                                      subsetTextureMatrix,

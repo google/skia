@@ -48,8 +48,8 @@ class RuntimeShader : public skiagm::GM {
 DEF_GM(return new RuntimeShader;)
 
 static sk_sp<SkShader> make_shader(sk_sp<SkImage> img, SkISize size) {
-    SkMatrix scale = SkMatrix::MakeScale(size.width()  / (float)img->width(),
-                                         size.height() / (float)img->height());
+    SkMatrix scale = SkMatrix::Scale(size.width()  / (float)img->width(),
+                                     size.height() / (float)img->height());
     return img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &scale);
 }
 

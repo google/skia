@@ -41,7 +41,7 @@ DEF_TEST(Shader_isAImage, reporter) {
     SkBitmap bm;
     bm.allocN32Pixels(W, H);
     auto img = SkImage::MakeFromBitmap(bm);
-    const SkMatrix localM = SkMatrix::MakeScale(2, 3);
+    const SkMatrix localM = SkMatrix::Scale(2, 3);
     const SkTileMode tmx = SkTileMode::kRepeat;
     const SkTileMode tmy = SkTileMode::kMirror;
 

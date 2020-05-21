@@ -41,7 +41,7 @@ private:
                                       const SkIRect& bounds)
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , maskCoordTransform(
-                      SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
+                      SkMatrix::Translate(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                       mask.proxy(),
                       mask.origin())
             , mask(std::move(mask))

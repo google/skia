@@ -2011,7 +2011,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
 
     // TODO: Use one transfer buffer for all three planes to reduce map/unmap cost?
 
-    auto texMatrix = SkMatrix::MakeTrans(x, y);
+    auto texMatrix = SkMatrix::Translate(x, y);
 
     SkRect dstRectY = SkRect::Make(dstSize);
     SkRect dstRectUV = SkRect::MakeWH(halfW, halfH);

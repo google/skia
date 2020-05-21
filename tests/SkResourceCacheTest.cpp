@@ -181,8 +181,8 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
     // To exercise the latter, we draw scaled bitmap images using HQ filters.
 
     const SkMatrix xforms[] = {
-        SkMatrix::MakeScale(1, 1),
-        SkMatrix::MakeScale(1.7f, 0.5f),
+        SkMatrix::Scale(1, 1),
+        SkMatrix::Scale(1.7f, 0.5f),
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(xforms); ++i) {

@@ -8,7 +8,7 @@ void checkerboard(SkCanvas* canvas) {
     SkScalar scale = 10.0f;
     SkPath path;
     path.addRect(0, 0, scale, scale);
-    SkMatrix matrix = SkMatrix::MakeScale(2 * scale, scale);
+    SkMatrix matrix = SkMatrix::Scale(2 * scale, scale);
     matrix.preSkew(0.5f, 0);
     SkPaint paint;
     paint.setPathEffect(SkPath2DPathEffect::Make(matrix, path));

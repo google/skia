@@ -67,7 +67,7 @@ public:
     void onDrawContent(SkCanvas* canvas) override {
         if (fDoClip) {
             SkPath deviceSpaceClipPath = fClipPath;
-            deviceSpaceClipPath.transform(SkMatrix::MakeScale(this->width(), this->height()));
+            deviceSpaceClipPath.transform(SkMatrix::Scale(this->width(), this->height()));
             canvas->save();
             canvas->clipPath(deviceSpaceClipPath, SkClipOp::kDifference, true);
             canvas->clear(SK_ColorBLACK);

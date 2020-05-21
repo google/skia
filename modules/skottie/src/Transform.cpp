@@ -38,7 +38,7 @@ void TransformAdapter2D::onSync() {
 }
 
 SkMatrix TransformAdapter2D::totalMatrix() const {
-    SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x, -fAnchorPoint.y);
+    SkMatrix t = SkMatrix::Translate(-fAnchorPoint.x, -fAnchorPoint.y);
 
     t.postScale(fScale.x / 100, fScale.y / 100); // 100% based
     t.postRotate(fRotation);

@@ -232,8 +232,8 @@ static void test_crop_fully_covered(skiatest::Reporter* r, const SkMatrix& viewM
 
 TEST(AxisAligned) {
     test_axis_aligned(r, SkMatrix::I());
-    test_axis_aligned(r, SkMatrix::MakeScale(-1.f, 1.f));
-    test_axis_aligned(r, SkMatrix::MakeScale(1.f, -1.f));
+    test_axis_aligned(r, SkMatrix::Scale(-1.f, 1.f));
+    test_axis_aligned(r, SkMatrix::Scale(1.f, -1.f));
 
     SkMatrix rotation;
     rotation.setRotate(90.f);

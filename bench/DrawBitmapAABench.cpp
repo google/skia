@@ -54,11 +54,11 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::MakeScale(1), "ident"); )
+DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::I(), "ident"); )
 
-DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::MakeScale(1.17f), "scale"); )
+DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::Scale(1.17f, 1.17f), "scale"); )
 
-DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::MakeTrans(17.5f, 17.5f), "translate"); )
+DEF_BENCH( return new DrawBitmapAABench(false, SkMatrix::Translate(17.5f, 17.5f), "translate"); )
 
 DEF_BENCH(
     SkMatrix m;
@@ -67,11 +67,11 @@ DEF_BENCH(
     return new DrawBitmapAABench(false, m, "rotate");
 )
 
-DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::MakeScale(1), "ident"); )
+DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::I(), "ident"); )
 
-DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::MakeScale(1.17f), "scale"); )
+DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::Scale(1.17f, 1.17f), "scale"); )
 
-DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::MakeTrans(17.5f, 17.5f), "translate"); )
+DEF_BENCH( return new DrawBitmapAABench(true, SkMatrix::Translate(17.5f, 17.5f), "translate"); )
 
 DEF_BENCH(
     SkMatrix m;

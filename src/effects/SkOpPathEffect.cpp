@@ -57,7 +57,7 @@ sk_sp<SkPathEffect> SkMatrixPathEffect::MakeTranslate(SkScalar dx, SkScalar dy) 
     if (!SkScalarsAreFinite(dx, dy)) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkMatrixPE(SkMatrix::MakeTrans(dx, dy)));
+    return sk_sp<SkPathEffect>(new SkMatrixPE(SkMatrix::Translate(dx, dy)));
 }
 
 sk_sp<SkPathEffect> SkMatrixPathEffect::Make(const SkMatrix& matrix) {

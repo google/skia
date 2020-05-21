@@ -176,7 +176,7 @@ private:
                SkRect* bounds) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
-        auto m = SkMatrix::MakeTrans(-fX, -fY);
+        auto m = SkMatrix::Translate(-fX, -fY);
         auto subset = SkRect::Make(fMask.dimensions());
         auto domain = bounds->makeOffset(-fX, -fY).makeInset(0.5, 0.5);
         auto fp = GrTextureEffect::MakeSubset(fMask, kPremul_SkAlphaType, m, samplerState, subset,

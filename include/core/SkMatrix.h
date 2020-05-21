@@ -87,6 +87,7 @@ public:
     static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkVector t) { return Translate(t.x(), t.y()); }
     static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkIVector t) { return Translate(t.x(), t.y()); }
 
+#ifdef SK_SUPPORT_LEGACY_MATRIX_FACTORIES
     // DEPRECATED
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
         return Translate(dx, dy);
@@ -100,6 +101,7 @@ public:
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.x(), t.y()); }
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkIVector t) { return MakeTrans(t.x(), t.y()); }
     // end DEPRECATED
+#endif
 
     /** Sets SkMatrix to:
 
@@ -1664,6 +1666,10 @@ public:
         SkMatrix result;
         result.setConcat(a, b);
         return result;
+    }
+
+    friend SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
+        return Concat(a, b);
     }
 
     /** Sets internal cache to unknown state. Use to force update after repeated

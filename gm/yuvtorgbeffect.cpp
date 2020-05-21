@@ -342,7 +342,7 @@ protected:
             SkScalar x = kTestPad;
             // Columns are non-subsetted followed by subsetted with each WrapMode in a row
             for (uint32_t j = 0; j < GrSamplerState::kWrapModeCount + 1; ++j) {
-                SkMatrix ctm = SkMatrix::MakeTrans(x, y);
+                SkMatrix ctm = SkMatrix::Translate(x, y);
                 ctm.postScale(10.f, 10.f);
 
                 const SkRect* subset = j > 0 ? &kColorRect : nullptr;
