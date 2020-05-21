@@ -594,7 +594,8 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkAutoDeviceTransformRestore adr(
                     this,
                     hasPerspective ? SkMatrix::I()
-                                   : this->localToDevice() * SkMatrix::Translate(tx, ty));
+                                   : SkMatrix::Concat(this->localToDevice(),
+                                                      SkMatrix::MakeTrans(tx, ty)));
             this->drawVertices(vertices, mode, paint);
         }
     };

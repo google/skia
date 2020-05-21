@@ -354,7 +354,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     if (background) {
         SkRect bgSubset = SkRect::Make(background->subset());
-        SkMatrix backgroundMatrix = SkMatrix::Translate(
+        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
@@ -369,7 +369,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     if (foreground) {
         SkRect fgSubset = SkRect::Make(foreground->subset());
-        SkMatrix foregroundMatrix = SkMatrix::Translate(
+        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
         auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),
