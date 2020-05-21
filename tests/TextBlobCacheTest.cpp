@@ -230,6 +230,51 @@ static sk_sp<SkTextBlob> make_blob() {
     return builder.make();
 }
 
+// Turned off to pass on android and ios devices, which were running out of memory..
+#if 0
+static sk_sp<SkTextBlob> make_large_blob() {
+    auto tf = SkTypeface::MakeFromName("Roboto2-Regular", SkFontStyle());
+    SkFont font;
+    font.setTypeface(tf);
+    font.setSubpixel(false);
+    font.setEdging(SkFont::Edging::kAlias);
+    font.setSize(24);
+
+    const int mallocSize = 0x3c3c3bd; // x86 size
+    std::unique_ptr<char[]> text{new char[mallocSize + 1]};
+    if (text == nullptr) {
+        return nullptr;
+    }
+    for (int i = 0; i < mallocSize; i++) {
+        text[i] = 'x';
+    }
+    text[mallocSize] = 0;
+
+    static const int maxGlyphLen = mallocSize;
+    std::unique_ptr<SkGlyphID[]> glyphs{new SkGlyphID[maxGlyphLen]};
+    int glyphCount =
+            font.textToGlyphs(
+                    text.get(), mallocSize, SkTextEncoding::kUTF8, glyphs.get(), maxGlyphLen);
+    SkTextBlobBuilder builder;
+    const auto& runBuffer = builder.allocRun(font, glyphCount, 0, 0);
+    for (int i = 0; i < glyphCount; i++) {
+        runBuffer.glyphs[i] = glyphs[i];
+    }
+    return builder.make();
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo) {
+    auto grContext = ctxInfo.grContext();
+    const SkImageInfo info =
+            SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+
+    auto blob = make_large_blob();
+    int y = 40;
+    SkBitmap base = draw_blob(blob.get(), surface.get(), {40, y + 0.0f});
+}
+#endif
+
 static const bool kDumpPngs = true;
 // dump pngs needs a "good" and a "bad" directory to put the results in. This allows the use of the
 // skdiff tool to visualize the differences.
