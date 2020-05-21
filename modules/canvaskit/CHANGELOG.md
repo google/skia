@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+  - We now compile/ship with Emscripten v1.39.16.
+
+### Breaking
+ - `CanvasKitInit(...).then()` is the new way to initialize things.
+   `CanvasKitInit(...).ready()` is no longer available.
+
 ## [0.15.0] - 2020-05-14
 
 ### Added
