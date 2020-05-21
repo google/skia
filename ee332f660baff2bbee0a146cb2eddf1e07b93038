@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c939a7c_b78bee22",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 10380
+      },
+      "writtenOn": "2020-05-21T01:28:37Z",
+      "side": 1,
+      "message": "This looks fine. I noticed that it was unconditionally initialized inside the following if clause, so the other way to fix this would be to do this in an else clause of the if, but this way makes it more obvious that no stones are left unturned...",
+      "revId": "ee332f660baff2bbee0a146cb2eddf1e07b93038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
