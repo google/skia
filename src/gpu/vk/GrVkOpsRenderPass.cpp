@@ -11,7 +11,6 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"

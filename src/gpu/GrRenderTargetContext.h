@@ -29,7 +29,6 @@ class GrClip;
 class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
 class GrDrawOp;
-class GrFixedClip;
 class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;

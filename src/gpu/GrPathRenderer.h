@@ -14,7 +14,6 @@
 
 class GrCaps;
 class GrClip;
-class GrFixedClip;
 class GrHardClip;
 class GrPaint;
 class GrRecordingContext;

@@ -7,7 +7,6 @@
 
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
