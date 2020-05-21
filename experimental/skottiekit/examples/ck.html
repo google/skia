@@ -14,7 +14,7 @@
     // loadKit resolves with CanvasKit.
     const loadKit = CanvasKitInit({
       locateFile: (file) => 'https://particles.skia.org/static/'+file,
-    }).ready();
+    });
 
     loadKit.then(() => {
       const n = performance.now();
