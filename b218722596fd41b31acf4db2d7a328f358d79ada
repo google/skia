@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "159627bc_7c92012d",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T13:50:58Z",
+      "side": 1,
+      "message": "Is it worth a side bar on what happens in GL where we really don\u0027t know when it gets submitted to the GPU?",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 265,
+        "endChar": 10
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "facbefcb_a0918f5c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T13:50:58Z",
+      "side": 1,
+      "message": "Is it possible to have a non-abandoned DirectContext with no Gpu object?",
+      "range": {
+        "startLine": 553,
+        "startChar": 0,
+        "endLine": 562,
+        "endChar": 5
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc748895_c989f215",
+        "filename": "tests/GrSubmittedFlushTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-21T13:50:58Z",
+      "side": 1,
+      "message": "We consider it a success if there was nothing to submit? I guess had the caller provided semaphores to the flush then they would have been submitted? Slightly wondering if the result should be tri-state: success, nothing to do, failure. But maybe that\u0027s overthinking it.",
+      "range": {
+        "startLine": 56,
+        "startChar": 30,
+        "endLine": 56,
+        "endChar": 46
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
