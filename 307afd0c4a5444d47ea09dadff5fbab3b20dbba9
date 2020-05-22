@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "58b2d087_8956da4a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8a1469e_a869503f",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 39
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa169db0_5ed3a92d",
         "filename": "tools/convert-to-nia.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0378d495_6873d290",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "Moved it up from a few lines below to here.",
+      "parentUuid": "aa169db0_5ed3a92d",
+      "range": {
+        "startLine": 9,
+        "startChar": 14,
+        "endLine": 9,
+        "endChar": 64
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "896376d7_b4e72a10",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cdbadd4_fc8efc00",
+      "range": {
+        "startLine": 79,
+        "startChar": 55,
+        "endLine": 79,
+        "endChar": 63
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec30378b_808de269",
         "filename": "tools/convert-to-nia.cpp",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "b2e24220_74ddd085",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "There isn\u0027t a specific case here, where Skia/Wuffs use -1/0 for an infinitely looped animation. It\u0027s subtler comparing Chromium/Wuffs, since Chromium additionally defines -2 (blink::kAnimationNone) to mean a still image.\n\nAnyway, I just dropped the \"In the general case\".",
+      "parentUuid": "ec30378b_808de269",
+      "range": {
+        "startLine": 115,
+        "startChar": 11,
+        "endLine": 115,
+        "endChar": 30
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8992999_450f1ca3",
         "filename": "tools/convert-to-nia.cpp",
         "patchSetId": 2
@@ -114,6 +210,30 @@
       "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90c3db65_84670850",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "Correct.\n\nI added a sentence to the comment at the top (after the copyright) to say that.",
+      "parentUuid": "d8992999_450f1ca3",
+      "range": {
+        "startLine": 168,
+        "startChar": 13,
+        "endLine": 168,
+        "endChar": 29
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -149,6 +269,24 @@
       "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6492b2b1_52cdec7b",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-22T12:54:11Z",
+      "side": 1,
+      "message": "Thanks. Done.\n\nI tweaked it a little, because my frontbuffer is a SkBitmap, not a SkAutoMalloc. Please take a careful look. For example, I\u0027m not 100% sure if I\u0027ve got it right if there\u0027s a bit of slack / padding so that rowBytes is more than (widthInPixels * bytesPerPixel).\n\nIs it legit to\n#include \"src/core/SkAutoMalloc.h\"\nwhere it\u0027s \"src/etc\" instead of \"include/etc\"?",
+      "parentUuid": "e9d9998e_4bec6163",
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
