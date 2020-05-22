@@ -444,7 +444,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
   "$_src/gpu/tessellate/GrMidpointContourParser.h",
   "$_src/gpu/tessellate/GrPathShader.h",
-  "$_src/gpu/tessellate/GrResolveLevelCounter.h",
   "$_src/gpu/tessellate/GrStencilPathShader.cpp",
   "$_src/gpu/tessellate/GrStencilPathShader.h",
   "$_src/gpu/tessellate/GrTessellatePathOp.cpp",
