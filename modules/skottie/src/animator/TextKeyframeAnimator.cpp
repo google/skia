@@ -18,9 +18,10 @@ class TextKeyframeAnimator final : public KeyframeAnimator {
 public:
     class Builder final : public KeyframeAnimatorBuilder {
     public:
+        explicit Builder(TextValue* target) : fTarget(target) {}
+
         sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
-                                         const skjson::ArrayValue& jkfs,
-                                         void* target_value) override {
+                                     const skjson::ArrayValue& jkfs) override {
             SkASSERT(jkfs.size() > 0);
 
             fValues.reserve(jkfs.size());
@@ -33,12 +34,11 @@ public:
                         new TextKeyframeAnimator(std::move(fKFs),
                                                  std::move(fCMs),
                                                  std::move(fValues),
-                                                 static_cast<TextValue*>(target_value)));
+                                                 fTarget));
         }
 
-        bool parseValue(const AnimationBuilder& abuilder,
-                          const skjson::Value& jv, void* v) const override {
-            return Parse(jv, abuilder, static_cast<TextValue*>(v));
+        bool parseValue(const AnimationBuilder& abuilder, const skjson::Value& jv) const override {
+            return Parse(jv, abuilder, fTarget);
         }
 
     private:
@@ -62,6 +62,7 @@ public:
         }
 
         std::vector<TextValue> fValues;
+        TextValue*             fTarget;
     };
 
 private:
@@ -95,8 +96,8 @@ template <>
 bool AnimatablePropertyContainer::bind<TextValue>(const AnimationBuilder& abuilder,
                                                   const skjson::ObjectValue* jprop,
                                                   TextValue* v) {
-    TextKeyframeAnimator::Builder builder;
-    return this->bindImpl(abuilder, jprop, builder, v);
+    TextKeyframeAnimator::Builder builder(v);
+    return this->bindImpl(abuilder, jprop, builder);
 }
 
 } // namespace skottie::internal
