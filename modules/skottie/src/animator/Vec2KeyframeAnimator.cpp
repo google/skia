@@ -25,9 +25,10 @@ class Vec2KeyframeAnimator final : public KeyframeAnimator {
 public:
     class Builder final : public KeyframeAnimatorBuilder {
     public:
+        explicit Builder(Vec2Value* target) : fTarget(target) {}
+
         sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
-                                         const skjson::ArrayValue& jkfs,
-                                         void* target_value) override {
+                                     const skjson::ArrayValue& jkfs) override {
             SkASSERT(jkfs.size() > 0);
 
             fValues.reserve(jkfs.size());
@@ -40,11 +41,11 @@ public:
                         new Vec2KeyframeAnimator(std::move(fKFs),
                                                  std::move(fCMs),
                                                  std::move(fValues),
-                                                 static_cast<Vec2Value*>(target_value)));
+                                                 fTarget));
         }
 
-        bool parseValue(const AnimationBuilder&, const skjson::Value& jv, void* v) const override {
-            return Parse(jv, static_cast<Vec2Value*>(v));
+        bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
+            return Parse(jv, fTarget);
         }
 
     private:
@@ -120,6 +121,7 @@ public:
         }
 
         std::vector<SpatialValue> fValues;
+        Vec2Value*                fTarget;
         SkV2                      fTi{0,0},
                                   fTo{0,0};
     };
@@ -173,8 +175,8 @@ bool AnimatablePropertyContainer::bind<Vec2Value>(const AnimationBuilder& abuild
 
     if (!ParseDefault<bool>((*jprop)["s"], false)) {
         // Regular (static or keyframed) 2D value.
-        Vec2KeyframeAnimator::Builder builder;
-        return this->bindImpl(abuilder, jprop, builder, v);
+        Vec2KeyframeAnimator::Builder builder(v);
+        return this->bindImpl(abuilder, jprop, builder);
     }
 
     // Separate-dimensions vector value: each component is animated independently.

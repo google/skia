@@ -84,7 +84,7 @@ public:
                            std::vector<SkCubicMap> cms,
                            std::vector<float> storage,
                            size_t vec_len,
-                           VectorValue* target_value)
+                           std::vector<float>* target_value)
         : INHERITED(std::move(kfs), std::move(cms))
         , fStorage(std::move(storage))
         , fVecLen(vec_len)
@@ -143,21 +143,22 @@ private:
     const std::vector<float> fStorage;
     const size_t             fVecLen;
 
-    VectorValue*             fTarget;
+    std::vector<float>*      fTarget;
 
     using INHERITED = KeyframeAnimator;
 };
 
 } // namespace
 
-VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(VectorLenParser  parse_len,
+VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(std::vector<float>* target,
+                                                             VectorLenParser  parse_len,
                                                              VectorDataParser parse_data)
     : fParseLen(parse_len)
-    , fParseData(parse_data) {}
+    , fParseData(parse_data)
+    , fTarget(target) {}
 
 sk_sp<KeyframeAnimator> VectorKeyframeAnimatorBuilder::make(const AnimationBuilder& abuilder,
-                                                            const skjson::ArrayValue& jkfs,
-                                                            void* target_value) {
+                                                            const skjson::ArrayValue& jkfs) {
     SkASSERT(jkfs.size() > 0);
 
     // peek at the first keyframe value to find our vector length
@@ -190,20 +191,18 @@ sk_sp<KeyframeAnimator> VectorKeyframeAnimatorBuilder::make(const AnimationBuild
                                            std::move(fCMs),
                                            std::move(fStorage),
                                            fVecLen,
-                                           static_cast<VectorValue*>(target_value)));
+                                           fTarget));
 }
 
 bool VectorKeyframeAnimatorBuilder::parseValue(const AnimationBuilder&,
-                                               const skjson::Value& jv,
-                                               void* raw_v) const {
+                                               const skjson::Value& jv) const {
     size_t vec_len;
     if (!this->fParseLen(jv, &vec_len)) {
         return false;
     }
 
-    auto* v = static_cast<VectorValue*>(raw_v);
-    v->resize(vec_len);
-    return fParseData(jv, vec_len, v->data());
+    fTarget->resize(vec_len);
+    return fParseData(jv, vec_len, fTarget->data());
 }
 
 bool VectorKeyframeAnimatorBuilder::parseKFValue(const AnimationBuilder&,
@@ -246,6 +245,7 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
     if (!ParseDefault<bool>((*jprop)["s"], false)) {
         // Regular (static or keyframed) vector value.
         VectorKeyframeAnimatorBuilder builder(
+                    v,
                     // Len parser.
                     [](const skjson::Value& jv, size_t* len) -> bool {
                         if (const skjson::ArrayValue* ja = jv) {
@@ -259,7 +259,7 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
                         return parse_array(jv, data, len);
                     });
 
-        return this->bindImpl(abuilder, jprop, builder, v);
+        return this->bindImpl(abuilder, jprop, builder);
     }
 
     // Separate-dimensions vector value: each component is animated independently.
