@@ -68,8 +68,7 @@ private:
 
     bool bindImpl(const AnimationBuilder&,
                   const skjson::ObjectValue*,
-                  KeyframeAnimatorBuilder&,
-                  void*);
+                  KeyframeAnimatorBuilder&);
 
     std::vector<sk_sp<Animator>> fAnimators;
     bool                         fHasSynced = false;
