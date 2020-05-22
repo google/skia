@@ -66,10 +66,7 @@ protected:
 private:
     StateChanged onSeek(float) final;
 
-    bool bindImpl(const AnimationBuilder&,
-                  const skjson::ObjectValue*,
-                  KeyframeAnimatorBuilder&,
-                  void*);
+    bool bindImpl(const AnimationBuilder&, const skjson::ObjectValue*, KeyframeAnimatorBuilder&);
 
     std::vector<sk_sp<Animator>> fAnimators;
     bool                         fHasSynced = false;
