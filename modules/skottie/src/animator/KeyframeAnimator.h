@@ -108,11 +108,9 @@ class KeyframeAnimatorBuilder : public SkNoncopyable {
 public:
     virtual ~KeyframeAnimatorBuilder();
 
-    virtual sk_sp<KeyframeAnimator> make(const AnimationBuilder&,
-                                         const skjson::ArrayValue&,
-                                         void* target_value) = 0;
+    virtual sk_sp<KeyframeAnimator> make(const AnimationBuilder&, const skjson::ArrayValue&) = 0;
 
-    virtual bool parseValue(const AnimationBuilder&, const skjson::Value&, void*) const = 0;
+    virtual bool parseValue(const AnimationBuilder&, const skjson::Value&) const = 0;
 
 protected:
     virtual bool parseKFValue(const AnimationBuilder&,

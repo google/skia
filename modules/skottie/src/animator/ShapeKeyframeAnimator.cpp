@@ -169,9 +169,9 @@ template <>
 bool AnimatablePropertyContainer::bind<ShapeValue>(const AnimationBuilder& abuilder,
                                                   const skjson::ObjectValue* jprop,
                                                   ShapeValue* v) {
-    VectorKeyframeAnimatorBuilder builder(parse_encoding_len, parse_encoding_data);
+    VectorKeyframeAnimatorBuilder builder(v, parse_encoding_len, parse_encoding_data);
 
-    return this->bindImpl(abuilder, jprop, builder, v);
+    return this->bindImpl(abuilder, jprop, builder);
 }
 
 } // namespace internal

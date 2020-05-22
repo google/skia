@@ -19,22 +19,19 @@ public:
     using VectorLenParser  = bool(*)(const skjson::Value&, size_t*);
     using VectorDataParser = bool(*)(const skjson::Value&, size_t, float*);
 
-    VectorKeyframeAnimatorBuilder(VectorLenParser, VectorDataParser);
+    VectorKeyframeAnimatorBuilder(std::vector<float>*, VectorLenParser, VectorDataParser);
 
-    sk_sp<KeyframeAnimator> make(const AnimationBuilder&,
-                                 const skjson::ArrayValue&,
-                                 void*) override;
+    sk_sp<KeyframeAnimator> make(const AnimationBuilder&, const skjson::ArrayValue&) override;
 
 private:
-    bool parseValue(const AnimationBuilder&,
-                    const skjson::Value&,
-                    void*) const override;
+    bool parseValue(const AnimationBuilder&, const skjson::Value&) const override;
 
     bool parseKFValue(const AnimationBuilder&,
                       const skjson::ObjectValue&,
                       const skjson::Value&,
                       Keyframe::Value*) override;
 
+    std::vector<float>*    fTarget;
     const VectorLenParser  fParseLen;
     const VectorDataParser fParseData;
 
