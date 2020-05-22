@@ -1081,8 +1081,11 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     SkPaint noInversePaint(paint);
 
     // Merge stroking operations into final path.
-    if (SkPaint::kStroke_Style == paint.getStyle() ||
-        SkPaint::kStrokeAndFill_Style == paint.getStyle()) {
+    if (SkPaint::kStroke_Style == paint.getStyle()
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || SkPaint::kStrokeAndFill_Style == paint.getStyle()
+#endif
+        ) {
         bool doFillPath = paint.getFillPath(origPath, &modifiedPath);
         if (doFillPath) {
             noInversePaint.setStyle(SkPaint::kFill_Style);

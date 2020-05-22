@@ -168,6 +168,7 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
     canvas->drawCircle(c, radius, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
 /* ovals should not be blurry */
 DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     // Test EllipseOp
@@ -197,6 +198,7 @@ DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     paint.setStrokeWidth(1);
     canvas->drawOval(r, paint);
 }
+#endif
 
 DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {
     SkPath path;

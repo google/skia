@@ -420,6 +420,7 @@ private:
 }  // namespace
 DEF_SAMPLE( return new PseudoInkView(); )
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
 namespace {
 // Show stroking options using patheffects (and pathops)
 // and why strokeandfill is a hacks
@@ -506,3 +507,4 @@ private:
 };
 }  // namespace
 DEF_SAMPLE( return new ManyStrokesView(); )
+#endif

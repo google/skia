@@ -307,8 +307,11 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
         }
 
         fShouldStroke = stroke.needToApply();
-        fShouldFill = stroke.isFillStyle() ||
-                stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+        fShouldFill = stroke.isFillStyle()
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                || stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style
+#endif
+        ;
 
         fFillType = convert_skpath_filltype(skPath->getFillType());
         fBounds = skPath->getBounds();

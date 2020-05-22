@@ -40,6 +40,7 @@ void SkStrokeRec::init(const SkPaint& paint, SkPaint::Style style, SkScalar resS
             fWidth = paint.getStrokeWidth();
             fStrokeAndFill = false;
             break;
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         case SkPaint::kStrokeAndFill_Style:
             if (0 == paint.getStrokeWidth()) {
                 // hairline+fill == fill
@@ -50,6 +51,7 @@ void SkStrokeRec::init(const SkPaint& paint, SkPaint::Style style, SkScalar resS
                 fStrokeAndFill = true;
             }
             break;
+#endif
         default:
             SkDEBUGFAIL("unknown paint style");
             // fall back on just fill
@@ -70,7 +72,11 @@ SkStrokeRec::Style SkStrokeRec::getStyle() const {
     } else if (0 == fWidth) {
         return kHairline_Style;
     } else {
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         return fStrokeAndFill ? kStrokeAndFill_Style : kStroke_Style;
+#else
+        return kStroke_Style;
+#endif
     }
 }
 
@@ -84,7 +90,15 @@ void SkStrokeRec::setHairlineStyle() {
     fStrokeAndFill = false;
 }
 
-void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
+void SkStrokeRec::setStrokeStyle(SkScalar width
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                                 , bool strokeAndFill
+#endif
+                                 ) {
+#ifndef SK_SUPPORT_LEGACY_STROKEANDFILL
+    bool strokeAndFill = false;
+#endif
+
     if (strokeAndFill && (0 == width)) {
         // hairline+fill == fill
         this->setFillStyle();
@@ -128,7 +142,11 @@ void SkStrokeRec::applyToPaint(SkPaint* paint) const {
         return;
     }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     paint->setStyle(fStrokeAndFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
+#else
+    paint->setStroke(true);
+#endif
     paint->setStrokeWidth(fWidth);
     paint->setStrokeMiter(fMiterLimit);
     paint->setStrokeCap((SkPaint::Cap)fCap);

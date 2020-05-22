@@ -22,7 +22,9 @@ static const char* str(SkPaint::Style v) {
     switch (v) {
         case SkPaint::kFill_Style:          return "SkPaint::kFill_Style";
         case SkPaint::kStroke_Style:        return "SkPaint::kStroke_Style";
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         case SkPaint::kStrokeAndFill_Style: return "SkPaint::kStrokeAndFill_Style";
+#endif
         default: return "?";
     }
 }
