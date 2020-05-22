@@ -112,8 +112,11 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 
     if (paint) {
         SkPaint::Style paintStyle = paint->getStyle();
-        if (!(paintStyle == SkPaint::kFill_Style ||
-              paintStyle == SkPaint::kStrokeAndFill_Style)) {
+        if (paintStyle != SkPaint::kFill_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+              && paintStyle != SkPaint::kStrokeAndFill_Style
+#endif
+            ) {
             return false;
         }
         if (paint->getMaskFilter() || paint->getPathEffect() || paint->getImageFilter()) {

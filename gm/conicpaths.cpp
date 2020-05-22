@@ -16,6 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkStrokeAndFillPathEffect.h"
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkTArray.h"
 
@@ -170,6 +171,7 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
 
 /* ovals should not be blurry */
 DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
+    auto pe = SkStrokeAndFillPathEffect::Make();
     // Test EllipseOp
     SkRect r = SkRect::MakeXYWH(-520, -520, 5000, 4000);
     SkPaint paint;
@@ -180,9 +182,10 @@ DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     r.offset(-15, -15);
     paint.setColor(SK_ColorDKGRAY);
     // we use stroke and fill to avoid falling into the SimpleFill path
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setPathEffect(pe);
     paint.setStrokeWidth(1);
     canvas->drawOval(r, paint);
+    paint.setPathEffect(nullptr);
 
     // Test DIEllipseOp
     canvas->rotate(1.0f);
@@ -193,7 +196,7 @@ DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
     canvas->drawOval(r, paint);
     r.offset(-15, -15);
     paint.setColor(SK_ColorLTGRAY);
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setPathEffect(pe);
     paint.setStrokeWidth(1);
     canvas->drawOval(r, paint);
 }

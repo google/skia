@@ -11,8 +11,7 @@ void draw(SkCanvas* canvas) {
     const SkPoint points[] = {{20, 20}, {70, 20}, {40, 90}};
     path.addPoly(points, SK_ARRAY_COUNT(points), false);
     for (int loop = 0; loop < 2; ++loop) {
-        for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,
-                SkPaint::kStrokeAndFill_Style} ) {
+        for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style} ) {
             paint.setStyle(style);
             canvas->drawPath(path, paint);
             canvas->translate(85, 0);

@@ -138,7 +138,12 @@ protected:
 
         // For stroke-and-fill style painter and fill style painter
         constexpr SkPaint::Style kStyles[] = {
-            SkPaint::kStrokeAndFill_Style, SkPaint::kFill_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+            SkPaint::kStrokeAndFill_Style,
+#else
+            SkPaint::kStroke_Style,
+#endif
+            SkPaint::kFill_Style
         };
         SkASSERT(kNumExtraStyles == SK_ARRAY_COUNT(kStyles));
 

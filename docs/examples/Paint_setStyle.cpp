@@ -20,7 +20,10 @@ void draw(SkCanvas* canvas) {
     bitmap.setPixels(pixels);
     for (auto style : { SkPaint::kFill_Style,
                         SkPaint::kStroke_Style,
-                        SkPaint::kStrokeAndFill_Style }) {
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                        SkPaint::kStrokeAndFill_Style
+#endif
+    }) {
         paint.setStyle(style);
         canvas->drawLine(10, 10, 60, 60, paint);
         canvas->drawRect({80, 10, 130, 60}, paint);

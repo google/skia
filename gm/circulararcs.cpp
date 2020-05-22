@@ -21,10 +21,10 @@
 #include <functional>
 
 #include "include/effects/SkStrokeAndFillPathEffect.h"
-static void set_strokeandfill(SkPaint* paint) {
-    SkASSERT(paint->getPathEffect() == nullptr);
-    paint->setPathEffect(SkStrokeAndFillPathEffect::Make());
-    paint->setStroke(true);
+static void set_strokeandfill(SkPaint& paint) {
+    SkASSERT(paint.getPathEffect() == nullptr);
+    paint.setPathEffect(SkStrokeAndFillPathEffect::Make());
+    paint.setStroke(true);
 }
 
 constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
@@ -122,7 +122,7 @@ DEF_ARC_GM(stroke_round) {
 
 DEF_ARC_GM(stroke_and_fill_butt) {
     auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
+        set_strokeandfill(*p);
         p->setStrokeCap(SkPaint::kButt_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -130,7 +130,7 @@ DEF_ARC_GM(stroke_and_fill_butt) {
 
 DEF_ARC_GM(stroke_and_fill_square) {
     auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
+        set_strokeandfill(*p);
         p->setStrokeCap(SkPaint::kSquare_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -138,7 +138,7 @@ DEF_ARC_GM(stroke_and_fill_square) {
 
 DEF_ARC_GM(stroke_and_fill_round) {
     auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
+        set_strokeandfill(*p);
         p->setStrokeCap(SkPaint::kRound_Cap);
     };
     draw_arcs(canvas, setStroke);
@@ -187,8 +187,9 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(0.f);
     // stroke and fill
-    paints.push_back().setStyle(SkPaint::kStrokeAndFill_Style);
+    set_strokeandfill(paints.push_back());
     paints.back().setStrokeWidth(kS / 6.f);
+
     // dash effect
     paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(kS / 6.f);

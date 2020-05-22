@@ -358,6 +358,7 @@ protected:
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         // fourth column: stroked and filled paths
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
         paint.setStrokeCap(SkPaint::kButt_Cap);
@@ -367,7 +368,7 @@ protected:
             canvas->drawPath(fPath[i], paint);
             canvas->translate(gXTranslate[i], fDY[i]);
         }
-
+#endif
     }
 
 private:
