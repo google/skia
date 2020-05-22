@@ -599,7 +599,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                 pipeline.append_transfer_function(*skcms_sRGB_TransferFunction());
             }
             if (alphaOrCSConversion) {
-                steps->apply(&pipeline, srcIsNormalized);
+                steps->apply(&pipeline);
             }
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);

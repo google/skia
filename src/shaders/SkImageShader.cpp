@@ -464,14 +464,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     };
 
     auto append_misc = [&] {
-        // This is an inessential optimization... it's logically safe to set this to false.
-        // But if...
-        //      - we know the image is definitely normalized, and
-        //      - we're doing some color space conversion, and
-        //      - sRGB curves are involved,
-        // then we can use slightly faster math that doesn't work well outside [0,1].
-        bool src_is_normalized = SkColorTypeIsNormalized(info.colorType());
-
         SkColorSpace* cs = info.colorSpace();
         SkAlphaType   at = info.alphaType();
 
@@ -480,7 +472,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             SkColor4f rgb = rec.fPaint.getColor4f();
             p->append_set_rgb(alloc, rgb);
 
-            src_is_normalized = rgb.fitsInBytes();
             cs = sk_srgb_singleton();
             at = kUnpremul_SkAlphaType;
         }
@@ -491,13 +482,12 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             p->append(at == kUnpremul_SkAlphaType || fClampAsIfUnpremul
                           ? SkRasterPipeline::clamp_1
                           : SkRasterPipeline::clamp_a);
-            src_is_normalized = true;
         }
 
         // Transform color space and alpha type to match shader convention (dst CS, premul alpha).
         alloc->make<SkColorSpaceXformSteps>(cs, at,
                                             rec.fDstCS, kPremul_SkAlphaType)
-            ->apply(p, src_is_normalized);
+            ->apply(p);
 
         return true;
     };

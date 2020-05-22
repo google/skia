@@ -203,9 +203,7 @@ public:
             rec.fPipeline->append(SkRasterPipeline::unpremul);
         }
 
-        // TODO: is it valuable to thread this through appendStages()?
-        bool shaderIsNormalized = false;
-        fSteps.apply(rec.fPipeline, shaderIsNormalized);
+        fSteps.apply(rec.fPipeline);
 
         if (!shaderIsOpaque) {
             rec.fPipeline->append(SkRasterPipeline::premul);

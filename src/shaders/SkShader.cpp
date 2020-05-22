@@ -189,7 +189,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
         rec.fPipeline->append(SkRasterPipeline::callback, cb);
         rec.fAlloc->make<SkColorSpaceXformSteps>(sk_srgb_singleton(), kPremul_SkAlphaType,
                                                  rec.fDstCS,          kPremul_SkAlphaType)
-            ->apply(rec.fPipeline, true);
+            ->apply(rec.fPipeline);
         return true;
     }
     return false;

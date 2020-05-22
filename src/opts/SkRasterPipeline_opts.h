@@ -1912,45 +1912,6 @@ STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
     b = fn(b);
 }
 
-STAGE(from_srgb, Ctx::None) {
-    auto fn = [](F s) {
-        U32 sign;
-        s = strip_sign(s, &sign);
-        auto lo = s * (1/12.92f);
-        auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
-        return apply_sign(if_then_else(s < 0.055f, lo, hi), sign);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
-}
-STAGE(to_srgb, Ctx::None) {
-    auto fn = [](F l) {
-        U32 sign;
-        l = strip_sign(l, &sign);
-        // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW ) || defined(JUMPER_IS_SKX)
-        const float c = 1.130048394203f,
-                    d = 0.141357362270f;
-    #elif defined(JUMPER_IS_NEON)
-        const float c = 1.129999995232f,
-                    d = 0.141381442547f;
-    #else
-        const float c = 1.129999995232f,
-                    d = 0.141377761960f;
-    #endif
-        F t = rsqrt(l);
-        auto lo = l * 12.92f;
-        auto hi = mad(t, mad(t, -0.0024542345f, 0.013832027f), c)
-                * rcp(d + t);
-        return apply_sign(if_then_else(l < 0.00465985f, lo, hi), sign);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
-}
-
 STAGE(load_a8, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
 
@@ -4253,8 +4214,6 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
     NOT_IMPLEMENTED(dither)  // TODO
-    NOT_IMPLEMENTED(from_srgb)
-    NOT_IMPLEMENTED(to_srgb)
     NOT_IMPLEMENTED(load_16161616)
     NOT_IMPLEMENTED(load_16161616_dst)
     NOT_IMPLEMENTED(store_16161616)
