@@ -124,10 +124,15 @@ sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "include/effects/SkStrokeAndFillPathEffect.h"
+#include "include/private/SkOnce.h"
 #include "src/core/SkPathPriv.h"
 
 sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
-    return sk_sp<SkPathEffect>(new SkStrokeAndFillPE);
+    static SkOnce once;
+    static SkPathEffect* strokeAndFill;
+
+    once([]{ strokeAndFill = new SkStrokeAndFillPE; });
+    return sk_ref_sp(strokeAndFill);
 }
 
 void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}
