@@ -230,6 +230,8 @@ static sk_sp<SkTextBlob> make_blob() {
     return builder.make();
 }
 
+// Turned off to pass on android and ios devices, which were running out of memory..
+#if 0
 static sk_sp<SkTextBlob> make_large_blob() {
     auto tf = SkTypeface::MakeFromName("Roboto2-Regular", SkFontStyle());
     SkFont font;
@@ -271,6 +273,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInf
     int y = 40;
     SkBitmap base = draw_blob(blob.get(), surface.get(), {40, y + 0.0f});
 }
+#endif
 
 static const bool kDumpPngs = true;
 // dump pngs needs a "good" and a "bad" directory to put the results in. This allows the use of the
