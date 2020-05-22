@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "accb89ee_e6d4dfb9",
+        "filename": "src/effects/SkOpPathEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-22T21:53:46Z",
+      "side": 1,
+      "message": "Another way to do this is\n\n    static SkPathEffect* strokeAndFill \u003d new SkStrokeAndFillPE;\n    return sk_ref_sp(strokeAndFill);\n\nFunction-scoped statics kind of have their own implicit SkOnce around their initialization.\n\nWe really only _need_ SkOnce nowadays for things like member variables that want to be once-per-object scoped.",
+      "revId": "dfa8a7f2c9ea9703f658689a40443d526306b7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
