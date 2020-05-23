@@ -3,6 +3,18 @@
 #include "include/effects/SkDiscretePathEffect.h"
 #include "modules/skparagraph/src/Decorations.h"
 
+static void draw_line_as_rect(SkCanvas* canvas, SkScalar x, SkScalar y, SkScalar width,
+                              const SkPaint& paint) {
+    if (false) {
+        canvas->drawLine(x, y, x + width, y, paint);
+    } else {
+        SkPaint p(paint);
+        p.setStroke(false);
+        float radius = paint.getStrokeWidth() * 0.5f;
+        canvas->drawRect({x, y - radius, x + width, y + radius}, p);
+    }
+}
+
 namespace skia {
 namespace textlayout {
 
@@ -48,8 +60,8 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
                   calculateGaps(context, left, left + width, bottom, bottom + fThickness, baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
-                  canvas->drawLine(x, y, x + width, y, fPaint);
-                  canvas->drawLine(x, bottom, x + width, bottom, fPaint);
+                  draw_line_as_rect(canvas, x,      y, width, fPaint);
+                  draw_line_as_rect(canvas, x, bottom, width, fPaint);
               }
               break;
           }
@@ -61,7 +73,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
                   calculateGaps(context, left, left + width, y, y + fThickness, baseline, 0);
                   canvas->drawPath(fPath, fPaint);
               } else {
-                  canvas->drawLine(x, y, x + width, y, fPaint);
+                  draw_line_as_rect(canvas, x, y, width, fPaint);
               }
               break;
           case TextDecorationStyle::kSolid:
@@ -71,7 +83,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
                   calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
-                  canvas->drawLine(x, y, x + width, y, fPaint);
+                  draw_line_as_rect(canvas, x, y, width, fPaint);
               }
               break;
           default:break;
