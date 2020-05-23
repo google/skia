@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba76eaef_ceb475c2",
+        "filename": "src/core/SkBlitter_Sprite.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-23T14:48:02Z",
+      "side": 0,
+      "message": "was this an implied conversion to bool?",
+      "range": {
+        "startLine": 137,
+        "startChar": 36,
+        "endLine": 137,
+        "endChar": 45
+      },
+      "revId": "88a3b462962d3d3df12f749c606faf498c5d00ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
