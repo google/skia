@@ -16,6 +16,24 @@
       "revId": "dfa8a7f2c9ea9703f658689a40443d526306b7dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d358e9_54fd0332",
+        "filename": "src/effects/SkOpPathEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-23T13:07:13Z",
+      "side": 1,
+      "message": "Right! This way is clearer, thanks.",
+      "parentUuid": "accb89ee_e6d4dfb9",
+      "revId": "dfa8a7f2c9ea9703f658689a40443d526306b7dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
