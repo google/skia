@@ -22,6 +22,11 @@ namespace skottie {
 using ScalarValue = SkScalar;
 using   Vec2Value = SkV2;
 
+struct OrientableVec2Value {
+    Vec2Value fVec;
+    float     fRot;
+};
+
 class VectorValue final : public std::vector<float> {
 public:
     VectorValue() = default;

@@ -11,6 +11,8 @@
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 
+#include <cmath>
+
 namespace skottie::internal {
 
 namespace  {
@@ -25,7 +27,9 @@ class Vec2KeyframeAnimator final : public KeyframeAnimator {
 public:
     class Builder final : public KeyframeAnimatorBuilder {
     public:
-        explicit Builder(Vec2Value* target) : fTarget(target) {}
+        Builder(Vec2Value* vec_target, float* rot_target)
+            : fVecTarget(vec_target)
+            , fRotTarget(rot_target) {}
 
         sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
                                      const skjson::ArrayValue& jkfs) override {
@@ -41,11 +45,12 @@ public:
                         new Vec2KeyframeAnimator(std::move(fKFs),
                                                  std::move(fCMs),
                                                  std::move(fValues),
-                                                 fTarget));
+                                                 fVecTarget,
+                                                 fRotTarget));
         }
 
         bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
-            return Parse(jv, fTarget);
+            return Parse(jv, fVecTarget);
         }
 
     private:
@@ -121,21 +126,30 @@ public:
         }
 
         std::vector<SpatialValue> fValues;
-        Vec2Value*                fTarget;
+        Vec2Value*                fVecTarget; // required
+        float*                    fRotTarget; // optional
         SkV2                      fTi{0,0},
                                   fTo{0,0};
     };
 
 private:
     Vec2KeyframeAnimator(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms,
-                         std::vector<SpatialValue> vs, Vec2Value* target_value)
+                         std::vector<SpatialValue> vs, Vec2Value* vec_target, float* rot_target)
         : INHERITED(std::move(kfs), std::move(cms))
         , fValues(std::move(vs))
-        , fTarget(target_value) {}
+        , fVecTarget(vec_target)
+        , fRotTarget(rot_target) {}
 
-    StateChanged update(const Vec2Value& new_value) {
-        const auto changed = (new_value != *fTarget);
-        *fTarget = new_value;
+    StateChanged update(const Vec2Value& new_vec_value, const SkVector& new_tan_value) {
+        auto changed = (new_vec_value != *fVecTarget);
+        *fVecTarget = new_vec_value;
+
+        if (fRotTarget) {
+            const auto new_rot_value = SkRadiansToDegrees(std::atan2(new_tan_value.fY,
+                                                                     new_tan_value.fX));
+            changed |= new_rot_value != *fRotTarget;
+            *fRotTarget = new_rot_value;
+        }
 
         return changed;
     }
@@ -147,18 +161,22 @@ private:
         if (v0.cmeasure) {
             // Spatial keyframe: the computed weight is relative to the interpolation path
             // arc length.
-            SkPoint pos;
-            if (v0.cmeasure->getPosTan(lerp_info.weight * v0.cmeasure->length(), &pos, nullptr)) {
-                return this->update({ pos.fX, pos.fY });
+            SkPoint  pos;
+            SkVector tan;
+            if (v0.cmeasure->getPosTan(lerp_info.weight * v0.cmeasure->length(), &pos, &tan)) {
+                return this->update({ pos.fX, pos.fY }, tan);
             }
         }
 
-        const auto& v1 = fValues[lerp_info.vrec1.idx];
-        return this->update(Lerp(v0.v2, v1.v2, lerp_info.weight));
+        const auto&     v1 = fValues[lerp_info.vrec1.idx];
+        const SkVector tan = {v1.v2.x - v0.v2.x, v1.v2.y - v0.v2.y};
+
+        return this->update(Lerp(v0.v2, v1.v2, lerp_info.weight), tan);
     }
 
     const std::vector<SpatialValue> fValues;
-    Vec2Value*                      fTarget;
+    Vec2Value*                      fVecTarget;
+    float*                          fRotTarget;
 
     using INHERITED = KeyframeAnimator;
 };
@@ -175,13 +193,32 @@ bool AnimatablePropertyContainer::bind<Vec2Value>(const AnimationBuilder& abuild
 
     if (!ParseDefault<bool>((*jprop)["s"], false)) {
         // Regular (static or keyframed) 2D value.
-        Vec2KeyframeAnimator::Builder builder(v);
+        Vec2KeyframeAnimator::Builder builder(v, nullptr);
         return this->bindImpl(abuilder, jprop, builder);
     }
 
     // Separate-dimensions vector value: each component is animated independently.
     return this->bind(abuilder, (*jprop)["x"], &v->x)
          | this->bind(abuilder, (*jprop)["y"], &v->y);
+}
+
+template <>
+bool AnimatablePropertyContainer::bind<OrientableVec2Value>(const AnimationBuilder& abuilder,
+                                                            const skjson::ObjectValue* jprop,
+                                                            OrientableVec2Value* v) {
+    if (!jprop) {
+        return false;
+    }
+
+    if (!ParseDefault<bool>((*jprop)["s"], false)) {
+        // Regular (static or keyframed) 2D value.
+        Vec2KeyframeAnimator::Builder builder(&v->fVec, &v->fRot);
+        return this->bindImpl(abuilder, jprop, builder);
+    }
+
+    // Separate-dimensions vector value: each component is animated independently.
+    return this->bind(abuilder, (*jprop)["x"], &v->fVec.x)
+         | this->bind(abuilder, (*jprop)["y"], &v->fVec.y);
 }
 
 } // namespace skottie::internal
