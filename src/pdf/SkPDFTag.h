@@ -8,6 +8,8 @@
 #ifndef SkPDFTag_DEFINED
 #define SkPDFTag_DEFINED
 
+#include <map>
+
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -32,11 +34,15 @@ private:
                      SkPDFTagNode* dst,
                      SkArenaAlloc* arena,
                      SkTHashMap<int, SkPDFTagNode*>* nodeMap);
+    SkPDFIndirectReference PrepareTagTreeToEmit(SkPDFIndirectReference parent,
+                                                SkPDFTagNode* node,
+                                                SkPDFDocument* doc);
 
     SkArenaAlloc fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
     SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;
+    std::map<int, SkPDFIndirectReference> fNodeIdToIndirectRefMap;
 
     SkPDFTagTree(const SkPDFTagTree&) = delete;
     SkPDFTagTree& operator=(const SkPDFTagTree&) = delete;

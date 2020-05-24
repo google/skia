@@ -250,10 +250,9 @@ static bool can_discard(SkPDFTagNode* node) {
     return true;
 }
 
-
-SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
-                                                SkPDFTagNode* node,
-                                                SkPDFDocument* doc) {
+SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference parent,
+                                                          SkPDFTagNode* node,
+                                                          SkPDFDocument* doc) {
     SkPDFIndirectReference ref = doc->reserveRef();
     std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
     SkPDFTagNode* children = node->fChildren;
@@ -261,7 +260,7 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     for (size_t i = 0; i < childCount; ++i) {
         SkPDFTagNode* child = &children[i];
         if (!(can_discard(child))) {
-            kids->appendRef(prepare_tag_tree_to_emit(ref, child, doc));
+            kids->appendRef(PrepareTagTreeToEmit(ref, child, doc));
         }
     }
     for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
@@ -292,10 +291,12 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     dict.insertObject("K", std::move(kids));
     SkString idString;
     idString.printf("%d", node->fNodeId);
-    dict.insertName("ID", idString.c_str());
+    dict.insertString("ID", idString.c_str());
     if (node->fAttributes) {
         dict.insertObject("A", std::move(node->fAttributes));
     }
+
+    fNodeIdToIndirectRefMap[node->fNodeId] = ref;
 
     return doc->emit(dict, ref);
 }
@@ -327,7 +328,7 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
 
     // Build the StructTreeRoot.
     SkPDFDict structTreeRoot("StructTreeRoot");
-    structTreeRoot.insertRef("K", prepare_tag_tree_to_emit(ref, fRoot, doc));
+    structTreeRoot.insertRef("K", PrepareTagTreeToEmit(ref, fRoot, doc));
     structTreeRoot.insertInt("ParentTreeNextKey", SkToInt(pageCount));
 
     // Build the parent tree, which is a mapping from the marked
@@ -348,5 +349,34 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     }
     parentTree.insertObject("Nums", std::move(parentTreeNums));
     structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
+
+    // Build the IDTree, a mapping from the unique ID of every
+    // struct tree element to its corresponding structure.
+    if (fNodeIdToIndirectRefMap.size() > 0) {
+        int lowestId = fNodeIdToIndirectRefMap.begin()->first;
+        int highestId = fNodeIdToIndirectRefMap.rbegin()->first;
+
+        SkPDFDict idTree;
+        SkPDFDict idTreeLeaf;
+        auto limits = SkPDFMakeArray();
+        SkString idString;
+        idString.printf("%d", lowestId);
+        limits->appendString(idString);
+        idString.printf("%d", highestId);
+        limits->appendString(idString);
+        idTreeLeaf.insertObject("Limits", std::move(limits));
+        auto names = SkPDFMakeArray();
+        for (const auto& entry : fNodeIdToIndirectRefMap) {
+            idString.printf("%d", entry.first);
+            names->appendString(idString);
+            names->appendRef(entry.second);
+        }
+        idTreeLeaf.insertObject("Names", std::move(names));
+        auto idTreeKids = SkPDFMakeArray();
+        idTreeKids->appendRef(doc->emit(idTreeLeaf));
+        idTree.insertObject("Kids", std::move(idTreeKids));
+        structTreeRoot.insertRef("IDTree", doc->emit(idTree));
+    }
+
     return doc->emit(structTreeRoot, ref);
 }
