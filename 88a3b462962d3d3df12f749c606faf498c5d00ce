@@ -22,6 +22,30 @@
       "revId": "88a3b462962d3d3df12f749c606faf498c5d00ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d902a728_74dd1f47",
+        "filename": "src/core/SkBlitter_Sprite.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-24T19:13:05Z",
+      "side": 0,
+      "message": "No, this was the variant of apply that took SkColorType.",
+      "parentUuid": "ba76eaef_ceb475c2",
+      "range": {
+        "startLine": 137,
+        "startChar": 36,
+        "endLine": 137,
+        "endChar": 45
+      },
+      "revId": "88a3b462962d3d3df12f749c606faf498c5d00ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
