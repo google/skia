@@ -10,6 +10,8 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/GrResolveLevelCounter.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
@@ -79,7 +81,7 @@ public:
 #undef UNIMPL
 
 private:
-    SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 5];
+    SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 8];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
     SkSTArenaAlloc<1024 * 1024> fAllocator;
 };
@@ -95,10 +97,15 @@ public:
     const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
 
-    class MiddleOutInnerTrianglesBench;
-    class OuterCubicsBench;
-    class CubicWedgesBench;
-    class WangsFormulaBench;
+    class prepareMiddleOutStencilGeometry;
+    class prepareMiddleOutStencilGeometry_indirect;
+    class prepareIndirectOuterCubics;
+    class prepareTessellatedOuterCubics;
+    class prepareTessellatedCubicWedges;
+    class wangs_formula_cubic_log2;
+    class wangs_formula_cubic_log2_scale;
+    class wangs_formula_cubic_log2_affine;
+    class middle_out_triangulation;
 
 private:
     void onDraw(int loops, SkCanvas*) final {
@@ -120,83 +127,91 @@ private:
     SkString fName;
 };
 
-class GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench
-        : public GrTessellatePathOp::TestingOnly_Benchmark {
-public:
-    MiddleOutInnerTrianglesBench()
-            : TestingOnly_Benchmark("prepareMiddleOutInnerTriangles",
-                                    ToolUtils::make_star(SkRect::MakeWH(100, 100),
-                                                         kNumCubicsInChalkboard),
-                                    SkMatrix::I()) {
-    }
-    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
-        int numBeziers;
-        op->prepareMiddleOutInnerTriangles(target, &numBeziers);
-    }
-};
+#define DEF_TESS_BENCH(NAME, PATH, MATRIX, TARGET, OP) \
+    class GrTessellatePathOp::TestingOnly_Benchmark::NAME \
+            : public GrTessellatePathOp::TestingOnly_Benchmark { \
+    public: \
+        NAME() : TestingOnly_Benchmark(#NAME, (PATH), (MATRIX)) {} \
+        void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override; \
+    }; \
+    DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::NAME(); ); \
+    void GrTessellatePathOp::TestingOnly_Benchmark::NAME::runBench( \
+            GrMeshDrawOp::Target* TARGET, GrTessellatePathOp* op)
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::MiddleOutInnerTrianglesBench(); );
+DEF_TESS_BENCH(prepareMiddleOutStencilGeometry, make_cubic_path(), SkMatrix::I(), target, op) {
+    op->prepareMiddleOutTrianglesAndCubics(target);
+}
 
-class GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench
-        : public GrTessellatePathOp::TestingOnly_Benchmark {
-public:
-    OuterCubicsBench()
-            : TestingOnly_Benchmark("prepareOuterCubics", make_cubic_path(), SkMatrix::I()) {
-    }
-    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
-        op->prepareOuterCubics(target, kNumCubicsInChalkboard,
-                               CubicDataAlignment::kVertexBoundary);
-    }
-};
+DEF_TESS_BENCH(prepareMiddleOutStencilGeometry_indirect, make_cubic_path(), SkMatrix::I(), target,
+               op) {
+    GrResolveLevelCounter resolveLevelCounter;
+    op->prepareMiddleOutTrianglesAndCubics(target, &resolveLevelCounter, true);
+}
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::OuterCubicsBench(); );
+DEF_TESS_BENCH(prepareIndirectOuterCubics, make_cubic_path(), SkMatrix::I(), target, op) {
+    GrResolveLevelCounter resolveLevelCounter;
+    resolveLevelCounter.reset(op->fPath, SkMatrix::I(), 4);
+    op->prepareIndirectOuterCubics(target, resolveLevelCounter);
+}
 
-class GrTessellatePathOp::TestingOnly_Benchmark::CubicWedgesBench
-        : public GrTessellatePathOp::TestingOnly_Benchmark {
-public:
-    CubicWedgesBench()
-            : TestingOnly_Benchmark("prepareCubicWedges", make_cubic_path(), SkMatrix::I()) {
-    }
-    void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override {
-        op->prepareCubicWedges(target);
-    }
-};
+DEF_TESS_BENCH(prepareTessellatedOuterCubics, make_cubic_path(), SkMatrix::I(), target, op) {
+    op->prepareTessellatedOuterCubics(target, kNumCubicsInChalkboard);
+}
 
-DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::CubicWedgesBench(););
+DEF_TESS_BENCH(prepareTessellatedCubicWedges, make_cubic_path(), SkMatrix::I(), target, op) {
+    op->prepareTessellatedCubicWedges(target);
+}
 
-class GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench
-        : public GrTessellatePathOp::TestingOnly_Benchmark {
-public:
-    WangsFormulaBench(const char* suffix, const SkMatrix& matrix)
-            : TestingOnly_Benchmark(SkStringPrintf("wangs_formula_cubic_log2%s", suffix).c_str(),
-                                    make_cubic_path(), SkMatrix::I())
-            , fMatrix(matrix) {
-    }
-    void runBench(GrMeshDrawOp::Target*, GrTessellatePathOp* op) override {
-        int sum = 0;
-        GrVectorXform xform(fMatrix);
-        for (auto [verb, pts, w] : SkPathPriv::Iterate(op->fPath)) {
-            if (verb == SkPathVerb::kCubic) {
-                sum += GrWangsFormula::cubic_log2(4, pts, xform);
-            }
-        }
-        // Don't let the compiler optimize away GrWangsFormula::cubic_log2.
-        if (sum <= 0) {
-            SK_ABORT("sum should be > 0.");
+static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
+    int sum = 0;
+    GrVectorXform xform(matrix);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kCubic) {
+            sum += GrWangsFormula::cubic_log2(4, pts, xform);
         }
     }
-private:
-    SkMatrix fMatrix;
-};
+    // Don't let the compiler optimize away GrWangsFormula::cubic_log2.
+    if (sum <= 0) {
+        SK_ABORT("sum should be > 0.");
+    }
+}
 
-DEF_BENCH(
-    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench("", SkMatrix::I());
-);
-DEF_BENCH(
-    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(
-            "_scale", SkMatrix::Scale(1.1f, 0.9f));
-);
-DEF_BENCH(
-    return new GrTessellatePathOp::TestingOnly_Benchmark::WangsFormulaBench(
-            "_affine", SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1));
-);
+DEF_TESS_BENCH(wangs_formula_cubic_log2, make_cubic_path(), SkMatrix::I(), target, op) {
+    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+}
+
+DEF_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(), SkMatrix::Scale(1.1f, 0.9f),
+               target, op) {
+    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+}
+
+DEF_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
+               SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1), target, op) {
+    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+}
+
+DEF_TESS_BENCH(middle_out_triangulation,
+               ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
+               SkMatrix::I(), target, op) {
+    auto vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
+            sizeof(SkPoint), kNumCubicsInChalkboard, nullptr, nullptr));
+    GrMiddleOutPolygonTriangulator middleOut(vertexData, 3, kNumCubicsInChalkboard + 2);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(op->fPath)) {
+        switch (verb) {
+            case SkPathVerb::kMove:
+                middleOut.closeAndMove(pts[0]);
+                break;
+            case SkPathVerb::kLine:
+                middleOut.pushVertex(pts[1]);
+                break;
+            case SkPathVerb::kClose:
+                middleOut.close();
+                break;
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kCubic:
+                SkUNREACHABLE;
+        }
+        middleOut.closeAndMove(pts[0]);
+    }
+}
