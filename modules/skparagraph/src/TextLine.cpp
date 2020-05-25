@@ -106,7 +106,8 @@ TextLine::TextLine(ParagraphImpl* master,
         }
     }
 
-    // Get the logical order
+// Get the logical order
+#if 0
     std::vector<UBiDiLevel> runLevels;
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fMaster->run(runIndex);
@@ -115,8 +116,21 @@ TextLine::TextLine(ParagraphImpl* master,
     }
 
     std::vector<int32_t> logicalOrder(numRuns);
-    ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
+#else
+    const int runCount = end.runIndex() - start.runIndex() + 1;
+    SkAutoSTArray<4, UBiDiLevel> runLevels(runCount);
+    int runLevelsIndex = 0;
+    for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
+        auto& run = fMaster->run(runIndex);
+        runLevels[runLevelsIndex++] = run.fBidiLevel;
+        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
+    }
+    SkASSERT(runLevelsIndex == runCount);
 
+    SkAutoSTArray<16, int32_t> logicalOrder(numRuns);
+#endif
+
+    ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);
