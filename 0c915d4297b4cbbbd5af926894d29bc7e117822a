@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "295f5a56_3acfd0fd",
+        "filename": "modules/skottie/src/animator/Animator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-25T15:54:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85305377_27dca162",
+      "range": {
+        "startLine": 63,
+        "startChar": 32,
+        "endLine": 63,
+        "endChar": 33
+      },
+      "revId": "0c915d4297b4cbbbd5af926894d29bc7e117822a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88c9fe54_066e7bb7",
         "filename": "modules/skottie/src/animator/Vec2KeyframeAnimator.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "0c915d4297b4cbbbd5af926894d29bc7e117822a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "717bc699_b128c35a",
+        "filename": "modules/skottie/src/animator/Vec2KeyframeAnimator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-05-25T15:54:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88c9fe54_066e7bb7",
+      "range": {
+        "startLine": 188,
+        "startChar": 64,
+        "endLine": 188,
+        "endChar": 65
+      },
+      "revId": "0c915d4297b4cbbbd5af926894d29bc7e117822a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
