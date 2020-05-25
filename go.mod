@@ -17,13 +17,14 @@ require (
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.2.0+incompatible // indirect
 	github.com/luci/gtreap v0.0.0-20161228054646-35df89791e8f // indirect
+	github.com/otiai10/copy v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200523054546-f0cbbf49e27f // indirect
-	go.skia.org/infra v0.0.0-20200522021524-374ac39a37f3
+	go.chromium.org/luci v0.0.0-20200524184858-ab1d1916efef // indirect
+	go.skia.org/infra v0.0.0-20200524051606-dbb4c0a8b550
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
