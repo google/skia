@@ -87,6 +87,20 @@ public:
     static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkVector t) { return Translate(t.x(), t.y()); }
     static SkMatrix SK_WARN_UNUSED_RESULT Translate(SkIVector t) { return Translate(t.x(), t.y()); }
 
+    /** Sets SkMatrix to rotate by |deg| about a pivot point at (0, 0).
+
+        @param deg  rotation angle in degrees (positive rotates clockwise)
+        @return     SkMatrix with rotation
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT RotateDeg(SkScalar deg) {
+        SkMatrix m;
+        m.setRotate(deg);
+        return m;
+    }
+    static SkMatrix SK_WARN_UNUSED_RESULT RotateRad(SkScalar rad) {
+        return RotateDeg(SkRadiansToDegrees(rad));
+    }
+
 #ifdef SK_SUPPORT_LEGACY_MATRIX_FACTORIES
     // DEPRECATED
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
