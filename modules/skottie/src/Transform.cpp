@@ -41,14 +41,11 @@ void TransformAdapter2D::onSync() {
 }
 
 SkMatrix TransformAdapter2D::totalMatrix() const {
-    SkMatrix t = SkMatrix::Translate(-fAnchorPoint.x, -fAnchorPoint.y);
-
-    t.postScale(fScale.x / 100, fScale.y / 100); // 100% based
-    t.postRotate(fRotation + fOrientation);
-    t.postTranslate(fPosition.x, fPosition.y);
     // TODO: skew
-
-    return t;
+    return SkMatrix::Translate(fPosition.x, fPosition.y)
+         * SkMatrix::RotateDeg(fRotation + fOrientation)
+         * SkMatrix::Scale    (fScale.x / 100, fScale.y / 100) // 100% based
+         * SkMatrix::Translate(-fAnchorPoint.x, -fAnchorPoint.y);
 }
 
 SkPoint TransformAdapter2D::getAnchorPoint() const {
