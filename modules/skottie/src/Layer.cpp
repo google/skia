@@ -275,9 +275,10 @@ private:
 
 LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer)
     : fJlayer(jlayer)
-    , fIndex(ParseDefault<int>(jlayer["ind"], -1))
+    , fIndex      (ParseDefault<int>(jlayer["ind"   ], -1))
     , fParentIndex(ParseDefault<int>(jlayer["parent"], -1))
-    , fType(ParseDefault<int>(jlayer["ty"], -1)) {
+    , fType       (ParseDefault<int>(jlayer["ty"    ], -1))
+    , fAutoOrient (ParseDefault<int>(jlayer["ao"    ],  0)) {
 
     if (this->isCamera() || ParseDefault<int>(jlayer["ddd"], 0)) {
         fFlags |= Flags::kIs3D;
@@ -364,7 +365,7 @@ sk_sp<sksg::Transform> LayerBuilder::doAttachTransform(const AnimationBuilder& a
 
     return this->is3D()
             ? abuilder.attachMatrix3D(*jtransform, std::move(parent_transform))
-            : abuilder.attachMatrix2D(*jtransform, std::move(parent_transform));
+            : abuilder.attachMatrix2D(*jtransform, std::move(parent_transform), fAutoOrient);
 }
 
 bool LayerBuilder::hasMotionBlur(const CompositionBuilder* cbuilder) const {

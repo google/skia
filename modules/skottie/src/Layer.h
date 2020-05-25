@@ -9,6 +9,7 @@
 #define SkottieLayer_DEFINED
 
 #include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/Transform.h"
 
 namespace skottie {
 namespace internal {
@@ -63,6 +64,7 @@ private:
     const int                  fIndex;
     const int                  fParentIndex;
     const int                  fType;
+    const bool                 fAutoOrient;
 
     sk_sp<sksg::Transform>     fLayerTransform;             // this layer's transform node.
     sk_sp<sksg::Transform>     fTransformCache[2];          // cached 2D/3D chain for the local node
