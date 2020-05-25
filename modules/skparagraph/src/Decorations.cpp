@@ -3,6 +3,17 @@
 #include "include/effects/SkDiscretePathEffect.h"
 #include "modules/skparagraph/src/Decorations.h"
 
+static void draw_line(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y, SkScalar w) {
+    if (true) {
+        canvas->drawLine(x, y, x + w, y, paint);
+    } else {
+        SkPaint p(paint);
+        p.setStroke(false);
+        SkScalar r = paint.getStrokeWidth() * 0.5;
+        canvas->drawRect({x, y - r, x + w, y + r}, p);
+    }
+}
+
 namespace skia {
 namespace textlayout {
 
@@ -71,7 +82,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
                   calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
-                  canvas->drawLine(x, y, x + width, y, fPaint);
+                  draw_line(canvas, fPaint, x, y, width);
               }
               break;
           default:break;
