@@ -299,6 +299,10 @@ def generate_args(target_os, enable_gpu):
     'skia_enable_fontmgr_win_gdi':        'false',
     'skia_use_fonthost_mac':              'false',
 
+    # enable skia's font shaper
+    'skia_use_icu':                       'true',
+    'skia_use_harfbuzz':                  'true',
+    
     # enable features used in skia_nanobench
     'skia_enable_sksl_interpreter':       'true',
     'skia_tools_require_resources':       'true',
