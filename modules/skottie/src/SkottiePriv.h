@@ -77,8 +77,10 @@ public:
 
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
-    sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
-    sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
+    sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, sk_sp<sksg::Transform>,
+                                          bool auto_orient = false) const;
+    sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, sk_sp<sksg::Transform>,
+                                          bool auto_orient = false) const;
 
     sk_sp<sksg::Transform> attachCamera(const skjson::ObjectValue& jlayer,
                                         const skjson::ObjectValue& jtransform,
