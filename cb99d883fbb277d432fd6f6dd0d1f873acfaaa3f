@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fd870fe_6698da24",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-26T20:31:21Z",
+      "side": 1,
+      "message": "nit: Sadly, our conventions vary wildly but it looks like the other doxygen comments in this file use a * on each line between the /** and the */.",
+      "revId": "cb99d883fbb277d432fd6f6dd0d1f873acfaaa3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
