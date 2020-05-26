@@ -838,6 +838,8 @@ go.chromium.org/luci v0.0.0-20200523054546-f0cbbf49e27f h1:jA8gzR8ENqD5O5xisx8/0
 go.chromium.org/luci v0.0.0-20200523054546-f0cbbf49e27f/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20200524184858-ab1d1916efef h1:n0YmaJQFhbnBvVQB/FETGkva8pCbT637Clp7K7bC9QY=
 go.chromium.org/luci v0.0.0-20200524184858-ab1d1916efef/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20200526012907-6aaf9821073c h1:lL+V5nazifwK27w9oKF83yHbObKJqMVJOZ0lP2lt//I=
+go.chromium.org/luci v0.0.0-20200526012907-6aaf9821073c/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.mongodb.org/mongo-driver v1.1.0/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
