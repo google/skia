@@ -43,109 +43,103 @@
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
-  var legoJSON = null;
-  var drinksJSON = null;
-  var confettiJSON = null;
-  var onboardingJSON = null;
-  var multiFrameJSON = null;
-  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
-
-  var robotoData = null;
-  var notoserifData = null;
-
-  var flightAnimGif = null;
-  var skpData = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
-  const ckLoaded = CanvasKitInit({
-    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  });
-  ckLoaded.then((CK) => {
-    CanvasKit = CK;
-    // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'image_0.png': flightAnimGif,
-    });
-    ParticlesAPI1(CanvasKit);
 
-    ParagraphAPI1(CanvasKit, robotoData);
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
 
-    RTShaderAPI1(CanvasKit);
+  const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((response) => response.text());
+  const loadDrinksJSON = fetch(cdn + 'drinks.json').then((response) => response.text());
+  const loadConfettiJSON = fetch(cdn + 'confetti.json').then((response) => response.text());
+  const loadOnboardingJSON = fetch(cdn + 'onboarding.json').then((response) => response.text());
+  const loadMultiframeJSON = fetch(cdn + 'skottie_sample_multiframe.json').then((response) => response.text());
 
-    SkpExample(CanvasKit, skpData);
-
-    SurfaceAPI1(CanvasKit);
-  });
-
-  fetch(cdn + 'lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    });
-  });
-
-  fetch(cdn + 'drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'skottie_sample_multiframe.json').then((resp) => {
-    resp.text().then((str) => {
-      multiFrameJSON = str;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch(cdn + 'flightAnim.gif').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      flightAnimGif = buffer;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      robotoData = buffer;
-      ParagraphAPI1(CanvasKit, robotoData);
-    });
-  });
-
-  fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
-    skpData = buffer;
-    SkpExample(CanvasKit, skpData);
-  });
-
+  const loadFlightGif = fetch(cdn + 'flightAnim.gif').then((response) => response.arrayBuffer());
+  const loadSkp = fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer());
+  const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
   const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
   const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
   const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
-  Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
+
+  const curves = {
+    "MaxCount": 1000,
+    "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+    },
+    "EffectCode": [`
+      void effectSpawn(inout Effect effect) {
+        effect.rate = 200;
+        effect.color = float4(1, 0, 0, 1);
+      }
+      `
+    ],
+    "Code": [`
+      void spawn(inout Particle p) {
+        p.lifetime = 3 + rand(p.seed);
+        p.vel.y = -50;
+      }
+      
+      void update(inout Particle p) {
+        float w = mix(15, 3, p.age);
+        p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
+        if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
+      
+        p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
+      }
+      `
+    ],
+    "Bindings": []
+  };
+
+  const spiralSkSL = `
+  uniform float rad_scale;
+  uniform float2 in_center;
+  uniform float4 in_colors0;
+  uniform float4 in_colors1;
+
+  void main(float2 p, inout half4 color) {
+      float2 pp = p - in_center;
+      float radius = sqrt(dot(pp, pp));
+      radius = sqrt(radius);
+      float angle = atan(pp.y / pp.x);
+      float t = (angle + 3.1415926/2) / (3.1415926);
+      t += radius * rad_scale;
+      t = fract(t);
+      color = half4(mix(in_colors0, in_colors1, t));
+  }`;
+
+  // Examples which only require canvaskit
+  ckLoaded.then((CK) => {
+    CanvasKit = CK;
+    ParticlesAPI1(CanvasKit);
+    RTShaderAPI1(CanvasKit);
+    SurfaceAPI1(CanvasKit);
+  });
+
+  // Examples requiring external resources.
+  // Set bounds to fix the 4:3 resolution of the legos
+  Promise.all([ckLoaded, loadLegoJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_legos', jsonstr, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+  });
+  // Re-size to fit
+  let fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+  Promise.all([ckLoaded, loadDrinksJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_drinks', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadConfettiJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_party', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadOnboardingJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_onboarding', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadMultiframeJSON, loadFlightGif]).then(([ck, jsonstr, gif]) => {
+    SkottieExample(ck, 'sk_animated_gif', jsonstr, fullBounds, {'image_0.png': gif});
+  });
+
+  Promise.all([ckLoaded, loadFont]).then((results) => {ParagraphAPI1(...results)});
+  Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
+  Promise.all([ckLoaded, loadBrickTex, loadBrickBump, loadFont]).then((results) => {Camera3D(...results)});
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
@@ -208,37 +202,6 @@
     }
     surface.requestAnimationFrame(drawFrame);
   }
-
-const curves = {
-   "MaxCount": 1000,
-   "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 2
-   },
-   "EffectCode": [
-      "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 200;",
-      "  effect.color = float4(1, 0, 0, 1);",
-      "}",
-      ""
-   ],
-   "Code": [
-      "void spawn(inout Particle p) {",
-      "  p.lifetime = 3 + rand(p.seed);",
-      "  p.vel.y = -50;",
-      "}",
-      "",
-      "void update(inout Particle p) {",
-      "  float w = mix(15, 3, p.age);",
-      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));",
-      "  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }",
-      "",
-      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;",
-      "}",
-      ""
-   ],
-   "Bindings": []
-};
 
   function SurfaceAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('surfaces');
@@ -371,23 +334,6 @@ const curves = {
     document.getElementById('para1').addEventListener('pointermove', interact);
     return surface;
   }
-
-  const spiralSkSL = `
-    uniform float rad_scale;
-    uniform float2 in_center;
-    uniform float4 in_colors0;
-    uniform float4 in_colors1;
-
-    void main(float2 p, inout half4 color) {
-        float2 pp = p - in_center;
-        float radius = sqrt(dot(pp, pp));
-        radius = sqrt(radius);
-        float angle = atan(pp.y / pp.x);
-        float t = (angle + 3.1415926/2) / (3.1415926);
-        t += radius * rad_scale;
-        t = fract(t);
-        color = half4(mix(in_colors0, in_colors1, t));
-    }`;
 
   function RTShaderAPI1(CanvasKit) {
     if (!CanvasKit) {
@@ -557,7 +503,7 @@ const curves = {
     surface.drawOnce(drawFrame);
   }
 
-  function Camera3D(canvas, textureImgData, normalImgData) {
+  function Camera3D(canvas, textureImgData, normalImgData, robotoData) {
     if (!canvas) {
 
     }
