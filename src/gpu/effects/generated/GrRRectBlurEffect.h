@@ -66,7 +66,8 @@ public:
 
         GrPaint paint;
 
-        rtc->clear(SK_PMColor4fTRANSPARENT);
+        rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                   GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 

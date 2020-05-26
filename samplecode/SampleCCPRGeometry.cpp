@@ -198,7 +198,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         auto ccbuff = GrRenderTargetContext::Make(
                 ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
         SkASSERT(ccbuff);
-        ccbuff->clear(SK_PMColor4fTRANSPARENT);
+        ccbuff->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                      GrRenderTargetContext::CanClearFullscreen::kYes);
         ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
 
         // Visualize coverage count in main canvas.

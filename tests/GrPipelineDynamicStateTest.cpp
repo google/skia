@@ -229,7 +229,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     uint32_t resultPx[kScreenSize * kScreenSize];
 
     for (GrScissorTest scissorTest : {GrScissorTest::kEnabled, GrScissorTest::kDisabled}) {
-        rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
+        rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
+                   GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->priv().testingOnly_addDrawOp(
             GrPipelineDynamicStateTestOp::Make(context, scissorTest, vbuff));
         rtc->readPixels(SkImageInfo::Make(kScreenSize, kScreenSize,

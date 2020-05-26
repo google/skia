@@ -753,15 +753,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     // clear the part that we care about.
     SkPMColor4f initialCoverage =
         InitialState::kAllIn == this->initialState() ? SK_PMColor4fWHITE : SK_PMColor4fTRANSPARENT;
-    if (clip.hasWindowRectangles()) {
-        GrPaint paint;
-        paint.setColor4f(initialCoverage);
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        rtc->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                      SkRect::Make(clip.scissorRect()));
-    } else {
-        rtc->priv().clearAtLeast(clip.scissorRect(), initialCoverage);
-    }
+    rtc->priv().clear(clip, initialCoverage, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
     SkMatrix translate;

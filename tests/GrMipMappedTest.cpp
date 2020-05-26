@@ -368,6 +368,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
 
 // Test that two opsTasks using the same mipmaps both depend on the same GrTextureResolveRenderTask.
 DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
+    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
     using Enable = GrContextOptions::Enable;
     using Filter = GrSamplerState::Filter;
 
@@ -405,7 +406,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         auto mipmapRTC = GrRenderTargetContext::Make(
             context.get(), colorType, nullptr, mipmapProxy, kTopLeft_GrSurfaceOrigin, nullptr);
 
-        mipmapRTC->clear({.1f,.2f,.3f,.4f});
+        mipmapRTC->clear(nullptr, {.1f,.2f,.3f,.4f}, CanClearFullscreen::kYes);
         REPORTER_ASSERT(reporter, mipmapProxy->getLastRenderTask());
         // mipmapProxy's last render task should now just be the opsTask containing the clear.
         REPORTER_ASSERT(reporter,
@@ -449,7 +450,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         REPORTER_ASSERT(reporter, rtc2Task->dependsOn(initialMipmapRegenTask));
 
         // Render something to dirty the mips.
-        mipmapRTC->clear({.1f,.2f,.3f,.4f});
+        mipmapRTC->clear(nullptr, {.1f,.2f,.3f,.4f}, CanClearFullscreen::kYes);
         auto mipmapRTCTask = sk_ref_sp(mipmapRTC->testingOnly_PeekLastOpsTask());
         REPORTER_ASSERT(reporter, mipmapRTCTask);
 

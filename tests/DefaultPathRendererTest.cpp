@@ -88,7 +88,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kBigSize/2 + 1, kBigSize/2 + 1});
 
-        rtc->clear(SK_PMColor4fBLACK);
+        rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         GrPaint paint;
 
@@ -106,7 +106,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         auto rtc = GrRenderTargetContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
 
-        rtc->clear(SK_PMColor4fBLACK);
+        rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         GrPaint paint;
 
