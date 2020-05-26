@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "dc827c31_19c8449f",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-26T15:27:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c97fbeb_34f6b31b",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 265,
+        "endChar": 10
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "facbefcb_a0918f5c",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 4
@@ -141,6 +165,30 @@
       "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8de17624_7e99e04d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-26T15:27:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72886799_16d2fa65",
+      "range": {
+        "startLine": 553,
+        "startChar": 0,
+        "endLine": 562,
+        "endChar": 5
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
