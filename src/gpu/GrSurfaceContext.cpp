@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrSurfaceContext.h"
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -23,6 +24,7 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
@@ -501,6 +503,61 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
             this->readSurfaceView(), dstPoint);
 }
 
+template <int N> static std::unique_ptr<GrSkSLFP> make_avg_effect(GrRecordingContext* context) {
+    static sk_sp<SkRuntimeEffect> gEffect;
+    static SkString gName;
+    if (!gEffect) {
+        SkString string;
+        for (int i = 0; i < N; ++i) {
+            string.appendf("in fragmentProcessor child%d;\n", i);
+        }
+        string.append("void main(float2 p, inout half4 color) {\n");
+        for (int i = 0; i < N; ++i) {
+            string.appendf("    color %c= sample(child%d, p);\n", i ? '+' : ' ', i);
+        }
+        string.appendf("    color /= half(%d);\n"
+                       "}\n", N);
+        gEffect = std::get<0>(SkRuntimeEffect::Make(std::move(string)));
+        SkASSERT(gEffect);
+        gName.printf("Avg%d", N);
+    }
+    return GrSkSLFP::Make(context, gEffect, gName.c_str(), nullptr);
+}
+
+template <int NX, int NY>
+static std::unique_ptr<GrFragmentProcessor> make_multibilerp_effect(GrRecordingContext* context,
+                                                                    GrSurfaceProxyView srcView,
+                                                                    SkAlphaType alphaType,
+                                                                    const SkIRect& srcRect,
+                                                                    const SkISize& dstSize) {
+    auto effect = make_avg_effect<NX*NY>(context);
+
+    // scale factors.
+    float sx = static_cast<float>(srcRect.width()) /dstSize.width(),
+          sy = static_cast<float>(srcRect.height())/dstSize.height();
+    // spacing between bilerp samples.
+    float dx = sx/NX,
+          dy = sy/NY;
+    // offset in src from back projection of dst pixel center to left/upper-most bilerp sample.
+    float x0 = (dx - sx)/2,
+          y0 = (dy - sy)/2;
+
+    const auto& caps = *context->priv().caps();
+    for (int j = 0; j < NY; ++j) {
+        for (int i = 0; i < NX; ++i) {
+            float tx = x0 + i*dx,
+                  ty = y0 + j*dy;
+            SkMatrix m = SkMatrix::Scale(sx, sy);
+            m.postTranslate(tx + srcRect.x(), ty + srcRect.y());
+            SkRect domain = SkRect::Make(srcRect).makeInset(sx/2, sy/2).makeOffset(tx, ty);
+            effect->addChild(GrTextureEffect::MakeSubset(srcView, alphaType, m,
+                                                         GrSamplerState::Filter::kBilerp,
+                                                         SkRect::Make(srcRect), domain, caps));
+        }
+    }
+    return std::move(effect);
+}
+
 std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         const GrImageInfo& info,
         GrSurfaceOrigin origin,
@@ -564,22 +621,42 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         srcRect = SkIRect::MakeSize(srcRect.size());
     }
 
-    while (srcRect.size() != info.dimensions()) {
-        SkISize nextDims = info.dimensions();
-        if (rescaleQuality != kNone_SkFilterQuality) {
-            if (srcRect.width() > info.width()) {
-                nextDims.fWidth = std::max((srcRect.width() + 1)/2, info.width());
-            } else if (srcRect.width() < info.width()) {
-                nextDims.fWidth = std::min(srcRect.width()*2, info.width());
-            }
-            if (srcRect.height() > info.height()) {
-                nextDims.fHeight = std::max((srcRect.height() + 1)/2, info.height());
-            } else if (srcRect.height() < info.height()) {
-                nextDims.fHeight = std::min(srcRect.height()*2, info.height());
-            }
+    enum StepType {
+        kNearest,
+        kBilinear,
+        kFourTapBilinear,
+        kBicubic,
+    };
+    auto determineNextStep = [rescaleQuality, finalSize = info.dimensions()](SkISize srcSize) {
+        if (rescaleQuality == kNone_SkFilterQuality) {
+            return std::tuple(StepType::kNearest, finalSize);
         }
+        SkISize nextSize;
+        if (srcSize.width() > finalSize.width()) {
+            nextSize.fWidth = std::max((srcSize.width() + 1)/2, finalSize.width());
+        } else {
+            nextSize.fWidth = std::min(srcSize.width()*2, finalSize.width());
+        }
+        if (srcSize.height() > finalSize.height()) {
+            nextSize.fHeight = std::max((srcSize.height() + 1)/2, finalSize.height());
+        } else {
+            nextSize.fHeight = std::min(srcSize.height()*2, finalSize.height());
+        }
+        if (rescaleQuality == kHigh_SkFilterQuality) {
+            return std::tuple(StepType::kBicubic, nextSize);
+        }
+        // See if we can do multiple bilinear steps in one.
+        if (nextSize.width() > finalSize.width() && nextSize.height() > finalSize.height()) {
+            nextSize = {std::max((nextSize.width()  + 1)/2, finalSize.width()),
+                        std::max((nextSize.height() + 1)/2, finalSize.height())};
+            return std::tuple{StepType::kFourTapBilinear, nextSize};
+        }
+        return std::tuple{StepType::kBilinear, nextSize};
+    };
+    while (srcRect.size() != info.dimensions()) {
+        auto [stepType, nextDims] = determineNextStep(srcRect.size());
         auto input = tempA ? tempA.get() : this;
-        GrColorType colorType = input->colorInfo().colorType();
+        auto colorType = input->colorInfo().colorType();
         auto cs = input->colorInfo().refColorSpace();
         sk_sp<GrColorSpaceXform> xform;
         auto prevAlphaType = input->colorInfo().alphaType();
@@ -597,42 +674,54 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             return nullptr;
         }
         auto dstRect = SkRect::Make(nextDims);
-        if (rescaleQuality == kHigh_SkFilterQuality) {
-            SkMatrix matrix;
-            matrix.setScaleTranslate((float)srcRect.width()/nextDims.width(),
-                                     (float)srcRect.height()/nextDims.height(),
-                                     srcRect.x(),
-                                     srcRect.y());
-            std::unique_ptr<GrFragmentProcessor> fp;
-            auto dir = GrBicubicEffect::Direction::kXY;
-            if (nextDims.width() == srcRect.width()) {
-                dir = GrBicubicEffect::Direction::kY;
-            } else if (nextDims.height() == srcRect.height()) {
-                dir = GrBicubicEffect::Direction::kX;
-            }
-            static constexpr GrSamplerState::WrapMode kWM = GrSamplerState::WrapMode::kClamp;
-            fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix, kWM, kWM,
-                                             SkRect::Make(srcRect), dir, *this->caps());
-            if (xform) {
+        switch (stepType) {
+            case StepType::kBicubic: {
+                SkMatrix matrix;
+                matrix.setScaleTranslate((float)srcRect.width() /nextDims.width(),
+                                         (float)srcRect.height()/nextDims.height(),
+                                         srcRect.x(),
+                                         srcRect.y());
+                auto dir = GrBicubicEffect::Direction::kXY;
+                if (nextDims.width() == srcRect.width()) {
+                    dir = GrBicubicEffect::Direction::kY;
+                } else if (nextDims.height() == srcRect.height()) {
+                    dir = GrBicubicEffect::Direction::kX;
+                }
+                static constexpr GrSamplerState::WrapMode kWM = GrSamplerState::WrapMode::kClamp;
+                auto fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix,
+                                                      kWM, kWM, SkRect::Make(srcRect), dir,
+                                                      *this->caps());
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+                GrPaint paint;
+                paint.addColorFragmentProcessor(std::move(fp));
+                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+                tempB->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect);
+                break;
             }
-            GrPaint paint;
-            paint.addColorFragmentProcessor(std::move(fp));
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            tempB->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
-                                  dstRect);
-        } else {
-            auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
-                                                                  : GrSamplerState::Filter::kBilerp;
-            // Minimizing draw with integer coord src and dev rects can always be kFast.
-            auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
-            if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
-                constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
+            case StepType::kFourTapBilinear: {
+                auto fp = make_multibilerp_effect<2, 2>(fContext, texView, srcAlphaType, srcRect,
+                                                        nextDims);
+                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+                GrPaint paint;
+                paint.addColorFragmentProcessor(std::move(fp));
+                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+                tempB->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect);
+                break;
             }
-            tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
-                               SkBlendMode::kSrc, SK_PMColor4fWHITE, SkRect::Make(srcRect), dstRect,
-                               GrAA::kNo, GrQuadAAFlags::kNone, constraint, SkMatrix::I(),
-                               std::move(xform));
+            default: {
+                auto filter = stepType == StepType::kNearest ? GrSamplerState::Filter::kNearest
+                                                             : GrSamplerState::Filter::kBilerp;
+                // Minimizing draw with integer coord src and dev rects can always be kFast.
+                auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
+                if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
+                    constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
+                }
+                tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
+                                   SkBlendMode::kSrc, SK_PMColor4fWHITE, SkRect::Make(srcRect),
+                                   dstRect, GrAA::kNo, GrQuadAAFlags::kNone, constraint,
+                                   SkMatrix::I(), std::move(xform));
+                break;
+            }
         }
         texView = tempB->readSurfaceView();
         tempA = std::move(tempB);
