@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f39396c_567c6084",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "rm ?",
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bda59f8c_0e8d73b5",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "\u0027*\u0027 - we only ever use \u0027\u0026\u0027 as \"const\u0026\"",
+      "range": {
+        "startLine": 134,
+        "startChar": 76,
+        "endLine": 134,
+        "endChar": 78
+      },
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98e7cb76_4b176867",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 179,
+        "startChar": 52,
+        "endLine": 179,
+        "endChar": 53
+      },
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57f0f53c_a6fd8e0f",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 204,
+        "startChar": 53,
+        "endLine": 204,
+        "endChar": 54
+      },
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a18cef37_3eaa8fce",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "// TODO: additionally fuzz the lifetime of the DDL. Right now we always delete it on the gpu thread but Chrome may want to off load that work to a cpu thread.",
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d475d33_6405c4e2",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "I guess these should use the:\n\n/**\n *\n */\n\nformatting.",
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb1c4fcc_423a116b",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "This ...",
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36d5f470_ce3961ef",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T19:24:27Z",
+      "side": 1,
+      "message": "... and this don\u0027t actually check the failure mode in skbug.com/8424 any more. I believe what would have to happen is to check the DAG in the GrGpu attached to \u0027fContext\u0027 to see if it had any work pending.\n\nThat said, I don\u0027t really know if the bug in skbug.com/8424 can occur any longer.",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 39
+      },
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
