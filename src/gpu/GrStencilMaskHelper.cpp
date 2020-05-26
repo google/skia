@@ -462,15 +462,7 @@ bool GrStencilMaskHelper::drawShape(const GrShape& shape,
 }
 
 void GrStencilMaskHelper::clear(bool insideStencil) {
-    if (fClip.fixedClip().hasWindowRectangles()) {
-        // Use a draw to benefit from window rectangles when resetting the stencil buffer; for
-        // large buffers with MSAA this can be significant.
-        draw_stencil_rect(fRTC, fClip.fixedClip(),
-                          GrStencilSettings::SetClipBitSettings(insideStencil), SkMatrix::I(),
-                          SkRect::Make(fClip.fixedClip().scissorRect()), GrAA::kNo);
-    } else {
-        fRTC->priv().clearStencilClip(fClip.fixedClip().scissorRect(), insideStencil);
-    }
+    fRTC->priv().clearStencilClip(fClip.fixedClip(), insideStencil);
 }
 
 void GrStencilMaskHelper::finish() {

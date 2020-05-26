@@ -21,7 +21,12 @@ public:
     static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
                                            const GrScissorState& scissor,
                                            const SkPMColor4f& color,
-                                           const GrSurfaceProxy* dstProxy);
+                                           GrSurfaceProxy* dstProxy);
+
+    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
+                                           const SkIRect& rect,
+                                           const SkPMColor4f& color,
+                                           bool fullScreen);
 
     const char* name() const override { return "Clear"; }
 
@@ -47,7 +52,18 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctors
 
-    GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color, const GrSurfaceProxy* proxy);
+    GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color, GrSurfaceProxy* proxy);
+
+    GrClearOp(const SkIRect& rect, const SkPMColor4f& color, bool fullScreen)
+        : INHERITED(ClassID())
+        , fScissor(rect)
+        , fColor(color) {
+
+        if (fullScreen) {
+            fScissor.setDisabled();
+        }
+        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsHairline::kNo);
+    }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {

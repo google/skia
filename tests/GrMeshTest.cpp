@@ -600,7 +600,8 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
     }
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
-    rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
+    rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
+               GrRenderTargetContext::CanClearFullscreen::kYes);
     rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(context, prepareFn, executeFn));
 
     rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});

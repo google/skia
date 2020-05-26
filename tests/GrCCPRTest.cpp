@@ -74,7 +74,8 @@ public:
     GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
 
     bool valid() const { return fCCPR && fRTC; }
-    void clear() const { fRTC->clear(SK_PMColor4fTRANSPARENT); }
+    void clear() const { fRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                                     GrRenderTargetContext::CanClearFullscreen::kYes); }
     void destroyGrContext() {
         SkASSERT(fCtx->unique());
         fRTC.reset();

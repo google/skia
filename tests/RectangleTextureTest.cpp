@@ -35,7 +35,8 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
     for (auto filter : {GrSamplerState::Filter::kNearest,
                         GrSamplerState::Filter::kBilerp,
                         GrSamplerState::Filter::kMipMap}) {
-        rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
+        rtContext->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA),
+                         GrRenderTargetContext::CanClearFullscreen::kYes);
         auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -50,7 +51,8 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
     if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
-        rtc->clear(SkPMColor4f::FromBytes_RGBA(color0));
+        rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(color0),
+                   GrRenderTargetContext::CanClearFullscreen::kNo);
 
         int w = rtc->width();
         int h = rtc->height();
@@ -71,7 +73,8 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
         // Clear the the top to a different color.
         GrColor color1 = GrColorPackRGBA(0x1, 0x2, 0x3, 0x4);
         SkIRect rect = SkIRect::MakeWH(w, h/2);
-        rtc->clear(rect, SkPMColor4f::FromBytes_RGBA(color1));
+        rtc->clear(&rect, SkPMColor4f::FromBytes_RGBA(color1),
+                   GrRenderTargetContext::CanClearFullscreen::kNo);
 
         uint32_t expectedColor1 = 0;
         uint8_t* expectedBytes1 = reinterpret_cast<uint8_t*>(&expectedColor1);

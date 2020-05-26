@@ -191,7 +191,8 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     auto clear = [&](SkIRect rect) {
         // Transform rect into the render target's coord system.
         rect.offset(-rtcToSrcOffset);
-        dstRenderTargetContext->priv().clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
+        dstRenderTargetContext->clear(&rect, SK_PMColor4fTRANSPARENT,
+        GrRenderTargetContext::CanClearFullscreen::kYes);
     };
 
     if (!top.isEmpty()) {
