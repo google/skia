@@ -141,7 +141,7 @@ Samples
   let fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
   const ckLoaded = CanvasKitInit({
     locateFile: (file) => locate_file + file,
-  }).ready();
+  });
 
   ckLoaded.then((CK) => {
     CanvasKit = CK;

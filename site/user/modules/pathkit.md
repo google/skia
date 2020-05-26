@@ -50,7 +50,7 @@ The primary features are:
     try {
       PathKitInit({
         locateFile: (file) => window.__pathkit_locate_file+file,
-      }).ready().then((PathKit) => {
+      }).then((PathKit) => {
         // Code goes here using PathKit
         PathEffectsExample(PathKit);
         MatrixTransformExample(PathKit);
