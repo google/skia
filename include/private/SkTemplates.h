@@ -114,6 +114,10 @@ public:
         return fArray[index];
     }
 
+    // aliases matching other types like std::vector
+    const T* data() const { return fArray; }
+    T* data() { return fArray; }
+
 private:
     std::unique_ptr<T[]> fArray;
     SkDEBUGCODE(int fCount = 0;)
@@ -202,6 +206,11 @@ public:
         SkASSERT(index < fCount);
         return fArray[index];
     }
+
+    // aliases matching other types like std::vector
+    const T* data() const { return fArray; }
+    T* data() { return fArray; }
+    size_t size() const { return fCount; }
 
 private:
 #if defined(SK_BUILD_FOR_GOOGLE3)
