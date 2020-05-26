@@ -56,6 +56,10 @@ struct IntLiteral : public Expression {
         return fValue;
     }
 
+    int nodeCount() const override {
+        return 1;
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
     }
