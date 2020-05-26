@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2561c823_9b67f516",
+        "filename": "modules/skparagraph/src/Decorations.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-26T16:35:40Z",
+      "side": 1,
+      "message": "just for testing -- will remove",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 13
+      },
+      "revId": "12f6c323c92f4db16c08fead8a7eba25a417fdb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
