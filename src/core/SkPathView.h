@@ -61,7 +61,7 @@ static inline SkPathView SkPathView_triangle(const SkPoint pts[3], const SkRect&
         (uint8_t)SkPathVerb::kLine,
         (uint8_t)SkPathVerb::kLine,
     };
-    return SkPathView({pts, 3}, SkMakeSpan(verbs), {},
+    return SkPathView({pts, 3}, SkSpan(verbs), {},
                       SkPathFillType::kWinding, SkPathConvexity::kConvex,
                       bounds, kLine_SkPathSegmentMask, true);
 }
@@ -73,7 +73,7 @@ static inline SkPathView SkPathView_quad(const SkPoint pts[4], const SkRect& bou
         (uint8_t)SkPathVerb::kLine,
         (uint8_t)SkPathVerb::kLine,
     };
-    return SkPathView({pts, 4}, SkMakeSpan(verbs), {},
+    return SkPathView({pts, 4}, SkSpan(verbs), {},
                       SkPathFillType::kWinding, SkPathConvexity::kConvex,
                       bounds, kLine_SkPathSegmentMask, true);
 };
