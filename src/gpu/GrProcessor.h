@@ -119,6 +119,7 @@ public:
         kGrMatrixConvolutionEffect_ClassID,
         kGrMatrixEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
+        kGrNTapEffect_ClassID,
         kGrMorphologyEffect_ClassID,
         kGrMixerEffect_ClassID,
         kGrOverrideInputFragmentProcessor_ClassID,
