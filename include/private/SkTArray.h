@@ -20,10 +20,15 @@
 #include <new>
 #include <utility>
 
-/** When MEM_MOVE is true T will be bit copied when moved.
-    When MEM_MOVE is false, T will be copy constructed / destructed.
-    In all cases T will be default-initialized on allocation,
-    and its destructor will be called from this object's destructor.
+/** SkTArray<T> implements a typical, mostly std::vector-like array.
+    Each T will be default-initialized on allocation, and ~T will be called on destruction.
+
+    MEM_MOVE controls the behavior when a T needs to be moved (e.g. when the array is resized)
+      - true: T will be bit-copied via memcpy.
+      - false: T will be moved via move-constructors.
+
+    Modern implementations of std::vector<T> will generally provide similar performance
+    characteristics when used with appropriate care. Consider using std::vector<T> in new code.
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:

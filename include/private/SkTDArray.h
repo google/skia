@@ -17,6 +17,13 @@
 #include <initializer_list>
 #include <utility>
 
+/** SkTDArray<T> implements a std::vector-like array for raw data-only objects that do not require
+    construction or destruction. The constructor and destructor for T will not be called; T objects
+    will always be moved via raw memcpy. Newly created T objects will contain uninitialized memory.
+
+    In most cases, std::vector<T> can provide a similar level of performance for POD objects when
+    used with appropriate care. In new code, consider std::vector<T> instead.
+*/
 template <typename T> class SkTDArray {
 public:
     SkTDArray() : fArray(nullptr), fReserve(0), fCount(0) {}
