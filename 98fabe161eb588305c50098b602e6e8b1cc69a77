@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10692ce6_a575a3e5",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-26T21:00:00Z",
+      "side": 1,
+      "message": "Instead of \u00271\u0027 should this be the same constexpr constant as used for the numRuns just introduced? (Put the constant here in the class and use it here.)",
+      "range": {
+        "startLine": 130,
+        "startChar": 14,
+        "endLine": 130,
+        "endChar": 15
+      },
+      "revId": "98fabe161eb588305c50098b602e6e8b1cc69a77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dc511b2_2a42d881",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-26T21:00:00Z",
+      "side": 1,
+      "message": "Haven\u0027t taken a long look, but can this be SkAutoSTArray or even SkAutoSTMalloc? An SkSTArray is fine, but it\u0027s also fairly heavy and I don\u0027t think we ever actually really resize this after initial creation.",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 13
+      },
+      "revId": "98fabe161eb588305c50098b602e6e8b1cc69a77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
