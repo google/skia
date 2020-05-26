@@ -112,11 +112,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                                          std::move(dstView),
                                                                          grColorType,
                                                                          ii.alphaType(), nullptr);
-
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
+                                    SkDebugf("Using testCopy\n");
                                     result = dstContext->testCopy(src.get(), srcRect, dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
+                                    SkDebugf("Using blitTexture\n");
                                     SkASSERT(dstContext->asRenderTargetContext());
                                     GrSwizzle srcSwizzle = context->priv().caps()->getReadSwizzle(
                                         src->backendFormat(), grColorType);
@@ -200,6 +201,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                             }
                                         }
                                     }
+                                }
+
+                                if (abort) {
+                                    SkDebugf("Ending CopySurfaceTest after failing for:\n");
+                                    SkDebugf(" rgba? %d\n", ii.colorType() == kRGBA_8888_SkColorType);
+                                    SkDebugf(" src origin: %d, src renderable: %d, src rect: [%d %d %d %d]\n",
+                                        (int) sOrigin, (int) sRenderable, srcRect.fLeft, srcRect.fTop, srcRect.fRight, srcRect.fBottom);
+                                    SkDebugf(" dst origin: %d, dst renderable: %d, dst pt: [%d %d]\n",
+                                        (int) dOrigin, (int) dRenderable, dstPoint.fX, dstPoint.fY);
+                                    return;
                                 }
                             }
                         }
