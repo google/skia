@@ -14,7 +14,10 @@
 #include <string>
 #include <tuple>
 
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkTypeface.h"
 #include "include/private/SkChecksum.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
@@ -22,10 +25,10 @@
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
-#include "src/core/SkZip.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContextOptions.h"

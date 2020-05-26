@@ -228,7 +228,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     resetVertexBuffer();
 
-    for (const Geometry& geo : SkMakeSpan(fGeoData.get(), fGeoCount)) {
+    for (const Geometry& geo : SkSpan(fGeoData.get(), fGeoCount)) {
         const GrAtlasSubRun& subRun = geo.fSubRun;
         SkASSERT((int)subRun.vertexStride() == vertexStride);
 
