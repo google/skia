@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <vector>
+
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlurTypes.h"
@@ -219,9 +221,9 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorGRAY);
-        SkTDArray<SkMatrix> matrices;
+        std::vector<SkMatrix> matrices;
         // Draw with identity
-        *matrices.append() = SkMatrix::I();
+        matrices.push_back(SkMatrix::I());
 
         // Draw with rotation and scale down in x, up in y.
         SkMatrix m;
@@ -229,58 +231,56 @@ protected:
         m.setTranslate(0, kBottom);
         m.preRotate(15.f, 0, kBottom + kBlockSpacing);
         m.preScale(0.71f, 1.22f);
-        *matrices.append() = m;
+        matrices.push_back(m);
 
         // Align the next set with the middle of the previous in y, translated to the right in x.
-        SkPoint corners[] = {{0, 0}, { 0, kBottom }, { kWidth, kBottom }, {kWidth, 0} };
-        matrices[matrices.count()-1].mapPoints(corners, 4);
+        SkPoint corners[] = {{0, 0}, {0, kBottom}, {kWidth, kBottom}, {kWidth, 0}};
+        matrices.back().mapPoints(corners, 4);
         SkScalar y = (corners[0].fY + corners[1].fY + corners[2].fY + corners[3].fY) / 4;
-        SkScalar x = std::max(std::max(corners[0].fX, corners[1].fX),
-                              std::max(corners[2].fX, corners[3].fX));
+        SkScalar x = std::max({corners[0].fX, corners[1].fX, corners[2].fX, corners[3].fX});
         m.setTranslate(x, y);
         m.preScale(0.2f, 0.2f);
-        *matrices.append() = m;
+        matrices.push_back(m);
 
         SkScalar maxX = 0;
-        for (int antiAlias = 0; antiAlias < 2; ++antiAlias) {
+        for (bool antiAlias : {false, true}) {
             canvas->save();
             canvas->translate(maxX, 0);
-            for (int m = 0; m < matrices.count(); ++m) {
+            for (const SkMatrix& matrix : matrices) {
                 canvas->save();
-                canvas->concat(matrices[m]);
-                bool aa = SkToBool(antiAlias);
+                canvas->concat(matrix);
 
                 // First draw a column with no filtering
-                this->drawCase1(canvas, kCol0X, kRow0Y, aa, kNone_SkFilterQuality);
-                this->drawCase2(canvas, kCol0X, kRow1Y, aa, kNone_SkFilterQuality);
-                this->drawCase3(canvas, kCol0X, kRow2Y, aa, kNone_SkFilterQuality);
-                this->drawCase4(canvas, kCol0X, kRow3Y, aa, kNone_SkFilterQuality);
-                this->drawCase5(canvas, kCol0X, kRow4Y, aa, kNone_SkFilterQuality);
+                this->drawCase1(canvas, kCol0X, kRow0Y, antiAlias, kNone_SkFilterQuality);
+                this->drawCase2(canvas, kCol0X, kRow1Y, antiAlias, kNone_SkFilterQuality);
+                this->drawCase3(canvas, kCol0X, kRow2Y, antiAlias, kNone_SkFilterQuality);
+                this->drawCase4(canvas, kCol0X, kRow3Y, antiAlias, kNone_SkFilterQuality);
+                this->drawCase5(canvas, kCol0X, kRow4Y, antiAlias, kNone_SkFilterQuality);
 
                 // Then draw a column with low filtering
-                this->drawCase1(canvas, kCol1X, kRow0Y, aa, kLow_SkFilterQuality);
-                this->drawCase2(canvas, kCol1X, kRow1Y, aa, kLow_SkFilterQuality);
-                this->drawCase3(canvas, kCol1X, kRow2Y, aa, kLow_SkFilterQuality);
-                this->drawCase4(canvas, kCol1X, kRow3Y, aa, kLow_SkFilterQuality);
-                this->drawCase5(canvas, kCol1X, kRow4Y, aa, kLow_SkFilterQuality);
+                this->drawCase1(canvas, kCol1X, kRow0Y, antiAlias, kLow_SkFilterQuality);
+                this->drawCase2(canvas, kCol1X, kRow1Y, antiAlias, kLow_SkFilterQuality);
+                this->drawCase3(canvas, kCol1X, kRow2Y, antiAlias, kLow_SkFilterQuality);
+                this->drawCase4(canvas, kCol1X, kRow3Y, antiAlias, kLow_SkFilterQuality);
+                this->drawCase5(canvas, kCol1X, kRow4Y, antiAlias, kLow_SkFilterQuality);
 
                 // Then draw a column with high filtering. Skip it if in kStrict mode and MIP
                 // mapping will be used. On GPU we allow bleeding at non-base levels because
                 // building a new MIP chain for the subset is expensive.
                 SkScalar scales[2];
-                SkAssertResult(matrices[m].getMinMaxScales(scales));
+                SkAssertResult(matrix.getMinMaxScales(scales));
                 if (fConstraint != SkCanvas::kStrict_SrcRectConstraint || scales[0] >= 1.f) {
-                    this->drawCase1(canvas, kCol2X, kRow0Y, aa, kHigh_SkFilterQuality);
-                    this->drawCase2(canvas, kCol2X, kRow1Y, aa, kHigh_SkFilterQuality);
-                    this->drawCase3(canvas, kCol2X, kRow2Y, aa, kHigh_SkFilterQuality);
-                    this->drawCase4(canvas, kCol2X, kRow3Y, aa, kHigh_SkFilterQuality);
-                    this->drawCase5(canvas, kCol2X, kRow4Y, aa, kHigh_SkFilterQuality);
+                    this->drawCase1(canvas, kCol2X, kRow0Y, antiAlias, kHigh_SkFilterQuality);
+                    this->drawCase2(canvas, kCol2X, kRow1Y, antiAlias, kHigh_SkFilterQuality);
+                    this->drawCase3(canvas, kCol2X, kRow2Y, antiAlias, kHigh_SkFilterQuality);
+                    this->drawCase4(canvas, kCol2X, kRow3Y, antiAlias, kHigh_SkFilterQuality);
+                    this->drawCase5(canvas, kCol2X, kRow4Y, antiAlias, kHigh_SkFilterQuality);
                 }
 
-                SkPoint corners[] = { { 0, 0 },{ 0, kBottom },{ kWidth, kBottom },{ kWidth, 0 } };
-                matrices[m].mapPoints(corners, 4);
-                SkScalar x = kBlockSize + std::max(std::max(corners[0].fX, corners[1].fX),
-                                                   std::max(corners[2].fX, corners[3].fX));
+                SkPoint innerCorners[] = {{0, 0}, {0, kBottom}, {kWidth, kBottom}, {kWidth, 0}};
+                matrix.mapPoints(innerCorners, 4);
+                SkScalar x = kBlockSize + std::max({innerCorners[0].fX, innerCorners[1].fX,
+                                                    innerCorners[2].fX, innerCorners[3].fX});
                 maxX = std::max(maxX, x);
                 canvas->restore();
             }
@@ -339,11 +339,11 @@ DEF_GM(return new SrcRectConstraintGM("fast_constraint_red_is_allowed",
 // is scaled down far enough.
 //
 static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
-    // Intentially making the size a power of 2 to avoid the noise from how different GPUs will
-    // produce different mipmap filtering when we have an odd sized texture.
+    // Intentionally making the size a power of 2 to avoid the noise from how different GPUs will
+    // produce different mipmap filtering when we have an odd-sized texture.
     const int N = 10 + 2 + 8 + 2 + 10;
-    SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
-    auto        surface = ToolUtils::makeSurface(canvas, info);
+    auto info = SkImageInfo::Make({N, N}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto surface = ToolUtils::makeSurface(canvas, info);
     SkCanvas* c = surface->getCanvas();
     SkRect r = SkRect::MakeIWH(info.width(), info.height());
     SkPaint paint;
@@ -361,24 +361,22 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
 DEF_SIMPLE_GM(bleed_downscale, canvas, 360, 240) {
     SkRect src;
     sk_sp<SkImage> img = make_image(canvas, &src);
-    SkPaint paint;
 
     canvas->translate(10, 10);
 
-    const SkCanvas::SrcRectConstraint constraints[] = {
-        SkCanvas::kStrict_SrcRectConstraint, SkCanvas::kFast_SrcRectConstraint
-    };
-    const SkFilterQuality qualities[] = {
-        kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality
-    };
-    for (auto constraint : constraints) {
+    for (auto constraint : {SkCanvas::kStrict_SrcRectConstraint,
+                            SkCanvas::kFast_SrcRectConstraint}) {
         canvas->save();
-        for (auto quality : qualities) {
+        for (auto quality : {kNone_SkFilterQuality,
+                             kLow_SkFilterQuality,
+                             kMedium_SkFilterQuality}) {
+            SkPaint paint;
             paint.setFilterQuality(quality);
-            auto surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(1, 1));
-            surf->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), &paint, constraint);
+            auto info = SkImageInfo::Make({1, 1}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+            auto surface = ToolUtils::makeSurface(canvas, info);
+            surface->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), &paint, constraint);
             // now blow up the 1 pixel result
-            canvas->drawImageRect(surf->makeImageSnapshot(), SkRect::MakeWH(100, 100), nullptr);
+            canvas->drawImageRect(surface->makeImageSnapshot(), SkRect::MakeWH(100, 100), nullptr);
             canvas->translate(120, 0);
         }
         canvas->restore();
