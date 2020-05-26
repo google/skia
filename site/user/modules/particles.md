@@ -97,7 +97,7 @@ Samples
   var CanvasKit = null;
   CanvasKitInit({
     locateFile: (file) => locate_file + file,
-  }).ready().then((CK) => {
+  }).then((CK) => {
     CanvasKit = CK;
     TrailExample(CanvasKit, 'trail', trail);
     ParticleExample(CanvasKit, 'confetti', confetti, 200, 200);

@@ -47,6 +47,7 @@ The primary features are:
   }
   s.src = window.__pathkit_locate_file+'pathkit.js';
   s.onload = () => {
+    // TODO(kjlubick) remove .ready() when we update the version served here.
     try {
       PathKitInit({
         locateFile: (file) => window.__pathkit_locate_file+file,

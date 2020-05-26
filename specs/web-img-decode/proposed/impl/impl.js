@@ -3,6 +3,9 @@
 let CanvasKit = null;
 
 window.loadPolyfill = () => {
+  // TODO(kjlubick): change ready().then() to just then() when using a newer version
+  // from npm (see
+  // https://skia.googlesource.com/skia/+/d1285b131bcf9c10fe1ad16fd2830c556715ed9e)
   return CanvasKitInit({
     locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.6.0/bin/'+file,
   }).ready().then((CK) => {
