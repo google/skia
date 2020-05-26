@@ -370,13 +370,13 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
     // TODO: This is the change for flutter, must be removed later
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
     SkTextBlobBuilder builder;
-    context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
+    context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(context.fTextShift, correctedBaseline));
     if (context.clippingNeeded) {
         canvas->save();
         canvas->clipRect(extendHeight(context).makeOffset(this->offset()));
     }
 
-    canvas->drawTextBlob(builder.make(), this->offset().fX + context.fTextShift, this->offset().fY, paint);
+    canvas->drawTextBlob(builder.make(), this->offset().fX, this->offset().fY, paint);
 
     if (context.clippingNeeded) {
         canvas->restore();
@@ -403,7 +403,7 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
         }
 
         SkTextBlobBuilder builder;
-        context.run->copyTo(builder, context.pos, context.size, SkVector::Make(0, shiftDown));
+        context.run->copyTo(builder, context.pos, context.size, SkVector::Make(context.fTextShift, shiftDown));
 
         if (context.clippingNeeded) {
             canvas->save();
@@ -411,7 +411,7 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
             clip.offset(this->offset());
             canvas->clipRect(clip);
         }
-        canvas->drawTextBlob(builder.make(), this->offset().fX + context.fTextShift + shadow.fOffset.x(), this->offset().fY + shadow.fOffset.y(), paint);
+        canvas->drawTextBlob(builder.make(), this->offset().fX + shadow.fOffset.x(), this->offset().fY + shadow.fOffset.y(), paint);
 
         if (context.clippingNeeded) {
             canvas->restore();
@@ -676,6 +676,12 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         // and we should ignore these spaces
         result.clippingNeeded = true;
         result.clip.fRight = fAdvance.fX;
+    }
+
+    if (result.clip.width() < 0) {
+        // Weird situation when glyph offsets move the glyph to the left
+        // (happens with zalgo texts, for instance)
+        result.clip.fRight = result.clip.fLeft;
     }
 
     // The text must be aligned with the lineOffset

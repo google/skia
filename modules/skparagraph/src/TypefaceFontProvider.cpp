@@ -76,7 +76,9 @@ SkTypeface* TypefaceFontStyleSet::matchStyle(const SkFontStyle& pattern) {
 }
 
 void TypefaceFontStyleSet::appendTypeface(sk_sp<SkTypeface> typeface) {
-    fStyles.emplace_back(std::move(typeface));
+    if (typeface.get() != nullptr) {
+        fStyles.emplace_back(std::move(typeface));
+    }
 }
 
 }  // namespace textlayout
