@@ -51,21 +51,24 @@
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
-
-  var robotoData = null;
-  var notoserifData = null;
-
-  var mandrillData = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
-  CanvasKitInit({
-    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).then((CK) => {
+
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+
+  const loadRoboto = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
+  const loadNotoSerif = fetch(cdn + 'NotoSerif-Regular.ttf').then((response) => response.arrayBuffer());
+  const loadTestImage = fetch(cdn + 'test.png').then((response) => response.arrayBuffer());
+
+  // Examples which only require canvaskit
+  ckLoaded.then((CK) => {
     CanvasKit = CK;
-    DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);
     InkExample(CanvasKit);
     PathPersonExample(CanvasKit);
-
+    VertexAPI1(CanvasKit);
+    GradiantAPI1(CanvasKit);
+    TextOnPathAPI1(CanvasKit);
+    SurfaceAPI1(CanvasKit);
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
     CanvasAPI3(CanvasKit);
@@ -74,40 +77,15 @@
     CanvasAPI6(CanvasKit);
     CanvasAPI7(CanvasKit);
     CanvasAPI8(CanvasKit);
-
-    VertexAPI1(CanvasKit);
-
-    GradiantAPI1(CanvasKit);
-
-    TextShapingAPI1(CanvasKit, notoserifData);
-    TextShapingAPI2(CanvasKit, notoserifData);
-    TextOnPathAPI1(CanvasKit);
-
-    SurfaceAPI1(CanvasKit);
-
-    AtlasAPI1(CanvasKit, mandrillData);
   });
 
-  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      robotoData = buffer;
-      DrawingExample(CanvasKit, robotoData);
-    });
+  // Examples requiring external resources
+  Promise.all([ckLoaded, loadRoboto]).then((results) => {DrawingExample(...results)});
+  Promise.all([ckLoaded, loadNotoSerif]).then((results) => {
+    TextShapingAPI1(...results);
+    TextShapingAPI2(...results);
   });
-
-  fetch(cdn + 'NotoSerif-Regular.ttf').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      notoserifData = buffer;
-      TextShapingAPI1(CanvasKit, notoserifData);
-      TextShapingAPI2(CanvasKit, notoserifData);
-    });
-  });
-
-  // Mandrill test image
-  fetch(cdn + 'test.png').then((response) => response.arrayBuffer()).then((buffer) => {
-    mandrillData = buffer;
-    AtlasAPI1(CanvasKit, mandrillData);
-  });
+  Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI1(...results)});
 
   function DrawingExample(CanvasKit, robotoData) {
     if (!robotoData || !CanvasKit) {
