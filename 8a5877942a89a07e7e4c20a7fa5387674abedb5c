@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "dad20ef0_8b887245",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T17:07:00Z",
+      "side": 1,
+      "message": "mv up a line and tab over ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 49
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e49f005d_bb1c786e",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 20
@@ -93,6 +116,86 @@
       "writtenOn": "2020-05-26T16:55:59Z",
       "side": 1,
       "message": "can this go on the prior line ?",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c37288c_834a51e1",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T17:07:00Z",
+      "side": 1,
+      "message": "// The bounds of the subRun in device space ?",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45dd203f_3c481850",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T17:07:00Z",
+      "side": 1,
+      "message": "GrIRect16 ?",
+      "range": {
+        "startLine": 329,
+        "startChar": 8,
+        "endLine": 333,
+        "endChar": 22
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43c0db3e_c7c1a38a",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T17:07:00Z",
+      "side": 1,
+      "message": "deviceSpaceVertexBounds ?",
+      "range": {
+        "startLine": 342,
+        "startChar": 18,
+        "endLine": 342,
+        "endChar": 30
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b5aea9_1008f5eb",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T17:07:00Z",
+      "side": 1,
+      "message": "// Entry point just for the SkAtlasTextTarget\n\n?",
       "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
