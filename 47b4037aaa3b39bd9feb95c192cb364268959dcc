@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d410c51_52a3cae9",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T18:02:56Z",
+      "side": 1,
+      "message": "Is this used at all ?",
+      "revId": "47b4037aaa3b39bd9feb95c192cb364268959dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd1ee097_23da9c2d",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T18:02:56Z",
+      "side": 1,
+      "message": "Insert a \u0027 \u0027 ?",
+      "revId": "47b4037aaa3b39bd9feb95c192cb364268959dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
