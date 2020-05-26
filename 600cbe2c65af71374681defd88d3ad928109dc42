@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acea9a26_42c21372",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-26T15:38:32Z",
+      "side": 1,
+      "message": "Don\u0027t need this, we already have \u0027numRuns\u0027.",
+      "range": {
+        "startLine": 115,
+        "startChar": 4,
+        "endLine": 115,
+        "endChar": 63
+      },
+      "revId": "600cbe2c65af71374681defd88d3ad928109dc42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abd340c1_7bf74333",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-26T15:38:32Z",
+      "side": 1,
+      "message": "This is also \u0027numRuns\u0027 so there\u0027s no reason for the two different \u0027_PreallocCount\u0027. The runLevels and logicalOrder are always the same size.",
+      "range": {
+        "startLine": 127,
+        "startChar": 69,
+        "endLine": 127,
+        "endChar": 76
+      },
+      "revId": "600cbe2c65af71374681defd88d3ad928109dc42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
