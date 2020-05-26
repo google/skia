@@ -21,6 +21,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/SkGpuDevice.h"
@@ -727,6 +728,16 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     return surface;
 }
 
+static bool supports_readpixels(const GrCaps* caps, SkSurface* surface) {
+    auto surfaceGpu = static_cast<SkSurface_Gpu*>(surface);
+    GrRenderTargetContext* context = surfaceGpu->getDevice()->accessRenderTargetContext();
+    GrRenderTarget* rt = context->accessRenderTarget();
+    if (!rt) {
+        return false;
+    }
+    return caps->surfaceSupportsReadPixels(rt) == GrCaps::SurfaceReadPixelsSupport::kSupported;
+}
+
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     GrContext* ctx, int sampleCnt, const SkColor4f& color, GrBackendTexture* outTexture) {
 
@@ -897,6 +908,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         // This works only for non-multisampled case.
         GrBackendTexture backendTex;
         auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
+        const GrCaps* caps = context->priv().caps();
+        if (!supports_readpixels(caps, surface.get())) {
+            continue;
+        }
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor.toSkColor());
             surface.reset();
