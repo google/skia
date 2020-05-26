@@ -488,7 +488,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
         for (const auto& arg : c.fArguments) {
             this->write(separator);
             separator = ", ";
-            if (Type::kMatrix_Kind == c.fType.kind() && arg->fType.columns() != c.fType.rows()) {
+            if (Type::kMatrix_Kind == c.fType.kind() && arg->fType.columns() < c.fType.rows()) {
                 // merge scalars and smaller vectors together
                 if (!scalarCount) {
                     this->writeType(c.fType.componentType());
@@ -498,6 +498,8 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
                 scalarCount += arg->fType.columns();
             }
             this->writeExpression(*arg, kSequence_Precedence);
+
+            SkASSERT(scalarCount <= c.fType.rows());
             if (scalarCount && scalarCount == c.fType.rows()) {
                 this->write(")");
                 scalarCount = 0;

@@ -131,3 +131,94 @@ DEF_TEST(SkSLMetalConstantSwizzle, r) {
          "    return *_out;\n"
          "}\n");
 }
+
+DEF_TEST(SkSLMetal_Crbug10280, r) {
+    test(r,
+R"__SkSL__(
+in float4 abcd;
+in float4 efgh;
+void main()
+{
+  float4x2 P = float4x2(abcd, efgh);
+  sk_Position = float4(P[0].x, P[0].y, P[1].x, P[1].y);
+}
+)__SkSL__",
+         *SkSL::ShaderCapsFactory::Default(),
+R"__MSL__(#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
+struct Inputs {
+    float4 abcd;
+    float4 efgh;
+};
+struct Outputs {
+    float4 sk_Position [[position]];
+    float sk_PointSize;
+};
+
+
+vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]) {
+    Outputs _outputStruct;
+    thread Outputs* _out = &_outputStruct;
+    float4x2 P = float4x2(_in.abcd, _in.efgh);
+    _out->sk_Position = float4(P[0].x, P[0].y, P[1].x, P[1].y);
+    _out->sk_Position.y = -_out->sk_Position.y;
+    return *_out;
+}
+)__MSL__",
+         SkSL::Program::kVertex_Kind);
+}
+
+DEF_TEST(SkSLMetalScalarMerge, r) {
+    test(r,
+R"__SkSL__(
+in float2 ab;
+in float2 cd;
+in float e;
+in float f;
+in float g;
+in float h;
+in float3 ijk;
+void main()
+{
+  float4x4 P = float4x4(float4(ab.xy, ab.x, cd.y), float4(e, f, g, h), float4(ijk.yyyy), float4(ab.x, ijk.zz, ab.y));
+  float3x3 Q = float3x3(P[0].xyz, float3(P[1].x, P[1].y, P[1].z), float4(P[2].wzyx).wzy);
+  sk_Position = float4(P[0].x, P[1].y, Q[0].x, Q[1].y);
+}
+)__SkSL__",
+         *SkSL::ShaderCapsFactory::Default(),
+R"__MSL__(#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
+struct Inputs {
+    float2 ab;
+    float2 cd;
+    float e;
+    float f;
+    float g;
+    float h;
+    float3 ijk;
+};
+struct Outputs {
+    float4 sk_Position [[position]];
+    float sk_PointSize;
+};
+
+
+
+
+
+
+
+vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]) {
+    Outputs _outputStruct;
+    thread Outputs* _out = &_outputStruct;
+    float4x4 P = float4x4(float4(_in.ab, _in.ab.x, _in.cd.y), float4(_in.e, _in.f, _in.g, _in.h), _in.ijk.yyyy, float4(_in.ab.x, _in.ijk.zz, _in.ab.y));
+    float3x3 Q = float3x3(P[0].xyz, float3(P[1].x, P[1].y, P[1].z), P[2].xyz);
+    _out->sk_Position = float4(P[0].x, P[1].y, Q[0].x, Q[1].y);
+    _out->sk_Position.y = -_out->sk_Position.y;
+    return *_out;
+}
+)__MSL__",
+         SkSL::Program::kVertex_Kind);
+}
