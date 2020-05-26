@@ -55,17 +55,11 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Temporary macro that allows us to add new color types without breaking Chrome compile. */
-#define SK_EXTENDED_COLOR_TYPES
-
 /** \enum SkImageInfo::SkColorType
-    Describes how pixel bits encode color. A pixel may be an alpha mask, a
-    grayscale, RGB, or ARGB.
+    Describes how pixel bits encode color. A pixel may be an alpha mask, a grayscale, RGB, or ARGB.
 
-    kN32_SkColorType selects the native 32-bit ARGB format. On little endian
-    processors, pixels containing 8-bit ARGB components pack into 32-bit
-    kBGRA_8888_SkColorType. On big endian processors, pixels pack into 32-bit
-    kRGBA_8888_SkColorType.
+    kN32_SkColorType selects the native 32-bit ARGB format for the current configuration. This can
+    lead to inconsistent results across platforms, so use with caution.
 */
 enum SkColorType {
     kUnknown_SkColorType,      //!< uninitialized
@@ -97,10 +91,10 @@ enum SkColorType {
     kLastEnum_SkColorType     = kR16G16B16A16_unorm_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
+    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding
 
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native ARGB 32-bit encoding
+    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native 32-bit RGBA encoding
 
 #else
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
