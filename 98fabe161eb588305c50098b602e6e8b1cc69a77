@@ -45,6 +45,30 @@
       "revId": "98fabe161eb588305c50098b602e6e8b1cc69a77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93cf8a3a_3eb9bdc1",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-05-26T21:31:04Z",
+      "side": 1,
+      "message": "Not sure I agree. In the constructor, we have no real constraint on handling numRuns of larger values (for performance reasons), given our stack. For permanent storage in the class, there is some cost to over-allocating. If we make everyone 1 (best for space), we miss some perf opportunities in the constructor. If we make everyone 4 (best for speed), we over-allocate 99 % of the time. I still vote for different choices in the two places.",
+      "parentUuid": "10692ce6_a575a3e5",
+      "range": {
+        "startLine": 130,
+        "startChar": 14,
+        "endLine": 130,
+        "endChar": 15
+      },
+      "revId": "98fabe161eb588305c50098b602e6e8b1cc69a77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
