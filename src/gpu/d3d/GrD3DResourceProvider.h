@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/d3d/GrD3DAttachmentViewManager.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -39,6 +40,8 @@ public:
 
    sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                                  const GrProgramInfo&);
+
+   D3D12_CPU_DESCRIPTOR_HANDLE uploadConstantData(void* data, size_t size);
 
 private:
 #ifdef SK_DEBUG
@@ -77,6 +80,9 @@ private:
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 
     GrD3DAttachmentViewManager fAttachmentViewManager;
+
+    sk_sp<GrD3DConstantRingBuffer> fConstantBuffer;
+    void* fConstantBufferMapPtr;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 };

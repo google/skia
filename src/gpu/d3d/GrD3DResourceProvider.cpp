@@ -18,6 +18,9 @@ GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fAttachmentViewManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {
+    //*** fix size and alignment
+    fConstantBuffer = GrD3DConstantRingBuffer::Make(gpu, 128, 16);
+    SkASSERT(fConstantBuffer);
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
@@ -73,6 +76,19 @@ void GrD3DResourceProvider::recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
+}
+
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
+    GrRingBuffer::Slice slice = fConstantBuffer->getSlice(size);
+    if (!slice.fBuffer->isMapped()) {
+        fConstantBufferMapPtr = slice.fBuffer->map();
+    }
+    char* destPtr = static_cast<char*>(fConstantBufferMapPtr) + slice.fOffset;
+    memcpy(destPtr, data, size);
+
+    // *** for now, need view manager for CSVs
+    return {};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
