@@ -27,6 +27,22 @@ template<typename T> struct conjunction<T> : T { };
 template<typename T, typename... Ts>
 struct conjunction<T, Ts...> : std::conditional<bool(T::value), conjunction<Ts...>, T>::type { };
 
+// C++17, std::data, std::size
+template<typename Container>
+constexpr auto data(Container& c) -> decltype(c.data()) { return c.data(); }
+template<typename Container>
+constexpr auto data(const Container& c) -> decltype(c.data()) { return c.data(); }
+template<typename Array, size_t N>
+constexpr auto data(Array(&a)[N]) -> decltype(a) { return a; }
+template<typename T>
+constexpr const T* data(std::initializer_list<T> i) { return i.begin(); }
+
+template<typename Container>
+constexpr auto size(Container& c) -> decltype(c.size()) { return c.size(); }
+template<typename Array, size_t N>
+constexpr size_t size(Array(&)[N]) { return N; }
+template<typename T>
+constexpr const T* size(std::initializer_list<T> i) { return i.end() - i.begin(); }
 }  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.

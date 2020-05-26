@@ -403,12 +403,12 @@ int main(int , char * const []) {
     };
 
     static constexpr FontFamilyDesc kFamiliesData[] = {
-        {"monospace",  "Liberation Mono",  "LiberationMono",  SkMakeSpan(kMonoFonts)},
-        {"sans-serif", "Liberation Sans",  "LiberationSans",  SkMakeSpan(kSansFonts)},
-        {"serif",      "Liberation Serif", "LiberationSerif", SkMakeSpan(kSerifFonts)},
+        {"monospace",  "Liberation Mono",  "LiberationMono",  SkSpan(kMonoFonts)},
+        {"sans-serif", "Liberation Sans",  "LiberationSans",  SkSpan(kSansFonts)},
+        {"serif",      "Liberation Serif", "LiberationSerif", SkSpan(kSerifFonts)},
     };
 
-    static constexpr SkSpan<const FontFamilyDesc> kFamilies(SkMakeSpan(kFamiliesData));
+    static constexpr SkSpan kFamilies(kFamiliesData);
 
 #ifdef SK_BUILD_FOR_UNIX
     generate_fonts("/usr/share/fonts/truetype/liberation/", kFamilies);
