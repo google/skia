@@ -188,7 +188,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                     PromiseTextureChecker::Release,
                     PromiseTextureChecker::Done,
                     &promiseChecker,
-                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+                    GrContext::PromiseImageApiVersion::kNew));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
@@ -282,7 +282,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
                     kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
                     PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
                     PromiseTextureChecker::Done, &promiseChecker,
-                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+                    GrContext::PromiseImageApiVersion::kNew));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -321,7 +321,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
             PromiseTextureChecker::Done, &promiseChecker,
-            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+            GrContext::PromiseImageApiVersion::kNew));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
@@ -387,21 +387,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
         int fReleaseCount = 0;
         int fDoneCount = 0;
     } counts;
-    auto fulfill = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto fulfill = [](GrContext::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
         return sk_sp<SkPromiseImageTexture>();
     };
-    auto release = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto release = [](GrContext::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
-    auto done = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto done = [](GrContext::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fDoneCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(
             ctx, backendFormat, kWidth, kHeight, GrMipMapped::kNo, texOrigin,
             kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, fulfill, release, done, &counts,
-            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+            GrContext::PromiseImageApiVersion::kNew));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
