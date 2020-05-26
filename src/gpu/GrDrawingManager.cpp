@@ -229,6 +229,9 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
@@ -245,12 +248,18 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
             canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
         }
         if (canSkip) {
+            if (info.fSubmittedProc) {
+                info.fSubmittedProc(info.fSubmittedContext, true);
+            }
             return false;
         }
     }
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
@@ -259,12 +268,8 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     direct->priv().clientMappedBufferManager()->process();
 
     GrGpu* gpu = direct->priv().getGpu();
-    if (!gpu) {
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        return false; // Can't flush while DDL recording
-    }
+    // We have a non abandoned and direct GrContext. It must have a GrGpu.
+    SkASSERT(gpu);
 
     fFlushing = true;
 
@@ -515,6 +520,12 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
                                                       SkSurface::BackendSurfaceAccess access,
                                                       const GrFlushInfo& info) {
     if (this->wasAbandoned()) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
     SkDEBUGCODE(this->validate());
@@ -523,13 +534,18 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
     GrGpu* gpu = direct->priv().getGpu();
-    if (!gpu) {
-        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
-    }
+    // We have a non abandoned and direct GrContext. It must have a GrGpu.
+    SkASSERT(gpu);
 
     // TODO: It is important to upgrade the drawingmanager to just flushing the
     // portion of the DAG required by 'proxies' in order to restore some of the

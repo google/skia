@@ -9,6 +9,11 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Adds submittedProc callback to GrFlushInfo which will be called when the work
+    from the flush call is submitted to the GPU. This is specifically useful for knowing
+    when semahpores sent with the flush have been submitted and can be waiting on.
+    https://review.skia.org/291078
+
   * GrContext submit is now required to be called in order to send GPU work to the
     actual GPU. The flush calls simply produces 3D API specific objects that are ready
     to be submitted (e.g. command buffers). For the GL backend, the flush will still

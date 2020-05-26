@@ -316,6 +316,12 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
                                        const GrPrepareForExternalIORequests& externalRequests) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
 
