@@ -1440,6 +1440,7 @@ static void gather_tests() {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
+
         if (test.needsGpu && FLAGS_gpu) {
             gSerialTests.push_back(test);
         } else if (!test.needsGpu && FLAGS_cpu) {

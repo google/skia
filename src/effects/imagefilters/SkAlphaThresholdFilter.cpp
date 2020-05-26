@@ -110,8 +110,7 @@ GrSurfaceProxyView SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingCont
     }
 
     SkRegion::Iterator iter(fRegion);
-    rtContext->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                     GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtContext->clear(SK_PMColor4fTRANSPARENT);
 
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {

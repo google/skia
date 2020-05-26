@@ -238,7 +238,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // Draw a checker pattern into the alpha mask so we can visualize the regions left untouched by
     // the clip mask generation.
     this->stencilCheckerboard(maskRTC.get(), true);
-    maskRTC->clear(nullptr, SK_PMColor4fWHITE, GrRenderTargetContext::CanClearFullscreen::kYes);
+    maskRTC->clear(SK_PMColor4fWHITE);
     GrPaint stencilPaint;
     stencilPaint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op, false);
     maskRTC->priv().stencilRect(make_stencil_only_clip(), &GrUserStencilSettings::kUnused,
@@ -288,7 +288,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
         0>()
     );
 
-    rtc->priv().clearStencilClip(GrFixedClip::Disabled(), false);
+    rtc->priv().clearStencilClip(SkIRect::MakeSize(rtc->dimensions()), false);
 
     for (int y = 0; y < kDeviceRect.height(); y += kMaskCheckerSize) {
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;
