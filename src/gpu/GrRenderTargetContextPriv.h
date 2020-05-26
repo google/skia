@@ -43,11 +43,15 @@ public:
                opsTask->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
-    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
+    // Clear at minimum the pixels within 'scissor', but is allowed to clear the full render target
+    // if that is the more performant option.
+    void clearAtLeast(const SkIRect& scissor, const SkPMColor4f& color) {
+        fRenderTargetContext->internalClear(&scissor, color, /* upgrade to full */ true);
+    }
 
-    void clear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
-
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
+    void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
+        fRenderTargetContext->internalStencilClear(&scissor, insideStencilMask);
+    }
 
     // While this can take a general clip, since GrReducedClip relies on this function, it must take
     // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
