@@ -112,7 +112,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                                          std::move(dstView),
                                                                          grColorType,
                                                                          ii.alphaType(), nullptr);
-
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
                                     result = dstContext->testCopy(src.get(), srcRect, dstPoint);
