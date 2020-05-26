@@ -62,20 +62,18 @@ public:
                                                                : kOpaque_SkAlphaType;
     }
 
-    using PromiseImageTextureContext = SkDeferredDisplayListRecorder::PromiseImageTextureContext;
-    using PromiseImageTextureFulfillProc =
-            SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc;
-    using PromiseImageTextureReleaseProc =
-            SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
-    using PromiseImageTextureDoneProc = SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc;
+    using PromiseImageTextureContext = GrContext::PromiseImageTextureContext;
+    using PromiseImageTextureFulfillProc = GrContext::PromiseImageTextureFulfillProc;
+    using PromiseImageTextureReleaseProc = GrContext::PromiseImageTextureReleaseProc;
+    using PromiseImageTextureDoneProc = GrContext::PromiseImageTextureDoneProc;
 
 protected:
     SkImage_GpuBase(sk_sp<GrContext>, SkISize size, uint32_t uniqueID, SkColorType, SkAlphaType,
                     sk_sp<SkColorSpace>);
 
-    using PromiseImageApiVersion = SkDeferredDisplayListRecorder::PromiseImageApiVersion;
-    // Helper for making a lazy proxy for a promise image. The PromiseDoneProc we be called,
-    // if not null, immediately if this function fails. Othwerwise, it is installed in the
+    using PromiseImageApiVersion = GrContext::PromiseImageApiVersion;
+    // Helper for making a lazy proxy for a promise image. The PromiseDoneProc will be called
+    // immediately if this function fails. Othwerwise, it is installed in the
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
