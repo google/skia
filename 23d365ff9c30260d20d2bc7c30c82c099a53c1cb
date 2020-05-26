@@ -22,6 +22,30 @@
       "revId": "23d365ff9c30260d20d2bc7c30c82c099a53c1cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "668f12dc_c0ca04ff",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-26T15:34:05Z",
+      "side": 1,
+      "message": "Deleted the second sentence since it did not add much value. I think it still adds value to call out that N32 is useful for getting the configuration-native format, since it gives us an opportunity to teach \"N -\u003e Native\".",
+      "parentUuid": "e1d3b0de_cbf5a2cd",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 20
+      },
+      "revId": "23d365ff9c30260d20d2bc7c30c82c099a53c1cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
