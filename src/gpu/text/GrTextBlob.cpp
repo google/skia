@@ -363,7 +363,7 @@ auto GrPathSubRun::Make(
             });
 
     return alloc->make<GrPathSubRun>(
-            isAntiAliased, strikeSpec, blob, SkMakeSpan(pathData, drawables.size()));
+            isAntiAliased, strikeSpec, blob, SkSpan(pathData, drawables.size()));
 };
 
 // -- GrGlyphVector --------------------------------------------------------------------------------
@@ -379,11 +379,11 @@ GrGlyphVector GrGlyphVector::Make(
                 return Variant{glyphs[i].glyph()->getPackedID()};
             });
 
-    return GrGlyphVector{spec, SkMakeSpan(variants, glyphs.size())};
+    return GrGlyphVector{spec, SkSpan(variants, glyphs.size())};
 }
 
 SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
-    return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
+    return SkSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
 void GrGlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
