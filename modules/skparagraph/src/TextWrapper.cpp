@@ -10,9 +10,9 @@ SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
     auto val = std::fabs(a);
     if (val < 10000) {
-        return SkScalarRoundToScalar(a * 100.0)/100.0;
+        return SkScalarRoundToScalar(a * 100) * (1.0f/100);
     } else if (val < 100000) {
-        return SkScalarRoundToScalar(a * 10.0)/10.0;
+        return SkScalarRoundToScalar(a *  10) * (1.0f/10);
     } else {
         return SkScalarFloorToScalar(a);
     }
