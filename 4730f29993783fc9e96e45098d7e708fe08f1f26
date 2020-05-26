@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0f733299_fd770014",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-26T15:41:08Z",
+      "side": 0,
+      "message": "Oh, ok.  I don\u0027t really care but this seems of a different thrust than the other changes.  Maybe spin this off as another CL?",
+      "parentUuid": "dc48d999_68c01163",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 108
+      },
+      "revId": "4730f29993783fc9e96e45098d7e708fe08f1f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8396146_7f7e11fb",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 0,
       "message": "It\u0027s a long-winded comment about a technical detail that we don\u0027t actually support. And frankly  it\u0027s easier to understand their point just by reading the code. Maybe that\u0027s my bias from working on Mac for years and seeing a lot of endian-related stuff, so I get it intuitively, but to me this comment felt like a waste of space.",
       "parentUuid": "f8396146_7f7e11fb",
+      "range": {
+        "startLine": 328,
+        "startChar": 90,
+        "endLine": 333,
+        "endChar": 71
+      },
+      "revId": "4730f29993783fc9e96e45098d7e708fe08f1f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfec93de_f5dd5477",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-26T15:41:08Z",
+      "side": 0,
+      "message": ":)  Yes indeed.",
+      "parentUuid": "0852ca3b_664f222e",
       "range": {
         "startLine": 328,
         "startChar": 90,
