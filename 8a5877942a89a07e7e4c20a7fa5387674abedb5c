@@ -124,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4ec82256_e6468eab",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3803e443_b168f5e7",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ec601f0_0d535139",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 20
@@ -138,6 +156,24 @@
       "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38cce266_bdf7eeb3",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ec601f0_0d535139",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "6bcf6ea6_7c44f26a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b91deac_d1a779e4",
+      "range": {
+        "startLine": 148,
+        "startChar": 16,
+        "endLine": 148,
+        "endChar": 25
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc3edf64_31d9c158",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 20
@@ -187,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "34a26f2d_8158cae3",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "I don\u0027t think that would help the SkVx processing.",
+      "parentUuid": "bc3edf64_31d9c158",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 95
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "393b4d0a_eb5eb42f",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 20
@@ -204,6 +288,24 @@
     },
     {
       "key": {
+        "uuid": "b4480d36_841fdb8c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "393b4d0a_eb5eb42f",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a398a5c1_9f38f42d",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 20
@@ -218,6 +320,24 @@
       "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5c70507_9fd258ba",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "That doesn\u0027t read as well to me, but done.",
+      "parentUuid": "a398a5c1_9f38f42d",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -397,6 +517,24 @@
     },
     {
       "key": {
+        "uuid": "19d5405b_7a6bf3f7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Actually calculated the correct value.",
+      "parentUuid": "982e2747_984ad135",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a417d48b_8b0f873e",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 20
@@ -417,6 +555,30 @@
       "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd7e10e_e93b3eec",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T18:52:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a417d48b_8b0f873e",
+      "range": {
+        "startLine": 327,
+        "startChar": 10,
+        "endLine": 327,
+        "endChar": 15
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
