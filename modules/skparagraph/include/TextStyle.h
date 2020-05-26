@@ -305,6 +305,23 @@ typedef SkRange<size_t> BlockRange;
 const size_t EMPTY_BLOCK = EMPTY_INDEX;
 const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
 
+typedef size_t RunIndex;
+const size_t EMPTY_RUN = EMPTY_INDEX;
+
+typedef size_t ClusterIndex;
+typedef SkRange<size_t> ClusterRange;
+const size_t EMPTY_CLUSTER = EMPTY_INDEX;
+const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
+
+typedef size_t GraphemeIndex;
+typedef SkRange<GraphemeIndex> GraphemeRange;
+
+typedef size_t CodepointIndex;
+typedef SkRange<CodepointIndex> CodepointRange;
+
+typedef size_t GlyphIndex;
+typedef SkRange<GlyphIndex> GlyphRange;
+
 struct Placeholder {
     Placeholder() : fRange(EMPTY_RANGE), fStyle() {}
 

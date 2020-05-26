@@ -4,6 +4,8 @@
 #include "include/core/SkFontMgr.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
+#include "modules/skparagraph/src/Cluster.h"
+#include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "src/core/SkFontMgrPriv.h"

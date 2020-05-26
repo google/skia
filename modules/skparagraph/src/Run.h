@@ -16,24 +16,6 @@ namespace textlayout {
 
 class ParagraphImpl;
 class Cluster;
-class Run;
-
-typedef size_t RunIndex;
-const size_t EMPTY_RUN = EMPTY_INDEX;
-
-typedef size_t ClusterIndex;
-typedef SkRange<size_t> ClusterRange;
-const size_t EMPTY_CLUSTER = EMPTY_INDEX;
-const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
-
-typedef size_t GraphemeIndex;
-typedef SkRange<GraphemeIndex> GraphemeRange;
-
-typedef size_t CodepointIndex;
-typedef SkRange<CodepointIndex> CodepointRange;
-
-typedef size_t GlyphIndex;
-typedef SkRange<GlyphIndex> GlyphRange;
 
 // LTR: [start: end) where start <= end
 // RTL: [end: start) where start >= end
@@ -237,110 +219,6 @@ struct Grapheme {
         : fCodepointRange(codepoints), fTextRange(textRange) { }
     CodepointRange fCodepointRange;
     TextRange fTextRange;           // Used for getRectsForRange
-};
-
-class Cluster {
-public:
-    enum BreakType {
-        None,
-        GraphemeBreak,  // calculated for all clusters (UBRK_CHARACTER)
-        SoftLineBreak,  // calculated for all clusters (UBRK_LINE & UBRK_CHARACTER)
-        HardLineBreak,  // calculated for all clusters (UBRK_LINE)
-    };
-
-    Cluster()
-            : fMaster(nullptr)
-            , fRunIndex(EMPTY_RUN)
-            , fTextRange(EMPTY_TEXT)
-            , fGraphemeRange(EMPTY_RANGE)
-            , fStart(0)
-            , fEnd()
-            , fWidth()
-            , fSpacing(0)
-            , fHeight()
-            , fHalfLetterSpacing(0.0)
-            , fWhiteSpaces(false)
-            , fBreakType(None) {}
-
-    Cluster(ParagraphImpl* master,
-            RunIndex runIndex,
-            size_t start,
-            size_t end,
-            SkSpan<const char> text,
-            SkScalar width,
-            SkScalar height);
-
-    Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
-
-    ~Cluster() = default;
-
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
-    SkScalar sizeToChar(TextIndex ch) const;
-    SkScalar sizeFromChar(TextIndex ch) const;
-
-    size_t roundPos(SkScalar s) const;
-
-    void space(SkScalar shift, SkScalar space) {
-        fSpacing += space;
-        fWidth += shift;
-    }
-
-    void setBreakType(BreakType type) { fBreakType = type; }
-    bool isWhitespaces() const { return fWhiteSpaces; }
-    bool canBreakLineAfter() const {
-        return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
-    }
-    bool isHardBreak() const { return fBreakType == HardLineBreak; }
-    bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
-    bool isGraphemeBreak() const { return fBreakType == GraphemeBreak; }
-    size_t startPos() const { return fStart; }
-    size_t endPos() const { return fEnd; }
-    SkScalar width() const { return fWidth; }
-    SkScalar height() const { return fHeight; }
-    size_t size() const { return fEnd - fStart; }
-
-    void setHalfLetterSpacing(SkScalar halfLetterSpacing) { fHalfLetterSpacing = halfLetterSpacing; }
-    SkScalar getHalfLetterSpacing() const { return fHalfLetterSpacing; }
-
-    TextRange textRange() const { return fTextRange; }
-
-    RunIndex runIndex() const { return fRunIndex; }
-    ParagraphImpl* master() const { return fMaster; }
-
-    Run* run() const;
-    SkFont font() const;
-
-    SkScalar trimmedWidth(size_t pos) const;
-
-    void setIsWhiteSpaces();
-
-    bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
-
-    bool belongs(TextRange text) const {
-        return fTextRange.start >= text.start && fTextRange.end <= text.end;
-    }
-
-    bool startsIn(TextRange text) const {
-        return fTextRange.start >= text.start && fTextRange.start < text.end;
-    }
-
-private:
-
-    friend ParagraphImpl;
-
-    ParagraphImpl* fMaster;
-    RunIndex fRunIndex;
-    TextRange fTextRange;
-    GraphemeRange fGraphemeRange;
-
-    size_t fStart;
-    size_t fEnd;
-    SkScalar fWidth;
-    SkScalar fSpacing;
-    SkScalar fHeight;
-    SkScalar fHalfLetterSpacing;
-    bool fWhiteSpaces;
-    BreakType fBreakType;
 };
 
 class InternalLineMetrics {

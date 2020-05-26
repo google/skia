@@ -16,6 +16,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
+#include "modules/skparagraph/src/Cluster.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "samplecode/Sample.h"
@@ -2581,7 +2582,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kLeft);
+        //paragraph_style.setTextDirection(TextDirection::kRtl);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorDKGRAY);
@@ -2589,13 +2590,13 @@ protected:
         text_style.setFontSize(40);
         text_style.setDecoration(TextDecoration::kUnderline);
 
-        text_style.setDecorationMode(TextDecorationMode::kThrough);
+        //text_style.setDecorationMode(TextDecorationMode::kThrough);
         text_style.setDecorationStyle(TextDecorationStyle::kDouble);
         text_style.setDecorationColor(SK_ColorBLUE);
         builder.pushStyle(text_style);
         builder.addText("Double underline: {opopo}\n");
 
-        text_style.setDecorationMode(TextDecorationMode::kGaps);
+        //text_style.setDecorationMode(TextDecorationMode::kGaps);
         text_style.setDecorationStyle(TextDecorationStyle::kDouble);
         text_style.setDecorationColor(SK_ColorBLUE);
         builder.pushStyle(text_style);
