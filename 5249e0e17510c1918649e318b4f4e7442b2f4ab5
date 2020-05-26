@@ -22,6 +22,30 @@
       "revId": "5249e0e17510c1918649e318b4f4e7442b2f4ab5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "282f599a_dca9e9e1",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-26T20:08:36Z",
+      "side": 1,
+      "message": "Yeah, I think axis aligned and \u003d\u003d would work. And then even if it\u0027s not axis aligned, if subset-\u003emakeInset(.5, .5).contains(quad-\u003efLocal.bounds()), we should also be able to drop it. The TextureEffect drops the subset in this case, but it doesn\u0027t have the info to know if the draw is axis-aligned. \n\nFrom what we\u0027ve seen, I believe that when it\u0027s axis-aligned and nearest-neighbor, we can get away with having the coordinate bounds match the subset (no inset). This will allow for slightly more draws to avoid the subset then.",
+      "parentUuid": "e72822c7_e4c81f7b",
+      "range": {
+        "startLine": 452,
+        "startChar": 12,
+        "endLine": 452,
+        "endChar": 65
+      },
+      "revId": "5249e0e17510c1918649e318b4f4e7442b2f4ab5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
