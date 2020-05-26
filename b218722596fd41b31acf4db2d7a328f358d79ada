@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "72886799_16d2fa65",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T15:08:14Z",
+      "side": 1,
+      "message": "It shouldn\u0027t be possible to have a non-abandoned DirectContext w/o a gpu object.",
+      "parentUuid": "cf33dd13_8b5b1f9a",
+      "range": {
+        "startLine": 553,
+        "startChar": 0,
+        "endLine": 562,
+        "endChar": 5
+      },
+      "revId": "b218722596fd41b31acf4db2d7a328f358d79ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc748895_c989f215",
         "filename": "tests/GrSubmittedFlushTest.cpp",
         "patchSetId": 4
