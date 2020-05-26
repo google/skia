@@ -64,6 +64,10 @@ struct PrefixExpression : public Expression {
         return -fOperand->getMatComponent(col, row);
     }
 
+    int nodeCount() const override {
+        return 1 + fOperand->nodeCount();
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
     }
