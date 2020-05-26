@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "bad757d4_53e3070a",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:59:28Z",
+      "side": 1,
+      "message": "This file needs to go :(",
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e49f005d_bb1c786e",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:59:28Z",
+      "side": 1,
+      "message": "Actually, should this be named \u0027textTargetCreateVertexData\u0027 ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 55,
+        "endLine": 37,
+        "endChar": 65
+      },
+      "revId": "8a5877942a89a07e7e4c20a7fa5387674abedb5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee8b2fd4_8fe2ff03",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 20
