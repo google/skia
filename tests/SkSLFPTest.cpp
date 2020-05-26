@@ -784,8 +784,11 @@ DEF_TEST(SkSLFPFunction, r) {
             "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
             "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args, "
                                       "\"return c.wzyx;\\n\", &flip_name);",
-            "fragBuilder->codeAppendf(\"%s = %s(%s);\\n\", args.fOutputColor, flip_name.c_str(), "
-                                      "args.fInputColor);"
+            "fragBuilder->codeAppendf(\"half4 inlineResult101;\\nhalf4 inlineArg101_0 = %s;\\ndo {"
+                                     "\\n    {\\n        inlineResult101 = inlineArg101_0.wzyx;\\n"
+                                     "        break;\\n    }\\n} while (false);\\n%s = "
+                                     "inlineResult101;\\n\\n\", args.fInputColor, "
+                                     "args.fOutputColor);"
          });
 }
 
