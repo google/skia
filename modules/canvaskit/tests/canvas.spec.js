@@ -255,6 +255,81 @@ describe('Canvas Behavior', () => {
         final.delete();
     });
 
+    gm('blendmodes_canvas', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const blendModeNames = Object.keys(CanvasKit.BlendMode).filter((key) => key !== 'values');
+
+        const PASTEL_MUSTARD_YELLOW = CanvasKit.Color(248, 213, 85, 1.0);
+        const PASTEL_SKY_BLUE = CanvasKit.Color(74, 174, 245, 1.0);
+
+        const shapePaint = new CanvasKit.SkPaint();
+        shapePaint.setColor(PASTEL_MUSTARD_YELLOW);
+        shapePaint.setAntiAlias(true);
+
+        const textPaint = new CanvasKit.SkPaint();
+        textPaint.setAntiAlias(true);
+
+        const textFont = new CanvasKit.SkFont(null, 10);
+
+        let x = 10;
+        let y = 20;
+        for (const blendModeName of blendModeNames) {
+            // Draw a checkerboard for each blend mode.
+            // Each checkerboard is labelled with a blendmode's name.
+            canvas.drawText(blendModeName, x, y - 5, textPaint, textFont);
+            drawCheckerboard(canvas, x, y, x + 80, y + 80);
+
+            // A blue square is drawn on to each checkerboard with yellow circle.
+            // In each checkerboard the blue square is drawn using a different blendmode.
+            const blendMode = CanvasKit.BlendMode[blendModeName];
+            canvas.drawOval(CanvasKit.LTRBRect(x + 5, y + 5, x + 55, y + 55), shapePaint);
+            drawRectangle(x + 30, y + 30, x + 70, y + 70, PASTEL_SKY_BLUE, blendMode);
+
+            x += 90;
+            if (x > 500) {
+                x = 10;
+                y += 110;
+            }
+        }
+
+        function drawCheckerboard(canvas, x1, y1, x2, y2) {
+            const CHECKERBOARD_SQUARE_SIZE = 5;
+            const GREY = CanvasKit.Color(220, 220, 220, 0.5);
+            // Draw black border and white background for checkerboard
+            drawRectangle(x1-1, y1-1, x2+1, y2+1, CanvasKit.BLACK);
+            drawRectangle(x1, y1, x2, y2, CanvasKit.WHITE);
+
+            // Draw checkerboard squares
+            const numberOfColumns = (x2 - x1) / CHECKERBOARD_SQUARE_SIZE;
+            const numberOfRows = (y2 - y1) / CHECKERBOARD_SQUARE_SIZE
+
+            for (let row = 0; row < numberOfRows; row++) {
+                for (let column = 0; column < numberOfColumns; column++) {
+                    const rowIsEven = row % 2 === 0;
+                    const columnIsEven = column % 2 === 0;
+
+                    if ((rowIsEven && !columnIsEven) || (!rowIsEven && columnIsEven)) {
+                        drawRectangle(
+                            x1 + CHECKERBOARD_SQUARE_SIZE * row,
+                            y1 + CHECKERBOARD_SQUARE_SIZE * column,
+                            Math.min(x1 + CHECKERBOARD_SQUARE_SIZE * row + CHECKERBOARD_SQUARE_SIZE, x2),
+                            Math.min(y1 + CHECKERBOARD_SQUARE_SIZE * column + CHECKERBOARD_SQUARE_SIZE, y2),
+                            GREY
+                        );
+                    }
+                }
+            }
+        }
+
+        function drawRectangle(x1, y1, x2, y2, color, blendMode=CanvasKit.BlendMode.srcOver) {
+            canvas.save();
+            canvas.clipRect(CanvasKit.LTRBRect(x1, y1, x2, y2), CanvasKit.ClipOp.Intersect, true);
+            canvas.drawColor(color, blendMode);
+            canvas.restore();
+        }
+    });
+
     gm('colorfilters_malloc_canvas', (canvas) => {
         const paint = new CanvasKit.SkPaint();
 
