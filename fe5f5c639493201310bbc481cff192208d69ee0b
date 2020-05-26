@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c41c468f_591fb7f5",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c54838b9_9a24e685",
+      "range": {
+        "startLine": 2151,
+        "startChar": 56,
+        "endLine": 2151,
+        "endChar": 84
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32a6de71_585bcdc8",
         "filename": "fuzz/FuzzDDLThreading.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cb8a01c_206a21f0",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32a6de71_585bcdc8",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +124,48 @@
     },
     {
       "key": {
+        "uuid": "b4b23f37_8d119954",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5725551b_5237cb5d",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4978d994_5518a0b3",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a598d4fc_36fdf0fe",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fee1fa8e_e7d0dc84",
         "filename": "fuzz/FuzzDDLThreading.cpp",
         "patchSetId": 4
@@ -96,6 +180,24 @@
       "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e01f042_befd4364",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fee1fa8e_e7d0dc84",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "8574f1e8_2bc41c70",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4968978_20cc9de4",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1ed8e4f_83a34359",
         "filename": "fuzz/FuzzDDLThreading.cpp",
         "patchSetId": 4
@@ -130,6 +250,24 @@
       "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1659bfde_8701c2bc",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "In a previous iteration, I was releasing images off the GPU thread and needed this. Now, like we talked about, I\u0027m doing it on the GPU thread (with a TODO) so the mutex is gone.",
+      "parentUuid": "a1ed8e4f_83a34359",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -156,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "d0db1f77_f4327aad",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7dcc5458_399b9e49",
+      "range": {
+        "startLine": 41,
+        "startChar": 40,
+        "endLine": 41,
+        "endChar": 71
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39165092_72eba5b3",
         "filename": "tools/DDLTileHelper.cpp",
         "patchSetId": 4
@@ -170,6 +332,24 @@
       "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b51a983_b355ee6d",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39165092_72eba5b3",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -193,6 +373,30 @@
       "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "123c0c50_4a80084d",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-05-26T18:33:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "554c39e5_09fdd3a5",
+      "range": {
+        "startLine": 255,
+        "startChar": 27,
+        "endLine": 255,
+        "endChar": 30
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
