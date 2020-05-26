@@ -307,6 +307,9 @@ SKCMS_API bool skcms_PrimariesToXYZD50(float rx, float ry,
                                        float wx, float wy,
                                        skcms_Matrix3x3* toXYZD50);
 
+// Call before your first call to skcms_Transform() to skip runtime CPU detection.
+SKCMS_API void skcms_DisableRuntimeCPUDetection(void);
+
 // Utilities for programmatically constructing profiles
 static inline void skcms_Init(skcms_ICCProfile* p) {
     memset(p, 0, sizeof(*p));
