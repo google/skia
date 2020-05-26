@@ -242,13 +242,11 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     contentRect->offset(-rtcToSrcOffset);
 
     if (!top.isEmpty()) {
-        dstRenderTargetContext->clear(&top, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kYes);
+        dstRenderTargetContext->priv().clearAtLeast(top, SK_PMColor4fTRANSPARENT);
     }
 
     if (!bottom.isEmpty()) {
-        dstRenderTargetContext->clear(&bottom, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kYes);
+        dstRenderTargetContext->priv().clearAtLeast(bottom, SK_PMColor4fTRANSPARENT);
     }
 
     if (mid.isEmpty()) {
