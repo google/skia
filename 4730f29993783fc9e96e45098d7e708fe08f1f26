@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e95f700_b119d357",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-26T15:26:04Z",
+      "side": 0,
+      "message": "What\u0027s the deal with these changes?",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 108
+      },
+      "revId": "4730f29993783fc9e96e45098d7e708fe08f1f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8396146_7f7e11fb",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-26T15:26:04Z",
+      "side": 0,
+      "message": "This is correct if you\u0027d like to keep it?  I\u0027m happy to delete it.",
+      "range": {
+        "startLine": 328,
+        "startChar": 90,
+        "endLine": 333,
+        "endChar": 71
+      },
+      "revId": "4730f29993783fc9e96e45098d7e708fe08f1f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
