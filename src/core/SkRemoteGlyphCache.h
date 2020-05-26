@@ -19,13 +19,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSerialProcs.h"
-#include "include/core/SkTypeface.h"
-#include "include/private/SkTHash.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/core/SkDevice.h"
-#include "src/core/SkStrikeForGPU.h"
-#include "src/core/SkTLazy.h"
 
 class Deserializer;
 class Serializer;
@@ -35,6 +29,7 @@ class SkAutoDescriptor;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkStrikeCache;
+class SkTypeface;
 class SkTypefaceProxy;
 struct WireTypeface;
 

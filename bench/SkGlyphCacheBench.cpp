@@ -14,6 +14,7 @@
 #include "src/core/SkRemoteGlyphCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobTrace.h"
 #include "tools/Resources.h"
