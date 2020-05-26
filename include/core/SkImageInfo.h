@@ -55,17 +55,11 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Temporary macro that allows us to add new color types without breaking Chrome compile. */
-#define SK_EXTENDED_COLOR_TYPES
-
 /** \enum SkImageInfo::SkColorType
-    Describes how pixel bits encode color. A pixel may be an alpha mask, a
-    grayscale, RGB, or ARGB.
+    Describes how pixel bits encode color. A pixel may be an alpha mask, a grayscale, RGB, or ARGB.
 
-    kN32_SkColorType selects the native 32-bit ARGB format. On little endian
-    processors, pixels containing 8-bit ARGB components pack into 32-bit
-    kBGRA_8888_SkColorType. On big endian processors, pixels pack into 32-bit
-    kRGBA_8888_SkColorType.
+    kN32_SkColorType can be used to automatically select the native 32-bit ARGB format for the
+    current configuration.
 */
 enum SkColorType {
     kUnknown_SkColorType,      //!< uninitialized
@@ -80,8 +74,8 @@ enum SkColorType {
     kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
     kBGR_101010x_SkColorType,  //!< pixel with 10 bits each for blue, green, red; in 32-bit word
     kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
-    kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha; in 64-bit word
-    kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
+    kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for r, g, b, a; in 64-bit word
+    kRGBA_F16_SkColorType,     //!< pixel with half floats for r, g, b, a; in 64-bit word
     kRGBA_F32_SkColorType,     //!< pixel using C float for red, green, blue, alpha; in 128-bit word
 
     // The following 6 colortypes are just for reading from - not for rendering to
@@ -92,15 +86,15 @@ enum SkColorType {
 
     kA16_unorm_SkColorType,    //<! pixel with a little endian uint16_t for alpha
     kR16G16_unorm_SkColorType, //<! pixel with a little endian uint16_t for red and green
-    kR16G16B16A16_unorm_SkColorType,//<! pixel with a little endian uint16_t for red, green, blue, and alpha
+    kR16G16B16A16_unorm_SkColorType,//<! pixel with a little endian uint16_t for r, g, b and a
 
     kLastEnum_SkColorType     = kR16G16B16A16_unorm_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
+    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding
 
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native ARGB 32-bit encoding
+    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native 32-bit RGBA encoding
 
 #else
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
