@@ -225,6 +225,18 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     return ddl;
 }
 
+static GrContext::PromiseImageApiVersion convert_api_version(
+                                          SkDeferredDisplayListRecorder::PromiseImageApiVersion v) {
+    using SkDDLR = SkDeferredDisplayListRecorder::PromiseImageApiVersion;
+    using GrCtx = GrContext::PromiseImageApiVersion;
+    switch (v) {
+        case SkDDLR::kLegacy:
+            return GrCtx::kLegacy;
+        case SkDDLR::kNew:
+            return GrCtx::kNew;
+    }
+}
+
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         const GrBackendFormat& backendFormat,
         int width,
@@ -256,7 +268,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            textureReleaseProc,
                                            textureDoneProc,
                                            textureContext,
-                                           version);
+                                           convert_api_version(version));
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
@@ -290,7 +302,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                                    textureReleaseProc,
                                                    textureDoneProc,
                                                    textureContexts,
-                                                   version);
+                                                   convert_api_version(version));
 }
 
 #endif
