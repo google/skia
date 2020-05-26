@@ -26,33 +26,29 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
     auto oldUnresolvedCount = fUnresolvedBlocks.size();
 
     // Find all unresolved blocks
-    bool nothingWasUnresolved = true;
     sortOutGlyphs([&](GlyphRange block){
         if (block.width() == 0) {
             return;
         }
-        nothingWasUnresolved = false;
         addUnresolvedWithRun(block);
     });
 
     // Fill all the gaps between unresolved blocks with resolved ones
-    if (nothingWasUnresolved) {
+    if (oldUnresolvedCount == fUnresolvedBlocks.size()) {
         // No unresolved blocks added - we resolved the block with one run entirely
         addFullyResolved();
         return;
+    } else if (oldUnresolvedCount == fUnresolvedBlocks.size() - 1) {
+        if (fCurrentRun->textRange() == fUnresolvedBlocks.back().fText) {
+            // Nothing was resolved; preserve the initial run if it makes sense
+            if (fUnresolvedBlocks.front().fRun != nullptr) {
+                fUnresolvedBlocks.back().fRun = fUnresolvedBlocks.front().fRun;
+            }
+            return;
+        }
     }
 
-    auto& front = fUnresolvedBlocks.front();    // The one we need to resolve
-    auto& back = fUnresolvedBlocks.back();      // The one we have from shaper
-    if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 &&
-        front.fText == back.fText) {
-        // The entire block remains unresolved!
-        if (front.fRun != nullptr) {
-            back.fRun = front.fRun;
-        }
-    } else {
-        fillGaps(oldUnresolvedCount);
-    }
+    fillGaps(oldUnresolvedCount);
 }
 
 #ifdef SK_DEBUG
