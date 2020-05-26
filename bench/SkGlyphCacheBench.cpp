@@ -16,6 +16,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobTrace.h"
+#include "src/core/SkTLazy.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
