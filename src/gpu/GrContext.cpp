@@ -33,7 +33,9 @@
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/gpu/text/GrTextContext.h"
+#include "src/image/SkImage_Gpu.h"
 #include "src/image/SkImage_GpuBase.h"
+#include "src/image/SkImage_GpuYUVA.h"
 #include "src/image/SkSurface_Gpu.h"
 #include <atomic>
 
@@ -796,6 +798,66 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
 
 bool GrContext::precompileShader(const SkData& key, const SkData& data) {
     return fGpu->precompileShader(key, data);
+}
+
+sk_sp<SkImage> GrContext::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        PromiseImageTextureFulfillProc textureFulfillProc,
+        PromiseImageTextureReleaseProc textureReleaseProc,
+        PromiseImageTextureDoneProc textureDoneProc,
+        PromiseImageTextureContext textureContext,
+        PromiseImageApiVersion version) {
+    return SkImage_Gpu::MakePromiseTexture(this,
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           textureDoneProc,
+                                           textureContext,
+                                           version);
+}
+
+sk_sp<SkImage> GrContext::makeYUVAPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkISize yuvaSizes[],
+        const SkYUVAIndex yuvaIndices[4],
+        int imageWidth,
+        int imageHeight,
+        GrSurfaceOrigin imageOrigin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        PromiseImageTextureFulfillProc textureFulfillProc,
+        PromiseImageTextureReleaseProc textureReleaseProc,
+        PromiseImageTextureDoneProc textureDoneProc,
+        PromiseImageTextureContext textureContexts[],
+        PromiseImageApiVersion version) {
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(this,
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaSizes,
+                                                   yuvaIndices,
+                                                   imageWidth,
+                                                   imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   textureDoneProc,
+                                                   textureContexts,
+                                                   version);
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
