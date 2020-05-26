@@ -595,7 +595,6 @@ public:
 
         @param imageFilter  how SkImage is sampled when transformed
 
-        example: https://fiddle.skia.org/c/@Draw_Looper_Methods
         example: https://fiddle.skia.org/c/@Paint_setImageFilter
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
