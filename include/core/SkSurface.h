@@ -652,8 +652,7 @@ public:
 
     /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).
 
-        If SkPaint paint is not nullptr, apply SkColorFilter, alpha, SkImageFilter,
-        SkBlendMode, and SkDrawLooper.
+        If SkPaint paint is not nullptr, apply SkColorFilter, alpha, SkImageFilter, and SkBlendMode.
 
         @param canvas  SkCanvas drawn into
         @param x       horizontal offset in SkCanvas
