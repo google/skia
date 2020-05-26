@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e72822c7_e4c81f7b",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-26T20:01:58Z",
+      "side": 1,
+      "message": "I think here we also wan\u0027t to check that quad-\u003efLocal.getBounds() \u003d\u003d *subset. Is that right, Michael?",
+      "range": {
+        "startLine": 452,
+        "startChar": 12,
+        "endLine": 452,
+        "endChar": 65
+      },
+      "revId": "5249e0e17510c1918649e318b4f4e7442b2f4ab5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
