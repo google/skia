@@ -242,6 +242,8 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         auto subRun = fGeoData[i].fSubRunPtr;
         subRun->prepareGrGlyphs(context.grContext()->priv().getGrStrikeCache());
         // TODO4F: Preserve float colors
+        subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
+        subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
         GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun, &context, atlasManager);
         int subRunEnd = subRun->glyphCount();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
@@ -250,10 +252,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 break;
             }
 
-            std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> vertexData =
-                    fGeoData[i].textTargetCreateVertexData(subRunIndex, glyphsRegenerated);
-
-            context.recordDraw(vertexData.get(), glyphsRegenerated,
+            context.recordDraw(subRun->quadStart(subRunIndex), glyphsRegenerated,
                                fGeoData[i].fDrawMatrix, target->handle());
             subRunIndex += glyphsRegenerated;
             if (subRunIndex != subRunEnd) {

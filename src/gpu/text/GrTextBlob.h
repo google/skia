@@ -124,6 +124,8 @@ public:
     void setHasBitmap();
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
 
+    static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord);
+
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
@@ -319,16 +321,14 @@ private:
 // glyphs that are included in them.
 class GrTextBlob::SubRun {
 public:
-    struct VertexData {
-        union {
-            // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
-            SkPackedGlyphID packedGlyphID;
-            GrGlyph* grGlyph;
-        } glyph;
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        GrIRect16 rect;
+    // Within a glyph-based subRun, the glyphs are initially recorded as SkPackedGlyphs. At
+    // flush time they are then converted to GrGlyph's (via the GrTextStrike). Once converted
+    // they are never converted back.
+    union PackedGlyphIDorGrGlyph {
+        PackedGlyphIDorGrGlyph() {}
+
+        SkPackedGlyphID fPackedGlyphID;
+        GrGlyph*        fGrGlyph;
     };
 
     // SubRun for masks
@@ -336,11 +336,13 @@ public:
            GrTextBlob* textBlob,
            const SkStrikeSpec& strikeSpec,
            GrMaskFormat format,
-           SkRect vertexBounds,
-           const SkSpan<VertexData>& vertexData);
+           const SkSpan<PackedGlyphIDorGrGlyph>& glyphs,
+           const SkSpan<char>& vertexData);
 
     // SubRun for paths
     SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+
+    void appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables);
 
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
@@ -350,20 +352,14 @@ public:
     GrMaskFormat maskFormat() const;
 
     size_t vertexStride() const;
+    size_t colorOffset() const;
+    size_t texCoordOffset() const;
+    char* quadStart(size_t index) const;
     size_t quadOffset(size_t index) const;
-    void fillVertexData(
-            void* vertexDst, int offset, int count,
-            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
-            SkIRect clip) const;
-
-    void fillTextTargetVertexData(
-            Mask3DVertex vertexDst[][4],
-            int offset,
-            int count,
-            GrColor color,
-            SkPoint origin) const;
 
     int glyphCount() const;
+
+    void joinGlyphBounds(const SkRect& glyphBounds);
 
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
@@ -374,6 +370,10 @@ public:
     void prepareGrGlyphs(GrStrikeCache*);
     // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
     SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
+
+    void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    void updateVerticesColorIfNeeded(GrColor newColor);
+    void updateTexCoords(int begin, int end);
 
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
@@ -392,23 +392,28 @@ public:
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
+    const SkSpan<char> fVertexData;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
     struct {
         bool useLCDText:1;
         bool antiAliased:1;
-    } fFlags {false, false};
+    } fFlags{false, false};
+    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+    GrColor fCurrentColor;
+    // If the vertex data needTransform(), then fCurrentOrigin is in source space else it is in
+    // device space.
+    SkPoint fCurrentOrigin;
+    SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
-
 private:
     bool hasW() const;
 
-    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
+    const SkSpan<PackedGlyphIDorGrGlyph> fGlyphs;
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
     // source space. The bounds are the joined rectangles of all the glyphs.
-    const SkRect fVertexBounds;
-    const SkSpan<VertexData> fVertexData;
+    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
 };  // SubRun
 
 #endif  // GrTextBlob_DEFINED
