@@ -36,9 +36,7 @@ public:
         return {surfaceColorType, GrColorTypeBytesPerPixel(surfaceColorType)};
     }
 
-    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
-        return SurfaceReadPixelsSupport::kSupported;
-    }
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
     size_t bytesPerPixel(const GrBackendFormat&) const override;
 
