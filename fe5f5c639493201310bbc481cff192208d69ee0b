@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c54838b9_9a24e685",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 2151,
+        "startChar": 56,
+        "endLine": 2151,
+        "endChar": 84
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32a6de71_585bcdc8",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "It seems like we should be including \"GrContext.h\" somewhere in here",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5725551b_5237cb5d",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "// This class tracks the state of a given promise image. In particular, ...\n\nIs there anything interesting to say here ?",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a598d4fc_36fdf0fe",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "I would personally make this a class since it is derived and has a dtor.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fee1fa8e_e7d0dc84",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "// In general, this fuzzer creates \u0027kPromiseImageCount\u0027 promise images and then ...\n\nIs a summary of what this does possible/useful ?",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4968978_20cc9de4",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "// What is this mutex used for ?",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1ed8e4f_83a34359",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "So, are we sharing the SkPromiseImageTextures between the threads of the promise images ?",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dcc5458_399b9e49",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "wdyt about taking a \"const SkPicture*\" here ?",
+      "range": {
+        "startLine": 41,
+        "startChar": 40,
+        "endLine": 41,
+        "endChar": 71
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39165092_72eba5b3",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "Same here, an \"const SkPicture*\" ?",
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "554c39e5_09fdd3a5",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-26T16:49:49Z",
+      "side": 1,
+      "message": "update this too ?",
+      "range": {
+        "startLine": 255,
+        "startChar": 27,
+        "endLine": 255,
+        "endChar": 30
+      },
+      "revId": "fe5f5c639493201310bbc481cff192208d69ee0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
