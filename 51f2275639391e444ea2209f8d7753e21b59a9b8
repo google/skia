@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44935711_2697ace8",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T14:31:30Z",
+      "side": 1,
+      "message": "Did you try adding runLevels.reserve(runCount)? Same with logicalOrder below?",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 38
+      },
+      "revId": "51f2275639391e444ea2209f8d7753e21b59a9b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1272cdab_8954decd",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-05-26T14:31:30Z",
+      "side": 1,
+      "message": "Line break?",
+      "range": {
+        "startLine": 126,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 127
+      },
+      "revId": "51f2275639391e444ea2209f8d7753e21b59a9b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
