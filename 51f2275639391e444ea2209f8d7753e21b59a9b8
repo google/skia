@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "100f5b46_36937f98",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-26T15:23:27Z",
+      "side": 1,
+      "message": "The number picked should be based on the number of times direction changes on a line. In general the answer is 1 (there is no direction change on the line). In a mix of directions the answer is probably 3 or 4 (it switches and then switches back). If it\u0027s more than that it\u0027s probably a really long line with lots of direction changes and it\u0027s probably fine to do the alloc. The reality here is that the 99.9% case is 1, so avoiding that alloc is going to be a big win.",
+      "parentUuid": "16b6699a_4a2441c0",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 38
+      },
+      "revId": "51f2275639391e444ea2209f8d7753e21b59a9b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1272cdab_8954decd",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 2
