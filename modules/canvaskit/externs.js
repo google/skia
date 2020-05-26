@@ -259,6 +259,17 @@ var CanvasKit = {
     scaled: function() {},
   },
 
+  SkColorSpace: {
+    Equals: function() {},
+    SRGB: {},
+    DISPLAY_P3: {},
+    ADOBE_RGB: {},
+    // private API (from C++ bindings)
+    _MakeSRGB: function() {},
+    _MakeDisplayP3: function() {},
+    _MakeAdobeRGB: function() {},
+  },
+
   SkContourMeasureIter: {
     next: function() {},
   },
@@ -520,6 +531,7 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.SkCanvas} */
     getCanvas: function() {},
+    imageInfo: function() {},
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},

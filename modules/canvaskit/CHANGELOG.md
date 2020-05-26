@@ -6,12 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Support for wide-gamut color spaces DisplayP3 and AdobeRGB. However, correct representation on a
+   WCG monitor requires that the browser is rendering everything to the DisplayP3 or AdobeRGB
+   profile, since there is not yet any way to indicate to the browser that a canvas element has a
+   non-sRGB color space. See color support example in extra.html. Only supported for WebGL2 backed
+   surfaces.
+ - Added `SkSurface.reportBackendType` which returns either 'CPU' or 'GPU'.
+ - Added `SkSurface.imageInfo` which returns an ImageInfo object describing the size and color
+   properties of the surface. colorSpace is added to ImageInfo everywhere it is used.
+
 ### Changed
-  - We now compile/ship with Emscripten v1.39.16.
+ - We now compile/ship with Emscripten v1.39.16.
+ - `CanvasKit.MakeCanvasSurface` accepts a new enum specifying one of the three color space and
+   pixel format combinations supported by CanvasKit. 
+ - all `_Make*Shader` functions now accept a color space argument at the end. leaving it off or
+   passing null makes it behave as it did before, defaulting to sRGB
+ - `SkPaint.setColor` accepts a new color space argument, defaulting to sRGB.
 
 ### Breaking
  - `CanvasKitInit(...)` now directly returns a Promise. As such, `CanvasKitInit(...).ready()`
    has been removed.
+ - `CanvasKit.MakeCanvasSurface` no longer accepts width/height arguments to override those on
+   the canvas element. Use the canvas element's width/height attributes to dictate the size of
+   the drawing area, and use CSS width/height to set the size it will appear on the page
+   (it is rescaled after drawing when css sizing applies).
 
 ### Fixed
  - WebGL context is no longer created with "antialias" flag. Using "antialias" caused poor AA

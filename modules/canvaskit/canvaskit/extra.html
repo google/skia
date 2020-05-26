@@ -35,8 +35,9 @@
 <h2> 3D perspective transformations </h2>
 <canvas id=camera3d width=500 height=500></canvas>
 
-<h2> Use of offscreen surfaces </h2>
-<canvas id=surfaces width=500 height=500></canvas>
+<h2> Support for extended color spaces </h2>
+<a href="chrome://flags/#force-color-profile">Force P3 profile</a>
+<canvas id=colorsupport width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -115,6 +116,7 @@
     ParticlesAPI1(CanvasKit);
     RTShaderAPI1(CanvasKit);
     SurfaceAPI1(CanvasKit);
+    ColorSupport(CanvasKit);
   });
 
   // Examples requiring external resources.
@@ -835,5 +837,31 @@
     document.getElementById('camera3d').addEventListener('pointerup', interact);
 
     surface.requestAnimationFrame(drawFrame);
+  }
+
+  function ColorSupport(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('colorsupport', CanvasKit.SkColorSpace.ADOBE_RGB);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+
+    // If the surface is correctly initialized with a higher bit depth color type,
+    // And chrome is compositing it into a buffer with the P3 color space,
+    // then the inner round rect should be distinct and less saturated than the full red background.
+    // Even if the monitor it is viewed on cannot accurately represent that color space.
+
+    let red = CanvasKit.Color4f(1, 0, 0, 1);
+    let paint = new CanvasKit.SkPaint();
+    paint.setColor(red, CanvasKit.SkColorSpace.ADOBE_RGB);
+    canvas.drawPaint(paint);
+    paint.setColor(red, CanvasKit.SkColorSpace.DISPLAY_P3);
+    canvas.drawRoundRect(CanvasKit.LTRBRect(50, 50, 250, 250), 30, 30, paint);
+    paint.setColor(red, CanvasKit.SkColorSpace.SRGB);
+    canvas.drawRoundRect(CanvasKit.LTRBRect(100, 100, 200, 200), 30, 30, paint);
+
+    surface.flush();
+    surface.delete();
   }
 </script>

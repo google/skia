@@ -8,6 +8,12 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  // Create single copies of all three supported color spaces
+  // These are sk_sp<SkColorSpace>
+  CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
+  CanvasKit.SkColorSpace.DISPLAY_P3 = CanvasKit.SkColorSpace._MakeDisplayP3();
+  CanvasKit.SkColorSpace.ADOBE_RGB = CanvasKit.SkColorSpace._MakeAdobeRGB();
+
   // Add some helpers for matrices. This is ported from SkMatrix.cpp
   // to save complexity and overhead of going back and forth between
   // C++ and JS layers.
@@ -1007,11 +1013,16 @@ CanvasKit.onRuntimeInitialized = function() {
 
   // returns Uint8Array
   CanvasKit.SkCanvas.prototype.readPixels = function(x, y, w, h, alphaType,
-                                                     colorType, dstRowBytes) {
+                                                     colorType, colorSpace, dstRowBytes) {
     // supply defaults (which are compatible with HTMLCanvas's getImageData)
     alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
     colorType = colorType || CanvasKit.ColorType.RGBA_8888;
-    dstRowBytes = dstRowBytes || (4 * w);
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.SRGB;
+    var pixBytes = 4;
+    if (colorType === CanvasKit.ColorType.RGBA_F16) {
+      pixBytes = 8;
+    }
+    dstRowBytes = dstRowBytes || (pixBytes * w);
 
     var len = h * dstRowBytes
     var pptr = CanvasKit._malloc(len);
@@ -1020,6 +1031,7 @@ CanvasKit.onRuntimeInitialized = function() {
       'height': h,
       'colorType': colorType,
       'alphaType': alphaType,
+      'colorSpace': colorSpace,
     }, pptr, dstRowBytes, x, y);
     if (!ok) {
       CanvasKit._free(pptr);
@@ -1036,7 +1048,7 @@ CanvasKit.onRuntimeInitialized = function() {
   // pixels is a TypedArray. No matter the input size, it will be treated as
   // a Uint8Array (essentially, a byte array).
   CanvasKit.SkCanvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,
-                                                      destX, destY, alphaType, colorType) {
+                                                      destX, destY, alphaType, colorType, colorSpace) {
     if (pixels.byteLength % (srcWidth * srcHeight)) {
       throw 'pixels length must be a multiple of the srcWidth * srcHeight';
     }
@@ -1044,6 +1056,7 @@ CanvasKit.onRuntimeInitialized = function() {
     // supply defaults (which are compatible with HTMLCanvas's putImageData)
     alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
     colorType = colorType || CanvasKit.ColorType.RGBA_8888;
+    colorSpace = colorSpace || CanvasKit.SkColorSpace.SRGB;
     var srcRowBytes = bytesPerPixel * srcWidth;
 
     var pptr = CanvasKit._malloc(pixels.byteLength);
@@ -1054,6 +1067,7 @@ CanvasKit.onRuntimeInitialized = function() {
       'height': srcHeight,
       'colorType': colorType,
       'alphaType': alphaType,
+      'colorSpace': colorSpace,
     }, pptr, srcRowBytes, destX, destY);
 
     CanvasKit._free(pptr);
@@ -1093,9 +1107,11 @@ CanvasKit.onRuntimeInitialized = function() {
     return copyColorFromWasm(cPtr);
   }
 
-  CanvasKit.SkPaint.prototype.setColor = function(color4f) {
+  CanvasKit.SkPaint.prototype.setColor = function(color4f, colorSpace) {
+    colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
+    // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
-    this._setColor(cPtr);
+    this._setColor(cPtr, colorSpace);
     CanvasKit._free(cPtr);
   }
 
@@ -1160,21 +1176,23 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   }
 
-  CanvasKit.SkShader.Color = function(color4f) {
+  CanvasKit.SkShader.Color = function(color4f, colorSpace) {
+    colorSpace = colorSpace || null
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
-    var result = CanvasKit.SkShader._Color(cPtr);
+    var result = CanvasKit.SkShader._Color(cPtr, colorSpace);
     CanvasKit._free(cPtr);
     return result;
   }
 
-  CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
+  CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
+    colorSpace = colorSpace || null
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
     var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrixPtr);
+                                                  colors.length, mode, flags, localMatrixPtr, colorSpace);
 
     CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
@@ -1182,14 +1200,15 @@ CanvasKit.onRuntimeInitialized = function() {
     return lgs;
   }
 
-  CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
+  CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
+    colorSpace = colorSpace || null
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
     var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrixPtr);
+                                                  colors.length, mode, flags, localMatrixPtr, colorSpace);
 
     CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
@@ -1197,7 +1216,8 @@ CanvasKit.onRuntimeInitialized = function() {
     return rgs;
   }
 
-  CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle) {
+  CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
+    colorSpace = colorSpace || null
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
@@ -1208,7 +1228,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
                                                  colors.length, mode,
                                                  startAngle, endAngle, flags,
-                                                 localMatrixPtr);
+                                                 localMatrixPtr, colorSpace);
 
     CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
@@ -1217,7 +1237,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
-                                                            colors, pos, mode, localMatrix, flags) {
+                                                            colors, pos, mode, localMatrix, flags, colorSpace) {
+    colorSpace = colorSpace || null
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
@@ -1225,7 +1246,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
     var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
                           start, startRadius, end, endRadius,
-                          colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr);
+                          colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr, colorSpace);
 
     CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
@@ -1335,13 +1356,14 @@ CanvasKit.MakeImageFromEncoded = function(data) {
 
 // pixels must be a Uint8Array with bytes representing the pixel values
 // (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
-CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
+CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colorSpace) {
   var bytesPerPixel = pixels.length / (width * height);
   var info = {
     'width': width,
     'height': height,
     'alphaType': alphaType,
     'colorType': colorType,
+    'colorSpace': colorSpace,
   };
   var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc

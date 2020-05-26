@@ -26,6 +26,10 @@
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
     }
 
+    // Note that color spaces are currently not supported in CPU surfaces. due to the limitation
+    // canvas.getContext('2d').putImageData imposes a limitatin of using an RGBA_8888 color type.
+    // TODO(nifong): support WGC color spaces while still using an RGBA_8888 color type when
+    // on a cpu backend.
     CanvasKit.MakeSurface = function(width, height) {
       /* @dict */
       var imageInfo = {
@@ -35,6 +39,7 @@
         // Since we are sending these pixels directly into the HTML canvas,
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': CanvasKit.AlphaType.Unpremul,
+        'colorSpace': CanvasKit.SkColorSpace.SRGB,
       }
       var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
       // Allocate the buffer of pixels to be drawn into.
