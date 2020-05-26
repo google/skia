@@ -42,7 +42,8 @@ public:
                                    const DDLPromiseImageHelper& helper);
 
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
-        void createDDL();
+        void createDDL(const sk_sp<SkPicture>&,
+                       const SkTArray<sk_sp<SkImage>>& promiseImages);
 
         // Precompile all the programs required to draw this tile's DDL
         void precompile(GrContext*);
@@ -50,7 +51,7 @@ public:
         // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
         // first. This is used for determining the overhead of using DDLs (i.e., it replaces
         // a 'createDDL' and 'draw' pair.
-        void drawSKPDirectly(GrContext*);
+        void drawSKPDirectly(GrContext*, const sk_sp<SkPicture>&);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
         void draw(GrContext*);
@@ -87,9 +88,6 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>          fTileSurface;
 
-        sk_sp<SkPicture>          fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
-                                                     // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
 
@@ -98,7 +96,7 @@ public:
                   const SkIRect& viewport,
                   int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+    void createSKP(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
@@ -132,12 +130,16 @@ public:
     void deleteBackendTextures(SkTaskGroup*, GrContext*);
 
 private:
+    GrContext*                             fContext;
     int                                    fNumDivisions; // number of tiles along a side
     SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 
     std::unique_ptr<SkDeferredDisplayList> fComposeDDL;
 
     const SkSurfaceCharacterization        fDstCharacterization;
+    sk_sp<SkPicture>                       fReconstitutedPicture;
+    SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
+                                                           // reconstituted picture
 };
 
 #endif
