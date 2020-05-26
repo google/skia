@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "748eb709_b898baad",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-26T17:58:05Z",
+      "side": 0,
+      "message": "Since I haven\u0027t heard back, it\u0027s now split into a separate CL. See https://skia-review.googlesource.com/c/skia/+/291959/1",
+      "parentUuid": "d2ab6338_aaf39173",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 108
+      },
+      "revId": "4730f29993783fc9e96e45098d7e708fe08f1f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8396146_7f7e11fb",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 1
