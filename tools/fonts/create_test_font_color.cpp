@@ -43,9 +43,8 @@ int main(int argc, char** argv) {
     // But the planet font cannot get very big in the size limited cbdt format.
     unsigned small[] = { 8, 16 };
 
-    export_ttx(TestSVGTypeface::Default(), SkString(), SkMakeSpan(usual), SkMakeSpan(usual));
-    export_ttx(
-            TestSVGTypeface::Planets(), SkString("planet"), SkMakeSpan(small), SkMakeSpan(usual));
+    export_ttx(TestSVGTypeface::Default(), SkString(), SkSpan(usual), SkSpan(usual));
+    export_ttx(TestSVGTypeface::Planets(), SkString("planet"), SkSpan(small), SkSpan(usual));
 
     return 0;
 }

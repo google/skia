@@ -309,7 +309,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
     return sk_make_sp<DefaultTypeface>("Emoji",
                                        1000,
                                        metrics,
-                                       SkMakeSpan(glyphs),
+                                       SkSpan(glyphs),
                                        SkFontStyle::Normal());
 }
 
@@ -359,7 +359,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
     return sk_make_sp<PlanetTypeface>("Planets",
                                       200,
                                       metrics,
-                                      SkMakeSpan(glyphs),
+                                      SkSpan(glyphs),
                                       SkFontStyle::Normal());
 }
 
