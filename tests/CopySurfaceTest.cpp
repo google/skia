@@ -113,10 +113,58 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                                          grColorType,
                                                                          ii.alphaType(), nullptr);
 
+                                {
+                                    SkDebugf("Validating initial contents of dst\n");
+                                    sk_memset32(read.get(), 0, kW * kH);
+                                    if (!dstContext->readPixels(ii, read.get(), kRowBytes, {0, 0})) {
+                                        ERRORF(reporter, "Error calling readPixels");
+                                        continue;
+                                    }
+                                    bool valid = true;
+                                    for (int i = 0; i < kW * kH; ++i) {
+                                        if (read.get()[i] != dstPixels.get()[i]) {
+                                            ERRORF(reporter, "Initial dst contents are not correct\n");
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (valid) SkDebugf("Valid dst content validation\n");
+                                }
+                                {
+                                    GrSwizzle srcSwizzle = context->priv().caps()->getReadSwizzle(
+                                            src->backendFormat(), grColorType);
+                                    GrSurfaceProxyView srcView(src, sOrigin, srcSwizzle);
+                                    auto srcContext = GrSurfaceContext::Make(context,
+                                                                         std::move(srcView),
+                                                                         grColorType,
+                                                                         ii.alphaType(), nullptr);
+
+                                    SkDebugf("Validating initial contents of src\n");
+                                    sk_memset32(read.get(), 0, kW * kH);
+                                    if (!srcContext->readPixels(ii, read.get(), kRowBytes, {0, 0})) {
+                                        ERRORF(reporter, "Error calling readPixels");
+                                        continue;
+                                    }
+                                    bool valid = true;
+                                    for (int i = 0; i < kW * kH; ++i) {
+                                        if (read.get()[i] != srcPixels.get()[i]) {
+                                            ERRORF(reporter, "Initial src contents are not correct\n");
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (valid) SkDebugf("Valid src content validation\n");
+                                }
+
+
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
+                                    SkDebugf("Using testCopy\n");
                                     result = dstContext->testCopy(src.get(), srcRect, dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
+                                    SkDebugf("Using blitTexture\n");
                                     SkASSERT(dstContext->asRenderTargetContext());
                                     GrSwizzle srcSwizzle = context->priv().caps()->getReadSwizzle(
                                         src->backendFormat(), grColorType);
@@ -200,6 +248,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                             }
                                         }
                                     }
+                                }
+
+                                if (abort) {
+                                    SkDebugf("Ending CopySurfaceTest after failing for:\n");
+                                    SkDebugf(" rgba? %d\n", ii.colorType() == kRGBA_8888_SkColorType);
+                                    SkDebugf(" src origin: %d, src renderable: %d, src rect: [%d %d %d %d]\n",
+                                        (int) sOrigin, (int) sRenderable, srcRect.fLeft, srcRect.fTop, srcRect.fRight, srcRect.fBottom);
+                                    SkDebugf(" dst origin: %d, dst renderable: %d, dst pt: [%d %d]\n",
+                                        (int) dOrigin, (int) dRenderable, dstPoint.fX, dstPoint.fY);
+                                    return;
                                 }
                             }
                         }

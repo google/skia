@@ -469,6 +469,9 @@ static bool in_shard() {
 
 static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
+    if (strcmp(tag, "tests") != 0) {
+        return;
+    }
     if (in_shard() && FLAGS_src.contains(tag) &&
         !CommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
@@ -1440,6 +1443,13 @@ static void gather_tests() {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
+        const char* name = "CopySurface";
+        SkTDArray<const char*> testOnly;
+        testOnly.push_back(name);
+        if (CommandLineFlags::ShouldSkip(testOnly, test.name)) {
+            continue;
+        }
+
         if (test.needsGpu && FLAGS_gpu) {
             gSerialTests.push_back(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
