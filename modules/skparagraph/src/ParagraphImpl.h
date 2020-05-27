@@ -73,44 +73,24 @@ struct BidiRegion {
     uint8_t direction;
 };
 
-class TextBreaker {
-public:
-    TextBreaker() : fInitialized(false), fPos(-1) {}
-
-    bool initialize(SkSpan<const char> text, UBreakIteratorType type);
-
-    bool initialized() const { return fInitialized; }
-
-    size_t first() {
-        fPos = ubrk_first(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t next() {
-        fPos = ubrk_next(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t preceding(size_t offset) {
-        auto pos = ubrk_preceding(fIterator.get(), offset);
-        return pos == UBRK_DONE ? 0 : pos;
-    }
-
-    size_t following(size_t offset) {
-        auto pos = ubrk_following(fIterator.get(), offset);
-        return pos == UBRK_DONE ? fSize : pos;
-    }
-
-    int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
-
-    bool eof() { return fPos == UBRK_DONE; }
-
-private:
-    std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
-    bool fInitialized;
-    int32_t fPos;
-    size_t fSize;
+enum class CodeUnitFlags : unsigned {
+    kNone = 0x0,
+    kPartOfWhiteSpace = 0x1,
+    kGraphemeBreakBefore = 0x2,
+    kSoftLineBreakBefore = 0x4,
+    kHardLineBreakBefore = 0x8,
 };
+
+inline CodeUnitFlags& operator |= (CodeUnitFlags& lhs, CodeUnitFlags rhs)
+{
+    lhs = static_cast<CodeUnitFlags>(static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
+    return lhs;
+}
+
+inline bool operator & (const CodeUnitFlags& lhs, const CodeUnitFlags& rhs)
+{
+    return (static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs)) != 0;
+}
 
 class ParagraphImpl final : public Paragraph {
 
@@ -159,8 +139,7 @@ public:
     const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
-    const SkTHashSet<size_t>& graphemes() const { return fGraphemes; }
-    SkSpan<Codepoint> codepoints(){ return SkSpan<Codepoint>(fCodePoints.begin(), fCodePoints.size()); }
+    SkSpan<CodepointRepresentation> codepoints(){ return SkSpan<CodepointRepresentation>(fCodepoints.begin(), fCodepoints.size()); }
     void formatLines(SkScalar maxWidth);
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
@@ -193,8 +172,12 @@ public:
 
     void resetContext();
     void resolveStrut();
+
+    bool extractICUInformation();
+    bool extractICUWords();
+    bool getBidiRegions();
+
     void buildClusterTable();
-    void markLineBreaks();
     void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
@@ -218,6 +201,12 @@ public:
         }
     }
 
+    using IcuVisitor = std::function<bool(size_t first, size_t next, CodeUnitFlags flags)>;
+    void iterateThroughIcuProperties(CodeUnitFlags flags, IcuVisitor visitor);
+    size_t getWhitespacesLength(TextRange textRang);
+
+    bool codeUnitHasProperty(size_t index, CodeUnitFlags filter) const { return fCodeUnitProperties[index] & filter; }
+
 private:
     friend class ParagraphBuilder;
     friend class ParagraphCacheKey;
@@ -230,11 +219,8 @@ private:
     void calculateBoundaries();
 
     void markGraphemes16();
-    void markGraphemes();
 
     void computeEmptyMetrics();
-
-    bool calculateBidiRegions(SkTArray<BidiRegion>* regions);
 
     // Input
     SkTArray<StyleBlock<SkScalar>> fLetterSpaceStyles;
@@ -251,9 +237,11 @@ private:
     InternalState fState;
     SkTArray<Run, false> fRuns;         // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
+    SkTArray<CodeUnitFlags> fCodeUnitProperties;
+    std::vector<size_t> fWords;
+    SkTArray<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
-    SkTArray<Codepoint, true> fCodePoints;
-    SkTHashSet<size_t> fGraphemes;
+    SkTArray<CodepointRepresentation, true> fCodepoints;
     size_t fUnresolvedGlyphs;
 
     SkTArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)
@@ -268,7 +256,6 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
-    std::vector<size_t> fWords;
 };
 }  // namespace textlayout
 }  // namespace skia
