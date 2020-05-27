@@ -9,6 +9,7 @@ _include = get_path_info("../include", "abspath")
 
 skia_gpu_sources = [
   "$_include/gpu/GrBackendDrawableInfo.h",
+  "$_include/gpu/GrBackendMutableState.h",
   "$_include/gpu/GrBackendSemaphore.h",
   "$_include/gpu/GrBackendSurface.h",
   "$_include/gpu/GrConfig.h",
@@ -34,6 +35,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrAuditTrail.h",
   "$_src/gpu/GrAutoLocaleSetter.h",
+  "$_src/gpu/GrBackendMutableStateImpl.cpp",
+  "$_src/gpu/GrBackendMutableStateImpl.h",
   "$_src/gpu/GrBackendSurface.cpp",
   "$_src/gpu/GrBackendTextureImageGenerator.cpp",
   "$_src/gpu/GrBackendTextureImageGenerator.h",
