@@ -115,7 +115,6 @@
     CanvasKit = CK;
     ParticlesAPI1(CanvasKit);
     RTShaderAPI1(CanvasKit);
-    SurfaceAPI1(CanvasKit);
     ColorSupport(CanvasKit);
   });
 
@@ -203,76 +202,6 @@
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
-  }
-
-  function SurfaceAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('surfaces');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    console.log('SurfaceAPI1 top surface type = '+surface.reportBackendType() );
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-
-    //create a subsurface as a temporary workspace.
-    const subSurface = surface.makeSurface({
-      width: 50,
-      height: 50,
-      alphaType: CanvasKit.AlphaType.Premul,
-      colorType: CanvasKit.ColorType.RGBA_8888,
-    });
-
-    if (!subSurface) {
-      console.error('Could not make subsurface');
-      return;
-    }
-    console.log('SurfaceAPI1 subSurface type = '+subSurface.reportBackendType() );
-
-    // draw a small "scene"
-    const paint = new CanvasKit.SkPaint();
-    paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
-    paint.setStyle(CanvasKit.PaintStyle.Fill);
-    paint.setAntiAlias(true);
-
-    const subCanvas = subSurface.getCanvas();
-    subCanvas.clear(CanvasKit.BLACK);
-    subCanvas.drawRect(CanvasKit.LTRBRect(5, 15, 45, 40), paint);
-
-    paint.setColor(CanvasKit.Color(214, 93, 244)); // purplish
-    for (let i = 0; i < 10; i++) {
-      const x = Math.random() * 50;
-      const y = Math.random() * 50;
-
-      subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
-    }
-
-    // Snap it off as an SkImage - this image will be in the form the
-    // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
-    const img = subSurface.makeImageSnapshot();
-
-    // clean up the temporary surface
-    subSurface.delete();
-    paint.delete();
-
-    // Make it repeat a bunch with a shader
-    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
-    const patternPaint = new CanvasKit.SkPaint();
-    patternPaint.setShader(pattern);
-
-    let i = 0;
-
-    function drawFrame() {
-      i++;
-      CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.WHITE);
-
-      canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
-
   }
 
   function ParagraphAPI1(CanvasKit, fontData) {
