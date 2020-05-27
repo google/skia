@@ -220,7 +220,7 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
         // through a DDL.
         tiles->drawAllTilesDirectly(context);
     } else {
-        tiles->kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, context);
+        tiles->kickOffThreadedWork1(recordingTaskGroup, gpuTaskGroup, context);
         recordingTaskGroup->wait();
     }
 

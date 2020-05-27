@@ -1686,7 +1686,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // Reinflate the compressed picture individually for each thread.
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+    tiles.kickOffThreadedWork1(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread
@@ -1703,7 +1703,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                           dstSurface->draw(ddl);
                       });
 
-    // This should be the only explicit flush for the entire DDL draw
+    // This should be the only explicit flush for the entire DDL draw.
+    // TODO: remove the flushes in do_gpu_stuff
     gpuTaskGroup->add([gpuThreadCtx]() {
                                            // We need to ensure all the GPU work is finished so
                                            // the following 'deleteAllFromGPU' call will work

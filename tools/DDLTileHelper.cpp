@@ -157,7 +157,7 @@ void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
     }
 }
 
-void DDLTileHelper::TileData::draw(GrContext* context) {
+void DDLTileHelper::TileData::draw1(GrContext* context) {
     SkASSERT(fDisplayList && !fTileSurface);
 
     // The tile's surface needs to be held until after the DDL is flushed bc the DDL doesn't take
@@ -173,7 +173,7 @@ void DDLTileHelper::TileData::draw(GrContext* context) {
     }
 }
 
-void DDLTileHelper::TileData::reset() {
+void DDLTileHelper::TileData::reset1() {
     // TODO: when DDLs are re-renderable we don't need to do this
     fDisplayList = nullptr;
 
@@ -281,16 +281,21 @@ void DDLTileHelper::createDDLsInParallel() {
 //    precompile any programs
 //    replay the DDL into a surface to make the tile image
 //    compose the tile image into the main canvas
-static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
+static void do_gpu_stuff1(GrContext* context, DDLTileHelper::TileData* tile) {
 
     // TODO: schedule program compilation as their own tasks
     tile->precompile(context);
 
-    tile->draw(context);
+    tile->draw1(context);
+
+    // TODO: remove this flush once DDLs are reffed by the drawing manager
+    context->flushAndSubmit();
+
+    tile->dropDDL();
 }
 
 // We expect to have more than one recording thread but just one gpu thread
-void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
+void DDLTileHelper::kickOffThreadedWork1(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
                                         GrContext* gpuThreadContext) {
     SkASSERT(recordingTaskGroup && gpuTaskGroup && gpuThreadContext);
@@ -307,7 +312,7 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                     tile->createDDL();
 
                                     gpuTaskGroup->add([gpuThreadContext, tile]() {
-                                        do_gpu_stuff(gpuThreadContext, tile);
+                                        do_gpu_stuff1(gpuThreadContext, tile);
                                     });
                                 });
     }
@@ -315,20 +320,23 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
     recordingTaskGroup->add([this] { this->createComposeDDL(); });
 }
 
+// Only called from Via
 void DDLTileHelper::precompileAndDrawAllTiles(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].precompile(context);
-        fTiles[i].draw(context);
+        fTiles[i].draw1(context);
     }
 }
 
+// Only called from skpbench
 void DDLTileHelper::interleaveDDLCreationAndDraw(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].createDDL();
-        fTiles[i].draw(context);
+        fTiles[i].draw1(context);
     }
 }
 
+// Only called from skpbench
 void DDLTileHelper::drawAllTilesDirectly(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].drawSKPDirectly(context);
@@ -343,7 +351,7 @@ void DDLTileHelper::dropCallbackContexts() {
 
 void DDLTileHelper::resetAllTiles() {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].reset();
+        fTiles[i].reset1();
     }
     fComposeDDL.reset();
 }

@@ -44,6 +44,8 @@ public:
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
+        void dropDDL() { fDisplayList.reset(); }
+
         // Precompile all the programs required to draw this tile's DDL
         void precompile(GrContext*);
 
@@ -53,9 +55,9 @@ public:
         void drawSKPDirectly(GrContext*);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
-        void draw(GrContext*);
+        void draw1(GrContext*);
 
-        void reset();
+        void reset1();
 
         int id() const { return fID; }
         SkIRect clipRect() const { return fClip; }
@@ -100,7 +102,7 @@ public:
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
 
-    void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
+    void kickOffThreadedWork1(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
                              GrContext* gpuThreadContext);
 
