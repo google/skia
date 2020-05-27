@@ -42,8 +42,8 @@ private:
         // Entire run comes as one block fully resolved
         explicit RunBlock(std::shared_ptr<Run> run)
             : fRun(std::move(run))
-            , fText(run->fTextRange)
-            , fGlyphs(GlyphRange(0, run->size())) { }
+            , fText(fRun->fTextRange)
+            , fGlyphs(GlyphRange(0, fRun->size())) { }
 
         std::shared_ptr<Run> fRun;
         TextRange fText;
