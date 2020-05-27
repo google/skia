@@ -3645,10 +3645,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // Tegra3 fract() seems to trigger undefined behavior for negative values, so we
         // must avoid this condition.
         shaderCaps->fCanUseFractForNegativeValues = false;
-
-        // Seeing crashes on Tegra3 with inlined functions that have early returns. Looks like the
-        // do { ... break; } while (false); construct is causing a crash in the driver.
-        shaderCaps->fCanInlineEarlyReturns = false;
     }
 
     // On Intel GPU there is an issue where it reads the second argument to atan "- %s.x" as an int

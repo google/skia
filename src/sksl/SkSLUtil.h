@@ -144,10 +144,6 @@ public:
         return true;
     }
 
-    bool canInlineEarlyReturns() const {
-        return false;
-    }
-
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }
