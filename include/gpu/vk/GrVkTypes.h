@@ -190,14 +190,14 @@ struct GrVkImageInfo {
             , fProtected(isProtected)
             , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 
-    GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
+    GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout, uint32_t familyQueueIndex)
             : fImage(info.fImage)
             , fAlloc(info.fAlloc)
             , fImageTiling(info.fImageTiling)
             , fImageLayout(layout)
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
-            , fCurrentQueueFamily(info.fCurrentQueueFamily)
+            , fCurrentQueueFamily(familyQueueIndex)
             , fProtected(info.fProtected)
             , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
 
