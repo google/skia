@@ -325,12 +325,7 @@
 
 
 /**
- * SK_PMCOLOR_BYTE_ORDER can be used to query the byte order of SkPMColor at compile time. The
- * relationship between the byte order and shift values depends on machine endianness. If the shift
- * order is R=0, G=8, B=16, A=24 then ((char*)&pmcolor)[0] will produce the R channel on a little
- * endian machine and the A channel on a big endian machine. Thus, given those shifts values,
- * SK_PMCOLOR_BYTE_ORDER(R,G,B,A) will be true on a little endian machine and
- * SK_PMCOLOR_BYTE_ORDER(A,B,G,R) will be true on a big endian machine.
+ * SK_PMCOLOR_BYTE_ORDER can be used to query the byte order of SkPMColor at compile time.
  */
 #ifdef SK_CPU_BENDIAN
 #  define SK_PMCOLOR_BYTE_ORDER(C0, C1, C2, C3)     \
