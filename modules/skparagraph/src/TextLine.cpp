@@ -164,22 +164,24 @@ SkRect TextLine::calculateBoundaries() {
 
     auto boundaries = SkRect::MakeIWH(fAdvance.fX, fAdvance.fY);
     auto clusters = fMaster->clusters(fClusterRange);
-    Run* run = nullptr;
-    auto runShift = 0.0f;
-    auto clusterShift = 0.0f;
-    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
-        if (run == nullptr || cluster->runIndex() != run->index()) {
-            run = &fMaster->run(cluster->runIndex());
-            runShift += clusterShift;
-            clusterShift = 0;
-        }
-        clusterShift += cluster->width();
-        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
-            auto posX = run->positionX(i);
-            auto posY = run->posY(i);
-            auto bounds = run->getBounds(i);
-            bounds.offset(posX + runShift, posY);
-            boundaries.joinPossiblyEmptyRect(bounds);
+    if (clusters.size() > 0 && clusters.begin()->run()->fBounds.size() > 0) {
+        Run* run = nullptr;
+        auto runShift = 0.0f;
+        auto clusterShift = 0.0f;
+        for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
+            if (run == nullptr || cluster->runIndex() != run->index()) {
+                run = &fMaster->run(cluster->runIndex());
+                runShift += clusterShift;
+                clusterShift = 0;
+            }
+            clusterShift += cluster->width();
+            for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
+                auto posX = run->positionX(i);
+                auto posY = run->posY(i);
+                auto bounds = run->getBounds(i);
+                bounds.offset(posX + runShift, posY);
+                boundaries.joinPossiblyEmptyRect(bounds);
+            }
         }
     }
 
