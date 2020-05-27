@@ -73,43 +73,11 @@ struct BidiRegion {
     uint8_t direction;
 };
 
-class TextBreaker {
-public:
-    TextBreaker() : fInitialized(false), fPos(-1) {}
-
-    bool initialize(SkSpan<const char> text, UBreakIteratorType type);
-
-    bool initialized() const { return fInitialized; }
-
-    size_t first() {
-        fPos = ubrk_first(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t next() {
-        fPos = ubrk_next(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t preceding(size_t offset) {
-        auto pos = ubrk_preceding(fIterator.get(), offset);
-        return pos == UBRK_DONE ? 0 : pos;
-    }
-
-    size_t following(size_t offset) {
-        auto pos = ubrk_following(fIterator.get(), offset);
-        return pos == UBRK_DONE ? fSize : pos;
-    }
-
-    int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
-
-    bool eof() { return fPos == UBRK_DONE; }
-
-private:
-    std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
-    bool fInitialized;
-    int32_t fPos;
-    size_t fSize;
+enum IcuFlagTypes : unsigned {
+    kWhiteSpace = 0x1,
+    kGrapheme = 0x2,
+    kSoftLineBreak = 0x4,
+    kHardLineBreak = 0x8,
 };
 
 class ParagraphImpl final : public Paragraph {
@@ -159,7 +127,6 @@ public:
     const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
-    const SkTHashSet<size_t>& graphemes() const { return fGraphemes; }
     SkSpan<Codepoint> codepoints(){ return SkSpan<Codepoint>(fCodePoints.begin(), fCodePoints.size()); }
     void formatLines(SkScalar maxWidth);
 
@@ -193,8 +160,12 @@ public:
 
     void resetContext();
     void resolveStrut();
+
+    bool getIcuFlags();
+    bool getIcuWords();
+    bool getBidiRegions();
+
     void buildClusterTable();
-    void markLineBreaks();
     void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
@@ -218,6 +189,13 @@ public:
         }
     }
 
+    using IcuVisitor = std::function<bool(size_t first, size_t next, unsigned flags)>;
+    void iterateThroughIcuFlags(unsigned flags, IcuVisitor visitor);
+    using IcuScanner = std::function<void(size_t index, unsigned flags)>;
+    void scanIcuFlags(TextRange textRange, unsigned flags, IcuScanner scanner);
+
+    bool testFlag(size_t index, unsigned test) const { return (fIcuFlags[index] & test) != 0; }
+
 private:
     friend class ParagraphBuilder;
     friend class ParagraphCacheKey;
@@ -230,11 +208,8 @@ private:
     void calculateBoundaries();
 
     void markGraphemes16();
-    void markGraphemes();
 
     void computeEmptyMetrics();
-
-    bool calculateBidiRegions(SkTArray<BidiRegion>* regions);
 
     // Input
     SkTArray<StyleBlock<SkScalar>> fLetterSpaceStyles;
@@ -251,9 +226,11 @@ private:
     InternalState fState;
     SkTArray<Run, false> fRuns;         // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
+    SkTArray<unsigned> fIcuFlags;
+    std::vector<size_t> fWords;
+    SkTArray<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
-    SkTHashSet<size_t> fGraphemes;
     size_t fUnresolvedGlyphs;
 
     SkTArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)
@@ -268,7 +245,6 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
-    std::vector<size_t> fWords;
 };
 }  // namespace textlayout
 }  // namespace skia
