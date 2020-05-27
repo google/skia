@@ -435,6 +435,8 @@
   "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN_BonusConfigs",
   "Test-Debian10-Clang-GCE-CPU-AVX512-x86_64-Debug-All",
   "Test-Debian10-Clang-GCE-CPU-AVX512-x86_64-Release-All",
+  "Test-Debian10-Clang-GCE-CPU-Rome-x86_64-Debug-All",
+  "Test-Debian10-Clang-GCE-CPU-Rome-x86_64-Release-All",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader",
