@@ -53,7 +53,7 @@ struct Program {
 
             Value(float f)
             : fKind(kFloat_Kind)
-            , fValue(f) {}
+            , fValue(SkFloat2Bits(f)) {}
 
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
@@ -67,8 +67,8 @@ struct Program {
                                                                           fValue));
                     case Program::Settings::Value::kFloat_Kind:
                         return std::unique_ptr<Expression>(new FloatLiteral(context,
-                                                                          offset,
-                                                                          fValue));
+                                                                            offset,
+                                                                            SkBits2Float(fValue)));
                     default:
                         SkASSERT(false);
                         return nullptr;
