@@ -28,29 +28,45 @@
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
-    CanvasKit = CK;
-    ViewerMain(CanvasKit);
-  });
-
-  function ViewerMain(CanvasKit) {
-    if (!CanvasKit) {
+    if (!CK) {
       throw 'CanvasKit not available.';
     }
-    if (!CanvasKit.MakeSlide) {
+    LoadSlide(CK);
+  });
+
+  function LoadSlide(CanvasKit) {
+    if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide) {
       throw 'Not compiled with Viewer.';
     }
+    const slideName = flags.slide || 'WavyPathText';
+    if (slideName.endsWith('.skp')) {
+      fetch(slideName).then(function(response) {
+        if (response.status != 200) {
+            throw 'Error fetching ' + slideName;
+        }
+        response.arrayBuffer().then(function(data) {
+          let slide = CanvasKit.MakeSkpSlide(slideName, data);
+          if (!slide) {
+            throw 'Could not parse skp data for slide ' + slideName;
+          }
+          ViewerMain(CanvasKit, slide);
+        });
+      });
+    } else {
+      let slide = CanvasKit.MakeSlide(slideName);
+      if (!slide) {
+        throw 'Could not make slide ' + slideName;
+      }
+      ViewerMain(CanvasKit, slide);
+    }
+  }
 
+  function ViewerMain(CanvasKit, slide) {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const htmlCanvas = document.getElementById('viewer_canvas');
     htmlCanvas.width = width;
     htmlCanvas.height = height;
-
-    const slideName = 'WavyPathText';
-    const slide = CanvasKit.MakeSlide(slideName);
-    if (!slide) {
-      throw 'Could not make slide ' + slideName;
-    }
     slide.load(width, height);
 
     const doMSAA = (flags.msaa > 1);
