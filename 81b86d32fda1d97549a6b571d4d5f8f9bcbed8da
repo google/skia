@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99c81e2c_6ad3a90c",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab1895dd_b34d76d2",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 5
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98b0f261_d07620fc",
         "filename": "modules/canvaskit/canvaskit/viewer.html",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "574d823f_09fcde40",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98b0f261_d07620fc",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 11
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5cf1cc20_c9d5e843",
         "filename": "modules/canvaskit/canvaskit/viewer.html",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2020-05-27T12:39:34Z",
       "side": 1,
       "message": "The point of using surface.requestAnimationFrame is that you don\u0027t have need to call surface.flush() (which is why we made it unexported/private)\n\nDoes this mean we do need to make flush public on Surface? Is there another way we can do this, maybe with a callback?",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87ea2c7b_1fbea99a",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Uh oh! My only constraint is that \"BlitOffscreenFramebuffer\" needs to be called after _flush().\n\nThe other constraint I have is that for the sake of benchmarking, I might want to call\n\ndraw()\nflush()\ndraw()\nflush()\n\nIn succession, since JS caps us at 60fps and we want to measure with finer granularity.",
+      "parentUuid": "5cf1cc20_c9d5e843",
       "range": {
         "startLine": 80,
         "startChar": 12,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "a3976639_943295b0",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ce13bbd_55989efb",
+      "range": {
+        "startLine": 151,
+        "startChar": 29,
+        "endLine": 151,
+        "endChar": 48
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95e9cab8_59691098",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2020-05-27T12:39:34Z",
       "side": 1,
       "message": "This stems from me not being a graphics person: What is the difference between this and MakeOnScreenGLSurface? Is it more performant? More configurable? Are these configurations things that clients would want to tweak? Should we merge this with MakeOnScreenGLSurface? Rename MakeOnScreenGLSurface to make it more precisely/idiomatically named?",
+      "range": {
+        "startLine": 206,
+        "startChar": 17,
+        "endLine": 206,
+        "endChar": 41
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55e219c2_d31b100b",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "I hope this was clarified in the meeting more!\n\nAs discussed in the meeting, maybe we can move this code all into viewer\u0027s javascript.",
+      "parentUuid": "95e9cab8_59691098",
       "range": {
         "startLine": 206,
         "startChar": 17,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "18614e58_b8f304d4",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "So this isn\u0027t an SkSurface method. It\u0027s just a wrapper around glBlitFramebuffer since I don\u0027t know how to call into the emscripten gl methods from javascript.\n\nAs discussed, we can either move this into viewer_bindings.cpp or else hopefully figure out how to make GL calls from javascript",
+      "parentUuid": "03030580_a5cee322",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 29
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5aa3804f_b56520da",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 2
@@ -151,6 +295,30 @@
       "writtenOn": "2020-05-27T12:39:34Z",
       "side": 1,
       "message": "Could we use 2 SkRects here?",
+      "range": {
+        "startLine": 251,
+        "startChar": 56,
+        "endLine": 252,
+        "endChar": 73
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea0093e_ea3ce467",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Also a possibility, but I was trying to mirror the glBlitFramebuffer signature.",
+      "parentUuid": "5aa3804f_b56520da",
       "range": {
         "startLine": 251,
         "startChar": 56,
@@ -183,6 +351,30 @@
       "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa50e02b_94fe923a",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-27T18:15:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c39ac93_2355d509",
+      "range": {
+        "startLine": 1769,
+        "startChar": 16,
+        "endLine": 1769,
+        "endChar": 23
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
