@@ -146,6 +146,10 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
     pickColor.test(r, surface, 0x7F00007F);  // Tests that we clamp to valid premul
     pickColor["flag"] = 1;
     pickColor.test(r, surface, 0xFF00FF00);
+
+    TestEffect inlineColor(r, "in half c;", "color = half4(c, c, c, 1);");
+    inlineColor["c"] = 0.498f;
+    inlineColor.test(r, surface, 0xFF7F7F7F);
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
