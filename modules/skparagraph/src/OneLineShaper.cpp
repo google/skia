@@ -637,15 +637,15 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
 
         if (dir == Dir::right) {
             while (index < fCurrentRun->fTextRange.end) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+                if (this->fParagraph->testFlag(index, IcuFlagTypes::kGrapheme)) {
                     return index;
                 }
                 ++index;
             }
             return fCurrentRun->fTextRange.end;
         } else {
-            while (index >= fCurrentRun->fTextRange.start) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+            while (index > fCurrentRun->fTextRange.start) {
+                if (this->fParagraph->testFlag(index, IcuFlagTypes::kGrapheme)) {
                     return index;
                 }
                 --index;
