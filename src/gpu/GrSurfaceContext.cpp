@@ -503,25 +503,32 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
             this->readSurfaceView(), dstPoint);
 }
 
-template <int N> static std::unique_ptr<GrSkSLFP> make_avg_effect(GrRecordingContext* context) {
+template <int N>
+static std::unique_ptr<GrSkSLFP> make_multimatrix_sample(GrRecordingContext* context,
+                                                         const SkMatrix* m) {
     static sk_sp<SkRuntimeEffect> gEffect;
     static SkString gName;
     if (!gEffect) {
         SkString string;
-        for (int i = 0; i < N; ++i) {
-            string.appendf("in fragmentProcessor child%d;\n", i);
-        }
-        string.append("void main(float2 p, inout half4 color) {\n");
-        for (int i = 0; i < N; ++i) {
-            string.appendf("    color %c= sample(child%d, p);\n", i ? '+' : ' ', i);
-        }
-        string.appendf("    color /= half(%d);\n"
-                       "}\n", N);
+        string.append ("in fragmentProcessor child;\n");
+        string.appendf("uniform float3x3 matrix[%d];\n", N);
+        string.append ("void main(float2 p, inout half4 color) {\n");
+        string.append ("    color = half4(0);\n");
+        string.appendf("    for (int i = 0; i < %d; ++i) {\n", N);
+        string.append ("        color += sample(child, matrix[i]);\n");
+        string.append ("    }");
+        string.append ("}");
         gEffect = std::get<0>(SkRuntimeEffect::Make(std::move(string)));
         SkASSERT(gEffect);
         gName.printf("Avg%d", N);
     }
-    return GrSkSLFP::Make(context, gEffect, gName.c_str(), nullptr);
+    float values[9*N];
+    for (int i = 0; i < N; ++i) {
+        // Do I need to transpose?
+        m[i].get9(values + 9*i);
+    }
+    return GrSkSLFP::Make(context, gEffect, gName.c_str(),
+                          SkData::MakeWithCopy(values, sizeof(values)));
 }
 
 template <int NX, int NY>
@@ -530,8 +537,6 @@ static std::unique_ptr<GrFragmentProcessor> make_multibilerp_effect(GrRecordingC
                                                                     SkAlphaType alphaType,
                                                                     const SkIRect& srcRect,
                                                                     const SkISize& dstSize) {
-    auto effect = make_avg_effect<NX*NY>(context);
-
     // scale factors.
     float sx = static_cast<float>(srcRect.width()) /dstSize.width(),
           sy = static_cast<float>(srcRect.height())/dstSize.height();
@@ -543,18 +548,20 @@ static std::unique_ptr<GrFragmentProcessor> make_multibilerp_effect(GrRecordingC
           y0 = (dy - sy)/2;
 
     const auto& caps = *context->priv().caps();
+    SkMatrix m[NX*NY];
     for (int j = 0; j < NY; ++j) {
         for (int i = 0; i < NX; ++i) {
             float tx = x0 + i*dx,
                   ty = y0 + j*dy;
-            SkMatrix m = SkMatrix::Scale(sx, sy);
-            m.postTranslate(tx + srcRect.x(), ty + srcRect.y());
-            SkRect domain = SkRect::Make(srcRect).makeInset(sx/2, sy/2).makeOffset(tx, ty);
-            effect->addChild(GrTextureEffect::MakeSubset(srcView, alphaType, m,
-                                                         GrSamplerState::Filter::kBilerp,
-                                                         SkRect::Make(srcRect), domain, caps));
+            m[i + j*NX] = SkMatrix::Scale(sx, sy);
+            m[i + j*NX].postTranslate(tx + srcRect.x(), ty + srcRect.y());
         }
     }
+    auto effect = make_multimatrix_sample<NX * NY>(context, m);
+    SkRect domain = SkRect::Make(srcRect).makeInset(dx/2, dy/2);
+    effect->addChild(GrTextureEffect::MakeSubset(srcView, alphaType, SkMatrix::I(),
+                                                 GrSamplerState::Filter::kBilerp,
+                                                 SkRect::Make(srcRect), domain, caps));
     return std::move(effect);
 }
 
