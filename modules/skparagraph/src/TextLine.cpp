@@ -1131,7 +1131,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     auto codepoint = std::lower_bound(
                         codepoints.begin(), codepoints.end(),
                         clusterIndex8,
-                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+                        [](const CodepointRepresentation& lhs, size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
 
                     return codepoint - codepoints.begin();
                 };
