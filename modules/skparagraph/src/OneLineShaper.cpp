@@ -211,7 +211,9 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
             auto index = i - glyphs.start;
             if (i < glyphs.end) {
                 piece->fGlyphs[index] = run->fGlyphs[i];
-                piece->fBounds[index] = run->fBounds[i];
+                if (run->fBounds.size() > 0) {
+                    piece->fBounds[index] = run->fBounds[i];
+                }
             }
             piece->fClusterIndexes[index] = run->fClusterIndexes[i];
             piece->fOffsets[index] = run->fOffsets[i];
