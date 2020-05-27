@@ -25,6 +25,11 @@ struct IfStatement : public Statement {
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
+    int nodeCount() const override {
+        return 1 + fTest->nodeCount() + fIfTrue->nodeCount() +
+               (fIfFalse ? fIfFalse->nodeCount() : 0);
+    }
+
     std::unique_ptr<Statement> clone() const override {
         return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
                 fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
