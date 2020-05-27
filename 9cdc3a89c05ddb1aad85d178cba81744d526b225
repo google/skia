@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2ca2db8f_6d7faa51",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 1,
+      "message": "Scaling so the entire path is visible in the canvas. Added a comment.",
+      "parentUuid": "80b1ff8b_16972810",
+      "range": {
+        "startLine": 72,
+        "startChar": 15,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e2b91da_54013b74",
         "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90f8d09d_c0090183",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e2b91da_54013b74",
+      "range": {
+        "startLine": 92,
+        "startChar": 10,
+        "endLine": 92,
+        "endChar": 17
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2b9fb367_6dd62755",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdb57303_40a5b9f2",
+      "range": {
+        "startLine": 112,
+        "startChar": 8,
+        "endLine": 112,
+        "endChar": 12
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb2f6cc0_e1daa0c9",
         "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "03b6d1d9_e90f3bb0",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 1,
+      "message": "Ah, need to remember this. Done",
+      "parentUuid": "eb2f6cc0_e1daa0c9",
+      "range": {
+        "startLine": 122,
+        "startChar": 28,
+        "endLine": 122,
+        "endChar": 32
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7a29799_4b49d483",
         "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
         "patchSetId": 2
@@ -114,6 +210,30 @@
       "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0a568a6_e53f87b5",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7a29799_4b49d483",
+      "range": {
+        "startLine": 131,
+        "startChar": 65,
+        "endLine": 131,
+        "endChar": 70
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

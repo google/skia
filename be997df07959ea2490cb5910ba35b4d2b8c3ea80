@@ -22,6 +22,30 @@
       "revId": "be997df07959ea2490cb5910ba35b4d2b8c3ea80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d68896f_becc27be",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-27T20:31:47Z",
+      "side": 0,
+      "message": "You are right. Changed back to previous path for canvaskit.js and canvaskit.wasm",
+      "parentUuid": "b3068a55_1875de09",
+      "range": {
+        "startLine": 3,
+        "startChar": 60,
+        "endLine": 3,
+        "endChar": 63
+      },
+      "revId": "be997df07959ea2490cb5910ba35b4d2b8c3ea80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
