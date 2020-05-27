@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae26e9a1_3b333031",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T19:34:33Z",
+      "side": 1,
+      "message": "Let\u0027s keep gpu.js as it is - feel free to call grContext.setResourceCacheLimitBytes from viewer.html.\n\nI sort of want the MakeGrContext to return as \"stock\" a GrContext as possible and I\u0027d rather not break APIs if we can help it.",
+      "range": {
+        "startLine": 44,
+        "startChar": 16,
+        "endLine": 44,
+        "endChar": 34
+      },
+      "revId": "a591357c43468d4fb1ce9529ba05028b220c25bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75631953_379b84cd",
+        "filename": "modules/canvaskit/viewer_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T19:34:33Z",
+      "side": 1,
+      "message": "nit: group functions together, then classes, then enums",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 12
+      },
+      "revId": "a591357c43468d4fb1ce9529ba05028b220c25bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
