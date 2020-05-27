@@ -11,19 +11,6 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/utils/SkUTF.h"
 
-#include <unicode/uchar.h>
-#include <algorithm>
-#include <utility>
-
-namespace {
-
-SkUnichar utf8_next(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
-}
-
 namespace skia {
 namespace textlayout {
 
@@ -320,21 +307,6 @@ void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
     endlineMetrics->add(this);
 }
 
-void Cluster::setIsWhiteSpaces() {
-
-    fWhiteSpaces = false;
-
-    auto span = fMaster->text(fTextRange);
-    const char* ch = span.begin();
-    while (ch < span.end()) {
-        auto unichar = utf8_next(&ch, span.end());
-        if (!u_isWhitespace(unichar)) {
-            return;
-        }
-    }
-    fWhiteSpaces = true;
-}
-
 SkScalar Cluster::sizeToChar(TextIndex ch) const {
     if (ch < fTextRange.start || ch >= fTextRange.end) {
         return 0;
@@ -391,6 +363,18 @@ SkFont Cluster::font() const {
     return fMaster->run(fRunIndex).font();
 }
 
+bool Cluster::isHardBreak() const {
+    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kHardLineBreakBefore);
+}
+
+bool Cluster::isSoftBreak() const {
+    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kSoftLineBreakBefore);
+}
+
+bool Cluster::isGraphemeBreak() const {
+    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kGraphemeBreakBefore);
+}
+
 Cluster::Cluster(ParagraphImpl* master,
         RunIndex runIndex,
         size_t start,
@@ -407,9 +391,9 @@ Cluster::Cluster(ParagraphImpl* master,
         , fWidth(width)
         , fSpacing(0)
         , fHeight(height)
-        , fHalfLetterSpacing(0.0)
-        , fWhiteSpaces(false)
-        , fBreakType(None) {
+        , fHalfLetterSpacing(0.0) {
+    size_t len = fMaster->getWhitespacesLength(fTextRange);
+    fIsWhiteSpaces = (len == this->fTextRange.width());
 }
 
 }  // namespace textlayout
