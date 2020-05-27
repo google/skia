@@ -1521,15 +1521,11 @@ void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statem
 }
 
 void GLSLCodeGenerator::writeBlock(const Block& b) {
-    if (b.fIsScope) {
-        this->writeLine("{");
-        fIndentation++;
-    }
+    this->writeLine("{");
+    fIndentation++;
     this->writeStatements(b.fStatements);
-    if (b.fIsScope) {
-        fIndentation--;
-        this->write("}");
-    }
+    fIndentation--;
+    this->write("}");
 }
 
 void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
