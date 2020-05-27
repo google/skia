@@ -776,9 +776,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
         return nullptr;
     }
     SkTextBlobBuilder builder;
-    auto buffer = builder.allocRunPos(font, count);
+    auto buffer = builder.allocRunPosH(font, count, 0);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
-    font.getPos(buffer.glyphs, count, buffer.points(), {0, 0});
+    font.getXPos(buffer.glyphs, count, buffer.pos);
     return builder.make();
 }
 

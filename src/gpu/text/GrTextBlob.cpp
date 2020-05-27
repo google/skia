@@ -97,20 +97,38 @@ void GrTextBlob::SubRun::fillVertexData(
         GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin, SkIRect clip) const {
 
     SkMatrix matrix = drawMatrix;
+    SkDebugf("\nPre Translate Matrix: %g %g %g %g\n", matrix.getScaleX(), matrix.getScaleY(),
+             matrix.getTranslateX(), matrix.getTranslateY());
+
+    SkDebugf("Origin: %g %g\n", drawOrigin.x(), drawOrigin.y());
+
     matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    double tx = 1.0 * matrix.getScaleX() * drawOrigin.x() + matrix.getTranslateX();
+    double ty = 1.0 * matrix.getScaleY() * drawOrigin.y() + matrix.getTranslateY();
+    SkDebugf("Double: %g %g\n", tx, ty);
+    SkDebugf("Post Translate Matrix: %g %g %g %g\n", matrix.getScaleX(), matrix.getScaleY(),
+             matrix.getTranslateX(), matrix.getTranslateY());
+
 
     auto transformed2D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
         SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
         SkPoint inset = {dstPadding, dstPadding};
+        SkDebugf("Matrix: %g %g %g %g\n", matrix.getScaleX(), matrix.getScaleY(),
+                matrix.getTranslateX(), matrix.getTranslateY());
+
         for (auto[quad, vertexData] : SkMakeZip(dst, fVertexData.subspan(offset, count))) {
             auto[glyph, pos, rect] = vertexData;
             auto [l, t, r, b] = rect;
+            SkDebugf("pos: %g %g rect: %d %d %d %d\n", pos.x(), pos.y(), l, t, r, b);
+            //SkPoint devicePos = matrix.mapXY(pos.x(), pos.y());
             SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
                     sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-            SkPoint lt = matrix.mapXY(sLT.x(), sLT.y()),
-                    lb = matrix.mapXY(sLT.x(), sRB.y()),
-                    rt = matrix.mapXY(sRB.x(), sLT.y()),
-                    rb = matrix.mapXY(sRB.x(), sRB.y());
+            SkPoint lt = matrix.mapVector(sLT.x(), sLT.y()),
+                    lb = matrix.mapVector(sLT.x(), sRB.y()),
+                    rt = matrix.mapVector(sRB.x(), sLT.y()),
+                    rb = matrix.mapVector(sRB.x(), sRB.y());
+            SkDebugf("lt: %g %g lb: %g %g rt: %g %g rb: %g %g\n",
+                    lt.x(), lt.y(), lb.x(), lb.y(), rt.x(), rt.y(), rb.x(), rb.y());
             auto[al, at, ar, ab] = glyph.grGlyph->fAtlasLocator.getUVs(srcPadding);
             quad[0] = {lt, color, {al, at}};  // L,T
             quad[1] = {lb, color, {al, ab}};  // L,B
@@ -581,6 +599,9 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 }
             }
 
+            SkMatrix matrix = deviceMatrix.localToDevice();
+            SkDebugf("\nOP Matrix: %g %g %g %g\n", matrix.getScaleX(), matrix.getScaleY(),
+                     matrix.getTranslateX(), matrix.getTranslateY());
             auto op = this->makeOp(*subRun, deviceMatrix, drawOrigin, clipRect,
                                    paint, filteredColor, props, target);
             if (op) {

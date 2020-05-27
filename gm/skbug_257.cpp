@@ -74,7 +74,8 @@ static void test_text(SkCanvas* canvas, SkScalar size,
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 32, size / 2 + Y,
                            font, type);
     SkScalar lineSpacing = font.getSpacing();
-    exercise_draw_pos_text(canvas, text, 32, size / 2 + Y + lineSpacing, font, type);
+    exercise_draw_pos_text(canvas, text, 32, SkScalarRoundToScalar(size / 2 + Y + lineSpacing),
+            font, type);
     exercise_draw_pos_text_h(canvas, text, 32,
                              size / 2 + Y + 2 * lineSpacing, font, type);
 }
@@ -96,6 +97,9 @@ DEF_SIMPLE_GM(skbug_257, canvas, 512, 512) {
         SkScalar translate = 225364.0f;
         canvas->translate(0, -translate);
 
+        SkDebugf("Float error: %g %g\n",
+                scale * -translate + scale * 256  + (size / 2 + translate) * scale,
+                scale * 256 + (size/2) * scale);
         // Test rects
         SkRect rect = SkRect::MakeLTRB(8, 8 + translate, size - 8,
                                        size - 8 + translate);
