@@ -8,6 +8,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "include/core/SkCanvas.h"
+#include "tools/viewer/SKPSlide.h"
 #include "tools/viewer/SampleSlide.h"
 #include <string>
 
@@ -20,6 +21,12 @@ EMSCRIPTEN_BINDINGS(Viewer) {
             return sk_make_sp<SampleSlide>(MakeWavyPathTextSample);
         }
         return nullptr;
+    }));
+    function("MakeSkpSlide", optional_override([](std::string name,
+                                                  std::string skpData)->sk_sp<Slide> {
+        bool doCopyData = true;
+        auto stream = std::make_unique<SkMemoryStream>(skpData.data(), skpData.size(), doCopyData);
+        return sk_make_sp<SKPSlide>(SkString(name.c_str()), std::move(stream));
     }));
     class_<Slide>("Slide")
         .smart_ptr<sk_sp<Slide>>("sk_sp<Slide>")
