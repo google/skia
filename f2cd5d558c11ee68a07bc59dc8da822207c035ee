@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65af76a6_46a36225",
+        "filename": "gm/paragraph.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T15:54:29Z",
+      "side": 1,
+      "message": "nit: This should be LLC now",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "f2cd5d558c11ee68a07bc59dc8da822207c035ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a955aaac_7f21d9c0",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T15:54:29Z",
+      "side": 1,
+      "message": "Isn\u0027t this going to change behavior on Android, in addition to adding a GM? Add that to the commit message?",
+      "range": {
+        "startLine": 302,
+        "startChar": 1,
+        "endLine": 304,
+        "endChar": 49
+      },
+      "revId": "f2cd5d558c11ee68a07bc59dc8da822207c035ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "229024ea_e0969340",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T15:54:29Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 4
+      },
+      "revId": "f2cd5d558c11ee68a07bc59dc8da822207c035ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b1e69a0_2f8fc0c0",
+        "filename": "tools/viewer/GMSlide.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T15:54:29Z",
+      "side": 1,
+      "message": "Is this meant to be a permanent change?",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "f2cd5d558c11ee68a07bc59dc8da822207c035ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
