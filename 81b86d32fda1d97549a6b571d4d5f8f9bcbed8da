@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab1895dd_b34d76d2",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "const here and on line 20.\n\nReminder that const in JS just means it doesn\u0027t get assigned to again (and it is preferable to use const over let where possible). A const JS object can have its fields mutated.",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 5
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98b0f261_d07620fc",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "const pair",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 11
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cf1cc20_c9d5e843",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "The point of using surface.requestAnimationFrame is that you don\u0027t have need to call surface.flush() (which is why we made it unexported/private)\n\nDoes this mean we do need to make flush public on Surface? Is there another way we can do this, maybe with a callback?",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ce13bbd_55989efb",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "I would prefer we continue to leave this something that can be done on the JS side of things. https://github.com/google/skia/blob/master/modules/canvaskit/gpu.js#L75\n\nI don\u0027t know if we should do it on the C++ side, as that seems like we are forcing the cache to be a certain size.",
+      "range": {
+        "startLine": 151,
+        "startChar": 29,
+        "endLine": 151,
+        "endChar": 48
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95e9cab8_59691098",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "This stems from me not being a graphics person: What is the difference between this and MakeOnScreenGLSurface? Is it more performant? More configurable? Are these configurations things that clients would want to tweak? Should we merge this with MakeOnScreenGLSurface? Rename MakeOnScreenGLSurface to make it more precisely/idiomatically named?",
+      "range": {
+        "startLine": 206,
+        "startChar": 17,
+        "endLine": 206,
+        "endChar": 41
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03030580_a5cee322",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "This looks like it might fit better as a method on SkSurface",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 29
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aa3804f_b56520da",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "Could we use 2 SkRects here?",
+      "range": {
+        "startLine": 251,
+        "startChar": 56,
+        "endLine": 252,
+        "endChar": 73
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c39ac93_2355d509",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:39:34Z",
+      "side": 1,
+      "message": "We just capitalize the first letter of our enums on the JS side.",
+      "range": {
+        "startLine": 1769,
+        "startChar": 16,
+        "endLine": 1769,
+        "endChar": 23
+      },
+      "revId": "81b86d32fda1d97549a6b571d4d5f8f9bcbed8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
