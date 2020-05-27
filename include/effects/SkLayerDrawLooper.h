@@ -82,10 +82,14 @@ public:
 protected:
     SkLayerDrawLooper();
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     void flatten(SkWriteBuffer&) const override;
+#endif
 
 private:
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     SK_FLATTENABLE_HOOKS(SkLayerDrawLooper)
+#endif
 
     struct Rec {
         Rec*    fNext;

@@ -25,7 +25,13 @@ struct SkRect;
 /** \class SkDrawLooper
     DEPRECATED: No longer supported in Skia.
 */
-class SK_API SkDrawLooper : public SkFlattenable {
+class SK_API SkDrawLooper : public
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
+SkFlattenable
+#else
+SkRefCnt
+#endif
+{
 public:
     /**
      *  Holds state during a draw. Users call next() until it returns false.
@@ -103,6 +109,7 @@ public:
      */
     virtual bool asABlurShadow(BlurShadowRec*) const;
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     static SkFlattenable::Type GetFlattenableType() {
         return kSkDrawLooper_Type;
     }
@@ -117,6 +124,7 @@ public:
                                   SkFlattenable::Deserialize(
                                   kSkDrawLooper_Type, data, size, procs).release()));
     }
+#endif
 
     void apply(SkCanvas* canvas, const SkPaint& paint,
                std::function<void(SkCanvas*, const SkPaint&)>);
@@ -125,7 +133,11 @@ protected:
     SkDrawLooper() {}
 
 private:
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     typedef SkFlattenable INHERITED;
+#else
+    typedef SkRefCnt INHERITED;
+#endif
 };
 
 #endif
