@@ -34,6 +34,26 @@ static SkPath make_cubic_path() {
 // pre-allocated CPU buffers, rather than allocating and mapping GPU buffers.
 class BenchmarkTarget : public GrMeshDrawOp::Target {
 public:
+    BenchmarkTarget() {
+        GrMockOptions mockOptions;
+        mockOptions.fDrawInstancedSupport = true;
+        mockOptions.fTessellationSupport = true;
+        mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
+                GrMockOptions::ConfigOptions::Renderability::kMSAA;
+        mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fTexturable = true;
+        mockOptions.fIntegerSupport = true;
+
+        GrContextOptions ctxOptions;
+        ctxOptions.fGpuPathRenderers = GpuPathRenderers::kTessellation;
+
+        fMockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
+    }
+    const GrContext* mockContext() const { return fMockContext.get(); }
+    const GrCaps& caps() const override { return *fMockContext->priv().caps(); }
+    GrResourceProvider* resourceProvider() const override {
+        return fMockContext->priv().resourceProvider();
+    }
     void resetAllocator() { fAllocator.reset(); }
     SkArenaAlloc* allocator() override { return &fAllocator; }
     void putBackVertices(int vertices, size_t vertexStride) override { /* no-op */ }
@@ -73,15 +93,14 @@ public:
     UNIMPL(const GrAppliedClip* appliedClip() const)
     UNIMPL(GrAppliedClip detachAppliedClip())
     UNIMPL(const GrXferProcessor::DstProxyView& dstProxyView() const)
-    UNIMPL(GrResourceProvider* resourceProvider() const)
     UNIMPL(GrStrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
     UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())
-    UNIMPL(const GrCaps& caps() const)
     UNIMPL(GrDeferredUploadTarget* deferredUploadTarget())
 #undef UNIMPL
 
 private:
+    sk_sp<GrContext> fMockContext;
     SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 8];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
     SkSTArenaAlloc<1024 * 1024> fAllocator;
@@ -110,6 +129,10 @@ public:
 
 private:
     void onDraw(int loops, SkCanvas*) final {
+        if (!fTarget.mockContext()) {
+            SkDebugf("ERROR: could not create mock context.");
+            return;
+        }
         for (int i = 0; i < loops; ++i) {
             fOp.fTriangleBuffer.reset();
             fOp.fDoStencilTriangleBuffer = false;

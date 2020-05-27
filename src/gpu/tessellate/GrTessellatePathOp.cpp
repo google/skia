@@ -275,9 +275,16 @@ void GrTessellatePathOp::prepareIndirectOuterCubics(
 void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
         GrMeshDrawOp::Target* target, const GrResolveLevelCounter& resolveLevelCounter,
         SkPoint* cubicData, int numTrianglesAtBeginningOfData) {
+    SkASSERT(target->caps().drawInstancedSupport());
     SkASSERT(numTrianglesAtBeginningOfData + resolveLevelCounter.totalCubicInstanceCount() > 0);
     SkASSERT(!fStencilCubicsShader);
     SkASSERT(cubicData);
+
+    fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
+            target->resourceProvider());
+    if (!fIndirectIndexBuffer) {
+        return;
+    }
 
     // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with the base
     // vertex on an instance boundary in order to accommodate this.
@@ -378,6 +385,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
 
 void GrTessellatePathOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* target,
                                                        int numCountedCurves) {
+    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(numCountedCurves >= 0);
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fStencilCubicsShader);
@@ -414,6 +422,7 @@ void GrTessellatePathOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* tar
 }
 
 void GrTessellatePathOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* target) {
+    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fStencilCubicsShader);
 
@@ -531,9 +540,8 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
                                               fStencilCubicsShader);
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         if (fIndirectDrawBuffer) {
-            auto indexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
-                    flushState->resourceProvider());
-            flushState->bindBuffers(indexBuffer.get(), fCubicBuffer.get(), nullptr);
+            SkASSERT(fIndirectIndexBuffer);
+            flushState->bindBuffers(fIndirectIndexBuffer.get(), fCubicBuffer.get(), nullptr);
             flushState->drawIndexedIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
                                             fIndirectDrawCount);
         } else {
