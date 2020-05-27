@@ -160,6 +160,7 @@ private:
     sk_sp<const GrBuffer> fIndirectDrawBuffer;
     size_t fIndirectDrawOffset;
     int fIndirectDrawCount;
+    sk_sp<const GrBuffer> fIndirectIndexBuffer;
 
     friend class GrOpMemoryPool;  // For ctor.
 
