@@ -28,7 +28,11 @@ public:
     enum Type {
         kSkColorFilter_Type,
         kSkDrawable_Type,
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
         kSkDrawLooper_Type, // no longer used internally by Skia
+#else
+        kSkUnused_Type5,    // used to be SkDrawLooper
+#endif
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,

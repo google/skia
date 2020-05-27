@@ -193,6 +193,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
 void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fCount);
 
@@ -230,6 +231,7 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     }
     return builder.detach();
 }
+#endif
 
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),
