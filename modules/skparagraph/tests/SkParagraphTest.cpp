@@ -2388,7 +2388,13 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
     const size_t len = strlen(text);
+/*
+(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)
+    S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S
+ G  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GG
+ W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W
 
+ */
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
     paragraphStyle.setMaxLines(10);

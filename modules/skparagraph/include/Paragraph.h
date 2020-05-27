@@ -15,8 +15,7 @@ namespace textlayout {
 class Paragraph {
 
 public:
-    Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts)
-            : fFontCollection(std::move(fonts)), fParagraphStyle(std::move(style)) {}
+    Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts);
 
     virtual ~Paragraph() = default;
 
