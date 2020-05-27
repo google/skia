@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfbb5bd5_6a937b7e",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T19:21:03Z",
+      "side": 1,
+      "message": "nit: The style guide (https://skia.org/dev/contrib/style) actually recommends the old naming convention - i.e. write_nix_header, as this was before. That says for \"static non-class functions in implementation files; you didn\u0027t mark this as static, but it could be?\n\nThat said, this is in tools/, so we may be looser here.\n\n(Variable names are the opposite - we generally use camelCase, as you\u0027ve also switched, though I see the style guide isn\u0027t explicit on local variables.)",
+      "range": {
+        "startLine": 58,
+        "startChar": 5,
+        "endLine": 58,
+        "endChar": 19
+      },
+      "revId": "2db7e2836ec9c0c83001f6a9f6057ec62f9381dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

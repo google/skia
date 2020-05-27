@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "b04cd1be_ad7579c3",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T19:21:03Z",
+      "side": 1,
+      "message": "Ack.",
+      "parentUuid": "90c3db65_84670850",
+      "range": {
+        "startLine": 168,
+        "startChar": 13,
+        "endLine": 168,
+        "endChar": 29
+      },
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c91980a_097652e9",
         "filename": "tools/convert-to-nia.cpp",
         "patchSetId": 2
@@ -284,6 +308,24 @@
       "side": 1,
       "message": "Thanks. Done.\n\nI tweaked it a little, because my frontbuffer is a SkBitmap, not a SkAutoMalloc. Please take a careful look. For example, I\u0027m not 100% sure if I\u0027ve got it right if there\u0027s a bit of slack / padding so that rowBytes is more than (widthInPixels * bytesPerPixel).\n\nIs it legit to\n#include \"src/core/SkAutoMalloc.h\"\nwhere it\u0027s \"src/etc\" instead of \"include/etc\"?",
       "parentUuid": "e9d9998e_4bec6163",
+      "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0b0b2e0_25656f3b",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-27T19:21:03Z",
+      "side": 1,
+      "message": "\u003e Thanks. Done.\n\u003e \n\u003e I tweaked it a little, because my frontbuffer is a SkBitmap, not a SkAutoMalloc. Please take a careful look. For example, I\u0027m not 100% sure if I\u0027ve got it right if there\u0027s a bit of slack / padding so that rowBytes is more than (widthInPixels * bytesPerPixel).\n\nYou could use an SkBitmap for your backbuffer, too, and ToolUtils::copy_to to handle the copy. But this is fine. There shouldn\u0027t be any padding, since you haven\u0027t requested any, but even if you had (and passed the appropriate size to your SkAutoMalloc), this looks fine.\n\n\u003e \n\u003e Is it legit to\n\u003e #include \"src/core/SkAutoMalloc.h\"\n\u003e where it\u0027s \"src/etc\" instead of \"include/etc\"?\n\nSince this is in tools/, I think it\u0027s fine.",
+      "parentUuid": "6492b2b1_52cdec7b",
       "revId": "307afd0c4a5444d47ea09dadff5fbab3b20dbba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
