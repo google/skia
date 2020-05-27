@@ -15,6 +15,15 @@
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
+  const flags = {};
+  for (pair of location.hash.substring(1).split(',')) {
+    const [key, value] = pair.split(':', 2);
+    flags[key] = value;
+  }
+  window.onhashchange = function() {
+    location.reload();
+  };
+
   var CanvasKit = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
@@ -25,32 +34,41 @@
 
   function ViewerMain(CanvasKit) {
     if (!CanvasKit) {
-      console.error('CanvasKit not available.');
-      return;
+      throw 'CanvasKit not available.';
     }
     if (!CanvasKit.MakeSlide) {
-      console.error('Not compiled with Viewer.');
-      return;
+      throw 'Not compiled with Viewer.';
     }
 
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     const htmlCanvas = document.getElementById('viewer_canvas');
-    htmlCanvas.width = window.innerWidth;
-    htmlCanvas.height = window.innerHeight;
-
-    const surface = CanvasKit.MakeCanvasSurface(htmlCanvas);
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
+    htmlCanvas.width = width;
+    htmlCanvas.height = height;
 
     const slideName = 'WavyPathText';
     const slide = CanvasKit.MakeSlide(slideName);
     if (!slide) {
-      console.error('Could not make slide ' + slideName);
-      return;
+      throw 'Could not make slide ' + slideName;
     }
+    slide.load(width, height);
 
-    slide.load(htmlCanvas.width, htmlCanvas.height);
+    const doMSAA = (flags.msaa > 1);
+    let surface;
+    if (doMSAA) {
+        let ctx = CanvasKit.GetWebGLContext(htmlCanvas);
+        let grContext = CanvasKit.MakeGrContext(ctx);
+        let sampleCnt = parseInt(flags.msaa);
+        surface = CanvasKit.MakeOffscreenFramebuffer(grContext, width, height, sampleCnt);
+        if (!surface) {
+          throw 'Could not create offscreen msaa render target.';
+        }
+    } else {
+      surface = CanvasKit.MakeCanvasSurface(htmlCanvas);
+      if (!surface) {
+        throw 'Could not make canvas surface';
+      }
+    }
 
     const fps = {
       frames: 0,
@@ -59,8 +77,12 @@
 
     surface.requestAnimationFrame(function(canvas) {
       slide.draw(canvas);
-      ++fps.frames;
+      if (doMSAA) {
+        CanvasKit.BlitOffscreenFramebuffer(surface, 0, 0, width, height, 0, 0, width, height,
+                                           CanvasKit.GLFilter.Nearest);
+      }
 
+      ++fps.frames;
       const ms = window.performance.now();
       const sec = (ms - fps.startMs) / 1000;
       if (sec > 2) {
