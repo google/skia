@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11dac426_3cd5232e",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-27T19:10:07Z",
+      "side": 0,
+      "message": "fValue is declared as an int, I\u0027m a little surprised there were no clang warnings about this assignment before",
+      "range": {
+        "startLine": 56,
+        "startChar": 13,
+        "endLine": 56,
+        "endChar": 23
+      },
+      "revId": "1443c9df589bb841b64bd900da22cd74b8a8b470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

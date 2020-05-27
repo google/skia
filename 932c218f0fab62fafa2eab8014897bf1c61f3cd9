@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "342f4773_d913b28d",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-27T19:10:07Z",
+      "side": 1,
+      "message": "Using SkFloat2Bits and SkBits2Float seemed easier in this case than setting up a union for fValue, but that is an option.",
+      "range": {
+        "startLine": 56,
+        "startChar": 21,
+        "endLine": 56,
+        "endChar": 33
+      },
+      "revId": "932c218f0fab62fafa2eab8014897bf1c61f3cd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
