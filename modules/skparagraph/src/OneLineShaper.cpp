@@ -42,17 +42,7 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
         return;
     }
 
-    auto& front = fUnresolvedBlocks.front();    // The one we need to resolve
-    auto& back = fUnresolvedBlocks.back();      // The one we have from shaper
-    if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 &&
-        front.fText == back.fText) {
-        // The entire block remains unresolved!
-        if (front.fRun != nullptr) {
-            back.fRun = front.fRun;
-        }
-    } else {
-        fillGaps(oldUnresolvedCount);
-    }
+    fillGaps(oldUnresolvedCount);
 }
 
 #ifdef SK_DEBUG
@@ -83,6 +73,13 @@ void OneLineShaper::printState() {
 #endif
 
 void OneLineShaper::fillGaps(size_t startingCount) {
+    if (fUnresolvedBlocks.size() == startingCount + 1) {
+        auto& back = fUnresolvedBlocks.back();
+        if (back.fText == fCurrentRun->fTextRange) {
+            // We have only one unresolved block covering the entire text
+            return;
+        }
+    }
     // Fill out gaps between all unresolved blocks
     TextRange resolvedTextLimits = fCurrentRun->fTextRange;
     if (!fCurrentRun->leftToRight()) {

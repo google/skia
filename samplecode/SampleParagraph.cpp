@@ -2841,6 +2841,7 @@ DEF_SAMPLE(return new ParagraphView7();)
 DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
+/*
 DEF_SAMPLE(return new ParagraphView11();)
 DEF_SAMPLE(return new ParagraphView12();)
 DEF_SAMPLE(return new ParagraphView14();)
@@ -2873,3 +2874,4 @@ DEF_SAMPLE(return new ParagraphView41();)
 DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
+*/
