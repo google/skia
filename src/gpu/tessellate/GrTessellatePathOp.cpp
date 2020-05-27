@@ -279,6 +279,12 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
     SkASSERT(!fStencilCubicsShader);
     SkASSERT(cubicData);
 
+    fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
+            target->resourceProvider());
+    if (!fIndirectIndexBuffer) {
+        return;
+    }
+
     // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with the base
     // vertex on an instance boundary in order to accommodate this.
     SkASSERT(fBaseCubicVertex % 4 == 0);
@@ -531,9 +537,8 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
                                               fStencilCubicsShader);
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         if (fIndirectDrawBuffer) {
-            auto indexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
-                    flushState->resourceProvider());
-            flushState->bindBuffers(indexBuffer.get(), fCubicBuffer.get(), nullptr);
+            SkASSERT(fIndirectIndexBuffer);
+            flushState->bindBuffers(fIndirectIndexBuffer.get(), fCubicBuffer.get(), nullptr);
             flushState->drawIndexedIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
                                             fIndirectDrawCount);
         } else {
