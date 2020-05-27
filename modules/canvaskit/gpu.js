@@ -69,12 +69,6 @@
 
         var grcontext = this.MakeGrContext(ctx);
 
-        if (grcontext) {
-           // Bump the default resource cache limit.
-          var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
-          grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
-        }
-
         // Note that canvas.width/height here is used because it gives the size of the buffer we're
         // rendering into. This may not be the same size the element is displayed on the page, which
         // constrolled by css, and available in canvas.clientWidth/height.
