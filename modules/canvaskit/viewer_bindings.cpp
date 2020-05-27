@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
+#include "tools/viewer/SKPSlide.h"
 #include "tools/viewer/SampleSlide.h"
 #include <GLES3/gl3.h>
 #include <string>
@@ -22,6 +23,12 @@ sk_sp<Slide> MakeSlide(std::string name) {
         return sk_make_sp<SampleSlide>(MakeWavyPathTextSample);
     }
     return nullptr;
+}
+
+sk_sp<Slide> MakeSkpSlide(std::string name, std::string skpData) {
+    auto stream = std::make_unique<SkMemoryStream>(skpData.data(), skpData.size(),
+                                                   /*copyData=*/true);
+    return sk_make_sp<SKPSlide>(SkString(name.c_str()), std::move(stream));
 }
 
 static void delete_wrapped_framebuffer(SkSurface::ReleaseContext context) {
@@ -88,6 +95,7 @@ void BlitOffscreenFramebuffer(sk_sp<SkSurface> surface, int srcX0, int srcY0, in
 
 EMSCRIPTEN_BINDINGS(Viewer) {
     function("MakeSlide", &MakeSlide);
+    function("MakeSkpSlide", &MakeSkpSlide);
     function("MakeOffscreenFramebuffer", &MakeOffscreenFramebuffer);
     function("BlitOffscreenFramebuffer", &BlitOffscreenFramebuffer);
     class_<Slide>("Slide")
