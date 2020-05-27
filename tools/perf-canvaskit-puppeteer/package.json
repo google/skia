@@ -7,7 +7,7 @@
     "command-line-args": "^5.0.2",
     "command-line-usage": "^5.0.3",
     "express": "^4.16.3",
-    "puppeteer": "^3.0.0"
+    "puppeteer": "^3.0.4"
   },
   "devDependencies": {},
   "scripts": {
