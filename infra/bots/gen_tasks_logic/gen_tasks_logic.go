@@ -418,6 +418,7 @@ func (b *taskBuilder) internalHardwareLabel() *int {
 }
 
 // linuxGceDimensions adds the Swarming bot dimensions for Linux GCE instances.
+// TODO(rmistry): Pass in CPU type here via constants. One for Intel and one for AMD.
 func (b *taskBuilder) linuxGceDimensions(machineType string) {
 	b.dimension(
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
@@ -639,6 +640,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"GCE":  "x86-64-Skylake_GCE",
 					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
+				"Rome": {
+					"GCE": "x86-64-AMD_Rome_GCE",
+				},
 				"Snapdragon850": {
 					"LenovoYogaC630": "arm64-64-Snapdragon850",
 				},
@@ -658,6 +662,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
 			if b.model("GCE") && d["cpu"] == "x86-64-Haswell_GCE" {
+				// rmistry here or above.
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
 			}
 		} else {
