@@ -28,31 +28,50 @@
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
-    CanvasKit = CK;
-    ViewerMain(CanvasKit);
+    if (!CK) {
+      throw 'CanvasKit not available.';
+    }
+    LoadSlide(CK);
   });
 
-  function ViewerMain(CanvasKit) {
-    if (!CanvasKit) {
-      console.error('CanvasKit not available.');
-      return;
+  function LoadSlide(CanvasKit) {
+    if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide) {
+      throw 'Not compiled with Viewer.';
     }
-    if (!CanvasKit.MakeSlide) {
-      console.error('Not compiled with Viewer.');
-      return;
+    const slideName = flags.slide || 'WavyPathText';
+    if (slideName.endsWith('.skp')) {
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", slideName, true);
+      xhr.responseType = "arraybuffer";
+      xhr.onreadystatechange = function() {
+        if (this.readyState != 4) {
+          return;
+        }
+        if (this.status != 200) {
+          throw 'XMLHttpRequest failed for URL ' + slideName;
+        }
+        let slide = CanvasKit.MakeSkpSlide(slideName, xhr.response);
+        if (!slide) {
+          throw 'Could not parse skp data for slide ' + slideName;
+        }
+        ViewerMain(CanvasKit, slide);
+      };
+      xhr.send();
+    } else {
+      let slide = CanvasKit.MakeSlide(slideName);
+      if (!slide) {
+        throw 'Could not make slide ' + slideName;
+      }
+      ViewerMain(CanvasKit, slide);
     }
+  }
 
+  function ViewerMain(CanvasKit, slide) {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const htmlCanvas = document.getElementById('viewer_canvas');
     htmlCanvas.width = width;
     htmlCanvas.height = height;
-
-    const slideName = 'WavyPathText';
-    const slide = CanvasKit.MakeSlide(slideName);
-    if (!slide) {
-      throw 'Could not make slide ' + slideName;
-    }
     slide.load(width, height);
 
     const doMSAA = (flags.msaa > 1);
