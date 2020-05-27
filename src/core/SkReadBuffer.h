@@ -107,7 +107,9 @@ public:
         return sk_sp<T>((T*)this->readFlattenable(T::GetFlattenableType()));
     }
     sk_sp<SkColorFilter> readColorFilter() { return this->readFlattenable<SkColorFilter>(); }
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }
+#endif
     sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilterBase>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }

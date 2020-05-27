@@ -101,7 +101,9 @@
         SkPathEffect::RegisterFlattenables();
 
         // Misc.
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
         SK_REGISTER_FLATTENABLE(SkLayerDrawLooper);
+#endif
         SK_REGISTER_FLATTENABLE(SkRecordedDrawable);
     }
 

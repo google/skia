@@ -296,7 +296,9 @@ DEF_TEST(Flattenable_EmptyDeserialze, reporter) {
     test(SkShaderBase); // todo: make this just be shader!
     test(SkColorFilter);
     test(SkImageFilter);
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER_FLATTENABLE
     test(SkDrawLooper);
+#endif
     #undef test
 }
 
