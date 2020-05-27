@@ -67,7 +67,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
-#include <GL/gl.h>
+#include <GLES3/gl3.h>
 #include <emscripten/html5.h>
 #endif
 
@@ -135,8 +135,7 @@ struct ColorSettings {
     GrGLenum pixFormat;
 };
 
-sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
-{
+sk_sp<GrContext> _MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context) {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
     if (r < 0) {
         printf("failed to make webgl context current %d\n", r);
@@ -146,6 +145,7 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
     auto interface = GrGLMakeNativeInterface();
     // setup contexts
     sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+
     return grContext;
 }
 
@@ -705,7 +705,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef SK_GL
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
-    function("MakeGrContext", &MakeGrContext);
+    function("_MakeGrContext", &_MakeGrContext);
     function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, int, int)>(&MakeRenderTarget));
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, SimpleImageInfo)>(&MakeRenderTarget));

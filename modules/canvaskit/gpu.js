@@ -41,6 +41,18 @@
         return CanvasKit.currentContext() || 0;
       };
 
+      CanvasKit.MakeWebGLGrContext = function(ctx) {
+        var grContext = this._MakeGrContext(ctx);
+
+        if (grContext) {
+          // Bump the default resource cache limit.
+          var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
+          grContext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
+        }
+
+        return grContext;
+      }
+
       // idOrElement can be of types:
       //  - String - in which case it is interpreted as an id of a
       //          canvas element.
@@ -67,13 +79,7 @@
           throw 'failed to create webgl context: err ' + ctx;
         }
 
-        var grcontext = this.MakeGrContext(ctx);
-
-        if (grcontext) {
-           // Bump the default resource cache limit.
-          var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
-          grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
-        }
+        var grcontext = this.MakeWebGLGrContext(ctx);
 
         // Note that canvas.width/height here is used because it gives the size of the buffer we're
         // rendering into. This may not be the same size the element is displayed on the page, which

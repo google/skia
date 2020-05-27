@@ -39,7 +39,6 @@ var CanvasKit = {
   MakeBlurMaskFilter: function() {},
   MakeCanvas: function() {},
   MakeCanvasSurface: function() {},
-  MakeGrContext: function() {},
   /** @return {CanvasKit.SkAnimatedImage} */
   MakeAnimatedImageFromEncoded: function() {},
   /** @return {CanvasKit.SkImage} */
@@ -58,6 +57,7 @@ var CanvasKit = {
   MakeSkVertices: function() {},
   MakeSurface: function() {},
   MakeWebGLCanvasSurface: function() {},
+  MakeWebGLGrContext: function() {},
   /** @return {TypedArray} */
   Malloc: function() {},
   computeTonalColors: function() {},
@@ -77,6 +77,7 @@ var CanvasKit = {
   // private API (i.e. things declared in the bindings that we use
   // in the pre-js file)
   _computeTonalColors: function() {},
+  _MakeGrContext: function() {},
   _MakeImage: function() {},
   _MakeLinearGradientShader: function() {},
   _MakePathFromCmds: function() {},
