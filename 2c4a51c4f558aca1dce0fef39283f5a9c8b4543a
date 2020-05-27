@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b05e5374_e457e785",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:45:56Z",
+      "side": 1,
+      "message": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch is the preferred way to get resources off the network. Promises are much easier to work with, IMO",
+      "range": {
+        "startLine": 43,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 36
+      },
+      "revId": "2c4a51c4f558aca1dce0fef39283f5a9c8b4543a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244f495f_52d4f4a6",
+        "filename": "modules/canvaskit/viewer_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:45:56Z",
+      "side": 1,
+      "message": "I would prefer to not use std::string for arbitrary data. See https://github.com/google/skia/blob/1ba864348bde4fa2221acd13669f29311908455e/modules/canvaskit/canvaskit_bindings.cpp#L1202 for the \"proper\" way to do it (with a data ptr and len)",
+      "range": {
+        "startLine": 26,
+        "startChar": 50,
+        "endLine": 26,
+        "endChar": 69
+      },
+      "revId": "2c4a51c4f558aca1dce0fef39283f5a9c8b4543a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f292258_3eb8a445",
+        "filename": "modules/canvaskit/viewer_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-27T12:45:56Z",
+      "side": 1,
+      "message": "const? static constexpr?",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 12
+      },
+      "revId": "2c4a51c4f558aca1dce0fef39283f5a9c8b4543a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
