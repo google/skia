@@ -1164,11 +1164,15 @@ void MetalCodeGenerator::writeStatements(const std::vector<std::unique_ptr<State
 }
 
 void MetalCodeGenerator::writeBlock(const Block& b) {
-    this->writeLine("{");
-    fIndentation++;
+    if (b.fIsScope) {
+        this->writeLine("{");
+        fIndentation++;
+    }
     this->writeStatements(b.fStatements);
-    fIndentation--;
-    this->write("}");
+    if (b.fIsScope) {
+        fIndentation--;
+        this->write("}");
+    }
 }
 
 void MetalCodeGenerator::writeIfStatement(const IfStatement& stmt) {

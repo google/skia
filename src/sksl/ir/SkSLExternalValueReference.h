@@ -25,6 +25,10 @@ struct ExternalValueReference : public Expression {
         return property == Property::kSideEffects;
     }
 
+    int nodeCount() const override {
+        return 1;
+    }
+
     String description() const override {
         return String(fValue->fName);
     }

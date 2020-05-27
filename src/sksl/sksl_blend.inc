@@ -69,8 +69,9 @@ half4 blend_lighten(half4 src, half4 dst) {
 half _guarded_divide(half n, half d) {
     @if (sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck) {
         return n/(d + 0.00000001);
+    } else {
+        return n/d;
     }
-    return n/d;
 }
 
 half _color_dodge_component(half sc, half sa, half dc, half da) {
