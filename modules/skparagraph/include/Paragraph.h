@@ -75,6 +75,7 @@ public:
     virtual void updateBackgroundPaint(size_t from, size_t to, SkPaint paint) = 0;
 
 protected:
+    void cleanMeasurements();
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 
