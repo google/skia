@@ -581,7 +581,7 @@ void GrTextBlob::addOp(GrTextTarget* target,
                 }
             }
 
-            auto op = this->makeOp(*subRun, deviceMatrix, drawOrigin, clipRect,
+            auto op = this->makeOp(subRun, deviceMatrix, drawOrigin, clipRect,
                                    paint, filteredColor, props, target);
             if (op) {
                 if (skipClip) {
@@ -606,7 +606,7 @@ std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(const SkMatrixProvider& matrix
                                                   GrTextTarget* target) {
     SubRun* info = fFirstSubRun;
     SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(*info, matrixProvider, drawOrigin, emptyRect, paint,
+    return this->makeOp(info, matrixProvider, drawOrigin, emptyRect, paint,
                         filteredColor, props, target);
 }
 
@@ -720,7 +720,7 @@ void GrTextBlob::insertSubRun(SubRun* subRun) {
     }
 }
 
-std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
+std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun* subrun,
                                                   const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkIRect& clipRect,
@@ -729,12 +729,12 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
                                                   const SkSurfaceProps& props,
                                                   GrTextTarget* target) {
     GrPaint grPaint;
-    target->makeGrPaint(info.maskFormat(), paint, matrixProvider, &grPaint);
-    if (info.drawAsDistanceFields()) {
+    target->makeGrPaint(subrun->maskFormat(), paint, matrixProvider, &grPaint);
+    if (subrun->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
         return GrAtlasTextOp::MakeDistanceField(target->getContext(),
                                                 std::move(grPaint),
-                                                &info,
+                                                subrun,
                                                 matrixProvider.localToDevice(),
                                                 drawOrigin,
                                                 clipRect,
@@ -745,7 +745,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(SubRun& info,
     } else {
         return GrAtlasTextOp::MakeBitmap(target->getContext(),
                                          std::move(grPaint),
-                                         &info,
+                                         subrun,
                                          matrixProvider.localToDevice(),
                                          drawOrigin,
                                          clipRect,
