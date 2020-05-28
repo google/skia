@@ -2192,9 +2192,16 @@ protected:
                      f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
                      i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
 
-            auto rf1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
-            auto rf2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
-            auto rfi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+            auto r1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto r2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto ri = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+            if (r1.empty() || r2.empty() || ri.empty()) {
+                return;
+            }
+            auto rf1 = r1[0];
+            auto rf2 = r2[0];
+            auto rfi = ri[0];
 
             SkDebugf("f1: [%f:%f] %s\n",
                      rf1.rect.fLeft, rf1.rect.fRight, rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
@@ -2801,13 +2808,14 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const std::u16string text = u"The quick brown fox \U0001f98a ate a zesty ham burger fons \U0001f354."
-                                    "The \U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467 laughed.";
+        //const std::u16string text = u"The quick brown fox \U0001f98a ate a zesty ham burger fons \U0001f354."
+       //                             "The \U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467 laughed.";
+        const std::u16string text = u"The quick brown fox ate a zesty hamburgerfons.";
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
+        //fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(7);

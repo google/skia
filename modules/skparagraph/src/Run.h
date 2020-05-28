@@ -258,9 +258,7 @@ public:
             , fWidth()
             , fSpacing(0)
             , fHeight()
-            , fHalfLetterSpacing(0.0)
-            , fWhiteSpaces(false)
-            , fBreakType(None) {}
+            , fHalfLetterSpacing(0.0) {}
 
     Cluster(ParagraphImpl* master,
             RunIndex runIndex,
@@ -285,14 +283,11 @@ public:
         fWidth += shift;
     }
 
-    void setBreakType(BreakType type) { fBreakType = type; }
-    bool isWhitespaces() const { return fWhiteSpaces; }
-    bool canBreakLineAfter() const {
-        return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
-    }
-    bool isHardBreak() const { return fBreakType == HardLineBreak; }
-    bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
-    bool isGraphemeBreak() const { return fBreakType == GraphemeBreak; }
+    bool isWhitespaces() const { return fIsWhiteSpaces; }
+    bool isHardBreak() const;
+    bool isSoftBreak() const;
+    bool isGraphemeBreak() const;
+    bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
@@ -311,8 +306,6 @@ public:
     SkFont font() const;
 
     SkScalar trimmedWidth(size_t pos) const;
-
-    void setIsWhiteSpaces();
 
     bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
 
@@ -339,8 +332,7 @@ private:
     SkScalar fSpacing;
     SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
-    bool fWhiteSpaces;
-    BreakType fBreakType;
+    bool fIsWhiteSpaces;
 };
 
 class InternalLineMetrics {
