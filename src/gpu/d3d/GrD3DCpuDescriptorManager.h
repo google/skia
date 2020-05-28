@@ -5,22 +5,35 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrD3DAttachmentViewManager_DEFINED
-#define GrD3DAttachmentViewManager_DEFINED
+#ifndef GrD3DCpuDescriptorManager_DEFINED
+#define GrD3DCpuDescriptorManager_DEFINED
 
 #include "src/gpu/d3d/GrD3DDescriptorHeap.h"
 
 class GrD3DGpu;
 
-class GrD3DAttachmentViewManager {
+class GrD3DCpuDescriptorManager {
 public:
-    GrD3DAttachmentViewManager(GrD3DGpu*);
+    GrD3DCpuDescriptorManager(GrD3DGpu*);
 
     D3D12_CPU_DESCRIPTOR_HANDLE createRenderTargetView(GrD3DGpu*, ID3D12Resource* textureResource);
     void recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE*);
 
     D3D12_CPU_DESCRIPTOR_HANDLE createDepthStencilView(GrD3DGpu*, ID3D12Resource* textureResource);
     void recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE createConstantBufferView(GrD3DGpu*,
+                                                         ID3D12Resource* bufferResource,
+                                                         size_t offset,
+                                                         size_t size);
+    D3D12_CPU_DESCRIPTOR_HANDLE createShaderResourceView(GrD3DGpu*,
+                                                         ID3D12Resource* resource);
+    void recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE createSampler(GrD3DGpu*, D3D12_FILTER filter,
+                                              D3D12_TEXTURE_ADDRESS_MODE addressModeU,
+                                              D3D12_TEXTURE_ADDRESS_MODE addressModeV);
+    void recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE*);
 
 private:
     class Heap {
@@ -63,6 +76,8 @@ private:
 
     HeapPool fRTVDescriptorPool;
     HeapPool fDSVDescriptorPool;
+    HeapPool fCBVSRVDescriptorPool;
+    HeapPool fSamplerDescriptorPool;
 };
 
 #endif
