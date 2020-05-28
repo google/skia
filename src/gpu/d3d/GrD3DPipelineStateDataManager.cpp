@@ -7,6 +7,9 @@
 
 #include "src/gpu/d3d/GrD3DPipelineStateDataManager.h"
 
+#include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DResourceProvider.h"
+
 GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                              uint32_t uniformSize)
     : INHERITED(uniforms.count(), uniformSize) {
@@ -24,5 +27,14 @@ GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoAr
 
         uniform.fOffset = uniformInfo.fUBOOffset;
         ++i;
+    }
+}
+
+void GrD3DPipelineStateDataManager::uploadConstants(GrD3DGpu* gpu) {
+    if (fUniformsDirty) {
+        // TODO: Do something with the CBV
+        fConstantBufferView = gpu->resourceProvider().uploadConstantData(fUniformData.get(),
+                                                                         fUniformSize);
+        fUniformsDirty = false;
     }
 }
