@@ -22,6 +22,30 @@
       "revId": "69f89b63282bee394be06bd374d018210e2c9c89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "259ba628_a6695634",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T15:40:52Z",
+      "side": 1,
+      "message": "Agreed. I\u0027m currently looking at image shaders with normalized coordinates. I\u0027m building up non-normalized coords here, then those get passed to a matrix shader that just scales them down to be normalized. I could do all of that directly (with fewer operations, and fewer uniforms).",
+      "parentUuid": "075566a9_b7a4ece7",
+      "range": {
+        "startLine": 262,
+        "startChar": 15,
+        "endLine": 270,
+        "endChar": 55
+      },
+      "revId": "69f89b63282bee394be06bd374d018210e2c9c89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
