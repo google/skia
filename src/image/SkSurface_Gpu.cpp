@@ -598,6 +598,7 @@ bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTar
     return true;
 }
 
+#if GR_TEST_UTILS
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTarget& rt,
                                                         GrSurfaceOrigin origin,
@@ -634,6 +635,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
 
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
+#endif
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTexture& tex,

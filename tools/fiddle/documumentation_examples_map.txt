@@ -3906,10 +3906,6 @@ SkRegion
 SkSurface
 static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
 
-[Surface_MakeFromBackendTextureAsRenderTarget]
-SkSurface
-static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
-
 [Surface_MakeNull]
 SkSurface
 static sk_sp<SkSurface> MakeNull(int width, int height);
