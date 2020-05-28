@@ -6,6 +6,7 @@ module.exports = function(config) {
   let cfg = {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+    plugins: ['karma-jasmine', 'karma-chrome-launcher'],
     frameworks: ['jasmine'],
 
     // list of files / patterns to load in the browser

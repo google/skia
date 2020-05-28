@@ -17,6 +17,11 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
+pushd $CANVASKIT_DIR
+npm ci
+chmod --recursive +rw node_modules
+popd
+
 # Start the aggregator in the background
 /opt/perf-aggregator $@ &
 # Run the tests 10 times to get a wide set of data
