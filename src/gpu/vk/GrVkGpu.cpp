@@ -1268,10 +1268,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTex.getMutableState();
+    SkASSERT(mutableState);
     return GrVkTexture::MakeWrappedTexture(this, backendTex.dimensions(), ownership, cacheable,
-                                           ioType, imageInfo, std::move(layout));
+                                           ioType, imageInfo, std::move(mutableState));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture& beTex,
@@ -1294,10 +1294,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = beTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = beTex.getMutableState();
+    SkASSERT(mutableState);
     return GrVkTexture::MakeWrappedTexture(this, beTex.dimensions(), ownership, cacheable,
-                                           kRead_GrIOType, imageInfo, std::move(layout));
+                                           kRead_GrIOType, imageInfo, std::move(mutableState));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -1326,12 +1326,13 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
 
-    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTex.getMutableState();
+    SkASSERT(mutableState);
 
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, backendTex.dimensions(),
                                                                    sampleCnt, ownership, cacheable,
-                                                                   imageInfo, std::move(layout));
+                                                                   imageInfo,
+                                                                   std::move(mutableState));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
@@ -1360,10 +1361,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = backendRT.getGrVkImageLayout();
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendRT.getMutableState();
+    SkASSERT(mutableState);
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(
-            this, backendRT.dimensions(), 1, info, std::move(layout));
+            this, backendRT.dimensions(), 1, info, std::move(mutableState));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!backendRT.stencilBits());
@@ -1397,11 +1399,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = tex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = tex.getMutableState();
+    SkASSERT(mutableState);
 
     return GrVkRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt, imageInfo,
-                                                     std::move(layout));
+                                                     std::move(mutableState));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
@@ -1630,12 +1632,12 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     GrVkImageInfo info;
     SkAssertResult(backendTexture.getVkImageInfo(&info));
 
-    sk_sp<GrVkImageLayout> layout = backendTexture.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTexture.getMutableState();
+    SkASSERT(mutableState);
     sk_sp<GrVkTexture> texture =
                 GrVkTexture::MakeWrappedTexture(this, backendTexture.dimensions(),
                                                 kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-                                                kRW_GrIOType, info, layout);
+                                                kRW_GrIOType, info, std::move(mutableState));
     if (!texture) {
         return false;
     }
