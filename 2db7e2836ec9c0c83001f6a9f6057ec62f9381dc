@@ -22,6 +22,30 @@
       "revId": "2db7e2836ec9c0c83001f6a9f6057ec62f9381dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1504f65_f98f5f72",
+        "filename": "tools/convert-to-nia.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-05-28T03:31:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfbb5bd5_6a937b7e",
+      "range": {
+        "startLine": 58,
+        "startChar": 5,
+        "endLine": 58,
+        "endChar": 19
+      },
+      "revId": "2db7e2836ec9c0c83001f6a9f6057ec62f9381dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
