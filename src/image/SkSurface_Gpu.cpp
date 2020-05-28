@@ -635,6 +635,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+#if GR_TEST_UTILS
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
@@ -668,6 +669,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
+#endif
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
