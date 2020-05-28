@@ -222,7 +222,7 @@ private:
 
     void insertSubRun(SubRun* subRun);
 
-    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun& info,
+    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun* subrun,
                                           const SkMatrixProvider& matrixProvider,
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
