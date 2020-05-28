@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dffae628_cc4cf76f",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T13:48:44Z",
+      "side": 1,
+      "message": "This comment is out-of-date now.",
+      "range": {
+        "startLine": 382,
+        "startChar": 0,
+        "endLine": 383,
+        "endChar": 17
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59a57f16_b858b1e0",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T13:48:44Z",
+      "side": 1,
+      "message": "This comment appears to disagree with the one in matrixConstructHelperIsNeeded (and the logic there)? Ah, it\u0027s different because we may need to write a more complex explicit constructor call, but we don\u0027t need a helper unless it\u0027s to prevent double-evaluation of arguments? Might want to make that clear in the comments.",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 405,
+        "endChar": 48
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f63549a_ff683d93",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T13:48:44Z",
+      "side": 1,
+      "message": "This is potentially turning half precision matrices into floats. Maybe matrix.componentType().name() ?",
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65a44a6a_418434cb",
+        "filename": "tests/SkSLMetalTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T13:48:44Z",
+      "side": 1,
+      "message": "It looks like this is generating a constructor helper call for an expression of the form:\n\nfloat2x2 x \u003d ...;\nfloat2x2 m \u003d float2x2(x); \n\nIs that really needed? You can\u0027t construct a matrix from another matrix of identical dimensions?",
+      "range": {
+        "startLine": 102,
+        "startChar": 141,
+        "endLine": 102,
+        "endChar": 196
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
