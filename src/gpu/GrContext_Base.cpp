@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextFamily.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
@@ -31,15 +32,28 @@ GrContext_Base::GrContext_Base(GrBackendApi backend,
 
 GrContext_Base::~GrContext_Base() { }
 
-bool GrContext_Base::init(sk_sp<const GrCaps> caps) {
+bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) {
     SkASSERT(caps);
 
-    fCaps = caps;
+    fCaps = std::move(caps);
+    fFamily = family ? std::move(family) : sk_make_sp<GrContextFamily>();
     return true;
 }
 
 const GrCaps* GrContext_Base::caps() const { return fCaps.get(); }
 sk_sp<const GrCaps> GrContext_Base::refCaps() const { return fCaps; }
+
+GrContextFamily* GrContext_Base::family() { return fFamily.get(); }
+sk_sp<GrContextFamily> GrContext_Base::refFamily() { return fFamily; }
+
+
+void GrContext_Base::abandonContext() {
+    fFamily->abandon();
+}
+
+bool GrContext_Base::abandoned() {
+    return fFamily->isAbandoned();
+}
 
 GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
                                                      GrRenderable renderable) const {

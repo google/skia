@@ -12,9 +12,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrImageContext::GrImageContext(GrBackendApi backend,
                                const GrContextOptions& options,
@@ -24,18 +21,6 @@ GrImageContext::GrImageContext(GrBackendApi backend,
 }
 
 GrImageContext::~GrImageContext() {}
-
-void GrImageContext::abandonContext() {
-    ASSERT_SINGLE_OWNER
-
-    fAbandoned = true;
-}
-
-bool GrImageContext::abandoned() {
-    ASSERT_SINGLE_OWNER
-
-    return fAbandoned;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrImageContextPriv::refCaps() const {

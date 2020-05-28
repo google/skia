@@ -107,7 +107,7 @@ public:
     GrProtected isProtected() const { return fIsProtected; }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
-    const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
     // Is the provided backend texture compatible with this surface characterization?
     bool isCompatible(const GrBackendTexture&) const;

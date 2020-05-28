@@ -14,6 +14,7 @@
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
+#include "src/gpu/GrContextFamily.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -65,12 +66,12 @@ GrContext::~GrContext() {
     delete fResourceCache;
 }
 
-bool GrContext::init(sk_sp<const GrCaps> caps) {
+bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) {
     ASSERT_SINGLE_OWNER
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
     SkASSERT(this->proxyProvider());
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init(std::move(caps), std::move(family))) {
         return false;
     }
 
