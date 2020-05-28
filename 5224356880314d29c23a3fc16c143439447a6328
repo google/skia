@@ -22,6 +22,29 @@
       "revId": "5224356880314d29c23a3fc16c143439447a6328",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e49b069f_a8a57e24",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T16:07:01Z",
+      "side": 1,
+      "message": "nit: extra \u0027a\u0027",
+      "range": {
+        "startLine": 389,
+        "startChar": 60,
+        "endLine": 389,
+        "endChar": 62
+      },
+      "revId": "5224356880314d29c23a3fc16c143439447a6328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
