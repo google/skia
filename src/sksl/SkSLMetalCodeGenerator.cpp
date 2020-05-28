@@ -379,82 +379,94 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
     }
 }
 
-// If it hasn't already been written, writes a constructor for 'matrix' which takes a single value
-// of type 'arg'.
-String MetalCodeGenerator::getMatrixConstructHelper(const Type& matrix, const Type& arg) {
-    String key = matrix.name() + arg.name();
-    auto found = fHelpers.find(key);
-    if (found != fHelpers.end()) {
-        return found->second;
-    }
-    String name;
+// Generates a constructor for 'matrix' which reorganizes the input arguments into the proper shape.
+// Keeps track of previously generated constructors so that we won't generate more than one
+// constructor for any given permutation of input argument types. Returns the name of the
+// generated constructor method.
+String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
+    const Type& matrix = c.fType;
     int columns = matrix.columns();
     int rows = matrix.rows();
-    if (arg.isNumber()) {
-        // creating a matrix from a single scalar value
-        name = "float" + to_string(columns) + "x" + to_string(rows) + "_from_float";
-        fExtraFunctions.printf("float%dx%d %s(float x) {\n",
-                               columns, rows, name.c_str());
-        fExtraFunctions.printf("    return float%dx%d(", columns, rows);
-        for (int i = 0; i < columns; ++i) {
-            if (i > 0) {
-                fExtraFunctions.writeText(", ");
-            }
-            fExtraFunctions.printf("float%d(", rows);
-            for (int j = 0; j < rows; ++j) {
-                if (j > 0) {
-                    fExtraFunctions.writeText(", ");
+    const std::vector<std::unique_ptr<Expression>>& args = c.fArguments;
+
+    // Create the helper-method name and use it as our lookup key.
+    String name;
+    name.appendf("float%dx%d_from", columns, rows);
+    for (const std::unique_ptr<Expression>& expr : args) {
+        name.appendf("_%s", expr->fType.displayName().c_str());
+    }
+
+    // If a helper-method has already been synthesized, we don't need to synthesize it again.
+    auto [iter, newlyCreated] = fHelpers.insert(name);
+    if (!newlyCreated) {
+        return name;
+    }
+
+    // Unlike GLSL, Metal requires that matrices are initialized with exactly R vectors of C
+    // components apiece. (In Metal 2.0, you can also supply R*C scalars, but you still cannot
+    // supply a mixture of scalars and vectors.)
+    fExtraFunctions.printf("float%dx%d %s(", columns, rows, name.c_str());
+
+    size_t argIndex = 0;
+    const char* argSeparator = "";
+    for (const std::unique_ptr<Expression>& expr : c.fArguments) {
+        fExtraFunctions.printf("%s%s x%zu", argSeparator,
+                               expr->fType.displayName().c_str(), argIndex++);
+        argSeparator = ", ";
+    }
+
+    fExtraFunctions.printf(") {\n    return float%dx%d(", columns, rows);
+
+    argIndex = 0;
+    int argPosition = 0;
+
+    const char* columnSeparator = "";
+    for (int c = 0; c < columns; ++c) {
+        fExtraFunctions.printf("%sfloat%d(", columnSeparator, rows);
+        columnSeparator = "), ";
+
+        const char* rowSeparator = "";
+        for (int r = 0; r < rows; ++r) {
+            fExtraFunctions.printf("%s", rowSeparator);
+            rowSeparator = ", ";
+
+            const Type& argType = args[argIndex]->fType;
+            switch (argType.kind()) {
+                case Type::kScalar_Kind: {
+                    fExtraFunctions.printf("x%zu", argIndex);
+                    break;
                 }
-                if (i == j) {
-                    fExtraFunctions.writeText("x");
-                } else {
-                    fExtraFunctions.writeText("0");
+                case Type::kVector_Kind: {
+                    fExtraFunctions.printf("x%zu[%d]", argIndex, argPosition);
+                    break;
+                }
+                case Type::kMatrix_Kind: {
+                    fExtraFunctions.printf("x%zu[%d][%d]", argIndex,
+                                           argPosition / argType.rows(),
+                                           argPosition % argType.rows());
+                    break;
+                }
+                default: {
+                    SkDEBUGFAIL("incorrect type of argument for matrix constructor");
+                    fExtraFunctions.printf("<error>");
+                    break;
                 }
             }
-            fExtraFunctions.writeText(")");
+
+            ++argPosition;
+            if (argPosition >= argType.columns() * argType.rows()) {
+                ++argIndex;
+                argPosition = 0;
+            }
         }
-        fExtraFunctions.writeText(");\n}\n");
-    } else if (arg.kind() == Type::kMatrix_Kind) {
-        // creating a matrix from another matrix
-        int argColumns = arg.columns();
-        int argRows = arg.rows();
-        name = "float" + to_string(columns) + "x" + to_string(rows) + "_from_float" +
-               to_string(argColumns) + "x" + to_string(argRows);
-        fExtraFunctions.printf("float%dx%d %s(float%dx%d m) {\n",
-                               columns, rows, name.c_str(), argColumns, argRows);
-        fExtraFunctions.printf("    return float%dx%d(", columns, rows);
-        for (int i = 0; i < columns; ++i) {
-            if (i > 0) {
-                fExtraFunctions.writeText(", ");
-            }
-            fExtraFunctions.printf("float%d(", rows);
-            for (int j = 0; j < rows; ++j) {
-                if (j > 0) {
-                    fExtraFunctions.writeText(", ");
-                }
-                if (i < argColumns && j < argRows) {
-                    fExtraFunctions.printf("m[%d][%d]", i, j);
-                } else {
-                    fExtraFunctions.writeText("0");
-                }
-            }
-            fExtraFunctions.writeText(")");
-        }
-        fExtraFunctions.writeText(");\n}\n");
-    } else if (matrix.rows() == 2 && matrix.columns() == 2 && arg == *fContext.fFloat4_Type) {
-        // float2x2(float4) doesn't work, need to split it into float2x2(float2, float2)
-        name = "float2x2_from_float4";
-        fExtraFunctions.printf(
-            "float2x2 %s(float4 v) {\n"
-            "    return float2x2(float2(v[0], v[1]), float2(v[2], v[3]));\n"
-            "}\n",
-            name.c_str()
-        );
-    } else {
-        SkASSERT(false);
+    }
+
+    if (argPosition != 0 || argIndex != args.size()) {
+        SkDEBUGFAIL("incorrect number of arguments for matrix constructor");
         name = "<error>";
     }
-    fHelpers[key] = name;
+
+    fExtraFunctions.printf("));\n}\n");
     return name;
 }
 
@@ -468,43 +480,116 @@ bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
     return t1.isFloat() && t2.isFloat();
 }
 
-void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
-    if (c.fArguments.size() == 1 && this->canCoerce(c.fType, c.fArguments[0]->fType)) {
-        this->writeExpression(*c.fArguments[0], parentPrecedence);
-        return;
+bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
+    // A matrix construct helper is only necessary if we are, in fact, constructing a matrix.
+    if (c.fType.kind() != Type::kMatrix_Kind) {
+        return false;
     }
-    if (c.fType.kind() == Type::kMatrix_Kind && c.fArguments.size() == 1) {
-        const Expression& arg = *c.fArguments[0];
-        String name = this->getMatrixConstructHelper(c.fType, arg.fType);
-        this->write(name);
-        this->write("(");
-        this->writeExpression(arg, kSequence_Precedence);
-        this->write(")");
-    } else {
-        this->writeType(c.fType);
+
+    // GLSL is fairly free-form about inputs to its matrix constructors, but Metal is not; it
+    // expects exactly R vectors of C components apiece. (Metal 2.0 also allows a list of R*C
+    // scalars.) Some cases are simple to translate and so we handle those inline--e.g. a list of
+    // scalars can be constructed trivially. In more complex cases, we generate a helper function
+    // that converts our inputs into a properly-shaped matrix.
+    // A matrix construct helper method is always used if any input argument is a matrix.
+    // Helper methods are also necessary when any argument would span multiple rows. For instance:
+    //
+    // float2 x = (1, 2);
+    // float3x2(x, 3, 4, 5, 6) = | 1 3 5 | = no helper needed; conversion can be done inline
+    //                           | 2 4 6 |
+    //
+    // float2 x = (2, 3);
+    // float3x2(1, x, 4, 5, 6) = | 1 3 5 | = x spans multiple rows; a helper method will be used
+    //                           | 2 4 6 |
+    //
+    // float4 x = (1, 2, 3, 4);
+    // float2x2(x) = | 1 3 | = x spans multiple rows; a helper method will be used
+    //               | 2 4 |
+    //
+
+    int position = 0;
+    for (const std::unique_ptr<Expression>& expr : c.fArguments) {
+        // If an input argument is a matrix, we need a helper function.
+        if (expr->fType.kind() == Type::kMatrix_Kind) {
+            return true;
+        }
+        position += expr->fType.columns();
+        if (position > c.fType.rows()) {
+            // An input argument would span multiple rows; a helper function is required.
+            return true;
+        }
+        if (position == c.fType.rows()) {
+            // We've advanced to the end of a row. Wrap to the start of the next row.
+            position = 0;
+        }
+    }
+
+    return false;
+}
+
+void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
+    // Handle special cases for single-argument constructors.
+    if (c.fArguments.size() == 1) {
+        // If the type is coercible, emit it directly.
+        const Expression& arg = *c.fArguments.front();
+        if (this->canCoerce(c.fType, arg.fType)) {
+            this->writeExpression(arg, parentPrecedence);
+            return;
+        }
+
+        // Metal supports creating matrices with a scalar on the diagonal via the single-argument
+        // matrix constructor.
+        if (c.fType.kind() == Type::kMatrix_Kind && arg.fType.isNumber()) {
+            const Type& matrix = c.fType;
+            this->write("float");
+            this->write(to_string(matrix.columns()));
+            this->write("x");
+            this->write(to_string(matrix.rows()));
+            this->write("(");
+            this->writeExpression(arg, parentPrecedence);
+            this->write(")");
+            return;
+        }
+    }
+
+    // Emit and invoke a matrix-constructor helper method if one is necessary.
+    if (this->matrixConstructHelperIsNeeded(c)) {
+        this->write(this->getMatrixConstructHelper(c));
         this->write("(");
         const char* separator = "";
-        int scalarCount = 0;
-        for (const auto& arg : c.fArguments) {
+        for (const std::unique_ptr<Expression>& expr : c.fArguments) {
             this->write(separator);
             separator = ", ";
-            if (Type::kMatrix_Kind == c.fType.kind() && arg->fType.columns() != c.fType.rows()) {
-                // merge scalars and smaller vectors together
-                if (!scalarCount) {
-                    this->writeType(c.fType.componentType());
-                    this->write(to_string(c.fType.rows()));
-                    this->write("(");
-                }
-                scalarCount += arg->fType.columns();
-            }
-            this->writeExpression(*arg, kSequence_Precedence);
-            if (scalarCount && scalarCount == c.fType.rows()) {
-                this->write(")");
-                scalarCount = 0;
-            }
+            this->writeExpression(*expr, kSequence_Precedence);
         }
         this->write(")");
+        return;
     }
+
+    // Explicitly invoke the constructor, passing in the necessary arguments.
+    this->writeType(c.fType);
+    this->write("(");
+    const char* separator = "";
+    int scalarCount = 0;
+    for (const std::unique_ptr<Expression>& arg : c.fArguments) {
+        this->write(separator);
+        separator = ", ";
+        if (Type::kMatrix_Kind == c.fType.kind() && arg->fType.columns() < c.fType.rows()) {
+            // Merge scalars and smaller vectors together.
+            if (!scalarCount) {
+                this->writeType(c.fType.componentType());
+                this->write(to_string(c.fType.rows()));
+                this->write("(");
+            }
+            scalarCount += arg->fType.columns();
+        }
+        this->writeExpression(*arg, kSequence_Precedence);
+        if (scalarCount && scalarCount == c.fType.rows()) {
+            this->write(")");
+            scalarCount = 0;
+        }
+    }
+    this->write(")");
 }
 
 void MetalCodeGenerator::writeFragCoord() {
