@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "834a0782_72cfd006",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-28T18:21:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38ae54fa_1ca3b0fe",
+      "range": {
+        "startLine": 726,
+        "startChar": 0,
+        "endLine": 727,
+        "endChar": 55
+      },
+      "revId": "e0993093862228429f126b8a7c88082ff3523702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9527a45c_03ba8d9f",
         "filename": "src/gpu/effects/generated/GrConfigConversionEffect.h",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "e0993093862228429f126b8a7c88082ff3523702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c5cbb98_42245eea",
+        "filename": "src/gpu/effects/generated/GrConfigConversionEffect.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-28T18:21:14Z",
+      "side": 1,
+      "message": "Good catch, thanks!",
+      "parentUuid": "9527a45c_03ba8d9f",
+      "range": {
+        "startLine": 95,
+        "startChar": 32,
+        "endLine": 95,
+        "endChar": 39
+      },
+      "revId": "e0993093862228429f126b8a7c88082ff3523702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
