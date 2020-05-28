@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd995abd_2ad52418",
+        "filename": "gm/sample_matrix_constant.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-28T20:01:28Z",
+      "side": 0,
+      "message": "I like all these header removals.",
+      "revId": "4ca7a812f8921ae282bac2c06ab1aafefd920218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
