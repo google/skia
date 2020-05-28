@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "206cbac1_06ae7544",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-28T18:12:11Z",
+      "side": 1,
+      "message": "This is like windows saying \"consult your network administrator\" don\u0027t say advanced, explain what is required of callers and why they might want to pass pointers to already copied-in arrays instead of letting canvaskit do it for them",
+      "range": {
+        "startLine": 18,
+        "startChar": 76,
+        "endLine": 18,
+        "endChar": 84
+      },
+      "revId": "81aa83f31af832250974e507a9a5245a1138683a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
