@@ -151,6 +151,30 @@
       "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e2f137c_abe4b9a7",
+        "filename": "tests/SkSLMetalTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-28T16:20:40Z",
+      "side": 1,
+      "message": "This looks like a strange quirk of constant propagation, although I haven\u0027t investigated it too deeply. I wrote some unit tests which confirm this behavior though:\n\n- If the original float2x2 is constructed via \"float2x2(float4(1,2,3,4))\" it will generate the helper.\n- If the original float2x2 is constructed via \"float2x2(float2(1,2),float2(3,4))\" it will not need a helper.\n\nThis seems worthy of investigation at some point since it seems like constant propagation might be leaking type information in some subtle way.",
+      "parentUuid": "65a44a6a_418434cb",
+      "range": {
+        "startLine": 102,
+        "startChar": 141,
+        "endLine": 102,
+        "endChar": 196
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
