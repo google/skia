@@ -12,6 +12,7 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
@@ -26,7 +27,6 @@
 #include <unicode/ubidi.h>
 #include <unicode/uloc.h>
 #include <unicode/umachine.h>
-#include <unicode/unistr.h>
 #include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
@@ -130,6 +130,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
         , fPlaceholders(std::move(placeholders))
+        , fText(SkStringFromU16String(utf16text))
         , fState(kUnknown)
         , fUnresolvedGlyphs(0)
         , fPicture(nullptr)
@@ -137,10 +138,6 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
-    icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
-    std::string str;
-    unicode.toUTF8String(str);
-    fText = SkString(str.data(), str.size());
     // TODO: extractStyles();
 }
 
@@ -779,8 +776,6 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
     if (fWords.empty()) {
-        auto unicode = icu::UnicodeString::fromUTF8(fText.c_str());
-
         UErrorCode errorCode = U_ZERO_ERROR;
 
         auto iter = ubrk_open(UBRK_WORD, uloc_getDefault(), nullptr, 0, &errorCode);
@@ -789,14 +784,25 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
             return {0, 0};
         }
 
+        // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+        int32_t utf16Units;
+        u_strFromUTF8(nullptr, 0, &utf16Units, fText.c_str(), fText.size(), &errorCode);
+        errorCode = U_ZERO_ERROR;
+        std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+        u_strFromUTF8(utf16.get(), utf16Units, nullptr, fText.c_str(), fText.size(), &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Invalid utf8 input: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
+
         UText sUtf16UText = UTEXT_INITIALIZER;
-        ICUUText utf16UText(utext_openUnicodeString(&sUtf16UText, &unicode, &errorCode));
+        ICUUText utf8UText(utext_openUChars(&sUtf16UText, utf16.get(), utf16Units, &errorCode));
         if (U_FAILURE(errorCode)) {
             SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
             return {0, 0};
         }
 
-        ubrk_setUText(iter, utf16UText.get(), &errorCode);
+        ubrk_setUText(iter, utf8UText.get(), &errorCode);
         if (U_FAILURE(errorCode)) {
             SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
             return {0, 0};
