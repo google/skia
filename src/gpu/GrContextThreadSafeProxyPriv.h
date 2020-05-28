@@ -11,6 +11,7 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextFamily.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -28,12 +29,14 @@ public:
 
     const GrCaps* caps() const { return fProxy->caps(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->refCaps(); }
+    sk_sp<GrContextFamily> refFamily() { return fProxy->refFamily(); }
 
     // GrContextThreadSafeProxyPriv
     static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi,
                                                 const GrContextOptions&,
                                                 uint32_t contextID,
-                                                sk_sp<const GrCaps>);
+                                                sk_sp<const GrCaps>,
+                                                sk_sp<GrContextFamily>);
 
 private:
     explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}

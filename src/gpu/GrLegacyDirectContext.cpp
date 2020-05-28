@@ -72,16 +72,17 @@ public:
     }
 
 protected:
-    bool init(sk_sp<const GrCaps> caps) override {
+    bool init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) override {
         SkASSERT(caps);
         SkASSERT(!fThreadSafeProxy);
 
         fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
                                                               this->options(),
                                                               this->contextID(),
-                                                              caps);
+                                                              caps,
+                                                              family);
 
-        if (!INHERITED::init(std::move(caps))) {
+        if (!INHERITED::init(std::move(caps), std::move(family))) {
             return false;
         }
 
@@ -148,7 +149,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
     return context;
@@ -169,7 +170,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
 
@@ -195,7 +196,7 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
     return context;
@@ -218,7 +219,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
     return context;
@@ -240,7 +241,7 @@ sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendConte
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
     return context;
@@ -261,7 +262,7 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContext
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init(context->fGpu->refCaps(), context->refFamily())) {
         return nullptr;
     }
     return context;

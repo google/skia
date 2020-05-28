@@ -47,9 +47,9 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 
 GrRecordingContext::~GrRecordingContext() = default;
 
-bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
+bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) {
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init(std::move(caps), std::move(family))) {
         return false;
     }
 

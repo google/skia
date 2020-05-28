@@ -12,9 +12,10 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextFamily.h"
 
 class GrBaseContextPriv;
-class GrCaps;
 class GrContext;
 class GrImageContext;
 class GrRecordingContext;
@@ -39,6 +40,9 @@ public:
 
     SK_API GrBackendFormat compressedBackendFormat(SkImage::CompressionType) const;
 
+    SK_API virtual void abandonContext();
+    SK_API virtual bool abandoned();
+
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;
@@ -48,7 +52,7 @@ protected:
 
     GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t contextID);
 
-    virtual bool init(sk_sp<const GrCaps>);
+    virtual bool init(sk_sp<const GrCaps>, sk_sp<GrContextFamily>);
 
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
@@ -70,6 +74,8 @@ protected:
 
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
+    GrContextFamily* family();
+    sk_sp<GrContextFamily> refFamily();
 
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
@@ -80,6 +86,7 @@ private:
     const GrContextOptions      fOptions;
     const uint32_t              fContextID;
     sk_sp<const GrCaps>         fCaps;
+    sk_sp<GrContextFamily>      fFamily;
 
     typedef SkRefCnt INHERITED;
 };

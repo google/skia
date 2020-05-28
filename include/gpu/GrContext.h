@@ -692,7 +692,7 @@ public:
 protected:
     GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
 
-    bool init(sk_sp<const GrCaps>) override;
+    bool init(sk_sp<const GrCaps>, sk_sp<GrContextFamily>) override;
 
     GrContext* asDirectContext() override { return this; }
 
