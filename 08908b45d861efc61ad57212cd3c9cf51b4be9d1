@@ -131,6 +131,24 @@
     },
     {
       "key": {
+        "uuid": "e294e996_bef149a8",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T17:03:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8f83db98_341097d5",
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65a44a6a_418434cb",
         "filename": "tests/SkSLMetalTest.cpp",
         "patchSetId": 4
@@ -175,6 +193,30 @@
       "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bc9f574_2923b87f",
+        "filename": "tests/SkSLMetalTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T17:03:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4e2f137c_abe4b9a7",
+      "range": {
+        "startLine": 102,
+        "startChar": 141,
+        "endLine": 102,
+        "endChar": 196
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
