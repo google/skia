@@ -13,7 +13,7 @@ void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::At
                                                    const char* output,
                                                    Interpolation interpolation) {
     SkASSERT(input.isInitialized());
-    SkASSERT(!fProgramBuilder->primitiveProcessor().willUseGeoShader());
+    SkASSERT(!fProgramBuilder->primitiveProcessor1().willUseGeoShader());
     GrGLSLVarying v(input.gpuType());
     this->addVarying(input.name(), &v, interpolation);
     fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input.name());
@@ -40,7 +40,7 @@ static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpola
 void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
                                       Interpolation interpolation) {
     SkASSERT(GrSLTypeIsFloatType(varying->type()) || Interpolation::kMustBeFlat == interpolation);
-    bool willUseGeoShader = fProgramBuilder->primitiveProcessor().willUseGeoShader();
+    bool willUseGeoShader = fProgramBuilder->primitiveProcessor1().willUseGeoShader();
     VaryingInfo& v = fVaryings.push_back();
 
     SkASSERT(varying);
@@ -93,7 +93,7 @@ void GrGLSLVaryingHandler::setNoPerspective() {
     if (const char* extension = caps.noperspectiveInterpolationExtensionString()) {
         int bit = 1 << GrGLSLFragmentBuilder::kNoPerspectiveInterpolation_GLSLPrivateFeature;
         fProgramBuilder->fVS.addFeature(bit, extension);
-        if (fProgramBuilder->primitiveProcessor().willUseGeoShader()) {
+        if (fProgramBuilder->primitiveProcessor1().willUseGeoShader()) {
             fProgramBuilder->fGS.addFeature(bit, extension);
         }
         fProgramBuilder->fFS.addFeature(bit, extension);

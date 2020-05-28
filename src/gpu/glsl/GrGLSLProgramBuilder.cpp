@@ -41,7 +41,7 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
         fVS.addFeature(featureBit, extensionName);
     }
     if (shaders & kGeometry_GrShaderFlag) {
-        SkASSERT(this->primitiveProcessor().willUseGeoShader());
+        SkASSERT(this->primitiveProcessor1().willUseGeoShader());
         fGS.addFeature(featureBit, extensionName);
     }
     if (shaders & kFragment_GrShaderFlag) {
@@ -63,7 +63,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
 }
 
 void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage) {
-    const GrPrimitiveProcessor& proc = this->primitiveProcessor();
+    const GrPrimitiveProcessor& proc = this->primitiveProcessor1();
 
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
@@ -104,7 +104,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                            name.c_str());
     }
 
-    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(this->pipeline(),
+    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(this->pipeline1(),
                                                                        &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            proc.willUseGeoShader() ? &fGS : nullptr,
@@ -131,12 +131,12 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
     int transformedCoordVarsIdx = 0;
     SkString** inOut = &color;
     SkSTArray<8, std::unique_ptr<GrGLSLFragmentProcessor>> glslFragmentProcessors;
-    for (int i = 0; i < this->pipeline().numFragmentProcessors(); ++i) {
-        if (i == this->pipeline().numColorFragmentProcessors()) {
+    for (int i = 0; i < this->pipeline1().numFragmentProcessors(); ++i) {
+        if (i == this->pipeline1().numColorFragmentProcessors()) {
             inOut = &coverage;
         }
         SkString output;
-        const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
+        const GrFragmentProcessor& fp = this->pipeline1().getFragmentProcessor(i);
         output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
                                               &glslFragmentProcessors);
         for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
@@ -215,7 +215,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     AutoStageAdvance adv(this);
 
     SkASSERT(!fXferProcessor);
-    const GrXferProcessor& xp = this->pipeline().getXferProcessor();
+    const GrXferProcessor& xp = this->pipeline1().getXferProcessor();
     fXferProcessor.reset(xp.createGLSLInstance());
 
     // Enable dual source secondary output if we have one
@@ -234,7 +234,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
 
-    const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
+    const GrSurfaceProxyView& dstView = this->pipeline1().dstProxyView();
     if (GrTextureProxy* dstTextureProxy = dstView.asTextureProxy()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
         const GrSwizzle& swizzle = dstView.swizzle();
@@ -256,7 +256,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin,
-                                       this->pipeline().writeSwizzle());
+                                       this->pipeline1().writeSwizzle());
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -351,7 +351,7 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);
-    if (this->primitiveProcessor().willUseGeoShader()) {
+    if (this->primitiveProcessor1().willUseGeoShader()) {
         SkASSERT(this->shaderCaps()->geometryShaderSupport());
         fGS.finalize(kGeometry_GrShaderFlag);
     }

@@ -186,10 +186,10 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         meta.fSettings = settings;
         meta.fHasCustomColorOutput = fFS.hasCustomColorOutput();
         meta.fHasSecondaryColorOutput = fFS.hasSecondaryOutput();
-        for (const auto& attr : this->primitiveProcessor().vertexAttributes()) {
+        for (const auto& attr : this->primitiveProcessor1().vertexAttributes()) {
             meta.fAttributeNames.emplace_back(attr.name());
         }
-        for (const auto& attr : this->primitiveProcessor().instanceAttributes()) {
+        for (const auto& attr : this->primitiveProcessor1().instanceAttributes()) {
             meta.fAttributeNames.emplace_back(attr.name());
         }
 
@@ -224,7 +224,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     // compile shaders and bind attributes / uniforms
     auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
-    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor1();
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
@@ -534,21 +534,21 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return sk_sp<GrGLProgram>(new GrGLProgram(fGpu,
-                                              fUniformHandles,
-                                              programID,
-                                              fUniformHandler.fUniforms,
-                                              fUniformHandler.fSamplers,
-                                              fVaryingHandler.fPathProcVaryingInfos,
-                                              std::move(fGeometryProcessor),
-                                              std::move(fXferProcessor),
-                                              std::move(fFragmentProcessors),
-                                              fFragmentProcessorCnt,
-                                              std::move(fAttributes),
-                                              fVertexAttributeCnt,
-                                              fInstanceAttributeCnt,
-                                              fVertexStride,
-                                              fInstanceStride));
+    return GrGLProgram::Make(fGpu,
+                             fUniformHandles,
+                             programID,
+                             fUniformHandler.fUniforms,
+                             fUniformHandler.fSamplers,
+                             fVaryingHandler.fPathProcVaryingInfos,
+                             std::move(fGeometryProcessor),
+                             std::move(fXferProcessor),
+                             std::move(fFragmentProcessors),
+                             fFragmentProcessorCnt,
+                             std::move(fAttributes),
+                             fVertexAttributeCnt,
+                             fInstanceAttributeCnt,
+                             fVertexStride,
+                             fInstanceStride);
 }
 
 bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,
