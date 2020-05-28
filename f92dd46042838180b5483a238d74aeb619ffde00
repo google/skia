@@ -16,6 +16,24 @@
       "revId": "f92dd46042838180b5483a238d74aeb619ffde00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a73dce9_15af708a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-28T14:12:14Z",
+      "side": 1,
+      "message": "Yeah, this seemed to be the only reachable place that actually needed the initialized data. Feel free to move wherever, it just needs to be done before using ICU on Windows.",
+      "parentUuid": "67402203_64106f47",
+      "revId": "f92dd46042838180b5483a238d74aeb619ffde00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
