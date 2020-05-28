@@ -109,10 +109,13 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
         propFlags |= AllocationPropertyFlags::kProtected;
     }
 
+
     if (!allocator->allocateMemoryForImage(image, propFlags, &memory)) {
         return false;
     }
     allocator->getAllocInfo(memory, alloc);
+
+    fprintf(stderr, "%s %lu \n", __func__, memReqs.size);
 
     // Bind buffer
     VkResult err;
@@ -229,4 +232,3 @@ void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& allo
         }
     }
 }
-
