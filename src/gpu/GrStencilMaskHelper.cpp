@@ -278,7 +278,7 @@ static void draw_stencil_rect(GrRenderTargetContext* rtc, const GrHardClip& clip
                               const SkRect& rect, GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
-    rtc->priv().stencilRect(clip, ss, std::move(paint), aa, matrix, rect);
+    rtc->priv().stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
 static void draw_path(GrRecordingContext* context, GrRenderTargetContext* rtc,

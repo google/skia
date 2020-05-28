@@ -359,7 +359,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
             context, colorType, nullptr, std::move(renderTarget), kTopLeft_GrSurfaceOrigin,
             nullptr);
 
-    rtc->drawTexture(GrNoClip(), std::move(mipmapView), alphaType, filter, SkBlendMode::kSrcOver,
+    rtc->drawTexture(nullptr, std::move(mipmapView), alphaType, filter, SkBlendMode::kSrcOver,
                      {1,1,1,1}, SkRect::MakeWH(4, 4), SkRect::MakeWH(1,1), GrAA::kYes,
                      GrQuadAAFlags::kAll, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
                      nullptr);

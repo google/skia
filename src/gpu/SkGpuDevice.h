@@ -129,6 +129,7 @@ private:
     // We want these unreffed in RenderTargetContext, GrContext order.
     sk_sp<GrContext> fContext;
     std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
+    GrClipStackClip  fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
@@ -148,7 +149,7 @@ private:
 
     bool forceConservativeRasterClip() const override { return true; }
 
-    GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
+    const GrClip* clip() const { return &fClip; }
 
     sk_sp<SkSpecialImage> filterTexture(SkSpecialImage*,
                                         int left, int top,

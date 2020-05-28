@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "src/core/SkBlendModePriv.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -54,7 +53,7 @@ static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* 
 
     GrPaint paint;
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
-    GrFillRectOp::AddFillRectOps(rtc.get(), GrNoClip(), context, std::move(paint), overallAA,
+    GrFillRectOp::AddFillRectOps(rtc.get(), nullptr, context, std::move(paint), overallAA,
                                  SkMatrix::I(), quads, requestedTotNumQuads);
 
     GrOpsTask* opsTask = rtc->testingOnly_PeekLastOpsTask();
@@ -105,7 +104,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
         set[i].fAAFlags = perQuadAA(i);
     }
 
-    GrTextureOp::AddTextureSetOps(rtc.get(), GrNoClip(), context, set, requestedTotNumQuads,
+    GrTextureOp::AddTextureSetOps(rtc.get(), nullptr, context, set, requestedTotNumQuads,
                                   requestedTotNumQuads, // We alternate so proxyCnt == cnt
                                   GrSamplerState::Filter::kNearest,
                                   GrTextureOp::Saturate::kYes,

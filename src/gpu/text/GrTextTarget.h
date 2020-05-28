@@ -31,9 +31,9 @@ public:
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
 
-    virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
+    virtual void addDrawOp(const GrClip*, std::unique_ptr<GrAtlasTextOp> op) = 0;
 
-    virtual void drawShape(const GrClip&,
+    virtual void drawShape(const GrClip*,
                            const SkPaint&,
                            const SkMatrixProvider&,
                            const GrStyledShape&) = 0;

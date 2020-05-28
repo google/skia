@@ -47,7 +47,7 @@ public:
 
     void drawGlyphRunList(GrRecordingContext*,
                           GrTextTarget*,
-                          const GrClip&,
+                          const GrClip*,
                           const SkMatrixProvider&,
                           const SkSurfaceProps&,
                           const SkGlyphRunList&) const;

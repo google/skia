@@ -17,7 +17,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -367,7 +366,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
             return nullptr;
         }
 
-        renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
+        renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
                                       SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();

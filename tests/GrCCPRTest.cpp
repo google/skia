@@ -88,7 +88,6 @@ public:
         GrPaint paint;
         paint.setColor4f({ 0, 1, 0, 1 });
 
-        GrNoClip noClip;
         SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
 
         GrStyledShape shape;
@@ -104,7 +103,7 @@ public:
         }
 
         fCCPR->testingOnly_drawPathDirectly({
-                fCtx.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
+                fCtx.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), nullptr,
                 &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
     }
 
@@ -114,7 +113,8 @@ public:
         GrPaint paint;
         paint.setColor4f(color);
 
-        fRTC->drawRect(CCPRClip(fCCPR, clipPath), std::move(paint), GrAA::kYes, SkMatrix::I(),
+        CCPRClip clip(fCCPR, clipPath);
+        fRTC->drawRect(&clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                        SkRect::MakeIWH(kCanvasSize, kCanvasSize));
     }
 

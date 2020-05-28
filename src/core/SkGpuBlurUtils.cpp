@@ -12,7 +12,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -52,7 +51,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
             *renderTargetContext->caps()));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(rtcRect), SkRect::Make(srcRect));
 }
 
@@ -89,7 +88,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     // 'dstBounds' is actually in 'srcView' proxy space. It represents the blurred area from src
     // space that we want to capture in the new RTC at {0, 0}. Hence, we use its size as the rect to
     // draw and it directly as the local rect.
-    renderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstBounds.size()), SkRect::Make(dstBounds));
 
     return renderTargetContext;
@@ -253,7 +252,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    dstRenderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+    dstRenderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                            SkRect::Make(dstSize), srcBounds);
 
     return dstRenderTargetContext;
@@ -458,7 +457,7 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                               SkRect::Make(dstBounds), *context->priv().caps());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
-        result->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+        result->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                          SkRect::Make(dstBounds.size()));
         return result;
     }
