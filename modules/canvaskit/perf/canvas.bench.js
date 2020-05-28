@@ -67,4 +67,41 @@ describe('Basic Canvas ops', () => {
 
         benchmarkAndReport('canvas_drawShadow', setup, test, teardown);
     });
+
+    it('can draw a gradient with an array of 1M colors', () => {
+        function setup(ctx) {
+            ctx.surface = CanvasKit.MakeCanvasSurface('test');
+            ctx.canvas = ctx.surface.getCanvas();
+        };
+
+        function test(ctx) {
+            ctx.canvas.clear(CanvasKit.WHITE);
+
+            const num = 1000000;
+            colors = Array(num);
+            positions = Array(num);
+            for (let i=0; i<num; i++) {
+                colors[i] = CanvasKit.Color((i*37)%255, 255, (1-i/num)*255);
+                positions[i] = i/num;
+            }
+
+            const shader = CanvasKit.SkShader.MakeRadialGradient(
+                [300, 300], 50, // center, radius
+                colors, positions,
+                CanvasKit.TileMode.Mirror,
+            );
+            const paint = new CanvasKit.SkPaint();
+            paint.setStyle(CanvasKit.PaintStyle.Fill);
+            paint.setShader(shader);
+            ctx.canvas.drawPaint(paint);
+            ctx.surface.flush();
+            paint.delete();
+        };
+
+        function teardown(ctx) {
+            ctx.surface.delete();
+        };
+
+        benchmarkAndReport('canvas_drawHugeGradient', setup, test, teardown);
+    });
 });
