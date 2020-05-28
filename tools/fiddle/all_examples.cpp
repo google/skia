@@ -1039,7 +1039,6 @@
 #include "../../docs/examples/State_Stack_b.cpp"
 #include "../../docs/examples/Stroke_Width.cpp"
 #include "../../docs/examples/Surface_MakeFromBackendTexture.cpp"
-#include "../../docs/examples/Surface_MakeFromBackendTextureAsRenderTarget.cpp"
 #include "../../docs/examples/Surface_MakeNull.cpp"
 #include "../../docs/examples/Surface_MakeRaster.cpp"
 #include "../../docs/examples/Surface_MakeRasterDirect.cpp"
