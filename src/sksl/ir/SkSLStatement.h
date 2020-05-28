@@ -25,7 +25,6 @@ struct Statement : public IRNode {
         kDo_Kind,
         kExpression_Kind,
         kFor_Kind,
-        kGroup_Kind,
         kIf_Kind,
         kNop_Kind,
         kReturn_Kind,

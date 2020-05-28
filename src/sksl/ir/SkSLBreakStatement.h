@@ -20,6 +20,10 @@ struct BreakStatement : public Statement {
     BreakStatement(int offset)
     : INHERITED(offset, kBreak_Kind) {}
 
+    int nodeCount() const override {
+        return 1;
+    }
+
     std::unique_ptr<Statement> clone() const override {
         return std::unique_ptr<Statement>(new BreakStatement(fOffset));
     }

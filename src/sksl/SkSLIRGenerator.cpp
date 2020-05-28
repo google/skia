@@ -182,7 +182,7 @@ void IRGenerator::finish() {
     fSettings = nullptr;
 }
 
-std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
+std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& statement) {
     switch (statement.fKind) {
         case ASTNode::Kind::kBlock:
             return this->convertBlock(statement);
@@ -226,6 +226,24 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
             }
             return result;
     }
+}
+
+std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
+    std::vector<std::unique_ptr<Statement>> oldExtraStatements = std::move(fExtraStatements);
+    std::unique_ptr<Statement> result = this->convertSingleStatement(statement);
+    if (!result) {
+        fExtraStatements = std::move(oldExtraStatements);
+        return nullptr;
+    }
+    if (fExtraStatements.size()) {
+        fExtraStatements.push_back(std::move(result));
+        std::unique_ptr<Statement> block(new Block(-1, std::move(fExtraStatements), nullptr,
+                                                   false));
+        fExtraStatements = std::move(oldExtraStatements);
+        return block;
+    }
+    fExtraStatements = std::move(oldExtraStatements);
+    return result;
 }
 
 std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
@@ -496,15 +514,22 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     ++iter;
     std::unique_ptr<Expression> test;
     if (*iter) {
+        bool oldCanInline = fCanInline;
+        fCanInline = false;
         test = this->coerce(this->convertExpression(*iter), *fContext.fBool_Type);
+        fCanInline = oldCanInline;
         if (!test) {
             return nullptr;
         }
+
     }
     ++iter;
     std::unique_ptr<Expression> next;
     if (*iter) {
+        bool oldCanInline = fCanInline;
+        fCanInline = false;
         next = this->convertExpression(*iter);
+        fCanInline = oldCanInline;
         if (!next) {
             return nullptr;
         }
@@ -524,8 +549,11 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     SkASSERT(w.fKind == ASTNode::Kind::kWhile);
     AutoLoopLevel level(this);
     auto iter = w.begin();
+    bool oldCanInline = fCanInline;
+    fCanInline = false;
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
                                                     *fContext.fBool_Type);
+    fCanInline = oldCanInline;
     if (!test) {
         return nullptr;
     }
@@ -545,8 +573,11 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (!statement) {
         return nullptr;
     }
+    bool oldCanInline = fCanInline;
+    fCanInline = false;
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
                                                     *fContext.fBool_Type);
+    fCanInline = oldCanInline;
     if (!test) {
         return nullptr;
     }
@@ -884,7 +915,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                             return;
                         }
                     }
-                    if (other->fDefined && !other->fBuiltin) {
+                    if (other->fDefinition && !other->fBuiltin) {
                         fErrors.error(f.fOffset, "duplicate definition of " +
                                                  other->declaration());
                     }
@@ -907,7 +938,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // compile body
         SkASSERT(!fCurrentFunction);
         fCurrentFunction = decl;
-        decl->fDefined = true;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
         if (fd.fName == "main" && fKind == Program::kPipelineStage_Kind) {
@@ -940,6 +970,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
         std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(f.fOffset, *decl,
                                                                           std::move(body)));
+        decl->fDefinition = result.get();
         result->fSource = &f;
         fProgramElements->push_back(std::move(result));
     }
@@ -1715,7 +1746,15 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!left) {
         return nullptr;
     }
+    Token::Kind op = expression.getToken().fKind;
+    bool oldCanInline = fCanInline;
+    if (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR) {
+        // can't inline the right side of a short-circuiting boolean, because our inlining
+        // approach runs things out of order
+        fCanInline = false;
+    }
     std::unique_ptr<Expression> right = this->convertExpression(*(iter++));
+    fCanInline = oldCanInline;
     if (!right) {
         return nullptr;
     }
@@ -1734,7 +1773,6 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     } else {
         rawRightType = &right->fType;
     }
-    Token::Kind op = expression.getToken().fKind;
     if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType, &leftType, &rightType,
                                &resultType, !Compiler::IsAssignment(op))) {
         fErrors.error(expression.fOffset, String("type mismatch: '") +
@@ -1811,6 +1849,416 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
                                                              std::move(ifFalse)));
 }
 
+std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
+                                                          std::map<const Variable*,
+                                                                   const Variable*>* varMap,
+                                                          const Expression& expression) {
+    auto expr = [&](const std::unique_ptr<Expression>& e) {
+        if (e) {
+            return this->inlineExpression(offset, varMap, *e);
+        }
+        return std::unique_ptr<Expression>(nullptr);
+    };
+    switch (expression.fKind) {
+        case Expression::kBinary_Kind: {
+            const BinaryExpression& b = (const BinaryExpression&) expression;
+            return std::unique_ptr<Expression>(new BinaryExpression(offset,
+                                                                    expr(b.fLeft),
+                                                                    b.fOperator,
+                                                                    expr(b.fRight),
+                                                                    b.fType));
+        }
+        case Expression::kBoolLiteral_Kind:
+        case Expression::kIntLiteral_Kind:
+        case Expression::kFloatLiteral_Kind:
+        case Expression::kNullLiteral_Kind:
+            return expression.clone();
+        case Expression::kConstructor_Kind: {
+            const Constructor& c = (const Constructor&) expression;
+            std::vector<std::unique_ptr<Expression>> args;
+            for (const auto& arg : c.fArguments) {
+                args.push_back(expr(arg));
+            }
+            return std::unique_ptr<Expression>(new Constructor(offset, c.fType, std::move(args)));
+        }
+        case Expression::kExternalFunctionCall_Kind: {
+            const ExternalFunctionCall& e = (const ExternalFunctionCall&) expression;
+            std::vector<std::unique_ptr<Expression>> args;
+            for (const auto& arg : e.fArguments) {
+                args.push_back(expr(arg));
+            }
+            return std::unique_ptr<Expression>(new ExternalFunctionCall(offset, e.fType,
+                                                                        e.fFunction,
+                                                                        std::move(args)));
+        }
+        case Expression::kExternalValue_Kind:
+            return expression.clone();
+        case Expression::kFieldAccess_Kind: {
+            const FieldAccess& f = (const FieldAccess&) expression;
+            return std::unique_ptr<Expression>(new FieldAccess(expr(f.fBase), f.fFieldIndex,
+                                                               f.fOwnerKind));
+        }
+        case Expression::kFunctionCall_Kind: {
+            const FunctionCall& c = (const FunctionCall&) expression;
+            std::vector<std::unique_ptr<Expression>> args;
+            for (const auto& arg : c.fArguments) {
+                args.push_back(expr(arg));
+            }
+            return std::unique_ptr<Expression>(new FunctionCall(offset, c.fType, c.fFunction,
+                                                                std::move(args)));
+        }
+        case Expression::kIndex_Kind: {
+            const IndexExpression& idx = (const IndexExpression&) expression;
+            return std::unique_ptr<Expression>(new IndexExpression(fContext, expr(idx.fBase),
+                                                                   expr(idx.fIndex)));
+        }
+        case Expression::kPrefix_Kind: {
+            const PrefixExpression& p = (const PrefixExpression&) expression;
+            return std::unique_ptr<Expression>(new PrefixExpression(p.fOperator, expr(p.fOperand)));
+        }
+        case Expression::kPostfix_Kind: {
+            const PostfixExpression& p = (const PostfixExpression&) expression;
+            return std::unique_ptr<Expression>(new PostfixExpression(expr(p.fOperand),
+                                                                     p.fOperator));
+        }
+        case Expression::kSetting_Kind:
+            return expression.clone();
+        case Expression::kSwizzle_Kind: {
+            const Swizzle& s = (const Swizzle&) expression;
+            return std::unique_ptr<Expression>(new Swizzle(fContext, expr(s.fBase), s.fComponents));
+        }
+        case Expression::kTernary_Kind: {
+            const TernaryExpression& t = (const TernaryExpression&) expression;
+            return std::unique_ptr<Expression>(new TernaryExpression(offset, expr(t.fTest),
+                                                                     expr(t.fIfTrue),
+                                                                     expr(t.fIfFalse)));
+        }
+        case Expression::kVariableReference_Kind: {
+            const VariableReference& v = (const VariableReference&) expression;
+            auto found = varMap->find(&v.fVariable);
+            if (found != varMap->end()) {
+                return std::unique_ptr<Expression>(new VariableReference(offset,
+                                                                         *found->second,
+                                                                         v.fRefKind));
+            }
+            return v.clone();
+        }
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
+}
+
+std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
+                                                        std::map<const Variable*,
+                                                                 const Variable*>* varMap,
+                                                        const Variable* returnVar,
+                                                        bool haveEarlyReturns,
+                                                        const Statement& statement) {
+    auto stmt = [&](const std::unique_ptr<Statement>& s) {
+        if (s) {
+            return this->inlineStatement(offset, varMap, returnVar, haveEarlyReturns, *s);
+        }
+        return std::unique_ptr<Statement>(nullptr);
+    };
+    auto stmts = [&](const std::vector<std::unique_ptr<Statement>>& ss) {
+        std::vector<std::unique_ptr<Statement>> result;
+        for (const auto& s : ss) {
+            result.push_back(stmt(s));
+        }
+        return result;
+    };
+    auto expr = [&](const std::unique_ptr<Expression>& e) {
+        if (e) {
+            return this->inlineExpression(offset, varMap, *e);
+        }
+        return std::unique_ptr<Expression>(nullptr);
+    };
+    switch (statement.fKind) {
+        case Statement::kBlock_Kind: {
+            const Block& b = (const Block&) statement;
+            return std::unique_ptr<Statement>(new Block(offset, stmts(b.fStatements), b.fSymbols,
+                                                        b.fIsScope));
+        }
+
+        case Statement::kBreak_Kind:
+        case Statement::kContinue_Kind:
+        case Statement::kDiscard_Kind:
+            return statement.clone();
+
+        case Statement::kDo_Kind: {
+            const DoStatement& d = (const DoStatement&) statement;
+            return std::unique_ptr<Statement>(new DoStatement(offset,
+                                                              stmt(d.fStatement),
+                                                              expr(d.fTest)));
+        }
+        case Statement::kExpression_Kind: {
+            const ExpressionStatement& e = (const ExpressionStatement&) statement;
+            return std::unique_ptr<Statement>(new ExpressionStatement(expr(e.fExpression)));
+        }
+        case Statement::kFor_Kind: {
+            const ForStatement& f = (const ForStatement&) statement;
+            // need to ensure initializer is evaluated first so that we've already remapped its
+            // declarations by the time we evaluate test & next
+            std::unique_ptr<Statement> initializer = stmt(f.fInitializer);
+            return std::unique_ptr<Statement>(new ForStatement(offset, std::move(initializer),
+                                                               expr(f.fTest), expr(f.fNext),
+                                                               stmt(f.fStatement), f.fSymbols));
+        }
+        case Statement::kIf_Kind: {
+            const IfStatement& i = (const IfStatement&) statement;
+            return std::unique_ptr<Statement>(new IfStatement(offset, i.fIsStatic, expr(i.fTest),
+                                                               stmt(i.fIfTrue), stmt(i.fIfFalse)));
+        }
+        case Statement::kNop_Kind:
+            return statement.clone();
+        case Statement::kReturn_Kind: {
+            const ReturnStatement& r = (const ReturnStatement&) statement;
+            if (r.fExpression) {
+                std::unique_ptr<Statement> assignment(new ExpressionStatement(
+                                    std::unique_ptr<Expression>(new BinaryExpression(offset,
+                                        std::unique_ptr<Expression>(new VariableReference(
+                                                                offset,
+                                                                *returnVar,
+                                                                VariableReference::kWrite_RefKind)),
+                                        Token::Kind::TK_EQ,
+                                        expr(r.fExpression),
+                                        returnVar->fType))));
+                if (haveEarlyReturns) {
+                    std::vector<std::unique_ptr<Statement>> block;
+                    block.push_back(std::move(assignment));
+                    block.emplace_back(new BreakStatement(offset));
+                    return std::unique_ptr<Statement>(new Block(offset, std::move(block), nullptr,
+                                                                false));
+                } else {
+                    return assignment;
+                }
+            } else {
+                if (haveEarlyReturns) {
+                    return std::unique_ptr<Statement>(new BreakStatement(offset));
+                } else {
+                    return std::unique_ptr<Statement>(new Nop());
+                }
+            }
+        }
+        case Statement::kSwitch_Kind: {
+            const SwitchStatement& ss = (const SwitchStatement&) statement;
+            std::vector<std::unique_ptr<SwitchCase>> cases;
+            for (const auto& sc : ss.fCases) {
+                cases.emplace_back(new SwitchCase(offset, expr(sc->fValue),
+                                                  stmts(sc->fStatements)));
+            }
+            return std::unique_ptr<Statement>(new SwitchStatement(offset, ss.fIsStatic,
+                                                                  expr(ss.fValue),
+                                                                  std::move(cases),
+                                                                  ss.fSymbols));
+        }
+        case Statement::kVarDeclaration_Kind: {
+            const VarDeclaration& decl = (const VarDeclaration&) statement;
+            std::vector<std::unique_ptr<Expression>> sizes;
+            for (const auto& size : decl.fSizes) {
+                sizes.push_back(expr(size));
+            }
+            std::unique_ptr<Expression> initialValue = expr(decl.fValue);
+            const Variable* old = decl.fVar;
+            Variable* clone = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                   new Variable(offset, old->fModifiers, old->fName,
+                                                                  old->fType, old->fStorage,
+                                                                  initialValue.get())));
+            (*varMap)[old] = clone;
+            return std::unique_ptr<Statement>(new VarDeclaration(clone, std::move(sizes),
+                                                                 std::move(initialValue)));
+        }
+        case Statement::kVarDeclarations_Kind: {
+            const VarDeclarations& decls = *((VarDeclarationsStatement&) statement).fDeclaration;
+            std::vector<std::unique_ptr<VarDeclaration>> vars;
+            for (const auto& var : decls.fVars) {
+                vars.emplace_back((VarDeclaration*) stmt(var).release());
+            }
+            return std::unique_ptr<Statement>(new VarDeclarationsStatement(
+                    std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, &decls.fBaseType,
+                                                                         std::move(vars)))));
+        }
+        case Statement::kWhile_Kind: {
+            const WhileStatement& w = (const WhileStatement&) statement;
+            return std::unique_ptr<Statement>(new WhileStatement(offset,
+                                                              expr(w.fTest),
+                                                              stmt(w.fStatement)));
+        }
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
+}
+
+int return_count(const Statement& statement) {
+    switch (statement.fKind) {
+        case Statement::kBlock_Kind: {
+            const Block& b = (const Block&) statement;
+            int result = 0;
+            for (const auto& s : b.fStatements) {
+                result += return_count(*s);
+            }
+            return result;
+        }
+        case Statement::kDo_Kind: {
+            const DoStatement& d = (const DoStatement&) statement;
+            return return_count(*d.fStatement);
+        }
+        case Statement::kFor_Kind: {
+            const ForStatement& f = (const ForStatement&) statement;
+            return return_count(*f.fStatement);
+        }
+        case Statement::kIf_Kind: {
+            const IfStatement& i = (const IfStatement&) statement;
+            int result = return_count(*i.fIfTrue);
+            if (i.fIfFalse) {
+                result += return_count(*i.fIfFalse);
+            }
+            return result;
+        }
+        case Statement::kReturn_Kind:
+            return 1;
+        case Statement::kSwitch_Kind: {
+            const SwitchStatement& ss = (const SwitchStatement&) statement;
+            int result = 0;
+            for (const auto& sc : ss.fCases) {
+                for (const auto& s : ((SwitchCase&) *sc).fStatements) {
+                    result += return_count(*s);
+                }
+            }
+            return result;
+        }
+        case Statement::kWhile_Kind: {
+            const WhileStatement& w = (const WhileStatement&) statement;
+            return return_count(*w.fStatement);
+        }
+        case Statement::kBreak_Kind:
+        case Statement::kContinue_Kind:
+        case Statement::kDiscard_Kind:
+        case Statement::kExpression_Kind:
+        case Statement::kNop_Kind:
+        case Statement::kVarDeclaration_Kind:
+        case Statement::kVarDeclarations_Kind:
+            return 0;
+        default:
+            SkASSERT(false);
+            return 0;
+    }
+}
+
+bool has_early_return(const FunctionDefinition& f) {
+    int returnCount = return_count(*f.fBody);
+    if (returnCount == 0) {
+        return false;
+    }
+    if (returnCount > 1) {
+        return true;
+    }
+    SkASSERT(f.fBody->fKind == Statement::kBlock_Kind);
+    return ((Block&) *f.fBody).fStatements.back()->fKind != Statement::kReturn_Kind;
+}
+
+std::unique_ptr<Expression> IRGenerator::inlineCall(
+                                               int offset,
+                                               const FunctionDefinition& function,
+                                               std::vector<std::unique_ptr<Expression>> arguments) {
+    // Inlining is more complicated here than in a typical compiler, because we have to have a
+    // high-level IR and can't just drop statements into the middle of an expression or even use
+    // gotos.
+    //
+    // Since we can't insert statements into an expression, we run the inline function as extra
+    // statements before the statement we're currently processing, relying on a lack of execution
+    // order guarantees. Since we can't use gotos (which are normally used to replace return
+    // statements), we wrap the whole function in a loop and use break statements to jump to the
+    // end.
+    Variable* resultVar;
+    if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
+        std::unique_ptr<String> name(new String());
+        name->appendf("inlineResult%d", offset);
+        String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+        resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                     new Variable(-1, Modifiers(), namePtr->c_str(),
+                                                                  function.fDeclaration.fReturnType,
+                                                                  Variable::kLocal_Storage,
+                                                                  nullptr)));
+        std::vector<std::unique_ptr<VarDeclaration>> variables;
+        variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
+        fExtraStatements.emplace_back(new VarDeclarationsStatement(
+                        std::unique_ptr<VarDeclarations>(new VarDeclarations(offset,
+                                                                           &resultVar->fType,
+                                                                           std::move(variables)))));
+
+    } else {
+        resultVar = nullptr;
+    }
+    std::map<const Variable*, const Variable*> varMap;
+    // create variables to hold the arguments and assign the arguments to them
+    for (int i = 0; i < (int) arguments.size(); ++i) {
+        std::unique_ptr<String> argName(new String());
+        argName->appendf("inlineArg%d_%d", offset, i);
+        String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
+        Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                      new Variable(-1, Modifiers(),
+                                                                   argNamePtr->c_str(),
+                                                                   arguments[i]->fType,
+                                                                   Variable::kLocal_Storage,
+                                                                   arguments[i].get())));
+        varMap[function.fDeclaration.fParameters[i]] = argVar;
+        std::vector<std::unique_ptr<VarDeclaration>> vars;
+        if (function.fDeclaration.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+            vars.emplace_back(new VarDeclaration(argVar, {}, arguments[i]->clone()));
+        } else {
+            vars.emplace_back(new VarDeclaration(argVar, {}, std::move(arguments[i])));
+        }
+        fExtraStatements.emplace_back(new VarDeclarationsStatement(
+                           std::unique_ptr<VarDeclarations>(new VarDeclarations(offset,
+                                                                                &argVar->fType,
+                                                                                std::move(vars)))));
+    }
+    SkASSERT(function.fBody->fKind == Statement::kBlock_Kind);
+    const Block& body = (Block&) *function.fBody;
+    bool hasEarlyReturn = has_early_return(function);
+    std::vector<std::unique_ptr<Statement>> inlined;
+    for (const auto& s : body.fStatements) {
+        inlined.push_back(this->inlineStatement(offset, &varMap, resultVar, hasEarlyReturn, *s));
+    }
+    if (hasEarlyReturn) {
+        // Since we output to backends that don't have a goto statement (which would normally be
+        // used to perform an early return), we fake it by wrapping the function in a
+        // do { } while (false); and then use break statements to jump to the end in order to
+        // emulate a goto.
+        fExtraStatements.emplace_back(new DoStatement(-1,
+                                std::unique_ptr<Statement>(new Block(-1, std::move(inlined))),
+                                std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false))));
+    } else {
+        // No early returns, so we can just dump the code in. We need to use a block so we don't get
+        // name conflicts with locals.
+        fExtraStatements.emplace_back(std::unique_ptr<Statement>(new Block(-1,
+                                                                           std::move(inlined))));
+    }
+    // copy the values of out parameters into their destinations
+    for (size_t i = 0; i < arguments.size(); ++i) {
+        const Variable* p = function.fDeclaration.fParameters[i];
+        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
+            std::unique_ptr<Expression> varRef(new VariableReference(offset, *varMap[p]));
+            fExtraStatements.emplace_back(new ExpressionStatement(
+                    std::unique_ptr<Expression>(new BinaryExpression(offset,
+                                                                     arguments[i]->clone(),
+                                                                     Token::Kind::TK_EQ,
+                                                                     std::move(varRef),
+                                                                     arguments[i]->fType))));
+        }
+    }
+    if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
+        return std::unique_ptr<Expression>(new VariableReference(-1, *resultVar));
+    } else {
+        // it's a void function, so it doesn't actually result in anything, but we have to return
+        // something non-null as a standin
+        return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false));
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1835,7 +2283,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
-    if (fKind == Program::kPipelineStage_Kind && !function.fDefined && !function.fBuiltin) {
+    if (fKind == Program::kPipelineStage_Kind && !function.fDefinition && !function.fBuiltin) {
         String msg = "call to undefined function '" + function.fName + "'";
         fErrors.error(offset, msg);
         return nullptr;
@@ -1865,6 +2313,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kReadWrite_RefKind :
                              VariableReference::kPointer_RefKind);
         }
+    }
+    if (fCanInline && function.fDefinition && function.fDefinition->canBeInlined() &&
+        ((fSettings->fCaps && fSettings->fCaps->canUseDoLoops()) ||
+         !has_early_return(*function.fDefinition))) {
+        return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
                                                           std::move(arguments)));
