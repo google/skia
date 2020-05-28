@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a0db26d_f2a18c38",
+        "filename": "src/gpu/d3d/GrD3DCpuDescriptorManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-28T14:04:12Z",
+      "side": 1,
+      "message": "Needs to be cast to char*, I\u0027ll fix it.",
+      "range": {
+        "startLine": 46,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 64
+      },
+      "revId": "6a7cc9d6dc58f4806f1bbbdafadd7d440f93fe57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
