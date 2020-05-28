@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67b71e84_f53ad179",
+        "filename": "BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 1534,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-28T14:25:19Z",
+      "side": 1,
+      "message": "modules/skparagraph:gm (after making it)\n\nthat target already should be bringing in it\u0027s own dependency on modules/skparagraph:skparagraph , so I don\u0027t think you need both (gm_sources don\u0027t depend on it, afaik). It seems a bit awkward that modules/skottie:skottie is listed above, it probably shouldn\u0027t be.",
+      "range": {
+        "startLine": 1534,
+        "startChar": 7,
+        "endLine": 1534,
+        "endChar": 26
+      },
+      "revId": "c21713a751b365ed3d782d1d3a16d31819d10873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3135aab_53762588",
+        "filename": "gm/paragraph.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-28T14:25:19Z",
+      "side": 1,
+      "message": "File should be in modules/skparagraph/gm directory.",
+      "revId": "c21713a751b365ed3d782d1d3a16d31819d10873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1f6d667_e41b557e",
+        "filename": "gn/gm.gni",
+        "patchSetId": 12
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-28T14:25:19Z",
+      "side": 1,
+      "message": "This gm should be added in the modules/skparagraph/BUILD.gn in a new \u0027gm\u0027 target like the existing \u0027tests\u0027, \u0027bench\u0027, and \u0027samples\u0027 targets.\n\nThis would make this gm only show up when skparagraph is actually enabled, so you shouldn\u0027t end up with the issues with Android needing to build it in and run tests on it when it isn\u0027t using it.",
+      "revId": "c21713a751b365ed3d782d1d3a16d31819d10873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
