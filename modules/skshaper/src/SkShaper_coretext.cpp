@@ -203,8 +203,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     AutoCF<CFAttributedStringRef> attrString =
             CFAttributedStringCreate(nullptr, textString.get(), attr.get());
 
-    AutoCF<CTTypesetterRef> typesetter =
-            CTTypesetterCreateWithAttributedStringAndOptions(attrString.get(), nullptr);
+    AutoCF<CTTypesetterRef> typesetter = CTTypesetterCreateWithAttributedString(attrString.get());
 
     SkSTArenaAlloc<4096> arena;
 
