@@ -1770,8 +1770,7 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
-                                         const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(renderTarget, programInfo);

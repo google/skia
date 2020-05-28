@@ -26,6 +26,43 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+sk_sp<GrGLProgram> GrGLProgram::Make(
+        GrGLGpu* gpu,
+        const GrGLSLBuiltinUniformHandles& builtinUniforms,
+        GrGLuint programID,
+        const UniformInfoArray& uniforms,
+        const UniformInfoArray& textureSamplers,
+        const VaryingInfoArray& pathProcVaryings,
+        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
+        int fragmentProcessorCnt,
+        std::unique_ptr<Attribute[]> attributes,
+        int vertexAttributeCnt,
+        int instanceAttributeCnt,
+        int vertexStride,
+        int instanceStride) {
+    sk_sp<GrGLProgram> program(new GrGLProgram(gpu,
+                                               builtinUniforms,
+                                               programID,
+                                               uniforms,
+                                               textureSamplers,
+                                               pathProcVaryings,
+                                               std::move(geometryProcessor),
+                                               std::move(xferProcessor),
+                                               std::move(fragmentProcessors),
+                                               fragmentProcessorCnt,
+                                               std::move(attributes),
+                                               vertexAttributeCnt,
+                                               instanceAttributeCnt,
+                                               vertexStride,
+                                               instanceStride));
+    // Assign texture units to sampler uniforms one time up front.
+    gpu->flushProgram(program);
+    program->fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
+    return program;
+}
+
 GrGLProgram::GrGLProgram(
         GrGLGpu* gpu,
         const GrGLSLBuiltinUniformHandles& builtinUniforms,
@@ -56,9 +93,6 @@ GrGLProgram::GrGLProgram(
         , fGpu(gpu)
         , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
         , fNumTextureSamplers(textureSamplers.count()) {
-    // Assign texture units to sampler uniforms one time up front.
-    GL_CALL(UseProgram(fProgramID));
-    fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
 }
 
 GrGLProgram::~GrGLProgram() {
