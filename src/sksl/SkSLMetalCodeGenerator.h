@@ -11,7 +11,6 @@
 #include <stack>
 #include <tuple>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
@@ -190,8 +189,7 @@ protected:
 
     void writeInverseHack(const Expression& mat);
 
-    bool matrixConstructHelperIsNeeded(const Constructor& c);
-    String getMatrixConstructHelper(const Constructor& c);
+    String getMatrixConstructHelper(const Type& matrix, const Type& arg);
 
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
@@ -280,7 +278,7 @@ protected:
     std::unordered_map<const FunctionDeclaration*, Requirements> fRequirements;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
-    std::unordered_set<String> fHelpers;
+    std::unordered_map<String, String> fHelpers;
     int fUniformBuffer = -1;
     String fRTHeightName;
 
