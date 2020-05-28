@@ -451,7 +451,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Type& matrix, const Ty
             name.c_str()
         );
     } else {
-        SkASSERT(false);
+        SkDEBUGFAIL("unsupported matrix conversion");
         name = "<error>";
     }
     fHelpers[key] = name;
@@ -791,7 +791,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("vertex Outputs vertexMain");
                 break;
             default:
-                SkASSERT(false);
+                SkDEBUGFAIL("unsupported kind of program");
         }
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
@@ -951,7 +951,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->writeLine("return *_out;"); // FIXME - detect if function already has return
                 break;
             default:
-                SkASSERT(false);
+                SkDEBUGFAIL("unsupported kind of program");
         }
     }
     fIndentation--;
