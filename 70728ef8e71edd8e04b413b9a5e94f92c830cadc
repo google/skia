@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02c326a0_43cb3655",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 4009,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-05-28T13:57:16Z",
+      "side": 1,
+      "message": "FYI: This seemed surprising to me, but I went and looked at their code. They\u0027ve had a validator rule for ~10 years that rejects both do and while loops. I don\u0027t understand why.",
+      "revId": "70728ef8e71edd8e04b413b9a5e94f92c830cadc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
