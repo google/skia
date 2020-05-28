@@ -4,6 +4,10 @@
 #define DartTypes_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+
+#include <iterator>
+#include <limits>
 
 namespace skia {
 namespace textlayout {
