@@ -252,18 +252,20 @@ class ColorCubeRT : public skiagm::GM {
             in shader input;
             in shader color_cube;
 
-            uniform float size;
-            uniform float size_minus_1;
+            uniform float rg_scale;
+            uniform float rg_bias;
+            uniform float b_scale;
+            uniform float inv_size;
 
             void main(float2 xy, inout half4 color) {
                 float4 c = float4(unpremul(sample(input, xy)));
 
                 // Map to cube coords:
-                float3 cubeCoords = float3(c.rg * size_minus_1 + 0.5, c.b * size_minus_1);
+                float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
 
                 // Compute slice coordinate
-                float2 coords1 = float2(floor(cubeCoords.b) * size + cubeCoords.r, cubeCoords.g);
-                float2 coords2 = float2( ceil(cubeCoords.b) * size + cubeCoords.r, cubeCoords.g);
+                float2 coords1 = float2((floor(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+                float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
 
                 // Two bilinear fetches, plus a manual lerp for the third axis:
                 color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
@@ -298,8 +300,11 @@ class ColorCubeRT : public skiagm::GM {
         constexpr float kSize = 16.0f;
 
         SkRuntimeShaderBuilder builder(fEffect);
-        builder.input("size")         = kSize;
-        builder.input("size_minus_1") = kSize - 1;
+        builder.input("rg_scale")     = (kSize - 1) / kSize;
+        builder.input("rg_bias")      = 0.5f / kSize;
+        builder.input("b_scale")      = kSize - 1;
+        builder.input("inv_size")     = 1.0f / kSize;
+
         builder.child("input")      = fMandrill->makeShader();
 
         // TODO: Move filter quality to the shader itself. We need to enforce at least kLow here
@@ -307,14 +312,17 @@ class ColorCubeRT : public skiagm::GM {
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
 
+        // TODO: Should we add SkImage::makeNormalizedShader() to handle this automatically?
+        SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
+
         // Now draw the image with an identity color cube - it should look like the original
-        builder.child("color_cube") = fIdentityCube->makeShader();
+        builder.child("color_cube") = fIdentityCube->makeShader(normalize);
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(256, 0);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
         // ... and with a sepia-tone color cube. This should match the sepia-toned image.
-        builder.child("color_cube") = fSepiaCube->makeShader();
+        builder.child("color_cube") = fSepiaCube->makeShader(normalize);
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(0, 256);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
