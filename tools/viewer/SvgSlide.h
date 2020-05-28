@@ -15,6 +15,7 @@ class SkSVGDOM;
 class SvgSlide final : public Slide {
 public:
     SvgSlide(const SkString& name, const SkString& path);
+    SvgSlide(const SkString& name, std::unique_ptr<SkStream>);
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
@@ -24,9 +25,8 @@ public:
 
     void draw(SkCanvas*) override;
 private:
-    const SkString  fPath;
-
-    SkSize          fWinSize = SkSize::MakeEmpty();
+    std::unique_ptr<SkStream> fStream;
+    SkSize fWinSize = SkSize::MakeEmpty();
     sk_sp<SkSVGDOM> fDom;
 
     typedef Slide INHERITED;
