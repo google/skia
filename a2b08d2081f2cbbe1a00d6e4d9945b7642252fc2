@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f14f09a_c457f210",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-28T19:42:15Z",
+      "side": 1,
+      "message": "\u003e \"Alse\" is a possible misspelling of \"Also\" or \"Else\".\n\nPlease fix.",
+      "parentUuid": "abaf6c1e_7cd0d6d1",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 4
+      },
+      "revId": "a2b08d2081f2cbbe1a00d6e4d9945b7642252fc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
