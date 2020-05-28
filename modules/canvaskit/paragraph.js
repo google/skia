@@ -139,9 +139,10 @@
     }
 
     function freeArrays(textStyle) {
-      CanvasKit._free(textStyle['_colorPtr']);
-      CanvasKit._free(textStyle['_foregroundColorPtr']);
-      CanvasKit._free(textStyle['_backgroundColorPtr']);
+      // TODO(kjlubick): Use scratch arrays for these colors.
+      freeArraysThatAreNotMallocedByUsers(textStyle['_colorPtr'], textStyle['color']);
+      freeArraysThatAreNotMallocedByUsers(textStyle['_foregroundColorPtr'], textStyle['foregroundColor']);
+      freeArraysThatAreNotMallocedByUsers(textStyle['_backgroundColorPtr'], textStyle['backgroundColor']);
       // The font family strings will get copied to a vector on the C++ side, which is owned by
       // the text style.
       CanvasKit._free(textStyle['_fontFamiliesPtr']);

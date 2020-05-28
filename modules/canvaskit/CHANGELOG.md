@@ -15,11 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added `SkSurface.reportBackendType` which returns either 'CPU' or 'GPU'.
  - Added `SkSurface.imageInfo` which returns an ImageInfo object describing the size and color
    properties of the surface. colorSpace is added to ImageInfo everywhere it is used.
+ - `CanvasKit.Free` to explicitly clean up memory after `CanvasKit.Malloc`. All memory allocated
+   with `CanvasKit.Malloc` must be released with `CanvasKit.Free` or it will be leaked. This can
+   improve performance by reducing the copying of data between the JS and WASM side.
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.16.
  - `CanvasKit.MakeCanvasSurface` accepts a new enum specifying one of the three color space and
-   pixel format combinations supported by CanvasKit. 
+   pixel format combinations supported by CanvasKit.
  - all `_Make*Shader` functions now accept a color space argument at the end. leaving it off or
    passing null makes it behave as it did before, defaulting to sRGB
  - `SkPaint.setColor` accepts a new color space argument, defaulting to sRGB.
@@ -31,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    the canvas element. Use the canvas element's width/height attributes to dictate the size of
    the drawing area, and use CSS width/height to set the size it will appear on the page
    (it is rescaled after drawing when css sizing applies).
+ - TypedArrays returned by `CanvasKit.Malloc` will no longer be automatically cleaned up. Clients
+   must use `CanvasKit.Free` to release the memory.
 
 ### Fixed
  - WebGL context is no longer created with "antialias" flag. Using "antialias" caused poor AA
