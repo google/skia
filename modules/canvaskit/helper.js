@@ -355,14 +355,14 @@ function copy4x4MatrixFromWasm(matrPtr) {
   return rv;
 }
 
+CanvasKit._scratchColorPtr = nullptr;
+
 // copies the four floats at the given pointer in a js Float32Array
-// TODO(kjlubick) Add a scratch array for this.
 function copyColorFromWasm(colorPtr) {
   var rv = new Float32Array(4);
   for (var i = 0; i < 4; i++) {
     rv[i] = CanvasKit.HEAPF32[colorPtr/4 + i]; // divide by 4 to "cast" to float.
   }
-  CanvasKit._free(colorPtr);
   return rv;
 }
 

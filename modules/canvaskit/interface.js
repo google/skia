@@ -8,6 +8,8 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  CanvasKit._scratchColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
+
   // Create single copies of all three supported color spaces
   // These are sk_sp<SkColorSpace>
   CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
@@ -1099,17 +1101,15 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkPaint.prototype.getColor = function() {
-    var cPtr = CanvasKit._malloc(16); // 4 floats, 4 bytes each
-    this._getColor(cPtr);
-    return copyColorFromWasm(cPtr);
+    this._getColor(CanvasKit._scratchColorPtr);
+    return copyColorFromWasm(CanvasKit._scratchColorPtr);
   }
 
   CanvasKit.SkPaint.prototype.setColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32, CanvasKit._scratchColorPtr);
     this._setColor(cPtr, colorSpace);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -1279,6 +1279,8 @@ CanvasKit.computeTonalColors = function(tonalColors) {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
     }
+    CanvasKit._free(cPtrAmbi);
+    CanvasKit._free(cPtrSpot);
     return result;
 }
 
