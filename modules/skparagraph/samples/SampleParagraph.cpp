@@ -17,6 +17,7 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "samplecode/Sample.h"
@@ -746,9 +747,7 @@ protected:
             builder.pop();
         } else {
             if (this->isVerbose()) {
-                icu::UnicodeString unicode((UChar*) text.data(), SkToS32(text.size()));
-                std::string str;
-                unicode.toUTF8String(str);
+                SkString str = SkStringFromU16String(text);
                 SkDebugf("Text: %s\n", str.c_str());
             }
             builder.addText(text + expected);
@@ -1607,11 +1606,9 @@ protected:
                 ParagraphBuilderImpl builder(paragraph_style, fontCollection);
                 builder.pushStyle(text_style);
                 auto utf16text = zalgo.zalgo("SkParagraph");
-                icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
-                std::string str;
-                unicode.toUTF8String(str);
                 if (this->isVerbose()) {
-                    SkDebugf("Text:>%s<\n", str.data());
+                    SkString str = SkStringFromU16String(utf16text);
+                    SkDebugf("Text:>%s<\n", str.c_str());
                 }
                 builder.addText(utf16text);
                 fParagraph = builder.Build();
