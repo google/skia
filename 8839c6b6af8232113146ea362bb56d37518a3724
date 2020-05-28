@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3c8b412e_e0c7671e",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-28T17:04:58Z",
+      "side": 1,
+      "message": "nit: missing semicolon",
+      "revId": "8839c6b6af8232113146ea362bb56d37518a3724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8e0c445_a756413c",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 1
@@ -13,6 +30,23 @@
       "writtenOn": "2020-05-28T16:32:56Z",
       "side": 1,
       "message": "FWIW, the gradient shaders convert their colors to the destination color space before interpolating them, so you\u0027ll be measuring O(gradient colors) CPU work here and not O(pixels) GPU work if you\u0027re trying to measure the speed of color space conversion.  Is that what you\u0027re doing, and if so what you want?\n\nIt\u0027s not very common to have a gradient with a million color stops, and I wouldn\u0027t be surprised if the majority of them were ignored when drawing (e.g. through quantization into a texture?).",
+      "revId": "8839c6b6af8232113146ea362bb56d37518a3724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8fb7e52_7283155d",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-28T17:04:58Z",
+      "side": 1,
+      "message": "Would you also want to do paint.delete()?",
       "revId": "8839c6b6af8232113146ea362bb56d37518a3724",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
