@@ -126,8 +126,8 @@ private:
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
-    // prealloc space for one, the common case per-line, to avoid the malloc/free
-    SkSTArray<1, size_t, true> fRunsInVisualOrder;
+
+    SkTArray<size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Let right
