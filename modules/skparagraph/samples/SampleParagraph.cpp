@@ -17,6 +17,7 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
