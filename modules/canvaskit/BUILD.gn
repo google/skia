@@ -9,6 +9,7 @@ component("viewer_wasm") {
   sources = [
     "../../tools/viewer/SKPSlide.cpp",
     "../../tools/viewer/SampleSlide.cpp",
+    "../../tools/viewer/SvgSlide.cpp",
   ]
   deps = [ "../..:samples" ]
 }
