@@ -329,8 +329,7 @@ public:
      * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
      * submitted to the gpu during the next submit call (it is possible Skia failed to create a
      * subset of the semaphores). The client should not wait on these semaphores until after submit
-     * has been called, but must keep them alive until then. If a submit flag was passed in with the
-     * flush these valid semaphores can we waited on immediately. If this call returns
+     * has been called, and must keep them alive until then. If this call returns
      * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
      * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
      * the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
@@ -360,7 +359,7 @@ public:
      * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
      * submitted to the gpu during the next submit call (it is possible Skia failed to create a
      * subset of the semaphores). The client should not wait on these semaphores until after submit
-     * has been called, but must keep them alive until then. If this call returns
+     * has been called, and must keep them alive until then. If this call returns
      * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
      * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
      * the GrFlushInfo. The client is always responsible for deleting any initialized semaphores.

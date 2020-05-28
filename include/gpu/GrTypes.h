@@ -244,7 +244,8 @@ typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool 
  * passes in an array of fNumSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's
  * can be either initialized or not. If they are initialized, the backend uses the passed in
  * semaphore. If it is not initialized, a new semaphore is created and the GrBackendSemaphore
- * object is initialized with that semaphore.
+ * object is initialized with that semaphore. The semaphores are not sent to the GPU until the next
+ * GrContext::submit call is made. See the GrContext::submit for more information.
  *
  * The client will own and be responsible for deleting the underlying semaphores that are stored
  * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
@@ -282,8 +283,8 @@ struct GrFlushInfo {
 };
 
 /**
- * Enum used as return value when flush with semaphores so the client knows whether the semaphores
- * were submitted to GPU or not.
+ * Enum used as return value when flush with semaphores so the client knows whether the valid
+   semaphores will be submitted on the next GrContext::submit call.
  */
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
