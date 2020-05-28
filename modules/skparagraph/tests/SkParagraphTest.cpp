@@ -36,7 +36,7 @@
 #include "tools/Resources.h"
 
 #include <string.h>
-#include <unicode/unistr.h>
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <string>
@@ -1688,9 +1688,6 @@ DEF_TEST_DISABLED(SkParagraph_JustifyRTLNewLine, reporter) {
             "אאא בּבּבּבּ אאאא\nבּבּ אאא בּבּבּ אאאאא בּבּבּבּ אאאא בּבּבּבּבּ "
             "אאאאא בּבּבּבּבּ אאאבּבּבּבּבּבּאאאאא בּבּבּבּבּבּאאאאאבּבּבּבּבּבּ אאאאא בּבּבּבּבּ "
             "אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ";
-
-    auto icu_text = icu::UnicodeString::fromUTF8(text);
-    std::u16string u16_text(icu_text.getBuffer(), icu_text.getBuffer() + icu_text.length());
     const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
@@ -1758,9 +1755,6 @@ DEF_TEST_DISABLED(SkParagraph_LeadingSpaceRTL, reporter) {
     TestCanvas canvas("SkParagraph_LeadingSpaceRTL.png");
 
     const char* text = " leading space";
-
-    auto icu_text = icu::UnicodeString::fromUTF8(text);
-    std::u16string u16_text(icu_text.getBuffer(), icu_text.getBuffer() + icu_text.length());
     const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
