@@ -587,7 +587,7 @@ CanvasKit.onRuntimeInitialized = function() {
       n = points.length;
     }
     this._addPoly(ptr, n, close);
-    CanvasKit._free(ptr);
+    freeArraysThatAreNotMallocedByUsers(ptr, points);
     return this;
   };
 
@@ -620,7 +620,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var args = arguments;
     if (args.length === 3 || args.length === 6) {
       var radii = args[args.length-2];
-    } else if (args.length === 6 || args.length === 7){
+    } else if (args.length === 4 || args.length === 7){
       // duplicate the given (rx, ry) pairs for each corner.
       var rx = args[args.length-3];
       var ry = args[args.length-2];
@@ -642,7 +642,7 @@ CanvasKit.onRuntimeInitialized = function() {
       var a = args;
       this._addRoundRect(a[0], a[1], a[2], a[3], rptr, ccw);
     }
-    CanvasKit._free(rptr);
+    freeArraysThatAreNotMallocedByUsers(rptr, radii);
     return this;
   };
 
@@ -814,7 +814,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
     var shader = this._makeShader(xTileMode, yTileMode, localMatrixPtr);
-    CanvasKit._free(localMatrixPtr);
+    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     return shader;
   }
 
@@ -862,7 +862,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.clear = function (color4f) {
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
     this._clear(cPtr);
-    CanvasKit._free(cPtr);
+    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
@@ -870,7 +870,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.concat = function(matr) {
     var matrPtr = copy4x4MatrixToWasm(matr);
     this._concat(matrPtr);
-    CanvasKit._free(matrPtr);
+    freeArraysThatAreNotMallocedByUsers(matrPtr, matr);
   }
 
   // Deprecated - just use concat
@@ -928,13 +928,13 @@ CanvasKit.onRuntimeInitialized = function() {
                     blendMode, paint);
 
     if (srcRectPtr && !srcRects.build) {
-      CanvasKit._free(srcRectPtr);
+      freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);
     }
     if (dstXformPtr && !dstXforms.build) {
-      CanvasKit._free(dstXformPtr);
+      freeArraysThatAreNotMallocedByUsers(dstXformPtr, dstXforms);
     }
     if (colorPtr && !colors.build) {
-      CanvasKit._free(colorPtr);
+      freeArraysThatAreNotMallocedByUsers(colorPtr, colors);
     }
 
   }
@@ -946,7 +946,7 @@ CanvasKit.onRuntimeInitialized = function() {
     } else {
       this._drawColor(cPtr);
     }
-    CanvasKit._free(cPtr);
+    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // points is either an array of [x, y] where x and y are numbers or
@@ -965,15 +965,15 @@ CanvasKit.onRuntimeInitialized = function() {
       n = points.length;
     }
     this._drawPoints(mode, ptr, n, paint);
-    CanvasKit._free(ptr);
+    freeArraysThatAreNotMallocedByUsers(ptr, points);
   }
 
   CanvasKit.SkCanvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
     var ambiPtr = copy1dArray(ambientColor, CanvasKit.HEAPF32);
     var spotPtr = copy1dArray(spotColor, CanvasKit.HEAPF32);
     this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
-    CanvasKit._free(ambiPtr);
-    CanvasKit._free(spotPtr);
+    freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
+    freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
   }
 
   // getLocalToDevice returns a 4x4 matrix.
@@ -1045,8 +1045,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return pixels;
   }
 
-  // pixels is a TypedArray. No matter the input size, it will be treated as
-  // a Uint8Array (essentially, a byte array).
+  // pixels should be a Uint8Array or a plain JS array.
   CanvasKit.SkCanvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,
                                                       destX, destY, alphaType, colorType, colorSpace) {
     if (pixels.byteLength % (srcWidth * srcHeight)) {
@@ -1059,9 +1058,7 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || CanvasKit.SkColorSpace.SRGB;
     var srcRowBytes = bytesPerPixel * srcWidth;
 
-    var pptr = CanvasKit._malloc(pixels.byteLength);
-    CanvasKit.HEAPU8.set(pixels, pptr);
-
+    var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
     var ok = this._writePixels({
       'width': srcWidth,
       'height': srcHeight,
@@ -1070,14 +1067,14 @@ CanvasKit.onRuntimeInitialized = function() {
       'colorSpace': colorSpace,
     }, pptr, srcRowBytes, destX, destY);
 
-    CanvasKit._free(pptr);
+    freeArraysThatAreNotMallocedByUsers(pptr, pixels);
     return ok;
   }
 
   CanvasKit.SkColorFilter.MakeBlend = function(color4f, mode) {
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
     var result = CanvasKit.SkColorFilter._MakeBlend(cPtr, mode);
-    CanvasKit._free(cPtr);
+    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1089,7 +1086,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var fptr = copy1dArray(colorMatrix, CanvasKit.HEAPF32);
     // We know skia memcopies the floats, so we can free our memory after the call returns.
     var m = CanvasKit.SkColorFilter._makeMatrix(fptr);
-    CanvasKit._free(fptr);
+    freeArraysThatAreNotMallocedByUsers(fptr, colorMatrix);
     return m;
   }
 
@@ -1097,7 +1094,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var matrPtr = copy3x3MatrixToWasm(matr);
     var imgF = CanvasKit.SkImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
 
-    CanvasKit._free(matrPtr);
+    freeArraysThatAreNotMallocedByUsers(matrPtr, matr);
     return imgF;
   }
 
@@ -1112,7 +1109,7 @@ CanvasKit.onRuntimeInitialized = function() {
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
     this._setColor(cPtr, colorSpace);
-    CanvasKit._free(cPtr);
+    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -1172,7 +1169,7 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
     var dpe = CanvasKit.SkPathEffect._MakeDash(ptr, intervals.length, phase);
-    CanvasKit._free(ptr);
+    freeArraysThatAreNotMallocedByUsers(ptr, intervals);
     return dpe;
   }
 
@@ -1180,7 +1177,7 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || null
     var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
     var result = CanvasKit.SkShader._Color(cPtr, colorSpace);
-    CanvasKit._free(cPtr);
+    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1194,9 +1191,9 @@ CanvasKit.onRuntimeInitialized = function() {
     var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(localMatrixPtr);
+    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
-    CanvasKit._free(posPtr);
+    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return lgs;
   }
 
@@ -1210,9 +1207,9 @@ CanvasKit.onRuntimeInitialized = function() {
     var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(localMatrixPtr);
+    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
-    CanvasKit._free(posPtr);
+    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
   }
 
@@ -1230,9 +1227,9 @@ CanvasKit.onRuntimeInitialized = function() {
                                                  startAngle, endAngle, flags,
                                                  localMatrixPtr, colorSpace);
 
-    CanvasKit._free(localMatrixPtr);
+    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
-    CanvasKit._free(posPtr);
+    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return sgs;
   }
 
@@ -1248,9 +1245,9 @@ CanvasKit.onRuntimeInitialized = function() {
                           start, startRadius, end, endRadius,
                           colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(localMatrixPtr);
+    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
-    CanvasKit._free(posPtr);
+    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
   }
 
