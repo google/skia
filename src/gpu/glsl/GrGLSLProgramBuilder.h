@@ -38,8 +38,8 @@ public:
     const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
 
     GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
-    const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
-    const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }
+    const GrPipeline& pipeline1() const { return fProgramInfo.pipeline(); }
+    const GrPrimitiveProcessor& primitiveProcessor1() const { return fProgramInfo.primProc(); }
     GrProcessor::CustomFeatures processorFeatures() const {
         return fProgramInfo.requestedFeatures();
     }
