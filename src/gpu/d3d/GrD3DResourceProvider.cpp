@@ -16,7 +16,7 @@
 
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
-        , fAttachmentViewManager(gpu)
+        , fCpuDescriptorManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {
 }
 
@@ -54,20 +54,44 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createRenderTargetView(
         ID3D12Resource* textureResource) {
-    return fAttachmentViewManager.createRenderTargetView(fGpu, textureResource);
+    return fCpuDescriptorManager.createRenderTargetView(fGpu, textureResource);
 }
 
 void GrD3DResourceProvider::recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
-    fAttachmentViewManager.recycleRenderTargetView(rtvDescriptor);
+    fCpuDescriptorManager.recycleRenderTargetView(rtvDescriptor);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createDepthStencilView(
         ID3D12Resource* textureResource) {
-    return fAttachmentViewManager.createDepthStencilView(fGpu, textureResource);
+    return fCpuDescriptorManager.createDepthStencilView(fGpu, textureResource);
 }
 
 void GrD3DResourceProvider::recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE* dsvDescriptor) {
-    fAttachmentViewManager.recycleDepthStencilView(dsvDescriptor);
+    fCpuDescriptorManager.recycleDepthStencilView(dsvDescriptor);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createConstantBufferView(
+        ID3D12Resource* bufferResource, size_t offset, size_t size) {
+    return fCpuDescriptorManager.createConstantBufferView(fGpu, bufferResource, offset, size);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createShaderResourceView(
+        ID3D12Resource* resource) {
+    return fCpuDescriptorManager.createShaderResourceView(fGpu, resource);
+}
+
+void GrD3DResourceProvider::recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE* view) {
+    fCpuDescriptorManager.recycleConstantOrShaderView(view);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createSampler(
+        D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressModeU,
+        D3D12_TEXTURE_ADDRESS_MODE addressModeV) {
+    return fCpuDescriptorManager.createSampler(fGpu, filter, addressModeU, addressModeV);
+}
+
+void GrD3DResourceProvider::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* sampler) {
+    fCpuDescriptorManager.recycleSampler(sampler);
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
