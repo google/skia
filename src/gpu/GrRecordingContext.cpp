@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextFamily.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -47,9 +48,9 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 
 GrRecordingContext::~GrRecordingContext() = default;
 
-bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
+bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) {
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init(std::move(caps), std::move(family))) {
         return false;
     }
 

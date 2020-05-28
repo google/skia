@@ -61,6 +61,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrColorSpaceXform.cpp",
   "$_src/gpu/GrColorSpaceXform.h",
   "$_src/gpu/GrContext.cpp",
+  "$_src/gpu/GrContextFamily.h",
   "$_src/gpu/GrContextPriv.cpp",
   "$_src/gpu/GrContextPriv.h",
   "$_src/gpu/GrContextThreadSafeProxy.cpp",

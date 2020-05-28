@@ -76,7 +76,7 @@ protected:
     };
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
-    bool init(sk_sp<const GrCaps>) override;
+    bool init(sk_sp<const GrCaps>, sk_sp<GrContextFamily>) override;
     void setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting);
 
     void abandonContext() override;
