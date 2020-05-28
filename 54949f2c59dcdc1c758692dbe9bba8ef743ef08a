@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d4b2f44a_5ce8e9be",
+        "filename": "include/gpu/GrBackendMutableState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-28T21:56:02Z",
+      "side": 1,
+      "message": "rename to GrBackendSurfaceMutableState.\n\nTBH I\u0027m not sure what GrBackendRT will look like for non GL in the new world. It honestly may become a GL only thing. In other backends there are a lot more objects tied to the layout of the Framebuffer/RenderPass attachments. Also we\u0027d still need the image itself to do memory barriers, copies, etc. I\u0027m not sure it makes as much sense in terms of what a client would want to even try to support a similar thing. I could even see for GL that we just use GrBackendSurface but maybe have two constructors one takes a texID the other and FBO.",
+      "parentUuid": "46a108b3_7cf28834",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 27
+      },
+      "revId": "54949f2c59dcdc1c758692dbe9bba8ef743ef08a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7fb056bd_bfeed547",
         "filename": "src/gpu/GrBackendMutableStateImpl.h",
         "patchSetId": 4
