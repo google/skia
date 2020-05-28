@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f82351b_0ed8c187",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-28T14:20:58Z",
+      "side": 1,
+      "message": "As long as you\u0027re cleaning up this line, maybe change this to \"Global variables\"?",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 17
+      },
+      "revId": "d88d9d17af08e4dbab23f579ba77d0c7a2e57bc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
