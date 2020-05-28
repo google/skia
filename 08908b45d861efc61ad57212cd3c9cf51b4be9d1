@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "77a0fe31_3d848e24",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-28T15:55:54Z",
+      "side": 1,
+      "message": "Good catch. Fixed.",
+      "parentUuid": "dffae628_cc4cf76f",
+      "range": {
+        "startLine": 382,
+        "startChar": 0,
+        "endLine": 383,
+        "endChar": 17
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "59a57f16_b858b1e0",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3eee8cc9_928dce50",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-28T15:55:54Z",
+      "side": 1,
+      "message": "I\u0027ve added more detail to the comments in matrixConstructHelperIsNeeded to try and disambiguate here. The statement above seems correct as-is but I can see how in context it might be confusing.",
+      "parentUuid": "59a57f16_b858b1e0",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 405,
+        "endChar": 48
+      },
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f63549a_ff683d93",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 4
@@ -59,6 +107,24 @@
       "writtenOn": "2020-05-28T13:48:44Z",
       "side": 1,
       "message": "This is potentially turning half precision matrices into floats. Maybe matrix.componentType().name() ?",
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f83db98_341097d5",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-28T15:55:54Z",
+      "side": 1,
+      "message": "This sounds like a good improvement to me.\n\nHowever, this would be a behavioral change from the old code (see L394, \"// creating a matrix from a single scalar value\", in the \"before\" side, which always takes float and returns a floatCxR). I\u0027d like to put this change in a separate CL to avoid changing too many things at once.",
+      "parentUuid": "9f63549a_ff683d93",
       "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
