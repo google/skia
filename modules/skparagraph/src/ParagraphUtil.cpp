@@ -9,6 +9,7 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 #include <string>
+#include <third_party/externals/icu/source/i18n/dt_impl.h>
 
 namespace skia {
 namespace textlayout {
@@ -26,6 +27,14 @@ SkString SkStringFromU16String(const std::u16string& utf16text) {
     if (U_FAILURE(status)) {
         SkDEBUGF("Invalid UTF-16 input: %s", u_errorName(status));
         return dst;
+    }
+
+    icu::UnicodeString unicode((UChar*)utf16text.data(), SkToS32(utf16text.size()));
+    std::string str;
+    unicode.toUTF8String(str);
+    SkString check(str.data(), str.size());
+    if (check.size() != dst.size()) {
+        SkDebugf("'%s' '%s'\n", dst.c_str(), check.c_str());
     }
     return dst;
 }
