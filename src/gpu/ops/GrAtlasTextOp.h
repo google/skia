@@ -24,7 +24,7 @@ public:
         }
     }
 
-    static const int kVerticesPerGlyph = GrTextBlob::kVerticesPerGlyph;
+    static const int kVerticesPerGlyph = GrTextVertexFiller::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
@@ -32,16 +32,16 @@ public:
         SkIRect     fClipRect;
         GrTextBlob* fBlob;
         SkPoint     fDrawOrigin;
-        GrTextBlob::SubRun* fSubRunPtr;
+        GrTextVertexFiller* fSubRunPtr;
         SkPMColor4f fColor;
-        std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> textTargetCreateVertexData(
+        std::unique_ptr<GrTextVertexFiller::Mask3DVertex[][4]> textTargetCreateVertexData(
                 int offset, int count) const;
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext* context,
                                                      GrPaint&& paint,
-                                                     GrTextBlob::SubRun* subrun,
+                                                     GrTextVertexFiller* subrun,
                                                      const SkMatrix& drawMatrix,
                                                      SkPoint drawOrigin,
                                                      const SkIRect& clipRect,
@@ -50,7 +50,7 @@ public:
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             GrRecordingContext*,
             GrPaint&&,
-            GrTextBlob::SubRun*,
+            GrTextVertexFiller*,
             const SkMatrix& drawMatrix,
             SkPoint drawOrigin,
             const SkIRect& clipRect,
@@ -95,7 +95,7 @@ private:
 
     GrAtlasTextOp(MaskType maskType,
                   GrPaint&& paint,
-                  GrTextBlob::SubRun* subrun,
+                  GrTextVertexFiller* subrun,
                   const SkMatrix& drawMatrix,
                   SkPoint drawOrigin,
                   const SkIRect& clipRect,

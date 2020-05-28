@@ -27,7 +27,7 @@
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              GrPaint&& paint,
-                             GrTextBlob::SubRun* subrun,
+                             GrTextVertexFiller* subrun,
                              const SkMatrix& drawMatrix,
                              SkPoint drawOrigin,
                              const SkIRect& clipRect,
@@ -63,9 +63,10 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
 }
 
 // Entry point just for the SkAtlasTextTarget
-std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> GrAtlasTextOp::Geometry::textTargetCreateVertexData(
+std::unique_ptr<GrTextVertexFiller::Mask3DVertex[][4]> GrAtlasTextOp::Geometry::textTargetCreateVertexData(
         int offset, int count) const {
-    std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> data{new GrTextBlob::Mask3DVertex[count][4]};
+    std::unique_ptr<GrTextVertexFiller::Mask3DVertex[][4]>
+        data{new GrTextVertexFiller::Mask3DVertex[count][4]};
 
     fSubRunPtr->fillTextTargetVertexData(data.get(), offset, count, fColor.toBytes_RGBA(),
                                          fDrawOrigin);
@@ -80,7 +81,7 @@ void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) c
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
                                                          GrPaint&& paint,
-                                                         GrTextBlob::SubRun* subrun,
+                                                         GrTextVertexFiller* subrun,
                                                          const SkMatrix& drawMatrix,
                                                          SkPoint drawOrigin,
                                                          const SkIRect& clipRect,
@@ -112,7 +113,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* con
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                             GrRecordingContext* context,
                                             GrPaint&& paint,
-                                            GrTextBlob::SubRun* subrun,
+                                            GrTextVertexFiller* subrun,
                                             const SkMatrix& drawMatrix,
                                             SkPoint drawOrigin,
                                             const SkIRect& clipRect,

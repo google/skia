@@ -250,7 +250,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 break;
             }
 
-            std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> vertexData =
+            auto vertexData =
                     fGeoData[i].textTargetCreateVertexData(subRunIndex, glyphsRegenerated);
 
             context.recordDraw(vertexData.get(), glyphsRegenerated,
