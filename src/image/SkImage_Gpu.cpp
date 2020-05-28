@@ -24,7 +24,6 @@
 #include "src/gpu/GrBackendTextureImageGenerator.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -105,7 +104,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         paint.addColorFragmentProcessor(std::move(xform));
     }
 
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                   SkRect::MakeIWH(this->width(), this->height()));
     if (!renderTargetContext->asTextureProxy()) {
         return nullptr;

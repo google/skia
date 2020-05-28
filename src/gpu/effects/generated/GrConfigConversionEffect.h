@@ -15,7 +15,6 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -93,7 +92,7 @@ public:
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect,
+        readRTC->fillRectToRect(nullptr, std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
         if (!readRTC->readPixels(ii, firstRead, 0, {0, 0})) {
             return false;
@@ -108,7 +107,7 @@ public:
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect,
+        tempRTC->fillRectToRect(nullptr, std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
         paint3.addColorFragmentProcessor(
@@ -116,7 +115,7 @@ public:
         paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect,
+        readRTC->fillRectToRect(nullptr, std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
         if (!readRTC->readPixels(ii, secondRead, 0, {0, 0})) {
