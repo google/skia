@@ -17,6 +17,11 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
+# perform clean npm install to pick up any changes to dependencies.
+cd $CANVAKIT_DIR
+npm ci
+cd -
+
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
 # Run the tests
