@@ -11,6 +11,7 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/generated/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
@@ -54,8 +55,12 @@ GrGLSLFragmentProcessor* SampleMatrixConstantEffect::onCreateGLSLInstance() cons
 
 DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
     auto draw = [rtCtx](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
+#if 1
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixConstantEffect(std::move(baseFP)));
+#else
+        auto fp = GrMatrixEffect::Apply(SkMatrix::Scale(0.5f, 0.5f), std::move(baseFP));
+#endif
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
