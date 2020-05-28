@@ -431,3 +431,43 @@ DEF_TEST(Encode_WebpOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
     REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
 }
+
+DEF_TEST(Encode_4444_unpremul, r) {
+    for (auto format : { SkEncodedImageFormat::kJPEG,
+                         SkEncodedImageFormat::kPNG,
+                         SkEncodedImageFormat::kWEBP }) {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(10, 10, kARGB_4444_SkColorType, kUnpremul_SkAlphaType));
+        sk_bzero(bm.getPixels(), bm.computeByteSize());
+        auto data = SkEncodeBitmap(bm, format, 100);
+        if (format == SkEncodedImageFormat::kJPEG) {
+            // Encoding to JPEG ignores alpha.
+            REPORTER_ASSERT(r, data != nullptr);
+        } else {
+            // Otherwise encoding 4444 unpremul is unsupported.
+            REPORTER_ASSERT(r, data == nullptr);
+        }
+    }
+}
+
+DEF_TEST(Encode_Alpha, r) {
+    // These formats have no sensible way to encode alpha images.
+    for (auto format : { SkEncodedImageFormat::kJPEG,
+                         SkEncodedImageFormat::kPNG,
+                         SkEncodedImageFormat::kWEBP }) {
+        for (auto ct : { kAlpha_8_SkColorType,
+                         kA16_unorm_SkColorType,
+                         kA16_float_SkColorType }) {
+            SkBitmap bm;
+            bm.allocPixels(SkImageInfo::Make(10, 10, ct, kPremul_SkAlphaType));
+            sk_bzero(bm.getPixels(), bm.computeByteSize());
+            auto data = SkEncodeBitmap(bm, format, 100);
+            if (format == SkEncodedImageFormat::kPNG && ct == kAlpha_8_SkColorType) {
+                // We support encoding alpha8 to png with our own private meaning.
+                REPORTER_ASSERT(r, data != nullptr);
+            } else {
+                REPORTER_ASSERT(r, data == nullptr);
+            }
+        }
+    }
+}
