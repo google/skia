@@ -14,6 +14,7 @@
 #include "include/core/SkUnPreMultiply.h"
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/images/SkImageEncoderFns.h"
 #include "src/utils/SkUTF.h"
@@ -32,83 +33,23 @@ extern "C" {
 #include "webp/mux.h"
 }
 
-static transform_scanline_proc choose_proc(const SkImageInfo& info) {
-    switch (info.colorType()) {
-        case kRGBA_8888_SkColorType:
-            switch (info.alphaType()) {
-                case kOpaque_SkAlphaType:
-                    return transform_scanline_RGBX;
-                case kUnpremul_SkAlphaType:
-                    return transform_scanline_memcpy;
-                case kPremul_SkAlphaType:
-                    return transform_scanline_rgbA;
-                default:
-                    return nullptr;
-            }
-        case kBGRA_8888_SkColorType:
-            switch (info.alphaType()) {
-                case kOpaque_SkAlphaType:
-                    return transform_scanline_BGRX;
-                case kUnpremul_SkAlphaType:
-                    return transform_scanline_BGRA;
-                case kPremul_SkAlphaType:
-                    return transform_scanline_bgrA;
-                default:
-                    return nullptr;
-            }
-        case kRGB_565_SkColorType:
-            if (!info.isOpaque()) {
-                return nullptr;
-            }
-
-            return transform_scanline_565;
-        case kARGB_4444_SkColorType:
-            switch (info.alphaType()) {
-                case kOpaque_SkAlphaType:
-                    return transform_scanline_444;
-                case kPremul_SkAlphaType:
-                    return transform_scanline_4444;
-                default:
-                    return nullptr;
-            }
-        case kGray_8_SkColorType:
-            return transform_scanline_gray;
-        case kRGBA_F16_SkColorType:
-            switch (info.alphaType()) {
-                case kOpaque_SkAlphaType:
-                case kUnpremul_SkAlphaType:
-                    return transform_scanline_F16_to_8888;
-                case kPremul_SkAlphaType:
-                    return transform_scanline_F16_premul_to_8888;
-                default:
-                    return nullptr;
-            }
-        default:
-            return nullptr;
-    }
-}
-
 static int stream_writer(const uint8_t* data, size_t data_size,
                          const WebPPicture* const picture) {
   SkWStream* const stream = (SkWStream*)picture->custom_ptr;
   return stream->write(data, data_size) ? 1 : 0;
 }
 
+using WebPPictureImportProc = int (*) (WebPPicture* picture, const uint8_t* pixels, int stride);
+
 bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
     if (!SkPixmapIsValid(pixmap)) {
         return false;
     }
 
-    const transform_scanline_proc proc = choose_proc(pixmap.info());
-    if (!proc) {
+    if (SkColorTypeIsAlphaOnly(pixmap.colorType())) {
+        // Maintain the existing behavior of not supporting encoding alpha-only images.
+        // TODO: Support encoding alpha only to an image with alpha but no color?
         return false;
-    }
-
-    int bpp;
-    if (kRGBA_F16_SkColorType == pixmap.colorType()) {
-        bpp = 4;
-    } else {
-        bpp = pixmap.isOpaque() ? 3 : 4;
     }
 
     if (nullptr == pixmap.addr()) {
@@ -150,31 +91,32 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     SkDynamicMemoryWStream tmp;
     pic.custom_ptr = icc ? (void*)&tmp : (void*)stream;
 
-    const uint8_t* src = (uint8_t*)pixmap.addr();
-    const int rgbStride = pic.width * bpp;
-    const size_t rowBytes = pixmap.rowBytes();
+    {
+        const SkColorType ct = pixmap.colorType();
+        const bool premul = pixmap.alphaType() == kPremul_SkAlphaType;
 
-    // Import (for each scanline) the bit-map image (in appropriate color-space)
-    // to RGB color space.
-    std::unique_ptr<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
-    for (int y = 0; y < pic.height; ++y) {
-        proc((char*) &rgb[y * rgbStride],
-             (const char*) &src[y * rowBytes],
-             pic.width,
-             bpp);
-    }
-
-    auto importProc = WebPPictureImportRGB;
-    if (3 != bpp) {
-        if (pixmap.isOpaque()) {
-            importProc = WebPPictureImportRGBX;
-        } else {
+        SkBitmap tmpBm;
+        WebPPictureImportProc importProc = nullptr;
+        const SkPixmap* src = &pixmap;
+        if      (           ct ==  kRGB_888x_SkColorType) { importProc = WebPPictureImportRGBX; }
+        else if (!premul && ct == kRGBA_8888_SkColorType) { importProc = WebPPictureImportRGBA; }
+#ifdef WebPPictureImportBGRA
+        else if (!premul && ct == kBGRA_8888_SkColorType) { importProc = WebPPictureImportBGRA; }
+#endif
+        else {
             importProc = WebPPictureImportRGBA;
+            auto info = pixmap.info().makeColorType(kRGBA_8888_SkColorType)
+                                     .makeAlphaType(kUnpremul_SkAlphaType);
+            if (!tmpBm.tryAllocPixels(info)
+                    || !pixmap.readPixels(tmpBm.info(), tmpBm.getPixels(), tmpBm.rowBytes())) {
+                return false;
+            }
+            src = &tmpBm.pixmap();
         }
-    }
 
-    if (!importProc(&pic, &rgb[0], rgbStride)) {
-        return false;
+        if (!importProc(&pic, reinterpret_cast<const uint8_t*>(src->addr()), src->rowBytes())) {
+            return false;
+        }
     }
 
     if (!WebPEncode(&webp_config, &pic)) {

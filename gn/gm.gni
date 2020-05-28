@@ -156,6 +156,7 @@ gm_sources = [
   "$_gm/emptypath.cpp",
   "$_gm/encode.cpp",
   "$_gm/encode_alpha_jpeg.cpp",
+  "$_gm/encode_color_types.cpp",
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
   "$_gm/exoticformats.cpp",
