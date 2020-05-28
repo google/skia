@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "674127b7_64a7bcb0",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-28T16:20:08Z",
+      "side": 1,
+      "message": "Only in chromium based browsers.",
+      "parentUuid": "876ad0e8_ae6af015",
+      "range": {
+        "startLine": 79,
+        "startChar": 21,
+        "endLine": 79,
+        "endChar": 47
+      },
+      "revId": "b43766b6975b539306e44471e5934da5ccc6a1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "452d14f8_b85dd99e",
         "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b43766b6975b539306e44471e5934da5ccc6a1ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db0ab308_daa55435",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-05-28T16:20:08Z",
+      "side": 1,
+      "message": "I was trying to observe something like that, but I didn\u0027t. I have removed the subtraction and now record the absolute values.",
+      "parentUuid": "452d14f8_b85dd99e",
+      "range": {
+        "startLine": 104,
+        "startChar": 54,
+        "endLine": 104,
+        "endChar": 92
+      },
+      "revId": "b43766b6975b539306e44471e5934da5ccc6a1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
