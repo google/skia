@@ -29,6 +29,10 @@ public:
     };
 
     TextLine() = default;
+    TextLine(const TextLine&) = delete;
+    TextLine& operator=(const TextLine&) = delete;
+    TextLine(TextLine&&) = default;
+    TextLine& operator=(TextLine&&) = default;
     ~TextLine() = default;
 
     TextLine(ParagraphImpl* master,
@@ -126,8 +130,8 @@ private:
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
-
-    SkTArray<size_t, true> fRunsInVisualOrder;
+    // Avoid the malloc/free in the common case of one run per line
+    SkSTArray<1, size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Let right
