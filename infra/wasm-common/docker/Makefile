@@ -2,7 +2,7 @@ EMSDK_VERSION=1.39.16_v1
 
 # Can check CHROME_VERSION with
 # docker run karma-chrome-tests /usr/bin/google-chrome-stable --version
-CHROME_VERSION=77.0.3865.120_v1
+CHROME_VERSION=83.0.4103.61_v1
 
 publish_emsdk_base:
 	docker build --no-cache -t emsdk-base ./emsdk-base/
