@@ -274,6 +274,7 @@ describe('Path Behavior', () => {
             .addPoly(mPoints, true);
 
         canvas.drawPath(path, paint);
+        CanvasKit.Free(mPoints);
 
         path.delete();
         paint.delete();

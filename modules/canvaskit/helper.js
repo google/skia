@@ -271,6 +271,9 @@ function copy3x3MatrixToWasm(matr) {
   if (!matr) {
     return nullptr;
   }
+  if (matr['_ck']) {
+    return matr.byteOffset;
+  }
   var mPtr = CanvasKit._malloc(9 * 4); // 9 matrix scalars, each at 4 bytes.
   if (matr.length) {
     // TODO(kjlubick): Downsample a 16 length (4x4 matrix)
@@ -340,6 +343,7 @@ function copy4x4MatrixToWasm(matr) {
 }
 
 // copies a 4x4 matrix at the given pointer into a JS array.
+// TODO(kjlubick) Add a scratch array for this.
 function copy4x4MatrixFromWasm(matrPtr) {
   // read them out into an array. TODO(kjlubick): If we change SkMatrix to be
   // typedArrays, then we should return a typed array here too.
@@ -352,6 +356,7 @@ function copy4x4MatrixFromWasm(matrPtr) {
 }
 
 // copies the four floats at the given pointer in a js Float32Array
+// TODO(kjlubick) Add a scratch array for this.
 function copyColorFromWasm(colorPtr) {
   var rv = new Float32Array(4);
   for (var i = 0; i < 4; i++) {
@@ -359,7 +364,7 @@ function copyColorFromWasm(colorPtr) {
   }
   CanvasKit._free(colorPtr);
   return rv;
-} 
+}
 
 // Caching the Float32Arrays can save having to reallocate them
 // over and over again.
@@ -630,11 +635,11 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
  * can manage memory and initialize values properly. When used
  * correctly, it can save copying of data between JS and C++.
  * When used incorrectly, it can lead to memory leaks.
+ * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
  *
  * const ta = CanvasKit.Malloc(Float32Array, 20);
  * // store data into ta
  * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta);
- * // MakeMatrix cleans up the ptr automatically.
  *
  * @param {TypedArray} typedArray - constructor for the typedArray.
  * @param {number} len - number of elements to store.
@@ -646,4 +651,20 @@ CanvasKit.Malloc = function(typedArray, len) {
   // add a marker that this was allocated in C++ land
   ta['_ck'] = true;
   return ta;
+}
+
+/**
+ * Free frees the memory returned by Malloc.
+ * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
+ */
+CanvasKit.Free = function(typedArray) {
+  CanvasKit._free(typedArray.byteOffset)
+}
+
+// This helper will free the given pointer unless the provided array is one
+// that was returned by CanvasKit.Malloc.
+function freeArraysThatAreNotMallocedByUsers(ptr, arr) {
+  if (!arr || !arr['_ck']) {
+    CanvasKit._free(ptr);
+  }
 }
