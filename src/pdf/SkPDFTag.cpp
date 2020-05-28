@@ -66,6 +66,17 @@ static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
     SK_ABORT("bad tag");
 }
 
+// Structure element nodes need a unique alphanumeric ID,
+// and we need to be able to output them sorted in lexicographic
+// order. This helper function takes one of our node IDs and
+// builds an ID string that zero-pads the digits so that lexicographic
+// order matches numeric order.
+static SkString nodeIdToString(int nodeId) {
+    SkString idString;
+    idString.printf("node%08d", nodeId);
+    return idString;
+};
+
 SkPDF::AttributeList::AttributeList() = default;
 
 SkPDF::AttributeList::~AttributeList() = default;
@@ -250,10 +261,9 @@ static bool can_discard(SkPDFTagNode* node) {
     return true;
 }
 
-
-SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
-                                                SkPDFTagNode* node,
-                                                SkPDFDocument* doc) {
+SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference parent,
+                                                          SkPDFTagNode* node,
+                                                          SkPDFDocument* doc) {
     SkPDFIndirectReference ref = doc->reserveRef();
     std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
     SkPDFTagNode* children = node->fChildren;
@@ -261,7 +271,7 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     for (size_t i = 0; i < childCount; ++i) {
         SkPDFTagNode* child = &children[i];
         if (!(can_discard(child))) {
-            kids->appendRef(prepare_tag_tree_to_emit(ref, child, doc));
+            kids->appendRef(PrepareTagTreeToEmit(ref, child, doc));
         }
     }
     for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
@@ -290,11 +300,23 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     }
     dict.insertRef("P", parent);
     dict.insertObject("K", std::move(kids));
-    SkString idString;
-    idString.printf("%d", node->fNodeId);
-    dict.insertName("ID", idString.c_str());
     if (node->fAttributes) {
         dict.insertObject("A", std::move(node->fAttributes));
+    }
+
+    // Each node has a unique ID that also needs to be referenced
+    // in a separate IDTree node, along with the lowest and highest
+    // unique ID string.
+    SkString idString = nodeIdToString(node->fNodeId);
+    dict.insertString("ID", idString.c_str());
+    fNodeIdToIndirectRefMap[node->fNodeId] = ref;
+    if (fLowestNodeIdString.isEmpty() ||
+        strcmp(idString.c_str(), fLowestNodeIdString.c_str()) < 0) {
+        fLowestNodeIdString = idString;
+    }
+    if (fHighestNodeIdString.isEmpty() ||
+        strcmp(idString.c_str(), fHighestNodeIdString.c_str()) > 0) {
+        fHighestNodeIdString = idString;
     }
 
     return doc->emit(dict, ref);
@@ -327,7 +349,7 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
 
     // Build the StructTreeRoot.
     SkPDFDict structTreeRoot("StructTreeRoot");
-    structTreeRoot.insertRef("K", prepare_tag_tree_to_emit(ref, fRoot, doc));
+    structTreeRoot.insertRef("K", PrepareTagTreeToEmit(ref, fRoot, doc));
     structTreeRoot.insertInt("ParentTreeNextKey", SkToInt(pageCount));
 
     // Build the parent tree, which is a mapping from the marked
@@ -348,5 +370,28 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     }
     parentTree.insertObject("Nums", std::move(parentTreeNums));
     structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
+
+    // Build the IDTree, a mapping from every unique ID string to
+    // a reference to its corresponding structure element node.
+    if (fNodeIdToIndirectRefMap.size() > 0) {
+        SkPDFDict idTree;
+        SkPDFDict idTreeLeaf;
+        auto limits = SkPDFMakeArray();
+        limits->appendString(fLowestNodeIdString);
+        limits->appendString(fHighestNodeIdString);
+        idTreeLeaf.insertObject("Limits", std::move(limits));
+        auto names = SkPDFMakeArray();
+        for (const auto& entry : fNodeIdToIndirectRefMap) {
+            SkString idString = nodeIdToString(entry.first);
+            names->appendString(idString);
+            names->appendRef(entry.second);
+        }
+        idTreeLeaf.insertObject("Names", std::move(names));
+        auto idTreeKids = SkPDFMakeArray();
+        idTreeKids->appendRef(doc->emit(idTreeLeaf));
+        idTree.insertObject("Kids", std::move(idTreeKids));
+        structTreeRoot.insertRef("IDTree", doc->emit(idTree));
+    }
+
     return doc->emit(structTreeRoot, ref);
 }
