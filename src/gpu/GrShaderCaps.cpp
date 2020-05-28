@@ -61,6 +61,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     // GL_ARB_texture_swizzle).
     fTextureSwizzleAppliedInShader = true;
     fBuiltinFMASupport = false;
+    fCanUseDoLoops = true;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -142,6 +143,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Texture swizzle applied in shader", fTextureSwizzleAppliedInShader);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
+    writer->appendBool("Can use do-while loops", fCanUseDoLoops);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",
