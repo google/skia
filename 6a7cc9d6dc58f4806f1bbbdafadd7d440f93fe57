@@ -22,6 +22,30 @@
       "revId": "6a7cc9d6dc58f4806f1bbbdafadd7d440f93fe57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbfc6371_1a883d5c",
+        "filename": "src/gpu/d3d/GrD3DCpuDescriptorManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-28T14:31:28Z",
+      "side": 1,
+      "message": "Nope, that\u0027s wrong, just need to add the offset to the given address.",
+      "parentUuid": "7a0db26d_f2a18c38",
+      "range": {
+        "startLine": 46,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 64
+      },
+      "revId": "6a7cc9d6dc58f4806f1bbbdafadd7d440f93fe57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
