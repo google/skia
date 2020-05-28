@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46a108b3_7cf28834",
+        "filename": "include/gpu/GrBackendMutableState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-28T19:19:18Z",
+      "side": 1,
+      "message": "I think this needs to have \"texture\" in the name. Otherwise it seems like it might be about arbitrary state in the backend API, e.g. scissor state in GL.\n\nGrBackendTextureMutableState?\n\nI see it\u0027s also used with GrBackendRenderTarget. GrBackendSurfaceMutableState? In post-surface-refactor world do we imagine that will still be true? Or will we remake vk backend rts to be VkFramebuffers, or something like that?",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 27
+      },
+      "revId": "54949f2c59dcdc1c758692dbe9bba8ef743ef08a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fb056bd_bfeed547",
+        "filename": "src/gpu/GrBackendMutableStateImpl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-28T19:19:18Z",
+      "side": 1,
+      "message": "WDYT about a has-a relationship here to avoid multiple inheritance?",
+      "range": {
+        "startLine": 14,
+        "startChar": 41,
+        "endLine": 14,
+        "endChar": 62
+      },
+      "revId": "54949f2c59dcdc1c758692dbe9bba8ef743ef08a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
