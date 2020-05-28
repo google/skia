@@ -149,6 +149,24 @@
     },
     {
       "key": {
+        "uuid": "9a35f239_f569750d",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-05-28T21:06:56Z",
+      "side": 1,
+      "message": "Filed as https://crbug.com/skia/10297",
+      "parentUuid": "e294e996_bef149a8",
+      "revId": "08908b45d861efc61ad57212cd3c9cf51b4be9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65a44a6a_418434cb",
         "filename": "tests/SkSLMetalTest.cpp",
         "patchSetId": 4
