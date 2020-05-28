@@ -991,35 +991,42 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     if ("main" == f.fDeclaration.fName) {
         if (fNeedsGlobalStructInit) {
-            this->writeLine("    Globals globalStruct{");
-            const char* separator = "";
-            for (const auto& intf: fInterfaceBlockNameMap) {
-                const auto& intfName = intf.second;
-                this->write(separator);
-                separator = ", ";
-                this->write("&");
-                this->writeName(intfName);
+            this->writeLine("    Globals globalStruct;");
+            for (const auto& [interfaceBlock, interfaceName] : fInterfaceBlockNameMap) {
+                this->write("    globalStruct.");
+                this->writeName(interfaceName);
+                this->write(" = &");
+                this->writeName(interfaceName);
+                this->writeLine(";");
             }
-            for (const auto& var: fInitNonConstGlobalVars) {
-                this->write(separator);
-                separator = ", ";
+            for (const VarDeclaration* var : fInitNonConstGlobalVars) {
+                this->write("    globalStruct.");
+                this->writeName(var->fVar->fName);
+                this->write(" = ");
                 this->writeVarInitializer(*var->fVar, *var->fValue);
+                this->writeLine(";");
             }
-            for (const auto& texture: fTextures) {
-                this->write(separator);
-                separator = ", ";
+            for (const Variable* texture : fTextures) {
+                this->write("    globalStruct.");
                 this->writeName(texture->fName);
-                this->write(separator);
+                this->write(" = ");
                 this->writeName(texture->fName);
-                this->write(SAMPLER_SUFFIX);
+                this->writeLine(";");
+
+                String samplerName = String(texture->fName) + SAMPLER_SUFFIX;
+                this->write("    globalStruct.");
+                this->writeName(samplerName);
+                this->write(" = ");
+                this->writeName(samplerName);
+                this->writeLine(";");
             }
-            this->writeLine("};");
             this->writeLine("    thread Globals* _globals = &globalStruct;");
             this->writeLine("    (void)_globals;");
         }
         this->writeLine("    Outputs _outputStruct;");
         this->writeLine("    thread Outputs* _out = &_outputStruct;");
     }
+
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
@@ -1477,11 +1484,15 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
 
 void MetalCodeGenerator::writeGlobalStruct() {
     bool wroteStructDecl = false;
-    for (const auto& intf : fInterfaceBlockNameMap) {
+    auto WriteStructDecl = [&] {
         if (!wroteStructDecl) {
             this->write("struct Globals {\n");
             wroteStructDecl = true;
         }
+    };
+
+    for (const auto& intf : fInterfaceBlockNameMap) {
+        WriteStructDecl();
         fNeedsGlobalStructInit = true;
         const auto& intfType = intf.first;
         const auto& intfName = intf.second;
@@ -1500,10 +1511,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
             if ((!first.fModifiers.fFlags && -1 == first.fModifiers.fLayout.fBuiltin) ||
                 first.fType.kind() == Type::kSampler_Kind) {
-                if (!wroteStructDecl) {
-                    this->write("struct Globals {\n");
-                    wroteStructDecl = true;
-                }
+                WriteStructDecl();
                 fNeedsGlobalStructInit = true;
                 this->write("    ");
                 this->writeType(first.fType);
