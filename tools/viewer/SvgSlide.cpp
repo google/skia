@@ -14,18 +14,26 @@
 #include "include/core/SkStream.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
-    : fPath(path) {
+        : SvgSlide(name, SkStream::MakeFromFile(path.c_str())) {
+}
+
+SvgSlide::SvgSlide(const SkString& name, std::unique_ptr<SkStream> stream)
+        : fStream(std::move(stream)) {
     fName = name;
 }
 
 void SvgSlide::load(SkScalar w, SkScalar h) {
-    fWinSize   = SkSize::Make(w, h);
+    if (!fStream) {
+        SkDebugf("No svg stream for slide %s.\n", fName.c_str());
+        return;
+    }
 
-    if (const auto svgStream =  SkStream::MakeFromFile(fPath.c_str())) {
-        fDom = SkSVGDOM::MakeFromStream(*svgStream);
-        if (fDom) {
-            fDom->setContainerSize(fWinSize);
-        }
+    fWinSize = SkSize::Make(w, h);
+
+    fStream->rewind();
+    fDom = SkSVGDOM::MakeFromStream(*fStream);
+    if (fDom) {
+        fDom->setContainerSize(fWinSize);
     }
 }
 

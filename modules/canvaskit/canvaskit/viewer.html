@@ -17,8 +17,9 @@
 <script type="text/javascript" charset="utf-8">
   const flags = {};
   for (pair of location.hash.substring(1).split(',')) {
-    const [key, value] = pair.split(':', 2);
-    flags[key] = value;
+    // Parse "values" as an array in case the value has a colon (e.g., "slide:http://...").
+    const [key, ...values] = pair.split(':');
+    flags[key] = values.join(':');
   }
   window.onhashchange = function() {
     location.reload();
@@ -35,22 +36,22 @@
   });
 
   function LoadSlide(CanvasKit) {
-    if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide) {
+    if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide || !CanvasKit.MakeSvgSlide) {
       throw 'Not compiled with Viewer.';
     }
     const slideName = flags.slide || 'WavyPathText';
-    if (slideName.endsWith('.skp')) {
+    if (slideName.endsWith('.skp') || slideName.endsWith('.svg')) {
       fetch(slideName).then(function(response) {
         if (response.status != 200) {
             throw 'Error fetching ' + slideName;
         }
-        response.arrayBuffer().then(function(data) {
-          let slide = CanvasKit.MakeSkpSlide(slideName, data);
-          if (!slide) {
-            throw 'Could not parse skp data for slide ' + slideName;
-          }
-          ViewerMain(CanvasKit, slide);
-        });
+        if (slideName.endsWith('.skp')) {
+          response.arrayBuffer().then((data) => ViewerMain(
+              CanvasKit, CanvasKit.MakeSkpSlide(slideName, data)));
+        } else {
+          response.text().then((text) => ViewerMain(
+              CanvasKit, CanvasKit.MakeSvgSlide(slideName, text)));
+        }
       });
     } else {
       let slide = CanvasKit.MakeSlide(slideName);
