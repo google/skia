@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "541a94e3_b42155f9",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-28T11:39:49Z",
+      "side": 1,
+      "message": "Ack. If you mark something as resolved and I have more to say, I will reopen it ;) . If you mark something as resolved, I only take it as a signal \"I think I have fixed it to satisfaction, I don\u0027t expect followup\". Leaving something resolved means \"Please take another look or comment some more\".",
+      "parentUuid": "2aaf0339_beb68577",
+      "range": {
+        "startLine": 72,
+        "startChar": 15,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "9cdc3a89c05ddb1aad85d178cba81744d526b225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e2b91da_54013b74",
         "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
         "patchSetId": 2

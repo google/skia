@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "876ad0e8_ae6af015",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-28T11:39:49Z",
+      "side": 1,
+      "message": "I was unaware this was available.",
+      "range": {
+        "startLine": 79,
+        "startChar": 21,
+        "endLine": 79,
+        "endChar": 47
+      },
+      "revId": "b43766b6975b539306e44471e5934da5ccc6a1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "452d14f8_b85dd99e",
+        "filename": "tools/perf-canvaskit-puppeteer/path-translating.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-28T11:39:49Z",
+      "side": 1,
+      "message": "I would probably report memory (this and totalJSHeapSize) in absolute terms, unless you observed a lot of variance that subtracting off a starting value helped. If so, document why we subtract off the starting value.",
+      "range": {
+        "startLine": 104,
+        "startChar": 54,
+        "endLine": 104,
+        "endChar": 92
+      },
+      "revId": "b43766b6975b539306e44471e5934da5ccc6a1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
