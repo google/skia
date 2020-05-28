@@ -35,6 +35,150 @@ class SkTextBlob;
 class SkTextBlobRunIterator;
 
 
+// -- GrTextVertexFiller ---------------------------------------------------------------------------
+// Hold data to draw the different types of sub run. SubRuns are produced knowing all the
+// glyphs that are included in them.
+class GrTextVertexFiller {
+    struct AtlasPt {
+        uint16_t u;
+        uint16_t v;
+    };
+
+    // Normal text mask, SDFT, or color.
+    struct Mask2DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+    struct ARGB2DVertex {
+        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint devicePos;
+        AtlasPt atlasPos;
+    };
+
+
+    struct ARGB3DVertex {
+        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint3 devicePos;
+        AtlasPt atlasPos;
+    };
+
+    // Any glyphs that can't be rendered with the base or override descriptor
+    // are rendered as paths
+    struct PathGlyph {
+        PathGlyph(const SkPath& path, SkPoint origin);
+        SkPath fPath;
+        SkPoint fOrigin;
+    };
+
+public:
+    static const int kVerticesPerGlyph = 4;
+
+    struct Mask3DVertex {
+        SkPoint3 devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+
+    struct VertexData {
+        union {
+            // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
+            SkPackedGlyphID packedGlyphID;
+            GrGlyph* grGlyph;
+        } glyph;
+        const SkPoint pos;
+        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
+        // device space rect.
+        GrIRect16 rect;
+    };
+
+    enum SubRunType {
+        kDirectMask,
+        kTransformedMask,
+        kTransformedPath,
+        kTransformedSDFT
+    };
+
+    // GrTextVertexFiller for masks
+    GrTextVertexFiller(SubRunType type,
+                       GrTextBlob* textBlob,
+                       const SkStrikeSpec& strikeSpec,
+                       GrMaskFormat format,
+                       SkRect vertexBounds,
+                       const SkSpan<VertexData>& vertexData);
+
+    // SubRun for paths
+    GrTextVertexFiller(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+
+    // TODO when this object is more internal, drop the privacy
+    void resetBulkUseToken();
+    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
+    GrTextStrike* strike() const;
+
+    GrMaskFormat maskFormat() const;
+
+    size_t vertexStride() const;
+    size_t quadOffset(size_t index) const;
+    void fillVertexData(
+            void* vertexDst, int offset, int count,
+            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+            SkIRect clip) const;
+
+    void fillTextTargetVertexData(
+            Mask3DVertex vertexDst[][4],
+            int offset,
+            int count,
+            GrColor color,
+            SkPoint origin) const;
+
+    int glyphCount() const;
+
+    bool drawAsDistanceFields() const;
+    bool drawAsPaths() const;
+    bool needsTransform() const;
+    bool needsPadding() const;
+
+    // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
+    void prepareGrGlyphs(GrStrikeCache*);
+    // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
+    SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
+
+    // The rectangle that surrounds all the glyph bounding boxes in device space.
+    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
+
+    GrGlyph* grGlyph(int i) const;
+
+    // df properties
+    void setUseLCDText(bool useLCDText);
+    bool hasUseLCDText() const;
+    void setAntiAliased(bool antiAliased);
+    bool isAntiAliased() const;
+
+    const SkStrikeSpec& strikeSpec() const;
+
+    GrTextVertexFiller* fNextSubRun{nullptr};
+    const SubRunType fType;
+    GrTextBlob* const fBlob;
+    const GrMaskFormat fMaskFormat;
+    const SkStrikeSpec fStrikeSpec;
+    sk_sp<GrTextStrike> fStrike;
+    struct {
+        bool useLCDText:1;
+        bool antiAliased:1;
+    } fFlags {false, false};
+    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+    std::vector<PathGlyph> fPaths;
+
+private:
+    bool hasW() const;
+
+    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
+    // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
+    // source space. The bounds are the joined rectangles of all the glyphs.
+    const SkRect fVertexBounds;
+    const SkSpan<VertexData> fVertexData;
+};  // GrTextVertexFiller
+
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
 // on the GPU.  These are initially created with valid positions and colors, but invalid
 // texture coordinates.
@@ -58,15 +202,7 @@ class SkTextBlobRunIterator;
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
-    class SubRun;
     class VertexRegenerator;
-
-    enum SubRunType {
-        kDirectMask,
-        kTransformedMask,
-        kTransformedPath,
-        kTransformedSDFT
-    };
 
     struct Key {
         Key();
@@ -82,14 +218,6 @@ public:
         uint32_t fScalerContextFlags;
 
         bool operator==(const Key& other) const;
-    };
-
-    // Any glyphs that can't be rendered with the base or override descriptor
-    // are rendered as paths
-    struct PathGlyph {
-        PathGlyph(const SkPath& path, SkPoint origin);
-        SkPath fPath;
-        SkPoint fOrigin;
     };
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
@@ -135,36 +263,7 @@ public:
                const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 
-    struct AtlasPt {
-        uint16_t u;
-        uint16_t v;
-    };
 
-    // Normal text mask, SDFT, or color.
-    struct Mask2DVertex {
-        SkPoint devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB2DVertex {
-        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint devicePos;
-        AtlasPt atlasPos;
-    };
-
-    // Perspective SDFT or SDFT forced to 3D or perspective color.
-    struct Mask3DVertex {
-        SkPoint3 devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB3DVertex {
-        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint3 devicePos;
-        AtlasPt atlasPos;
-    };
-
-    static const int kVerticesPerGlyph = 4;
 
     const Key& key() const;
     size_t size() const;
@@ -177,21 +276,19 @@ public:
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
 
-    bool hasW(SubRunType type) const;
-
-    SubRun* makeSubRun(SubRunType type,
-                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                       const SkStrikeSpec& strikeSpec,
-                       GrMaskFormat format);
+    GrTextVertexFiller* makeSubRun(GrTextVertexFiller::SubRunType type,
+                                   const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                   const SkStrikeSpec& strikeSpec,
+                                   GrMaskFormat format);
 
     void addSingleMaskFormat(
-            SubRunType type,
+            GrTextVertexFiller::SubRunType type,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec,
             GrMaskFormat format);
 
     void addMultiMaskFormat(
-            SubRunType type,
+            GrTextVertexFiller::SubRunType type,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
@@ -200,6 +297,9 @@ public:
                  const SkFont& runFont,
                  SkScalar minScale,
                  SkScalar maxScale);
+
+    void insertSubRun(GrTextVertexFiller* subRun);
+    bool forceWForDistanceFields() const { return fForceWForDistanceFields; }
 
 private:
     enum TextType {
@@ -220,9 +320,7 @@ private:
                SkColor initialLuminance,
                bool forceWForDistanceFields);
 
-    void insertSubRun(SubRun* subRun);
-
-    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun* subrun,
+    std::unique_ptr<GrAtlasTextOp> makeOp(GrTextVertexFiller* subrun,
                                           const SkMatrixProvider& matrixProvider,
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
@@ -277,8 +375,8 @@ private:
 
     uint8_t fTextType{0};
 
-    SubRun* fFirstSubRun{nullptr};
-    SubRun* fLastSubRun{nullptr};
+    GrTextVertexFiller* fFirstSubRun{nullptr};
+    GrTextVertexFiller* fLastSubRun{nullptr};
     SkArenaAlloc fAlloc;
 };
 
@@ -297,7 +395,7 @@ public:
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
+    VertexRegenerator(GrResourceProvider*, GrTextVertexFiller* subRun,
                       GrDeferredUploadTarget*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}
@@ -311,104 +409,8 @@ private:
     GrDeferredUploadTarget* fUploadTarget;
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
-    SubRun* fSubRun;
+    GrTextVertexFiller* fSubRun;
 };
 
-// -- GrTextBlob::SubRun ---------------------------------------------------------------------------
-// Hold data to draw the different types of sub run. SubRuns are produced knowing all the
-// glyphs that are included in them.
-class GrTextBlob::SubRun {
-public:
-    struct VertexData {
-        union {
-            // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
-            SkPackedGlyphID packedGlyphID;
-            GrGlyph* grGlyph;
-        } glyph;
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        GrIRect16 rect;
-    };
-
-    // SubRun for masks
-    SubRun(SubRunType type,
-           GrTextBlob* textBlob,
-           const SkStrikeSpec& strikeSpec,
-           GrMaskFormat format,
-           SkRect vertexBounds,
-           const SkSpan<VertexData>& vertexData);
-
-    // SubRun for paths
-    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
-
-    // TODO when this object is more internal, drop the privacy
-    void resetBulkUseToken();
-    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    GrTextStrike* strike() const;
-
-    GrMaskFormat maskFormat() const;
-
-    size_t vertexStride() const;
-    size_t quadOffset(size_t index) const;
-    void fillVertexData(
-            void* vertexDst, int offset, int count,
-            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
-            SkIRect clip) const;
-
-    void fillTextTargetVertexData(
-            Mask3DVertex vertexDst[][4],
-            int offset,
-            int count,
-            GrColor color,
-            SkPoint origin) const;
-
-    int glyphCount() const;
-
-    bool drawAsDistanceFields() const;
-    bool drawAsPaths() const;
-    bool needsTransform() const;
-    bool needsPadding() const;
-
-    // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
-    void prepareGrGlyphs(GrStrikeCache*);
-    // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
-    SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
-
-    // The rectangle that surrounds all the glyph bounding boxes in device space.
-    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
-
-    GrGlyph* grGlyph(int i) const;
-
-    // df properties
-    void setUseLCDText(bool useLCDText);
-    bool hasUseLCDText() const;
-    void setAntiAliased(bool antiAliased);
-    bool isAntiAliased() const;
-
-    const SkStrikeSpec& strikeSpec() const;
-
-    SubRun* fNextSubRun{nullptr};
-    const SubRunType fType;
-    GrTextBlob* const fBlob;
-    const GrMaskFormat fMaskFormat;
-    const SkStrikeSpec fStrikeSpec;
-    sk_sp<GrTextStrike> fStrike;
-    struct {
-        bool useLCDText:1;
-        bool antiAliased:1;
-    } fFlags {false, false};
-    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
-    std::vector<PathGlyph> fPaths;
-
-private:
-    bool hasW() const;
-
-    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-    // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
-    // source space. The bounds are the joined rectangles of all the glyphs.
-    const SkRect fVertexBounds;
-    const SkSpan<VertexData> fVertexData;
-};  // SubRun
 
 #endif  // GrTextBlob_DEFINED
