@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "075566a9_b7a4ece7",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-28T15:34:46Z",
+      "side": 1,
+      "message": "3D textures would definitely simplify this shader snippet, but this shader snippet is way nicer than having to add that backend complexity. This definitely seems like the right balance to me.",
+      "range": {
+        "startLine": 262,
+        "startChar": 15,
+        "endLine": 270,
+        "endChar": 55
+      },
+      "revId": "69f89b63282bee394be06bd374d018210e2c9c89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
