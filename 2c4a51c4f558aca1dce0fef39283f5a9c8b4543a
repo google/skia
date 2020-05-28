@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "713d4d54_b3d0da87",
+        "filename": "modules/canvaskit/viewer_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-28T11:18:39Z",
+      "side": 1,
+      "message": "Ah, that\u0027s a fair point. Ok, let\u0027s leave it as it is for viewer, since it appears to work well.",
+      "parentUuid": "4935c92c_51f3df30",
+      "range": {
+        "startLine": 26,
+        "startChar": 50,
+        "endLine": 26,
+        "endChar": 69
+      },
+      "revId": "2c4a51c4f558aca1dce0fef39283f5a9c8b4543a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f292258_3eb8a445",
         "filename": "modules/canvaskit/viewer_bindings.cpp",
         "patchSetId": 2
