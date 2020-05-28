@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67402203_64106f47",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-05-28T13:26:15Z",
+      "side": 1,
+      "message": "I am not sure it\u0027s the best place for this initialization but I am working on moving all ICU work in one place (so it does not have to be repeated every layout) and I will move it there.",
+      "revId": "f92dd46042838180b5483a238d74aeb619ffde00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
