@@ -27,10 +27,6 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-bool GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
-    return INHERITED::init(std::move(caps));
-}
-
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      size_t cacheMaxResourceBytes,
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
@@ -106,11 +102,12 @@ sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
                              GrBackendApi backend,
                              const GrContextOptions& options,
                              uint32_t contextID,
-                             sk_sp<const GrCaps> caps) {
+                             sk_sp<const GrCaps> caps,
+                             sk_sp<GrContextFamily> family) {
     sk_sp<GrContextThreadSafeProxy> proxy(new GrContextThreadSafeProxy(backend, options,
                                                                        contextID));
 
-    if (!proxy->init(std::move(caps))) {
+    if (!proxy->init(std::move(caps), std::move(family))) {
         return nullptr;
     }
     return proxy;

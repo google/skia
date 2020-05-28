@@ -8,6 +8,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextFamily.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -47,11 +48,11 @@ private:
     // GrRecordingContext!
     GrContext* asDirectContext() override { return nullptr; }
 
-    bool init(sk_sp<const GrCaps> caps) override {
+    bool init(sk_sp<const GrCaps> caps, sk_sp<GrContextFamily> family) override {
         SkASSERT(caps);
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
-        if (!INHERITED::init(std::move(caps))) {
+        if (!INHERITED::init(std::move(caps), std::move(family))) {
             return false;
         }
 
@@ -156,7 +157,7 @@ private:
 sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
     sk_sp<GrContext> context(new GrDDLContext(proxy));
 
-    if (!context->init(proxy->priv().refCaps())) {
+    if (!context->init(proxy->priv().refCaps(), proxy->priv().refFamily())) {
         return nullptr;
     }
     return context;
