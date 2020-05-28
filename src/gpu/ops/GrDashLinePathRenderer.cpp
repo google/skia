@@ -53,6 +53,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!op) {
         return false;
     }
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }

@@ -47,8 +47,6 @@ public:
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override;
     bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const override;
 
-    static const GrFixedClip& Disabled();
-
 private:
     GrScissorState       fScissorState;
     GrWindowRectsState   fWindowRectsState;

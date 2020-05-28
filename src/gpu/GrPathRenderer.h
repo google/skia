@@ -127,7 +127,6 @@ public:
             SkASSERT(fContext);
             SkASSERT(fUserStencilSettings);
             SkASSERT(fRenderTargetContext);
-            SkASSERT(fClip);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
