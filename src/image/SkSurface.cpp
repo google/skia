@@ -523,16 +523,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
-                                                                 const GrBackendTexture&,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 SkColorType,
-                                                                 sk_sp<SkColorSpace>,
-                                                                 const SkSurfaceProps*) {
-    return nullptr;
-}
-
 void SkSurface::flushAndSubmit() {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }

@@ -174,7 +174,6 @@ docs/examples/Region_op_6.cpp
 docs/examples/Region_setPath.cpp
 docs/examples/Region_writeToMemory.cpp
 docs/examples/Surface_MakeFromBackendTexture.cpp
-docs/examples/Surface_MakeFromBackendTextureAsRenderTarget.cpp
 docs/examples/Surface_MakeRenderTarget.cpp
 docs/examples/Surface_MakeRenderTarget_2.cpp
 docs/examples/Surface_MakeRenderTarget_3.cpp

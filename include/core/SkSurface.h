@@ -234,29 +234,8 @@ public:
                                                 RenderTargetReleaseProc releaseProc = nullptr,
                                                 ReleaseContext releaseContext = nullptr);
 
-    /** Wraps a GPU-backed texture into SkSurface. Caller must ensure backendTexture is
-        valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
-        creates an intermediate MSAA SkSurface which is used for drawing backendTexture.
-
-        SkSurface is returned if all parameters are valid. backendTexture is valid if
-        its pixel configuration agrees with colorSpace and context; for instance, if
-        backendTexture has an sRGB configuration, then context must support sRGB,
-        and colorSpace must be present. Further, backendTexture width and height must
-        not exceed context capabilities.
-
-        Returned SkSurface is available only for drawing into, and cannot generate an
-        SkImage.
-
-        If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-        @param context         GPU context
-        @param backendTexture  texture residing on GPU
-        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorSpace      range of colors; may be nullptr
-        @param surfaceProps    LCD striping orientation and setting for device independent
-                               fonts; may be nullptr
-        @return                SkSurface if all parameters are valid; otherwise, nullptr
-    */
+#if GR_TEST_UTILS
+    // TODO: Remove this.
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                             const GrBackendTexture& backendTexture,
                                                             GrSurfaceOrigin origin,
@@ -264,6 +243,7 @@ public:
                                                             SkColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps);
+#endif
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
     /** Private.

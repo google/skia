@@ -9,6 +9,12 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
+    This factory existed to work around issues with GL_TEXTURE_RECTANGLE that existed
+    in Chrome's command buffer. Those issues have since been resolved. Use
+    SkSurface::MakeFromBackendTexutre or SkSurface::MakeFromBackendRenderTarget instead.
+    https://review.skia.org/292719
+
   * Adds submittedProc callback to GrFlushInfo which will be called when the work
     from the flush call is submitted to the GPU. This is specifically useful for knowing
     when semahpores sent with the flush have been submitted and can be waiting on.
