@@ -349,6 +349,7 @@ describe('Canvas Behavior', () => {
         paint.setColorFilter(final)
         canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
+        CanvasKit.Free(cm);
         paint.delete();
         final.delete();
     });
@@ -550,6 +551,7 @@ describe('Canvas Behavior', () => {
             mPoints.set([32, 16, 48, 48, 16, 32]);
             canvas.drawPoints(CanvasKit.PointMode.Polygon, mPoints, paint);
             canvas.translate(-192, 64);
+            CanvasKit.Free(mPoints);
         }
 
         paint.delete();
