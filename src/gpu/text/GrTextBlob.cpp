@@ -598,18 +598,6 @@ void GrTextBlob::addOp(GrTextTarget* target,
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
-std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(const SkMatrixProvider& matrixProvider,
-                                                  SkPoint drawOrigin,
-                                                  const SkPaint& paint,
-                                                  const SkPMColor4f& filteredColor,
-                                                  const SkSurfaceProps& props,
-                                                  GrTextTarget* target) {
-    SubRun* info = fFirstSubRun;
-    SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(info, matrixProvider, drawOrigin, emptyRect, paint,
-                        filteredColor, props, target);
-}
-
 bool GrTextBlob::hasW(GrTextBlob::SubRunType type) const {
     if (type == kTransformedSDFT) {
         return this->hasPerspective() || fForceWForDistanceFields;
