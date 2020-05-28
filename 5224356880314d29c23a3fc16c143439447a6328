@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b08af43e_2c9645c0",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-05-28T15:55:14Z",
+      "side": 1,
+      "message": "FWIW I\u0027ve always wondered whether we should try dithering 565 with different factors for each channel.",
+      "range": {
+        "startLine": 209,
+        "startChar": 7,
+        "endLine": 210,
+        "endChar": 28
+      },
+      "revId": "5224356880314d29c23a3fc16c143439447a6328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
