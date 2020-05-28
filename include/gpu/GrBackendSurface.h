@@ -8,6 +8,7 @@
 #ifndef GrBackendSurface_DEFINED
 #define GrBackendSurface_DEFINED
 
+#include "include/gpu/GrBackendSurfaceMutableState.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/gpu/mock/GrMockTypes.h"
@@ -19,6 +20,7 @@
 #include "include/gpu/dawn/GrDawnTypes.h"
 #endif
 
+class GrBackendSurfaceMutableStateImpl;
 class GrVkImageLayout;
 class GrGLTextureParameters;
 
@@ -224,7 +226,7 @@ private:
 class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
-    GrBackendTexture() : fIsValid(false) {}
+    GrBackendTexture();
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendTexture(int width,
@@ -232,9 +234,11 @@ public:
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
 
+#ifdef SK_VULKAN
     GrBackendTexture(int width,
                      int height,
                      const GrVkImageInfo& vkInfo);
+#endif
 
 #ifdef SK_METAL
     GrBackendTexture(int width,
@@ -286,6 +290,7 @@ public:
     bool getDawnTextureInfo(GrDawnTextureInfo*) const;
 #endif
 
+#ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
     // state. Otherwise returns false if the backend API is not Vulkan.
@@ -294,6 +299,7 @@ public:
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
+#endif
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
@@ -319,6 +325,13 @@ public:
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockTextureInfo(GrMockTextureInfo*) const;
 
+    // If the client changes any of the mutable backend of the GrBackendTexture they should call
+    // this function to inform Skia that those values have changed. The backend API specific state
+    // that can be set from this function are:
+    //
+    // Vulkan: VkImageLayout and QueueFamilyIndex
+    void setMutableState(const GrBackendSurfaceMutableState&);
+
     // Returns true if we are working with protected content.
     bool isProtected() const;
 
@@ -333,6 +346,8 @@ public:
 #endif
 
 private:
+    friend class GrVkGpu;  // for getMutableState
+    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const;
 
 #ifdef SK_GL
     friend class GrGLTexture;
@@ -347,12 +362,10 @@ private:
 
 #ifdef SK_VULKAN
     friend class GrVkTexture;
-    friend class GrVkGpu;    // for getGrVkImageLayout
     GrBackendTexture(int width,
                      int height,
                      const GrVkImageInfo& vkInfo,
-                     sk_sp<GrVkImageLayout> layout);
-    sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState);
 #endif
 
 #ifdef SK_DIRECT3D
@@ -390,12 +403,14 @@ private:
 #ifdef SK_DAWN
     GrDawnTextureInfo fDawnInfo;
 #endif
+
+    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
 };
 
 class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
-    GrBackendRenderTarget() : fIsValid(false) {}
+    GrBackendRenderTarget();
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendRenderTarget(int width,
@@ -412,6 +427,7 @@ public:
                           const GrDawnRenderTargetInfo& dawnInfo);
 #endif
 
+#ifdef SK_VULKAN
     /** Deprecated, use version that does not take stencil bits. */
     GrBackendRenderTarget(int width,
                           int height,
@@ -419,6 +435,7 @@ public:
                           int stencilBits,
                           const GrVkImageInfo& vkInfo);
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
+#endif
 
 #ifdef SK_METAL
     GrBackendRenderTarget(int width,
@@ -463,6 +480,7 @@ public:
     bool getDawnRenderTargetInfo(GrDawnRenderTargetInfo*) const;
 #endif
 
+#ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
     // state. Otherwise returns false if the backend API is not Vulkan.
@@ -471,6 +489,7 @@ public:
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendRenderTarget, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
+#endif
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
@@ -495,6 +514,13 @@ public:
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
 
+    // If the client changes any of the mutable backend of the GrBackendTexture they should call
+    // this function to inform Skia that those values have changed. The backend API specific state
+    // that can be set from this function are:
+    //
+    // Vulkan: VkImageLayout and QueueFamilyIndex
+    void setMutableState(const GrBackendSurfaceMutableState&);
+
     // Returns true if we are working with protected content.
     bool isProtected() const;
 
@@ -507,12 +533,15 @@ public:
 #endif
 
 private:
-    friend class GrVkGpu; // for getGrVkImageLayout
-    sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
+    friend class GrVkGpu; // for getMutableState
+    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const;
 
+#ifdef SK_VULKAN
     friend class GrVkRenderTarget;
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
-                          sk_sp<GrVkImageLayout> layout);
+                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState);
+#endif
+
 #ifdef SK_DIRECT3D
     friend class GrD3DGpu;
     friend class GrD3DRenderTarget;
@@ -550,6 +579,7 @@ private:
 #ifdef SK_DAWN
     GrDawnRenderTargetInfo  fDawnInfo;
 #endif
+    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
 };
 
 #endif
