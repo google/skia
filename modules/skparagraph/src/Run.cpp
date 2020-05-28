@@ -1,10 +1,19 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/Run.h"
-#include <unicode/brkiter.h>
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include <algorithm>
+#include "modules/skparagraph/src/Run.h"
+#include "modules/skshaper/include/SkShaper.h"
 #include "src/utils/SkUTF.h"
+
+#include <unicode/uchar.h>
+#include <algorithm>
+#include <utility>
 
 namespace {
 

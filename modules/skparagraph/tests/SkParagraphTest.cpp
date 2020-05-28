@@ -1,19 +1,50 @@
 // Copyright 2019 Google LLC.
-#include <sstream>
-#include <thread>
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphCache.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextShadow.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkSpan.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaperJSONWriter.h"
-#include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
+
+#include <string.h>
+#include <unicode/unistr.h>
+#include <limits>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+struct GrContextOptions;
+
 
 #define VeryLongCanvasWidth 1000000
 #define TestCanvasWidth 1000

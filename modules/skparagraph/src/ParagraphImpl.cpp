@@ -1,11 +1,19 @@
 // Copyright 2019 Google LLC.
-#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
+#include "modules/skparagraph/include/Metrics.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
@@ -14,10 +22,17 @@
 #include "third_party/icu/SkLoadICU.h"
 #endif
 
+#include <math.h>
+#include <unicode/ubidi.h>
+#include <unicode/uloc.h>
+#include <unicode/umachine.h>
+#include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <unicode/utext.h>
+#include <unicode/utypes.h>
 #include <algorithm>
-#include <chrono>
-#include <queue>
+#include <utility>
+
 
 namespace skia {
 namespace textlayout {
@@ -768,7 +783,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
         UErrorCode errorCode = U_ZERO_ERROR;
 
-        auto iter = ubrk_open(UBRK_WORD, icu::Locale().getName(), nullptr, 0, &errorCode);
+        auto iter = ubrk_open(UBRK_WORD, uloc_getDefault(), nullptr, 0, &errorCode);
         if (U_FAILURE(errorCode)) {
             SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
             return {0, 0};
@@ -788,7 +803,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         }
 
         int32_t pos = ubrk_first(iter);
-        while (pos != icu::BreakIterator::DONE) {
+        while (pos != UBRK_DONE) {
             fWords.emplace_back(pos);
             pos = ubrk_next(iter);
         }

@@ -1,13 +1,34 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/TextLine.h"
-#include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/Metrics.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextShadow.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Decorations.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/TextLine.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkSpan.h"
 
-#include "include/core/SkMaskFilter.h"
-#include "include/effects/SkDashPathEffect.h"
-#include "include/effects/SkDiscretePathEffect.h"
+#include <unicode/ubidi.h>
+#include <algorithm>
+#include <iterator>
+#include <limits>
+#include <map>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace skia {
 namespace textlayout {

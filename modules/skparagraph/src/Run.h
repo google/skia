@@ -2,21 +2,32 @@
 #ifndef Run_DEFINED
 #define Run_DEFINED
 
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkTextBlob.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
-#include <functional>  // std::function
+
+#include <math.h>
+#include <algorithm>
+#include <functional>
+#include <limits>
+#include <tuple>
+
+class SkTextBlobBuilder;
 
 namespace skia {
 namespace textlayout {
 
-class ParagraphImpl;
 class Cluster;
-class Run;
+class InternalLineMetrics;
+class ParagraphImpl;
 
 typedef size_t RunIndex;
 const size_t EMPTY_RUN = EMPTY_INDEX;
@@ -44,7 +55,6 @@ class DirText {
     size_t end;
 };
 
-class InternalLineMetrics;
 class Run {
 public:
     Run() = default;

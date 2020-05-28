@@ -2,23 +2,40 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
-#include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
-#include <unicode/unistr.h>
-#include <unicode/urename.h>
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
-#include "include/private/SkMutex.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "include/private/SkTemplates.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextShadow.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
-#include "modules/skparagraph/src/TextLine.h"
+#include "src/core/SkSpan.h"
+
+#include <unicode/ubrk.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 class SkCanvas;
 
 namespace skia {
 namespace textlayout {
+
+class LineMetrics;
+class TextLine;
 
 template <typename T> bool operator==(const SkSpan<T>& a, const SkSpan<T>& b) {
     return a.size() == b.size() && a.begin() == b.begin();
@@ -76,17 +93,17 @@ public:
 
     size_t preceding(size_t offset) {
         auto pos = ubrk_preceding(fIterator.get(), offset);
-        return pos == icu::BreakIterator::DONE ? 0 : pos;
+        return pos == UBRK_DONE ? 0 : pos;
     }
 
     size_t following(size_t offset) {
         auto pos = ubrk_following(fIterator.get(), offset);
-        return pos == icu::BreakIterator::DONE ? fSize : pos;
+        return pos == UBRK_DONE ? fSize : pos;
     }
 
     int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
 
-    bool eof() { return fPos == icu::BreakIterator::DONE; }
+    bool eof() { return fPos == UBRK_DONE; }
 
 private:
     std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
