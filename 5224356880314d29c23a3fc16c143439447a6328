@@ -68,6 +68,54 @@
       "revId": "5224356880314d29c23a3fc16c143439447a6328",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce019ad1_83c0a89a",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-28T17:03:11Z",
+      "side": 1,
+      "message": "Added skbug.com/10294 to track it.",
+      "parentUuid": "0e5158a0_a40b2f6c",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 389,
+        "endChar": 91
+      },
+      "revId": "5224356880314d29c23a3fc16c143439447a6328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "215e2f96_624d79e8",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-28T17:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e49b069f_a8a57e24",
+      "range": {
+        "startLine": 389,
+        "startChar": 60,
+        "endLine": 389,
+        "endChar": 62
+      },
+      "revId": "5224356880314d29c23a3fc16c143439447a6328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
