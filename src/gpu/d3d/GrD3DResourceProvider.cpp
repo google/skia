@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
@@ -17,8 +18,7 @@
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fCpuDescriptorManager(gpu)
-        , fPipelineStateCache(new PipelineStateCache(gpu)) {
-}
+        , fPipelineStateCache(new PipelineStateCache(gpu)) {}
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
     if (fAvailableDirectCommandLists.count()) {
@@ -97,6 +97,26 @@ void GrD3DResourceProvider::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* sampler)
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
+    if (!fConstantBuffer) {
+        //*** fix size and alignment
+        fConstantBuffer = GrD3DConstantRingBuffer::Make(fGpu, 128 * 1024, 256);
+        SkASSERT(fConstantBuffer);
+    }
+
+    size_t paddedSize = GrAlignTo(size, 256);
+    size_t offset = fConstantBuffer->suballocate(paddedSize);
+    char* destPtr = static_cast<char*>(fConstantBuffer->mapPtr()) + offset;
+    memcpy(destPtr, data, size);
+
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(fConstantBuffer->buffer());
+    return this->createConstantBufferView(d3dBuffer->d3dResource(), offset, paddedSize);
+}
+
+void GrD3DResourceProvider::prepForSubmit() {
+    fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
