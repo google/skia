@@ -1717,6 +1717,10 @@ if (skia_enable_tools) {
     }
   }
   if (target_cpu != "wasm") {
+    test_app("convert-to-nia") {
+      sources = [ "tools/convert-to-nia.cpp" ]
+      deps = [ ":skia" ]
+    }
     test_app("imgcvt") {
       sources = [ "tools/imgcvt.cpp" ]
       deps = [
