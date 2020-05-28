@@ -35,13 +35,20 @@ class ParagraphCacheValue {
 public:
     ParagraphCacheValue(const ParagraphImpl* paragraph)
         : fKey(ParagraphCacheKey(paragraph))
-        , fRuns(paragraph->fRuns) { }
+        , fRuns(paragraph->fRuns)
+        , fIcuFlags(paragraph->fIcuFlags)
+        , fGraphemes16(paragraph->fGraphemes16)
+        , fCodePoints(paragraph->fCodePoints) { }
 
     // Input == key
     ParagraphCacheKey fKey;
 
     // Shaped results
     SkTArray<Run, false> fRuns;
+    // ICU results
+    SkTArray<unsigned> fIcuFlags;
+    SkTArray<Grapheme, true> fGraphemes16;
+    SkTArray<Codepoint, true> fCodePoints;
 };
 
 uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
@@ -193,6 +200,9 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
 
     paragraph->fRuns.reset();
     paragraph->fRuns = entry->fValue->fRuns;
+    paragraph->fIcuFlags = entry->fValue->fIcuFlags;
+    paragraph->fGraphemes16 = entry->fValue->fGraphemes16;
+    paragraph->fCodePoints = entry->fValue->fCodePoints;
     for (auto& run : paragraph->fRuns) {
         run.setMaster(paragraph);
     }
