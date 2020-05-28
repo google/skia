@@ -29,6 +29,10 @@ public:
     };
 
     TextLine() = default;
+    TextLine(const TextLine&) = delete;
+    TextLine& operator=(const TextLine&) = delete;
+    TextLine(TextLine&&) = default;
+    TextLine& operator=(TextLine&&) = default;
     ~TextLine() = default;
 
     TextLine(ParagraphImpl* master,

@@ -239,7 +239,7 @@ private:
     SkTHashSet<size_t> fGraphemes;
     size_t fUnresolvedGlyphs;
 
-    SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
+    SkTArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)
     sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)
 
     SkTArray<ResolvedFontDescriptor> fFontSwitches;
