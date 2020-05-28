@@ -19,7 +19,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:77.0.3865.120_v2'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:83.0.4103.61_v1'
 INNER_KARMA_SCRIPT = 'skia/infra/canvaskit/test_canvaskit.sh'
 
 
@@ -30,13 +30,16 @@ def RunSteps(api):
 
   # The karma script is configured to look in ./canvaskit/bin/ for
   # the test files to load, so we must copy them there (see Set up for docker).
-  copy_dest = checkout_root.join('skia', 'modules', 'canvaskit',
-                                 'canvaskit', 'bin')
+  canvaskit_root = checkout_root.join('skia', 'modules', 'canvaskit')
+  copy_dest = canvaskit_root.join('canvaskit', 'bin')
+
   api.file.ensure_directory('mkdirs copy_dest', copy_dest, mode=0777)
+  api.file.rmtree('Remove old node_modules', canvaskit_root.join('node_modules'))
+  api.file.rmtree('Remove old npm caches', canvaskit_root.join('.npm'))
   base_dir = api.vars.build_dir
   copies = {
-    base_dir.join('canvaskit.js'): copy_dest.join('canvaskit.js'),
-    base_dir.join('canvaskit.wasm'):    copy_dest.join('canvaskit.wasm'),
+    base_dir.join('canvaskit.js'):   copy_dest.join('canvaskit.js'),
+    base_dir.join('canvaskit.wasm'): copy_dest.join('canvaskit.wasm'),
   }
   recursive_read = [checkout_root.join('skia')]
 
