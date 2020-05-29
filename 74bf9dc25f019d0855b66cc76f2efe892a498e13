@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6afdd358_1f1a415c",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T20:25:30Z",
+      "side": 1,
+      "message": "I don\u0027t quite get how this gm is named.",
+      "range": {
+        "startLine": 283,
+        "startChar": 8,
+        "endLine": 283,
+        "endChar": 13
+      },
+      "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "162508bc_34296742",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T20:25:30Z",
+      "side": 1,
+      "message": "Don\u0027t commit this. Protip: if you add \"pause_\" to the gm on line 283 (e.g. pause_gm(\u0027trim_path\u0027...) It will show the gm on the screen after it renders also.",
+      "range": {
+        "startLine": 314,
+        "startChar": 8,
+        "endLine": 314,
+        "endChar": 16
+      },
+      "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
