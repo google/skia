@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e25dd843_50aa97ce",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T17:44:29Z",
+      "side": 1,
+      "message": "Just wanted to state that it is really annoying that the diff viewer (for me at least) decided that this line goes before the removal of the code on the left but the next line goes after, leaving an enormous gap to scroll up to see where AddSingleMaskFormat is coming from. (It doesn\u0027t help that without this line the declaration of addMultiMaskFormat is a valid non-template declaration.",
+      "revId": "ab3a53380dfa32840cb266bbebd68e302d0a60ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2e752b0_ae04b6ad",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T17:44:29Z",
+      "side": 1,
+      "message": "This seems to be a private common implementation detail of the other \u0027MakeXXX\u0027 methods. At least I don\u0027t see it being used directly anywhere here. Should it be private to mark that?",
+      "range": {
+        "startLine": 311,
+        "startChar": 19,
+        "endLine": 311,
+        "endChar": 23
+      },
+      "revId": "ab3a53380dfa32840cb266bbebd68e302d0a60ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
