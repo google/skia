@@ -36,7 +36,10 @@ if (skia_enable_skshaper) {
         "//third_party/icu",
       ]
     }
-    configs += [ "../../:skia_private" ]
+    configs += [
+      "../../:skia_private",
+      "../../third_party/icu/config:no_cxx",
+    ]
   }
 } else {
   group("skshaper") {
