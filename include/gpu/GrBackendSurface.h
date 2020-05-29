@@ -290,7 +290,6 @@ public:
     bool getDawnTextureInfo(GrDawnTextureInfo*) const;
 #endif
 
-#ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
     // state. Otherwise returns false if the backend API is not Vulkan.
@@ -299,7 +298,6 @@ public:
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
-#endif
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
@@ -480,7 +478,6 @@ public:
     bool getDawnRenderTargetInfo(GrDawnRenderTargetInfo*) const;
 #endif
 
-#ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
     // in pointer and returns true. This snapshot will set the fImageLayout to the current layout
     // state. Otherwise returns false if the backend API is not Vulkan.
@@ -489,7 +486,6 @@ public:
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendRenderTarget, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
-#endif
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
