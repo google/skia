@@ -33,12 +33,8 @@ public:
         return nullptr;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {
-    }
-
-    bool onIsEqual(const GrFragmentProcessor& that) const override {
-        return this == &that;
-    }
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -57,7 +53,6 @@ GrGLSLFragmentProcessor* SampleMatrixConstantEffect::onCreateGLSLInstance() cons
     return new GLSLSampleMatrixConstantEffect();
 }
 
-
 DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
     {
         SkRect bounds = SkRect::MakeIWH(256, 256);
@@ -71,7 +66,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
                 new SampleMatrixConstantEffect(std::move(imgFP)));
 
         GrPaint paint;
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 
@@ -92,8 +87,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixConstantEffect(std::move(gradientFP)));
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 }
-

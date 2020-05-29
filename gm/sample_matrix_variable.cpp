@@ -20,11 +20,12 @@ class SampleMatrixVariableEffect : public GrFragmentProcessor {
 public:
     static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 2;
 
-    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child, float xOffset,
+    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child,
+                               float xOffset,
                                float yOffset)
-        : INHERITED(CLASS_ID, kNone_OptimizationFlags)
-        , fXOffset(xOffset)
-        , fYOffset(yOffset) {
+            : INHERITED(CLASS_ID, kNone_OptimizationFlags)
+            , fXOffset(xOffset)
+            , fYOffset(yOffset) {
         child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
         this->registerChildProcessor(std::move(child));
     }
@@ -36,12 +37,8 @@ public:
         return nullptr;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {
-    }
-
-    bool onIsEqual(const GrFragmentProcessor& that) const override {
-        return this == &that;
-    }
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -50,7 +47,6 @@ private:
     float fYOffset;
 
     typedef GrFragmentProcessor INHERITED;
-
     friend class GLSLSampleMatrixVariableEffect;
 };
 
@@ -87,7 +83,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
                 new SampleMatrixVariableEffect(std::move(imgFP), -128, 256));
 
         GrPaint paint;
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 
@@ -109,7 +105,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         gradientFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixVariableEffect(std::move(gradientFP), -0.5, 1));
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 }
