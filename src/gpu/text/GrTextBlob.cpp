@@ -310,7 +310,15 @@ bool GrTextBlob::SubRun::needsPadding() const {
 }
 
 bool GrTextBlob::SubRun::hasW() const {
-    return fBlob->hasW(fType);
+    if (fType == kTransformedSDFT) {
+        return fBlob->hasPerspective() || fBlob->forceWForDistanceFields();
+    } else if (fType == kTransformedMask || fType == kTransformedPath) {
+        return fBlob->hasPerspective();
+    }
+
+    // The viewMatrix is implicitly SkMatrix::I when drawing kDirectMask, because it is not
+    // used.
+    return false;
 }
 
 void GrTextBlob::SubRun::prepareGrGlyphs(GrStrikeCache* strikeCache) {
@@ -593,17 +601,6 @@ void GrTextBlob::addOp(GrTextTarget* target,
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
-bool GrTextBlob::hasW(GrTextBlob::SubRunType type) const {
-    if (type == kTransformedSDFT) {
-        return this->hasPerspective() || fForceWForDistanceFields;
-    } else if (type == kTransformedMask || type == kTransformedPath) {
-        return this->hasPerspective();
-    }
-
-    // The viewMatrix is implicitly SkMatrix::I when drawing kDirectMask, because it is not
-    // used.
-    return false;
-}
 
 GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
                                            const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -764,6 +761,10 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkStrikeSpec& strikeSpec) {
     this->addMultiMaskFormat(kTransformedMask, drawables, strikeSpec);
 }
+
+auto GrTextBlob::firstSubRun() const -> SubRun* { return fFirstSubRun; }
+
+bool GrTextBlob::forceWForDistanceFields() const { return fForceWForDistanceFields; }
 
 // -- Adding a mask to an atlas ----------------------------------------------------------------
 
