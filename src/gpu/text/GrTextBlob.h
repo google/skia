@@ -61,13 +61,6 @@ public:
     class SubRun;
     class VertexRegenerator;
 
-    enum SubRunType {
-        kDirectMask,
-        kTransformedMask,
-        kTransformedPath,
-        kTransformedSDFT
-    };
-
     struct Key {
         Key();
         uint32_t fUniqueID;
@@ -169,27 +162,11 @@ public:
     const Key& key() const;
     size_t size() const;
 
-    SubRun* makeSubRun(SubRunType type,
-                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                       const SkStrikeSpec& strikeSpec,
-                       GrMaskFormat format);
-
-    void addSingleMaskFormat(
-            SubRunType type,
-            const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec,
-            GrMaskFormat format);
-
+    template<typename AddSingleMaskFormat>
     void addMultiMaskFormat(
-            SubRunType type,
+            AddSingleMaskFormat addSingle,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
-
-    void addSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                 const SkStrikeSpec& strikeSpec,
-                 const SkFont& runFont,
-                 SkScalar minScale,
-                 SkScalar maxScale);
 
     std::unique_ptr<GrAtlasTextOp> makeOp(SubRun* subrun,
                                           const SkMatrixProvider& matrixProvider,
@@ -311,6 +288,13 @@ private:
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
 // glyphs that are included in them.
 class GrTextBlob::SubRun {
+    enum SubRunType {
+        kDirectMask,
+        kTransformedMask,
+        kTransformedPath,
+        kTransformedSDFT
+    };
+
 public:
     struct VertexData {
         union {
@@ -381,9 +365,29 @@ public:
 
     const SkStrikeSpec& strikeSpec() const;
 
+    static SubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                             const SkFont& runFont,
+                             const SkStrikeSpec& strikeSpec,
+                             GrTextBlob* blob,
+                             SkArenaAlloc* alloc);
+    static SubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                            const SkFont& runFont,
+                            const SkStrikeSpec& strikeSpec,
+                            GrTextBlob* blob,
+                            SkArenaAlloc* alloc);
+    static SubRun* MakeDirectMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                  const SkStrikeSpec& strikeSpec,
+                                  GrMaskFormat format,
+                                  GrTextBlob* blob,
+                                  SkArenaAlloc* alloc);
+    static SubRun* MakeTransformedMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                       const SkStrikeSpec& strikeSpec,
+                                       GrMaskFormat format,
+                                       GrTextBlob* blob,
+                                       SkArenaAlloc* alloc);
+
     SubRun* fNextSubRun{nullptr};
-    const SubRunType fType;
-    GrTextBlob* const fBlob;
+    GrTextBlob* fBlob;
     const GrMaskFormat fMaskFormat;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
@@ -395,7 +399,15 @@ public:
     std::vector<PathGlyph> fPaths;
 
 private:
+    static SubRun* InitForAtlas(SubRunType type,
+                                const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                const SkStrikeSpec& strikeSpec,
+                                GrMaskFormat format,
+                                GrTextBlob* blob,
+                                SkArenaAlloc* alloc);
     bool hasW() const;
+
+    const SubRunType fType;
 
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
