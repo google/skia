@@ -43,6 +43,7 @@ static sk_sp<SkImage> do_read_and_scale(SkSurface* surface, const SkIRect& srcRe
                                         SkFilterQuality quality) {
     auto* context = new AsyncContext();
     surface->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback, context);
+    surface->flushAndSubmit();
     while (!context->fCalled) {
         // Only GPU should actually be asynchronous.
         SkASSERT(surface->getCanvas()->getGrContext());
@@ -69,6 +70,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
     AsyncContext context;
     surface->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
                                              rescaleGamma, quality, async_callback, &context);
+    surface->flushAndSubmit();
     while (!context.fCalled) {
         // Only GPU should actually be asynchronous.
         SkASSERT(surface->getCanvas()->getGrContext());
