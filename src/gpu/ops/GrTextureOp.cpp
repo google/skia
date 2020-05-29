@@ -95,7 +95,7 @@ static bool filter_has_effect(const GrQuad& srcQuad, const GrQuad& dstQuad) {
 // regular and rectangular textures, w/ or w/o origin correction.
 struct NormalizationParams {
     float fIW; // 1 / width of texture, or 1.0 for texture rectangles
-    float fIH; // 1 / height of texture, or 1.0 for tex rects, X -1 if bottom-left origin
+    float fInvH; // 1 / height of texture, or 1.0 for tex rects, X -1 if bottom-left origin
     float fYOffset; // 0 for top-left origin, height of [normalized] tex if bottom-left
 };
 static NormalizationParams proxy_normalization_params(const GrSurfaceProxy* proxy,
@@ -147,9 +147,9 @@ static SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
     ltrb = skvx::min(ltrb*flipHi, mid*flipHi)*flipHi;
 
     // Normalize and offset
-    ltrb = mad(ltrb, {params.fIW, params.fIH, params.fIW, params.fIH},
+    ltrb = mad(ltrb, {params.fIW, params.fInvH, params.fIW, params.fInvH},
                {0.f, params.fYOffset, 0.f, params.fYOffset});
-    if (params.fIH < 0.f) {
+    if (params.fInvH < 0.f) {
         // Flip top and bottom to keep the rect sorted when loaded back to SkRect.
         ltrb = skvx::shuffle<0, 3, 2, 1>(ltrb);
     }
@@ -165,7 +165,7 @@ static void normalize_src_quad(const NormalizationParams& params,
     // The src quad should not have any perspective
     SkASSERT(!srcQuad->hasPerspective());
     skvx::Vec<4, float> xs = srcQuad->x4f() * params.fIW;
-    skvx::Vec<4, float> ys = mad(srcQuad->y4f(), params.fIH, params.fYOffset);
+    skvx::Vec<4, float> ys = mad(srcQuad->y4f(), params.fInvH, params.fYOffset);
     xs.store(srcQuad->xs());
     ys.store(srcQuad->ys());
 }
