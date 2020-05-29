@@ -1057,7 +1057,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 class GrTextureOp::BatchSizeLimiter {
 public:
     BatchSizeLimiter(GrRenderTargetContext* rtc,
-                     const GrClip* clip,
+                     const GrClip& clip,
                      GrRecordingContext* context,
                      int numEntries,
                      GrSamplerState::Filter filter,
@@ -1095,7 +1095,7 @@ public:
 
 private:
     GrRenderTargetContext*      fRTC;
-    const GrClip*               fClip;
+    const GrClip&               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;
     GrTextureOp::Saturate       fSaturate;
@@ -1109,7 +1109,7 @@ private:
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
 void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
-                                   const GrClip* clip,
+                                   const GrClip& clip,
                                    GrRecordingContext* context,
                                    GrRenderTargetContext::TextureSetEntry set[],
                                    int cnt,

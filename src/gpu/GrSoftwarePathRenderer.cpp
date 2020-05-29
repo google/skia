@@ -68,17 +68,15 @@ static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkM
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
 bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* renderTargetContext,
-                                                   const GrClip* clip,
+                                                   const GrClip& clip,
                                                    const GrStyledShape& shape,
                                                    const SkMatrix& matrix,
                                                    SkIRect* unclippedDevShapeBounds,
                                                    SkIRect* clippedDevShapeBounds,
                                                    SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    *devClipBounds = clip ? clip->getConservativeBounds(renderTargetContext->width(),
-                                                        renderTargetContext->height())
-                          : SkIRect::MakeWH(renderTargetContext->width(),
-                                            renderTargetContext->height());
+    *devClipBounds = clip.getConservativeBounds(renderTargetContext->width(),
+                                                renderTargetContext->height());
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
         *unclippedDevShapeBounds = SkIRect::MakeEmpty();
@@ -97,7 +95,7 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
 void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                                            GrPaint&& paint,
                                            const GrUserStencilSettings& userStencilSettings,
-                                           const GrClip* clip,
+                                           const GrClip& clip,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
@@ -108,7 +106,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrUserStencilSettings& userStencilSettings,
-                                               const GrClip* clip,
+                                               const GrClip& clip,
                                                const SkMatrix& viewMatrix,
                                                const SkIRect& devClipBounds,
                                                const SkIRect& devPathBounds) {
@@ -149,7 +147,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
         GrRenderTargetContext* renderTargetContext,
         GrPaint&& paint,
         const GrUserStencilSettings& userStencilSettings,
-        const GrClip* clip,
+        const GrClip& clip,
         const SkMatrix& viewMatrix,
         const SkIPoint& textureOriginInDeviceSpace,
         const SkIRect& deviceSpaceRectToDraw) {
@@ -243,13 +241,13 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                     args.fShape->hasUnstyledKey() && (GrAAType::kCoverage == args.fAAType);
 
     if (!GetShapeAndClipBounds(args.fRenderTargetContext,
-                               args.fClip, *args.fShape,
+                               *args.fClip, *args.fShape,
                                *args.fViewMatrix, &unclippedDevShapeBounds,
                                &clippedDevShapeBounds,
                                &devClipBounds)) {
         if (inverseFilled) {
             DrawAroundInvPath(args.fRenderTargetContext, std::move(args.fPaint),
-                              *args.fUserStencilSettings, args.fClip, *args.fViewMatrix,
+                              *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
                               devClipBounds, unclippedDevShapeBounds);
         }
         return true;
@@ -384,11 +382,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(view);
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
-                          *args.fUserStencilSettings, args.fClip, *args.fViewMatrix, devClipBounds,
+                          *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
                           unclippedDevShapeBounds);
     }
     DrawToTargetWithShapeMask(std::move(view), args.fRenderTargetContext, std::move(args.fPaint),
-                              *args.fUserStencilSettings, args.fClip, *args.fViewMatrix,
+                              *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
                               SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 
     return true;

@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 #include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -540,7 +541,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 auto op = CopyAtlasOp::Make(
                         rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcProxy,
                         baseCopyInstance, endCopyInstance, atlas.drawBounds());
-                rtc->addDrawOp(nullptr, std::move(op));
+                rtc->addDrawOp(GrNoClip(), std::move(op));
             }
             baseCopyInstance = endCopyInstance;
         }
@@ -579,7 +580,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                         rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), atlas.drawBounds());
             }
-            rtc->addDrawOp(nullptr, std::move(op));
+            rtc->addDrawOp(GrNoClip(), std::move(op));
             if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
                 onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->asTextureProxy()),
                                                  GrSurfaceProxy::ResolveFlags::kMSAA);
