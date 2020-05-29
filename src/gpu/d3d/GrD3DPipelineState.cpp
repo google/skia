@@ -42,7 +42,7 @@ GrD3DPipelineState::GrD3DPipelineState(
     , fVertexStride(vertexStride)
     , fInstanceStride(instanceStride) {}
 
-void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
+void GrD3DPipelineState::setData(GrD3DGpu* gpu, const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
@@ -62,6 +62,12 @@ void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
         fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
                                 dstTexture, offset);
     }
+}
+
+void GrD3DPipelineState::bindConstants(GrD3DGpu* gpu) {
+    D3D12_GPU_VIRTUAL_ADDRESS constantsAddress = fDataManager.uploadConstants(gpu);
+    //*** get index of constant descriptor from somewhere
+    gpu->currentCommandList()->setGraphicsRootConstantBufferView(0, constantsAddress);
 }
 
 void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {

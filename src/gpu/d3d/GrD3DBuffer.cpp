@@ -221,10 +221,6 @@ void GrD3DBuffer::internalUnmap(size_t size) {
     SkASSERT(fMappedResource->size() >= size);
     VALIDATE();
 
-#ifdef SK_BUILD_FOR_MAC
-    // In both cases the size needs to be 4-byte aligned on Mac
-    sizeInBytes = SkAlign4(sizeInBytes);
-#endif
     if (this->accessPattern() == kStatic_GrAccessPattern) {
         // TODO: if using a slice of a persistently mapped UPLOAD buffer don't unmap here
         D3D12_RANGE range;

@@ -51,6 +51,7 @@ void GrD3DOpsRenderPass::onBegin() {
     // TODO: set stencil too
 
     if (GrLoadOp::kClear == fColorLoadOp) {
+        //*** delete fGpu::clear()
         fGpu->currentCommandList()->clearRenderTargetView(d3dRT, fClearColor, GrScissorState());
     }
 }
@@ -118,17 +119,20 @@ void set_scissor_rects(GrD3DGpu* gpu, const GrRenderTarget* renderTarget, GrSurf
                        const SkIRect& scissorRect) {
     SkASSERT(scissorRect.isEmpty() ||
              SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(scissorRect));
+    // For Now
+    SkIRect fakeScissorRect = SkIRect::MakeWH(renderTarget->width(), renderTarget->height());
+
 
     D3D12_RECT scissor;
-    scissor.left = scissorRect.fLeft;
-    scissor.right = scissorRect.fRight;
+    scissor.left = fakeScissorRect.fLeft;
+    scissor.right = fakeScissorRect.fRight;
     if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
-        scissor.top = scissorRect.fTop;
+        scissor.top = fakeScissorRect.fTop;
     } else {
         SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
-        scissor.top = renderTarget->height() - scissorRect.fBottom;
+        scissor.top = renderTarget->height() - fakeScissorRect.fBottom;
     }
-    scissor.bottom = scissor.top + scissorRect.height();
+    scissor.bottom = scissor.top + fakeScissorRect.height();
 
     SkASSERT(scissor.left >= 0);
     SkASSERT(scissor.top >= 0);
@@ -160,11 +164,11 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         return false;
     }
 
-    fCurrentPipelineState->setData(fRenderTarget, info);
+    fCurrentPipelineState->setData(fGpu, fRenderTarget, info);
     fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
 
-    // TODO: bind uniforms (either a new method or in pipelineState->setData())
+    fCurrentPipelineState->bindConstants(fGpu);
 
     set_stencil_ref(fGpu, info);
     set_blend_factor(fGpu, info);
