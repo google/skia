@@ -403,7 +403,6 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    SkASSERT(blob->firstSubRun()->fType == GrTextBlob::SubRunType::kDirectMask);
     return blob->makeOp(blob->firstSubRun(),
                         mtxProvider,
                         drawOrigin,
