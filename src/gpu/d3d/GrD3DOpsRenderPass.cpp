@@ -45,8 +45,13 @@ GrD3DOpsRenderPass::~GrD3DOpsRenderPass() {}
 GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
 
 void GrD3DOpsRenderPass::onBegin() {
+    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
+    d3dRT->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    fGpu->currentCommandList()->setRenderTarget(d3dRT);
+    // TODO: set stencil too
+
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fGpu->clear(GrScissorState(), fClearColor, fRenderTarget);
+        fGpu->currentCommandList()->clearRenderTargetView(d3dRT, fClearColor, GrScissorState());
     }
 }
 
@@ -215,7 +220,8 @@ void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
 
     // TODO: do we need a memory barrier here?
 
-    fCurrentPipelineState->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, currCmdList);
+    fCurrentPipelineState->bindBuffers(fGpu, indexBuffer, instanceBuffer, vertexBuffer,
+                                       currCmdList);
 }
 
 void GrD3DOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
