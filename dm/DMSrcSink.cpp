@@ -1703,7 +1703,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                           dstSurface->draw(ddl);
                       });
 
-    // This should be the only explicit flush for the entire DDL draw
+    // This should be the only explicit flush for the entire DDL draw.
+    // TODO: remove the flushes in do_gpu_stuff
     gpuTaskGroup->add([gpuThreadCtx]() {
                                            // We need to ensure all the GPU work is finished so
                                            // the following 'deleteAllFromGPU' call will work

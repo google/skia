@@ -44,6 +44,8 @@ public:
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
+        void dropDDL() { fDisplayList.reset(); }
+
         // Precompile all the programs required to draw this tile's DDL
         void precompile(GrContext*);
 
