@@ -35,7 +35,7 @@ const opts = [
   {
     name: 'assets',
     typeLabel: '{underline file}',
-    description: 'Any assets needed by the lottie file (e.g. images/fonts).'
+    description: 'A directory containing any assets needed by the lottie file (e.g. images/fonts).'
   },
   {
     name: 'output',
