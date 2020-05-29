@@ -19,9 +19,9 @@
 using namespace emscripten;
 
 sk_sp<Slide> MakeSlide(std::string name) {
-    if (name == "WavyPathText") {
-        extern Sample* MakeWavyPathTextSample();
-        return sk_make_sp<SampleSlide>(MakeWavyPathTextSample);
+    if (name == "PathText") {
+        extern Sample* MakePathTextSample();
+        return sk_make_sp<SampleSlide>(MakePathTextSample);
     }
     return nullptr;
 }
