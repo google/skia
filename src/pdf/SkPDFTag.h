@@ -28,15 +28,26 @@ public:
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
 
 private:
+    // An entry in a map from a node ID to an indirect reference to its
+    // corresponding structure element node.
+    struct IDTreeEntry {
+        int nodeId;
+        SkPDFIndirectReference ref;
+    };
+
     static void Copy(SkPDF::StructureElementNode& node,
                      SkPDFTagNode* dst,
                      SkArenaAlloc* arena,
                      SkTHashMap<int, SkPDFTagNode*>* nodeMap);
+    SkPDFIndirectReference PrepareTagTreeToEmit(SkPDFIndirectReference parent,
+                                                SkPDFTagNode* node,
+                                                SkPDFDocument* doc);
 
     SkArenaAlloc fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
     SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;
+    std::vector<IDTreeEntry> fIdTreeEntries;
 
     SkPDFTagTree(const SkPDFTagTree&) = delete;
     SkPDFTagTree& operator=(const SkPDFTagTree&) = delete;
