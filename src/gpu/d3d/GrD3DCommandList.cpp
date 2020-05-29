@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
@@ -200,7 +201,9 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentVertexStride(0)
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
-    , fCurrentIndexBuffer(nullptr) {
+    , fCurrentIndexBuffer(nullptr)
+    , fCurrentConstantRingBuffer(nullptr)
+    , fLastConstantRingBufferHead(0) {
 }
 
 void GrD3DDirectCommandList::onReset() {
@@ -210,12 +213,25 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
+    if (fCurrentConstantRingBuffer) {
+        fCurrentConstantRingBuffer->resetTail(fLastConstantRingBufferHead);
+        fCurrentConstantRingBuffer = nullptr;
+    }
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
     fCommandList->SetPipelineState(pipelineState->pipelineState());
     this->addResource(std::move(pipelineState));
+}
+
+void GrD3DDirectCommandList::setCurrentConstantBuffer(
+        const sk_sp<GrD3DConstantRingBuffer>& constantBuffer) {
+    fCurrentConstantRingBuffer = constantBuffer.get();
+    if (fCurrentConstantRingBuffer) {
+        fLastConstantRingBufferHead = constantBuffer->head();
+        this->addResource(static_cast<GrD3DBuffer*>(constantBuffer->buffer())->resource());
+    }
 }
 
 void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {
