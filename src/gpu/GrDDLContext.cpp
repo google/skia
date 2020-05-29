@@ -49,7 +49,6 @@ private:
 
     bool init(sk_sp<const GrCaps> caps) override {
         SkASSERT(caps);
-        SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
         if (!INHERITED::init(std::move(caps))) {
             return false;
