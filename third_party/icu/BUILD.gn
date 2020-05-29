@@ -11,12 +11,6 @@ declare_args() {
   skia_use_system_icu = is_official_build
 }
 
-# Skia avoids the ICU C++ API, but third_party may use it.
-# Using this config hides the C++ API.
-config("no_cxx") {
-  defines = [ "U_SHOW_CPLUSPLUS_API=0" ]
-}
-
 if (skia_use_system_icu) {
   system("icu") {
     libs = [ "icuuc" ]
@@ -74,7 +68,6 @@ if (skia_use_system_icu) {
     ]
     public_defines = [
       "U_USING_ICU_NAMESPACE=0",
-      "U_DISABLE_RENAMING",
       "SK_USING_THIRD_PARTY_ICU",
     ]
     configs -= [ "//gn:no_rtti" ]
