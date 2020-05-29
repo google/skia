@@ -39,6 +39,30 @@
       "revId": "ab3a53380dfa32840cb266bbebd68e302d0a60ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ac1da23_258d80c8",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T17:53:43Z",
+      "side": 1,
+      "message": "Also the name might want to be \u0027InitForAtlas\u0027 or something like that since it seems to factor out the work of setting a mask-like thing to go into the atlas and be drawn out of vertexes? (At the moment just MakePaths doesn\u0027t use it, since that\u0027s the one case where nothing going into the atlas case.)",
+      "parentUuid": "d2e752b0_ae04b6ad",
+      "range": {
+        "startLine": 311,
+        "startChar": 19,
+        "endLine": 311,
+        "endChar": 23
+      },
+      "revId": "ab3a53380dfa32840cb266bbebd68e302d0a60ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
