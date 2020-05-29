@@ -39,7 +39,7 @@
     if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide || !CanvasKit.MakeSvgSlide) {
       throw 'Not compiled with Viewer.';
     }
-    const slideName = flags.slide || 'WavyPathText';
+    const slideName = flags.slide || 'PathText';
     if (slideName.endsWith('.skp') || slideName.endsWith('.svg')) {
       fetch(slideName).then(function(response) {
         if (response.status != 200) {
