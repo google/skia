@@ -587,21 +587,23 @@ bool GrBackendTexture::getDawnTextureInfo(GrDawnTextureInfo* outInfo) const {
 }
 #endif
 
-#ifdef SK_VULKAN
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
+#ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         *outInfo = fVkInfo.snapImageInfo(fMutableState.get());
         return true;
     }
+#endif
     return false;
 }
 
 void GrBackendTexture::setVkImageLayout(VkImageLayout layout) {
+#ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fMutableState->setImageLayout(layout);
     }
-}
 #endif
+}
 
 #ifdef SK_METAL
 bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
@@ -1006,21 +1008,23 @@ bool GrBackendRenderTarget::getDawnRenderTargetInfo(GrDawnRenderTargetInfo* outI
 }
 #endif
 
-#ifdef SK_VULKAN
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
+#ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         *outInfo = fVkInfo.snapImageInfo(fMutableState.get());
         return true;
     }
+#endif
     return false;
 }
 
 void GrBackendRenderTarget::setVkImageLayout(VkImageLayout layout) {
+#ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fMutableState->setImageLayout(layout);
     }
-}
 #endif
+}
 
 #ifdef SK_METAL
 bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
