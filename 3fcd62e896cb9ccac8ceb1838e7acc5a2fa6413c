@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "763932ac_6186b7f7",
+        "filename": "modules/canvaskit/karma.conf.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T12:24:18Z",
+      "side": 1,
+      "message": "Add an else here to add \u0027coverage\u0027 to cfg.reporters. This will allow for coverage to be run, but not in docker (i.e. on the waterfall)",
+      "revId": "3fcd62e896cb9ccac8ceb1838e7acc5a2fa6413c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
