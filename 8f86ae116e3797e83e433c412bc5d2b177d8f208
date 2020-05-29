@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d6fbce0_30b98fe4",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-29T16:58:44Z",
+      "side": 1,
+      "message": "This will end up having 4 sampler uniforms that we know will always be bound to the same proxy. Is there any way we can avoid that?",
+      "range": {
+        "startLine": 552,
+        "startChar": 29,
+        "endLine": 554,
+        "endChar": 95
+      },
+      "revId": "8f86ae116e3797e83e433c412bc5d2b177d8f208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb48a143_42c9b20a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-05-29T16:58:44Z",
+      "side": 1,
+      "message": "Just noticed this now, but the TextureOp will actually fall back and create a FillRectOp pretty much identical to what\u0027s made for the kBicubic and kFourTapBilinear step types since the blend mode isn\u0027t kSrcIn.\n\nIf we know that tempB has been cleared to transparent black, we could just use kSrcIn.\n\nOtherwise, maybe we clean up the 3 switches to only create the FP, and then everything after should be identical (make GrPaint, add FP, set XP factory, drawRect with dstRect).",
+      "range": {
+        "startLine": 719,
+        "startChar": 35,
+        "endLine": 719,
+        "endChar": 52
+      },
+      "revId": "8f86ae116e3797e83e433c412bc5d2b177d8f208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
