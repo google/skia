@@ -62,6 +62,11 @@ public:
                            sk_sp<GrManagedResource> src,
                            const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                            const D3D12_BOX* srcBox);
+    void copyBufferToBuffer(sk_sp<GrManagedResource> dst,
+                            ID3D12Resource* dstBuffer, uint64_t dstOffset,
+                            sk_sp<GrManagedResource> src,
+                            ID3D12Resource* srcBuffer, uint64_t srcOffset,
+                            uint64_t numBytes);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -135,6 +140,8 @@ public:
 
     void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
                                const GrScissorState& scissor);
+    void setRenderTarget(GrD3DRenderTarget* renderTarget);
+
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                            gr_cp<ID3D12GraphicsCommandList> commandList);

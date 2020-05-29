@@ -58,7 +58,7 @@ public:
                             const GrSurfaceProxy* const primProcTextures[],
                             const GrPipeline& pipeline);
 
-    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+    void bindBuffers(GrD3DGpu*, const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
 
 private:

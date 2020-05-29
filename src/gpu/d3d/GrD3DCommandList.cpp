@@ -150,6 +150,25 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
+void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
+                                          ID3D12Resource * dstBuffer, uint64_t dstOffset,
+                                          sk_sp<GrManagedResource> src,
+                                          ID3D12Resource * srcBuffer, uint64_t srcOffset,
+                                          uint64_t numBytes) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(dst);
+    this->addResource(src);
+    uint64_t dstSize = dstBuffer->GetDesc().Width;
+    uint64_t srcSize = srcBuffer->GetDesc().Width;
+    if (dstSize == srcSize && srcSize == numBytes) {
+        fCommandList->CopyResource(dstBuffer, srcBuffer);
+    } else {
+        fCommandList->CopyBufferRegion(dstBuffer, dstOffset, srcBuffer, srcOffset, numBytes);
+    }
+}
+
 void GrD3DCommandList::addingWork() {
     this->submitResourceBarriers();
     fHasWork = true;
@@ -304,6 +323,13 @@ void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarg
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
                                         color.vec(),
                                         0, NULL);
+}
+
+void GrD3DDirectCommandList::setRenderTarget(GrD3DRenderTarget * renderTarget) {
+    this->addingWork();
+    this->addResource(renderTarget->resource());
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
+    fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
