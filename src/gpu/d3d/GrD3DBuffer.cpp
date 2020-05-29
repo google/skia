@@ -24,8 +24,8 @@ sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t s
         SkASSERT(intendedType != GrGpuBufferType::kXferCpuToGpu &&
                  intendedType != GrGpuBufferType::kXferGpuToCpu);
         heapType = D3D12_HEAP_TYPE_DEFAULT;
-        // Can be transitioned to different states
-        *resourceState = D3D12_RESOURCE_STATE_COMMON;
+        // Needs to be transitioned to appropriate state to be read in shader
+        *resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
     } else {
         if (intendedType == GrGpuBufferType::kXferGpuToCpu) {
             heapType = D3D12_HEAP_TYPE_READBACK;
@@ -101,6 +101,26 @@ GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     VALIDATE();
 }
 
+void GrD3DBuffer::setResourceState(const GrD3DGpu* gpu,
+                                   D3D12_RESOURCE_STATES newResourceState) {
+    if (newResourceState == fResourceState ||
+        // GENERIC_READ encapsulates a lot of different read states
+        (fResourceState == D3D12_RESOURCE_STATE_GENERIC_READ &&
+         SkToBool(newResourceState | fResourceState))) {
+        return;
+    }
+
+    D3D12_RESOURCE_TRANSITION_BARRIER barrier = {};
+    barrier.pResource = this->d3dResource();
+    barrier.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrier.StateBefore = fResourceState;
+    barrier.StateAfter = newResourceState;
+
+    gpu->addResourceBarriers(this->resource(), 1, &barrier);
+
+    fResourceState = newResourceState;
+}
+
 void GrD3DBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         VALIDATE();
@@ -169,10 +189,6 @@ void GrD3DBuffer::internalMap(size_t size) {
     VALIDATE();
 
     if (this->accessPattern() == kStatic_GrAccessPattern) {
-#ifdef SK_BUILD_FOR_MAC
-        // Mac requires 4-byte alignment for copies so we pad this out
-        sizeInBytes = SkAlign4(sizeInBytes);
-#endif
         // TODO: should use a slice of a previously allocated UPLOAD buffer
         D3D12_RESOURCE_STATES resourceState; // not used, just to pass to make
         fMappedResource = Resource::Make(this->getD3DGpu(), size, GrGpuBufferType::kXferCpuToGpu,
@@ -215,15 +231,10 @@ void GrD3DBuffer::internalUnmap(size_t size) {
         range.Begin = 0;
         range.End = size;
         fMappedResource->fD3DResource->Unmap(0, &range);
-        // TODO
-        // let the D3DGpu make this decision?
-        //if (size == this->size()) {
-        //    this->getD3DGpu()->copyResource(this->d3dResource(), fMappedResource->fD3DResource);
-
-        //} else {
-        //    this->getD3DGpu()->copyBufferRegion(this->d3dResource(), 0,
-        //                                        fMappedResource->fD3DResource, 0, size);
-        //}
+        this->setResourceState(this->getD3DGpu(), D3D12_RESOURCE_STATE_COPY_DEST);
+        this->getD3DGpu()->currentCommandList()->copyBufferToBuffer(
+                fResource, fResource->fD3DResource.get(), 0,
+                fMappedResource, fMappedResource->fD3DResource.get(), 0, size);
     } else {
         D3D12_RANGE range;
         range.Begin = 0;

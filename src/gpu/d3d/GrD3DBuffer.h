@@ -37,6 +37,8 @@ public:
         return fResource;
     }
 
+    void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
+
 protected:
     GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, const sk_sp<Resource>&,
                 D3D12_RESOURCE_STATES);
