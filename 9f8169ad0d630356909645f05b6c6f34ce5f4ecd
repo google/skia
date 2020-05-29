@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4af648fa_f8ba92ed",
+        "filename": "gn/gn_to_bp_utils.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T19:02:53Z",
+      "side": 1,
+      "message": "Without the change to this file I believe this change can land in Skia, with the only downside being that this gm won\u0027t run in the Android Framework tests. We should probably make that work, but the change to this file along with the associated build changes required to make it work is really another CL.",
+      "revId": "9f8169ad0d630356909645f05b6c6f34ce5f4ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
