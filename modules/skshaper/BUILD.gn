@@ -35,11 +35,9 @@ if (skia_enable_skshaper) {
         "//third_party/harfbuzz",
         "//third_party/icu",
       ]
+      configs += [ "//third_party/icu:no_cxx" ]
     }
-    configs += [
-      "../../:skia_private",
-      "//third_party/icu:no_cxx",
-    ]
+    configs += [ "../../:skia_private" ]
   }
 } else {
   group("skshaper") {
