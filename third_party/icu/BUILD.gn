@@ -68,6 +68,7 @@ if (skia_use_system_icu) {
     ]
     public_defines = [
       "U_USING_ICU_NAMESPACE=0",
+      "U_DISABLE_RENAMING",
       "SK_USING_THIRD_PARTY_ICU",
     ]
     configs -= [ "//gn:no_rtti" ]
