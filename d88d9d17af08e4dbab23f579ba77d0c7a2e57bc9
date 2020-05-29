@@ -46,6 +46,30 @@
       "revId": "d88d9d17af08e4dbab23f579ba77d0c7a2e57bc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29420c05_88b8ea1c",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-29T16:24:53Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "754f8de9_66b3ce07",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 17
+      },
+      "revId": "d88d9d17af08e4dbab23f579ba77d0c7a2e57bc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
