@@ -101,6 +101,14 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      surfaceProps);
 }
 
+void GrContextThreadSafeProxy::abandonContext() {
+    fAbandoned.store(true, std::memory_order_relaxed);
+}
+
+bool GrContextThreadSafeProxy::abandoned() const {
+    return fAbandoned.load(std::memory_order_relaxed);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
                              GrBackendApi backend,

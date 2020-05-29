@@ -29,6 +29,9 @@ public:
     const GrCaps* caps() const { return fProxy->caps(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->refCaps(); }
 
+    void abandonContext() { fProxy->abandonContext(); }
+    bool abandoned() const { return fProxy->abandoned(); }
+
     // GrContextThreadSafeProxyPriv
     static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi,
                                                 const GrContextOptions&,
