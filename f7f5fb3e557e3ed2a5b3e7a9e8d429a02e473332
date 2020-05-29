@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fb43e52_2ed217b8",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T19:12:14Z",
+      "side": 1,
+      "message": "Interesting! I haven\u0027t run into that issue with the Persian locale before.\n\nUnfortunately the zero-padding is needed because the PDF won\u0027t validate if\nwe don\u0027t output the strings in *lexicographic* order. Sorting the strings\nseems inefficient - the idea is just to sort them numerically and output\nstrings such that the lexicographic sorting of the strings matches the\nnumeric sort too.\n\nI tried setting my locale to fa_IR but I can\u0027t reproduce the issue.\nI do see references to printf generating different digits, but only\nwhen you use the special I flag.\n\nhttps://linux.die.net/man/3/printf\n\nEven if printf did generate Arabic-Indic numerals, I believe that\nthose would still zero-pad and that sorting them lexicographically\nwould still be consistent with their numeric order - and the PDF\nspec allows UTF-8 so I think it\u0027d be fine.\n\nThe node ID isn\u0027t meant to be an ordinal or cardinal, it\u0027s just a\nnumeric ID, all that matters is that it\u0027s unique per node.\n\nI tried it with a mix of negative and positive IDs and it worked\nfine; they still sorted lexicographically.\n\nSo, I *think* this is okay still. If you still have concerns I\u0027m\nhappy to use appendS32 and manually zero-pad.",
+      "parentUuid": "9b52debe_b0fe4d50",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 24
+      },
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d3e2306_793db13f",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-29T15:37:37Z",
       "side": 1,
       "message": "Isn\u0027t this backward? Should be \u0027\u003c\u0027?",
+      "range": {
+        "startLine": 372,
+        "startChar": 36,
+        "endLine": 372,
+        "endChar": 37
+      },
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72e11800_528a7d54",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T19:12:14Z",
+      "side": 1,
+      "message": "You\u0027re right. Fixed.",
+      "parentUuid": "5d3e2306_793db13f",
       "range": {
         "startLine": 372,
         "startChar": 36,
@@ -62,6 +110,24 @@
       "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbcd53dd_3dae87f0",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T19:12:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21f0866d_afd1de07",
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
