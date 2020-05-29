@@ -33,6 +33,12 @@ describe('Core canvas behavior', () => {
         paint.delete();
 
         canvas.drawPicture(pic);
+
+        // test that file saving functionality throws no errors
+        // Unfortunately jasmine spy objects can't fake their type so we can't verify it downloads
+        // a nonzero sized file.
+        pic.saveAsFile('foo.skp');
+
         pic.delete();
     });
 
@@ -592,6 +598,17 @@ describe('Core canvas behavior', () => {
         paint.setColor(CanvasKit.Color4f(3.3, 2.2, 1.1, 0.5));
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
     });
+
+    gm('draw shadow', (canvas) => {
+        const lightRadius = 30;
+        const flags = 0;
+        const lightPos = [250,150,300]; 
+        const zPlaneParams = [0,0,1];
+        const path = starPath(CanvasKit);
+
+        canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
+                              CanvasKit.RED, CanvasKit.MAGENTA, flags);
+    })
 
     describe('ColorSpace Support', () => {
         it('Can create an SRGB 8888 surface', () => {
