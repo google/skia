@@ -164,6 +164,9 @@ public:
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
                                          const char* name, sk_sp<SkData> inputs) {
+    if (!inputs) {
+        inputs = SkData::MakeEmpty();
+    }
     if (inputs->size() != effect->inputSize()) {
         return nullptr;
     }
