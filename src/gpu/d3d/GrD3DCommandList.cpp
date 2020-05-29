@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
@@ -150,6 +151,26 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
+void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
+                                          ID3D12Resource* dstBuffer, uint64_t dstOffset,
+                                          sk_sp<GrManagedResource> src,
+                                          ID3D12Resource* srcBuffer, uint64_t srcOffset,
+                                          uint64_t numBytes) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(dst);
+    this->addResource(src);
+    uint64_t dstSize = dstBuffer->GetDesc().Width;
+    uint64_t srcSize = dstBuffer->GetDesc().Width;
+    if (dstSize == srcSize && srcSize == numBytes) {
+        fCommandList->CopyResource(dstBuffer, srcBuffer);
+    } else {
+        fCommandList->CopyBufferRegion(dstBuffer, dstOffset, srcBuffer, srcOffset, numBytes);
+    }
+}
+
+
 void GrD3DCommandList::addingWork() {
     this->submitResourceBarriers();
     fHasWork = true;
@@ -181,7 +202,9 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentVertexStride(0)
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
-    , fCurrentIndexBuffer(nullptr) {
+    , fCurrentIndexBuffer(nullptr)
+    , fCurrentConstantRingBuffer(nullptr)
+    , fLastConstantRingBufferHead(0) {
 }
 
 void GrD3DDirectCommandList::onReset() {
@@ -191,12 +214,25 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
+    if (fCurrentConstantRingBuffer) {
+        fCurrentConstantRingBuffer->resetTail(fLastConstantRingBufferHead);
+        fCurrentConstantRingBuffer = nullptr;
+    }
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
     fCommandList->SetPipelineState(pipelineState->pipelineState());
     this->addResource(std::move(pipelineState));
+}
+
+void GrD3DDirectCommandList::setCurrentConstantBuffer(
+        const sk_sp<GrD3DConstantRingBuffer>& constantBuffer) {
+    fCurrentConstantRingBuffer = constantBuffer.get();
+    if (fCurrentConstantRingBuffer) {
+        fLastConstantRingBufferHead = constantBuffer->head();
+        this->addResource(static_cast<GrD3DBuffer*>(constantBuffer->buffer())->resource());
+    }
 }
 
 void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {
@@ -304,6 +340,17 @@ void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarg
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
                                         color.vec(),
                                         0, NULL);
+}
+
+void GrD3DDirectCommandList::setRenderTarget(GrD3DRenderTarget* renderTarget) {
+    this->addingWork();
+    this->addResource(renderTarget->resource());
+    fCommandList->OMSetRenderTargets(1, &renderTarget->colorRenderTargetView(), false, nullptr);
+}
+
+void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
+        unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+    fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
