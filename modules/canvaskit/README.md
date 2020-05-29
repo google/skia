@@ -4,7 +4,9 @@ To compile CanvasKit, you will first need to [install `emscripten`][1].  This
 will set the environment `EMSDK` (among others) which is required for
 compilation.
 
-# Compile and Test Locally
+[1]: https://emscripten.org/docs/getting_started/downloads.html
+
+# Compile and Run Local Example
 
 ```
 make release  # make debug is much faster and has better error messages
@@ -23,7 +25,67 @@ any of the "extras", one might run:
 
 Such a stripped-down version is about half the size of the default release build.
 
-[1]: https://emscripten.org/docs/getting_started/downloads.html
+# Unit tests, performance tests, and coverage.
+
+To run unit tests and compute test coverage on a debug gpu build
+
+```
+make debug
+make test-continuous
+```
+
+This reads karma.conf.js, and opens a chrome browser and begins running all the test
+in `test/` it will detect changes to the tests in that directory and automatically
+run again, however it will automatically rebuild and reload canvaskit. Closing the
+chrome window will just cause it to re-opened. Kill the karma process to stop continuous
+monitoring for changes.
+
+The tests are run with whichever build of canvaskit you last made. be sure to also
+test with `release`, `debug_cpu`, and `release_cpu`. testing with release builds will
+expose problems in closure compilation and usually forgotten externs.
+
+## Coverage
+
+Coverage will be automatically computed when running test-continuous locally. Note that
+the results will only be useful when testing a debug build. Open
+`coverage/<browser version>/index.html` For a summary and detailed line-by-line result.
+
+## Measuring Performance
+
+To measure the runtime of all benchmarks in `perf/`
+
+```
+make release
+make perf
+```
+
+Performacnce benchmarks also use karma, with a different config `karma.bench.conf.js`.
+It will run once and print results.
+
+Typically, you'd want to run these at head, and with your CL to observe the effect of some
+optimization.
+
+## Adding tests
+
+The tests in `tests/` and `perf/` are grouped into files by topic.
+Within each file there are `describe` blocks further organizing the tests, and within those
+`it()` functions which test particular behaviors. `describe` and `it` are jasmine methods
+which can both be temporarily renamed `fdescribe` and `fit`. Which causes jasmine to only those.
+
+We have also defined `gm` which is a method for defining a test which draws something to a canvas
+that is shapshotted and reported to gold.skia.org, where you can compare it with the snapshot at
+head.
+
+## Testing from Gerrit
+
+When submitting a CL in gerrit, click "choose tryjobs" and type canvaskit to filter them.
+select all of them, which at the time of this writing is four jobs, for each combination
+of perf/test gpu/cpu.
+
+The performance results are reported to perf.skia.org
+gold results are reported to gold.skia.org
+
+Coverage is not measured while running tests this way.
 
 
 # Infrastructure Playbook
