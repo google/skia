@@ -76,6 +76,17 @@ module.exports = function(config) {
           ],
         },
     };
+  } else {
+    // Extra options that should only be applied locally
+
+    // Measure test coverage and write output to coverage/ directory
+    cfg.reporters.push('coverage');
+    cfg.preprocessors = {
+      // Measure test coverage of these source files
+      // Since this file is a combination of our code, and emscripten's glue,
+      // we'll never see 100% coverage, but this lets us measure improvements.
+      'canvaskit/bin/canvaskit.js': ['coverage'],
+    };
   }
 
   config.set(cfg);

@@ -15,7 +15,7 @@
       var ret = [];
       for (var i = 0; i < floatArray.length; i+=5) {
         var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
-        if (floatArray[i+4] === 1) {
+        if (floatArray[i+4] === 0) {
           r['direction'] = CanvasKit.TextDirection.RTL;
         } else {
           r['direction'] = CanvasKit.TextDirection.LTR;

@@ -7,6 +7,7 @@
     CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
         var canvas = idOrElement;
         if (canvas.tagName !== 'CANVAS') {
+          // TODO(nifong): unit test
           canvas = document.getElementById(idOrElement);
           if (!canvas) {
             throw 'Canvas with id ' + idOrElement + ' was not found';
