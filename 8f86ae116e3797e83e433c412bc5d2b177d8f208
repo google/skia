@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "61345ad3_07d36c8a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-29T17:02:53Z",
+      "side": 1,
+      "message": "Right now sample(child, matrix) is broken for runtime effects. Ethan is looking into it. Here is a WIP follow up that will use N matrices with 1 child texture effect:\n\nhttps://skia-review.googlesource.com/c/skia/+/292571",
+      "parentUuid": "4d6fbce0_30b98fe4",
+      "range": {
+        "startLine": 552,
+        "startChar": 29,
+        "endLine": 554,
+        "endChar": 95
+      },
+      "revId": "8f86ae116e3797e83e433c412bc5d2b177d8f208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb48a143_42c9b20a",
         "filename": "src/gpu/GrSurfaceContext.cpp",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-29T16:58:44Z",
       "side": 1,
       "message": "Just noticed this now, but the TextureOp will actually fall back and create a FillRectOp pretty much identical to what\u0027s made for the kBicubic and kFourTapBilinear step types since the blend mode isn\u0027t kSrcIn.\n\nIf we know that tempB has been cleared to transparent black, we could just use kSrcIn.\n\nOtherwise, maybe we clean up the 3 switches to only create the FP, and then everything after should be identical (make GrPaint, add FP, set XP factory, drawRect with dstRect).",
+      "range": {
+        "startLine": 719,
+        "startChar": 35,
+        "endLine": 719,
+        "endChar": 52
+      },
+      "revId": "8f86ae116e3797e83e433c412bc5d2b177d8f208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21c3abe0_c2f8b07d",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-29T17:02:53Z",
+      "side": 1,
+      "message": "I like the latter idea. The dst hasn\u0027t been cleared here.",
+      "parentUuid": "eb48a143_42c9b20a",
       "range": {
         "startLine": 719,
         "startChar": 35,
