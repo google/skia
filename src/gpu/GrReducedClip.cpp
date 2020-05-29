@@ -693,7 +693,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
             GrPaint paint;
             paint.setCoverageSetOpXPFactory((SkRegion::Op)element->getOp(),
                                             element->isInverseFilled());
-            rtc->priv().stencilRect(clip, ss, std::move(paint), aa, viewMatrix,
+            rtc->priv().stencilRect(&clip, ss, std::move(paint), aa, viewMatrix,
                                     element->getDeviceSpaceRect());
             return true;
         }
@@ -704,7 +704,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            return rtc->priv().drawAndStencilPath(clip, ss, (SkRegion::Op)element->getOp(),
+            return rtc->priv().drawAndStencilPath(&clip, ss, (SkRegion::Op)element->getOp(),
                                                   element->isInverseFilled(), aa, viewMatrix, path);
         }
     }
@@ -724,7 +724,7 @@ static void draw_element(GrRenderTargetContext* rtc,
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
         case SkClipStack::Element::DeviceSpaceType::kRect:
-            rtc->drawRect(clip, std::move(paint), aa, viewMatrix, element->getDeviceSpaceRect());
+            rtc->drawRect(&clip, std::move(paint), aa, viewMatrix, element->getDeviceSpaceRect());
             break;
         default: {
             SkPath path;
@@ -733,7 +733,7 @@ static void draw_element(GrRenderTargetContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            rtc->drawPath(clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
+            rtc->drawPath(&clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
             break;
         }
     }
@@ -757,7 +757,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
         GrPaint paint;
         paint.setColor4f(initialCoverage);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        rtc->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+        rtc->drawRect(&clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::Make(clip.scissorRect()));
     } else {
         rtc->priv().clearAtLeast(clip.scissorRect(), initialCoverage);
@@ -802,7 +802,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 
             GrPaint paint;
             paint.setCoverageSetOpXPFactory(op, !invert);
-            rtc->priv().stencilRect(clip, &kDrawOutsideElement, std::move(paint), GrAA::kNo,
+            rtc->priv().stencilRect(&clip, &kDrawOutsideElement, std::move(paint), GrAA::kNo,
                                     translate, SkRect::Make(fScissor));
         } else {
             // all the remaining ops can just be directly draw into the accumulation buffer
