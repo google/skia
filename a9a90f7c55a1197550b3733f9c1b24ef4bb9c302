@@ -22,6 +22,30 @@
       "revId": "a9a90f7c55a1197550b3733f9c1b24ef4bb9c302",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80d652b4_91e151f8",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-05-29T19:42:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "823af593_4464688d",
+      "range": {
+        "startLine": 223,
+        "startChar": 100,
+        "endLine": 223,
+        "endChar": 101
+      },
+      "revId": "a9a90f7c55a1197550b3733f9c1b24ef4bb9c302",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
