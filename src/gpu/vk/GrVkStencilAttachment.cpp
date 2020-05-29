@@ -17,10 +17,10 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const Format& format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
-                                             sk_sp<GrVkImageLayout> layout,
+                                             sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                              const GrVkImageView* stencilView)
     : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
-    , GrVkImage(gpu, info, std::move(layout), GrBackendObjectOwnership::kOwned)
+    , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
     stencilView->ref();
@@ -57,9 +57,11 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info.fImageLayout));
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
+        info.fImageLayout, info.fCurrentQueueFamily));
     GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
-                                                               info, std::move(layout), imageView);
+                                                               info, std::move(mutableState),
+                                                               imageView);
     imageView->unref();
 
     return stencil;
