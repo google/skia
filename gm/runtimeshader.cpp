@@ -284,7 +284,7 @@ class ColorCubeRT : public skiagm::GM {
 
     SkString onShortName() override { return SkString("color_cube_rt"); }
 
-    SkISize onISize() override { return {256 * 3, 256}; }
+    SkISize onISize() override { return {512, 512}; }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (canvas->getGrContext() == nullptr) {
