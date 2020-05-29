@@ -1,7 +1,7 @@
 describe('Path Behavior', () => {
     let container;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await LoadCanvasKit;
         container = document.createElement('div');
         container.innerHTML = `
@@ -10,7 +10,7 @@ describe('Path Behavior', () => {
         document.body.appendChild(container);
     });
 
-    afterEach(() => {
+    afterAll(() => {
         document.body.removeChild(container);
     });
 

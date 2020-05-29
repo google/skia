@@ -1,7 +1,7 @@
 describe('Canvas 2D emulation', () => {
     let container;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await LoadCanvasKit;
         container = document.createElement('div');
         container.innerHTML = `
@@ -10,7 +10,7 @@ describe('Canvas 2D emulation', () => {
         document.body.appendChild(container);
     });
 
-    afterEach(() => {
+    afterAll(() => {
         document.body.removeChild(container);
     });
 
@@ -273,7 +273,7 @@ describe('Canvas 2D emulation', () => {
         Promise.all(promises).then(() => {
             skcanvas.dispose();
             done();
-        }).catch(reportError(done));
+        }).catch(reportError(testname, done));
     }
 
     describe('CanvasContext2D API', () => {

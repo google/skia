@@ -1,7 +1,7 @@
 describe('Runtime shader effects', () => {
     let container;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await LoadCanvasKit;
         container = document.createElement('div');
         container.innerHTML = `
@@ -10,7 +10,7 @@ describe('Runtime shader effects', () => {
         document.body.appendChild(container);
     });
 
-    afterEach(() => {
+    afterAll(() => {
         document.body.removeChild(container);
     });
 

@@ -23,11 +23,13 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
             done();
             return;
         }
+        const canvas = surface.getCanvas();
+        canvas.save();
         // if fetchPromises is empty, the returned promise will
         // resolve right away and just call the callback.
         Promise.all(fetchPromises).then((values) => {
             try {
-                callback(surface.getCanvas(), values);
+                callback(canvas, values);
             } catch (e) {
                 console.log(`gm ${name} failed with error`, e);
                 expect(e).toBeFalsy();
@@ -40,6 +42,8 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
             } else {
                 reportSurface(surface, name, done);
             }
+            canvas.restore();
+            canvas.clear(CanvasKit.TRANSPARENT);
         }).catch((e) => {
             console.log(`could not load assets for gm ${name}`, e);
             debugger;
@@ -128,7 +132,7 @@ const _commonMultipleCanvasGM = (it, pause, name, callback) => {
         Promise.all(promises).then(() => {
             skcanvas.dispose();
             done();
-        }).catch(reportError(done));
+        }).catch(reportError(name, done));
     });
 }
 
@@ -192,7 +196,7 @@ function reportSurface(surface, testname, done) {
     reportCanvas(reportingCanvas, testname).then(() => {
         // TODO(kjlubick): should we call surface.delete() here?
         done();
-    }).catch(reportError(done));
+    }).catch(reportError(testname, done));
 }
 
 

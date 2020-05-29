@@ -1,7 +1,7 @@
 describe('Canvas Behavior', () => {
     let container;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await LoadCanvasKit;
         container = document.createElement('div');
         container.innerHTML = `
@@ -10,7 +10,7 @@ describe('Canvas Behavior', () => {
         document.body.appendChild(container);
     });
 
-    afterEach(() => {
+    afterAll(() => {
         document.body.removeChild(container);
     });
 
@@ -510,7 +510,7 @@ describe('Canvas Behavior', () => {
         const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
 
         const count = canvas.saveLayer(null, blurIF, 0);
-        expect(count).toEqual(1);
+        expect(count).toEqual(2); // the canvas passed to us has already done save() once.
         canvas.scale(1/4, 1/4);
         canvas.drawCircle(125, 85, 8, redPaint);
         canvas.restore();

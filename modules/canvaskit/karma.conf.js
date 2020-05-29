@@ -6,14 +6,15 @@ module.exports = function(config) {
   let cfg = {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+    plugins: ['karma-jasmine', 'karma-chrome-launcher'],
     frameworks: ['jasmine'],
 
     // list of files / patterns to load in the browser
     files: [
       { pattern: 'canvaskit/bin/canvaskit.wasm', included:false, served:true},
       { pattern: 'tests/assets/*', included:false, served:true},
-      '../../modules/pathkit/tests/testReporter.js',
       'canvaskit/bin/canvaskit.js',
+      'tests/testReporter.js',
       'tests/canvaskitinit.js',
       'tests/util.js',
       'tests/*.spec.js'
@@ -37,7 +38,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
@@ -55,6 +56,12 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity,
+
+    client: {
+      jasmine: {
+        random: false,
+      },
+    },
   };
 
   if (isDocker || config.headless) {
