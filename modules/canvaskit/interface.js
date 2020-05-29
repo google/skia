@@ -8,6 +8,8 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  _scratchColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
+
   // Create single copies of all three supported color spaces
   // These are sk_sp<SkColorSpace>
   CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
@@ -860,9 +862,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   // Accepts an array of four numbers in the range of 0-1 representing a 4f color
   CanvasKit.SkCanvas.prototype.clear = function (color4f) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     this._clear(cPtr);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
@@ -940,13 +941,12 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkCanvas.prototype.drawColor = function (color4f, mode) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     if (mode !== undefined) {
       this._drawColor(cPtr, mode);
     } else {
       this._drawColor(cPtr);
     }
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // points is either an array of [x, y] where x and y are numbers or
@@ -969,8 +969,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkCanvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
-    var ambiPtr = copy1dArray(ambientColor, CanvasKit.HEAPF32);
-    var spotPtr = copy1dArray(spotColor, CanvasKit.HEAPF32);
+    var ambiPtr = copyColorToWasmNoScratch(ambientColor);
+    var spotPtr = copyColorToWasmNoScratch(spotColor);
     this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
     freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
     freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
@@ -1072,9 +1072,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkColorFilter.MakeBlend = function(color4f, mode) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     var result = CanvasKit.SkColorFilter._MakeBlend(cPtr, mode);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1099,17 +1098,15 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkPaint.prototype.getColor = function() {
-    var cPtr = CanvasKit._malloc(16); // 4 floats, 4 bytes each
-    this._getColor(cPtr);
-    return copyColorFromWasm(cPtr);
+    this._getColor(_scratchColorPtr);
+    return copyColorFromWasm(_scratchColorPtr);
   }
 
   CanvasKit.SkPaint.prototype.setColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     this._setColor(cPtr, colorSpace);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -1175,9 +1172,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.Color = function(color4f, colorSpace) {
     colorSpace = colorSpace || null
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     var result = CanvasKit.SkShader._Color(cPtr, colorSpace);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1272,13 +1268,15 @@ CanvasKit.onRuntimeInitialized = function() {
 // }
 // Returns the same format
 CanvasKit.computeTonalColors = function(tonalColors) {
-    var cPtrAmbi = copy1dArray(tonalColors['ambient'], CanvasKit.HEAPF32);
-    var cPtrSpot = copy1dArray(tonalColors['spot'], CanvasKit.HEAPF32);
+    var cPtrAmbi = copyColorToWasmNoScratch(tonalColors['ambient']);
+    var cPtrSpot = copyColorToWasmNoScratch(tonalColors['spot']);
     this._computeTonalColors(cPtrAmbi, cPtrSpot);
     var result =  {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
     }
+    CanvasKit._free(cPtrAmbi);
+    CanvasKit._free(cPtrSpot);
     return result;
 }
 
