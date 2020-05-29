@@ -52,13 +52,14 @@ public:
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
     const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
-    void setData(const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+    void setData(GrD3DGpu*, const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+    void bindConstants(GrD3DGpu*);
 
     void setAndBindTextures(const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],
                             const GrPipeline& pipeline);
 
-    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+    void bindBuffers(GrD3DGpu*, const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
 
 private:

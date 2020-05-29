@@ -184,6 +184,8 @@ protected:
             }
         }
 
+        return;
+
         // special cases
 
         // non-scaled tall and skinny oval
