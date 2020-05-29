@@ -534,21 +534,21 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return sk_sp<GrGLProgram>(new GrGLProgram(fGpu,
-                                              fUniformHandles,
-                                              programID,
-                                              fUniformHandler.fUniforms,
-                                              fUniformHandler.fSamplers,
-                                              fVaryingHandler.fPathProcVaryingInfos,
-                                              std::move(fGeometryProcessor),
-                                              std::move(fXferProcessor),
-                                              std::move(fFragmentProcessors),
-                                              fFragmentProcessorCnt,
-                                              std::move(fAttributes),
-                                              fVertexAttributeCnt,
-                                              fInstanceAttributeCnt,
-                                              fVertexStride,
-                                              fInstanceStride));
+    return GrGLProgram::Make(fGpu,
+                             fUniformHandles,
+                             programID,
+                             fUniformHandler.fUniforms,
+                             fUniformHandler.fSamplers,
+                             fVaryingHandler.fPathProcVaryingInfos,
+                             std::move(fGeometryProcessor),
+                             std::move(fXferProcessor),
+                             std::move(fFragmentProcessors),
+                             fFragmentProcessorCnt,
+                             std::move(fAttributes),
+                             fVertexAttributeCnt,
+                             fInstanceAttributeCnt,
+                             fVertexStride,
+                             fInstanceStride);
 }
 
 bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,

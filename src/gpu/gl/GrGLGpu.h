@@ -178,6 +178,11 @@ public:
 
     void insertManualFramebufferBarrier() override;
 
+    void flushProgram(sk_sp<GrGLProgram>);
+
+    // Version for programs that aren't GrGLProgram.
+    void flushProgram(GrGLuint);
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
@@ -295,11 +300,6 @@ private:
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
-
-    void flushProgram(sk_sp<GrGLProgram>);
-
-    // Version for programs that aren't GrGLProgram.
-    void flushProgram(GrGLuint);
 
     void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
