@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f123d70_1c31f8b5",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-29T08:14:40Z",
+      "side": 1,
+      "message": "The onAnimate handler used to be in a subclass.",
+      "revId": "16c89771e919846050d2755a14a7cb301bfc4336",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f9ee3a0_fcf162f5",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-29T08:14:40Z",
+      "side": 1,
+      "message": "This is just moved from line 81.",
+      "revId": "16c89771e919846050d2755a14a7cb301bfc4336",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
