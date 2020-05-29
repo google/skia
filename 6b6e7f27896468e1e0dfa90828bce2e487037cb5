@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae96f8b9_aaac1843",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-29T18:04:52Z",
+      "side": 1,
+      "message": "Coverage analysis showed this code path wasn\u0027t tested, could you add a test for it?",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 22
+      },
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5beb7dc_1ce5dea9",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-29T18:04:52Z",
+      "side": 1,
+      "message": "Accepting colors as primitives is something we\u0027d do in the method binding, and wouldn\u0027t need to go through this function, yet you put this todo here. do you think otherwise?",
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23c4eff3_b1b54be7",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-05-29T18:04:52Z",
+      "side": 1,
+      "message": "let\u0027s connsider sending the entire paragraphStyle and fontStyle objects over the wire as serialized json and parsing it in c++\nWDYT?",
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
