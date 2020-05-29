@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2a5ecbc_cfc26256",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-29T12:56:52Z",
+      "side": 1,
+      "message": "need to verify that clip is not nullptr.",
+      "revId": "226b689471a0fbb7400bc166032458278957541b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
