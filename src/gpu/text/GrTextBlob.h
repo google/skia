@@ -169,8 +169,6 @@ public:
     const Key& key() const;
     size_t size() const;
 
-    bool hasW(SubRunType type) const;
-
     SubRun* makeSubRun(SubRunType type,
                        const SkZip<SkGlyphVariant, SkPoint>& drawables,
                        const SkStrikeSpec& strikeSpec,
@@ -201,9 +199,9 @@ public:
                                           const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
-    SubRun* firstSubRun() const {
-        return fFirstSubRun;
-    }
+    SubRun* firstSubRun() const;
+
+    bool forceWForDistanceFields() const;
 
 private:
     enum TextType {
