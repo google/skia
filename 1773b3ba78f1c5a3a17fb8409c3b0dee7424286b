@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "112782fd_743975fc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-29T17:14:02Z",
+      "side": 1,
+      "message": "Maybe add something like:\n\nThe plan going forward is to centralize all thread-safe data in GrContextThreadSafeProxy, make it not derive from GrContext_Base, and have all the GrContext-derived classes share a pointer to a context group\u0027s shared GrContextThreadSafeProxy.",
+      "revId": "1773b3ba78f1c5a3a17fb8409c3b0dee7424286b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7de1f7b_71f21fa8",
+        "filename": "include/gpu/GrContextThreadSafeProxy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-05-29T17:14:02Z",
+      "side": 1,
+      "message": "// TODO: remove this once this class isn\u0027t derived from GrContext_Base\n\n?",
+      "revId": "1773b3ba78f1c5a3a17fb8409c3b0dee7424286b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
