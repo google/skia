@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ca6d9454_b5ac741b",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T03:23:29Z",
+      "side": 1,
+      "message": "Sure, that works. Moved to SkPDFTagNode.",
+      "parentUuid": "dff03dd7_78259962",
+      "range": {
+        "startLine": 74,
+        "startChar": 16,
+        "endLine": 74,
+        "endChar": 30
+      },
+      "revId": "147e4dc687fe2ae28e665353148351e6550e9782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f98a6d7_686e1e02",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-05-29T00:06:46Z",
       "side": 1,
       "message": "If we kept around the \u0027decltype(SkPDFTagNode::fNodeId) fLowestNodeId\u0027 instead we wouldn\u0027t need to do the string comparison (just the numeric comparison) and then call nodeIdToString later when the string is needed. Of course you want an \u0027empty\u0027 state here, which means either having an invalid id value (I don\u0027t know if one exists) or \u0027std::optional\u003cdecltype(SkPDFTagNode::fNodeId)\u003e fLowestNodeId\u0027 (which we can\u0027t use yet here, see OptionalIndex in SkBitSet.h).\n\nIn any event, these string comparisons seem a bit of a round about way to compare two numbers.",
+      "range": {
+        "startLine": 314,
+        "startChar": 8,
+        "endLine": 314,
+        "endChar": 65
+      },
+      "revId": "147e4dc687fe2ae28e665353148351e6550e9782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3703ccae_36a8da10",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T03:23:29Z",
+      "side": 1,
+      "message": "Agreed, this is a little awkward. I changed it up so that we just\nsort a vector and then pull out the first and last elements,\nhow\u0027s that?",
+      "parentUuid": "5f98a6d7_686e1e02",
       "range": {
         "startLine": 314,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "10572891_a56401c2",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T03:23:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f1208bf_4b2acb8b",
+      "range": {
+        "startLine": 376,
+        "startChar": 31,
+        "endLine": 376,
+        "endChar": 42
+      },
+      "revId": "147e4dc687fe2ae28e665353148351e6550e9782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "657d7c88_533fc554",
         "filename": "src/pdf/SkPDFTag.h",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2020-05-29T00:06:46Z",
       "side": 1,
       "message": "Should use SkTHashMap instead if possible. std::map is really bad (must be a rb tree so forces an alloc per insertion) and even std::unordered_map isn\u0027t great (must chain and cannot be open address). I\u0027m not sure why these very generic names were used for such specific things, but see the two hardest problems in programming (naming, caching, and off by one errors).",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 12
+      },
+      "revId": "147e4dc687fe2ae28e665353148351e6550e9782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b63837f5_63443c0c",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-05-29T03:23:29Z",
+      "side": 1,
+      "message": "I need them in sorted order.\n\nHow about I use a std::vector and then I sort them by ID?",
+      "parentUuid": "657d7c88_533fc554",
       "range": {
         "startLine": 45,
         "startChar": 4,
