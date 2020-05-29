@@ -9,7 +9,7 @@
 
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
-#include "src/gpu/effects/generated/GrMatrixEffect.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -196,7 +196,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
-    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+    return GrMatrixEffect::Make(final, std::unique_ptr<GrFragmentProcessor>(
                                                       new GrTextureEffect(std::move(view),
                                                                           alphaType,
                                                                           Sampling(filter),
@@ -214,7 +214,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
-    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+    return GrMatrixEffect::Make(final, std::unique_ptr<GrFragmentProcessor>(
                                                       new GrTextureEffect(std::move(view),
                                                                           alphaType,
                                                                           sampling,
@@ -232,7 +232,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
-    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+    return GrMatrixEffect::Make(final, std::unique_ptr<GrFragmentProcessor>(
                                                       new GrTextureEffect(std::move(view),
                                                                           alphaType,
                                                                           sampling,
@@ -251,7 +251,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
-    return GrMatrixEffect::Apply(final, std::unique_ptr<GrFragmentProcessor>(
+    return GrMatrixEffect::Make(final, std::unique_ptr<GrFragmentProcessor>(
                                                       new GrTextureEffect(std::move(view),
                                                                           alphaType,
                                                                           sampling,
