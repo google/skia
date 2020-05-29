@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c011f9d_1df36f3a",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T12:27:06Z",
+      "side": 1,
+      "message": "nit: \u003d\u003d\u003d here and below",
+      "range": {
+        "startLine": 87,
+        "startChar": 50,
+        "endLine": 87,
+        "endChar": 52
+      },
+      "revId": "037523a5ef5db4da9b5b935fb7f4ceeba836c03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e40e66c_343d6d78",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T12:27:06Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why this is needed. Please add a comment describing why.",
+      "range": {
+        "startLine": 156,
+        "startChar": 6,
+        "endLine": 156,
+        "endChar": 44
+      },
+      "revId": "037523a5ef5db4da9b5b935fb7f4ceeba836c03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
