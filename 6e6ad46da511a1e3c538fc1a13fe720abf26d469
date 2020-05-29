@@ -16,6 +16,24 @@
       "revId": "6e6ad46da511a1e3c538fc1a13fe720abf26d469",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01efb818_5161b145",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-05-29T16:35:11Z",
+      "side": 1,
+      "message": "Aligning the variable names is an old style that many on the team are moving away from. We\u0027ve had discussions about this before, and the consensus has just been to write whatever style you like. And if you\u0027re modifying a block of variable definitions, feel free to change them to whichever style you prefer ¯\\_(ツ)_/¯\n\nIt\u0027s a little indecisive as a team, but personally dislike aligned variable names because then you have to go back and re-indent everything if you ever add a new variable with a longer type name than the others.",
+      "parentUuid": "182754d3_b68c2492",
+      "revId": "6e6ad46da511a1e3c538fc1a13fe720abf26d469",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
