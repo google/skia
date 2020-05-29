@@ -1,5 +1,7 @@
 // Adds compile-time JS functions to augment the CanvasKit interface.
-// Specifically, anything that should only be on the CPU version of canvaskit.
+// Implementations in this file are considerate of GPU builds, i.e. some
+// behavior is predicated on whether or not this is being compiled alongside
+// gpu.js.
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
@@ -61,7 +63,9 @@
       return surface;
     };
 
-    CanvasKit.SkSurface.prototype.flush = function() {
+    // For GPU builds, simply proxies to native code flush.  For CPU builds,
+    // also updates the underlying HTML canvas, optionally with dirtyRect.
+    CanvasKit.SkSurface.prototype.flush = function(dirtyRect) {
       this._flush();
       // Do we have an HTML canvas to write the pixels to?
       // We will not if this a GPU build or a raster surface, for example.
@@ -69,7 +73,14 @@
         var pixels = new Uint8ClampedArray(CanvasKit.HEAPU8.buffer, this._pixelPtr, this._pixelLen);
         var imageData = new ImageData(pixels, this._width, this._height);
 
-        this._canvas.getContext('2d').putImageData(imageData, 0, 0);
+        if (!dirtyRect) {
+          this._canvas.getContext('2d').putImageData(imageData, 0, 0);
+        } else {
+          this._canvas.getContext('2d').putImageData(imageData, 0, 0,
+                                                     dirtyRect.fLeft, dirtyRect.fTop,
+                                                     dirtyRect.fRight - dirtyRect.fLeft,
+                                                     dirtyRect.fBottom - dirtyRect.fTop);
+        }
       }
     };
 

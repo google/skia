@@ -546,6 +546,35 @@ describe('Core canvas behavior', () => {
         // just call done() when the frame is rendered.
     });
 
+    it('can draw client-supplied dirty rects', (done) => {
+        // dirty rects are only honored by software (CPU) canvases today.
+        const surface = CanvasKit.MakeSWCanvasSurface('test');
+        expect(surface).toBeTruthy('Could not make surface');
+        if (!surface) {
+            done();
+            return;
+        }
+
+        const drawFrame = (canvas) => {
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(1.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            const path = new CanvasKit.SkPath();
+            path.moveTo(20, 5);
+            path.lineTo(30, 20);
+            path.lineTo(40, 10);
+            canvas.drawPath(path, paint);
+            path.delete();
+            paint.delete();
+            done();
+        }
+        const dirtyRect = CanvasKit.XYWHRect(10, 10, 15, 15);
+        surface.drawOnce(drawFrame, dirtyRect);
+        // We simply ensure that passing a dirty rect doesn't crash.
+    });
+
     it('can use DecodeCache APIs', () => {
         const initialLimit = CanvasKit.getDecodeCacheLimitBytes();
         expect(initialLimit).toBeGreaterThan(1024 * 1024);
