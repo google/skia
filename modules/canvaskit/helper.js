@@ -235,30 +235,6 @@ function copy2dArray(arr, dest, ptr) {
   return ptr;
 }
 
-// arr should be a non-jagged 3d JS array (TypedArrays can't be nested
-//     inside themselves.)
-// dest is something like CanvasKit.HEAPF32
-// ptr can be optionally provided if the memory was already allocated.
-function copy3dArray(arr, dest, ptr) {
-  if (!arr || !arr.length || !arr[0].length) {
-    return nullptr;
-  }
-  if (!ptr) {
-    ptr = CanvasKit._malloc(arr.length * arr[0].length * arr[0][0].length * dest.BYTES_PER_ELEMENT);
-  }
-  var idx = 0;
-  var adjustedPtr = ptr / dest.BYTES_PER_ELEMENT;
-  for (var x = 0; x < arr.length; x++) {
-    for (var y = 0; y < arr[0].length; y++) {
-      for (var z = 0; z < arr[0][0].length; z++) {
-        dest[adjustedPtr + idx] = arr[x][y][z];
-        idx++;
-      }
-    }
-  }
-  return ptr;
-}
-
 var defaultPerspective = Float32Array.of(0, 0, 1);
 
 // Copies the given DOMMatrix/Array/TypedArray to the CanvasKit heap and
