@@ -152,8 +152,7 @@ static bool is_float(const Context& context, const Type& type) {
     if (type.columns() > 1) {
         return is_float(context, type.componentType());
     }
-    return type == *context.fFloat_Type || type == *context.fHalf_Type ||
-           type == *context.fDouble_Type;
+    return type == *context.fFloat_Type || type == *context.fHalf_Type;
 }
 
 static bool is_signed(const Context& context, const Type& type) {
@@ -491,8 +490,6 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 } else if (type == *fContext.fFloat_Type || type == *fContext.fHalf_Type ||
                            type == *fContext.fFloatLiteral_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
-                } else if (type == *fContext.fDouble_Type) {
-                    this->writeInstruction(SpvOpTypeFloat, result, 64, fConstantBuffer);
                 } else {
                     SkASSERT(false);
                 }
@@ -2510,42 +2507,26 @@ SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    if (f.fType != *fContext.fDouble_Type) {
-        ConstantType type;
-        if (f.fType == *fContext.fHalf_Type) {
-            type = ConstantType::kHalf;
-        } else {
-            type = ConstantType::kFloat;
-        }
-        float value = (float) f.fValue;
-        std::pair<ConstantValue, ConstantType> key(f.fValue, type);
-        auto entry = fNumberConstants.find(key);
-        if (entry == fNumberConstants.end()) {
-            SpvId result = this->nextId();
-            uint32_t bits;
-            SkASSERT(sizeof(bits) == sizeof(value));
-            memcpy(&bits, &value, sizeof(bits));
-            this->writeInstruction(SpvOpConstant, this->getType(f.fType), result, bits,
-                                   fConstantBuffer);
-            fNumberConstants[key] = result;
-            return result;
-        }
-        return entry->second;
+    ConstantType type;
+    if (f.fType == *fContext.fHalf_Type) {
+        type = ConstantType::kHalf;
     } else {
-        std::pair<ConstantValue, ConstantType> key(f.fValue, ConstantType::kDouble);
-        auto entry = fNumberConstants.find(key);
-        if (entry == fNumberConstants.end()) {
-            SpvId result = this->nextId();
-            uint64_t bits;
-            SkASSERT(sizeof(bits) == sizeof(f.fValue));
-            memcpy(&bits, &f.fValue, sizeof(bits));
-            this->writeInstruction(SpvOpConstant, this->getType(f.fType), result,
-                                   bits & 0xffffffff, bits >> 32, fConstantBuffer);
-            fNumberConstants[key] = result;
-            return result;
-        }
-        return entry->second;
+        type = ConstantType::kFloat;
     }
+    float value = (float) f.fValue;
+    std::pair<ConstantValue, ConstantType> key(f.fValue, type);
+    auto entry = fNumberConstants.find(key);
+    if (entry == fNumberConstants.end()) {
+        SpvId result = this->nextId();
+        uint32_t bits;
+        SkASSERT(sizeof(bits) == sizeof(value));
+        memcpy(&bits, &value, sizeof(bits));
+        this->writeInstruction(SpvOpConstant, this->getType(f.fType), result, bits,
+                               fConstantBuffer);
+        fNumberConstants[key] = result;
+        return result;
+    }
+    return entry->second;
 }
 
 SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, OutputStream& out) {

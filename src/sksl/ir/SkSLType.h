@@ -269,7 +269,7 @@ public:
     }
 
     /**
-     * Returns true if this is a floating-point scalar type (float, half, or double).
+     * Returns true if this is a floating-point scalar type (float or half).
      */
     bool isFloat() const {
         return fNumberKind == kFloat_NumberKind;
@@ -297,7 +297,7 @@ public:
     }
 
     /**
-     * Returns the "priority" of a number type, in order of double > float > half > int > short.
+     * Returns the "priority" of a number type, in order of float > half > int > short.
      * When operating on two number types, the result is the higher-priority type.
      */
     int priority() const {
