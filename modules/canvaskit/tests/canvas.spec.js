@@ -640,6 +640,22 @@ describe('Canvas Behavior', () => {
         expect3x3MatricesToMatch(expected, matr);
     });
 
+    it('can accept a 3x2 matrix', () => {
+        const canvas = new CanvasKit.SkCanvas();
+
+        let matr = canvas.getTotalMatrix();
+        expect(matr).toEqual(CanvasKit.SkMatrix.identity());
+
+        canvas.concat([1.4, -0.2, 12,
+                       0.2,  1.4, 24]);
+
+        matr = canvas.getTotalMatrix();
+        const expected = [1.4, -0.2, 12,
+                          0.2,  1.4, 24,
+                            0,    0,  1];
+        expect3x3MatricesToMatch(expected, matr);
+    });
+
     const expect3x3MatricesToMatch = (expected, actual) => {
         expect(expected.length).toEqual(9);
         expect(actual.length).toEqual(9);
