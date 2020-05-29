@@ -672,7 +672,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         if (!tempB) {
             return nullptr;
         }
-        auto dstRect = SkRect::Make(nextDims);
+        std::unique_ptr<GrFragmentProcessor> srcFP;
         switch (stepType) {
             case StepType::kBicubic: {
                 SkMatrix matrix;
@@ -687,41 +687,35 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
                     dir = GrBicubicEffect::Direction::kX;
                 }
                 static constexpr GrSamplerState::WrapMode kWM = GrSamplerState::WrapMode::kClamp;
-                auto fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix,
-                                                      kWM, kWM, SkRect::Make(srcRect), dir,
-                                                      *this->caps());
-                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
-                GrPaint paint;
-                paint.addColorFragmentProcessor(std::move(fp));
-                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                tempB->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect);
+                srcFP = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix, kWM,
+                                                    kWM, SkRect::Make(srcRect), dir, *this->caps());
                 break;
             }
             case StepType::kFourTapBilinear: {
                 auto fp = make_multibilerp_effect<2, 2>(fContext, texView, srcAlphaType, srcRect,
                                                         nextDims);
-                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
-                GrPaint paint;
-                paint.addColorFragmentProcessor(std::move(fp));
-                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                tempB->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect);
                 break;
             }
             default: {
                 auto filter = stepType == StepType::kNearest ? GrSamplerState::Filter::kNearest
                                                              : GrSamplerState::Filter::kBilerp;
-                // Minimizing draw with integer coord src and dev rects can always be kFast.
-                auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
-                if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
-                    constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
-                }
-                tempB->drawTexture(nullptr, std::move(texView), srcAlphaType, filter,
-                                   SkBlendMode::kSrc, SK_PMColor4fWHITE, SkRect::Make(srcRect),
-                                   dstRect, GrAA::kNo, GrQuadAAFlags::kNone, constraint,
-                                   SkMatrix::I(), std::move(xform));
+                float sx = static_cast<float>(srcRect.width()) /nextDims.width(),
+                      sy = static_cast<float>(srcRect.height())/nextDims.height();
+                SkMatrix matrix;
+                matrix.setScaleTranslate(sx, sy, srcRect.x(), srcRect.y());
+                SkRect domain = SkRect::Make(srcRect).makeInset(sx/2, sy/2);
+                srcFP = GrTextureEffect::MakeSubset(std::move(texView), srcAlphaType, matrix,
+                                                    filter, SkRect::Make(srcRect), domain,
+                                                    *this->caps());
                 break;
             }
         }
+        GrPaint paint;
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+        srcFP = GrColorSpaceXformEffect::Make(std::move(srcFP), std::move(xform));
+        paint.addColorFragmentProcessor(std::move(srcFP));
+        tempB->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                        SkRect::Make(nextDims));
         texView = tempB->readSurfaceView();
         tempA = std::move(tempB);
         srcRect = SkIRect::MakeSize(nextDims);
