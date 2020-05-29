@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ed97aea_e175a14b",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-29T15:11:43Z",
+      "side": 1,
+      "message": "Up to you but I find this really hard to parse compared to one-per-line.",
+      "range": {
+        "startLine": 22,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 37
+      },
+      "revId": "e5e2265e640a20f7f35a1cf8bed92244816f456f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
