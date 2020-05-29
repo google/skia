@@ -12,9 +12,10 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
+#include "include/private/GrVkTypesPriv.h"
+#include "src/gpu/GrBackendSurfaceMutableStateImpl.h"
 #include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/vk/GrVkImageLayout.h"
 
 class GrVkGpu;
 class GrVkTexture;
@@ -24,13 +25,17 @@ private:
     class Resource;
 
 public:
-    GrVkImage(const GrVkGpu* gpu, const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
-              GrBackendObjectOwnership ownership, bool forSecondaryCB = false)
+    GrVkImage(const GrVkGpu* gpu,
+              const GrVkImageInfo& info,
+              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+              GrBackendObjectOwnership ownership,
+              bool forSecondaryCB = false)
             : fInfo(info)
             , fInitialQueueFamily(info.fCurrentQueueFamily)
-            , fLayout(std::move(layout))
+            , fMutableState(std::move(mutableState))
             , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
-        SkASSERT(fLayout->getImageLayout() == fInfo.fImageLayout);
+        SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
+        SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
         if (forSecondaryCB) {
             fResource = nullptr;
         } else if (fIsBorrowed) {
@@ -82,11 +87,9 @@ public:
     }
     bool isBorrowed() const { return fIsBorrowed; }
 
-    sk_sp<GrVkImageLayout> grVkImageLayout() const { return fLayout; }
+    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const { return fMutableState; }
 
-    VkImageLayout currentLayout() const {
-        return fLayout->getImageLayout();
-    }
+    VkImageLayout currentLayout() const { return fMutableState->getImageLayout(); }
 
     void setImageLayout(const GrVkGpu* gpu,
                         VkImageLayout newLayout,
@@ -94,6 +97,12 @@ public:
                         VkPipelineStageFlags dstStageMask,
                         bool byRegion,
                         bool releaseFamilyQueue = false);
+
+    uint32_t currentQueueFamilyIndex() const { return fMutableState->getQueueFamilyIndex(); }
+
+    void setQueueFamilyIndex(uint32_t queueFamilyIndex) {
+        fMutableState->setQueueFamilyIndex(queueFamilyIndex);
+    }
 
     // Returns the image to its original queue family and changes the layout to present if the queue
     // family is not external or foreign.
@@ -109,7 +118,7 @@ public:
         // Should only be called when we have a real fResource object, i.e. never when being used as
         // a RT in an external secondary command buffer.
         SkASSERT(fResource);
-        fLayout->setImageLayout(newLayout);
+        fMutableState->setImageLayout(newLayout);
     }
 
     struct ImageDesc {
@@ -159,10 +168,10 @@ protected:
     void releaseImage(GrVkGpu* gpu);
     bool hasResource() const { return fResource; }
 
-    GrVkImageInfo          fInfo;
-    uint32_t               fInitialQueueFamily;
-    sk_sp<GrVkImageLayout> fLayout;
-    bool                   fIsBorrowed;
+    GrVkImageInfo                    fInfo;
+    uint32_t                         fInitialQueueFamily;
+    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
+    bool                             fIsBorrowed;
 
 private:
     class Resource : public GrTextureResource {
