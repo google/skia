@@ -55,8 +55,8 @@ public:
 };
 ~~~~
 
-Data fields in structs, classes, unions begin with lowercase f and are then
-camel capped.
+Data fields in structs, classes, unions begin with lower-case f and are then
+camel-capped.
 
 <!--?prettify?-->
 ~~~~
@@ -67,13 +67,17 @@ struct GrCar {
 };
 ~~~~
 
-Globals variables are similar but prefixed with g and camel-capped
+Global variables are similar but prefixed with g and camel-capped.
 
 <!--?prettify?-->
 ~~~~
 bool gLoggingEnabled
-Local variables begin lowercases and are camel-capped.
+~~~~
 
+Local variables and arguments are camel-capped with no initial cap.
+
+<!--?prettify?-->
+~~~~
 int herdCats(const Array& cats) {
     int numCats = cats.count();
 }
@@ -137,7 +141,7 @@ enum { kFavoriteNumber = 7 };
 Macros are all caps with underscores between words. Macros that have greater
 than file scope should be prefixed SK or GR.
 
-Static non-class functions in implementation files are lower case with
+Static non-class functions in implementation files are lower-case with
 underscores separating words:
 
 <!--?prettify?-->
@@ -156,6 +160,9 @@ bool SkIsOdd(int n);
 class SkFoo {
 public:
     static int FooInstanceCount();
+
+    // Not static.
+    int barBaz();
 };
 ~~~~
 
