@@ -16,7 +16,6 @@
 #include "src/core/SkYUVPlanesCache.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -191,7 +190,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
                                      yuvSizeInfo.fSizes[0].fHeight);
 
     SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, r.width(), r.height());
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, r);
+    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
 
     SkASSERT(renderTargetContext->asTextureProxy());
     return renderTargetContext->readSurfaceView();

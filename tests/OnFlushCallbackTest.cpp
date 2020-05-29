@@ -10,7 +10,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "src/core/SkPointPriv.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrImageInfo.h"
@@ -484,7 +483,7 @@ static GrSurfaceProxyView make_upstream_image(GrContext* context, AtlasObject* o
         AtlasedRectOp* sparePtr = op.get();
 
         uint32_t opsTaskID;
-        rtc->priv().testingOnly_addDrawOp(GrNoClip(), std::move(op),
+        rtc->priv().testingOnly_addDrawOp(nullptr, std::move(op),
                                           [&opsTaskID](GrOp* op, uint32_t id) { opsTaskID = id; });
         SkASSERT(SK_InvalidUniqueID != opsTaskID);
 
@@ -596,7 +595,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 
-        rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
+        rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), r);
     }
 
     rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());

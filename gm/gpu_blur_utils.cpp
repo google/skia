@@ -9,7 +9,6 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkGpuBlurUtils.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/SkGr.h"
@@ -153,7 +152,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                 paint.addColorFragmentProcessor(std::move(fp));
                 static constexpr float kAlpha = 0.2f;
                 paint.setColor4f({kAlpha, kAlpha, kAlpha, kAlpha});
-                rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, SkRect::Make(testArea));
+                rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, SkRect::Make(testArea));
             }
             // If we're in ref mode we will create a temp image that has the original image
             // tiled into it and then do a clamp blur with adjusted params that should produce
@@ -174,7 +173,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                                                       SkRect::Make(srcRect), caps);
                 GrPaint paint;
                 paint.addColorFragmentProcessor(std::move(fp));
-                refSrc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                refSrc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                  SkRect::Make(refRect.size()));
             }
             // Do a blur for each dstRect in the set over our testArea-sized background.
@@ -209,7 +208,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                                                                            SkBlendMode::kSrcOver);
                     paint.addColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                    rtc->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, m,
+                    rtc->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, m,
                                         SkRect::Make(dstRect), SkRect::Make(blurView.dimensions()));
                 }
                 // Show the outline of the dst rect. Mostly for kDecal but also allows visual
@@ -223,7 +222,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                     stroke.setStrokeWidth(1.f);
                     GrStyle style(stroke);
                     auto dstR = SkRect::Make(dstRect).makeOutset(0.5f, 0.5f);
-                    rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, dstR, &style);
+                    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, dstR, &style);
                 }
             }
             // Show the rect that's being blurred.
@@ -236,7 +235,7 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                 stroke.setStrokeWidth(1.f);
                 GrStyle style(stroke);
                 auto srcR = SkRect::Make(srcRect).makeOutset(0.5f, 0.5f);
-                rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, srcR, &style);
+                rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, srcR, &style);
             }
             trans.fX += testArea.width() + kPad;
         }

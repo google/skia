@@ -193,9 +193,10 @@ private:
 /**
  * Makes a clip object that enforces the stencil clip bit. Used to visualize the stencil mask.
  */
-static GrStencilClip make_stencil_only_clip() {
-    return GrStencilClip(SkClipStack::kEmptyGenID);
-};
+static const GrStencilClip* make_stencil_only_clip() {
+    static const GrStencilClip kClip(SkClipStack::kEmptyGenID);
+    return &kClip;
+}
 
 DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
                                                         SkString* errorMsg) {
@@ -253,7 +254,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // inside window rectangles or outside the scissor should still have the initial checkerboard
     // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
     AlphaOnlyClip clip(maskRTC->readSurfaceView(), x, y);
-    rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
+    rtc->drawRect(&clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                   SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
 
@@ -296,7 +297,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
             SkIRect checker = SkIRect::MakeXYWH(x, y, kMaskCheckerSize, kMaskCheckerSize);
             GrPaint paint;
             paint.setXPFactory(GrDisableColorXPFactory::Get());
-            rtc->priv().stencilRect(GrNoClip(), &kSetClip, std::move(paint), GrAA::kNo,
+            rtc->priv().stencilRect(nullptr, &kSetClip, std::move(paint), GrAA::kNo,
                                     SkMatrix::I(), SkRect::Make(checker));
         }
     }

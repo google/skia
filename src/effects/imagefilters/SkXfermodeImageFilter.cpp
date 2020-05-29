@@ -17,7 +17,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -310,7 +309,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
+    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
                                   SkRect::Make(bounds));
 
     return SkSpecialImage::MakeDeferredFromGpu(context,

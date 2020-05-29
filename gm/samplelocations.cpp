@@ -22,7 +22,6 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -364,11 +363,11 @@ DrawResult SampleLocationsGM::onDraw(
     GrPaint coverPaint;
     coverPaint.setColor4f({1,0,0,1});
     coverPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver));
-    rtc->priv().stencilRect(GrNoClip(), &kStencilCover, std::move(coverPaint), GrAA::kNo,
+    rtc->priv().stencilRect(nullptr, &kStencilCover, std::move(coverPaint), GrAA::kNo,
                             SkMatrix::I(), SkRect::MakeWH(200, 200));
 
     // Copy offscreen texture to canvas.
-    rtc->drawTexture(GrNoClip(), offscreenRTC->readSurfaceView(),
+    rtc->drawTexture(nullptr, offscreenRTC->readSurfaceView(),
                      offscreenRTC->colorInfo().alphaType(),
                      GrSamplerState::Filter::kNearest, SkBlendMode::kSrc, SK_PMColor4fWHITE,
                      {0,0,200,200}, {0,0,200,200}, GrAA::kNo, GrQuadAAFlags::kNone,

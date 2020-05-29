@@ -275,7 +275,7 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
 
 void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
                                      GrTextTarget* target,
-                                     const GrClip& clip,
+                                     const GrClip* clip,
                                      const SkMatrixProvider& matrixProvider,
                                      const SkSurfaceProps& props,
                                      const SkGlyphRunList& glyphRunList) const {
