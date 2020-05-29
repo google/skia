@@ -30,7 +30,7 @@ public:
     struct Geometry {
         SkMatrix    fDrawMatrix;
         SkIRect     fClipRect;
-        GrTextBlob* fBlob;
+        const GrTextBlob* fBlob;
         SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
