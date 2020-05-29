@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c29061dd_15bbfb7f",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-29T19:55:09Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "99ddb10b_14ecd91a",
+      "revId": "51bf38ae402545d69efaa3dd1b303ef21a556812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b1939d5_362638ad",
         "filename": "src/codec/SkIcoCodec.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "51bf38ae402545d69efaa3dd1b303ef21a556812",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "584c6204_bba6a789",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-05-29T19:55:09Z",
+      "side": 1,
+      "message": "\u003e Is that really a bug that needs fixed? \n\nProbably not. I haven\u0027t seen a bug report for it as long as it\u0027s been around. I don\u0027t suspect ICO is used very often.\n\nIt seemed reasonable to fix (as a separate CL) just because it would be easy (and it would allow me to stop special casing some tests).\n\n\u003e Doesn\u0027t seem unreasonable that we won\u0027t support partial images for ICO.\n\nSgtm. Removed the comment.",
+      "parentUuid": "1b1939d5_362638ad",
+      "revId": "51bf38ae402545d69efaa3dd1b303ef21a556812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
