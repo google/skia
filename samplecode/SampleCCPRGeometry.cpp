@@ -14,7 +14,6 @@
 #include "include/core/SkPath.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -208,7 +207,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         paint.addColorFragmentProcessor(
                 std::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-        rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+        rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::MakeIWH(this->width(), this->height()));
 
         // Add label.
