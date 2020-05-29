@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de219802_d44afae2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T19:12:51Z",
+      "side": 1,
+      "message": "Update the commit message with your findings.",
+      "revId": "50bf3082088940133b98c1cfece940de1bc7cd05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f457e0b_bb841244",
+        "filename": "tools/perf-canvaskit-puppeteer/path-transform.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T19:12:51Z",
+      "side": 1,
+      "message": "nit: style via css (here and below)",
+      "range": {
+        "startLine": 32,
+        "startChar": 75,
+        "endLine": 32,
+        "endChar": 80
+      },
+      "revId": "50bf3082088940133b98c1cfece940de1bc7cd05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
