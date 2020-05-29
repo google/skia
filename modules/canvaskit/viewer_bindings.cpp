@@ -10,6 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/ModifierKey.h"
 #include "tools/viewer/SKPSlide.h"
 #include "tools/viewer/SampleSlide.h"
 #include "tools/viewer/SvgSlide.h"
@@ -18,21 +20,25 @@
 
 using namespace emscripten;
 
-sk_sp<Slide> MakeSlide(std::string name) {
+static sk_sp<Slide> MakeSlide(std::string name) {
     if (name == "PathText") {
         extern Sample* MakePathTextSample();
         return sk_make_sp<SampleSlide>(MakePathTextSample);
     }
+    if (name == "TessellatedWedge") {
+        extern Sample* MakeTessellatedWedgeSample();
+        return sk_make_sp<SampleSlide>(MakeTessellatedWedgeSample);
+    }
     return nullptr;
 }
 
-sk_sp<Slide> MakeSkpSlide(std::string name, std::string skpData) {
+static sk_sp<Slide> MakeSkpSlide(std::string name, std::string skpData) {
     auto stream = std::make_unique<SkMemoryStream>(skpData.data(), skpData.size(),
                                                    /*copyData=*/true);
     return sk_make_sp<SKPSlide>(SkString(name.c_str()), std::move(stream));
 }
 
-sk_sp<Slide> MakeSvgSlide(std::string name, std::string svgText) {
+static sk_sp<Slide> MakeSvgSlide(std::string name, std::string svgText) {
     auto stream = std::make_unique<SkMemoryStream>(svgText.data(), svgText.size(),
                                                    /*copyData=*/true);
     return sk_make_sp<SvgSlide>(SkString(name.c_str()), std::move(stream));
@@ -43,8 +49,8 @@ static void delete_wrapped_framebuffer(SkSurface::ReleaseContext context) {
     glDeleteFramebuffers(1, &framebuffer);
 }
 
-sk_sp<SkSurface> MakeOffscreenFramebuffer(sk_sp<GrContext> grContext, int width, int height,
-                                          int sampleCnt) {
+static sk_sp<SkSurface> MakeOffscreenFramebuffer(sk_sp<GrContext> grContext, int width, int height,
+                                                 int sampleCnt) {
     GLuint colorBuffer;
     glGenRenderbuffers(1, &colorBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
@@ -87,8 +93,9 @@ enum class GLFilter {
     kLinear = GL_LINEAR
 };
 
-void BlitOffscreenFramebuffer(sk_sp<SkSurface> surface, int srcX0, int srcY0, int srcX1, int srcY1,
-                              int dstX0, int dstY0, int dstX1, int dstY1, GLFilter filter) {
+static void BlitOffscreenFramebuffer(sk_sp<SkSurface> surface, int srcX0, int srcY0, int srcX1, int
+                                     srcY1, int dstX0, int dstY0, int dstX1, int dstY1,
+                                     GLFilter filter) {
   surface->flush(SkSurface::BackendSurfaceAccess::kPresent, GrFlushInfo());
   GrGLFramebufferInfo glInfo;
   auto backendRT = surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
@@ -112,8 +119,23 @@ EMSCRIPTEN_BINDINGS(Viewer) {
         .function("animate", &Slide::animate)
         .function("draw", optional_override([](Slide& self, SkCanvas& canvas) {
             self.draw(&canvas);
-        }));
+        }))
+        .function("onChar", &Slide::onChar)
+        .function("onMouse", &Slide::onMouse);
     enum_<GLFilter>("GLFilter")
         .value("Nearest",   GLFilter::kNearest)
         .value("Linear",    GLFilter::kLinear);
+    enum_<skui::InputState>("InputState")
+        .value("Down",    skui::InputState::kDown)
+        .value("Up",      skui::InputState::kUp)
+        .value("Move",    skui::InputState::kMove)
+        .value("Right",   skui::InputState::kRight)
+        .value("Left",    skui::InputState::kLeft);
+    enum_<skui::ModifierKey>("ModifierKey")
+        .value("None",          skui::ModifierKey::kNone)
+        .value("Shift",         skui::ModifierKey::kShift)
+        .value("Control",       skui::ModifierKey::kControl)
+        .value("Option",        skui::ModifierKey::kOption)
+        .value("Command",       skui::ModifierKey::kCommand)
+        .value("FirstPress",    skui::ModifierKey::kFirstPress);
 }
