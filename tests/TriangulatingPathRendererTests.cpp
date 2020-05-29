@@ -10,8 +10,8 @@
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -714,6 +714,7 @@ static void test_path(GrContext* ctx,
         paint.addColorFragmentProcessor(std::move(fp));
     }
 
+    GrNoClip noClip;
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
@@ -722,7 +723,7 @@ static void test_path(GrContext* ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
-                                      nullptr,
+                                      &noClip,
                                       &clipConservativeBounds,
                                       &matrix,
                                       &shape,

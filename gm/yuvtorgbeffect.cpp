@@ -24,6 +24,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
@@ -361,7 +362,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->drawRect(
-                            nullptr, std::move(grPaint), GrAA::kYes, ctm, rect);
+                            GrNoClip(), std::move(grPaint), GrAA::kYes, ctm, rect);
                 }
                 x += rect.width() + kTestPad;
             }

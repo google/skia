@@ -125,8 +125,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
-        , fRenderTargetContext(std::move(renderTargetContext))
-        , fClip(&this->cs()) {
+        , fRenderTargetContext(std::move(renderTargetContext)) {
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
@@ -722,16 +721,13 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
             SkRect clipGeometry = SkRect::MakeWH(clipImage->width(), clipImage->height());
             if (!clipGeometry.contains(inverseClipMatrix.mapRect(dstRect))) {
                 // Draw the clip geometry since it is smaller, using dstRect as an extra scissor
-                SkClipStack dstRectClip(this->cs());
-                dstRectClip.clipDevRect(
-                        SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
-                        SkClipOp::kIntersect);
-                GrClipStackClip clip(&dstRectClip);
+                SkClipStack clip(this->cs());
+                clip.clipDevRect(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
+                                 SkClipOp::kIntersect);
                 SkMatrix local = SkMatrix::Concat(SkMatrix::MakeRectToRect(
                         dstRect, srcRect, SkMatrix::kFill_ScaleToFit), ctm);
-                fRenderTargetContext->fillRectWithLocalMatrix(&clip, std::move(grPaint),
-                                                              GrAA(paint.isAntiAlias()), ctm,
-                                                              clipGeometry, local);
+                fRenderTargetContext->fillRectWithLocalMatrix(GrClipStackClip(&clip),
+                        std::move(grPaint), GrAA(paint.isAntiAlias()), ctm, clipGeometry, local);
                 return;
             }
             // Else fall through and draw the subset since that is contained in the clip geometry
@@ -1140,6 +1136,7 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
     }
     GrPaint grPaint;
     grPaint.setXPFactory(GrDisableColorXPFactory::Get());
+    GrNoClip noClip;
     static constexpr GrUserStencilSettings kDrawToStencil(
         GrUserStencilSettings::StaticInit<
             0x1,
@@ -1149,7 +1146,7 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
             GrUserStencilOp::kReplace,
             0x1>()
     );
-    rtc->drawRegion(nullptr, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
+    rtc->drawRegion(noClip, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
                     GrStyle::SimpleFill(), &kDrawToStencil);
     return true;
 }

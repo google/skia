@@ -9,8 +9,8 @@
 
 #include "include/core/SkPath.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
@@ -38,6 +38,7 @@ static void draw_path(GrContext* ctx,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
+    GrNoClip noClip;
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyledShape shape(path, style);
@@ -50,7 +51,7 @@ static void draw_path(GrContext* ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
-                                      nullptr,
+                                      &noClip,
                                       &clipConservativeBounds,
                                       &matrix,
                                       &shape,

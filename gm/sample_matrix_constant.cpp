@@ -9,6 +9,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -71,7 +72,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
 
         GrPaint paint;
         paint.addCoverageFragmentProcessor(std::move(fp));
-        rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
+        rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 
     {
@@ -92,6 +93,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixConstantEffect(std::move(gradientFP)));
         paint.addCoverageFragmentProcessor(std::move(fp));
-        rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
+        rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
     }
 }
+

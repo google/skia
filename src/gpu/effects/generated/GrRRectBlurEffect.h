@@ -19,6 +19,7 @@
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -66,7 +67,7 @@ public:
         GrPaint paint;
 
         rtc->clear(SK_PMColor4fTRANSPARENT);
-        rtc->drawRRect(nullptr, std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
+        rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 
         GrSurfaceProxyView srcView = rtc->readSurfaceView();

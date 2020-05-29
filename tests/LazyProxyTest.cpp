@@ -212,9 +212,8 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
         auto mockAtlas = GrRenderTargetContext::Make(
                 ctx.get(), GrColorType::kAlpha_F16, nullptr, SkBackingFit::kExact, {10, 10});
         REPORTER_ASSERT(reporter, mockAtlas);
-        LazyProxyTest::Clip clip(&test, mockAtlas->asTextureProxy());
-        rtc->priv().testingOnly_addDrawOp(
-                &clip, LazyProxyTest::Op::Make(ctx.get(), proxyProvider, &test, nullTexture));
+        rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
+                        LazyProxyTest::Op::Make(ctx.get(), proxyProvider, &test, nullTexture));
         ctx->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&test);
     }
 }

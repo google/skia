@@ -131,7 +131,7 @@ public:
                const SkSurfaceProps& props,
                const SkPaint& paint,
                const SkPMColor4f& filteredColor,
-               const GrClip* clip,
+               const GrClip& clip,
                const SkMatrixProvider& deviceMatrix,
                SkPoint drawOrigin);
 

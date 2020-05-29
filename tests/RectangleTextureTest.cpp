@@ -9,6 +9,7 @@
 #include "tests/TestUtils.h"
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -39,7 +40,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
+        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
         TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
                        "RectangleTexture-basic-draw");
     }

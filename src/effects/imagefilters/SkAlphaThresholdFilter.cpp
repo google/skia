@@ -19,6 +19,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -111,13 +112,14 @@ GrSurfaceProxyView SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingCont
     SkRegion::Iterator iter(fRegion);
     rtContext->clear(SK_PMColor4fTRANSPARENT);
 
+    GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkRect rect = SkRect::Make(iter.rect());
 
-        rtContext->drawRect(nullptr, std::move(paint), GrAA::kNo, inMatrix, rect);
+        rtContext->drawRect(clip, std::move(paint), GrAA::kNo, inMatrix, rect);
 
         iter.next();
     }
