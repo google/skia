@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bf2e3003_54d74463",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T20:15:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae96f8b9_aaac1843",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 22
+      },
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5beb7dc_1ce5dea9",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 4
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "9233ba78_ecf35b97",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T20:15:06Z",
+      "side": 1,
+      "message": "Yes, I think if we support int colors here (similar to how we support DomMatrix), then we get a lot of flexibility in the API and clients wouldn\u0027t have to cache their own TypedArrays, for example.",
+      "parentUuid": "e5beb7dc_1ce5dea9",
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23c4eff3_b1b54be7",
         "filename": "modules/canvaskit/paragraph.js",
         "patchSetId": 4
@@ -53,6 +95,24 @@
       "writtenOn": "2020-05-29T18:04:52Z",
       "side": 1,
       "message": "let\u0027s connsider sending the entire paragraphStyle and fontStyle objects over the wire as serialized json and parsing it in c++\nWDYT?",
+      "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efbf6ebb_f9cf2cd0",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-05-29T20:15:06Z",
+      "side": 1,
+      "message": "I have my doubts that would be performant enough.",
+      "parentUuid": "23c4eff3_b1b54be7",
       "revId": "6b6e7f27896468e1e0dfa90828bce2e487037cb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
