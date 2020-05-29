@@ -88,7 +88,7 @@ public:
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
         for (dawn_native::Adapter adapter : adapters) {
             if (adapter.GetBackendType() == type) {
-                return adapter.CreateDevice();
+                return wgpu::Device::Acquire(adapter.CreateDevice());
             }
         }
         return nullptr;
