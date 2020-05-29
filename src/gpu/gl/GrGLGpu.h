@@ -179,6 +179,8 @@ public:
     void insertManualFramebufferBarrier() override;
 
 private:
+    friend class GrGLProgram; // for flushProgram
+
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
