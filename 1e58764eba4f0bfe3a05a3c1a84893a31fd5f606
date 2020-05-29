@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9867cba4_242ee416",
+        "filename": "src/gpu/GrRingBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-29T15:47:54Z",
+      "side": 1,
+      "message": "Is this a metal thing? what is didModifyRange?\n\nIs this a different alignment than fAlignment? Should the backend make sure that the alignment they pass in handles this criteria?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 6
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dcbfcd6_59335368",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-29T15:47:54Z",
+      "side": 1,
+      "message": "This isn\u0027t used?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 6
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e84220_122de085",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-29T15:47:54Z",
+      "side": 1,
+      "message": "can we add comments on these to describe when a backend should or is required to call them. Or short comments here and a more overall descriptive comment at the start of the class.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92cfb458_eb058da6",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-05-29T15:47:54Z",
+      "side": 1,
+      "message": "Do these need to protected? Will a subclass actually need to call these? In this change they are only called by the base class so should be in private.",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 61
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
