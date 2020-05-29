@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b52debe_b0fe4d50",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T15:37:37Z",
+      "side": 1,
+      "message": "Unless we\u0027re strongly controlling the locale (and I don\u0027t think we are) you\u0027ll get Arabic-Indic digits in the Persian (\"fa_IR\") locale (like ۰۱۲۳۴۵۶۷۸۹) since it will go through vsnprintf. Note something like\n\n    SkString idString(\"node\");\n    idString.appendS32(nodeId);\n    return idString;\n\nwill (though somewhat not entirely well documented) always produce \"normal\" Arabic numerals (though it won\u0027t do zero padding). I\u0027m not sure what\u0027s allowed or desired here, so just pointing this out. (I believe at some point some part of our gpu shader generator ran into issues like this.) Since string comparison is no longer being used, I don\u0027t think the padding makes a difference now?\n\nIn writing this I had to pick which \u0027append\u0027 to use and realized that \u0027int\u0027 is a strange type for nodeId, since it doesn\u0027t seem like they should be signed and they\u0027re simply nominal (though this change makes them ordinal, though not really cardinal).",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 24
+      },
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d3e2306_793db13f",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T15:37:37Z",
+      "side": 1,
+      "message": "Isn\u0027t this backward? Should be \u0027\u003c\u0027?",
+      "range": {
+        "startLine": 372,
+        "startChar": 36,
+        "endLine": 372,
+        "endChar": 37
+      },
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21f0866d_afd1de07",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-05-29T15:37:37Z",
+      "side": 1,
+      "message": "Not used anymore, should remove.",
+      "revId": "f7f5fb3e557e3ed2a5b3e7a9e8d429a02e473332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
