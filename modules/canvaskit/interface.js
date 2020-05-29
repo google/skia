@@ -1139,7 +1139,7 @@ CanvasKit.onRuntimeInitialized = function() {
       // We do not dispose() of the SkSurface here, as the client will typically
       // call requestAnimationFrame again from within the supplied callback.
       // For drawing a single frame, prefer drawOnce().
-      this.flush();
+      this.flush(dirtyRect);
     }.bind(this));
   }
 
@@ -1155,7 +1155,7 @@ CanvasKit.onRuntimeInitialized = function() {
       }
       callback(this._cached_canvas);
 
-      this.flush();
+      this.flush(dirtyRect);
       this.dispose();
     }.bind(this));
   }
