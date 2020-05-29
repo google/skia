@@ -91,7 +91,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
 
-    if (releaseFamilyQueue && fInfo.fCurrentQueueFamily == fInitialQueueFamily &&
+    if (releaseFamilyQueue && this->currentQueueFamilyIndex() == fInitialQueueFamily &&
         newLayout == currentLayout) {
         // We never transfered the image to this queue and we are releasing it so don't do anything.
         return;
@@ -100,8 +100,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     // If the old and new layout are the same and the layout is a read only layout, there is no need
     // to put in a barrier unless we also need to switch queues.
     if (newLayout == currentLayout && !releaseFamilyQueue &&
-        (fInfo.fCurrentQueueFamily == VK_QUEUE_FAMILY_IGNORED ||
-         fInfo.fCurrentQueueFamily == gpu->queueIndex()) &&
+        (this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_IGNORED ||
+         this->currentQueueFamilyIndex() == gpu->queueIndex()) &&
         (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
@@ -115,22 +115,22 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
     uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    if (fInfo.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
-        gpu->queueIndex() != fInfo.fCurrentQueueFamily) {
+    if (this->currentQueueFamilyIndex() != VK_QUEUE_FAMILY_IGNORED &&
+        gpu->queueIndex() != this->currentQueueFamilyIndex()) {
         // The image still is owned by its original queue family and we need to transfer it into
         // ours.
         SkASSERT(!releaseFamilyQueue);
-        SkASSERT(fInfo.fCurrentQueueFamily == fInitialQueueFamily);
+        SkASSERT(this->currentQueueFamilyIndex() == fInitialQueueFamily);
 
-        srcQueueFamilyIndex = fInfo.fCurrentQueueFamily;
+        srcQueueFamilyIndex = this->currentQueueFamilyIndex();
         dstQueueFamilyIndex = gpu->queueIndex();
-        fInfo.fCurrentQueueFamily = gpu->queueIndex();
+        this->setQueueFamilyIndex(gpu->queueIndex());
     } else if (releaseFamilyQueue) {
         // We are releasing the image so we must transfer the image back to its original queue
         // family.
-        srcQueueFamilyIndex = fInfo.fCurrentQueueFamily;
+        srcQueueFamilyIndex = this->currentQueueFamilyIndex();
         dstQueueFamilyIndex = fInitialQueueFamily;
-        fInfo.fCurrentQueueFamily = fInitialQueueFamily;
+        this->setQueueFamilyIndex(fInitialQueueFamily);
     }
 
     VkImageMemoryBarrier imageMemoryBarrier = {
@@ -248,7 +248,7 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
 }
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
-    if (!gpu->isDeviceLost() && fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
+    if (!gpu->isDeviceLost() && this->currentQueueFamilyIndex() != fInitialQueueFamily) {
         // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image
         // memory barrier says the dstStageMask must not be zero. However, in the spec when it talks
         // about family queue transfers it says the dstStageMask is ignored and should be set to
@@ -283,7 +283,7 @@ void GrVkImage::BorrowedResource::freeGPUData() const {
 
 #if GR_TEST_UTILS
 void GrVkImage::setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu) {
-    fInfo.fCurrentQueueFamily = gpu->queueIndex();
+    fMutableState->setQueueFamilyIndex(gpu->queueIndex());
 }
 #endif
 
