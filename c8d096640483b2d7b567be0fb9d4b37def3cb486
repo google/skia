@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99448e06_55b29a41",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-29T13:26:13Z",
+      "side": 1,
+      "message": "I don\u0027t see any reasons flushProgram can\u0027t be public. It\u0027s public interface is no longer about doing self contained draws but rather exposes lower level control to be driven by higher level abstraction. bindTexture(), bindVertexArray(), and bindBuffer() are all public.",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 49
+      },
+      "revId": "c8d096640483b2d7b567be0fb9d4b37def3cb486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9b95e45_2716ba78",
+        "filename": "src/gpu/gl/GrGLProgram.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-05-29T13:26:13Z",
+      "side": 1,
+      "message": "fps?",
+      "range": {
+        "startLine": 152,
+        "startChar": 76,
+        "endLine": 152,
+        "endChar": 94
+      },
+      "revId": "c8d096640483b2d7b567be0fb9d4b37def3cb486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
