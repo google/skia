@@ -54,8 +54,8 @@ static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outse
         if (i == 1) {
             // Backdrop mode, so save a layer using the image filter as the backdrop to filter
             // content on initialization.
-            canvas->saveLayer({nullptr, nullptr, imageFilter.get(), nullptr, nullptr,
-                               SkCanvas::kInitWithPrevious_SaveLayerFlag});
+            canvas->saveLayer(SkCanvas::SaveLayerRec(nullptr, nullptr, imageFilter.get(),
+                                                     SkCanvas::kInitWithPrevious_SaveLayerFlag));
         }
 
         // Restore the saved layer (either a main layer that was just drawn into and needs to be

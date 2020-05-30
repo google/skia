@@ -50,7 +50,7 @@ static void save_layer_unclipped(SkCanvas* canvas,
     SkPaint paint;
     paint.setAlphaf(0.25f);
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, &paint, nullptr, nullptr, nullptr,
+    canvas->saveLayer({ &rect, &paint, nullptr,
                         (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
@@ -108,8 +108,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
         canvas->translate(100 * i, 0);
         auto flag = i ?
                 (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
-        canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
-        canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rect1, &paint1, nullptr, flag));
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rect2, &paint2, nullptr, flag));
         canvas->drawRect(rect3, paint3);
         canvas->restore();
         canvas->restore();
@@ -134,6 +134,7 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
 static void draw_mask(SkCanvas* canvas, int size) {
     const SkScalar cx = size * SK_ScalarHalf,
                    cy = cx;
@@ -243,6 +244,7 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         }
     }
 }
+#endif
 
 DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->saveLayer(nullptr, nullptr);
@@ -282,6 +284,7 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
 DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     // Offscreen surface for making the clip mask and mask filter images
     auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(100, 100));
@@ -340,6 +343,7 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     canvas->clear(SK_ColorWHITE);
     canvas->restore();
 }
+#endif
 
 static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
                       bool useDrawBehind) {
