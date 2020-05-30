@@ -1177,7 +1177,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         }
         newDevice->setMarkerStack(fMarkerStack.get());
     }
-    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix);
+    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix,
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
+                                   rec.fClipMask, rec.fClipMatrix
+#else
+                                   nullptr, nullptr
+#endif
+                                   );
 
     // only have a "next" if this new layer doesn't affect the clip (rare)
     layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;
