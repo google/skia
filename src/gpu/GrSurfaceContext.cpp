@@ -628,7 +628,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
     };
     auto determineNextStep = [rescaleQuality, finalSize = info.dimensions()](SkISize srcSize) {
         if (rescaleQuality == kNone_SkFilterQuality) {
-            return std::tuple(StepType::kNearest, finalSize);
+            return std::make_tuple(StepType::kNearest, finalSize);
         }
         SkISize nextSize;
         if (srcSize.width() > finalSize.width()) {
@@ -642,15 +642,15 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             nextSize.fHeight = std::min(srcSize.height()*2, finalSize.height());
         }
         if (rescaleQuality == kHigh_SkFilterQuality) {
-            return std::tuple(StepType::kBicubic, nextSize);
+            return std::make_tuple(StepType::kBicubic, nextSize);
         }
         // See if we can do multiple bilinear steps in one.
         if (nextSize.width() > finalSize.width() && nextSize.height() > finalSize.height()) {
             nextSize = {std::max((nextSize.width()  + 1)/2, finalSize.width()),
                         std::max((nextSize.height() + 1)/2, finalSize.height())};
-            return std::tuple{StepType::kFourTapBilinear, nextSize};
+            return std::make_tuple(StepType::kFourTapBilinear, nextSize);
         }
-        return std::tuple{StepType::kBilinear, nextSize};
+        return std::make_tuple(StepType::kBilinear, nextSize);
     };
     while (srcRect.size() != info.dimensions()) {
         auto [stepType, nextDims] = determineNextStep(srcRect.size());
