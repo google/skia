@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
+#include "src/core/SkPathPriv.h"
 
 namespace sksg {
 
@@ -43,7 +44,7 @@ SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     const auto clipBounds = fClipNode->revalidate(ic, ctm);
     auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
 
-    fNoop = fClipNode->asPath().conservativelyContainsRect(childBounds);
+    fNoop = SkPathPriv::ConservativelyContainsRect(fClipNode->asPath(), childBounds);
 
     return childBounds.intersect(clipBounds) ? childBounds : SkRect::MakeEmpty();
 }
