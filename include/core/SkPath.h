@@ -494,21 +494,6 @@ public:
     */
     SkRect computeTightBounds() const;
 
-    /** Returns true if rect is contained by SkPath.
-        May return false when rect is contained by SkPath.
-
-        For now, only returns true if SkPath has one contour and is convex.
-        rect may share points and edges with SkPath and be contained.
-        Returns true if rect is empty, that is, it has zero width or height; and
-        the SkPoint or line described by rect is contained by SkPath.
-
-        @param rect  SkRect, line, or SkPoint checked for containment
-        @return      true if rect is contained
-
-        example: https://fiddle.skia.org/c/@Path_conservativelyContainsRect
-    */
-    bool conservativelyContainsRect(const SkRect& rect) const;
-
     /** Grows SkPath verb array and SkPoint array to contain extraPtCount additional SkPoint.
         May improve performance and use less memory by
         reducing the number and size of allocations when creating SkPath.
@@ -1803,6 +1788,7 @@ private:
     inline bool hasOnlyMoveTos() const;
 
     SkPathConvexityType internalGetConvexity() const;
+    bool conservativelyContainsRect(const SkRect& rect) const;
 
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.

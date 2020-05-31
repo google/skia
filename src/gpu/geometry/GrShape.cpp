@@ -6,7 +6,6 @@
  */
 
 #include "src/gpu/geometry/GrShape.h"
-
 #include "src/core/SkPathPriv.h"
 
 GrShape& GrShape::operator=(const GrShape& shape) {
@@ -293,12 +292,12 @@ bool GrShape::contains(const SkRect& rect) const {
         case Type::kRRect:
             return fRRect.contains(rect);
         case Type::kPath:
-            return fPath.conservativelyContainsRect(rect);
+            return SkPathPriv::ConservativelyContainsRect(fPath, rect);
         case Type::kArc:
             if (fArc.fUseCenter) {
                 SkPath arc;
                 this->asPath(&arc);
-                return arc.conservativelyContainsRect(rect);
+                return SkPathPriv::ConservativelyContainsRect(arc, rect);
             } else {
                 return false;
             }

@@ -665,7 +665,6 @@
 #include "../../docs/examples/Path_computeTightBounds.cpp"
 #include "../../docs/examples/Path_conicTo.cpp"
 #include "../../docs/examples/Path_conicTo_2.cpp"
-#include "../../docs/examples/Path_conservativelyContainsRect.cpp"
 #include "../../docs/examples/Path_contains.cpp"
 #include "../../docs/examples/Path_copy_const_SkPath.cpp"
 #include "../../docs/examples/Path_copy_operator.cpp"

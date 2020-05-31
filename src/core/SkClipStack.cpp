@@ -9,6 +9,7 @@
 #include "include/core/SkPath.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
+#include "src/core/SkPathPriv.h"
 #include <atomic>
 #include <new>
 
@@ -97,7 +98,7 @@ bool SkClipStack::Element::contains(const SkRect& rect) const {
         case DeviceSpaceType::kRRect:
             return fDeviceSpaceRRect.contains(rect);
         case DeviceSpaceType::kPath:
-            return fDeviceSpacePath.get()->conservativelyContainsRect(rect);
+            return SkPathPriv::ConservativelyContainsRect(*fDeviceSpacePath, rect);
         case DeviceSpaceType::kEmpty:
             return false;
         default:
@@ -114,7 +115,7 @@ bool SkClipStack::Element::contains(const SkRRect& rrect) const {
             // We don't currently have a generalized rrect-rrect containment.
             return fDeviceSpaceRRect.contains(rrect.getBounds()) || rrect == fDeviceSpaceRRect;
         case DeviceSpaceType::kPath:
-            return fDeviceSpacePath.get()->conservativelyContainsRect(rrect.getBounds());
+            return SkPathPriv::ConservativelyContainsRect(*fDeviceSpacePath, rrect.getBounds());
         case DeviceSpaceType::kEmpty:
             return false;
         default:

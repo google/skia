@@ -379,6 +379,18 @@ public:
         ed.writablePoints()[index] = pt;
         path->dirtyAfterEdit();
     }
+
+    /** Returns true if rect is contained by SkPath.
+        May return false when rect is contained by SkPath.
+
+        For now, only returns true if SkPath has one contour and is convex.
+        rect may share points and edges with SkPath and be contained.
+        Returns true if rect is empty, that is, it has zero width or height; and
+        the SkPoint or line described by rect is contained by SkPath.
+    */
+    static bool ConservativelyContainsRect(const SkPath& path, const SkRect& rect) {
+        return path.conservativelyContainsRect(rect);
+    }
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

@@ -15,6 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkPathPriv.h"
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -846,7 +847,7 @@ private:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             const SkRect& rect = fQueryRects[i % kQueryRectCnt];
-            fParity = fParity != fPath.conservativelyContainsRect(rect);
+            fParity = fParity != SkPathPriv::ConservativelyContainsRect(fPath, rect);
         }
     }
 

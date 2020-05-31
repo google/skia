@@ -1910,17 +1910,17 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
                 path.reset();
                 path.addRect(kBaseRect, dir);
                 REPORTER_ASSERT(reporter, kQueries[q].fInRect ==
-                                          path.conservativelyContainsRect(qRect));
+                                          SkPathPriv::ConservativelyContainsRect(path, qRect));
 
                 path.reset();
                 path.addCircle(kCircleC.fX, kCircleC.fY, circleR, dir);
                 REPORTER_ASSERT(reporter, kQueries[q].fInCircle ==
-                                          path.conservativelyContainsRect(qRect));
+                                          SkPathPriv::ConservativelyContainsRect(path, qRect));
 
                 path.reset();
                 path.addRoundRect(kBaseRect, kRRRadii[0], kRRRadii[1], dir);
                 REPORTER_ASSERT(reporter, kQueries[q].fInRR ==
-                                          path.conservativelyContainsRect(qRect));
+                                          SkPathPriv::ConservativelyContainsRect(path, qRect));
 
                 path.reset();
                 path.moveTo(kBaseRect.fLeft + kRRRadii[0], kBaseRect.fTop);
@@ -1932,7 +1932,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
                 path.lineTo(kBaseRect.fRight, kBaseRect.fTop);
                 path.close();
                 REPORTER_ASSERT(reporter, kQueries[q].fInCubicRR ==
-                                          path.conservativelyContainsRect(qRect));
+                                          SkPathPriv::ConservativelyContainsRect(path, qRect));
 
             }
             // Slightly non-convex shape, shouldn't contain any rects.
@@ -1943,7 +1943,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
             path.lineTo(SkIntToScalar(100), SkIntToScalar(100));
             path.lineTo(0, SkIntToScalar(100));
             path.close();
-            REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(qRect));
+            REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, qRect));
         }
     }
 
@@ -1954,23 +1954,23 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.lineTo(0, SkIntToScalar(100));
 
     // inside, on along top edge
-    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+    REPORTER_ASSERT(reporter, SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
     // above
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path,
         SkRect::MakeXYWH(SkIntToScalar(50),
                          SkIntToScalar(-10),
                          SkIntToScalar(10),
                          SkIntToScalar(10))));
     // to the left
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(-10),
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(SkIntToScalar(-10),
                                                                                 SkIntToScalar(5),
                                                                                 SkIntToScalar(5),
                                                                                 SkIntToScalar(5))));
 
     // outside the diagonal edge
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(10),
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(SkIntToScalar(10),
                                                                                 SkIntToScalar(200),
                                                                                 SkIntToScalar(20),
                                                                                 SkIntToScalar(5))));
@@ -1978,7 +1978,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
 
     // Test that multiple move commands do not cause asserts.
     path.moveTo(SkIntToScalar(100), SkIntToScalar(100));
-    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+    REPORTER_ASSERT(reporter, SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
 
@@ -1990,7 +1990,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.lineTo(0, SkIntToScalar(100));
     // Convexity logic is now more conservative, so that multiple (non-trailing) moveTos make a
     // path non-convex.
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path,
         SkRect::MakeXYWH(SkIntToScalar(50), 0,
                          SkIntToScalar(10),
                          SkIntToScalar(10))));
@@ -2003,7 +2003,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.lineTo(0, SkIntToScalar(100));
     path.moveTo(100, 100);
 
-    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+    REPORTER_ASSERT(reporter, SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
 
@@ -2017,21 +2017,21 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.lineTo(SkIntToScalar(100), SkIntToScalar(200));
     path.lineTo(0, SkIntToScalar(300));
 
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path,
                                                             SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                              SkIntToScalar(10),
                                                                              SkIntToScalar(10))));
 
     path.reset();
     path.lineTo(100, 100);
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(0, 0, 1, 1)));
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeXYWH(0, 0, 1, 1)));
 
     // An empty path should not contain any rectangle. It's questionable whether an empty path
     // contains an empty rectangle. However, since it is a conservative test it is ok to
     // return false.
     path.reset();
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeWH(1,1)));
+    REPORTER_ASSERT(reporter, !SkPathPriv::ConservativelyContainsRect(path, SkRect::MakeWH(0,0)));
 }
 
 static void test_isRect_open_close(skiatest::Reporter* reporter) {
@@ -4982,7 +4982,7 @@ DEF_TEST(conservatively_contains_rect, reporter) {
     path.moveTo(0, 0);
 
     // this guy should not assert
-    path.conservativelyContainsRect({ -211747, 12.1115f, -197893, 25.0321f });
+    SkPathPriv::ConservativelyContainsRect(path, { -211747, 12.1115f, -197893, 25.0321f });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
