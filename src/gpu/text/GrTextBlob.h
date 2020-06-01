@@ -388,7 +388,6 @@ public:
 
     SubRun* fNextSubRun{nullptr};
     GrTextBlob* fBlob;
-    const GrMaskFormat fMaskFormat;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
     struct {
@@ -408,6 +407,7 @@ private:
     bool hasW() const;
 
     const SubRunType fType;
+    const GrMaskFormat fMaskFormat;
 
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in

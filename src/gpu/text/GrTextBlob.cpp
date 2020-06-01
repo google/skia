@@ -44,9 +44,9 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
                            GrMaskFormat format, SkRect vertexBounds,
                            const SkSpan<VertexData>& vertexData)
         : fBlob{textBlob}
-        , fMaskFormat{format}
         , fStrikeSpec{strikeSpec}
         , fType{type}
+        , fMaskFormat{format}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData} {
     SkASSERT(fType != kTransformedPath);
@@ -54,10 +54,10 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
 
 GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         : fBlob{textBlob}
-        , fMaskFormat{kA8_GrMaskFormat}
         , fStrikeSpec{strikeSpec}
         , fPaths{}
         , fType{kTransformedPath}
+        , fMaskFormat{kA8_GrMaskFormat}
         , fVertexBounds{SkRect::MakeEmpty()}
         , fVertexData{SkSpan<VertexData>{}} { }
 
