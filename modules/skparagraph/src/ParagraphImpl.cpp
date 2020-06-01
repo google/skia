@@ -128,6 +128,25 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodePoints.reset();
         this->fClusters.reset();
         this->resetShifts();
+    } else if ((!SkScalarIsFinite(rawWidth) || fLongestLine <= floorWidth) &&
+               fLines.size() == 1 && fLines.front().ellipsis() == nullptr &&
+               fParagraphStyle.getTextDirection() == TextDirection::kLtr &&
+               fParagraphStyle.effective_align() == TextAlign::kLeft
+               ) {
+        // Most common case: one line of text left aligned
+        fWidth = floorWidth;
+    } else if (fState >= kLineBroken && fOldWidth != floorWidth) {
+        // We can use the results from SkShaper but have to do EVERYTHING ELSE again
+        this->fClusters.reset();
+        this->resetShifts();
+        fState = kShaped;
+    }
+
+    if (fState < kShaped) {
+        // Layout marked as dirty for performance/testing reasons
+        this->fRuns.reset();
+        this->fClusters.reset();
+        this->resetShifts();
     } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         this->fClusters.reset();
@@ -152,6 +171,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             }
             fAlphabeticBaseline = fEmptyMetrics.alphabeticBaseline();
             fIdeographicBaseline = fEmptyMetrics.ideographicBaseline();
+            fLongestLine = FLT_MIN - FLT_MAX; // That is what flutter has
             fMinIntrinsicWidth = 0;
             fMaxIntrinsicWidth = 0;
             this->fOldWidth = floorWidth;
