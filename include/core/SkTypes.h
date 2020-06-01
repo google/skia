@@ -285,23 +285,22 @@
 #  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
+#ifndef SK_ABORT
 #ifdef SK_BUILD_FOR_WIN
-    // Lets visual studio follow error back to source
-    #define SK_DUMP_LINE_FORMAT(message) \
-        SkDebugf("%s(%d): fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#define SK_DUMP_LINE_FORMAT "%s(%d)" // This style lets Visual Studio follow errors back to source.
 #else
-    #define SK_DUMP_LINE_FORMAT(message) \
-        SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#define SK_DUMP_LINE_FORMAT "%s:%d"
 #endif
 
-#ifndef SK_ABORT
-#  define SK_ABORT(message) \
+#define SK_ABORT(message, ...) \
     do { \
-       SK_DUMP_LINE_FORMAT(message); \
-       SK_DUMP_GOOGLE3_STACK(); \
-       sk_abort_no_print(); \
-       SkUNREACHABLE; \
+        SkDebugf(SK_DUMP_LINE_FORMAT ": fatal error: \"" message "\"\n", \
+                 __FILE__, __LINE__, ##__VA_ARGS__); \
+        SK_DUMP_GOOGLE3_STACK(); \
+        sk_abort_no_print(); \
+        SkUNREACHABLE; \
     } while (false)
+
 #endif
 
 // If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
