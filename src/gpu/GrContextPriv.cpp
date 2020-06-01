@@ -28,8 +28,6 @@
 
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->singleOwner());)
 #define RETURN_VALUE_IF_ABANDONED(value) if (fContext->abandoned()) { return (value); }
 #define RETURN_IF_ABANDONED RETURN_VALUE_IF_ABANDONED(void)
 
@@ -43,7 +41,7 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
 
 GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
                                                    const GrFlushInfo& info) {
-    ASSERT_SINGLE_OWNER
+    GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
     RETURN_VALUE_IF_ABANDONED(GrSemaphoresSubmitted::kNo)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "flushSurfaces", fContext);
     SkASSERT(numProxies >= 0);
@@ -188,7 +186,7 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
 #endif
 
 bool GrContextPriv::validPMUPMConversionExists() {
-    ASSERT_SINGLE_OWNER
+    GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
     if (!fContext->fDidTestPMConversions) {
         fContext->fPMUPMConversionsRoundTrip =
                 GrConfigConversionEffect::TestForPreservingPMConversions(fContext);
@@ -201,7 +199,7 @@ bool GrContextPriv::validPMUPMConversionExists() {
 
 std::unique_ptr<GrFragmentProcessor> GrContextPriv::createPMToUPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
-    ASSERT_SINGLE_OWNER
+    GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
     // We should have already called this->priv().validPMUPMConversionExists() in this case
     SkASSERT(fContext->fDidTestPMConversions);
     // ...and it should have succeeded
@@ -212,7 +210,7 @@ std::unique_ptr<GrFragmentProcessor> GrContextPriv::createPMToUPMEffect(
 
 std::unique_ptr<GrFragmentProcessor> GrContextPriv::createUPMToPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
-    ASSERT_SINGLE_OWNER
+    GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
     // We should have already called this->priv().validPMUPMConversionExists() in this case
     SkASSERT(fContext->fDidTestPMConversions);
     // ...and it should have succeeded
