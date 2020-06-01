@@ -339,7 +339,8 @@ describe('Canvas Behavior', () => {
             0.53, -0.918, -0.566,   0, -10,
                0,      0,      0, 0.8,   0,
         ]
-        const cm = new CanvasKit.Malloc(Float32Array, 20);
+        const colorObj = new CanvasKit.Malloc(Float32Array, 20);
+        const cm = colorObj.toTypedArray();
         for (i in src) {
             cm[i] = src[i];
         }
@@ -349,7 +350,7 @@ describe('Canvas Behavior', () => {
         paint.setColorFilter(final)
         canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
-        CanvasKit.Free(cm);
+        CanvasKit.Free(colorObj);
         paint.delete();
         final.delete();
     });
@@ -547,11 +548,14 @@ describe('Canvas Behavior', () => {
             }
             // Try with the malloc approach. Note that the drawPoints
             // will free the pointer when done.
-            const mPoints = CanvasKit.Malloc(Float32Array, 3*2);
+            const mPointsObj = CanvasKit.Malloc(Float32Array, 3*2);
+            const mPoints = mPointsObj.toTypedArray();
             mPoints.set([32, 16, 48, 48, 16, 32]);
-            canvas.drawPoints(CanvasKit.PointMode.Polygon, mPoints, paint);
+
+            // The obj from Malloc can be passed in instead of the typed array.
+            canvas.drawPoints(CanvasKit.PointMode.Polygon, mPointsObj, paint);
             canvas.translate(-192, 64);
-            CanvasKit.Free(mPoints);
+            CanvasKit.Free(mPointsObj);
         }
 
         paint.delete();
