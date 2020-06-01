@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f080c279_ecab7a74",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-01T21:55:40Z",
+      "side": 1,
+      "message": "nit: SkTo\u003csize_t\u003e keeps the debug-check that we don\u0027t overflow",
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8721ce2_cc17dd1b",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-01T21:55:40Z",
+      "side": 1,
+      "message": "interesting (to me)\n\nI thought multiplying by fRowBytes (unsigned) would have make the result unsigned (size_t), so no need for the cast.",
+      "range": {
+        "startLine": 372,
+        "startChar": 61,
+        "endLine": 372,
+        "endChar": 69
+      },
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b1e514a_3aad2341",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-01T21:55:40Z",
+      "side": 1,
+      "message": "is this for signedness, or some other warning? (like left shifting loses bits?)",
+      "range": {
+        "startLine": 545,
+        "startChar": 14,
+        "endLine": 545,
+        "endChar": 22
+      },
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
