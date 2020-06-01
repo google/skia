@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1371aa95_ea458130",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-01T18:13:41Z",
+      "side": 1,
+      "message": "Totally silly, but why put the extra spaces here? Why not between \u0027define\u0027 and \u0027SK_API and make all the \u0027SK_API\u0027 line up? That would at least make a bit more visual sense. (Why should the replacement token list line up but not the identifier?)",
+      "range": {
+        "startLine": 186,
+        "startChar": 21,
+        "endLine": 186,
+        "endChar": 23
+      },
+      "revId": "9445b9311214eb67831d7a6b2184af56cbf614f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
