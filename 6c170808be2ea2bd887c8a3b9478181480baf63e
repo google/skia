@@ -16,6 +16,24 @@
       "revId": "6c170808be2ea2bd887c8a3b9478181480baf63e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b71cdc8_d5ed0742",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-01T20:57:16Z",
+      "side": 1,
+      "message": "Good catch. Fixed.",
+      "parentUuid": "066e6e3b_20c8a9c6",
+      "revId": "6c170808be2ea2bd887c8a3b9478181480baf63e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
