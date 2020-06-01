@@ -622,7 +622,6 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
-    settings.fRemoveDeadFunctions = false;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kGeneric_Kind,
                                                              SkSL::String(src), settings);
@@ -764,7 +763,6 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
 
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
-    settings.fRemoveDeadFunctions = false;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kGeneric_Kind,
                                                              SkSL::String(src), settings);
