@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5049dea5_63d23720",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T23:15:55Z",
+      "side": 1,
+      "message": "(Just above we\u0027ve already checked that it fits in int32_t.)",
+      "parentUuid": "f080c279_ecab7a74",
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8721ce2_cc17dd1b",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "b6dbff49_a3bdd870",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T23:15:55Z",
+      "side": 1,
+      "message": "Yes, that\u0027s what this warning is about.\n\nAndroid\u0027s asked us to explicitly document that automatic conversion.",
+      "parentUuid": "c8721ce2_cc17dd1b",
+      "range": {
+        "startLine": 372,
+        "startChar": 61,
+        "endLine": 372,
+        "endChar": 69
+      },
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b1e514a_3aad2341",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2020-06-01T21:55:40Z",
       "side": 1,
       "message": "is this for signedness, or some other warning? (like left shifting loses bits?)",
+      "range": {
+        "startLine": 545,
+        "startChar": 14,
+        "endLine": 545,
+        "endChar": 22
+      },
+      "revId": "a7f2b473ab9156e958b15b46a436e4a5ae6f120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acbb11ce_672bc941",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T23:15:55Z",
+      "side": 1,
+      "message": "Sign change.   (uint8_t)a \u003c\u003c 24 is of type int, but we want to return a uint32_t.",
+      "parentUuid": "3b1e514a_3aad2341",
       "range": {
         "startLine": 545,
         "startChar": 14,
