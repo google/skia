@@ -32,7 +32,7 @@ Run::Run(ParagraphImpl* master,
     fUtf8Range = info.utf8Range;
     fOffset = SkVector::Make(offsetX, 0);
     fGlyphs.push_back_n(info.glyphCount);
-    fBounds.push_back_n(info.glyphCount); // Keep it empty and there will be no bounds calculation; it's just experimental
+    fBounds.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
     fOffsets.push_back_n(info.glyphCount + 1);
     fClusterIndexes.push_back_n(info.glyphCount + 1);
@@ -52,9 +52,7 @@ SkShaper::RunHandler::Buffer Run::newRunBuffer() {
 }
 
 void Run::commit() {
-    if (fBounds.size() > 0) {
-        fFont.getBounds(fGlyphs.data(), fGlyphs.size(), fBounds.data(), nullptr);
-    }
+    fFont.getBounds(fGlyphs.data(), fGlyphs.size(), fBounds.data(), nullptr);
 }
 SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     SkASSERT(start <= end);

@@ -189,7 +189,7 @@ public:
 
     void commit();
 
-    SkRect getBounds(size_t pos) const { return pos > fBounds.size() ? SkRect::MakeEmpty() : fBounds[pos]; }
+    SkRect getBounds(size_t pos) const { return fBounds[pos]; }
 
     void resetShifts() {
         for (auto& r: fShifts) { r = 0; }
