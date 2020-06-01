@@ -22,6 +22,30 @@
       "revId": "9445b9311214eb67831d7a6b2184af56cbf614f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb514a98_31fe1821",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-01T18:20:11Z",
+      "side": 1,
+      "message": "Extra spaces removed.\n\nI was following the existing style. See line 113, 137, etc.",
+      "parentUuid": "1371aa95_ea458130",
+      "range": {
+        "startLine": 186,
+        "startChar": 21,
+        "endLine": 186,
+        "endChar": 23
+      },
+      "revId": "9445b9311214eb67831d7a6b2184af56cbf614f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
