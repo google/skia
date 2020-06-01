@@ -238,7 +238,7 @@ function copy2dArray(arr, dest, ptr) {
 var defaultPerspective = Float32Array.of(0, 0, 1);
 
 var _scratch3x3MatrixPtr = nullptr;
-var _scratch3x3Matrix; // Float32Array
+var _scratch3x3Matrix;  // the result from CanvasKit.Malloc
 
 // Copies the given DOMMatrix/Array/TypedArray to the CanvasKit heap and
 // returns a pointer to the memory. This memory is a float* of length 9.
@@ -266,28 +266,30 @@ function copy3x3MatrixToWasm(matr) {
     }
     return mPtr;
   }
+  var wasm3x3Matrix = _scratch3x3Matrix['toTypedArray']();
   // Try as if it's a DOMMatrix. Reminder that DOMMatrix is column-major.
-  _scratch3x3Matrix[0] = matr.m11;
-  _scratch3x3Matrix[1] = matr.m21;
-  _scratch3x3Matrix[2] = matr.m41;
+  wasm3x3Matrix[0] = matr.m11;
+  wasm3x3Matrix[1] = matr.m21;
+  wasm3x3Matrix[2] = matr.m41;
 
-  _scratch3x3Matrix[3] = matr.m12;
-  _scratch3x3Matrix[4] = matr.m22;
-  _scratch3x3Matrix[5] = matr.m42;
+  wasm3x3Matrix[3] = matr.m12;
+  wasm3x3Matrix[4] = matr.m22;
+  wasm3x3Matrix[5] = matr.m42;
 
-  _scratch3x3Matrix[6] = matr.m14;
-  _scratch3x3Matrix[7] = matr.m24;
-  _scratch3x3Matrix[8] = matr.m44;
+  wasm3x3Matrix[6] = matr.m14;
+  wasm3x3Matrix[7] = matr.m24;
+  wasm3x3Matrix[8] = matr.m44;
   return _scratch3x3MatrixPtr;
 }
 
 var _scratch4x4MatrixPtr = nullptr;
-var _scratch4x4Matrix; // Float32Array
+var _scratch4x4Matrix; // the result from CanvasKit.Malloc
 
 function copy4x4MatrixToWasm(matr) {
   if (!matr) {
     return nullptr;
   }
+  var wasm4x4Matrix = _scratch4x4Matrix['toTypedArray']();
   if (matr.length) {
     if (matr.length !== 16 && matr.length !== 6 && matr.length !== 9) {
       throw 'invalid matrix size';
@@ -302,53 +304,52 @@ function copy4x4MatrixToWasm(matr) {
     //   JS 4x4 to be column-major.
     // When upscaling, we need to overwrite the 3rd column and the 3rd row with
     // 0s. It's easiest to just do that with a fill command.
-    _scratch4x4Matrix.fill(0);
-    _scratch4x4Matrix[0] = matr[0];
-    _scratch4x4Matrix[1] = matr[1];
+    wasm4x4Matrix.fill(0);
+    wasm4x4Matrix[0] = matr[0];
+    wasm4x4Matrix[1] = matr[1];
     // skip col 2
-    _scratch4x4Matrix[3] = matr[2];
+    wasm4x4Matrix[3] = matr[2];
 
-    _scratch4x4Matrix[4] = matr[3];
-    _scratch4x4Matrix[5] = matr[4];
+    wasm4x4Matrix[4] = matr[3];
+    wasm4x4Matrix[5] = matr[4];
     // skip col 2
-    _scratch4x4Matrix[7] = matr[5];
+    wasm4x4Matrix[7] = matr[5];
 
     // skip row 2
 
-    _scratch4x4Matrix[12] = matr[6];
-    _scratch4x4Matrix[13] = matr[7];
+    wasm4x4Matrix[12] = matr[6];
+    wasm4x4Matrix[13] = matr[7];
     // skip col 2
-    _scratch4x4Matrix[15] = matr[8];
+    wasm4x4Matrix[15] = matr[8];
 
     if (matr.length === 6) {
       // fix perspective for the 3x2 case (from above, they will be undefined).
-      _scratch4x4Matrix[12]=0;
-      _scratch4x4Matrix[13]=0;
-      _scratch4x4Matrix[15]=1;
+      wasm4x4Matrix[12]=0;
+      wasm4x4Matrix[13]=0;
+      wasm4x4Matrix[15]=1;
     }
     return _scratch4x4MatrixPtr;
   }
   // Try as if it's a DOMMatrix. Reminder that DOMMatrix is column-major.
-  // TODO(skbug.com/10108) use toFloat32Array().
-  _scratch4x4Matrix[0] = matr.m11;
-  _scratch4x4Matrix[1] = matr.m21;
-  _scratch4x4Matrix[2] = matr.m31;
-  _scratch4x4Matrix[3] = matr.m41;
+  wasm4x4Matrix[0] = matr.m11;
+  wasm4x4Matrix[1] = matr.m21;
+  wasm4x4Matrix[2] = matr.m31;
+  wasm4x4Matrix[3] = matr.m41;
 
-  _scratch4x4Matrix[4] = matr.m12;
-  _scratch4x4Matrix[5] = matr.m22;
-  _scratch4x4Matrix[6] = matr.m32;
-  _scratch4x4Matrix[7] = matr.m42;
+  wasm4x4Matrix[4] = matr.m12;
+  wasm4x4Matrix[5] = matr.m22;
+  wasm4x4Matrix[6] = matr.m32;
+  wasm4x4Matrix[7] = matr.m42;
 
-  _scratch4x4Matrix[8] = matr.m13;
-  _scratch4x4Matrix[9] = matr.m23;
-  _scratch4x4Matrix[10] = matr.m33;
-  _scratch4x4Matrix[11] = matr.m43;
+  wasm4x4Matrix[8] = matr.m13;
+  wasm4x4Matrix[9] = matr.m23;
+  wasm4x4Matrix[10] = matr.m33;
+  wasm4x4Matrix[11] = matr.m43;
 
-  _scratch4x4Matrix[12] = matr.m14;
-  _scratch4x4Matrix[13] = matr.m24;
-  _scratch4x4Matrix[14] = matr.m34;
-  _scratch4x4Matrix[15] = matr.m44;
+  wasm4x4Matrix[12] = matr.m14;
+  wasm4x4Matrix[13] = matr.m24;
+  wasm4x4Matrix[14] = matr.m34;
+  wasm4x4Matrix[15] = matr.m44;
   return _scratch4x4MatrixPtr;
 }
 
@@ -656,9 +657,15 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
  * When used incorrectly, it can lead to memory leaks.
  * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
  *
- * const ta = CanvasKit.Malloc(Float32Array, 20);
+ * const mObj = CanvasKit.Malloc(Float32Array, 20);
+ * // Get a TypedArray view around the malloc'd memory (this does not copy anything).
+ * const ta = mObj.toTypedArray();
  * // store data into ta
- * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta);
+ * // ...
+ * const cf = CanvasKit.SkColorFilter.MakeMatrix(mObj); // ta could also be used.
+ *
+ * // eventually...
+ * CanvasKit.Free(mObj);
  *
  * @param {TypedArray} typedArray - constructor for the typedArray.
  * @param {number} len - number of *elements* to store.
@@ -666,18 +673,36 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
 CanvasKit.Malloc = function(typedArray, len) {
   var byteLen = len * typedArray.BYTES_PER_ELEMENT;
   var ptr = CanvasKit._malloc(byteLen);
-  var ta = new typedArray(CanvasKit.HEAPU8.buffer, ptr, len);
-  // add a marker that this was allocated in C++ land
-  ta['_ck'] = true;
-  return ta;
+  return {
+    '_ck': true,
+    'length': len,
+    'byteOffset': ptr,
+    typedArray: null,
+    'toTypedArray': function() {
+      // Check if the previously allocated array is still usable.
+      // If it's falsey, then we haven't created an array yet.
+      // If it's empty, then WASM resized memory and emptied the array.
+      if (this.typedArray && this.typedArray.length) {
+        return this.typedArray;
+      }
+      this.typedArray = new typedArray(CanvasKit.HEAPU8.buffer, ptr, len);
+      // add a marker that this was allocated in C++ land
+      this.typedArray['_ck'] = true;
+      return this.typedArray;
+    },
+  };
 }
 
 /**
  * Free frees the memory returned by Malloc.
  * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
  */
-CanvasKit.Free = function(typedArray) {
-  CanvasKit._free(typedArray.byteOffset)
+CanvasKit.Free = function(mallocObj) {
+  CanvasKit._free(mallocObj['byteOffset']);
+  mallocObj['byteOffset'] = nullptr;
+  // Set these to null to make sure the TypedArrays can be garbage collected.
+  mallocObj['toTypedArray'] = null;
+  mallocObj.typedArray = null;
 }
 
 // This helper will free the given pointer unless the provided array is one
