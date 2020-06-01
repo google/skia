@@ -64,6 +64,14 @@ void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
     }
 }
 
+void GrD3DPipelineState::bindConstants(GrD3DGpu* gpu) {
+    // will get address from fDataManager.uploadConstants()
+    D3D12_GPU_VIRTUAL_ADDRESS constantsAddress;
+    gpu->currentCommandList()->setGraphicsRootConstantBufferView(
+            (unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+            constantsAddress);
+}
+
 void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&

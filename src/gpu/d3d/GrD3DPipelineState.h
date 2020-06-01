@@ -53,6 +53,7 @@ public:
     const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
     void setData(const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+    void bindConstants(GrD3DGpu*);  // TODO: merge bindConstants and setData
 
     void setAndBindTextures(const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],
