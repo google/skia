@@ -22,6 +22,30 @@
       "revId": "b630d357e61c52c8c8de636286c4f4d5cc6142f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fb2a7ae_3dd674e1",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-01T20:37:33Z",
+      "side": 1,
+      "message": "Yes, the ring buffer change hasn\u0027t landed yet.",
+      "parentUuid": "03e5d91a_18ea2f58",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 47
+      },
+      "revId": "b630d357e61c52c8c8de636286c4f4d5cc6142f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
