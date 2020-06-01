@@ -126,10 +126,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Half2);
     ADD_TYPE(Half3);
     ADD_TYPE(Half4);
-    ADD_TYPE(Double);
-    ADD_TYPE(Double2);
-    ADD_TYPE(Double3);
-    ADD_TYPE(Double4);
     ADD_TYPE(Int);
     ADD_TYPE(Int2);
     ADD_TYPE(Int3);
@@ -176,18 +172,8 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Half4x2);
     ADD_TYPE(Half4x3);
     ADD_TYPE(Half4x4);
-    ADD_TYPE(Double2x2);
-    ADD_TYPE(Double2x3);
-    ADD_TYPE(Double2x4);
-    ADD_TYPE(Double3x2);
-    ADD_TYPE(Double3x3);
-    ADD_TYPE(Double3x4);
-    ADD_TYPE(Double4x2);
-    ADD_TYPE(Double4x3);
-    ADD_TYPE(Double4x4);
     ADD_TYPE(GenType);
     ADD_TYPE(GenHType);
-    ADD_TYPE(GenDType);
     ADD_TYPE(GenIType);
     ADD_TYPE(GenUType);
     ADD_TYPE(GenBType);
@@ -198,7 +184,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GVec3);
     ADD_TYPE(GVec4);
     ADD_TYPE(HVec);
-    ADD_TYPE(DVec);
     ADD_TYPE(IVec);
     ADD_TYPE(UVec);
     ADD_TYPE(SVec);
