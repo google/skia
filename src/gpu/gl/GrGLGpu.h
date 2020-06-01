@@ -332,6 +332,7 @@ private:
             if (!tmp) {
                 fGpu->fStats.incNumPreCompilationFailures();
             } else {
+                printf("precompile hit for %d\n", tmp->fID);
                 fGpu->fStats.incNumPreProgramCacheResult(*stat);
             }
 

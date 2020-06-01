@@ -22,12 +22,25 @@ class GrProgramInfo;
 class GrRenderTarget;
 class GrTextureProxy;
 
+#include <atomic>
+
 /**
  * This class manages a GPU program and records per-program information. It also records the vertex
  * and instance attribute layouts that are to be used with the program.
  */
 class GrGLProgram : public SkRefCnt {
 public:
+    static uint32_t CreateUniqueID() {
+        static std::atomic<uint32_t> nextID{1};
+        uint32_t id;
+        do {
+            id = nextID++;
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
+    const uint32_t fID;
+
     /**
      * This class has its own Attribute representation as it does not need the name and we don't
      * want to worry about copying the name string to memory with life time of GrGLProgram.

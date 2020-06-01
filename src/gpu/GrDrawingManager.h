@@ -112,7 +112,7 @@ public:
 #endif
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
-    void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
 private:
     // This class encapsulates maintenance and manipulation of the drawing manager's DAG of

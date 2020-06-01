@@ -79,7 +79,8 @@ GrGLProgram::GrGLProgram(
         int instanceAttributeCnt,
         int vertexStride,
         int instanceStride)
-        : fBuiltinUniformHandles(builtinUniforms)
+        : fID(CreateUniqueID())
+        , fBuiltinUniformHandles(builtinUniforms)
         , fProgramID(programID)
         , fPrimitiveProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))

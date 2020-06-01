@@ -632,7 +632,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
+void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<SkDeferredDisplayList> ddl,
                                               GrRenderTargetProxy* newDest) {
     SkDEBUGCODE(this->validate());
 

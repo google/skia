@@ -60,6 +60,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     if (!tmp) {
         fGpu->fStats.incNumInlineCompilationFailures();
     } else {
+        printf("inline hit for %d\n", tmp->fID);
         fGpu->fStats.incNumInlineProgramCacheResult(stat);
     }
 
@@ -73,6 +74,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     *stat = Stats::ProgramCacheResult::kHit;
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {
+        printf("Partial compile\n");
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
@@ -95,6 +97,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
             return nullptr;
         }
         fGpu->fStats.incNumCompilationSuccesses();
+        printf("Compilation success for %d\n", program->fID);
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(std::move(program))));
         *stat = Stats::ProgramCacheResult::kMiss;
     }
