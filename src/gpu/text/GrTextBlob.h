@@ -168,14 +168,6 @@ public:
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
-    std::unique_ptr<GrAtlasTextOp> makeOp(SubRun* subrun,
-                                          const SkMatrixProvider& matrixProvider,
-                                          SkPoint drawOrigin,
-                                          const SkIRect& clipRect,
-                                          const SkPaint& paint,
-                                          const SkPMColor4f& filteredColor,
-                                          const SkSurfaceProps&,
-                                          GrTextTarget*);
     SubRun* firstSubRun() const;
 
     bool forceWForDistanceFields() const;
@@ -383,6 +375,14 @@ public:
                                        GrMaskFormat format,
                                        GrTextBlob* blob,
                                        SkArenaAlloc* alloc);
+
+    std::unique_ptr<GrAtlasTextOp> makeOp(const SkMatrixProvider& matrixProvider,
+                                          SkPoint drawOrigin,
+                                          const SkIRect& clipRect,
+                                          const SkPaint& paint,
+                                          const SkPMColor4f& filteredColor,
+                                          const SkSurfaceProps&,
+                                          GrTextTarget*);
 
     SubRun* fNextSubRun{nullptr};
     GrTextBlob* fBlob;
