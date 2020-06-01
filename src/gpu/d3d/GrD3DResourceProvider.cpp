@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
@@ -17,8 +18,7 @@
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fCpuDescriptorManager(gpu)
-        , fPipelineStateCache(new PipelineStateCache(gpu)) {
-}
+        , fPipelineStateCache(new PipelineStateCache(gpu)) {}
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
     if (fAvailableDirectCommandLists.count()) {
@@ -97,6 +97,33 @@ void GrD3DResourceProvider::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* sampler)
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
+    // constant size has to be aligned to 256
+    constexpr int kConstantAlignment = 256;
+
+    // Due to dependency on the resource cache we can't initialize this in the constructor, so
+    // we do so it here.
+    if (!fConstantBuffer) {
+        fConstantBuffer = GrD3DConstantRingBuffer::Make(fGpu, 128 * 1024, kConstantAlignment);
+        SkASSERT(fConstantBuffer);
+    }
+
+    // upload the data
+    size_t paddedSize = GrAlignTo(size, kConstantAlignment);
+    GrRingBuffer::Slice slice = fConstantBuffer->suballocate(paddedSize);
+    char* destPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
+    memcpy(destPtr, data, size);
+
+    // create the associated constant buffer view descriptor
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer.get());
+    D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
+    return gpuAddress + slice.fOffset;
+}
+
+void GrD3DResourceProvider::prepForSubmit() {
+    fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

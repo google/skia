@@ -111,6 +111,8 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
 bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
+    fResourceProvider.prepForSubmit();
+
     GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
     if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
         return false;
