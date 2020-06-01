@@ -16,6 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkStrokeAndFillPathEffect.h"
 #include "include/private/SkTemplates.h"
 
 #include <float.h>
@@ -26,7 +27,10 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
                       SkPaint::Join join, int doFill) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(doFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
+    paint.setStroke(true);
+    if (doFill) {
+        paint.setPathEffect(SkStrokeAndFillPathEffect::Make());
+    }
 
     paint.setColor(SK_ColorGRAY);
     paint.setStrokeWidth(STROKE_WIDTH);
@@ -71,7 +75,7 @@ protected:
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(STROKE_WIDTH);
 
         constexpr SkPaint::Join gJoins[] = {
@@ -114,7 +118,7 @@ protected:
                 acr.restore();
                 canvas->translate(0, H + 2 * STROKE_WIDTH);
             }
-            paint.setStyle(SkPaint::kStrokeAndFill_Style);
+            paint.setPathEffect(SkStrokeAndFillPathEffect::Make());
         }
     }
 

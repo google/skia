@@ -293,7 +293,11 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
     // we do nothing if the src wants to be filled
     SkStrokeRec::Style style = rec->getStyle();
-    if (SkStrokeRec::kFill_Style == style || SkStrokeRec::kStrokeAndFill_Style == style) {
+    if (SkStrokeRec::kFill_Style == style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || SkStrokeRec::kStrokeAndFill_Style == style
+#endif
+        ) {
         return false;
     }
 

@@ -148,12 +148,14 @@ static bool known_to_be_opposite_directions(const SkPath& a, const SkPath& b) {
 
 bool SkStrokeAndFillPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                      const SkRect*) const {
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     // This one is weird, since we exist to allow this paint-style to go away. If we see it,
     // just let the normal machine run its course.
     if (rec->getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         *dst = src;
         return true;
     }
+#endif
 
     if (rec->getStyle() == SkStrokeRec::kStroke_Style) {
         if (!rec->applyToPath(dst, src)) {

@@ -58,8 +58,11 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
     }
     const SkStrokeRec& stroke = args.fShape->style().strokeRec();
 
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-        stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+    if (stroke.getStyle() == SkStrokeRec::kStroke_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style
+#endif
+        ) {
         if (!args.fViewMatrix->isSimilarity()) {
             return CanDrawPath::kNo;
         }
@@ -417,11 +420,14 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPath path = GrTest::TestPathConvex(random);
 
-    SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
-                                     SkStrokeRec::kStroke_Style,
-                                     SkStrokeRec::kStrokeAndFill_Style };
+    SkStrokeRec::Style styles[] = { SkStrokeRec::kFill_Style,
+                                    SkStrokeRec::kStroke_Style,
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                                    SkStrokeRec::kStrokeAndFill_Style
+#endif
+    };
 
-    SkStrokeRec::Style style = styles[random->nextU() % 3];
+    SkStrokeRec::Style style = styles[random->nextU() % SkPaint::kStyleCount];
 
     SkScalar strokeWidth = -1.f;
     SkPaint::Join join = SkPaint::kMiter_Join;

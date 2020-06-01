@@ -584,6 +584,16 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
            SkScalarIsFinite(rec.fLightRadius);
 }
 
+static SkPath strokeandfill(const SkPaint& paint, const SkPath& fill) {
+    SkPath path;
+    // TODO ?????????
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+    paint.getFillPath(&path);
+#endif
+    path.addPath(fill);
+    return path;
+}
+
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                                 SkScalar tx, SkScalar ty, bool hasPerspective) {
@@ -687,11 +697,11 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 SkPaint paint;
                 paint.setColor(rec.fAmbientColor);
                 paint.setStrokeWidth(strokeWidth);
-                paint.setStyle(SkPaint::kStrokeAndFill_Style);
+                SkPath fatPath = strokeandfill(paint, devSpacePath);
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
                 bool respectCTM = false;
                 paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
-                this->drawPath(devSpacePath, paint);
+                this->drawPath(fatPath, paint);
             }
         }
     }

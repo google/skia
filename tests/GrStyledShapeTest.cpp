@@ -19,6 +19,8 @@
 #include <functional>
 #include <utility>
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+
 uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
         return lp->getGenerationID();
@@ -2353,3 +2355,6 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
         ovalArcWithCenter.compare(reporter, oval, ovalExpectations);
     }
 }
+
+#endif
+
