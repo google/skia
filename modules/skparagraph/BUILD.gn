@@ -4,7 +4,6 @@ import("../../gn/skia.gni")
 
 declare_args() {
   skia_enable_skparagraph = true
-  paragraph_gms_enabled = true
   paragraph_tests_enabled = true
   paragraph_bench_enabled = false
 }
@@ -54,20 +53,6 @@ if (skia_enable_skparagraph) {
         "../skshaper",
         "//third_party/icu",
       ]
-    }
-
-    source_set("gm") {
-      if (skia_use_icu && skia_use_harfbuzz && paragraph_gms_enabled) {
-        testonly = true
-        sources = [ "gm/simple_gm.cpp" ]
-        deps = [
-          ":skparagraph",
-          "../..:gpu_tool_utils",
-          "../..:skia",
-          "../skshaper",
-          "//third_party/icu",
-        ]
-      }
     }
 
     source_set("tests") {
