@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/ExternalLayer.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skresources/include/SkResources.h"
 
 #include <memory>
@@ -38,8 +39,6 @@ namespace internal { class Animator; }
 
 using ImageAsset = skresources::ImageAsset;
 using ResourceProvider = skresources::ResourceProvider;
-
-class PropertyObserver;
 
 /**
  * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
