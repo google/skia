@@ -265,7 +265,8 @@ describe('Path Behavior', () => {
 
         const points = [[5, 5], [30, 20], [55, 5], [55, 50], [30, 30], [5, 50]];
 
-        const mPoints = CanvasKit.Malloc(Float32Array, 6 * 2);
+        const pointsObj = CanvasKit.Malloc(Float32Array, 6 * 2);
+        const mPoints = pointsObj.toTypedArray();
         mPoints.set([105, 105, 130, 120, 155, 105, 155, 150, 130, 130, 105, 150]);
 
         const path = new CanvasKit.SkPath();
@@ -274,7 +275,7 @@ describe('Path Behavior', () => {
             .addPoly(mPoints, true);
 
         canvas.drawPath(path, paint);
-        CanvasKit.Free(mPoints);
+        CanvasKit.Free(pointsObj);
 
         path.delete();
         paint.delete();

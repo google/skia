@@ -388,6 +388,7 @@ var CanvasKit = {
 
     prototype: {
       setColor: function() {},
+      setColorComponents: function() {},
     },
 
     // Private API
