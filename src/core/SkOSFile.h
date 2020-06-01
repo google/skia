@@ -76,7 +76,8 @@ size_t sk_qread(FILE*, void* buffer, size_t count, size_t offset);
 // Description of the error, if any, will be written to stderr.
 bool    sk_mkdir(const char* path);
 
-class SkOSFile {
+// exporting SPI for SkParagraph::TextFontCollection...
+class SK_SPI SkOSFile {
 public:
     class Iter {
     public:
