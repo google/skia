@@ -41,8 +41,7 @@
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED if (this->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (this->abandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (this->abandoned()) { return nullptr; }
