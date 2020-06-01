@@ -628,6 +628,14 @@ describe('Canvas Behavior', () => {
         let matr = canvas.getTotalMatrix();
         expect(matr).toEqual(CanvasKit.SkMatrix.identity());
 
+        // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
+        // make sure the 3x3 matrix properly sets these to 0 when it uses the same buffer.
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
+
         canvas.concat(CanvasKit.SkMatrix.rotated(Math.PI/4));
         const d = new DOMMatrix().translate(20, 10);
         canvas.concat(d);
@@ -638,6 +646,47 @@ describe('Canvas Behavior', () => {
             CanvasKit.SkMatrix.translated(20, 10)
         );
         expect3x3MatricesToMatch(expected, matr);
+
+        // The 3x3 should be expanded into a 4x4, with 0s in the 3rd row and column.
+        matr = canvas.getLocalToDevice();
+        expect4x4MatricesToMatch([
+            0.707106, -0.707106, 0,  7.071067,
+            0.707106,  0.707106, 0, 21.213203,
+            0       ,  0       , 0,  0       ,
+            0       ,  0       , 0,  1       ], matr);
+    });
+
+    it('can accept a 3x2 matrix', () => {
+        const canvas = new CanvasKit.SkCanvas();
+
+        let matr = canvas.getTotalMatrix();
+        expect(matr).toEqual(CanvasKit.SkMatrix.identity());
+
+        // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
+        // make sure the 3x2 matrix properly sets these to 0 when it uses the same buffer.
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
+
+        canvas.concat([1.4, -0.2, 12,
+                       0.2,  1.4, 24]);
+
+        matr = canvas.getTotalMatrix();
+        const expected = [1.4, -0.2, 12,
+                          0.2,  1.4, 24,
+                            0,    0,  1];
+        expect3x3MatricesToMatch(expected, matr);
+
+        // The 3x2 should be expanded into a 4x4, with 0s in the 3rd row and column
+        // and the perspective filled in.
+        matr = canvas.getLocalToDevice();
+        expect4x4MatricesToMatch([
+            1.4, -0.2, 0, 12,
+            0.2,  1.4, 0, 24,
+            0  ,  0  , 0,  0,
+            0  ,  0  , 0,  1], matr);
     });
 
     const expect3x3MatricesToMatch = (expected, actual) => {

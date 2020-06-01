@@ -59,6 +59,7 @@ describe('Core canvas behavior', () => {
         const out = CanvasKit.computeTonalColors(input);
         expect(new Float32Array(out.ambient)).toEqual(CanvasKit.BLACK);
         const expectedSpot = [0.173, 0, 0, 0.969];
+        expect(out.spot.length).toEqual(4);
         expect(out.spot[0]).toBeCloseTo(expectedSpot[0], 3);
         expect(out.spot[1]).toBeCloseTo(expectedSpot[1], 3);
         expect(out.spot[2]).toBeCloseTo(expectedSpot[2], 3);
