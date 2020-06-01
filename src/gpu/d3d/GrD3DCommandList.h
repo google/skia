@@ -12,11 +12,13 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrManagedResource.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 
 #include <memory>
 
 class GrD3DGpu;
 class GrD3DBuffer;
+class GrD3DConstantRingBuffer;
 class GrD3DPipelineState;
 class GrD3DRenderTarget;
 class GrD3DRootSignature;
@@ -122,6 +124,8 @@ public:
 
     void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
 
+    void setCurrentConstantBuffer(const sk_sp<GrD3DConstantRingBuffer>& constantBuffer);
+
     void setStencilRef(unsigned int stencilRef);
     void setBlendFactor(const float blendFactor[4]);
     void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
@@ -154,6 +158,9 @@ private:
     const GrD3DBuffer* fCurrentInstanceBuffer;
     size_t fCurrentInstanceStride;
     const GrD3DBuffer* fCurrentIndexBuffer;
+
+    GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
+    GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
 };
 
 class GrD3DCopyCommandList : public GrD3DCommandList {
