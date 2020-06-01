@@ -1229,10 +1229,19 @@ if (skia_enable_tools) {
     include_dirs = [ "include/third_party/vulkan" ]
   }
 
+  # We're stricter about warnings (as errors) in public headers for Android's sake.
+  config("extra_public_header_warnings") {
+    if (!is_win || is_clang) {
+      cflags = [ "-Wunused-parameter" ]
+    }
+  }
+
   source_set("public_headers_warnings_check") {
     sources = [ "tools/public_headers_warnings_check.cpp" ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
-    configs += [ ":our_vulkan_headers" ]
+    configs += [
+      ":our_vulkan_headers",
+      ":extra_public_header_warnings",
+    ]
     deps = [
       ":skia",
       ":skia.h",

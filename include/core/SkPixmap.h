@@ -283,7 +283,7 @@ public:
         @return   readable generic pointer to pixel
     */
     const void* addr(int x, int y) const {
-        return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
+        return (const char*)fPixels + fInfo.computeOffset(x, x, fRowBytes);
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 8-bit bytes.

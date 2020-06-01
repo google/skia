@@ -435,9 +435,10 @@ config("warnings") {
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
       "-Wno-missing-noreturn",
+      "-Wno-newline-eof",
       "-Wno-old-style-cast",
       "-Wno-padded",
-      "-Wno-newline-eof",
+      "-Wno-unused-parameter",
     ]
     cflags_cc += [
       "-Wno-c++98-compat",
@@ -479,11 +480,6 @@ config("warnings") {
   }
   if (!is_win || is_clang) {
     cflags += [ "-Wno-implicit-fallthrough" ]
-  }
-}
-config("warnings_except_public_headers") {
-  if (!is_win || is_clang) {
-    cflags = [ "-Wno-unused-parameter" ]
   }
 }
 
