@@ -8,7 +8,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkVerticesPriv.h"
+#include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -73,9 +76,16 @@ static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
 }
 
 static void self_test(sk_sp<SkVertices> v0, skiatest::Reporter* reporter) {
-    sk_sp<SkData> data = v0->encode();
-    sk_sp<SkVertices> v1 = SkVertices::Decode(data->data(), data->size());
+    SkBinaryWriteBuffer writer;
+    v0->priv().encode(writer);
 
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+
+    sk_sp<SkVertices> v1 = SkVerticesPriv::Decode(reader);
+
+    REPORTER_ASSERT(reporter, v1 != nullptr);
     REPORTER_ASSERT(reporter, v0->uniqueID() != 0);
     REPORTER_ASSERT(reporter, v1->uniqueID() != 0);
     REPORTER_ASSERT(reporter, v0->uniqueID() != v1->uniqueID());
