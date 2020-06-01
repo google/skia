@@ -74,8 +74,13 @@ protected:
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
+    // TODO: Remove this once the proxy object isn't itself a context.
+    virtual GrContextThreadSafeProxy* asThreadSafeProxy() { return nullptr; }
+
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
+    // TODO: Move these const vars into thread safe proxy.
     const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     const uint32_t              fContextID;

@@ -67,7 +67,6 @@ GrContext::~GrContext() {
 
 bool GrContext::init(sk_sp<const GrCaps> caps) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
     SkASSERT(this->proxyProvider());
 
     if (!INHERITED::init(std::move(caps))) {
