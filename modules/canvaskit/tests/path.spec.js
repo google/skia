@@ -279,4 +279,40 @@ describe('Path Behavior', () => {
         path.delete();
         paint.delete();
     });
+
+    // Test trim, adding paths to paths, and a bunch of other path methods.
+    gm('trim_path', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setStrokeWidth(1.0);
+        paint.setAntiAlias(true);
+        paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        const arcpath = new CanvasKit.SkPath();
+        arcpath.arc(400, 400, 100, 0, -90, false) // x, y, radius, startAngle, endAngle, ccw
+               .dash(3, 1, 0)
+               .conicTo(10, 20, 30, 40, 5)
+               .rConicTo(60, 70, 80, 90, 5)
+               .trim(0.2, 1, false);
+
+        const path = new CanvasKit.SkPath();
+        path.addArc(CanvasKit.LTRBRect(10, 20, 100, 200), 30, 300)
+            .addRect(CanvasKit.LTRBRect(200, 200, 300, 300)) // test single arg, default cw
+            .addRect(CanvasKit.LTRBRect(240, 240, 260, 260), true) // test two arg, true means ccw
+            .addRect(260, 260, 290, 290, true) // test five arg, true means ccw
+            .addRoundRect(CanvasKit.LTRBRect(300, 10, 500, 290),
+                [60, 60, 60, 60, 60, 60, 60, 60], false) // SkRect, radii, ccw
+            .addRoundRect(CanvasKit.LTRBRect(350, 60, 450, 240), 20, 80, true) // SkRect, rx, ry, ccw
+            .addPath(arcpath)
+            .transform(0.54, -0.84,  390.35,
+                       0.84,  0.54, -114.53,
+                          0,     0,       1);
+
+        canvas.drawPath(path, paint);
+
+        path.delete();
+        paint.delete();
+    });
 });
