@@ -243,6 +243,76 @@ static SkPath hiragino_maru_gothic_pro_dash() {
     return path;
 }
 
+/* See https://crbug.com/1075900
+ *
+ * Generated on FreeType with:
+ * SkFont font(MakeResourceAsTypeface("fonts/HuiFontP109.ttf"), 100);
+ * SkGlyphID glyphId = font.unicharToGlyph(0x304D);
+ * SkPath glyphPath;
+ * font.getPath(glyphId, &glyphPath);
+ * glyphPath.dump();
+ */
+static SkPath HuiFontP109_Hiragana_Letter_Ki() {
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(41.7969f, 11.5234f);
+    path.lineTo(41.7969f, 10.7422f);
+    path.quadTo(26.0742f, -0.488281f, 11.1328f, -13.0859f);
+    path.lineTo(11.1328f, -16.0156f);
+    path.lineTo(14.0625f, -16.8945f);
+    path.quadTo(28.125f, -7.71484f, 41.6992f, 3.41797f);
+    path.quadTo(44.9219f, 5.76172f, 44.9219f, 9.375f);
+    path.quadTo(44.1406f, 10.9375f, 41.5039f, 10.4492f);
+    path.lineTo(41.5039f, 11.5234f);
+    path.lineTo(41.7969f, 11.5234f);
+    path.close();
+    path.moveTo(49.8047f, -18.1641f);
+    path.lineTo(47.168f, -19.9219f);
+    path.lineTo(47.168f, -21.9727f);
+    path.quadTo(50.0977f, -24.4141f, 50.0977f, -28.6133f);
+    path.lineTo(45.1172f, -39.5508f);
+    path.lineTo(41.7969f, -39.5508f);
+    path.lineTo(25.7812f, -34.2773f);
+    path.lineTo(21.1914f, -34.2773f);
+    path.lineTo(17.4805f, -37.5f);
+    path.lineTo(17.4805f, -39.3555f);
+    path.quadTo(28.9062f, -43.1641f, 41.2109f, -46.1914f);
+    path.lineTo(41.7969f, -47.9492f);
+    path.lineTo(37.8906f, -58.5938f);
+    path.lineTo(33.5938f, -58.5938f);
+    path.quadTo(27.7344f, -56.6406f, 21.4844f, -55.1758f);
+    path.lineTo(16.7969f, -55.1758f);
+    path.lineTo(13.0859f, -58.8867f);
+    path.lineTo(13.0859f, -60.5469f);
+    path.quadTo(13.8672f, -62.207f, 15.625f, -62.207f);
+    path.lineTo(21.4844f, -62.207f);
+    path.lineTo(35.4492f, -65.7227f);
+    path.lineTo(36.0352f, -67.4805f);
+    path.lineTo(35.0586f, -72.168f);
+    path.quadTo(36.7188f, -73.4375f, 39.2578f, -72.9492f);
+    path.lineTo(41.9922f, -70.2148f);
+    path.lineTo(41.9922f, -67.0898f);
+    path.lineTo(45.3125f, -67.0898f);
+    path.lineTo(57.9102f, -69.5312f);
+    path.lineTo(62.0117f, -66.3086f);
+    path.lineTo(62.0117f, -64.7461f);
+    path.quadTo(58.7891f, -62.0117f, 54.1016f, -61.5234f);
+    path.lineTo(51.1719f, -62.0117f);
+    path.lineTo(45.0195f, -60.4492f);
+    path.lineTo(44.4336f, -58.2031f);
+    path.lineTo(48.4375f, -48.6328f);
+    path.lineTo(50.1953f, -48.0469f);
+    path.quadTo(57.6172f, -50.4883f, 64.7461f, -51.9531f);
+    path.lineTo(68.457f, -50.0977f);
+    path.lineTo(69.2383f, -47.168f);
+    path.quadTo(61.3281f, -43.9453f, 52.2461f, -41.4062f);
+    path.lineTo(52.2461f, -39.5508f);
+    path.quadTo(56.1523f, -32.3242f, 57.6172f, -24.2188f);
+    path.quadTo(55.7617f, -20.0195f, 51.5625f, -18.1641f);
+    path.lineTo(49.8047f, -18.1641f);
+    path.close();
+    return path;
+}
 static void show_bold(SkCanvas* canvas, const char* text,
                       SkScalar x, SkScalar y, const SkPaint& paint, const SkFont& font) {
     canvas->drawString(text, x, y, font, paint);
@@ -252,9 +322,13 @@ static void show_bold(SkCanvas* canvas, const char* text,
 }
 
 static void path_bold(SkCanvas* canvas, const SkPath& path,
-                      const SkPaint& paint, float textSize) {
+                      SkScalar x, SkScalar y, const SkPaint& paint, float textSize) {
     SkPaint p(paint);
+    canvas->save();
+    canvas->translate(x, y);
     canvas->drawPath(path, p);
+    canvas->restore();
+
     set_strokeandfill(&p);
     SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
             kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
@@ -262,7 +336,7 @@ static void path_bold(SkCanvas* canvas, const SkPath& path,
     SkScalar extra = textSize * fakeBoldScale;
     p.setStrokeWidth(extra);
     canvas->save();
-    canvas->translate(0, 120);
+    canvas->translate(x, y + 120);
     canvas->drawPath(path, p);
     canvas->restore();
 }
@@ -281,8 +355,9 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
 
     // use paths instead of text to test the path data on all platforms, since the
     // Mac-specific font may change or is not available everywhere
-    path_bold(canvas, papyrus_hello(), paint, font.getSize());
-    path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint, font.getSize());
+    path_bold(canvas, papyrus_hello(), 0, 0, paint, font.getSize());
+    path_bold(canvas, HuiFontP109_Hiragana_Letter_Ki(), x + 90, y, paint, font.getSize());
+    path_bold(canvas, hiragino_maru_gothic_pro_dash(), 0, 0, paint, font.getSize());
 
     show_bold(canvas, "Hi There", x + SkIntToScalar(430), y, paint, font);
 
