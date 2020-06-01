@@ -88,7 +88,8 @@ private:
         void getRTAdjustmentVec(float* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
             destVec[1] = -1.f;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+            // D3D's NDC space is flipped from Vulkan and Metal
+            if (kTopLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 destVec[2] = -2.f / fRenderTargetSize.fHeight;
                 destVec[3] = 1.f;
             } else {
