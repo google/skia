@@ -14,7 +14,6 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
-    settings.fRemoveDeadFunctions = false;
     SkSL::Compiler compiler;
     SkSL::StringStream output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
