@@ -61,9 +61,8 @@ public:
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) override {
         if (vertexSize * vertexCount > sizeof(fStaticVertexData)) {
-            SK_ABORT(SkStringPrintf(
-                    "FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
-                    vertexSize * vertexCount, SK_ARRAY_COUNT(fStaticVertexData)).c_str());
+            SK_ABORT("FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
+                     vertexSize * vertexCount, SK_ARRAY_COUNT(fStaticVertexData));
         }
         *startVertex = 0;
         return fStaticVertexData;
@@ -73,9 +72,8 @@ public:
             int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
         int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
         if (drawCount > staticBufferCount) {
-            SK_ABORT(SkStringPrintf(
-                    "FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
-                    drawCount, staticBufferCount).c_str());
+            SK_ABORT("FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
+                     drawCount, staticBufferCount);
         }
         return fStaticDrawIndexedIndirectData;
     }
