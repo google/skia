@@ -866,6 +866,8 @@ go.chromium.org/luci v0.0.0-20200530010316-74c9d53547b2 h1:POIExLlsGsdfjf33bDnTQ
 go.chromium.org/luci v0.0.0-20200530010316-74c9d53547b2/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20200530205650-69abefee5f1a h1:lX9MkmpQztfZDYNh+T5C8A+wDoYaHVl8rLdEI7VNpCc=
 go.chromium.org/luci v0.0.0-20200530205650-69abefee5f1a/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20200531062644-3e6d1e814914 h1:ZtNuLMJ+8/UL2dAQsQwtHZvoFd+bvIYr8fvYdpeFtpE=
+go.chromium.org/luci v0.0.0-20200531062644-3e6d1e814914/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.mongodb.org/mongo-driver v1.1.0/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
@@ -944,6 +946,8 @@ go.skia.org/infra v0.0.0-20200529222451-b641a303256d h1:31V/uagC9bhiRoYqPnGRaIx2
 go.skia.org/infra v0.0.0-20200529222451-b641a303256d/go.mod h1:dJEDl07151HEE01+fxbLF++Q/vg05jY5ncsnZnoMpKI=
 go.skia.org/infra v0.0.0-20200530052006-537aafa16b0c h1:KjVTmo/5MWxcVq9TFJbMPqd/qtvtpUpNU3SNmoKyyNE=
 go.skia.org/infra v0.0.0-20200530052006-537aafa16b0c/go.mod h1:LhPONsfnCn1CZ+8hUZwizdGjKpwhOLVBbTpeLQKotLI=
+go.skia.org/infra v0.0.0-20200531235413-49ee856d9221 h1:mwwLw4G9yVKLrATCCojYJaGLDzYO3hxqTuPxRJUIi6M=
+go.skia.org/infra v0.0.0-20200531235413-49ee856d9221/go.mod h1:FGT/VEEXbjSkv4BLKOaOTIwnN5UuOVq+otgfuRNnyuo=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
