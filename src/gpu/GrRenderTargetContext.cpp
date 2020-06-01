@@ -122,10 +122,8 @@ private:
 };
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define ASSERT_SINGLE_OWNER_PRIV \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
+#define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+#define ASSERT_SINGLE_OWNER_PRIV   GR_ASSERT_SINGLE_OWNER(fRenderTargetContext->singleOwner())
 #define RETURN_IF_ABANDONED        if (fContext->priv().abandoned()) { return; }
 #define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->priv().abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fContext->priv().abandoned()) { return false; }
