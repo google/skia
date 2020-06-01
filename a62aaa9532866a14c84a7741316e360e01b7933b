@@ -22,6 +22,30 @@
       "revId": "a62aaa9532866a14c84a7741316e360e01b7933b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4356f3df_1468b49d",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-01T17:17:29Z",
+      "side": 1,
+      "message": "That\u0027s a good point. I should probably change the tests to just submit, at least for now.\n\nI had been wondering whether it would make sense to somehow record the proc calls but not actually flush in the implementation. But that\u0027s a much larger change to make. And if that ever gets done then I could change this back.",
+      "parentUuid": "a8bee91c_3cd427f3",
+      "range": {
+        "startLine": 951,
+        "startChar": 17,
+        "endLine": 951,
+        "endChar": 30
+      },
+      "revId": "a62aaa9532866a14c84a7741316e360e01b7933b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
