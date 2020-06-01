@@ -37,9 +37,7 @@ static jmethodID    gInputStream_skipMethodID;
 static JNIEnv* get_env_or_die(JavaVM* jvm) {
     JNIEnv* env;
     if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
-        char errorMessage[256];
-        sprintf(errorMessage, "Failed to get JNIEnv for JavaVM: %p", jvm);
-        SK_ABORT(errorMessage);
+        SK_ABORT("Failed to get JNIEnv for JavaVM: %p", jvm);
     }
     return env;
 }
