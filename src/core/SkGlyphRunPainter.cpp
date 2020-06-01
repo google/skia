@@ -358,7 +358,8 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
-    cachedBlob->addOp(target, props, blobPaint, drawingColor, clip, matrixProvider, drawOrigin);
+    cachedBlob->insertOpsIntoTarget(target, props, blobPaint, drawingColor, clip, matrixProvider,
+                                    drawOrigin);
 }
 
 #if GR_TEST_UTILS

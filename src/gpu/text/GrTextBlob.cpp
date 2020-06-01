@@ -402,6 +402,97 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
     return SubRun::InitForAtlas(kTransformedMask, drawables, strikeSpec, format, blob, alloc);
 }
 
+void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
+                                                   const SkSurfaceProps& props,
+                                                   const SkPaint& paint,
+                                                   const SkPMColor4f& filteredColor,
+                                                   const GrClip* clip,
+                                                   const SkMatrixProvider& deviceMatrix,
+                                                   SkPoint drawOrigin) {
+    if (this->drawAsPaths()) {
+        SkPaint runPaint{paint};
+        runPaint.setAntiAlias(this->isAntiAliased());
+        // If there are shaders, blurs or styles, the path must be scaled into source
+        // space independently of the CTM. This allows the CTM to be correct for the
+        // different effects.
+        GrStyle style(runPaint);
+
+        bool needsExactCTM = runPaint.getShader()
+                             || style.applies()
+                             || runPaint.getMaskFilter();
+
+        // Calculate the matrix that maps the path glyphs from their size in the strike to
+        // the graphics source space.
+        SkScalar scale = this->fStrikeSpec.strikeToSourceRatio();
+        SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
+        strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+        if (!needsExactCTM) {
+            for (const auto& pathPos : this->fPaths) {
+                const SkPath& path = pathPos.fPath;
+                const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
+                SkMatrix pathMatrix = strikeToSource;
+                pathMatrix.postTranslate(pos.x(), pos.y());
+                SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
+
+                GrStyledShape shape(path, paint);
+                target->drawShape(clip, runPaint, strikeToDevice, shape);
+            }
+        } else {
+            // Transform the path to device because the deviceMatrix must be unchanged to
+            // draw effect, filter or shader paths.
+            for (const auto& pathPos : this->fPaths) {
+                const SkPath& path = pathPos.fPath;
+                const SkPoint pos = pathPos.fOrigin;
+                // Transform the glyph to source space.
+                SkMatrix pathMatrix = strikeToSource;
+                pathMatrix.postTranslate(pos.x(), pos.y());
+
+                SkPath deviceOutline;
+                path.transform(pathMatrix, &deviceOutline);
+                deviceOutline.setIsVolatile(true);
+                GrStyledShape shape(deviceOutline, paint);
+                target->drawShape(clip, runPaint, deviceMatrix, shape);
+            }
+        }
+    } else {
+        int glyphCount = this->glyphCount();
+        if (0 == glyphCount) {
+            return;
+        }
+
+        bool skipClip = false;
+        SkIRect clipRect = SkIRect::MakeEmpty();
+        SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
+        SkRRect clipRRect = SkRRect::MakeRect(rtBounds);
+        GrAA aa;
+        // We can clip geometrically if we're not using SDFs or transformed glyphs,
+        // and we have an axis-aligned rectangular non-AA clip
+        if (!this->drawAsDistanceFields() &&
+            !this->needsTransform() &&
+            (!clip || (clip->isRRect(rtBounds, &clipRRect, &aa) &&
+                       clipRRect.isRect() && GrAA::kNo == aa))) {
+            // We only need to do clipping work if the subrun isn't contained by the clip
+            SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
+            if (!clipRRect.getBounds().contains(subRunBounds)) {
+                // If the subrun is completely outside, don't add an op for it
+                if (!clipRRect.getBounds().intersects(subRunBounds)) {
+                    return;
+                } else {
+                    clipRRect.getBounds().round(&clipRect);
+                }
+            }
+            skipClip = true;
+        }
+
+        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect,
+                                 paint, filteredColor, props, target);
+        if (op != nullptr) {
+            target->addDrawOp(skipClip ? nullptr : clip, std::move(op));
+        }
+    }
+}
+
+
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkIRect& clipRect,
@@ -611,95 +702,16 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     return false;
 }
 
-void GrTextBlob::addOp(GrTextTarget* target,
-                       const SkSurfaceProps& props,
-                       const SkPaint& paint,
-                       const SkPMColor4f& filteredColor,
-                       const GrClip* clip,
-                       const SkMatrixProvider& deviceMatrix,
-                       SkPoint drawOrigin) {
+void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
+                                     const SkSurfaceProps& props,
+                                     const SkPaint& paint,
+                                     const SkPMColor4f& filteredColor,
+                                     const GrClip* clip,
+                                     const SkMatrixProvider& deviceMatrix,
+                                     SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
-        if (subRun->drawAsPaths()) {
-            SkPaint runPaint{paint};
-            runPaint.setAntiAlias(subRun->isAntiAliased());
-            // If there are shaders, blurs or styles, the path must be scaled into source
-            // space independently of the CTM. This allows the CTM to be correct for the
-            // different effects.
-            GrStyle style(runPaint);
-
-            bool needsExactCTM = runPaint.getShader()
-                                 || style.applies()
-                                 || runPaint.getMaskFilter();
-
-            // Calculate the matrix that maps the path glyphs from their size in the strike to
-            // the graphics source space.
-            SkScalar scale = subRun->fStrikeSpec.strikeToSourceRatio();
-            SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
-            strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
-            if (!needsExactCTM) {
-                for (const auto& pathPos : subRun->fPaths) {
-                    const SkPath& path = pathPos.fPath;
-                    const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
-                    SkMatrix pathMatrix = strikeToSource;
-                    pathMatrix.postTranslate(pos.x(), pos.y());
-                    SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
-
-                    GrStyledShape shape(path, paint);
-                    target->drawShape(clip, runPaint, strikeToDevice, shape);
-                }
-            } else {
-                // Transform the path to device because the deviceMatrix must be unchanged to
-                // draw effect, filter or shader paths.
-                for (const auto& pathPos : subRun->fPaths) {
-                    const SkPath& path = pathPos.fPath;
-                    const SkPoint pos = pathPos.fOrigin;
-                    // Transform the glyph to source space.
-                    SkMatrix pathMatrix = strikeToSource;
-                    pathMatrix.postTranslate(pos.x(), pos.y());
-
-                    SkPath deviceOutline;
-                    path.transform(pathMatrix, &deviceOutline);
-                    deviceOutline.setIsVolatile(true);
-                    GrStyledShape shape(deviceOutline, paint);
-                    target->drawShape(clip, runPaint, deviceMatrix, shape);
-                }
-            }
-        } else {
-            int glyphCount = subRun->glyphCount();
-            if (0 == glyphCount) {
-                continue;
-            }
-
-            bool skipClip = false;
-            SkIRect clipRect = SkIRect::MakeEmpty();
-            SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
-            SkRRect clipRRect = SkRRect::MakeRect(rtBounds);
-            GrAA aa;
-            // We can clip geometrically if we're not using SDFs or transformed glyphs,
-            // and we have an axis-aligned rectangular non-AA clip
-            if (!subRun->drawAsDistanceFields() &&
-                !subRun->needsTransform() &&
-                (!clip || (clip->isRRect(rtBounds, &clipRRect, &aa) &&
-                           clipRRect.isRect() && GrAA::kNo == aa))) {
-                // We only need to do clipping work if the subrun isn't contained by the clip
-                SkRect subRunBounds = subRun->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-                if (!clipRRect.getBounds().contains(subRunBounds)) {
-                    // If the subrun is completely outside, don't add an op for it
-                    if (!clipRRect.getBounds().intersects(subRunBounds)) {
-                        continue;
-                    } else {
-                        clipRRect.getBounds().round(&clipRect);
-                    }
-                }
-                skipClip = true;
-            }
-
-            auto op = subRun->makeOp(deviceMatrix, drawOrigin, clipRect,
-                                     paint, filteredColor, props, target);
-            if (op != nullptr) {
-                target->addDrawOp(skipClip ? nullptr : clip, std::move(op));
-            }
-        }
+        subRun->insertSubRunOpsIntoTarget(target, props, paint, filteredColor, clip, deviceMatrix,
+                                          drawOrigin);
     }
 }
 

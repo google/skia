@@ -120,13 +120,13 @@ public:
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void addOp(GrTextTarget* target,
-               const SkSurfaceProps& props,
-               const SkPaint& paint,
-               const SkPMColor4f& filteredColor,
-               const GrClip* clip,
-               const SkMatrixProvider& deviceMatrix,
-               SkPoint drawOrigin);
+    void insertOpsIntoTarget(GrTextTarget* target,
+                             const SkSurfaceProps& props,
+                             const SkPaint& paint,
+                             const SkPMColor4f& filteredColor,
+                             const GrClip* clip,
+                             const SkMatrixProvider& deviceMatrix,
+                             SkPoint drawOrigin);
 
     struct AtlasPt {
         uint16_t u;
@@ -375,6 +375,14 @@ public:
                                        GrMaskFormat format,
                                        GrTextBlob* blob,
                                        SkArenaAlloc* alloc);
+
+    void insertSubRunOpsIntoTarget(GrTextTarget* target,
+                                   const SkSurfaceProps& props,
+                                   const SkPaint& paint,
+                                   const SkPMColor4f& filteredColor,
+                                   const GrClip* clip,
+                                   const SkMatrixProvider& deviceMatrix,
+                                   SkPoint drawOrigin);
 
     std::unique_ptr<GrAtlasTextOp> makeOp(const SkMatrixProvider& matrixProvider,
                                           SkPoint drawOrigin,
