@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c5ec60c4_0ba01866",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-01T16:47:19Z",
+      "side": 1,
+      "message": "None of the tested methods stands out so I just picked one to serve as a name.\nit does include trimming.",
+      "parentUuid": "6afdd358_1f1a415c",
+      "range": {
+        "startLine": 283,
+        "startChar": 8,
+        "endLine": 283,
+        "endChar": 13
+      },
+      "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ccbb192_f01ff11f",
         "filename": "modules/canvaskit/tests/path.spec.js",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2af5f837_6108cf87",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-01T16:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ccbb192_f01ff11f",
+      "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf1a0208_71b19116",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-01T16:47:19Z",
+      "side": 1,
+      "message": "Thanks, that\u0027s exactly what I was trying to achieve.",
+      "parentUuid": "162508bc_34296742",
+      "range": {
+        "startLine": 314,
+        "startChar": 8,
+        "endLine": 314,
+        "endChar": 16
+      },
+      "revId": "74bf9dc25f019d0855b66cc76f2efe892a498e13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
