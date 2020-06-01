@@ -27,8 +27,19 @@ struct GrCCPerOpsTaskPaths;
  * This class contains pre-processed gpu operations that can be replayed into
  * an SkSurface via SkSurface::draw(SkDeferredDisplayList*).
  */
-class SkDeferredDisplayList {
+class SkDeferredDisplayList : public SkRefCnt {
 public:
+    static uint32_t CreateUniqueID() {
+        static std::atomic<uint32_t> nextID{1};
+        uint32_t id;
+        do {
+            id = nextID++;
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
+    const uint32_t fID;
+
     SK_API ~SkDeferredDisplayList();
 
     SK_API const SkSurfaceCharacterization& characterization() const {

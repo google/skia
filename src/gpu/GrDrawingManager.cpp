@@ -586,6 +586,13 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     SkDEBUGCODE(this->validate());
 
+    printf("pre-DM\n");
+    for (int i = 0; i < fUnrefOnFlush.size(); ++i) {
+        (void) fUnrefOnFlush[i].release();
+    }
+    fUnrefOnFlush.clear();
+    printf("post-DM\n");
+
     if (!didFlush || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
     }
@@ -632,7 +639,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
+void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<SkDeferredDisplayList> ddl,
                                               GrRenderTargetProxy* newDest) {
     SkDEBUGCODE(this->validate());
 
@@ -658,6 +665,7 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
     }
 
     fDAG.add(ddl->fRenderTasks);
+    fUnrefOnFlush.emplace_back(std::move(ddl));
 
     SkDEBUGCODE(this->validate());
 }

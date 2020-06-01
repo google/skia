@@ -48,11 +48,11 @@ public:
         GrOpMemoryPool* opMemoryPool() { return fOpMemoryPool; }
 
         // For storing pipelines and other complex data as-needed by ops
-        SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
+        SkArenaAlloc* recordTimeAllocator1() { return fRecordTimeAllocator1; }
 
-    private:
+    public:
         GrOpMemoryPool* fOpMemoryPool;
-        SkArenaAlloc*   fRecordTimeAllocator;
+        SkArenaAlloc*   fRecordTimeAllocator1;
     };
 
 protected:
@@ -70,7 +70,7 @@ protected:
 
         OwnedArenas& operator=(OwnedArenas&&);
 
-    private:
+//    private:
         std::unique_ptr<GrOpMemoryPool> fOpMemoryPool;
         std::unique_ptr<SkArenaAlloc>   fRecordTimeAllocator;
     };
@@ -97,7 +97,7 @@ protected:
         const GrProgramDesc& desc() const { return *fDesc; }
         const GrProgramInfo& info() const { return *fInfo; }
 
-    private:
+    public:
         // TODO: store the GrProgramDescs in the 'fRecordTimeData' arena
         std::unique_ptr<const GrProgramDesc> fDesc;
         // The program infos should be stored in 'fRecordTimeData' so do not need to be ref

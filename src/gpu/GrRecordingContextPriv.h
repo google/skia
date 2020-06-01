@@ -42,7 +42,7 @@ public:
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
     GrOpMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
-    SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
+    SkArenaAlloc* recordTimeAllocator1() { return fContext->arenas().recordTimeAllocator1(); }
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
     GrRecordingContext::OwnedArenas&& detachArenas() { return fContext->detachArenas(); }

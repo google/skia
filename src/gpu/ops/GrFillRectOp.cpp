@@ -243,6 +243,7 @@ private:
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView) override {
+#if 0
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkASSERT(!fPrePreparedVertices);
@@ -265,6 +266,7 @@ private:
         fPrePreparedVertices = arena->makeArrayDefault<char>(totalVertexSizeInBytes);
 
         this->tessellate(vertexSpec, fPrePreparedVertices);
+#endif
     }
 
     void tessellate(const VertexSpec& vertexSpec, char* dst) const {

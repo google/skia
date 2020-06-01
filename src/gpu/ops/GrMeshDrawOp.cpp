@@ -30,6 +30,7 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip* clip,
                                      const GrXferProcessor::DstProxyView& dstProxyView) {
+#if 0
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip
@@ -43,6 +44,7 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
     // pre-existing versions if the program has already been seen. We could then return the
     // memory for the current copy to the arena.
     context->priv().recordProgramInfo(this->programInfo());
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

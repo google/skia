@@ -988,7 +988,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_draw_2
     */
-    bool draw(SkDeferredDisplayList* deferredDisplayList);
+    bool draw(sk_sp<SkDeferredDisplayList> deferredDisplayList);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);

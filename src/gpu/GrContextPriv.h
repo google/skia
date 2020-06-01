@@ -55,7 +55,7 @@ public:
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
     GrOpMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
-    SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
+    SkArenaAlloc* recordTimeAllocator1() { return fContext->arenas().recordTimeAllocator1(); }
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
     GrStrikeCache* getGrStrikeCache() { return fContext->fStrikeCache.get(); }
@@ -121,7 +121,7 @@ public:
     }
 
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
-    void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
 

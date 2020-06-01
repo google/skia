@@ -21,7 +21,7 @@ bool SkDeferredDisplayListRecorder::init() { return false; }
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() { return nullptr; }
 
-std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nullptr; }
+sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nullptr; }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         const GrBackendFormat& backendFormat,
@@ -203,7 +203,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     return fSurface->getCanvas();
 }
 
-std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
+sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     if (!fContext) {
         return nullptr;
     }
@@ -214,8 +214,8 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
         canvas->restoreToCount(0);
     }
 
-    auto ddl = std::unique_ptr<SkDeferredDisplayList>(
-                           new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
+    sk_sp<SkDeferredDisplayList> ddl(new SkDeferredDisplayList(fCharacterization,
+                                                               std::move(fLazyProxyData)));
 
     fContext->priv().moveRenderTasksToDDL(ddl.get());
 

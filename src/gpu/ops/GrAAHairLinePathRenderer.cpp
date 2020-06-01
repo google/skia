@@ -1113,6 +1113,7 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip* clip,
                                      const GrXferProcessor::DstProxyView& dstProxyView) {
+#if 0
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     const GrCaps* caps = context->priv().caps();
 
@@ -1127,6 +1128,7 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     context->priv().recordProgramInfo(fProgramInfos[0]);
     context->priv().recordProgramInfo(fProgramInfos[1]);
     context->priv().recordProgramInfo(fProgramInfos[2]);
+#endif
 }
 
 void AAHairlineOp::onPrepareDraws(Target* target) {

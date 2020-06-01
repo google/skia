@@ -129,6 +129,9 @@ GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const G
 
 GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
         GrOp* op, GrRecordingContext::Arenas* arenas, const GrCaps&) {
+    printf("tail %p\n", fInstanceTail);
+    return CombineResult::kCannotCombine;
+#if 0
     auto* that = op->cast<GrDrawAtlasPathOp>();
     SkASSERT(fAtlasProxy == that->fAtlasProxy);
     SkASSERT(fEnableHWAA == that->fEnableHWAA);
@@ -138,11 +141,12 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
     }
 
     SkASSERT(fUsesLocalCoords == that->fUsesLocalCoords);
-    auto* copy = arenas->recordTimeAllocator()->make<InstanceList>(that->fInstanceList);
+    auto* copy = arenas->recordTimeAllocator1()->make<InstanceList>(that->fInstanceList);
     *fInstanceTail = copy;
     fInstanceTail = (!copy->fNext) ? &copy->fNext : that->fInstanceTail;
     fInstanceCount += that->fInstanceCount;
     return CombineResult::kMerged;
+#endif
 }
 
 void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,

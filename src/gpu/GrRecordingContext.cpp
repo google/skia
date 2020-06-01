@@ -120,7 +120,7 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
 
 GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
         : fOpMemoryPool(opMemoryPool)
-        , fRecordTimeAllocator(recordTimeAllocator) {
+        , fRecordTimeAllocator1(recordTimeAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
     SkASSERT(opMemoryPool);
     SkASSERT(recordTimeAllocator);

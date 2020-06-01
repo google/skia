@@ -266,14 +266,8 @@ void GrGLClearErr(const GrGLInterface* gl);
 
 // internal macro to conditionally call glGetError based on compile-time and
 // run-time flags.
-#if GR_GL_CHECK_ERROR
-    extern bool gCheckErrorGL;
     #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)                    \
-        if (gCheckErrorGL)                                      \
             GrGLCheckErr(IFACE, GR_FILE_AND_LINE_STR, #X)
-#else
-    #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)
-#endif
 
 // internal macro to conditionally log the gl call using SkDebugf based on
 // compile-time and run-time flags.

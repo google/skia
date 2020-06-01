@@ -21,14 +21,37 @@ class SkSurfaceCharacterization;
 
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
                                              sk_sp<LazyProxyData> lazyProxyData)
-        : fCharacterization(characterization)
+        : fID(CreateUniqueID())      
+        , fCharacterization(characterization)
 #if SK_SUPPORT_GPU
     , fLazyProxyData(std::move(lazyProxyData))
 #endif
 {
+    printf("DDL created %d\n", fID);
 }
 
 SkDeferredDisplayList::~SkDeferredDisplayList() {
+    printf("DDL deleted %d\n", fID);
+
+    //    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpsTaskPaths>>;
+
+    PendingPathsMap::iterator start = fPendingPaths.begin();
+    PendingPathsMap::iterator stop = fPendingPaths.end();
+    for (; start != stop; start++) {
+        (void) start->second.release();
+    }
+    fArenas.fOpMemoryPool.release();
+    fArenas.fRecordTimeAllocator.release();
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        (void) fRenderTasks[i].release();
+    }
+
+    SkASSERT(fProgramData.count() == 0);
+    for (int i = 0; i < fProgramData.count(); ++i) {
+        (void) fProgramData[i].fDesc.release();
+    }
+    (void) fLazyProxyData.release();
+
 #if SK_SUPPORT_GPU && defined(SK_DEBUG)
     for (auto& renderTask : fRenderTasks) {
         SkASSERT(renderTask->unique());

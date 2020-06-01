@@ -661,6 +661,8 @@ private:
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView) override {
+        return;
+#if 0
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
@@ -675,6 +677,7 @@ private:
 
         // This will call onCreateProgramInfo and register the created program with the DDL.
         this->INHERITED::onPrePrepareDraws(context, writeView, clip, dstProxyView);
+#endif
     }
 
     static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {
