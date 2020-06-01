@@ -135,6 +135,10 @@ public:
         SkASSERT(this->isDashed());
         return fDashInfo.fIntervals.get();
     }
+    SkPathEffect::DashAlignment dashAlignment() const {
+        SkASSERT(this->isDashed());
+        return fDashInfo.fAlignment;
+    }
 
     const SkStrokeRec& strokeRec() const { return fStrokeRec; }
 
@@ -194,15 +198,18 @@ private:
             fIntervals.reset(that.fIntervals.count());
             sk_careful_memcpy(fIntervals.get(), that.fIntervals.get(),
                               sizeof(SkScalar) * that.fIntervals.count());
+            fAlignment = that.fAlignment;
             return *this;
         }
         void reset() {
             fType = SkPathEffect::kNone_DashType;
             fIntervals.reset(0);
+            fAlignment = SkPathEffect::kNone_DashAlignment;
         }
         SkPathEffect::DashType      fType;
         SkScalar                    fPhase{0};
         SkAutoSTArray<4, SkScalar>  fIntervals;
+        SkPathEffect::DashAlignment fAlignment;
     };
 
     bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const;
