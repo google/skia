@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b46858f1_a7281f3e",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-01T20:51:12Z",
+      "side": 1,
+      "message": "Just so we can clean this up in the future, can we add a line near the end of SkPicturePriv.h like\n\nstatic_assert(kMin_Version \u003c\u003d 75, \"Drop kStrokeAndFill hack from SkPaint deserialization.\");\n\n(there\u0027s another one in there like this to put it next to).",
+      "revId": "28bd7e840a553bdfc94efcc205d12683ef92a924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
