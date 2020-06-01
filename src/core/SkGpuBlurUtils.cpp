@@ -126,8 +126,6 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     bool canHWTile =
             srcBounds.contains(srcBackingBounds) &&
             !(mode == SkTileMode::kDecal && !context->priv().caps()->clampToBorderSupport());
-    // TODO: Should we also consider size here? If the area where we can avoid shader tiling is
-    // small this is probably a deoptimization.
     if (!canSplit || canHWTile) {
         auto dstRect = SkIRect::MakeSize(dstBounds.size());
         convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcView), srcBounds,
@@ -192,6 +190,27 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         rect.offset(-rtcToSrcOffset);
         dstRenderTargetContext->priv().clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
     };
+
+    // Doing mid separately will cause two draws to occur (left and right batch together). At
+    // small sizes of mid it is worse to issue more draws than to just execute the slightly
+    // more complicated shader that implements the tile mode across mid. This threshold is
+    // very arbitrary right now. It is believed that a 21x44 mid on a Moto G4 is a significant
+    // regression compared to doing one draw but it has not been locally evaluated or tuned.
+    // The optimal cutoff is likely to vary by GPU.
+    if (!mid.isEmpty() && mid.width()*mid.height() < 256*256) {
+        left.join(mid);
+        left.join(right);
+        mid = SkIRect::MakeEmpty();
+        right = SkIRect::MakeEmpty();
+        // It's unknown whether for kDecal it'd be better to expand the draw rather than a draw and
+        // up to two clears.
+        if (mode == SkTileMode::kClamp) {
+            left.join(top);
+            left.join(bottom);
+            top = SkIRect::MakeEmpty();
+            bottom = SkIRect::MakeEmpty();
+        }
+    }
 
     if (!top.isEmpty()) {
         if (mode == SkTileMode::kDecal) {
