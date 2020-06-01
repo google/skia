@@ -38,6 +38,7 @@ public:
         , fRuns(paragraph->fRuns)
         , fIcuFlags(paragraph->fIcuFlags)
         , fWords(paragraph->fWords)
+        , fBidiRegions(paragraph->fBidiRegions)
         , fGraphemes16(paragraph->fGraphemes16)
         , fCodePoints(paragraph->fCodePoints) { }
 
@@ -49,6 +50,7 @@ public:
     // ICU results
     SkTArray<unsigned> fIcuFlags;
     std::vector<size_t> fWords;
+    SkTArray<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
 };
@@ -204,6 +206,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fRuns = entry->fValue->fRuns;
     paragraph->fIcuFlags = entry->fValue->fIcuFlags;
     paragraph->fWords = entry->fValue->fWords;
+    paragraph->fBidiRegions = entry->fValue->fBidiRegions;
     paragraph->fGraphemes16 = entry->fValue->fGraphemes16;
     paragraph->fCodePoints = entry->fValue->fCodePoints;
     for (auto& run : paragraph->fRuns) {

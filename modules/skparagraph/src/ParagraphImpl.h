@@ -160,7 +160,11 @@ public:
 
     void resetContext();
     void resolveStrut();
-    void getIcuFlags();
+
+    bool getIcuFlags();
+    bool getIcuWords();
+    bool getBidiRegions();
+
     void buildClusterTable();
     void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
@@ -207,8 +211,6 @@ private:
 
     void computeEmptyMetrics();
 
-    bool calculateBidiRegions(SkTArray<BidiRegion>* regions);
-
     // Input
     SkTArray<StyleBlock<SkScalar>> fLetterSpaceStyles;
     SkTArray<StyleBlock<SkScalar>> fWordSpaceStyles;
@@ -226,6 +228,7 @@ private:
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
     SkTArray<unsigned> fIcuFlags;
     std::vector<size_t> fWords;
+    SkTArray<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
     size_t fUnresolvedGlyphs;

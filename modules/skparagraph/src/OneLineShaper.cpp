@@ -465,8 +465,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
 bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
-    SkTArray<BidiRegion> bidiRegions;
-    if (!fParagraph->calculateBidiRegions(&bidiRegions)) {
+    if (!fParagraph->getBidiRegions()) {
         return false;
     }
 
@@ -477,8 +476,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
         if (placeholder.fTextBefore.width() > 0) {
             // Shape the text by bidi regions
-            while (bidiIndex < bidiRegions.size()) {
-                BidiRegion& bidiRegion = bidiRegions[bidiIndex];
+            while (bidiIndex < fParagraph->fBidiRegions.size()) {
+                BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
                 auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
                 auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
