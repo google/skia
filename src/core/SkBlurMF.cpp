@@ -854,7 +854,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrStyledShape& shape,
     }
 
     // We prefer to blur paths with small blur radii on the CPU.
-    if (ctm.rectStaysRect()) {
+    //if (ctm.rectStaysRect()) {
         static const SkScalar kMIN_GPU_BLUR_SIZE  = SkIntToScalar(64);
         static const SkScalar kMIN_GPU_BLUR_SIGMA = SkIntToScalar(32);
 
@@ -863,7 +863,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrStyledShape& shape,
             xformedSigma <= kMIN_GPU_BLUR_SIGMA) {
             return false;
         }
-    }
+    //}
 
     return true;
 }
