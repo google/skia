@@ -436,7 +436,7 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
                         <= std::numeric_limits<int32_t>::max());
 
     if (size > kMaxAllocationSize) {
-        SK_ABORT("Allocation too large (%zu bytes requested)", size);
+        SK_ABORT("Allocation too large");
     }
 
     int iSize = (int) size;
