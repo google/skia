@@ -8,6 +8,13 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  _scratchColorPtr = CanvasKit._malloc(4 * 4); // 4 32bit floats
+
+  _scratch4x4Matrix = CanvasKit.Malloc(Float32Array, 16); // 16 matrix scalars.
+  _scratch4x4MatrixPtr = _scratch4x4Matrix.byteOffset;
+
+  _scratch3x3Matrix = CanvasKit.Malloc(Float32Array, 9); // 9 matrix scalars.
+  _scratch3x3MatrixPtr = _scratch3x3Matrix.byteOffset;
   // Create single copies of all three supported color spaces
   // These are sk_sp<SkColorSpace>
   CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
@@ -755,16 +762,12 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkPath.prototype.stroke = function(opts) {
     // Fill out any missing values with the default values.
-    /**
-     * See externs.js for this definition
-     * @type {StrokeOpts}
-     */
     opts = opts || {};
-    opts.width = opts.width || 1;
-    opts.miter_limit = opts.miter_limit || 4;
-    opts.cap = opts.cap || CanvasKit.StrokeCap.Butt;
-    opts.join = opts.join || CanvasKit.StrokeJoin.Miter;
-    opts.precision = opts.precision || 1;
+    opts['width'] = opts['width'] || 1;
+    opts['miter_limit'] = opts['miter_limit'] || 4;
+    opts['cap'] = opts['cap'] || CanvasKit.StrokeCap.Butt;
+    opts['join'] = opts['join'] || CanvasKit.StrokeJoin.Miter;
+    opts['precision'] = opts['precision'] || 1;
     if (this._stroke(opts)) {
       return this;
     }
@@ -813,9 +816,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
-    var shader = this._makeShader(xTileMode, yTileMode, localMatrixPtr);
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
-    return shader;
+    return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
   }
 
   CanvasKit.SkImage.prototype.readPixels = function(imageInfo, srcX, srcY) {
@@ -860,9 +861,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   // Accepts an array of four numbers in the range of 0-1 representing a 4f color
   CanvasKit.SkCanvas.prototype.clear = function (color4f) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     this._clear(cPtr);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
@@ -870,7 +870,6 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.concat = function(matr) {
     var matrPtr = copy4x4MatrixToWasm(matr);
     this._concat(matrPtr);
-    freeArraysThatAreNotMallocedByUsers(matrPtr, matr);
   }
 
   // Deprecated - just use concat
@@ -940,13 +939,12 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkCanvas.prototype.drawColor = function (color4f, mode) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     if (mode !== undefined) {
       this._drawColor(cPtr, mode);
     } else {
       this._drawColor(cPtr);
     }
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   // points is either an array of [x, y] where x and y are numbers or
@@ -969,8 +967,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkCanvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
-    var ambiPtr = copy1dArray(ambientColor, CanvasKit.HEAPF32);
-    var spotPtr = copy1dArray(spotColor, CanvasKit.HEAPF32);
+    var ambiPtr = copyColorToWasmNoScratch(ambientColor);
+    var spotPtr = copyColorToWasmNoScratch(spotColor);
     this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
     freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
     freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
@@ -978,36 +976,32 @@ CanvasKit.onRuntimeInitialized = function() {
 
   // getLocalToDevice returns a 4x4 matrix.
   CanvasKit.SkCanvas.prototype.getLocalToDevice = function() {
-    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
     // _getLocalToDevice will copy the values into the pointer.
-    this._getLocalToDevice(matrPtr);
-    return copy4x4MatrixFromWasm(matrPtr);
+    this._getLocalToDevice(_scratch4x4MatrixPtr);
+    return copy4x4MatrixFromWasm(_scratch4x4MatrixPtr);
   }
 
   // findMarkedCTM returns a 4x4 matrix, or null if a matrix was not found at
   // the provided marker.
   CanvasKit.SkCanvas.prototype.findMarkedCTM = function(marker) {
-    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
     // _getLocalToDevice will copy the values into the pointer.
-    var found = this._findMarkedCTM(marker, matrPtr);
+    var found = this._findMarkedCTM(marker, _scratch4x4MatrixPtr);
     if (!found) {
       return null;
     }
-    return copy4x4MatrixFromWasm(matrPtr);
+    return copy4x4MatrixFromWasm(_scratch4x4MatrixPtr);
   }
 
   // getTotalMatrix returns the current matrix as a 3x3 matrix.
   CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {
-    var matrPtr = CanvasKit._malloc(9 * 4); // allocate space for the matrix
     // _getTotalMatrix will copy the values into the pointer.
-    this._getTotalMatrix(matrPtr);
+    this._getTotalMatrix(_scratch3x3MatrixPtr);
     // read them out into an array. TODO(kjlubick): If we change SkMatrix to be
     // typedArrays, then we should return a typed array here too.
     var rv = new Array(9);
     for (var i = 0; i < 9; i++) {
-      rv[i] = CanvasKit.HEAPF32[matrPtr/4 + i]; // divide by 4 to "cast" to float.
+      rv[i] = CanvasKit.HEAPF32[_scratch3x3MatrixPtr/4 + i]; // divide by 4 to "cast" to float.
     }
-    CanvasKit._free(matrPtr);
     return rv;
   }
 
@@ -1072,9 +1066,8 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkColorFilter.MakeBlend = function(color4f, mode) {
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     var result = CanvasKit.SkColorFilter._MakeBlend(cPtr, mode);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1092,24 +1085,19 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkImageFilter.MakeMatrixTransform = function(matr, filterQuality, input) {
     var matrPtr = copy3x3MatrixToWasm(matr);
-    var imgF = CanvasKit.SkImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
-
-    freeArraysThatAreNotMallocedByUsers(matrPtr, matr);
-    return imgF;
+    return CanvasKit.SkImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
   }
 
   CanvasKit.SkPaint.prototype.getColor = function() {
-    var cPtr = CanvasKit._malloc(16); // 4 floats, 4 bytes each
-    this._getColor(cPtr);
-    return copyColorFromWasm(cPtr);
+    this._getColor(_scratchColorPtr);
+    return copyColorFromWasm(_scratchColorPtr);
   }
 
   CanvasKit.SkPaint.prototype.setColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     this._setColor(cPtr, colorSpace);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -1175,9 +1163,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.Color = function(color4f, colorSpace) {
     colorSpace = colorSpace || null
-    var cPtr = copy1dArray(color4f, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color4f);
     var result = CanvasKit.SkShader._Color(cPtr, colorSpace);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color4f);
     return result;
   }
 
@@ -1191,7 +1178,6 @@ CanvasKit.onRuntimeInitialized = function() {
     var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
     freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return lgs;
@@ -1207,7 +1193,6 @@ CanvasKit.onRuntimeInitialized = function() {
     var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
     freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
@@ -1227,7 +1212,6 @@ CanvasKit.onRuntimeInitialized = function() {
                                                  startAngle, endAngle, flags,
                                                  localMatrixPtr, colorSpace);
 
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
     freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return sgs;
@@ -1245,7 +1229,6 @@ CanvasKit.onRuntimeInitialized = function() {
                           start, startRadius, end, endRadius,
                           colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr, colorSpace);
 
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
     CanvasKit._free(colorPtr);
     freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
@@ -1272,13 +1255,15 @@ CanvasKit.onRuntimeInitialized = function() {
 // }
 // Returns the same format
 CanvasKit.computeTonalColors = function(tonalColors) {
-    var cPtrAmbi = copy1dArray(tonalColors['ambient'], CanvasKit.HEAPF32);
-    var cPtrSpot = copy1dArray(tonalColors['spot'], CanvasKit.HEAPF32);
+    var cPtrAmbi = copyColorToWasmNoScratch(tonalColors['ambient']);
+    var cPtrSpot = copyColorToWasmNoScratch(tonalColors['spot']);
     this._computeTonalColors(cPtrAmbi, cPtrSpot);
     var result =  {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
     }
+    freeArraysThatAreNotMallocedByUsers(cPtrAmbi);
+    freeArraysThatAreNotMallocedByUsers(cPtrSpot);
     return result;
 }
 

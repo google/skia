@@ -6,9 +6,7 @@ CanvasKit._extraInitializations.push(function() {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
     // Our array has 4 bytes per float, so be sure to account for that before
     // sending it over the wire.
-    var rts = this._makeShader(fptr, floats.length * 4, !!isOpaque, localMatrixPtr);
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
-    return rts;
+    return this._makeShader(fptr, floats.length * 4, !!isOpaque, localMatrixPtr);
   }
 
   // childrenWithShaders is an array of other shaders (e.g. SkImage.makeShader())
@@ -25,9 +23,7 @@ CanvasKit._extraInitializations.push(function() {
     var childrenPointers = copy1dArray(barePointers, CanvasKit.HEAPU32);
     // Our array has 4 bytes per float, so be sure to account for that before
     // sending it over the wire.
-    var rts = this._makeShaderWithChildren(fptr, floats.length * 4, !!isOpaque, childrenPointers,
-                                           barePointers.length, localMatrixPtr);
-    freeArraysThatAreNotMallocedByUsers(localMatrixPtr, localMatrix);
-    return rts;
+    return this._makeShaderWithChildren(fptr, floats.length * 4, !!isOpaque, childrenPointers,
+                                        barePointers.length, localMatrixPtr);
   }
 });

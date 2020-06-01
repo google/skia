@@ -58,9 +58,8 @@ CanvasKit.MakeManagedAnimation = function(json, assets) {
   CanvasKit._extraInitializations.push(function() {
 
   CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
-    var cPtr = copy1dArray(color, CanvasKit.HEAPF32);
+    var cPtr = copyColorToWasm(color);
     this._setColor(key, cPtr);
-    freeArraysThatAreNotMallocedByUsers(cPtr, color);
   }
 
 });
