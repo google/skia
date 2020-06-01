@@ -74,7 +74,7 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
-    return width * SkColorTypeBytesPerPixel(ct);
+    return (size_t)(width * SkColorTypeBytesPerPixel(ct));
 }
 
 static inline bool SkColorTypeIsValid(unsigned value) {
@@ -85,7 +85,7 @@ static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size
     if (kUnknown_SkColorType == ct) {
         return 0;
     }
-    return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
+    return (size_t)y * rowBytes + ((size_t)x << SkColorTypeShiftPerPixel(ct));
 }
 
 static inline bool SkColorTypeIsNormalized(SkColorType ct) {
