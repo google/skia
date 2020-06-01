@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "117bae12_87755559",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T20:24:21Z",
+      "side": 1,
+      "message": "Now that this is inline here, I don\u0027t think you need the lambda?  Just do what it does, and it\u0027d probably be clearer still if you pull it together with the path below that uses readPixels, something like,\n\n   if      (           ct \u003d\u003d  RGB_888x) { src \u003d \u0026pixmap; proc \u003d ImportRGBX; }\n   else if (!premul \u0026\u0026 ct \u003d\u003d RGBA_8888) { src \u003d \u0026pixmap; proc \u003d ImportRGBA; }\n   else if (!premul \u0026\u0026 ct \u003d\u003d BGRA_8888) { src \u003d \u0026pixmap; proc \u003d ImportBGRA; }\n   else {\n      alloc \u0026\u0026 read RGBA_8888\n      src \u003d \u0026tmp\n      proc \u003d ImportRGBA;\n   }\n\n?",
+      "range": {
+        "startLine": 94,
+        "startChar": 9,
+        "endLine": 94,
+        "endChar": 27
+      },
+      "revId": "da06f0363da9e94ae035eee012f982a24613a83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ecd2b9_8a74cd81",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T20:24:21Z",
+      "side": 1,
+      "message": "Same here?  If the pixmap is opaque, ImportRGBA / ImportBGRA should work fine?",
+      "range": {
+        "startLine": 102,
+        "startChar": 67,
+        "endLine": 102,
+        "endChar": 88
+      },
+      "revId": "da06f0363da9e94ae035eee012f982a24613a83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
