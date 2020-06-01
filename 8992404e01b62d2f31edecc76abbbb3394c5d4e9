@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a7eb3bf_a58d9e4e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 14
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-01T14:23:43Z",
+      "side": 1,
+      "message": "why not CanvasKit.Malloc(Float32Array, 4 * 4) here?",
+      "range": {
+        "startLine": 11,
+        "startChar": 21,
+        "endLine": 11,
+        "endChar": 45
+      },
+      "revId": "8992404e01b62d2f31edecc76abbbb3394c5d4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a148e0_73b05ed3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 14
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-01T14:23:43Z",
+      "side": 1,
+      "message": "I don\u0027t see a test that exercises SkImage.MakeShader with the third argument.\nPlease add one.",
+      "range": {
+        "startLine": 817,
+        "startChar": 74,
+        "endLine": 817,
+        "endChar": 85
+      },
+      "revId": "8992404e01b62d2f31edecc76abbbb3394c5d4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
