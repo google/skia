@@ -185,10 +185,7 @@ if (!is_official_build) {
     "//gn:warnings",
   ]
 }
-default_configs += [
-  "//gn:warnings_except_public_headers",
-  "//gn:extra_flags",
-]
+default_configs += [ "//gn:extra_flags" ]
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs

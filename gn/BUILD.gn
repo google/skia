@@ -360,6 +360,7 @@ config("warnings") {
 
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
+      "-Wno-unused-parameter",
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",
@@ -479,11 +480,6 @@ config("warnings") {
   }
   if (!is_win || is_clang) {
     cflags += [ "-Wno-implicit-fallthrough" ]
-  }
-}
-config("warnings_except_public_headers") {
-  if (!is_win || is_clang) {
-    cflags = [ "-Wno-unused-parameter" ]
   }
 }
 
