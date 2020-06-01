@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac5298c7_092db164",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-06-01T18:13:48Z",
+      "side": 1,
+      "message": "This will always allocate a new array. However, for as long as the length of the previously allocated array \u003d\u003d byteLen the old array object can be reused.\n\nI think something like this should work:\n\nvar ta \u003d this[\u0027_typedArray\u0027];\n// Check if the previously allocated array is still usable.\n// If it\u0027s undefined, then we haven\u0027t created an array yet.\n// If it\u0027s empty, then WASM resized memory and emptied the array.\nif (!ta || ta.length \u003d\u003d 0) {\n  ta \u003d new typedArray(CanvasKit.HEAPU8.buffer, ptr, len);\n  ta[\u0027_ck\u0027] \u003d true;\n  // Cache the array for future reuse.\n  this[\u0027_typedArray\u0027] \u003d ta;\n}\nreturn ta;",
+      "revId": "c1fe6c2a013fce0f7042eb35a5e23824f594931e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
