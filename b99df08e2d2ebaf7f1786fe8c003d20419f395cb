@@ -70,6 +70,30 @@
       "revId": "b99df08e2d2ebaf7f1786fe8c003d20419f395cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "258bbc88_3d459cc0",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-01T18:07:20Z",
+      "side": 1,
+      "message": "Done.\n\nSeparately, cleanup CL is now at https://skia-review.googlesource.com/c/skia/+/293250/2",
+      "parentUuid": "48c6ce8e_f543f307",
+      "range": {
+        "startLine": 289,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 1
+      },
+      "revId": "b99df08e2d2ebaf7f1786fe8c003d20419f395cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
