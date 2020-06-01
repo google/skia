@@ -158,6 +158,7 @@ public:
         std::unique_ptr<uint8_t[]> fIntermediateFanIndices;
 
         friend class SkVertices;
+        friend class SkVerticesPriv;
     };
 
     uint32_t uniqueID() const { return fUniqueID; }
@@ -165,18 +166,6 @@ public:
 
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
-
-    /**
-     *  Recreate a vertices from a buffer previously created by calling encode().
-     *  Returns null if the data is corrupt or the length is incorrect for the contents.
-     */
-    static sk_sp<SkVertices> Decode(const void* buffer, size_t length);
-
-    /**
-     *  Pack the vertices object into a byte buffer. This can be used to recreate the vertices
-     *  by calling Decode() with the buffer.
-     */
-    sk_sp<SkData> encode() const;
 
     // Provides access to functions that aren't part of the public API.
     SkVerticesPriv priv();
