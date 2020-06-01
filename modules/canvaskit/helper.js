@@ -366,10 +366,20 @@ function copy4x4MatrixFromWasm(matrPtr) {
 }
 
 var _scratchColorPtr = nullptr;
+var _scratchColor; // the result from CanvasKit.Malloc
 
 function copyColorToWasm(color4f, ptr) {
   // TODO(kjlubick): accept 4 floats or int color
   return copy1dArray(color4f, CanvasKit.HEAPF32, ptr || _scratchColorPtr);
+}
+
+function copyColorComponentsToWasm(r, g, b, a) {
+  var colors = _scratchColor.toTypedArray();
+  colors[0] = r;
+  colors[1] = g;
+  colors[2] = b;
+  colors[3] = a;
+  return _scratchColorPtr;
 }
 
 function copyColorToWasmNoScratch(color4f) {

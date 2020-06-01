@@ -627,12 +627,15 @@ describe('Core canvas behavior', () => {
         const paint = new CanvasKit.SkPaint();
         paint.setColor(CanvasKit.Color4f(3.3, 2.2, 1.1, 0.5));
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
+
+        paint.setColorComponents(0.5, 0.6, 0.7, 0.8);
+        expect(paint.getColor()).toEqual(Float32Array.of(0.5, 0.6, 0.7, 0.8));
     });
 
     gm('draw shadow', (canvas) => {
         const lightRadius = 30;
         const flags = 0;
-        const lightPos = [250,150,300]; 
+        const lightPos = [250,150,300];
         const zPlaneParams = [0,0,1];
         const path = starPath(CanvasKit);
 
