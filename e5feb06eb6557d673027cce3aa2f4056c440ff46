@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d44b945_c0277a86",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "\u003e It\u0027s weird to fail isn\u0027t it?  I\u0027d have thought alpha-only would just promote to RGBA with zero r,g,b? \n\nWe could do that, but that would be a new feature, and I\u0027d rather leave that to a separate change.\n\n\u003e And what\u0027s the story behind unpremul 4444?  Why\u0027s that not work but premul 4444 and unpremul 8888 pass through?\n\nThat\u0027s a good question. I\u0027d thought it was intentional, but digging through the git log there\u0027s no mention of it. Next patch set enables it.\n\n\u003e \n\u003e Let\u0027s at least note why we fail?\n\nDone for alpha.",
+      "parentUuid": "6ad7d79a_c1b5cf0f",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ef7ac0c_599e311a",
         "filename": "src/images/SkWebpEncoder.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d112a7dc_d60d1dcf",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ef7ac0c_599e311a",
+      "range": {
+        "startLine": 121,
+        "startChar": 39,
+        "endLine": 121,
+        "endChar": 57
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d302edc4_5f89d5ad",
         "filename": "src/images/SkWebpEncoder.cpp",
         "patchSetId": 3
@@ -62,6 +110,24 @@
       "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2190f34_60c7fa93",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "Done. No, the import proc does not control how the final webp is encoded.",
+      "parentUuid": "d302edc4_5f89d5ad",
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "beab133c_e900b5ef",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "This test is solely to verify that 4444/unpremul is unsupported. But as stated in my other reply, it\u0027s not obvious we want to keep that behavior. Removing the test.",
+      "parentUuid": "1ab1d954_405932bc",
+      "range": {
+        "startLine": 435,
+        "startChar": 16,
+        "endLine": 435,
+        "endChar": 29
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74a7497b_8beb24fb",
         "filename": "tests/EncodeTest.cpp",
         "patchSetId": 3
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "414b56ae_a7c49e63",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "I suspected there was something like that, but didn\u0027t look in SkImageInfoPriv, and didn\u0027t find it. Done.",
+      "parentUuid": "74a7497b_8beb24fb",
+      "range": {
+        "startLine": 458,
+        "startChar": 8,
+        "endLine": 460,
+        "endChar": 52
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9db4b06_16c82414",
         "filename": "tests/EncodeTest.cpp",
         "patchSetId": 3
@@ -125,6 +239,24 @@
       "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fc3df19_fa0ec471",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-01T20:12:12Z",
+      "side": 1,
+      "message": "\u003e Is this required by Android or something?  I would just expect an RGBA png with r\u003d0,g\u003d0,b\u003d0?\n\nNo, this was something reed@ added for being able to roundtrip SKPs. With our private meaning, we decode back to kAlpha_8_SkColorType, whereas if we created an RGBA PNG it wouldn\u0027t.\n\n\u003e \n\u003e Can\u0027t webp have an alpha channel too?\n\nYes, but we only need to abuse one format for our SKP round-tripping. I think what you suggest is a reasonable feature, but outside the scope of this CL.",
+      "parentUuid": "e9db4b06_16c82414",
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
