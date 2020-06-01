@@ -1407,7 +1407,9 @@ if (skia_enable_tools) {
     if (skia_use_dawn) {
       public_deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
       sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
-      cflags_cc = [ "-Wno-microsoft-cast" ]
+      if (is_clang) {
+        cflags_cc = [ "-Wno-microsoft-cast" ]
+      }
     }
 
     if (is_fuchsia && using_fuchsia_sdk) {
