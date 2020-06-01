@@ -1683,8 +1683,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
-    // Reinflate the compressed picture individually for each thread.
-    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+    // Reinflate the compressed picture.
+    tiles.createSKP(compressedPictureData.get(), promiseImageHelper);
 
     tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
 
@@ -2149,11 +2149,11 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 
             tiles.createBackendTextures(nullptr, context);
 
-            // Second, reinflate the compressed picture individually for each thread
+            // Second, reinflate the compressed picture.
             // This recreates the promise SkImages on each replay iteration. We are currently
             // relying on this to test using a SkPromiseImageTexture to fulfill different
-            // SkImages. On each replay the promise SkImages are recreated in createSKPPerTile.
-            tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+            // SkImages. On each replay the promise SkImages are recreated in createSKP.
+            tiles.createSKP(compressedPictureData.get(), promiseImageHelper);
 
             // Third, create the DDLs in parallel
             tiles.createDDLsInParallel();

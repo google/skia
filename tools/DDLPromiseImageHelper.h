@@ -141,7 +141,7 @@ public:
     void deleteAllFromGPU(SkTaskGroup*, GrContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
+    sk_sp<SkPicture> reinflateSKP(GrContext*,
                                   SkData* compressedPicture,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
 
@@ -254,10 +254,8 @@ private:
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
     };
 
-    // This stack-based context allows each thread to re-inflate the image indices into
-    // promise images while still using the same GrBackendTexture.
-    struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
+    struct DeserialImageProcContext {
+        GrContext*                     fContext;
         const DDLPromiseImageHelper*   fHelper;
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
