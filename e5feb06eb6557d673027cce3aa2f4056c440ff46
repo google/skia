@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ad7d79a_c1b5cf0f",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "It\u0027s weird to fail isn\u0027t it?  I\u0027d have thought alpha-only would just promote to RGBA with zero r,g,b?  And what\u0027s the story behind unpremul 4444?  Why\u0027s that not work but premul 4444 and unpremul 8888 pass through?\n\nLet\u0027s at least note why we fail?",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ef7ac0c_599e311a",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "This might be easier to follow if choose_import_proc were inlined here?",
+      "range": {
+        "startLine": 121,
+        "startChar": 39,
+        "endLine": 121,
+        "endChar": 57
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d302edc4_5f89d5ad",
+        "filename": "src/images/SkWebpEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "Can\u0027t we just always use kRGBA_8888_SkColorType?  If the pixmap is opaque, alpha will be 1.\n\nAnd I\u0027d think that unless the import proc controls how the final webp is encoded (RGB vs RGBA),\nwe could just use WebPPictureImportRGBA all the time too?",
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ab1d954_405932bc",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "Out of curiosity, what makes 4444/unpremul an interesting combo to test compared to any other?  Should we run through all formats here?",
+      "range": {
+        "startLine": 435,
+        "startChar": 16,
+        "endLine": 435,
+        "endChar": 29
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74a7497b_8beb24fb",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "Maybe loop over all of them and use SkColorTypeIsAlphaOnly() so that we pick up any new alpha formats?",
+      "range": {
+        "startLine": 458,
+        "startChar": 8,
+        "endLine": 460,
+        "endChar": 52
+      },
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9db4b06_16c82414",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-01T16:17:48Z",
+      "side": 1,
+      "message": "Is this required by Android or something?   I would just expect an RGBA png with r\u003d0,g\u003d0,b\u003d0?\n\nCan\u0027t webp have an alpha channel too?",
+      "revId": "e5feb06eb6557d673027cce3aa2f4056c440ff46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
