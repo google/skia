@@ -8,7 +8,8 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
-  _scratchColorPtr = CanvasKit._malloc(4 * 4); // 4 32bit floats
+  _scratchColor = CanvasKit.Malloc(Float32Array, 4); // 4 color scalars.
+  _scratchColorPtr = _scratchColor.byteOffset;
 
   _scratch4x4Matrix = CanvasKit.Malloc(Float32Array, 16); // 16 matrix scalars.
   _scratch4x4MatrixPtr = _scratch4x4Matrix.byteOffset;
@@ -1097,6 +1098,26 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
     var cPtr = copyColorToWasm(color4f);
+    this._setColor(cPtr, colorSpace);
+  }
+
+  CanvasKit.SkPaint.prototype.setColorComponents = function(r, g, b, a, colorSpace) {
+    colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
+    // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
+    var cPtr = copyColorComponentsToWasm(r, g, b, a);
+    this._setColor(cPtr, colorSpace);
+  }
+
+  // colorInt is expected to be an integer returned by CanvasKit.ColorAsInt().
+  CanvasKit.SkPaint.prototype.setColorInt = function(colorInt, colorSpace) {
+    colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
+    // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
+    // The >>> keeps the values as unsigned. https://stackoverflow.com/a/14891172
+    var cPtr = copyColorComponentsToWasm(
+      ((colorInt & 0xFF0000) >>> 16) / 255,
+      ((colorInt & 0xFF00) >>> 8) / 255,
+      ((colorInt & 0xFF) >>> 0) / 255,
+      ((colorInt & 0xFF000000) >>> 24) / 255);
     this._setColor(cPtr, colorSpace);
   }
 
