@@ -542,26 +542,26 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
             return true;
         }
 
-        // TODO(herb): this is not needed for full pixel glyph choice, but is needed to adjust
-        //  the quads properly. Devise a system that regenerates the quads from original data
-        //  using the transform to allow this to be used in general.
+        // If the text blob only has full pixel glyphs, then fractional part of the position does
+        // not affect the SkGlyphs used.
+        if (anyRunHasSubpixelPosition) {
+            // We can update the positions in the text blob without regenerating the whole
+            // blob, but only for integer translations.
+            // Calculate the translation in source space to a translation in device space by mapping
+            // (0, 0) through both the initial matrix and the draw matrix; take the difference.
+            SkMatrix initialMatrix{fInitialMatrix};
+            initialMatrix.preTranslate(fInitialOrigin.x(), fInitialOrigin.y());
+            SkPoint initialDeviceOrigin{0, 0};
+            initialMatrix.mapPoints(&initialDeviceOrigin, 1);
+            SkMatrix completeDrawMatrix{drawMatrix};
+            completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+            SkPoint drawDeviceOrigin{0, 0};
+            completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+            SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
 
-        // We can update the positions in the text blob without regenerating the whole
-        // blob, but only for integer translations.
-        // Calculate the translation in source space to a translation in device space by mapping
-        // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-        SkMatrix initialMatrix{fInitialMatrix};
-        initialMatrix.preTranslate(fInitialOrigin.x(), fInitialOrigin.y());
-        SkPoint initialDeviceOrigin{0, 0};
-        initialMatrix.mapPoints(&initialDeviceOrigin, 1);
-        SkMatrix completeDrawMatrix{drawMatrix};
-        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-        SkPoint drawDeviceOrigin{0, 0};
-        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
-        SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
-
-        if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
-            return true;
+            if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
+                return true;
+            }
         }
     } else if (this->hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
