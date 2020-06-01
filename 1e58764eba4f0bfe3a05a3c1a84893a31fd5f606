@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4a4d7668_4793e768",
+        "filename": "src/gpu/GrRingBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-01T15:36:45Z",
+      "side": 1,
+      "message": "Removed. I\u0027ll figure out something when I handle the Metal implementation. It\u0027s a different alignment just for updating the buffer data (the total buffer size needs to be aligned to 16 bytes but when marking a range of a buffer as modified it has to be aligned to 4 bytes).",
+      "parentUuid": "9867cba4_242ee416",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 6
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dcbfcd6_59335368",
         "filename": "src/gpu/GrRingBuffer.h",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6385a93d_d69017fd",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-01T15:36:45Z",
+      "side": 1,
+      "message": "Used now.",
+      "parentUuid": "5dcbfcd6_59335368",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 6
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4af29ca1_2924de49",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-01T15:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37e84220_122de085",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92cfb458_eb058da6",
         "filename": "src/gpu/GrRingBuffer.h",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbc3afb5_5c4deaff",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-01T15:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92cfb458_eb058da6",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 61
+      },
+      "revId": "1e58764eba4f0bfe3a05a3c1a84893a31fd5f606",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
