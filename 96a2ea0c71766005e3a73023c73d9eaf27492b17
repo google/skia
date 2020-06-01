@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "118071f0_c7c9e8fc",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-01T14:30:00Z",
+      "side": 1,
+      "message": "nit: I\u0027d have subsetRect on this line too for wrapping.",
+      "range": {
+        "startLine": 189,
+        "startChar": 59,
+        "endLine": 189,
+        "endChar": 60
+      },
+      "revId": "96a2ea0c71766005e3a73023c73d9eaf27492b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41438c28_6563db18",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-01T14:30:00Z",
+      "side": 1,
+      "message": "We don\u0027t need this parameter, right. It\u0027s always going to be quad.fLocal.bounds(), so we can just compute it inside this function.",
+      "range": {
+        "startLine": 190,
+        "startChar": 63,
+        "endLine": 190,
+        "endChar": 90
+      },
+      "revId": "96a2ea0c71766005e3a73023c73d9eaf27492b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
