@@ -1717,7 +1717,7 @@ public:
         fMat[kMPersp1] = 0;
         fMat[kMPersp2] = 1;
 
-        unsigned mask = 0;
+        int mask = 0;
         if (sx != 1 || sy != 1) {
             mask |= kScale_Mask;
         }
@@ -1761,12 +1761,12 @@ private:
                                      kPerspective_Mask |
                                      kRectStaysRect_Mask;
 
-    SkScalar         fMat[9];
-    mutable uint32_t fTypeMask;
+    SkScalar        fMat[9];
+    mutable int32_t fTypeMask;
 
     constexpr SkMatrix(SkScalar sx, SkScalar kx, SkScalar tx,
                        SkScalar ky, SkScalar sy, SkScalar ty,
-                       SkScalar p0, SkScalar p1, SkScalar p2, uint32_t typeMask)
+                       SkScalar p0, SkScalar p1, SkScalar p2, int typeMask)
         : fMat{sx, kx, tx,
                ky, sy, ty,
                p0, p1, p2}
@@ -1782,18 +1782,18 @@ private:
         SkASSERT(kUnknown_Mask == mask || (mask & kAllMasks) == mask ||
                  ((kUnknown_Mask | kOnlyPerspectiveValid_Mask) & mask)
                  == (kUnknown_Mask | kOnlyPerspectiveValid_Mask));
-        fTypeMask = SkToU8(mask);
+        fTypeMask = mask;
     }
 
     void orTypeMask(int mask) {
         SkASSERT((mask & kORableMasks) == mask);
-        fTypeMask = SkToU8(fTypeMask | mask);
+        fTypeMask |= mask;
     }
 
     void clearTypeMask(int mask) {
         // only allow a valid mask
         SkASSERT((mask & kAllMasks) == mask);
-        fTypeMask = fTypeMask & ~mask;
+        fTypeMask &= ~mask;
     }
 
     TypeMask getPerspectiveTypeMaskOnly() const {

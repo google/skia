@@ -473,7 +473,7 @@ private:
             fReserved = false;
         } else {
             fAllocCount = std::max(count, std::max(kMinHeapAllocCount, reserveCount));
-            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
         }
@@ -523,7 +523,7 @@ private:
     }
     template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
         for (int i = 0; i < fCount; ++i) {
-            new (static_cast<char*>(dst) + sizeof(T) * i) T(std::move(fItemArray[i]));
+            new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
             fItemArray[i].~T();
         }
     }
@@ -569,7 +569,7 @@ private:
 
         fAllocCount = Sk64_pin_to_s32(newAllocCount);
         SkASSERT(fAllocCount >= newCount);
-        T* newItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+        T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);

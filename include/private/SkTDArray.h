@@ -372,7 +372,7 @@ private:
         SkASSERT_RELEASE( SkTFitsIn<int>(reserve) );
 
         fReserve = SkTo<int>(reserve);
-        fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
+        fArray = (T*)sk_realloc_throw(fArray, (size_t)fReserve * sizeof(T));
     }
 };
 

@@ -430,6 +430,10 @@ config("warnings") {
       "-Wno-weak-vtables",
     ]
 
+    # Turn back on after -Wno-conversion.
+    # This only affects public headers... see :warnings_except_public_headers.
+    cflags += [ "-Wsign-conversion" ]
+
     # We are unlikely to want to fix these.
     cflags += [
       "-Wno-covered-switch-default",
@@ -483,7 +487,10 @@ config("warnings") {
 }
 config("warnings_except_public_headers") {
   if (!is_win || is_clang) {
-    cflags = [ "-Wno-unused-parameter" ]
+    cflags = [
+      "-Wno-sign-conversion",
+      "-Wno-unused-parameter",
+    ]
   }
 }
 
