@@ -87,6 +87,9 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "vec";
             }
+            else if (component == *fContext.fDouble_Type) {
+                result = "dvec";
+            }
             else if (component.isSigned()) {
                 result = "ivec";
             }
@@ -107,6 +110,9 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             Type component = type.componentType();
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "mat";
+            }
+            else if (component == *fContext.fDouble_Type) {
+                result = "dmat";
             }
             else {
                 ABORT("unsupported matrix type");
