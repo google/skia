@@ -9,6 +9,8 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Add new SkAlignedDashPathEffect API for aligned path dashing.
+
   * Move SkBitmapRegionDecoder into client_utils/android.
 
   * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
