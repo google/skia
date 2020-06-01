@@ -116,38 +116,6 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fDouble_Type) {
-        switch (rows) {
-            case 1:
-                switch (columns) {
-                    case 2: return *context.fDouble2_Type;
-                    case 3: return *context.fDouble3_Type;
-                    case 4: return *context.fDouble4_Type;
-                    default: ABORT("unsupported vector column count (%d)", columns);
-                }
-            case 2:
-                switch (columns) {
-                    case 2: return *context.fDouble2x2_Type;
-                    case 3: return *context.fDouble3x2_Type;
-                    case 4: return *context.fDouble4x2_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            case 3:
-                switch (columns) {
-                    case 2: return *context.fDouble2x3_Type;
-                    case 3: return *context.fDouble3x3_Type;
-                    case 4: return *context.fDouble4x3_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            case 4:
-                switch (columns) {
-                    case 2: return *context.fDouble2x4_Type;
-                    case 3: return *context.fDouble3x4_Type;
-                    case 4: return *context.fDouble4x4_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            default: ABORT("unsupported row count (%d)", rows);
-        }
     } else if (*this == *context.fInt_Type || *this == *context.fIntLiteral_Type) {
         switch (rows) {
             case 1:
