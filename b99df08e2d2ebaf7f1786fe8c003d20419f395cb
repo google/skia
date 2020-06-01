@@ -46,6 +46,30 @@
       "revId": "b99df08e2d2ebaf7f1786fe8c003d20419f395cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48c6ce8e_f543f307",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-01T17:47:47Z",
+      "side": 1,
+      "message": "Oh, we generally haven\u0027t cared about that level of super consistency, just readability. If there are lots of nested compile time conditionals it\u0027s just nice to have some indentation to make it easier to read instead of just shoving everything opaquely to the left. I\u0027d prefer this to land with some sort of indentation rather rather than have to keep in mind that some later CL is supposed to clean it up (it\u0027s just more to keep track of).",
+      "parentUuid": "16b22866_588b4097",
+      "range": {
+        "startLine": 289,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 1
+      },
+      "revId": "b99df08e2d2ebaf7f1786fe8c003d20419f395cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
