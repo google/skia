@@ -273,7 +273,7 @@ CanvasKit.onRuntimeInitialized = function() {
   // This rotate can be used when you already have the cosAngle and sinAngle values
   // so you don't have to atan(cos/sin) to call roatated() which expects an angle in radians.
   // this does no checking! Behavior for invalid sin or cos values or non-normalized axis vectors
-  // is incorrect. Prefer rotate().
+  // is incorrect. Prefer rotated().
   CanvasKit.SkM44.rotatedUnitSinCos = function(axisVec, sinAngle, cosAngle) {
     var x = axisVec[0];
     var y = axisVec[1];
@@ -620,7 +620,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkPath.prototype.addRoundRect = function() {
     // Takes 3, 4, 6 or 7 args
-    //  - SkRect, radii, ccw
+    //  - SkRect, radii (an array of 8 numbers), ccw
     //  - SkRect, rx, ry, ccw
     //  - left, top, right, bottom, radii, ccw
     //  - left, top, right, bottom, rx, ry, ccw
