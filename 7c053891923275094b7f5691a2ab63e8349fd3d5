@@ -22,6 +22,30 @@
       "revId": "7c053891923275094b7f5691a2ab63e8349fd3d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6174e4b0_bb556556",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-01T20:32:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dabe8ac6_3a456823",
+      "range": {
+        "startLine": 306,
+        "startChar": 47,
+        "endLine": 306,
+        "endChar": 67
+      },
+      "revId": "7c053891923275094b7f5691a2ab63e8349fd3d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
