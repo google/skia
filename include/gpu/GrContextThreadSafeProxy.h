@@ -10,6 +10,8 @@
 
 #include "include/private/GrContext_Base.h"
 
+#include <atomic>
+
 class GrBackendFormat;
 class GrContextThreadSafeProxyPriv;
 struct SkImageInfo;
@@ -19,6 +21,9 @@ class SkSurfaceProps;
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
+ *
+ * TODO: Once the guts of GrContext_Base are moved in here, this probably shouldn't derive
+ * from GrContext_Base since it isn't actually a context.
  */
 class SK_API GrContextThreadSafeProxy : public GrContext_Base {
 public:
@@ -89,6 +94,10 @@ public:
     GrContextThreadSafeProxyPriv priv();
     const GrContextThreadSafeProxyPriv priv() const;
 
+protected:
+    // TODO: remove this once this class isn't derived from GrContext_Base
+    GrContextThreadSafeProxy* asThreadSafeProxy() override { return this; }
+
 private:
     friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods
 
@@ -96,6 +105,11 @@ private:
     GrContextThreadSafeProxy(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
     bool init(sk_sp<const GrCaps>) override;
+
+    void abandonContext();
+    bool abandoned() const;
+
+    std::atomic<bool> fAbandoned{false};
 
     typedef GrContext_Base INHERITED;
 };

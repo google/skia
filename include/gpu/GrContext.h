@@ -697,8 +697,6 @@ protected:
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
-
 private:
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call

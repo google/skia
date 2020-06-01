@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
@@ -33,8 +34,10 @@ GrContext_Base::~GrContext_Base() { }
 
 bool GrContext_Base::init(sk_sp<const GrCaps> caps) {
     SkASSERT(caps);
+    // We either are a thread safe proxy and we don't have one, or we aren't and we do.
+    SkASSERT((nullptr == this->asThreadSafeProxy()) != (nullptr == fThreadSafeProxy));
 
-    fCaps = caps;
+    fCaps = std::move(caps);
     return true;
 }
 
