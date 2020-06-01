@@ -581,20 +581,22 @@ public:
 
         @return  width() times bytesPerPixel() as unsigned 64-bit integer
     */
-    uint64_t minRowBytes64() const { return sk_64_mul(this->width(), this->bytesPerPixel()); }
+    uint64_t minRowBytes64() const {
+        return (uint64_t)sk_64_mul(this->width(), this->bytesPerPixel());
+    }
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
         specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
         in 31 bits.
 
-        @return  width() times bytesPerPixel() as signed 32-bit integer
+        @return  width() times bytesPerPixel() as size_t
     */
     size_t minRowBytes() const {
         uint64_t minRowBytes = this->minRowBytes64();
         if (!SkTFitsIn<int32_t>(minRowBytes)) {
             return 0;
         }
-        return SkTo<int32_t>(minRowBytes);
+        return (size_t)minRowBytes;
     }
 
     /** Returns byte offset of pixel from pixel base address.
