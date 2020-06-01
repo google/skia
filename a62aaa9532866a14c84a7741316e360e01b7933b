@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8bee91c_3cd427f3",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-01T16:53:10Z",
+      "side": 1,
+      "message": "In some sense the flush part of this call is unnecessary since the asyncReadPixels does flush itself. This should trigger any extra work to be flushed since there should be anything left on the surface, but does require a few function calls for use to get there.\n\nIt is a test here so obviously it doesn\u0027t need to be perfect, but if a client were to try to implement similar code would we recommend them to just call submit cause they can assume the async call flushed work, or should a client assume they need to flush and submit to be safe?",
+      "range": {
+        "startLine": 951,
+        "startChar": 17,
+        "endLine": 951,
+        "endChar": 30
+      },
+      "revId": "a62aaa9532866a14c84a7741316e360e01b7933b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
