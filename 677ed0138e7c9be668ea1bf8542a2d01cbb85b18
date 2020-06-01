@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ada03fc_6f85f79d",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-01T11:18:28Z",
+      "side": 1,
+      "message": "either:\nelse {\n  switch (...) {\n\n  }\n}\n\nor \nconst sKeyCode \u003d \u0027s\u0027.charCodeAt(0)\n...\nelse if (event.keyCode \u003d\u003d\u003d sKeyCode) {\n  ...\n}",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 34
+      },
+      "revId": "677ed0138e7c9be668ea1bf8542a2d01cbb85b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a6aa534_b8561dbc",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-01T11:18:28Z",
+      "side": 1,
+      "message": "I just realized this is doing (ugly) string coercion. Please change this to event.keyCode \u003d\u003d\u003d 38 (and maybe use constants).",
+      "range": {
+        "startLine": 107,
+        "startChar": 24,
+        "endLine": 107,
+        "endChar": 31
+      },
+      "revId": "677ed0138e7c9be668ea1bf8542a2d01cbb85b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57be3aa5_098b1823",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-01T11:18:28Z",
+      "side": 1,
+      "message": "Suggestion: I would probably use an arrow function and a closure here, for cleanness of code.",
+      "range": {
+        "startLine": 202,
+        "startChar": 29,
+        "endLine": 202,
+        "endChar": 39
+      },
+      "revId": "677ed0138e7c9be668ea1bf8542a2d01cbb85b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
