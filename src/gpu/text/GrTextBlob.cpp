@@ -351,10 +351,10 @@ GrGlyph* GrTextBlob::SubRun::grGlyph(int i) const {
     return fVertexData[i].glyph.grGlyph;
 }
 
-void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
-bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
-void GrTextBlob::SubRun::setAntiAliased(bool antiAliased) { fFlags.antiAliased = antiAliased; }
-bool GrTextBlob::SubRun::isAntiAliased() const { return fFlags.antiAliased; }
+void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
+bool GrTextBlob::SubRun::hasUseLCDText() const { return fUseLCDText; }
+void GrTextBlob::SubRun::setAntiAliased(bool antiAliased) { fAntiAliased = antiAliased; }
+bool GrTextBlob::SubRun::isAntiAliased() const { return fAntiAliased; }
 const SkStrikeSpec& GrTextBlob::SubRun::strikeSpec() const { return fStrikeSpec; }
 
 auto GrTextBlob::SubRun::MakePaths(
