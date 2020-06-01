@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dabe8ac6_3a456823",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-01T19:29:21Z",
+      "side": 1,
+      "message": "This seems to break old pictures? (\u0027safe\u0027 will be false if someone stuck a StrokeAndFill in there before?) I think we want the old enum value to maybe map to Fill?",
+      "range": {
+        "startLine": 306,
+        "startChar": 47,
+        "endLine": 306,
+        "endChar": 67
+      },
+      "revId": "7c053891923275094b7f5691a2ab63e8349fd3d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
