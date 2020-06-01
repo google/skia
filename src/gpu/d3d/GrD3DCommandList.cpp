@@ -200,7 +200,8 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentVertexStride(0)
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
-    , fCurrentIndexBuffer(nullptr) {
+    , fCurrentIndexBuffer(nullptr)
+    , fCurrentConstantRingBuffer(nullptr) {
 }
 
 void GrD3DDirectCommandList::onReset() {
@@ -210,12 +211,26 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
+    if (fCurrentConstantRingBuffer) {
+        fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
+        fCurrentConstantRingBuffer = nullptr;
+    }
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
     fCommandList->SetPipelineState(pipelineState->pipelineState());
     this->addResource(std::move(pipelineState));
+}
+
+void GrD3DDirectCommandList::setCurrentConstantBuffer(
+        const sk_sp<GrD3DConstantRingBuffer>& constantBuffer) {
+    fCurrentConstantRingBuffer = constantBuffer.get();
+    if (fCurrentConstantRingBuffer) {
+        fConstantRingBufferSubmitData = constantBuffer->startSubmit();
+        this->addResource(
+                static_cast<GrD3DBuffer*>(fConstantRingBufferSubmitData.buffer())->resource());
+    }
 }
 
 void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {

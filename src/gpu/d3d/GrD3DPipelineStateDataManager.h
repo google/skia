@@ -13,6 +13,9 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrSPIRVUniformHandler.h"
 
+class GrD3DConstantRingBuffer;
+class GrD3DGpu;
+
 class GrD3DPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrSPIRVUniformHandler::UniformInfoArray UniformInfoArray;
@@ -20,9 +23,11 @@ public:
     GrD3DPipelineStateDataManager(const UniformInfoArray&,
                                   uint32_t uniformSize);
 
-    // TODO: upload to uniform buffer
+    D3D12_GPU_VIRTUAL_ADDRESS uploadConstants(GrD3DGpu* gpu);
 
 private:
+    D3D12_GPU_VIRTUAL_ADDRESS fConstantBufferAddress;
+
     typedef GrUniformDataManager INHERITED;
 };
 

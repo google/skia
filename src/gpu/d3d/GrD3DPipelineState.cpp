@@ -42,7 +42,7 @@ GrD3DPipelineState::GrD3DPipelineState(
     , fVertexStride(vertexStride)
     , fInstanceStride(instanceStride) {}
 
-void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
+void GrD3DPipelineState::setData(GrD3DGpu* gpu, const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
@@ -62,6 +62,9 @@ void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
         fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
                                 dstTexture, offset);
     }
+
+    // TODO: use returned virtual address to create a CBV and set in command list
+    (void) fDataManager.uploadConstants(gpu);
 }
 
 void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {

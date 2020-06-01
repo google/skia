@@ -160,7 +160,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         return false;
     }
 
-    fCurrentPipelineState->setData(fRenderTarget, info);
+    fCurrentPipelineState->setData(fGpu, fRenderTarget, info);
     fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
 
