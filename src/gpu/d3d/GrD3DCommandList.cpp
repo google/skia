@@ -347,6 +347,11 @@ void GrD3DDirectCommandList::setRenderTarget(GrD3DRenderTarget * renderTarget) {
     fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, nullptr);
 }
 
+void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
+        unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+    fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(ID3D12Device* device) {
