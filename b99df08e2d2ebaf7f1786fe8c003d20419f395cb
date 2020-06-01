@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6606bb97_f1070cd2",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-01T17:15:31Z",
+      "side": 1,
+      "message": "Since this file (and the pre and post config headers) have so many nested pre-processor blocks we\u0027ve taken to using the format\n\n    #ifndef SK_ABORT\n    #  ifdef SK_BUILD_FOR_WIN\n    #    define BLAH\n    #  else\n    #    define BLAH\n    #  endif\n    #  define FOO\n    #endif\n\nso that we have some indentation to help guide reading.",
+      "range": {
+        "startLine": 289,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 1
+      },
+      "revId": "b99df08e2d2ebaf7f1786fe8c003d20419f395cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
