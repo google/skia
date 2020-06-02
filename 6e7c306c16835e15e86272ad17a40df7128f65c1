@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "99677c8a_aef0826a",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-06-02T18:06:58Z",
+      "side": 1,
+      "message": "If emscripten is inserting overhead to passing arguments, we should look into it.",
+      "parentUuid": "246b5d58_741c3cd0",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d1b86c7_af00c22d",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 4
