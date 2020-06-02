@@ -9,6 +9,9 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Add VkSharingMode field to GrVkImageInfo.
+    https://review.skia.org/293559
+
   * Move SkBitmapRegionDecoder into client_utils/android.
 
   * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.

@@ -486,6 +486,7 @@ static GrBackendTexture make_vk_backend_texture(
     // "foreign" device we can leave them as external.
     imageInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
     imageInfo.fYcbcrConversionInfo = *ycbcrConversion;
+    imageInfo.fSharingMode = imageCreateInfo.sharingMode;
 
     *deleteProc = delete_vk_image;
     *updateProc = update_vk_image;
