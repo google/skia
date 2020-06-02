@@ -353,6 +353,7 @@ public:
     const T* data() const { return fItemArray; }
     size_t size() const { return (size_t)fCount; }
     void resize(size_t count) { this->resize_back((int)count); }
+    void clear() { this->reset(); }
 
    /**
      * Get the i^th element.
