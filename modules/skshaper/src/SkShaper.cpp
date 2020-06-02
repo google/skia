@@ -21,6 +21,7 @@
 #include <locale>
 #include <string>
 #include <utility>
+#include <SkICUInterface.h>
 
 std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
@@ -35,8 +36,9 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    auto icu = SkICUInterface_MakeICU();
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeIcuBiDiRunIterator(utf8, utf8Bytes, bidiLevel);
+        SkShaper::MakeIcuBiDiRunIterator(icu.get(), utf8, utf8Bytes, bidiLevel);
     if (bidi) {
         return bidi;
     }
