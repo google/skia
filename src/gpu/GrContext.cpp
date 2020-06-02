@@ -48,8 +48,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t contextID)
-        : INHERITED(backend, options, contextID) {
+GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
 }
@@ -103,8 +102,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
     return true;
 }
 
-sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    return fThreadSafeProxy;
+const sk_sp<GrContextThreadSafeProxy>& GrContext::threadSafeProxy() {
+    return INHERITED::threadSafeProxy();
 }
 
 //////////////////////////////////////////////////////////////////////////////
