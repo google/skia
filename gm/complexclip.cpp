@@ -224,7 +224,9 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
 
     canvas->save();
     canvas->translate(img->width() + 10, 0);
+    canvas->rotate(15.f); // rotate the clip, not the draw
     canvas->clipShader(sh, SkClipOp::kIntersect);
+    canvas->rotate(-15.f); // can't do a save/restore, since we lose the clip shader...
     p.setColor(SK_ColorRED);
     canvas->drawRect(r, p);
     canvas->restore();
@@ -233,15 +235,20 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     canvas->translate(0, img->height() + 10);
     canvas->clipShader(sh, SkClipOp::kDifference);
     p.setColor(SK_ColorGREEN);
+    canvas->save();
+    canvas->rotate(15.f); // rotate the draw, not the clip
     canvas->drawRect(r, p);
+    canvas->restore();
     canvas->restore();
 
     canvas->save();
     canvas->translate(img->width() + 10, img->height() + 10);
+    canvas->scale(2.f, 2.f);
     canvas->clipShader(sh, SkClipOp::kIntersect);
     canvas->save();
     SkMatrix lm = SkMatrix::Scale(1.0f/5, 1.0f/5);
     canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm));
+    canvas->scale(0.5f, 0.5f);
     canvas->drawImage(img, 0, 0, nullptr);
 
     canvas->restore();
