@@ -54,6 +54,7 @@ public:
 
     void reset(SkISize initialSize, const GrCaps& desc);
 
+    int maxAtlasSize() const { return fMaxAtlasSize; }
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
     bool isInstantiated() const { return fTextureProxy->isInstantiated(); }
     int currentWidth() const { return fWidth; }

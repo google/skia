@@ -1140,4 +1140,7 @@
 /** GL_NV_fence_sync */
 #define GR_GL_ALL_COMPLETED                                 0x84F2
 
+/* Tessellation */
+#define GR_GL_MAX_TESS_GEN_LEVEL_OES                        0x8E7E
+
 #endif
