@@ -87,6 +87,28 @@ describe('Basic Canvas ops', () => {
         benchmarkAndReport('paint_setColor_getColor', setup, test, teardown);
     });
 
+    it('can set the color to a paint by components', () => {
+        function setup(ctx) {
+            ctx.paint = new CanvasKit.SkPaint();
+        };
+
+        function test(ctx) {
+            const r = Math.random();
+            const g = Math.random();
+            const b = Math.random();
+            const a = Math.random();
+            for (let i = 0; i < 10000; i++) {
+                ctx.paint.setColorComponents(r, g, b, a);
+            }
+        };
+
+        function teardown(ctx) {
+            ctx.paint.delete();
+        };
+
+        benchmarkAndReport('paint_setColorComponents', setup, test, teardown);
+    });
+
     it('can draw a shadow with tonal colors', () => {
         function setup(ctx) {
             ctx.surface = CanvasKit.MakeCanvasSurface('test');
