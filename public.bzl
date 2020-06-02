@@ -2,39 +2,27 @@
 # Skylark macros
 ################################################################################
 
-is_bazel = not hasattr(native, "genmpm")
-
-def portable_select(select_dict, bazel_condition, default_condition):
-    """Replaces select() with a Bazel-friendly wrapper.
-
-    Args:
-      select_dict: Dictionary in the same format as select().
-    Returns:
-      If Blaze platform, returns select() using select_dict.
-      If Bazel platform, returns dependencies for condition
-          bazel_condition, or empty list if none specified.
-    """
-    if is_bazel:
-        return select_dict.get(bazel_condition, select_dict[default_condition])
-    else:
-        return select(select_dict)
-
 def skia_select(conditions, results):
-    """Replaces select() for conditions [UNIX, ANDROID, IOS, WASM]
+    """select() for conditions provided externally.
+
+    Instead of {"conditionA": resultA, "conditionB": resultB},
+    this takes two arrays, ["conditionA", "conditionB"] and [resultA, resultB].
+
+    This allows the exact targets of the conditions to be provided externally while
+    the results can live here, hiding the structure of those conditions in Google3.
+
+    Maybe this is too much paranoia?
 
     Args:
-      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM]
-      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM]
+      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM, ...]
+      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM, ....]
     Returns:
-      The result matching the platform condition.
+      The result matching the active condition.
     """
-    if len(conditions) != 4 or len(results) != 4:
-        fail("Must provide exactly 4 conditions and 4 results")
-
     selector = {}
-    for i in range(4):
+    for i in range(len(conditions)):
         selector[conditions[i]] = results[i]
-    return portable_select(selector, conditions[2], conditions[0])
+    return select(selector)
 
 def skia_glob(srcs):
     """Replaces glob() with a version that accepts a struct.
