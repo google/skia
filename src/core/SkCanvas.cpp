@@ -1666,6 +1666,7 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
                 this->clipRect({0,0,0,0});
             }
         } else {
+            this->checkForDeferredSave();
             this->onClipShader(std::move(sh), op);
         }
     }

@@ -19,6 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "src/core/SkClipOpPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -260,5 +261,32 @@ DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
     // now draw a layer with the same image, and watch it get restored w/ the clip
     canvas->saveLayer(&r, nullptr);
     canvas->drawColor(0xFFFF0000);
+    canvas->restore();
+}
+
+DEF_SIMPLE_GM(clip_shader_nested, canvas, 256, 256) {
+    float w = 64.f;
+    float h = 64.f;
+
+    const SkColor gradColors[] = {SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)};
+    auto s = SkGradientShader::MakeRadial({0.5f * w, 0.5f * h}, 0.1f * w, gradColors, nullptr,
+                                            2, SkTileMode::kRepeat, 0, nullptr);
+
+    SkPaint p;
+
+    // A large black rect affected by two gradient clips
+    canvas->save();
+    canvas->clipShader(s);
+    canvas->scale(2.f, 2.f);
+    canvas->clipShader(s);
+    canvas->drawRect(SkRect::MakeWH(w, h), p);
+    canvas->restore();
+
+    canvas->translate(0.f, 2.f * h);
+
+    // A small red rect, with no clipping
+    canvas->save();
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::MakeWH(w, h), p);
     canvas->restore();
 }
