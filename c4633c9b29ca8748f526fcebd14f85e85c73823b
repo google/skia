@@ -22,6 +22,30 @@
       "revId": "c4633c9b29ca8748f526fcebd14f85e85c73823b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4efc206_2c5438d3",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-02T15:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "898c0057_02319c20",
+      "range": {
+        "startLine": 29,
+        "startChar": 81,
+        "endLine": 29,
+        "endChar": 94
+      },
+      "revId": "c4633c9b29ca8748f526fcebd14f85e85c73823b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
