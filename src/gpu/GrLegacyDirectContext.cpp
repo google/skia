@@ -40,7 +40,7 @@ static const bool kDefaultReduceOpsTaskSplitting = false;
 class GrLegacyDirectContext : public GrContext {
 public:
     GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
-            : INHERITED(backend, options)
+            : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
             , fAtlasManager(nullptr) {
     }
 
@@ -74,12 +74,8 @@ public:
 protected:
     bool init(sk_sp<const GrCaps> caps) override {
         SkASSERT(caps);
-        SkASSERT(!fThreadSafeProxy);
 
-        fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
-                                                              this->options(),
-                                                              this->contextID(),
-                                                              caps);
+        fThreadSafeProxy->priv().init(caps);
 
         if (!INHERITED::init(std::move(caps))) {
             return false;
@@ -93,8 +89,6 @@ protected:
         }
 
         this->setupDrawingManager(true, reduceOpsTaskSplitting);
-
-        SkASSERT(this->caps());
 
         GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
         if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
