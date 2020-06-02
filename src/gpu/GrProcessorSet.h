@@ -148,6 +148,9 @@ public:
     static const GrProcessorSet& EmptySet();
     static GrProcessorSet MakeEmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
+    // For when you have a clip that may add coverage FPs, but the draw has no color FPs or XPs
+    static const Analysis EmptySetAnalysis(const GrProcessorAnalysisCoverage,
+                                           const GrAppliedClip* clip);
 
 #ifdef SK_DEBUG
     SkString dumpProcessors() const;

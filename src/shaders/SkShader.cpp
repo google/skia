@@ -53,6 +53,8 @@ SkShaderBase::totalLocalMatrix(const SkMatrix* preLocalMatrix) const {
         m.writable()->preConcat(*preLocalMatrix);
     }
 
+    SkDebugf("total local matrix\n");
+    m->dump();
     return m;
 }
 

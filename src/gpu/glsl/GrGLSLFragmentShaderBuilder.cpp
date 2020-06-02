@@ -185,7 +185,10 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                   transform.c_str());
                 break;
             case kFloat3x3_GrSLType:
-                this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n", transform.c_str());
+                this->codeAppend("{\n");
+                this->codeAppendf("float3 _coords3 = (%s * _coords.xy1);\n", transform.c_str());
+                this->codeAppend("_coords = _coords3.xy / _coords3.z;\n");
+                this->codeAppend("}\n");
                 break;
             default:
                 SkASSERT(transform.getType() == kVoid_GrSLType);
@@ -195,8 +198,9 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
             SkASSERT(!hasVariableMatrix);
             this->codeAppend("{\n");
             args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);
-            this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
+            this->codeAppendf("float3 _coords3 = (%s * _coords.xy1);\n",
                               args.fFp.sampleMatrix().fExpression.c_str());
+            this->codeAppend("_coords = _coords3.xy / _coords3.z;\n");
             this->codeAppend("}\n");
         }
     }

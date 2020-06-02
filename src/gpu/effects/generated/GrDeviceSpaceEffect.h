@@ -17,17 +17,19 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrDeviceSpaceEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp)));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                     const SkMatrix& matrix = SkMatrix::I()) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp), matrix));
     }
     GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DeviceSpaceEffect"; }
     int fp_index = -1;
+    SkMatrix matrix;
 
 private:
-    GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
-            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags) {
+    GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp, SkMatrix matrix)
+            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
         SkASSERT(fp);
         fp_index = this->numChildProcessors();
         fp->setSampledWithExplicitCoords();

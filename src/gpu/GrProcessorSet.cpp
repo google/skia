@@ -160,6 +160,32 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
     return thisXP.isEqual(thatXP);
 }
 
+const GrProcessorSet::Analysis GrProcessorSet::EmptySetAnalysis(
+        const GrProcessorAnalysisCoverage coverageInput, const GrAppliedClip* clip) {
+    if (!clip || !clip->numClipCoverageFragmentProcessors()) {
+        return EmptySetAnalysis();
+    }
+
+    // Have clip coverage FPs that should be incorporated into the op' analysis
+    GrProcessorSet::Analysis analysis;
+    SkASSERT(!analysis.fHasColorFragmentProcessor);
+
+    analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
+
+    bool coverageUsesLocalCoords = false;
+    bool coverageAsAlpha = true;
+    for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
+        const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
+        coverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
+        coverageUsesLocalCoords |= clipFP->usesLocalCoords();
+    }
+
+    analysis.fCompatibleWithCoverageAsAlpha = coverageAsAlpha;
+    analysis.fUsesLocalCoords = coverageUsesLocalCoords;
+    analysis.fIsInitialized = true;
+    return analysis;
+}
+
 GrProcessorSet::Analysis GrProcessorSet::finalize(
         const GrProcessorAnalysisColor& colorInput, const GrProcessorAnalysisCoverage coverageInput,
         const GrAppliedClip* clip, const GrUserStencilSettings* userStencil,

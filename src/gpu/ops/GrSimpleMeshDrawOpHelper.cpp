@@ -101,7 +101,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
             *geometryColor = overrideColor;
         }
     } else {
-        analysis = GrProcessorSet::EmptySetAnalysis();
+        analysis = GrProcessorSet::EmptySetAnalysis(); //(geometryCoverage, clip);
     }
     fUsesLocalCoords = analysis.usesLocalCoords();
     fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();

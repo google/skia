@@ -19,6 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "src/core/SkClipOpPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -223,7 +224,9 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
 
     canvas->save();
     canvas->translate(img->width() + 10, 0);
+    canvas->rotate(15.f); // rotate the clip, not the draw
     canvas->clipShader(sh, SkClipOp::kIntersect);
+    canvas->rotate(-15.f); // can't do a save/restore, since we lose the clip shader...
     p.setColor(SK_ColorRED);
     canvas->drawRect(r, p);
     canvas->restore();
@@ -232,15 +235,20 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     canvas->translate(0, img->height() + 10);
     canvas->clipShader(sh, SkClipOp::kDifference);
     p.setColor(SK_ColorGREEN);
+    canvas->save();
+    canvas->rotate(15.f); // rotate the draw, not the clip
     canvas->drawRect(r, p);
+    canvas->restore();
     canvas->restore();
 
     canvas->save();
     canvas->translate(img->width() + 10, img->height() + 10);
+    canvas->scale(2.f, 2.f);
     canvas->clipShader(sh, SkClipOp::kIntersect);
     canvas->save();
     SkMatrix lm = SkMatrix::Scale(1.0f/5, 1.0f/5);
     canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm));
+    canvas->scale(0.5f, 0.5f);
     canvas->drawImage(img, 0, 0, nullptr);
 
     canvas->restore();
@@ -261,4 +269,188 @@ DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
     canvas->saveLayer(&r, nullptr);
     canvas->drawColor(0xFFFF0000);
     canvas->restore();
+}
+
+DEF_SIMPLE_GM(clip_shader_persp, canvas, 430, 320) {
+    SkFont font(ToolUtils::create_portable_typeface(), 12);
+    SkPaint textPaint;
+    textPaint.setAntiAlias(true);
+
+    auto drawBanner = [&](bool drawPersp, bool clipImgPersp, bool clipGradPersp, bool clipLM) {
+        SkString banner;
+        banner.printf("DrawImage Persp: %d", drawPersp);
+        canvas->drawString(banner.c_str(), 20.f, -50.f, font, textPaint);
+        banner.printf("ClipImage Persp: %d, w/ LM: %d", clipImgPersp, clipLM);
+        canvas->drawString(banner.c_str(), 20.f, -40.f, font, textPaint);
+        banner.printf("ClipGrad Persp:  %d, w/ LM: %d", clipGradPersp, clipLM);
+        canvas->drawString(banner.c_str(), 20.f, -30.f, font, textPaint);
+    };
+
+    auto img = GetResourceAsImage("images/yellow_rose.png");
+    SkMatrix scale = SkMatrix::Scale(1.f / 10.f, 1.f / 10.f);
+    auto imgShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &scale);
+
+    const SkColor gradColors[] = {SK_ColorBLACK, SK_ColorTRANSPARENT};
+    auto gradShader = SkGradientShader::MakeRadial({0.5f * img->width(), 0.5f * img->height()},
+                                                    0.1f * img->width(), gradColors, nullptr, 2,
+                                                    SkTileMode::kRepeat);
+
+    SkPoint src[4];
+    SkRect::Make(img->dimensions()).toQuad(src);
+    SkPoint dst[4] = {{0, 10.f},
+                      {img->width() + 28.f, -100.f},
+                      {img->width() - 28.f, img->height() + 100.f},
+                      {0.f, img->height() - 10.f}};
+    SkMatrix persp;
+    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+    SkIRect grid = persp.mapRect(SkRect::Make(img->dimensions())).roundOut();
+
+
+    persp.dump();
+    // Manual adjustments to grid size given contents of image to make them pack denser
+    // grid.fBottom -= 80;
+    grid.fLeft -= 20;
+
+    canvas->translate(10.f, 10.f);
+
+    // The canvas has no perspective
+    canvas->save();
+    canvas->translate(-grid.fLeft, -grid.fTop);
+    drawBanner(/*draw*/ false, /*clipImg*/ false, /*clipGrad*/ false, /*localMat*/ false);
+    canvas->clipShader(imgShader);
+    canvas->clipShader(gradShader);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0);
+    canvas->restore();
+
+    // The canvas has perspective before clipShader is called
+    canvas->save();
+    canvas->translate(-grid.fLeft + grid.width(), -grid.fTop);
+    drawBanner(/*draw*/ true, /*clipImg*/ true, /*clipGrad*/ true, /*localMat*/ false);
+    canvas->concat(persp);
+    canvas->clipShader(imgShader);
+    canvas->clipShader(gradShader);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->restore();
+
+    // The canvas has perspective between clipShader calls, clip image w/ perspective
+    canvas->save();
+    canvas->translate(-grid.fLeft + 2.f * grid.width(), -grid.fTop);
+    drawBanner(/*draw*/ true, /*clipImg*/ true, /*clipGrad*/ false, /*localMat*/ false);
+    canvas->clipShader(gradShader);
+    canvas->concat(persp);
+    canvas->clipShader(imgShader);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->restore();
+
+    // The canvas has perspective between clipShader calls, gradient w/ perspective
+    canvas->save();
+    canvas->translate(-grid.fLeft, -grid.fTop + grid.height());
+    drawBanner(/*draw*/ true, /*clipImg*/ false, /*clipGrad*/ true, /*localMat*/ false);
+    canvas->clipShader(imgShader);
+    canvas->concat(persp);
+    canvas->clipShader(gradShader);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->restore();
+
+    // The gradient shader has a perspective local matrix
+    canvas->save();
+    canvas->translate(-grid.fLeft + grid.width(), -grid.fTop + grid.height());
+    drawBanner(/*draw*/ true, /*clipImg*/ false, /*clipGrad*/ true, /*localMat*/ true);
+    canvas->clipShader(imgShader);
+    canvas->clipShader(gradShader->makeWithLocalMatrix(persp));
+    canvas->concat(persp);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->restore();
+
+    // The image shader has a perspective local matrix
+    canvas->save();
+    canvas->translate(-grid.fLeft + 2.f * grid.width(), -grid.fTop + grid.height());
+    drawBanner(/*draw*/ true, /*clipImg*/ true, /*clipGrad*/ false, /*localMat*/ true);
+    // makeWithLocalMatrix is a pre-concat, if passed persp to the existing imgShader, we'd end up
+    // evaluating S * P, whereas this samples the P * S that we want.
+    canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &persp)->makeWithLocalMatrix(scale));
+    canvas->clipShader(gradShader);
+    canvas->concat(persp);
+    canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->restore();
+
+    // Draw groups around the test images that should match (i.e. the local matrix variant should
+    // come out the same as its CTM variant).
+    SkPaint groupPaint;
+    groupPaint.setColor(SK_ColorGRAY);
+    groupPaint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(SkRect::MakeXYWH(0.f, grid.height(), 2.f * grid.width(), grid.height()).makeInset(2.f, 0.f), groupPaint);
+    canvas->drawRect(SkRect::MakeXYWH(2.f * grid.width(), 0.f, grid.width(), 2.f * grid.height()).makeInset(2.f, 0.f), groupPaint);
+}
+
+DEF_SIMPLE_GM(img_shader_persp, canvas, 542, 128) {
+    auto image = GetResourceAsImage("images/yellow_rose.png");
+
+    SkBitmap downsized;
+    downsized.allocPixels(image->imageInfo().makeWH(128, 128));
+    image->scalePixels(downsized.pixmap(), kLow_SkFilterQuality);
+    image = SkImage::MakeFromBitmap(downsized);
+    SkRect imgRect = SkRect::MakeIWH(image->width(), image->height());
+
+    // scale matrix
+    SkMatrix scale = SkMatrix::Scale(1.f / 5.f, 1.f / 5.f);
+
+    // perspective matrix
+    SkPoint src[4];
+    imgRect.toQuad(src);
+    SkPoint dst[4] = {{0, 10.f},
+                      {image->width() + 28.f, -100.f},
+                      {image->width() - 28.f, image->height() + 100.f},
+                      {0.f, image->height() - 10.f}};
+    SkMatrix persp;
+    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+
+    // combined persp * scale
+    SkMatrix perspScale = SkMatrix::Concat(persp, scale);
+
+    auto draw = [&](sk_sp<SkShader> shader, bool applyPerspToCTM) {
+        canvas->save();
+        canvas->clipRect(imgRect);
+        if (applyPerspToCTM) {
+            canvas->concat(persp);
+        }
+        SkPaint imgShaderPaint;
+        imgShaderPaint.setShader(std::move(shader));
+        canvas->drawPaint(imgShaderPaint);
+        canvas->restore();
+
+        canvas->translate(10.f + image->width(), 0.f); // advance
+    };
+
+    // 3 variants that all attempt to apply sample at persp * scale
+    // 1. scale provided to SkImage::makeShader(...) but drawn with persp
+    auto s1 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &scale);
+    draw(s1, true);
+
+    // 2. persp provided to SkImage::makeShader, then wrapped in scale makeWithLocalMatrix
+    // These pre-concat, so it ends up as persp * scale.
+    auto s2 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &persp)
+                   ->makeWithLocalMatrix(scale);
+    draw(s2, false);
+
+    // 3. Providing pre-computed persp*scale to SkImage::makeShader()
+    auto s3 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &perspScale);
+    draw(s3, false);
+
+    // 4. Providing pre-computed persp*scale to makeWithLocalMatrix
+    auto s4 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat)
+                   ->makeWithLocalMatrix(perspScale);
+   draw(s4, false);
 }

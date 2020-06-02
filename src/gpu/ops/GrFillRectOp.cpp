@@ -103,10 +103,10 @@ public:
         // need them after analysis is finished. If the paint is known to be solid up front they
         // can be skipped entirely.
         fQuads.append(quad->fDevice, {paintColor, quad->fEdgeFlags},
-                      fHelper.isTrivial() ? nullptr : &quad->fLocal);
+                      false && fHelper.isTrivial() ? nullptr : &quad->fLocal);
         if (count > 1) {
             fQuads.append(extra.fDevice, { paintColor, extra.fEdgeFlags },
-                          fHelper.isTrivial() ? nullptr : &extra.fLocal);
+                          false && fHelper.isTrivial() ? nullptr : &extra.fLocal);
         }
     }
 
@@ -275,7 +275,7 @@ private:
         while (iter.next()) {
             // All entries should have local coords, or no entries should have local coords,
             // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
-            SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
+            // SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
             auto info = iter.metadata();
             tessellator.append(iter.deviceQuad(), iter.localQuad(),
                                info.fColor, kEmptyDomain, info.fAAFlags);
@@ -289,7 +289,7 @@ private:
 
         // Make sure that if the op thought it was a solid color, the vertex spec does not use
         // local coords.
-        SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
+        // SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
 

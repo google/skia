@@ -28,7 +28,13 @@ struct GrFPArgs {
     }
 
     class WithPreLocalMatrix;
-    class WithPostLocalMatrix;
+
+    GrFPArgs withNewMatrixProvider(const SkMatrixProvider& provider) const {
+        GrFPArgs newArgs(fContext, provider, fFilterQuality, fDstColorInfo);
+        newArgs.fInputColorIsOpaque = fInputColorIsOpaque;
+        newArgs.fPreLocalMatrix = fPreLocalMatrix;
+        return newArgs;
+    }
 
     GrRecordingContext* fContext;
     const SkMatrixProvider& fMatrixProvider;
@@ -53,6 +59,13 @@ public:
                 fPreLocalMatrix = &lm;
             }
         }
+
+        if (fPreLocalMatrix) {
+            SkDebugf("Pre-local matrix:\n");
+            fPreLocalMatrix->dump();
+        } else {
+            SkDebugf("no prelocal matrix\n");
+        }
     }
 
 private:
@@ -65,4 +78,3 @@ private:
 };
 
 #endif
-
