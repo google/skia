@@ -19,6 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "src/core/SkClipOpPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -261,4 +262,162 @@ DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
     canvas->saveLayer(&r, nullptr);
     canvas->drawColor(0xFFFF0000);
     canvas->restore();
+}
+
+namespace {
+
+// Where is canvas->concat(persp) called relative to the clipShader calls.
+enum CanvasPerspective {
+    kBeforeClips,
+    kAfterClips,
+    kBetweenClips
+};
+// Order in which clipShader(image) and clipShader(gradient) are specified; only meaningful
+// when CanvasPerspective is kBetweenClips.
+enum ClipOrder {
+    kImageThenGradient,
+    kGradientThenImage,
+
+    kDoesntMatter = kImageThenGradient
+};
+// Which shaders have perspective applied as a local matrix. Other than kNeither, these only
+// make sense with CanvasPerspective == kAfterClips.
+enum LocalMatrix {
+    // Shaders don't use a local matrix, perspective comes from CanvasPerspective == kBefore|Between
+    kNeither,
+    // Should match kBetweenClips with kGradientThenImage order
+    kImageOnly,
+    // Should match kBetweenClips with kImageThenGradient order
+    kGradientOnly,
+    // Should match kBeforeClips
+    kBoth
+};
+struct Config {
+    CanvasPerspective fPersp;
+    ClipOrder         fOrder;
+    LocalMatrix       fLM;
+};
+
+static void draw_banner(SkCanvas* canvas, Config config) {
+    SkString banner;
+    banner.append("Persp: ");
+
+    if (config.fPersp == kBeforeClips || config.fLM == kBoth) {
+        banner.append("Both Clips");
+    } else {
+        SkASSERT((config.fPersp == kBetweenClips && config.fLM == kNeither) ||
+                 (config.fPersp == kAfterClips && (config.fLM == kImageOnly ||
+                                                   config.fLM == kGradientOnly)));
+        if ((config.fPersp == kBetweenClips && config.fOrder == kImageThenGradient) ||
+            config.fLM == kGradientOnly) {
+            banner.append("Gradient");
+        } else {
+            SkASSERT(config.fOrder == kGradientThenImage || config.fLM == kImageOnly);
+            banner.append("Image");
+        }
+    }
+    if (config.fLM != kNeither) {
+        banner.append(" (w/ LM, should equal top row)");
+    }
+
+    static const SkFont kFont(ToolUtils::create_portable_typeface(), 12);
+    canvas->drawString(banner.c_str(), 20.f, -30.f, kFont, SkPaint());
+};
+
+} // anonymous
+
+DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
+    // Each draw has a clipShader(image-shader), a clipShader(gradient-shader), a concat(persp-mat),
+    // and each shader may or may not be wrapped with a perspective local matrix.
+
+    // Pairs of configs that should match in appearance where first config doesn't use a local
+    // matrix (top row of GM) and the second does (bottom row of GM).
+    Config matches[][2] = {
+            // Everything has perspective
+            {{kBeforeClips,  kImageThenGradient, kNeither},
+             {kAfterClips,   kDoesntMatter,      kBoth}},
+            // Image shader has perspective
+            {{kBetweenClips, kGradientThenImage, kNeither},
+             {kAfterClips,   kDoesntMatter,      kImageOnly}},
+            // Gradient shader has perspective
+            {{kBetweenClips, kImageThenGradient, kNeither},
+             {kAfterClips,   kDoesntMatter,      kGradientOnly}}
+    };
+
+    // The image that is drawn
+    auto img = GetResourceAsImage("images/yellow_rose.png");
+    // Scale factor always applied to the image shader so that it tiles
+    SkMatrix scale = SkMatrix::Scale(1.f / 4.f, 1.f / 4.f);
+    // The perspective matrix applied wherever needed
+    SkPoint src[4];
+    SkRect::Make(img->dimensions()).toQuad(src);
+    SkPoint dst[4] = {{0, 80.f},
+                      {img->width() + 28.f, -100.f},
+                      {img->width() - 28.f, img->height() + 100.f},
+                      {0.f, img->height() - 80.f}};
+    SkMatrix persp;
+    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+
+    SkMatrix perspScale = SkMatrix::Concat(persp, scale);
+
+    auto drawConfig = [&](Config config) {
+        canvas->save();
+
+        draw_banner(canvas, config);
+
+        // Make clipShaders (possibly with local matrices)
+        bool gradLM = config.fLM == kGradientOnly || config.fLM == kBoth;
+        const SkColor gradColors[] = {SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)};
+        auto gradShader = SkGradientShader::MakeRadial({0.5f * img->width(), 0.5f * img->height()},
+                                                        0.1f * img->width(), gradColors, nullptr, 2,
+                                                        SkTileMode::kRepeat, 0,
+                                                        gradLM ? &persp : nullptr);
+        bool imageLM = config.fLM == kImageOnly || config.fLM == kBoth;
+        auto imgShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                         imageLM ? perspScale : scale);
+
+        // Perspective before any clipShader
+        if (config.fPersp == kBeforeClips) {
+            canvas->concat(persp);
+        }
+
+        // First clipshader
+        canvas->clipShader(config.fOrder == kImageThenGradient ? imgShader : gradShader);
+
+        // Perspective between clipShader
+        if (config.fPersp == kBetweenClips) {
+            canvas->concat(persp);
+        }
+
+        // Second clipShader
+        canvas->clipShader(config.fOrder == kImageThenGradient ? gradShader : imgShader);
+
+        // Perspective after clipShader
+        if (config.fPersp == kAfterClips) {
+            canvas->concat(persp);
+        }
+
+        // Actual draw and clip boundary are the same for all configs
+        canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+        canvas->clear(SK_ColorBLACK);
+        canvas->drawImage(img, 0, 0);
+
+        canvas->restore();
+    };
+
+    SkIRect grid = persp.mapRect(SkRect::Make(img->dimensions())).roundOut();
+    grid.fLeft -= 20; // manual adjust to look nicer
+
+    canvas->translate(10.f, 10.f);
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(matches); ++i) {
+        canvas->save();
+        canvas->translate(-grid.fLeft, -grid.fTop);
+        drawConfig(matches[i][0]);
+        canvas->translate(0.f, grid.height());
+        drawConfig(matches[i][1]);
+        canvas->restore();
+
+        canvas->translate(grid.width(), 0.f);
+    }
 }
