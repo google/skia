@@ -16,8 +16,9 @@
 
 #include <utility>
 
-SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
+SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase, DashAlignment align)
         : fPhase(0)
+        , fAlignment(align)
         , fInitialDashLength(-1)
         , fInitialDashIndex(0)
         , fIntervalLength(0) {
@@ -42,7 +43,8 @@ SkDashImpl::~SkDashImpl() {
 bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* cullRect) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      fAlignment);
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -363,6 +365,7 @@ SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
         }
         info->fCount = fCount;
         info->fPhase = fPhase;
+        info->fAlignment = fAlignment;
     }
     return kDash_DashType;
 }
@@ -370,6 +373,7 @@ SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
 void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fPhase);
     buffer.writeScalarArray(fIntervals, fCount);
+    buffer.writeUInt(fAlignment);
 }
 
 sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
@@ -382,10 +386,20 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     }
 
     SkAutoSTArray<32, SkScalar> intervals(count);
-    if (buffer.readScalarArray(intervals.get(), count)) {
-        return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
+    if (!buffer.readScalarArray(intervals.get(), count)) {
+        return nullptr;
     }
-    return nullptr;
+
+    DashAlignment alignment = static_cast<DashAlignment>(buffer.readUInt());
+    switch (alignment) {
+        case SkPathEffect::kNone_DashAlignment:
+            return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
+        case SkPathEffect::kPathVerbs_DashAlignment:
+            return SkAlignedDashPathEffect::Make(intervals.get(), SkToInt(count));
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,5 +408,16 @@ sk_sp<SkPathEffect> SkDashPathEffect::Make(const SkScalar intervals[], int count
     if (!SkDashPath::ValidDashPath(phase, intervals, count)) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkDashImpl(intervals, count, phase));
+    return sk_sp<SkPathEffect>(
+            new SkDashImpl(intervals, count, phase, SkPathEffect::kNone_DashAlignment));
+}
+
+sk_sp<SkPathEffect> SkAlignedDashPathEffect::Make(const SkScalar intervals[], int count) {
+    if (!SkDashPath::ValidDashPath(0, intervals, count)) {
+        return nullptr;
+    }
+    // There's no technical reason why a phase value can't be supplied with aligned dashes,
+    // but it doesn't really make sense to have one because it would un-align the dashes.
+    return sk_sp<SkPathEffect>(
+            new SkDashImpl(intervals, count, 0, SkPathEffect::kPathVerbs_DashAlignment));
 }

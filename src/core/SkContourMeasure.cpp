@@ -573,6 +573,34 @@ const SkContourMeasure::Segment* SkContourMeasure::distanceToSegment( SkScalar d
     return seg;
 }
 
+SkScalar SkContourMeasure::getVerbLength(SkScalar distance) {
+    // Get the segment containing the distance
+    SkScalar unused;
+    const SkContourMeasure::Segment* seg = distanceToSegment(distance, &unused);
+    SkASSERT(seg);
+    if (!seg) {
+        return 0;
+    }
+
+    // Iterate outwards to find the bounds of the path verb containing seg.
+    const SkContourMeasure::Segment* prevSeg = seg;
+    while (prevSeg != fSegments.begin() && prevSeg->fPtIndex == seg->fPtIndex) {
+        prevSeg = &prevSeg[-1];
+    }
+
+    SkScalar distEnd = seg->fDistance;
+    const SkContourMeasure::Segment* nextSeg = seg;
+    while (nextSeg != fSegments.end() && nextSeg->fPtIndex == seg->fPtIndex) {
+        distEnd = nextSeg->fDistance;
+        nextSeg = &nextSeg[1];
+    }
+    if (nextSeg == fSegments.end()) {
+        distEnd = fLength;
+    }
+
+    return seg == fSegments.begin() ? distEnd : std::max<SkScalar>(distEnd - prevSeg->fDistance, 0);
+}
+
 bool SkContourMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) const {
     if (SkScalarIsNaN(distance)) {
         return false;

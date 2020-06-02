@@ -12,7 +12,7 @@
 
 class SkDashImpl : public SkPathEffect {
 public:
-    SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
+    SkDashImpl(const SkScalar intervals[], int count, SkScalar phase, DashAlignment align);
 
 protected:
     ~SkDashImpl() override;
@@ -30,6 +30,7 @@ private:
     SkScalar*   fIntervals;
     int32_t     fCount;
     SkScalar    fPhase;
+    DashAlignment fAlignment;
     // computed from phase
 
     SkScalar    fInitialDashLength;

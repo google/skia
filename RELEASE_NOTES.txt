@@ -9,6 +9,9 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Add new SkAlignedDashPathEffect API for aligned path dashing.
+    https://review.skia.org/293351
+
   * Add VkSharingMode field to GrVkImageInfo.
     https://review.skia.org/293559
 
