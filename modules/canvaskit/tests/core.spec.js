@@ -629,15 +629,15 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
     });
 
-    gm('draw shadow', (canvas) => {
-        const lightRadius = 30;
+    pause_gm('draw shadow', (canvas) => {
+        const lightRadius = 20;
         const flags = 0;
-        const lightPos = [250,150,300]; 
+        const lightPos = [500,500,20]; 
         const zPlaneParams = [0,0,1];
         const path = starPath(CanvasKit);
 
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
-                              CanvasKit.RED, CanvasKit.MAGENTA, flags);
+                              CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
     })
 
     describe('ColorSpace Support', () => {
