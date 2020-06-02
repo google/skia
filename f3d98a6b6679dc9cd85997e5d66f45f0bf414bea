@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4decd31f_a934ede6",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-02T17:33:41Z",
+      "side": 1,
+      "message": "Making two shaders with hard-coded offsets was super lazy, but simpler than reworking the existing code. ;)",
+      "revId": "f3d98a6b6679dc9cd85997e5d66f45f0bf414bea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
