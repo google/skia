@@ -883,7 +883,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
         .function("_clear", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
-            self.clear(ptrToSkColor4f(cPtr).toSkColor());
+            self.clear(ptrToSkColor4f(cPtr));
         }))
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
         .function("clipRRect", optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
@@ -916,10 +916,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
         .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
         .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
-            self.drawColor(ptrToSkColor4f(cPtr).toSkColor());
+            self.drawColor(ptrToSkColor4f(cPtr));
         }))
         .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr, SkBlendMode mode) {
-            self.drawColor(ptrToSkColor4f(cPtr).toSkColor(), mode);
+            self.drawColor(ptrToSkColor4f(cPtr), mode);
         }))
         .function("drawColorInt", optional_override([](SkCanvas& self, int32_t color) {
             self.drawColor(color);
