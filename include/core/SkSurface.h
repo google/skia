@@ -797,7 +797,8 @@ public:
         When the pixel data is ready the caller's ReadPixelsCallback is called with a
         AsyncReadResult containing pixel data in the requested color type, alpha type, and color
         space. The AsyncReadResult will have count() == 1. Upon failure the callback is called
-        with nullptr for AsyncReadResult.
+        with nullptr for AsyncReadResult. For a GPU surface this flushes work but a submit must
+        occur to guarantee a finite time before the callback is called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the
         SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
@@ -825,7 +826,9 @@ public:
 
         When the pixel data is ready the caller's ReadPixelsCallback is called with a
         AsyncReadResult containing the planar data. The AsyncReadResult will have count() == 3.
-        Upon failure the callback is called with nullptr for AsyncReadResult.
+        Upon failure the callback is called with nullptr for AsyncReadResult. For a GPU surface this
+        flushes work but a submit must occur to guarantee a finite time before the callback is
+        called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the
         SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
