@@ -17,9 +17,9 @@ import utils
 
 
 # Copied from https://cs.chromium.org/chromium/src/tools/clang/scripts/update.py
-CLANG_REVISION = 'c2443155a0fb245c8f17f2c1c72b6ea391e86e81'
-CLANG_SVN_REVISION = 'n332890'
-CLANG_SUB_REVISION = 1
+CLANG_REVISION = '0e41d647ceaeb2195d5d9ab5ff25c19292a36bf5'
+CLANG_SVN_REVISION = 'n354867'
+CLANG_SUB_REVISION = 2
 
 PACKAGE_VERSION = '%s-%s-%s' % (CLANG_SVN_REVISION, CLANG_REVISION[:8],
                                 CLANG_SUB_REVISION)
