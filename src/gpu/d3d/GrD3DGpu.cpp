@@ -90,6 +90,8 @@ void GrD3DGpu::destroyResources() {
         list->~OutstandingCommandList();
         fOutstandingCommandLists.pop_back();
     }
+
+    fResourceProvider.destroyResources();
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(

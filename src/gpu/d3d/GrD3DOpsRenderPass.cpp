@@ -202,7 +202,7 @@ bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     }
 
     // TODO: possibly check for success once we start binding properly
-    fCurrentPipelineState->setAndBindTextures(primProc, primProcTextures, pipeline);
+    fCurrentPipelineState->setAndBindTextures(fGpu, primProc, primProcTextures, pipeline);
 
     return true;
 }
