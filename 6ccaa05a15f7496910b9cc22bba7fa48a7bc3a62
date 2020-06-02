@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "062971ea_c4e4a955",
+        "filename": "gm/sample_matrix_constant.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-02T18:56:40Z",
+      "side": 1,
+      "message": "This was just to prevent the GMs from changing. With the perspective divide, the diagonal matrix basically had no effect.",
+      "range": {
+        "startLine": 46,
+        "startChar": 64,
+        "endLine": 48,
+        "endChar": 95
+      },
+      "revId": "6ccaa05a15f7496910b9cc22bba7fa48a7bc3a62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
