@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77ec76ba_895acf7a",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "Why not just return a \"sk_cp\u003cGrContextThreadSafeProxy\u003e\" ?",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 43
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ebbe8db_22bd4861",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "caps() should return a \"const GrCaps*\" while refCaps() should return an \"sk_sp\u003cconst GrCaps\u003e\".",
+      "range": {
+        "startLine": 49,
+        "startChar": 52,
+        "endLine": 49,
+        "endChar": 58
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c0c0a13_12183dde",
+        "filename": "src/gpu/GrContextThreadSafeProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "We should probably keep the caps vs. refCaps pair.",
+      "range": {
+        "startLine": 33,
+        "startChar": 31,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e691d46_92ee0527",
+        "filename": "src/gpu/GrContextThreadSafeProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d825be84_2ab2c4c6",
+        "filename": "src/gpu/GrContext_Base.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "This used to be here to set up the \u0027fCaps\u0027 member. Can we just delete it now?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 1
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbbb430d_86673b2a",
+        "filename": "src/gpu/GrContext_Base.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "This should be renamed to be \u0027refCaps\u0027",
+      "range": {
+        "startLine": 39,
+        "startChar": 86,
+        "endLine": 39,
+        "endChar": 90
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b1893d3_03cd921e",
+        "filename": "src/gpu/GrDDLContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "Can we stop passing caps here ?",
+      "range": {
+        "startLine": 156,
+        "startChar": 23,
+        "endLine": 156,
+        "endChar": 38
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b36dab5_3725bfb0",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-02T14:12:05Z",
+      "side": 1,
+      "message": "Can we remove this ?",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
