@@ -24,8 +24,9 @@
 #include "third_party/icu/SkLoadICU.h"
 #endif
 
+#include "modules/skshaper/include/SkUnicode.h"
+
 #include <math.h>
-#include <unicode/ubidi.h>
 #include <unicode/uloc.h>
 #include <unicode/umachine.h>
 #include <unicode/ustring.h>
@@ -41,7 +42,6 @@ namespace textlayout {
 namespace {
 
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
-using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
@@ -99,6 +99,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
+    fICU = SkUnicode_Make();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -422,81 +423,6 @@ bool ParagraphImpl::computeWords() {
     while (pos != UBRK_DONE) {
         fWords.emplace_back(pos);
         pos = ubrk_next(iter);
-    }
-
-    return true;
-}
-
-bool ParagraphImpl::getBidiRegions() {
-
-    if (!fBidiRegions.empty()) {
-        return true;
-    }
-
-    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
-    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
-    size_t utf8Bytes = fText.size();
-    const char* utf8 = fText.c_str();
-    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                            ? UBIDI_LTR
-                            : UBIDI_RTL;
-    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
-        SkDEBUGF("Bidi error: text too long");
-        return false;
-    }
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    UErrorCode status = U_ZERO_ERROR;
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
-        return false;
-    }
-
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-    SkASSERT(bidi);
-
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-
-    SkTArray<BidiRegion> bidiRegions;
-    const char* start8 = utf8;
-    const char* end8 = utf8 + utf8Bytes;
-    TextRange textRange(0, 0);
-    UBiDiLevel currentLevel = 0;
-
-    int32_t pos16 = 0;
-    int32_t end16 = ubidi_getLength(bidi.get());
-    while (pos16 < end16) {
-        auto level = ubidi_getLevelAt(bidi.get(), pos16);
-        if (pos16 == 0) {
-            currentLevel = level;
-        } else if (level != currentLevel) {
-            textRange.end = start8 - utf8;
-            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-            currentLevel = level;
-            textRange = TextRange(textRange.end, textRange.end);
-        }
-        SkUnichar u = utf8_next(&start8, end8);
-        pos16 += SkUTF::ToUTF16(u);
-    }
-
-    textRange.end = start8 - utf8;
-    if (!textRange.empty()) {
-        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
     }
 
     return true;
@@ -1150,6 +1076,72 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     for (auto& textStyle : fTextStyles) {
         textStyle.fStyle.setBackgroundColor(paint);
     }
+}
+
+bool ParagraphImpl::getBidiRegions() {
+
+    if (!fBidiRegions.empty()) {
+        return true;
+    }
+
+    fBidiRegions.reset();
+
+    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
+    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
+    size_t utf8Bytes = fText.size();
+    const char* utf8 = fText.c_str();
+    SkBidiIterator::Direction dir = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                                    ? SkBidiIterator::kLTR
+                                    : SkBidiIterator::kRTL;
+    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
+        SkDEBUGF("Bidi error: text too long");
+        return false;
+    }
+
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Bytes);
+    if (utf16Units < 0) {
+        SkDEBUGF("Invalid utf8 input");
+        return false;
+    }
+    std::unique_ptr<uint16_t[]> utf16(new uint16_t[utf16Units]);
+    SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Bytes);
+    SkASSERT(dstLen == utf16Units);
+
+    auto bidi = fICU->makeBidiIterator(utf16.get(), utf16Units, dir);
+    if (!bidi) {
+        SkDEBUGF("Bidi failure\n");
+        return false;
+    }
+
+    SkTArray<BidiRegion> bidiRegions;
+    const char* start8 = utf8;
+    const char* end8 = utf8 + utf8Bytes;
+    TextRange textRange(0, 0);
+    SkBidiIterator::Level currentLevel = 0;
+
+    int32_t pos16 = 0;
+    int32_t end16 = bidi->getLength();
+    while (pos16 < end16) {
+        auto level = bidi->getLevelAt(pos16);
+        if (pos16 == 0) {
+            currentLevel = level;
+        } else if (level != currentLevel) {
+            textRange.end = start8 - utf8;
+            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
+            currentLevel = level;
+            textRange = TextRange(textRange.end, textRange.end);
+        }
+        SkUnichar u = utf8_next(&start8, end8);
+        pos16 += SkUTF::ToUTF16(u);
+    }
+
+    textRange.end = start8 - utf8;
+    if (!textRange.empty()) {
+        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
+    }
+
+    return true;
 }
 
 }  // namespace textlayout

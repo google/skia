@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
+#include "modules/skshaper/include/SkUnicode.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
@@ -35,8 +36,9 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    auto icu = SkUnicode_Make();
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeIcuBiDiRunIterator(utf8, utf8Bytes, bidiLevel);
+        SkShaper::MakeIcuBiDiRunIterator(icu.get(), utf8, utf8Bytes, bidiLevel);
     if (bidi) {
         return bidi;
     }

@@ -265,6 +265,8 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
+
+    std::unique_ptr<SkUnicode> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia
