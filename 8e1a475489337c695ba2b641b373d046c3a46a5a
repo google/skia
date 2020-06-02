@@ -116,6 +116,24 @@
       "revId": "8e1a475489337c695ba2b641b373d046c3a46a5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1ef29b_e5849697",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-02T13:56:46Z",
+      "side": 1,
+      "message": "Done (with a lambda, because the Builder constructor being used is private).",
+      "parentUuid": "e3298bde_8ac42b77",
+      "revId": "8e1a475489337c695ba2b641b373d046c3a46a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
