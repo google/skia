@@ -364,12 +364,12 @@ describe('Canvas Behavior', () => {
         canvas.save();
         // draw magenta around the outside edge of an rrect.
         canvas.clipRRect(rrect, CanvasKit.ClipOp.Difference, true);
-        canvas.drawColor(CanvasKit.Color(250, 30, 240, 0.9), CanvasKit.BlendMode.SrcOver);
+        canvas.drawColorComponents(250/255, 30/255, 240/255, 0.9, CanvasKit.BlendMode.SrcOver);
         canvas.restore();
 
         // draw grey inside of a star pattern, then the blue star on top
         canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
-        canvas.drawColor(CanvasKit.Color(200, 200, 200, 1.0), CanvasKit.BlendMode.SrcOver);
+        canvas.drawColorInt(CanvasKit.ColorAsInt(200, 200, 200, 255), CanvasKit.BlendMode.SrcOver);
         canvas.drawPath(path, paint);
 
         path.delete();

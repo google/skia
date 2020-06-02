@@ -17,6 +17,16 @@ CanvasKit.Color = function(r, g, b, a) {
   return CanvasKit.Color4f(clamp(r)/255, clamp(g)/255, clamp(b)/255, a);
 }
 
+// Constructs a Color as a 32 bit integer, with 8 bits assigned to each channel.
+// Channels are expected to be between 0 and 255 and will be clamped as such.
+CanvasKit.ColorAsInt = function(r, g, b, a) {
+  // default to opaque
+  if (a === undefined) {
+      a = 255;
+  }
+  // This is consistent with how Skia represents colors in C++
+  return (clamp(a) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0);
+}
 // Construct a 4-float color.
 // Opaque if opacity is omitted.
 CanvasKit.Color4f = function(r, g, b, a) {
@@ -366,10 +376,19 @@ function copy4x4MatrixFromWasm(matrPtr) {
 }
 
 var _scratchColorPtr = nullptr;
+var _scratchColor; // the result from CanvasKit.Malloc
 
 function copyColorToWasm(color4f, ptr) {
-  // TODO(kjlubick): accept 4 floats or int color
   return copy1dArray(color4f, CanvasKit.HEAPF32, ptr || _scratchColorPtr);
+}
+
+function copyColorComponentsToWasm(r, g, b, a) {
+  var colors = _scratchColor['toTypedArray']();
+  colors[0] = r;
+  colors[1] = g;
+  colors[2] = b;
+  colors[3] = a;
+  return _scratchColorPtr;
 }
 
 function copyColorToWasmNoScratch(color4f) {
@@ -658,11 +677,10 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
  * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
  *
  * const mObj = CanvasKit.Malloc(Float32Array, 20);
- * // Get a TypedArray view around the malloc'd memory (this does not copy anything).
+ * Get a TypedArray view around the malloc'd memory (this does not copy anything).
  * const ta = mObj.toTypedArray();
  * // store data into ta
- * // ...
- * const cf = CanvasKit.SkColorFilter.MakeMatrix(mObj); // ta could also be used.
+ * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta); // mObj could also be used.
  *
  * // eventually...
  * CanvasKit.Free(mObj);

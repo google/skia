@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.Free` to explicitly clean up memory after `CanvasKit.Malloc`. All memory allocated
    with `CanvasKit.Malloc` must be released with `CanvasKit.Free` or it will be leaked. This can
    improve performance by reducing the copying of data between the JS and WASM side.
+ - `CanvasKit.ColorAsInt`, `SkPaint.setColorComponents`, `SkPaint.setColorInt`,
+   `SkCanvas.drawColorComponents`, `SkCanvas.drawColorInt` for when clients want
+   to avoid the overhead of allocating an array for color components and only need 8888 color.
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.16.

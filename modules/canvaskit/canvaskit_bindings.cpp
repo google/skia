@@ -100,7 +100,8 @@ struct OptionalMatrix : SkMatrix {
 
 SkColor4f ptrToSkColor4f(uintptr_t /* float* */ cPtr) {
     float* fourFloats = reinterpret_cast<float*>(cPtr);
-    SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
+    SkColor4f color;
+    memcpy(&color, fourFloats, 4 * sizeof(float));
     return color;
 }
 
@@ -920,6 +921,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr, SkBlendMode mode) {
             self.drawColor(ptrToSkColor4f(cPtr).toSkColor(), mode);
         }))
+        .function("drawColorInt", optional_override([](SkCanvas& self, int32_t color) {
+            self.drawColor(color);
+        }))
+        .function("drawColorInt", optional_override([](SkCanvas& self, int32_t color, SkBlendMode mode) {
+            self.drawColor(color, mode);
+        }))
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
         }))
@@ -1281,6 +1288,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_setColor", optional_override([](SkPaint& self, uintptr_t /* float* */ cPtr,
                 sk_sp<SkColorSpace> colorSpace) {
             self.setColor(ptrToSkColor4f(cPtr), colorSpace.get());
+        }))
+        .function("setColorInt", optional_override([](SkPaint& self, int32_t color) {
+            self.setColor(SkColor4f::FromColor(color), nullptr);
+        }))
+        .function("setColorInt", optional_override([](SkPaint& self, int32_t color,
+                sk_sp<SkColorSpace> colorSpace) {
+            self.setColor(SkColor4f::FromColor(color), colorSpace.get());
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)

@@ -8,7 +8,8 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
-  _scratchColorPtr = CanvasKit._malloc(4 * 4); // 4 32bit floats
+  _scratchColor = CanvasKit.Malloc(Float32Array, 4); // 4 color scalars.
+  _scratchColorPtr = _scratchColor.byteOffset;
 
   _scratch4x4Matrix = CanvasKit.Malloc(Float32Array, 16); // 16 matrix scalars.
   _scratch4x4MatrixPtr = _scratch4x4Matrix.byteOffset;
@@ -935,11 +936,19 @@ CanvasKit.onRuntimeInitialized = function() {
     if (colorPtr && !colors.build) {
       freeArraysThatAreNotMallocedByUsers(colorPtr, colors);
     }
-
   }
 
   CanvasKit.SkCanvas.prototype.drawColor = function (color4f, mode) {
     var cPtr = copyColorToWasm(color4f);
+    if (mode !== undefined) {
+      this._drawColor(cPtr, mode);
+    } else {
+      this._drawColor(cPtr);
+    }
+  }
+
+  CanvasKit.SkCanvas.prototype.drawColorComponents = function (r, g, b, a, mode) {
+    var cPtr = copyColorComponentsToWasm(r, g, b, a);
     if (mode !== undefined) {
       this._drawColor(cPtr, mode);
     } else {
@@ -1097,6 +1106,16 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
     var cPtr = copyColorToWasm(color4f);
+    this._setColor(cPtr, colorSpace);
+  }
+
+  // The color components here are expected to be floating point values (nominally between
+  // 0.0 and 1.0, but with wider color gamuts, the values could exceed this range). To convert
+  // between standard 8 bit colors and floats, just divide by 255 before passing them in.
+  CanvasKit.SkPaint.prototype.setColorComponents = function(r, g, b, a, colorSpace) {
+    colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
+    // emscripten wouldn't bind undefined to the sk_sp<SkColorSpace> expected here.
+    var cPtr = copyColorComponentsToWasm(r, g, b, a);
     this._setColor(cPtr, colorSpace);
   }
 

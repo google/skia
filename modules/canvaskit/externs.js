@@ -26,6 +26,7 @@ var CanvasKit = {
   // public API (i.e. things we declare in the pre-js file or in the cpp bindings)
   Color: function() {},
   Color4f: function() {},
+  ColorAsInt: function() {},
   /** @return {CanvasKit.SkRect} */
   LTRBRect: function() {},
   /** @return {CanvasKit.SkRect} */
@@ -185,6 +186,7 @@ var CanvasKit = {
     drawAnimatedImage: function() {},
     drawArc: function() {},
     drawCircle: function() {},
+    drawColorInt: function() {},
     drawDRRect:  function() {},
     drawImage: function() {},
     drawImageNine: function() {},
@@ -218,6 +220,7 @@ var CanvasKit = {
     prototype: {
       clear: function() {},
       drawColor: function() {},
+      drawColorComponents: function() {},
       drawShadow: function() {},
     },
 
@@ -375,6 +378,7 @@ var CanvasKit = {
     getStrokeWidth: function() {},
     setAntiAlias: function() {},
     setBlendMode: function() {},
+    setColorInt: function() {},
     setFilterQuality: function() {},
     setImageFilter: function() {},
     setMaskFilter: function() {},
@@ -388,6 +392,8 @@ var CanvasKit = {
 
     prototype: {
       setColor: function() {},
+      setColorComponents: function() {},
+      setColorInt: function() {},
     },
 
     // Private API
