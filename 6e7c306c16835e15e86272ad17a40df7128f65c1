@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adb3a90c_805db9d8",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-06-02T03:58:39Z",
+      "side": 1,
+      "message": "nit: remove the \")\" after setColorInt?",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b043b80a_c1cfcc03",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-06-02T03:58:39Z",
+      "side": 1,
+      "message": "Why not have `_setColor` accept 5 arguments? Then copyColorComponentsToWasm and copyColorToWasm wouldn\u0027t be necessary as the implementations become trivial:\n\n  CanvasKit.SkPaint.prototype.setColor \u003d function(color4f, colorSpace) {\n    colorSpace \u003d colorSpace || null; // null will be replaced with sRGB in the C++ method.\n    this._setColor(color4f[0], color4f[1], color4f[2], color4f[3], colorSpace);\n  }\n\n  CanvasKit.SkPaint.prototype.setColorComponents \u003d function(r, g, b, a, colorSpace) {\n    this._setColor(r, g, b, a, colorSpace || null);\n  }",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d1b86c7_af00c22d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-06-02T03:58:39Z",
+      "side": 1,
+      "message": "The WASM module could have a `_setColorInt` that takes two arguments. The the above math could be done inside WASM (and probably be faster and shorter).",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
