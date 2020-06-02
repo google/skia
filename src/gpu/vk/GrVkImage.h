@@ -29,22 +29,8 @@ public:
               const GrVkImageInfo& info,
               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
               GrBackendObjectOwnership ownership,
-              bool forSecondaryCB = false)
-            : fInfo(info)
-            , fInitialQueueFamily(info.fCurrentQueueFamily)
-            , fMutableState(std::move(mutableState))
-            , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
-        SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
-        SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
-        if (forSecondaryCB) {
-            fResource = nullptr;
-        } else if (fIsBorrowed) {
-            fResource = new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
-        } else {
-            SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
-            fResource = new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
-        }
-    }
+              bool forSecondaryCB = false);
+
     virtual ~GrVkImage();
 
     VkImage image() const {

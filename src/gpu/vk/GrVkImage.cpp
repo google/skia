@@ -13,6 +13,43 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
+GrVkImage::GrVkImage(const GrVkGpu* gpu,
+                     const GrVkImageInfo& info,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                     GrBackendObjectOwnership ownership,
+                     bool forSecondaryCB)
+        : fInfo(info)
+        , fInitialQueueFamily(info.fCurrentQueueFamily)
+        , fMutableState(std::move(mutableState))
+        , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
+    SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
+    SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
+#ifdef SK_DEBUG
+    // We can't transfer from the non graphics queue to the graphics queue since we can't
+    // release the image from the original queue without having that queue. This limits us in terms
+    // of the types of queue indices we can handle.
+    if (info.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
+        if (info.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+            if (info.fCurrentQueueFamily != gpu->queueIndex()) {
+                SkASSERT(false);
+            }
+        } else {
+            SkASSERT(false);
+        }
+    }
+#endif
+    if (forSecondaryCB) {
+        fResource = nullptr;
+    } else if (fIsBorrowed) {
+        fResource = new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+    } else {
+        SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
+        fResource = new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+    }
+}
+
 VkPipelineStageFlags GrVkImage::LayoutToPipelineSrcStageFlags(const VkImageLayout layout) {
     if (VK_IMAGE_LAYOUT_GENERAL == layout) {
         return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
@@ -116,15 +153,22 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     if (this->currentQueueFamilyIndex() != VK_QUEUE_FAMILY_IGNORED &&
-        gpu->queueIndex() != this->currentQueueFamilyIndex()) {
+        this->currentQueueFamilyIndex() != gpu->queueIndex()) {
         // The image still is owned by its original queue family and we need to transfer it into
         // ours.
         SkASSERT(!releaseFamilyQueue);
         SkASSERT(this->currentQueueFamilyIndex() == fInitialQueueFamily);
-
+        // We only support transferring from external or foreign queues here and not arbitrary
+        // ones.
+        SkASSERT(this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_EXTERNAL ||
+                 this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_FOREIGN_EXT);
         srcQueueFamilyIndex = this->currentQueueFamilyIndex();
-        dstQueueFamilyIndex = gpu->queueIndex();
-        this->setQueueFamilyIndex(gpu->queueIndex());
+        if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+            dstQueueFamilyIndex = gpu->queueIndex();
+        } else {
+            dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        }
+        this->setQueueFamilyIndex(dstQueueFamilyIndex);
     } else if (releaseFamilyQueue) {
         // We are releasing the image so we must transfer the image back to its original queue
         // family.
@@ -217,6 +261,7 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     info->fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
     info->fProtected =
             (createflags & VK_IMAGE_CREATE_PROTECTED_BIT) ? GrProtected::kYes : GrProtected::kNo;
+    info->fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     return true;
 }
 
