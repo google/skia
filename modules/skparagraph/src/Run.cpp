@@ -97,9 +97,7 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
         if (!fJustificationShifts.empty()) {
             point.fX += fJustificationShifts[i + pos].fX;
         }
-        point.offset(runOffset.fX, runOffset.fY);
-        point.fX = SkScalarRoundToScalar(point.fX);
-        blobBuffer.points()[i] = point;
+        blobBuffer.points()[i] = point + runOffset;
     }
 }
 
