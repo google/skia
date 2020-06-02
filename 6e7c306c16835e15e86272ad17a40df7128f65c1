@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "28ffe692_27a1bccd",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-02T12:42:11Z",
+      "side": 1,
+      "message": "This is probably the design we need to use. AFAIK, we have no great reason why it\u0027s not done done this way",
+      "parentUuid": "b043b80a_c1cfcc03",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d1b86c7_af00c22d",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 4
