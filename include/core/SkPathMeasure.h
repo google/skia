@@ -34,6 +34,9 @@ public:
     */
     SkScalar getLength();
 
+    /** Return the length of the path verb containing the given distance. */
+    SkScalar getVerbLength(SkScalar distance);
+
     /** Pins distance to 0 <= distance <= getLength(), and then computes
         the corresponding position and tangent.
         Returns false if there is no path, or a zero-length path was specified, in which case
