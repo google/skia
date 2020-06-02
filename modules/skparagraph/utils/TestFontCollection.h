@@ -1,5 +1,5 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/SkFontCollection.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "src/core/SkFontDescriptor.h"
 

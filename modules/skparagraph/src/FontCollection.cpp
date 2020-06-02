@@ -1,7 +1,7 @@
 // Copyright 2019 Google LLC.
 #include "include/core/SkTypeface.h"
-#include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/SkFontCollection.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
 namespace skia {
