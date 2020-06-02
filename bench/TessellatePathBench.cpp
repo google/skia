@@ -37,7 +37,7 @@ public:
     BenchmarkTarget() {
         GrMockOptions mockOptions;
         mockOptions.fDrawInstancedSupport = true;
-        mockOptions.fTessellationSupport = true;
+        mockOptions.fMaxTessellationSegments = 64;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kMSAA;
