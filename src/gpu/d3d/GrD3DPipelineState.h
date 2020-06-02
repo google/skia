@@ -52,7 +52,7 @@ public:
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
     const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
-    void setData(GrD3DGpu*, const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+    void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
 
     void setAndBindTextures(const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],

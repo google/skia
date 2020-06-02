@@ -146,6 +146,9 @@ public:
                                const GrScissorState& scissor);
     void setRenderTarget(GrD3DRenderTarget* renderTarget);
 
+    void setGraphicsRootConstantBufferView(unsigned int rootParameterIndex,
+                                           D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                            gr_cp<ID3D12GraphicsCommandList> commandList);
