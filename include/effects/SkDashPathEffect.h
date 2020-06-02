@@ -36,4 +36,15 @@ public:
     static sk_sp<SkPathEffect> Make(const SkScalar intervals[], int count, SkScalar phase);
 };
 
+class SK_API SkAlignedDashPathEffect {
+public:
+    /**
+     * A dash path effect that adjusts interval lengths to align dashes to path
+     * segments (verbs). The adjustment is per verb, ensuring that the segment
+     * begins and ends with half of the first "on" interval. There is no phase
+     * for this dash path effect.
+     */
+    static sk_sp<SkPathEffect> Make(const SkScalar intervals[], int count);
+};
+
 #endif
