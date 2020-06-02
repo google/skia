@@ -78,21 +78,30 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix matrix) {
     if (matrix == fMatrix) {
         return;
     }
+    SkASSERT(matrix.fKind != SkSL::SampleMatrix::Kind::kNone);
     SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
+    if (this->numCoordTransforms() == 0 &&
+        (matrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform ||
+         matrix.fKind == SkSL::SampleMatrix::Kind::kMixed)) {
+        static GrCoordTransform identity;
+        this->addCoordTransform(&identity);
+    }
     if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-        SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                 (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
-                  matrix.fExpression == fMatrix.fExpression));
-        fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
-                                     fMatrix.fExpression);
+        if (matrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+            fMatrix.fBase = matrix.fOwner;
+        } else {
+            SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
+                     (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
+                      matrix.fExpression == fMatrix.fExpression));
+            fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
+                                         fMatrix.fExpression);
+        }
     } else {
         SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
         fMatrix = matrix;
     }
-    if (matrix.fKind == SkSL::SampleMatrix::Kind::kVariable) {
-        for (auto& child : fChildProcessors) {
-            child->setSampleMatrix(matrix);
-        }
+    for (auto& child : fChildProcessors) {
+        child->setSampleMatrix(matrix);
     }
 }
 

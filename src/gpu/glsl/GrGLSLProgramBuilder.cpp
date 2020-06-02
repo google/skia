@@ -137,6 +137,9 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         }
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
+        if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+            ((GrFragmentProcessor&) fp).addCoordTransform(new GrCoordTransform());
+        }
         output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
                                               &glslFragmentProcessors);
         for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
