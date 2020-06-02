@@ -13,6 +13,7 @@
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
+#include "src/gpu/d3d/GrD3DSampler.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -91,13 +92,13 @@ void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
     }
 }
 
-void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc,
+void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProcessor& primProc,
                                             const GrSurfaceProxy* const primProcTextures[],
                                             const GrPipeline& pipeline) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
 
     struct SamplerBindings {
-        GrSamplerState fState;
+        GrD3DSampler* fSampler;
         GrD3DTexture* fTexture;
     };
     SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
@@ -107,7 +108,9 @@ void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc
         SkASSERT(primProcTextures[i]->asTextureProxy());
         const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrD3DTexture*>(primProcTextures[i]->peekTexture());
-        samplerBindings[currTextureBinding++] = { sampler.samplerState(), texture };
+        GrD3DSampler* d3dSampler =
+                gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
+        samplerBindings[currTextureBinding++] = { d3dSampler, texture };
     }
 
     GrFragmentProcessor::CIter fpIter(pipeline);
@@ -115,15 +118,19 @@ void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
             const auto& sampler = fpIter->textureSampler(i);
+            GrD3DSampler* d3dSampler =
+                    gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
             samplerBindings[currTextureBinding++] =
-            { sampler.samplerState(), static_cast<GrD3DTexture*>(sampler.peekTexture()) };
+                    { d3dSampler, static_cast<GrD3DTexture*>(sampler.peekTexture()) };
         }
     }
     SkASSERT(!fpIter && !glslIter);
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        samplerBindings[currTextureBinding++] = {
-                GrSamplerState::Filter::kNearest, static_cast<GrD3DTexture*>(dstTexture) };
+        GrD3DSampler* d3dSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
+                GrSamplerState::Filter::kNearest);
+        samplerBindings[currTextureBinding++] =
+                { d3dSampler, static_cast<GrD3DTexture*>(dstTexture) };
     }
 
     // TODO: bind descriptors
