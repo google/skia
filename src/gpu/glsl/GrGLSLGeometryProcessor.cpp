@@ -14,6 +14,8 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
+#include <unordered_map>
+
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
@@ -112,6 +114,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
         GrShaderVar fsVar;
         // Add varying if required and register varying and matrix uniform.
+        vb->codeAppendf("// sample matrix(%s): %d, %s\n", fp.name(), fp.isSampledWithExplicitCoords(), fp.sampleMatrix().description().c_str());
         if (!fp.isSampledWithExplicitCoords()) {
             auto [localCoordsStr, localCoordLength] = getLocalCoords();
             GrGLSLVarying v(kFloat2_GrSLType);
@@ -142,23 +145,34 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
 void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                                                 GrGLSLUniformHandler* uniformHandler) {
+    std::unordered_map<const GrFragmentProcessor*, const char*> localCoordsMap;
     for (const auto& tr : fTransformInfos) {
         switch (tr.fFP->sampleMatrix().fKind) {
-            case SkSL::SampleMatrix::Kind::kConstantOrUniform:
+            case SkSL::SampleMatrix::Kind::kConstantOrUniform: {
+                SkString localCoords;
+                localCoordsMap.insert({ tr.fFP, tr.fName });
+                if (tr.fFP->sampleMatrix().fBase) {
+                    SkASSERT(localCoordsMap[tr.fFP->sampleMatrix().fBase]);
+                    localCoords = SkStringPrintf("float3(%s, 1)",
+                                                 localCoordsMap[tr.fFP->sampleMatrix().fBase]);
+                } else {
+                    localCoords = tr.fLocalCoords.c_str();
+                }
                 vb->codeAppend("{\n");
                 uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
                 if (tr.fType == kFloat2_GrSLType) {
                     vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
                                     tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
-                                    tr.fLocalCoords.c_str());
+                                    localCoords.c_str());
                 } else {
                     SkASSERT(tr.fType == kFloat3_GrSLType);
                     vb->codeAppendf("%s = %s * %s * %s", tr.fName,
                                     tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
-                                    tr.fLocalCoords.c_str());
+                                    localCoords.c_str());
                 }
                 vb->codeAppend(";\n");
                 vb->codeAppend("}\n");
+            }
             default:
                 break;
         }

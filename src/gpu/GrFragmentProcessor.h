@@ -316,7 +316,7 @@ public:
     // Sentinel type for range-for using FPItemIter.
     class FPItemEndIter {};
 
-protected:
+//protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
         kCompatibleWithCoverageAsAlpha_OptimizationFlag = 0x1,
