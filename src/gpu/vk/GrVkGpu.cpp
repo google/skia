@@ -1198,7 +1198,8 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
-                             bool needsAllocation) {
+                             bool needsAllocation,
+                             uint32_t graphicsQueueIndex) {
     if (VK_NULL_HANDLE == info.fImage) {
         return false;
     }
@@ -1209,6 +1210,18 @@ static bool check_image_info(const GrVkCaps& caps,
 
     if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
         return false;
+    }
+
+    if (info.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
+        if (info.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+            if (info.fCurrentQueueFamily != graphicsQueueIndex) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     if (info.fYcbcrConversionInfo.isValid()) {
@@ -1256,7 +1269,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1282,7 +1296,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1309,7 +1324,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1349,7 +1365,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), info, false)) {
+    if (!check_image_info(this->vkCaps(), info, false, this->queueIndex())) {
         return nullptr;
     }
 
@@ -1382,7 +1398,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, false, this->queueIndex())) {
         return nullptr;
     }
 
