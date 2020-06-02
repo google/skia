@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee22b56e_c4f61fcf",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-02T16:18:47Z",
+      "side": 1,
+      "message": "nit: but",
+      "range": {
+        "startLine": 800,
+        "startChar": 78,
+        "endLine": 800,
+        "endChar": 80
+      },
+      "revId": "26eeed5ae21b49754b11e08d95aab70543422f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
