@@ -98,6 +98,7 @@ public:
 
     ~GrContext() override;
 
+    // TODO: Remove this from public after migrating Chrome.
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
@@ -689,9 +690,9 @@ public:
 #endif
 
 protected:
-    GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
+    GrContext(sk_sp<GrContextThreadSafeProxy>);
 
-    bool init(sk_sp<const GrCaps>) override;
+    bool init() override;
 
     GrContext* asDirectContext() override { return this; }
 
