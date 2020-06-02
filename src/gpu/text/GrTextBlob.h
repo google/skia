@@ -335,7 +335,6 @@ public:
     int glyphCount() const;
 
     bool drawAsDistanceFields() const;
-    bool drawAsPaths() const;
     bool needsTransform() const;
     bool needsPadding() const;
 
@@ -397,7 +396,6 @@ public:
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
-    std::vector<PathGlyph> fPaths;
 
 private:
     static SubRun* InitForAtlas(SubRunType type,
@@ -409,6 +407,7 @@ private:
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
+    bool drawAsPaths() const;
 
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;
@@ -420,6 +419,7 @@ private:
     // source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
     const SkSpan<VertexData> fVertexData;
+    std::vector<PathGlyph> fPaths;
 };  // SubRun
 
 #endif  // GrTextBlob_DEFINED

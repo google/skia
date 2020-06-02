@@ -55,7 +55,6 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
 GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         : fBlob{textBlob}
         , fStrikeSpec{strikeSpec}
-        , fPaths{}
         , fType{kTransformedPath}
         , fMaskFormat{kA8_GrMaskFormat}
         , fVertexBounds{SkRect::MakeEmpty()}
