@@ -281,6 +281,7 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
                                              image_info.bounds(), image_info.dimensions(),
                                              SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
                                              &async_callback, &cbContext);
+    surface->getContext()->submit();
     while (!cbContext.fCalled) {
         surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
     }
