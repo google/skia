@@ -314,7 +314,6 @@ public:
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    GrTextStrike* strike() const;
 
     GrMaskFormat maskFormat() const;
 
@@ -393,8 +392,6 @@ public:
 
     SubRun* fNextSubRun{nullptr};
     GrTextBlob* fBlob;
-    const SkStrikeSpec fStrikeSpec;
-    sk_sp<GrTextStrike> fStrike;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 
 private:
@@ -413,6 +410,9 @@ private:
     const GrMaskFormat fMaskFormat;
     bool fUseLCDText{false};
     bool fAntiAliased{false};
+
+    const SkStrikeSpec fStrikeSpec;
+    sk_sp<GrTextStrike> fStrike;
 
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in

@@ -63,7 +63,6 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
-GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 
 size_t GrTextBlob::SubRun::vertexStride() const {
