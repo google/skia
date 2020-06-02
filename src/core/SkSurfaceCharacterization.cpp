@@ -13,7 +13,7 @@
 
 #ifdef SK_DEBUG
 void SkSurfaceCharacterization::validate() const {
-    const GrCaps* caps = fContextInfo->priv().caps();
+    const GrCaps* caps = fContextInfo->priv().caps().get();
 
     GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
     SkASSERT(fSampleCnt && caps->isFormatAsColorTypeRenderable(grCT, fBackendFormat, fSampleCnt));
@@ -46,7 +46,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
 }
 
 SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, int height) const {
-    const GrCaps* caps = fContextInfo->priv().caps();
+    const GrCaps* caps = fContextInfo->priv().caps().get();
     if (!caps) {
         return SkSurfaceCharacterization();
     }
