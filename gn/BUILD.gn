@@ -97,9 +97,6 @@ config("default") {
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     cflags_cc += [ "/std:c++17" ]
-    if (is_clang) {
-      cflags += [ "-fms-compatibility-version=19" ]  # 2015
-    }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
