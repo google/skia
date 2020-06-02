@@ -22,6 +22,30 @@
       "revId": "4a2656cf4843724ac89f22a4baf12d611c93eb54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3078dfe6_428b632d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-02T15:15:20Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure which would be better so opted for minimal change. The case that matters in the regression is kClamp. I added a comment that we should do the experiment.",
+      "parentUuid": "d0fc4574_5a311bfc",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 205,
+        "endChar": 38
+      },
+      "revId": "4a2656cf4843724ac89f22a4baf12d611c93eb54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
