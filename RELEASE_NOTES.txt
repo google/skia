@@ -9,6 +9,9 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Add VkSharingMode field to GrVkImageInfo.
+    https://review.skia.org/293559
+
   * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
     This factory existed to work around issues with GL_TEXTURE_RECTANGLE that existed
     in Chrome's command buffer. Those issues have since been resolved. Use
