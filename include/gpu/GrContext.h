@@ -98,8 +98,6 @@ public:
 
     ~GrContext() override;
 
-    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
-
     /**
      * The GrContext normally assumes that no outsider is setting state
      * within the underlying 3D API's context/device/whatever. This call informs
@@ -689,7 +687,7 @@ public:
 #endif
 
 protected:
-    GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
+    GrContext(sk_sp<GrContextThreadSafeProxy>);
 
     bool init(sk_sp<const GrCaps>) override;
 

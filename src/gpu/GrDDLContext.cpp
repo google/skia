@@ -21,8 +21,7 @@
 class GrDDLContext final : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {
-        fThreadSafeProxy = std::move(proxy);
+        : INHERITED(std::move(proxy)) {
     }
 
     ~GrDDLContext() override {}
@@ -57,8 +56,6 @@ private:
         // DDL contexts/drawing managers always sort the oplists and attempt to reduce opsTask
         // splitting.
         this->setupDrawingManager(true, true);
-
-        SkASSERT(this->caps());
 
         return true;
     }
@@ -152,10 +149,11 @@ private:
     typedef GrContext INHERITED;
 };
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
-    sk_sp<GrContext> context(new GrDDLContext(proxy));
+sk_sp<GrContext> GrContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
+    sk_sp<const GrCaps> caps = proxy->priv().caps();
+    sk_sp<GrContext> context(new GrDDLContext(std::move(proxy)));
 
-    if (!context->init(proxy->priv().refCaps())) {
+    if (!context->init(std::move(caps))) {
         return nullptr;
     }
     return context;
