@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "50031d17_fa4b101a",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-02T20:15:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adb3a90c_805db9d8",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b043b80a_c1cfcc03",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 4
@@ -90,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "2363c65c_b940636f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-02T20:15:37Z",
+      "side": 1,
+      "message": "As discussed offline, we believe the pointer approach to be (marginally) faster because we can effectively do 2 memcpys to transfer the data instead of handling the floats individually.",
+      "parentUuid": "99677c8a_aef0826a",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d1b86c7_af00c22d",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 4
@@ -104,6 +140,24 @@
       "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e21ef0b_110e9459",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-02T20:15:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d1b86c7_af00c22d",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
