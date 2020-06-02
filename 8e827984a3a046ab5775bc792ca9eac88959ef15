@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96f13951_92b506fa",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-02T20:18:24Z",
+      "side": 1,
+      "message": "\u003e Found trailing space\n\nPlease fix.",
+      "parentUuid": "52503c8c_da6a4a9a",
+      "range": {
+        "startLine": 635,
+        "startChar": 38,
+        "endLine": 635,
+        "endChar": 38
+      },
+      "revId": "8e827984a3a046ab5775bc792ca9eac88959ef15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
