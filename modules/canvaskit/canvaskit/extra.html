@@ -34,6 +34,7 @@
 
 <h2> 3D perspective transformations </h2>
 <canvas id=camera3d width=500 height=500></canvas>
+<canvas id=glyphgame width=500 height=500></canvas>
 
 <h2> Support for extended color spaces </h2>
 <a href="chrome://flags/#force-color-profile">Force P3 profile</a>
@@ -138,7 +139,10 @@
     SkottieExample(ck, 'sk_animated_gif', jsonstr, fullBounds, {'image_0.png': gif});
   });
 
-  Promise.all([ckLoaded, loadFont]).then((results) => {ParagraphAPI1(...results)});
+  Promise.all([ckLoaded, loadFont]).then((results) => {
+    ParagraphAPI1(...results);
+    GlyphGame(...results)
+  });
   Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
   Promise.all([ckLoaded, loadBrickTex, loadBrickBump, loadFont]).then((results) => {Camera3D(...results)});
 
@@ -434,10 +438,37 @@
     surface.drawOnce(drawFrame);
   }
 
-  function Camera3D(canvas, textureImgData, normalImgData, robotoData) {
-    if (!canvas) {
-
+  // Return the inverse of an SkM44. throw an error if it's not invertible
+  function mustInvert(m) {
+    const m2 = CanvasKit.SkM44.invert(m);
+    if (m2 === null) {
+      throw "Matrix not invertible";
     }
+    return m2;
+  }
+
+  // TODO(nifong): This function is in desperate need of some explanation of what it does
+  // cam is a object having eye, coa, up, near, far, angle
+  function saveCamera(canvas, /* rect */ area, /* scalar */ zscale, cam) {
+    const camera = CanvasKit.SkM44.lookat(cam.eye, cam.coa, cam.up);
+    const perspective = CanvasKit.SkM44.perspective(cam.near, cam.far, cam.angle);
+    // Calculate viewport scale. Even through we know these values are all constants in this
+    // example it might be handy to change the size later.
+    const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+    const viewport = CanvasKit.SkM44.multiply(
+      CanvasKit.SkM44.translated(center),
+      CanvasKit.SkM44.scaled(viewScale));
+
+    // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+    // as part of our "camera".
+    canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
+    canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+    // Mark the matrix to make it available to the shader by this name.
+    canvas.markCTM('local_to_world');
+  }
+
+  function Camera3D(canvas, textureImgData, normalImgData, robotoData) {
     const surface = CanvasKit.MakeCanvasSurface('camera3d');
     if (!surface) {
       console.error('Could not make surface');
@@ -463,13 +494,15 @@
     const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(margin, margin,
       vSphereRadius - margin, vSphereRadius - margin), margin*2.5, margin*2.5);
 
-    const camNear = 0.05;
-    const camFar = 4;
     const camAngle = Math.PI / 12;
-
-    const camEye = [0, 0, 1 / Math.tan(camAngle/2) - 1];
-    const camCOA = [0, 0, 0];
-    const camUp =  [0, 1, 0];
+    const cam = {
+      'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+      'coa'  : [0, 0, 0],
+      'up'   : [0, 1, 0],
+      'near' : 0.05,
+      'far'  : 4,
+      'angle': camAngle,
+    };
 
     let mouseDown = false;
     let clickDown = [0, 0]; // location of click down
@@ -583,34 +616,6 @@
       return m2[10]
     }
 
-    // Return the inverse of an SkM44. throw an error if it's not invertible
-    function mustInvert(m) {
-      var m2 = CanvasKit.SkM44.invert(m);
-      if (m2 === null) {
-        throw "Matrix not invertible";
-      }
-      return m2;
-    }
-
-    function saveCamera(canvas, /* rect */ area, /* scalar */ zscale) {
-      const camera = CanvasKit.SkM44.lookat(camEye, camCOA, camUp);
-      const perspective = CanvasKit.SkM44.perspective(camNear, camFar, camAngle);
-      // Calculate viewport scale. Even through we know these values are all constants in this
-      // example it might be handy to change the size later.
-      const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
-      const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
-      const viewport = CanvasKit.SkM44.multiply(
-        CanvasKit.SkM44.translated(center),
-        CanvasKit.SkM44.scaled(viewScale));
-
-      // want "world" to be in our big coordinates (e.g. area), so apply this inverse
-      // as part of our "camera".
-      canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
-      canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
-      // Mark the matrix to make it available to the shader by this name.
-      canvas.markCTM('local_to_world');
-    }
-
     function setClickToWorld(canvas, matrix) {
       const l2d = canvas.getLocalToDevice();
       worldToClick = CanvasKit.SkM44.multiply(mustInvert(matrix), l2d);
@@ -640,7 +645,7 @@
       canvas.save();
       canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
       // pass surface dimensions as viewport size.
-      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2);
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2, cam);
       setClickToWorld(canvas, clickM);
       for (let f of faces) {
         const saveCount = canvas.getSaveCount();
@@ -765,6 +770,148 @@
     document.getElementById('camera3d').addEventListener('pointerleave', interact);
     document.getElementById('camera3d').addEventListener('pointerup', interact);
 
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  // Shows a hidden message by rotating all the characters in a kind of way that makes you
+  // search with your mouse.
+  function GlyphGame(canvas, robotoData) {
+    const surface = CanvasKit.MakeCanvasSurface('glyphgame');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const sizeX = document.getElementById('glyphgame').width;
+    const sizeY = document.getElementById('glyphgame').height;
+    const halfDim = Math.min(sizeX, sizeY) / 2;
+    const margin = 50;
+    const marginTop = 25;
+    let rotX = 0; //  expected to be updated in interact()
+    let rotY = 0;
+    let pointer = [500, 450];
+    const radPerPixel = 0.005; // radians of subject rotation per pixel distance moved by mouse.
+
+    const camAngle = Math.PI / 12;
+    const cam = {
+      'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+      'coa'  : [0, 0, 0],
+      'up'   : [0, 1, 0],
+      'near' : 0.02,
+      'far'  : 4,
+      'angle': camAngle,
+    };
+
+    let lastImage = null;
+
+    const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData]);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+            color: CanvasKit.Color(105, 56, 16), // brown
+            fontFamilies: ['Roboto'],
+            fontSize: 28,
+        },
+        textAlign: CanvasKit.TextAlign.Left,
+    });
+    const hStyle = CanvasKit.RectHeightStyle.Max;
+    const wStyle = CanvasKit.RectWidthStyle.Tight;
+
+    const quotes = [
+      'Some activities superficially familiar to you are merely stupid and should be avoided for your safety, although they are not illegal as such. These include: giving your bank account details to the son of the Nigerian Minister of Finance; buying title to bridges, skyscrapers, spacecraft, planets, or other real assets; murder; selling your identity; and entering into financial contracts with entities running Economics 2.0 or higher.',
+      // Charles Stross - Accelerando
+      'If only there were evil people somewhere insidiously committing evil deeds, and it were necessary only to separate them from the rest of us and destroy them. But the line dividing good and evil cuts through the heart of every human being. And who is willing to destroy a piece of his own heart?',
+      // Aleksandr Solzhenitsyn - The Gulag Archipelago
+      'There is one metaphor of which the moderns are very fond; they are always saying, “You can’t put the clock back.” The simple and obvious answer is “You can.” A clock, being a piece of human construction, can be restored by the human finger to any figure or hour. In the same way society, being a piece of human construction, can be reconstructed upon any plan that has ever existed.',
+      // G. K. Chesterton - What's Wrong With The World?
+    ];
+
+    // pick one at random
+    const text = quotes[Math.floor(Math.random()*3)];
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText(text);
+    const paragraph = builder.build();
+    const font = new CanvasKit.SkFont(null, 18);
+    // wrap the text to a given width.
+    paragraph.layout(sizeX - margin*2);
+
+    // to rotate every glyph individually, calculate the bounding rect of each one,
+    // construct an array of rects and paragraphs that would draw each glyph individually.
+    const letters = Array(text.length);
+    for (let i = 0; i < text.length; i++) {
+      const r = paragraph.getRectsForRange(i, i+1, hStyle, wStyle)[0];
+      // The character is drawn with drawParagraph so we can pass the paraStyle,
+      // and have our character be the exact size and shape the paragraph expected
+      // when it wrapped the text. canvas.drawText wouldn't cut it.
+      const tmpbuilder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+      tmpbuilder.addText(text[i]);
+      const para = tmpbuilder.build();
+      para.layout(100);
+      letters[i] = {
+        'r': r,
+        'para': para,
+      };
+    }
+
+    function drawFrame(canvas) {
+      // persistence of vision effect is done by drawing the past frame as an image,
+      // then covering with semitransparent background color.
+      if (lastImage) {
+        canvas.drawImage(lastImage, 0, 0, null);
+        canvas.drawColor(CanvasKit.Color(171, 244, 255, 0.1)); // sky blue, almost transparent 
+      } else {
+        canvas.clear(CanvasKit.Color(171, 244, 255)); // sky blue, opaque
+      }
+      canvas.save();
+      // Set up 3D view enviroment
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, sizeX, sizeY), halfDim, cam);
+
+      // Rotate the whole paragraph as a unit.
+      const paraRotPoint = [halfDim, halfDim, 1];
+      canvas.concat(CanvasKit.SkM44.multiply(
+        CanvasKit.SkM44.translated(paraRotPoint),
+        CanvasKit.SkM44.rotated([0,1,0], rotX),
+        CanvasKit.SkM44.rotated([1,0,0], rotY * 0.2),
+        CanvasKit.SkM44.translated(CanvasKit.SkVector.mulScalar(paraRotPoint, -1)),
+      ));
+
+      // Rotate every glyph in the paragraph individually.
+      let i = 0;
+      for (const letter of letters) {
+        canvas.save();
+        let r = letter['r'];
+        // rotate about the center of the glyph's rect.
+        rotationPoint = [
+          margin + r.fLeft + (r.fRight - r.fLeft) / 2,
+          marginTop + r.fTop + (r.fBottom - r.fTop) / 2,
+          0
+        ];
+        distanceFromPointer = CanvasKit.SkVector.dist(pointer, rotationPoint.slice(0, 2));
+        // Rotate more around the Y-axis depending on the glyph's distance from the pointer.
+        canvas.concat(CanvasKit.SkM44.multiply(
+          CanvasKit.SkM44.translated(rotationPoint),
+          // note that I'm rotating around the x axis first, undoing some of the rotation done to the whole
+          // paragraph above, where x came second. If I rotated y first, a lot of letters would end up
+          // upside down, which is a bit too hard to unscramble.
+          CanvasKit.SkM44.rotated([1,0,0], rotY * -0.6),
+          CanvasKit.SkM44.rotated([0,1,0], distanceFromPointer * -0.035),
+          CanvasKit.SkM44.translated(CanvasKit.SkVector.mulScalar(rotationPoint, -1)),
+        ));
+        canvas.drawParagraph(letter['para'], margin + r.fLeft, marginTop + r.fTop);
+        i++;
+        canvas.restore();
+      }
+      canvas.restore();
+      lastImage = surface.makeImageSnapshot();
+    }
+
+    function interact(e) {
+      pointer = [e.offsetX, e.offsetY]
+      rotX = (pointer[0] - halfDim) * radPerPixel;
+      rotY = (pointer[1] - halfDim) * radPerPixel * -1;
+      surface.requestAnimationFrame(drawFrame);
+    };
+
+    document.getElementById('glyphgame').addEventListener('pointermove', interact);
     surface.requestAnimationFrame(drawFrame);
   }
 
