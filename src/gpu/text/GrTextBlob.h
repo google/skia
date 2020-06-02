@@ -269,6 +269,10 @@ private:
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
 
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph,
+                                             const SubRun& subrun,
+                                             GrGlyph* grGlyph);
+
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
     GrAtlasManager* fFullAtlasManager;
