@@ -407,5 +407,4 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement* s, const Vari
     return SampleMatrix();
 }
 
-
 }

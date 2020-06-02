@@ -10,6 +10,7 @@
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)
@@ -52,4 +53,27 @@ bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
         return true;
     }
     return false;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrPaint::extractColorFragmentProcessors() {
+    switch (fColorFragmentProcessors.size()) {
+        case 0: {
+            // No processors at all: return the constant color.
+            return GrConstColorProcessor::Make(fColor, GrConstColorProcessor::InputMode::kIgnore);
+        }
+        case 1: {
+            // Exactly one processor: return as-is.
+            std::unique_ptr<GrFragmentProcessor> proc = std::move(fColorFragmentProcessors.front());
+            fColorFragmentProcessors.clear();
+            return proc;
+        }
+        default: {
+            // Multiple processors: use RunInSeries to combine them.
+            std::unique_ptr<GrFragmentProcessor> series =
+                GrFragmentProcessor::RunInSeries(fColorFragmentProcessors.data(),
+                                                 fColorFragmentProcessors.size());
+            fColorFragmentProcessors.clear();
+            return series;
+        }
+    }
 }
