@@ -22,6 +22,30 @@
       "revId": "71fad81f4babe03a2eefe9ce030c494417712043",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ec70e80_e7f66763",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-02T16:01:38Z",
+      "side": 1,
+      "message": "That sounds right to me. I don\u0027t think we\u0027ve done an audit to see if everything else that operated on device coords should stay in device, or really wanted global (my guess is that for our internal shaders, device was the right thing, whereas here, for lighting effects, etc. we definitely want global).\n\nThis does mean that something transformed by id\u003d0 will be different from sk_FragCoord if there was a saveLayer. I\u0027m not sure that\u0027s a problem since they are for different purposes.",
+      "parentUuid": "ad9920ca_56259cd5",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 65
+      },
+      "revId": "71fad81f4babe03a2eefe9ce030c494417712043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
