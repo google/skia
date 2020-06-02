@@ -17,6 +17,12 @@ class GrD3DRootSignature : public GrManagedResource {
 public:
     static sk_sp<GrD3DRootSignature> Make(GrD3DGpu* gpu, int numTextureSamplers);
 
+    enum class ParamIndex {
+        kConstantBufferView = 0,
+        kSamplerDescriptorTable = 1,
+        kTextureDescriptorTable = 2
+    };
+
     bool isCompatible(int numTextureSamplers) const;
 
     ID3D12RootSignature* rootSignature() const { return fRootSignature.get(); }

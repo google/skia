@@ -42,8 +42,9 @@ GrD3DPipelineState::GrD3DPipelineState(
     , fVertexStride(vertexStride)
     , fInstanceStride(instanceStride) {}
 
-void GrD3DPipelineState::setData(GrD3DGpu* gpu, const GrRenderTarget* renderTarget,
-                                 const GrProgramInfo& programInfo) {
+void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
+                                             const GrRenderTarget* renderTarget,
+                                             const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
@@ -63,8 +64,10 @@ void GrD3DPipelineState::setData(GrD3DGpu* gpu, const GrRenderTarget* renderTarg
                                 dstTexture, offset);
     }
 
-    // TODO: use returned virtual address to create a CBV and set in command list
-    (void) fDataManager.uploadConstants(gpu);
+    D3D12_GPU_VIRTUAL_ADDRESS constantsAddress = fDataManager.uploadConstants(gpu);
+    gpu->currentCommandList()->setGraphicsRootConstantBufferView(
+        (unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+        constantsAddress);
 }
 
 void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {

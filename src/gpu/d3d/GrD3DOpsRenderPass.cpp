@@ -160,11 +160,10 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         return false;
     }
 
-    fCurrentPipelineState->setData(fGpu, fRenderTarget, info);
     fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
 
-    // TODO: bind uniforms (either a new method or in pipelineState->setData())
+    fCurrentPipelineState->setAndBindConstants(fGpu, fRenderTarget, info);
 
     set_stencil_ref(fGpu, info);
     set_blend_factor(fGpu, info);
