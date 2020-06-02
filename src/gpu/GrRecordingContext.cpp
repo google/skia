@@ -8,6 +8,7 @@
 #include "include/private/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
@@ -35,18 +36,16 @@ GrRecordingContext::ProgramData::ProgramData(ProgramData&& other)
 
 GrRecordingContext::ProgramData::~ProgramData() = default;
 
-GrRecordingContext::GrRecordingContext(GrBackendApi backend,
-                                       const GrContextOptions& options,
-                                       uint32_t contextID)
-        : INHERITED(backend, options, contextID)
+GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
+        : INHERITED(std::move(proxy))
         , fAuditTrail(new GrAuditTrail()) {
 }
 
 GrRecordingContext::~GrRecordingContext() = default;
 
-bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
+bool GrRecordingContext::init() {
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init()) {
         return false;
     }
 

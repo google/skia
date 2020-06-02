@@ -14,10 +14,8 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GrImageContext::GrImageContext(GrBackendApi backend,
-                               const GrContextOptions& options,
-                               uint32_t contextID)
-            : INHERITED(backend, options, contextID) {
+GrImageContext::GrImageContext(sk_sp<GrContextThreadSafeProxy> proxy)
+            : INHERITED(std::move(proxy)) {
     fProxyProvider.reset(new GrProxyProvider(this));
 }
 

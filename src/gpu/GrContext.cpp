@@ -48,8 +48,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t contextID)
-        : INHERITED(backend, options, contextID) {
+GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
 }
@@ -64,15 +63,14 @@ GrContext::~GrContext() {
     delete fResourceCache;
 }
 
-bool GrContext::init(sk_sp<const GrCaps> caps) {
+bool GrContext::init() {
     ASSERT_SINGLE_OWNER
     SkASSERT(this->proxyProvider());
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init()) {
         return false;
     }
 
-    SkASSERT(this->caps());
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
@@ -104,7 +102,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    return fThreadSafeProxy;
+    return INHERITED::threadSafeProxy();
 }
 
 //////////////////////////////////////////////////////////////////////////////

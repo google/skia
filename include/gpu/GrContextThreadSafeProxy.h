@@ -8,26 +8,26 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "include/private/GrContext_Base.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
 
 #include <atomic>
 
 class GrBackendFormat;
+class GrCaps;
 class GrContextThreadSafeProxyPriv;
-struct SkImageInfo;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
 
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
- *
- * TODO: Once the guts of GrContext_Base are moved in here, this probably shouldn't derive
- * from GrContext_Base since it isn't actually a context.
  */
-class SK_API GrContextThreadSafeProxy : public GrContext_Base {
+class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadSafeProxy> {
 public:
-    ~GrContextThreadSafeProxy() override;
+    ~GrContextThreadSafeProxy();
 
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
@@ -78,13 +78,13 @@ public:
      *
      * The caller should check that the returned format is valid.
      */
-    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
-        return INHERITED::defaultBackendFormat(ct, renderable);
-    }
+    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const;
+
+    bool isValid() const { return nullptr != fCaps; }
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (this->contextID() == that.contextID()));
+        SkASSERT((this == &that) == (this->fContextID == that.fContextID));
         return this == &that;
     }
 
@@ -94,24 +94,25 @@ public:
     GrContextThreadSafeProxyPriv priv();
     const GrContextThreadSafeProxyPriv priv() const;
 
-protected:
-    // TODO: remove this once this class isn't derived from GrContext_Base
-    GrContextThreadSafeProxy* asThreadSafeProxy() override { return this; }
-
 private:
     friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods
 
     // DDL TODO: need to add unit tests for backend & maybe options
-    GrContextThreadSafeProxy(GrBackendApi, const GrContextOptions&, uint32_t contextID);
-
-    bool init(sk_sp<const GrCaps>) override;
+    GrContextThreadSafeProxy(GrBackendApi, const GrContextOptions&);
 
     void abandonContext();
     bool abandoned() const;
 
-    std::atomic<bool> fAbandoned{false};
+    // TODO: This should be part of the constructor but right now we have a chicken-and-egg problem
+    // with GrContext where we get the caps by creating a GPU which requires a context (see the
+    // `init` method on GrContext_Base).
+    void init(sk_sp<const GrCaps>);
 
-    typedef GrContext_Base INHERITED;
+    const GrBackendApi          fBackend;
+    const GrContextOptions      fOptions;
+    const uint32_t              fContextID;
+    sk_sp<const GrCaps>         fCaps;
+    std::atomic<bool>           fAbandoned{false};
 };
 
 #endif
