@@ -272,7 +272,6 @@ private:
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
     GrAtlasManager* fFullAtlasManager;
-    SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
 };
 

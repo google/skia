@@ -13,6 +13,7 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrStyle.h"
@@ -963,12 +964,8 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
         const int begin, const int end) {
 
     SkASSERT(fSubRun->isPrepared());
-    const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-    if (!fMetricsAndImages.isValid() ||
-            fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
-        fMetricsAndImages.init(strikeSpec);
-    }
+    SkBulkGlyphMetricsAndImages metricsAndImages{fSubRun->strikeSpec()};
 
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
@@ -976,10 +973,10 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     int i = begin;
     for (; i < end; i++) {
         GrGlyph* grGlyph = fSubRun->grGlyph(i);
-        SkASSERT(grGlyph);
+        SkASSERT(grGlyph != nullptr);
 
         if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
-            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->fPackedID);
+            const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
             if (skGlyph.image() == nullptr) {
                 return {false, 0};
             }
