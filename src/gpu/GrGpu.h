@@ -639,8 +639,9 @@ public:
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 
-    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                       GrColorType) = 0;
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
+                                                                       GrColorType,
+                                                                       int sampleCount = 1) = 0;
 
     virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
 

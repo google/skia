@@ -734,10 +734,10 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
 }
 #endif
 
-void SkSurface::flushAndSubmit() {
+void SkSurface::flushAndSubmit(bool syncCpu) {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
     if (this->getContext()) {
-        this->getContext()->submit();
+        this->getContext()->submit(syncCpu);
     }
 }
 

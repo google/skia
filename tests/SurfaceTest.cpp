@@ -30,6 +30,7 @@
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/gpu/TestSurface.h"
 
 #include <functional>
 #include <initializer_list>
@@ -181,21 +182,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         }
 
         {
-            auto* gpu = context->priv().getGpu();
-
-            GrBackendRenderTarget backendRenderTarget = gpu->createTestingOnlyBackendRenderTarget(
-                    16, 16, SkColorTypeToGrColorType(colorType));
+            auto surf = MakeBackendRenderTargetSurface(context, {16, 16}, 1, kTopLeft_GrSurfaceOrigin, colorType);
             bool can = context->colorTypeSupportedAsSurface(colorType);
-            auto surf = SkSurface::MakeFromBackendRenderTarget(context, backendRenderTarget,
-                                                               kTopLeft_GrSurfaceOrigin, colorType,
-                                                               nullptr, nullptr);
             REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d", colorType,
                             can, SkToBool(surf));
-            surf.reset();
-            context->flushAndSubmit();
-            if (backendRenderTarget.isValid()) {
-                gpu->deleteTestingOnlyBackendRenderTarget(backendRenderTarget);
-            }
         }
     }
 }
@@ -958,7 +948,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
                                                         ReleaseChecker::Release,
                                                         &releaseChecker);
         } else {
-            backendRT = gpu->createTestingOnlyBackendRenderTarget(kWidth, kHeight,
+            backendRT = gpu->createTestingOnlyBackendRenderTarget({kWidth, kHeight},
                                                                   GrColorType::kRGBA_8888);
             if (!backendRT.isValid()) {
                 continue;

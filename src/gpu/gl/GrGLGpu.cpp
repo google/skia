@@ -3660,24 +3660,34 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return (GR_GL_TRUE == result);
 }
 
-GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                    GrColorType colorType) {
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
+GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                    GrColorType colorType,
+                                                                    int sampleCnt) {
+    if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
         return GrBackendRenderTarget();  // invalid
     }
     this->handleDirtyContext();
     auto format = this->glCaps().getFormatFromColorType(colorType);
-    if (!this->glCaps().isFormatRenderable(format, 1)) {
+    if (!this->glCaps().isFormatRenderable(format, sampleCnt)) {
         return {};
     }
-    bool useTexture = format == GrGLFormat::kBGRA8;
+    bool useTexture = format == GrGLFormat::kBGRA8 ||
+                      (sampleCnt != 1 && !this->glCaps().usesMSAARenderBuffers());
+    if (useTexture && sampleCnt != 1 && this->glCaps().usesMSAARenderBuffers()) {
+        return {};
+    }
     int sFormatIdx = this->getCompatibleStencilIndex(format);
     if (sFormatIdx < 0) {
         return {};
     }
     GrGLuint colorID = 0;
     GrGLuint stencilID = 0;
-    auto deleteIDs = [&] {
+    GrGLFramebufferInfo info;
+    info.fFBOID = 0;
+    info.fFormat = GrGLFormatToEnum(format);
+
+    auto deleteIDs = [&](bool saveFBO = false) {
         if (colorID) {
             if (useTexture) {
                 GL_CALL(DeleteTextures(1, &colorID));
@@ -3687,6 +3697,9 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         }
         if (stencilID) {
             GL_CALL(DeleteRenderbuffers(1, &stencilID));
+        }
+        if (!saveFBO && info.fFBOID) {
+            this->deleteFramebuffer(info.fFBOID);
         }
     };
 
@@ -3701,9 +3714,6 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
         return {};
     }
 
-    GrGLFramebufferInfo info;
-    info.fFBOID = 0;
-    info.fFormat = GrGLFormatToEnum(format);
     GL_CALL(GenFramebuffers(1, &info.fFBOID));
     if (!info.fFBOID) {
         deleteIDs();
@@ -3715,23 +3725,46 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     if (useTexture) {
         GrGLTextureParameters::SamplerOverriddenState initialState;
-        colorID = this->createTexture2D({w, h}, format, GrRenderable::kYes, &initialState, 1);
+        colorID = this->createTexture2D(dimensions, format, GrRenderable::kYes, &initialState, 1);
         if (!colorID) {
             deleteIDs();
             return {};
         }
-        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_TEXTURE_2D,
-                                     colorID, 0));
+        if (sampleCnt != 1) {
+            GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                         GR_GL_TEXTURE_2D, colorID, 0));
+        } else {
+            GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                                    GR_GL_TEXTURE_2D, colorID, 0, sampleCnt));
+        }
     } else {
         GrGLenum renderBufferFormat = this->glCaps().getRenderbufferInternalFormat(format);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, colorID));
-        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, renderBufferFormat, w, h));
+        if (sampleCnt == 1) {
+            GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, renderBufferFormat, dimensions.width(),
+                                        dimensions.height()));
+        } else {
+            if (!this->renderbufferStorageMSAA(this->glContext(), sampleCnt, renderBufferFormat,
+                                               dimensions.width(), dimensions.height())) {
+                deleteIDs();
+                return {};
+            }
+        }
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER, colorID));
     }
     GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, stencilID));
     auto stencilBufferFormat = this->glCaps().stencilFormats()[sFormatIdx].fInternalFormat;
-    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, stencilBufferFormat, w, h));
+    if (sampleCnt == 1) {
+        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, stencilBufferFormat,
+                                    dimensions.width(), dimensions.height()));
+    } else {
+        if (!this->renderbufferStorageMSAA(this->glContext(), sampleCnt, stencilBufferFormat,
+                                           dimensions.width(), dimensions.height())) {
+            deleteIDs();
+            return {};
+        }
+    }
     GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT, GR_GL_RENDERBUFFER,
                                     stencilID));
     if (this->glCaps().stencilFormats()[sFormatIdx].fPacked) {
@@ -3744,7 +3777,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     // has the RB attached then deletion is delayed. So we unbind the FBO here and delete the
     // renderbuffers/texture.
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
-    deleteIDs();
+    deleteIDs(/* saveFBO = */ true);
 
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     GrGLenum status;
@@ -3755,7 +3788,8 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     }
     auto stencilBits = SkToInt(this->glCaps().stencilFormats()[sFormatIdx].fStencilBits);
 
-    GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, stencilBits, info);
+    GrBackendRenderTarget beRT = GrBackendRenderTarget(dimensions.width(), dimensions.height(), 1,
+                                                       stencilBits, info);
     SkASSERT(this->caps()->areColorTypeAndFormatCompatible(colorType, beRT.getBackendFormat()));
     return beRT;
 }

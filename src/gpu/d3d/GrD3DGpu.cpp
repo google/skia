@@ -790,6 +790,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                       GrTexturable texturable,
                                                       GrRenderable renderable,
                                                       GrMipMapped mipMapped,
+                                                      int sampleCnt,
                                                       GrD3DTextureResourceInfo* info,
                                                       GrProtected isProtected) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
@@ -825,7 +826,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.DepthOrArraySize = 1;
     resourceDesc.MipLevels = numMipLevels;
     resourceDesc.Format = dxgiFormat;
-    resourceDesc.SampleDesc.Count = 1;
+    resourceDesc.SampleDesc.Count = sampleCnt;
     // quality levels are only supported for tiled resources so ignore for now
     resourceDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
@@ -880,7 +881,7 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
-                                                      renderable, mipMapped,
+                                                      renderable, mipMapped, 1,
                                                       &info, isProtected)) {
         return {};
     }
@@ -919,7 +920,7 @@ GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
-                                                      GrRenderable::kNo, mipMapped,
+                                                      GrRenderable::kNo, mipMapped, 1,
                                                       &info, isProtected)) {
         return {};
     }
@@ -951,24 +952,26 @@ bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return !(textureResource->GetDesc().Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
 }
 
-GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                     GrColorType colorType) {
+GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                     GrColorType colorType,
+                                                                     int sampleCnt) {
     this->handleDirtyContext();
 
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
+    if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
         return {};
     }
 
     DXGI_FORMAT dxgiFormat = this->d3dCaps().getFormatFromColorType(colorType);
 
     GrD3DTextureResourceInfo info;
-    if (!this->createTextureResourceForBackendSurface(dxgiFormat, { w, h }, GrTexturable::kNo,
+    if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kNo,
                                                       GrRenderable::kYes, GrMipMapped::kNo,
-                                                      &info, GrProtected::kNo)) {
+                                                      sampleCnt, &info, GrProtected::kNo)) {
         return {};
     }
 
-    return GrBackendRenderTarget(w, h, 1, info);
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), 1, info);
 }
 
 void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

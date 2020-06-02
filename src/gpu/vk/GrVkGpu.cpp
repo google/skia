@@ -1885,23 +1885,29 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return false;
 }
 
-GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
+GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                    GrColorType ct,
+                                                                    int sampleCnt) {
     this->handleDirtyContext();
 
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
-        return GrBackendRenderTarget();
+    if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
+        return {};
+    }
+    if (sampleCnt != 1) {
+        return {};
     }
 
     VkFormat vkFormat = this->vkCaps().getFormatFromColorType(ct);
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
+    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kNo,
                                               GrRenderable::kYes, GrMipMapped::kNo,
                                               &info, GrProtected::kNo)) {
-      return {};
+        return {};
     }
 
-    return GrBackendRenderTarget(w, h, 1, 0, info);
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), 1, 0, info);
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
