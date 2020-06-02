@@ -649,13 +649,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // Only in WebGL 2.0
         fSemaphoreSupport = fFenceSyncSupport = version >= GR_GL_VER(2, 0);
         fFenceType = FenceType::kSyncObject;
-    } else if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
+    } else if (GR_IS_GR_GL(standard) &&
+               (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync"))) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
-    } else if (GR_IS_GR_GL(standard) && version >= GR_GL_VER(3, 2)) {
-        fSemaphoreSupport = fFenceSyncSupport = true;
-        fFenceType = FenceType::kSyncObject;
-    } else if (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0)) {
+    } else if (GR_IS_GR_GL_ES(standard) &&
+               (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_APPLE_sync"))) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
     } else if (ctxInfo.hasExtension("GL_NV_fence")) {
