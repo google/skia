@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a54b0ed9_a1012831",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-02T00:10:16Z",
+      "side": 1,
+      "message": "Cool pattern",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 28
+      },
+      "revId": "8e1a475489337c695ba2b641b373d046c3a46a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89d5f8bc_54b254b6",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-02T00:10:16Z",
+      "side": 1,
+      "message": "Has anyone important been serializing vertices that we should support here?",
+      "revId": "8e1a475489337c695ba2b641b373d046c3a46a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c69a44c3_85e56e38",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-02T00:10:16Z",
+      "side": 1,
+      "message": "Is there anywhere we\u0027d want to return nullptr that didn\u0027t also buffer.validate(false)?\n\nIf not, might be simpler to just return nullptr from the meat of all this logic, but wrap that with a \n\n   if (auto verts \u003d decode(buffer)) {\n       return verts;\n   }\n   buffer.validate(false);\n   return nullptr;\n\nBasically, can we do this with function calls from the outside rather than macros on the inside?",
+      "revId": "8e1a475489337c695ba2b641b373d046c3a46a5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
