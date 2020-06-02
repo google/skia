@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "246b5d58_741c3cd0",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-02T13:31:28Z",
+      "side": 1,
+      "message": "nevermind, as we discussed, the reason is that emscripten\u0027s safety checking (we suppose) during passing of parameters to bound methods is a source of overhead, and our current method is faster.",
+      "parentUuid": "28ffe692_27a1bccd",
+      "revId": "6e7c306c16835e15e86272ad17a40df7128f65c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d1b86c7_af00c22d",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 4
