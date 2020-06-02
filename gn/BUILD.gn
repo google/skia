@@ -424,6 +424,7 @@ config("warnings") {
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
       "-Wno-thread-safety-negative",
+      "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
