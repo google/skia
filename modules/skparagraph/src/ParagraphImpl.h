@@ -269,6 +269,8 @@ private:
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
     std::vector<size_t> fWords;
+
+    std::unique_ptr<SkICUInterface> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia
