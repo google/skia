@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7fd2b96_23a53532",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-02T16:06:17Z",
+      "side": 1,
+      "message": "Commenting this out makes things \"work\". I think the correct thing to do is to mark nogncheck the conditional includes in flutter (since they\u0027re the ones who want to be check clean).",
+      "revId": "7798f118654b07d55a453089d6a6651936f61ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
