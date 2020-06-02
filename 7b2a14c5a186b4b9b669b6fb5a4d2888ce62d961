@@ -22,6 +22,30 @@
       "revId": "7b2a14c5a186b4b9b669b6fb5a4d2888ce62d961",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66b4d9a9_64af8e59",
+        "filename": "gm/localmatrixshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-02T15:26:55Z",
+      "side": 1,
+      "message": "Oops! Fixed it",
+      "parentUuid": "cc6286df_55589196",
+      "range": {
+        "startLine": 115,
+        "startChar": 47,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "7b2a14c5a186b4b9b669b6fb5a4d2888ce62d961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
