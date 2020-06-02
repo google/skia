@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d4366bbd_6396d1c5",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done. I wanted to avoid reffing \u0026 unreffing needlessly but we can stick to the \"tsp / refTsp\" pattern instead.",
+      "parentUuid": "77ec76ba_895acf7a",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 43
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ebbe8db_22bd4861",
         "filename": "src/core/SkSurfaceCharacterization.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02a9efce_087eecd8",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ebbe8db_22bd4861",
+      "range": {
+        "startLine": 49,
+        "startChar": 52,
+        "endLine": 49,
+        "endChar": 58
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2856ef85_31fb90a0",
+        "filename": "src/gpu/GrContextThreadSafeProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c0c0a13_12183dde",
+      "range": {
+        "startLine": 33,
+        "startChar": 31,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e691d46_92ee0527",
         "filename": "src/gpu/GrContextThreadSafeProxyPriv.h",
         "patchSetId": 3
@@ -85,6 +157,24 @@
       "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f149b348_8fe4ee93",
+        "filename": "src/gpu/GrContextThreadSafeProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e691d46_92ee0527",
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "599f7475_ec251da1",
+        "filename": "src/gpu/GrContext_Base.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "I don\u0027t know if it can be completely removed yet, because some classes do seem to run code that depends on caps. But, I managed to remove the caps arg here.",
+      "parentUuid": "d825be84_2ab2c4c6",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 1
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbbb430d_86673b2a",
         "filename": "src/gpu/GrContext_Base.cpp",
         "patchSetId": 3
@@ -131,6 +245,30 @@
       "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b31882b9_d229c98e",
+        "filename": "src/gpu/GrContext_Base.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbbb430d_86673b2a",
+      "range": {
+        "startLine": 39,
+        "startChar": 86,
+        "endLine": 39,
+        "endChar": 90
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "deecd923_7690c071",
+        "filename": "src/gpu/GrDDLContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b1893d3_03cd921e",
+      "range": {
+        "startLine": 156,
+        "startChar": 23,
+        "endLine": 156,
+        "endChar": 38
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b36dab5_3725bfb0",
         "filename": "src/gpu/GrLegacyDirectContext.cpp",
         "patchSetId": 3
@@ -177,6 +339,30 @@
       "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e4b2d8c_85d4e8b7",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-02T15:23:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b36dab5_3725bfb0",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "45160ffd3b7478e3cf048d88098cef16f0fd6fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
