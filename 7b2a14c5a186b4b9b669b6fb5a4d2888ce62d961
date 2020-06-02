@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc6286df_55589196",
+        "filename": "gm/localmatrixshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-02T15:18:27Z",
+      "side": 1,
+      "message": "Guessing you did what I did recently, and looked at this in viewer? I think the slide dimensions are cutting off the second row?",
+      "range": {
+        "startLine": 115,
+        "startChar": 47,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "7b2a14c5a186b4b9b669b6fb5a4d2888ce62d961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
