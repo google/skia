@@ -45,9 +45,9 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
                            GrMaskFormat format, SkRect vertexBounds,
                            const SkSpan<VertexData>& vertexData)
         : fBlob{textBlob}
-        , fStrikeSpec{strikeSpec}
         , fType{type}
         , fMaskFormat{format}
+        , fStrikeSpec{strikeSpec}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData} {
     SkASSERT(fType != kTransformedPath);
@@ -55,16 +55,15 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
 
 GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         : fBlob{textBlob}
-        , fStrikeSpec{strikeSpec}
         , fType{kTransformedPath}
         , fMaskFormat{kA8_GrMaskFormat}
+        , fStrikeSpec{strikeSpec}
         , fVertexBounds{SkRect::MakeEmpty()}
         , fVertexData{SkSpan<VertexData>{}} { }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
-GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 
 size_t GrTextBlob::SubRun::vertexStride() const {
