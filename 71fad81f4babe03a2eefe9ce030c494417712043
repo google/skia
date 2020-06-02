@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad9920ca_56259cd5",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-02T15:54:20Z",
+      "side": 1,
+      "message": "Michael, my intuition is that this should actually be localToGlobal(). All of the other marked matrices are derived from the canvas matrix operations, and don\u0027t care about any transform applied to the device. For custom shaded vertices, I think the same applies - you don\u0027t want different results because you happened to do a saveLayer somewhere, right?",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 65
+      },
+      "revId": "71fad81f4babe03a2eefe9ce030c494417712043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
