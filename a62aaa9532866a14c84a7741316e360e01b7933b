@@ -46,6 +46,30 @@
       "revId": "a62aaa9532866a14c84a7741316e360e01b7933b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "678c5fa6_f4a2e58e",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-02T16:10:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4356f3df_1468b49d",
+      "range": {
+        "startLine": 951,
+        "startChar": 17,
+        "endLine": 951,
+        "endChar": 30
+      },
+      "revId": "a62aaa9532866a14c84a7741316e360e01b7933b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
