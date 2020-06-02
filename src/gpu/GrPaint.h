@@ -77,6 +77,12 @@ public:
         fTrivial = false;
     }
 
+    /**
+     * Extracts the current color processors from the GrPaint, leaving it without a color processor.
+     * To be used as a migration path for the deprecation of the fColorFragmentProcessors array.
+     */
+    std::unique_ptr<GrFragmentProcessor> extractColorFragmentProcessors();
+
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
     int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
     int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
