@@ -11,13 +11,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOpts_spi.h"
 #include "include/private/SkTLogic.h"
-
-// #include "src/core/SkOpts.h"
-// It's sort of pesky to be able to include SkOpts.h here, so we'll just re-declare what we need.
-namespace SkOpts {
-    extern uint32_t (*hash_fn)(const void*, size_t, uint32_t);
-}
 
 class SkChecksum : SkNoncopyable {
 public:
