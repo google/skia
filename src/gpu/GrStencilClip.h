@@ -16,12 +16,14 @@
  */
 class GrStencilClip final : public GrHardClip {
 public:
-    GrStencilClip(uint32_t stencilStackID = SK_InvalidGenID) : fStencilStackID(stencilStackID) {}
+    explicit GrStencilClip(const SkISize& rtDims, uint32_t stencilStackID = SK_InvalidGenID)
+            : fFixedClip(rtDims)
+            , fStencilStackID(stencilStackID) {}
 
-    explicit GrStencilClip(const SkIRect& scissorRect, uint32_t stencilStackID = SK_InvalidGenID)
-        : fFixedClip(scissorRect)
-        , fStencilStackID(stencilStackID) {
-    }
+    GrStencilClip(const SkISize& rtDims, const SkIRect& scissorRect,
+                  uint32_t stencilStackID = SK_InvalidGenID)
+            : fFixedClip(rtDims, scissorRect)
+            , fStencilStackID(stencilStackID) {}
 
     const GrFixedClip& fixedClip() const { return fFixedClip; }
     GrFixedClip& fixedClip() { return fFixedClip; }
