@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2020-06-03
+
 ### Added
  - Support for wide-gamut color spaces DisplayP3 and AdobeRGB. However, correct representation on a
    WCG monitor requires that the browser is rendering everything to the DisplayP3 or AdobeRGB
