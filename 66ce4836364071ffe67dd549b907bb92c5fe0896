@@ -1,0 +1,274 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f0d0a56_95d301bf",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "Why not use the enum type here? Also, should be named fCodeUnitProperties.",
+      "range": {
+        "startLine": 51,
+        "startChar": 23,
+        "endLine": 51,
+        "endChar": 32
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0ce5454_b9549917",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "I know this already exists, but it\u0027s super confusing as a name since the type has nothing to do with a codepoint, it is a reference made up of indices and lengths into other arrays, at best it\u0027s CodepointRepresentation? fCodePoints is kinda ok since the idea is that there is one entry per codepoint.",
+      "range": {
+        "startLine": 55,
+        "startChar": 13,
+        "endLine": 55,
+        "endChar": 22
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1747477_cd8fa7f3",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "I suppose it works to put this here, but it\u0027s a bit arbitrary (it works because shapeTextIntoEndlessLine happens to call it before doing other things). It might make more sense to put it there with a comment that shapeTextIntoEndlessLine is the thing that calls all of the icu dependencies (and if it isn\u0027t, then it should be put somewhere else).",
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cda31a14_05f2ae9a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "This is kinda awkward due to kWhiteSpace, which it doesn\u0027t work with. It works on \u0027Before\u0027 type things. It\u0027s also only used in one place and seems to use a potentially expensive std::function. Does this really need to be this generic?",
+      "range": {
+        "startLine": 955,
+        "startChar": 20,
+        "endLine": 955,
+        "endChar": 42
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e44ad30a_0f477091",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "This is confusingly an \u0027if any selected flags\u0027 and not \u0027if all selected flags\u0027. In practice I don\u0027t se any reason to want to mix two flags? This should just take the enum type and expect only one flag.",
+      "range": {
+        "startLine": 955,
+        "startChar": 43,
+        "endLine": 955,
+        "endChar": 65
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdcda57f_3e84d66b",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "We get these from ICU, but the information isn\u0027t tied to ICU in any way. I suppose these are flags (in that this is set of bit flags). They aren\u0027t types though. These are all properties of  code units in fText, so perhaps this is better named \u0027CodeUnitFlags\u0027.",
+      "range": {
+        "startLine": 76,
+        "startChar": 5,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ef1f073_114692ad",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "kPartOfWhiteSpace\n\nThis marks a code unit in fText as being part of a whitespace codepoint, as is it is difficult to tell if just \u0027kWhiteSpace\u0027 means the beginning, end, or something else.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b6760d2_9277bc07",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "kGraphemeBreakBefore",
+      "range": {
+        "startLine": 78,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fef75b5_cb0d5a7f",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "kSoftLineBreakBefore",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 18
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2624f574_953c1d22",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "kHardLineBreakBefore\n\nThe ICU iterators return the index of the fenceposts, so 0 means \u0027before position 0\u0027. I think this important because kWhiteSpace is a property of the codepoints. Mixing these two can be confusing, so it seems easier to name them all as applying to the fText, even if it can be one longer than fText.",
+      "range": {
+        "startLine": 80,
+        "startChar": 3,
+        "endLine": 80,
+        "endChar": 18
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea454db_d6c15c54",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "This should have the enum type, or be renamed \u0027Any\u0027 or named \u0027HasAll\u0027 and re-written\n\n    (fIcuFlags[index] \u0026 test) \u003d\u003d test;\n\nAlong with the rename of fIcuFlags, the base name of this is more like textCodeUnitHasProperty",
+      "range": {
+        "startLine": 197,
+        "startChar": 32,
+        "endLine": 197,
+        "endChar": 40
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "793ecb87_05791a70",
+        "filename": "modules/skparagraph/src/Run.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T21:13:06Z",
+      "side": 1,
+      "message": "This seems to be the only place scanIcuFlags is called, and it seems a very expensive and awkward way to write this (calling through a std::function which may or may not get inlined just to get a count).",
+      "range": {
+        "startLine": 396,
+        "startChar": 13,
+        "endLine": 396,
+        "endChar": 25
+      },
+      "revId": "66ce4836364071ffe67dd549b907bb92c5fe0896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
