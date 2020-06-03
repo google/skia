@@ -74,25 +74,35 @@ void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
     fFlags |= kHasCoordTransforms_Flag;
 }
 
-void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix matrix) {
-    if (matrix == fMatrix) {
+void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
+    if (newMatrix == fMatrix) {
         return;
     }
+    SkASSERT(newMatrix.fKind != SkSL::SampleMatrix::Kind::kNone);
     SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
+    if (this->numCoordTransforms() == 0 &&
+        (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform ||
+         newMatrix.fKind == SkSL::SampleMatrix::Kind::kMixed)) {
+        // as things stand, matrices only work when there's a coord transform, so we need to add
+        // an identity transform to keep the downstream code happy
+        static GrCoordTransform identity;
+        this->addCoordTransform(&identity);
+    }
     if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-        SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                 (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
-                  matrix.fExpression == fMatrix.fExpression));
-        fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
-                                     fMatrix.fExpression);
+        if (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+            // need to base this transform on the one that happened in our parent
+            fMatrix.fBase = newMatrix.fOwner;
+        } else {
+            SkASSERT(newMatrix.fKind == SkSL::SampleMatrix::Kind::kVariable);
+            fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
+                                         fMatrix.fExpression);
+        }
     } else {
         SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
-        fMatrix = matrix;
+        fMatrix = newMatrix;
     }
-    if (matrix.fKind == SkSL::SampleMatrix::Kind::kVariable) {
-        for (auto& child : fChildProcessors) {
-            child->setSampleMatrix(matrix);
-        }
+    for (auto& child : fChildProcessors) {
+        child->setSampleMatrix(newMatrix);
     }
 }
 
