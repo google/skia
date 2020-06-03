@@ -20,6 +20,12 @@ GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         , fCpuDescriptorManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {}
 
+void GrD3DResourceProvider::destroyResources() {
+    fSamplers.reset();
+
+    fPipelineStateCache->release();
+}
+
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
     if (fAvailableDirectCommandLists.count()) {
         std::unique_ptr<GrD3DDirectCommandList> list =
@@ -94,6 +100,19 @@ void GrD3DResourceProvider::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* sampler)
     fCpuDescriptorManager.recycleSampler(sampler);
 }
 
+GrD3DSampler* GrD3DResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
+    GrD3DSampler::Key key = GrD3DSampler::GenerateKey(params);
+    sk_sp<GrD3DSampler>* samplerPtr = fSamplers.find(key);
+    if (samplerPtr) {
+        return samplerPtr->get();
+    }
+
+    sk_sp<GrD3DSampler> sampler = GrD3DSampler::Make(fGpu, params);
+    SkASSERT(sampler);
+    fSamplers.set(key, sampler);
+    return sampler.get();
+}
+
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
@@ -163,6 +182,10 @@ GrD3DResourceProvider::PipelineStateCache::~PipelineStateCache() {
         SkDebugf("---------------------\n");
     }
 #endif
+}
+
+void GrD3DResourceProvider::PipelineStateCache::release() {
+    fMap.reset();
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::PipelineStateCache::refPipelineState(
