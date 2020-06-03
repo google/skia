@@ -30,6 +30,7 @@ declare_args() {
                             (target_cpu == "arm64" && is_android))
   skia_enable_tools = is_skia_dev_build
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
+  skia_fontmgr_factory = ""
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
@@ -94,9 +95,12 @@ declare_args() {
 
 declare_args() {
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
-  skia_enable_fontmgr_custom =
-      is_linux && skia_use_freetype && !skia_use_fontconfig
-  skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
+  skia_enable_fontmgr_custom_directory = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_empty = skia_use_freetype
+  skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
+  skia_enable_fontmgr_FontConfigInterface =
+      skia_use_freetype && skia_use_fontconfig
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
