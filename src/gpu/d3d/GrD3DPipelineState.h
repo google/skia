@@ -54,7 +54,7 @@ public:
 
     void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
 
-    void setAndBindTextures(const GrPrimitiveProcessor& primProc,
+    void setAndBindTextures(GrD3DGpu*, const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],
                             const GrPipeline& pipeline);
 

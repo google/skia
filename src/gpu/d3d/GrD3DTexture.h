@@ -45,6 +45,7 @@ protected:
                  SkISize dimensions,
                  const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
+                 const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
                  GrMipMapsStatus);
 
     GrD3DGpu* getD3DGpu() const;
@@ -60,9 +61,11 @@ protected:
 
 private:
     GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
-                 sk_sp<GrD3DResourceState>, GrMipMapsStatus);
+                 sk_sp<GrD3DResourceState>, const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
+                 GrMipMapsStatus);
     GrD3DTexture(GrD3DGpu*, SkISize dimensions, const GrD3DTextureResourceInfo&,
-                 sk_sp<GrD3DResourceState>, GrMipMapsStatus, GrWrapCacheable, GrIOType);
+                 sk_sp<GrD3DResourceState>, const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
+                 GrMipMapsStatus, GrWrapCacheable, GrIOType);
 
     // In D3D we call the release proc after we are finished with the underlying
     // GrSurfaceResource::Resource object (which occurs after the GPU has finished all work on it).
@@ -78,6 +81,8 @@ private:
             return GrSamplerState::GenerateKey(state);
         }
     };
+
+    D3D12_CPU_DESCRIPTOR_HANDLE fShaderResourceView;
 
     typedef GrTexture INHERITED;
 };
