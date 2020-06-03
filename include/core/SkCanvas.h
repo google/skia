@@ -1133,7 +1133,17 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_drawColor
     */
-    void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
+    void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver) {
+        this->drawColor(SkColor4f::FromColor(color), mode);
+    }
+
+    /** Fills clip with color color.
+        mode determines how ARGB is combined with destination.
+
+        @param color  SkColor4f representing unpremultiplied color.
+        @param mode   SkBlendMode used to combine source color and destination
+    */
+    void drawColor(const SkColor4f& color, SkBlendMode mode = SkBlendMode::kSrcOver);
 
     /** Fills clip with color color using SkBlendMode::kSrc.
         This has the effect of replacing all pixels contained by clip with color.
@@ -1141,6 +1151,15 @@ public:
         @param color  unpremultiplied ARGB
     */
     void clear(SkColor color) {
+        this->clear(SkColor4f::FromColor(color));
+    }
+
+    /** Fills clip with color color using SkBlendMode::kSrc.
+        This has the effect of replacing all pixels contained by clip with color.
+
+        @param color  SkColor4f representing unpremultiplied color.
+    */
+    void clear(const SkColor4f& color) {
         this->drawColor(color, SkBlendMode::kSrc);
     }
 
