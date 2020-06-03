@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a74b5c3d_da7c0c73",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "nit align this on the S above",
+      "range": {
+        "startLine": 95,
+        "startChar": 12,
+        "endLine": 95,
+        "endChar": 13
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba77a607_fa78930d",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "should we have an assert here to say that if we crop the viewport we can definitely handle it with indirect?",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 190,
+        "endChar": 89
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78eff236_26c35b95",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "can we add to this comment saying how this is calculating the worst case cubic?",
+      "range": {
+        "startLine": 58,
+        "startChar": 36,
+        "endLine": 58,
+        "endChar": 38
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c37d48b_3369aeaf",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "should we call cubic_k instead here to make it clear what this value is?",
+      "range": {
+        "startLine": 60,
+        "startChar": 20,
+        "endLine": 60,
+        "endChar": 38
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0718e7a_57707b0d",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "same as the cubic comment bellow but for quadratic.",
+      "range": {
+        "startLine": 96,
+        "startChar": 15,
+        "endLine": 96,
+        "endChar": 55
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52dab646_d2dbcaa5",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "cubic_k(intolerance) * cubic_k(intolerance). Or to give the compiler a hint if it is not very smart: float k \u003d cubic_k(intolerance); float kk \u003d k*k;",
+      "range": {
+        "startLine": 113,
+        "startChar": 15,
+        "endLine": 113,
+        "endChar": 54
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d94d2b8_bcfa74bf",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "again can use cubic_k here",
+      "range": {
+        "startLine": 122,
+        "startChar": 19,
+        "endLine": 122,
+        "endChar": 60
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03abd22f_130a4b7e",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T15:24:04Z",
+      "side": 1,
+      "message": "so I don\u0027t really know the ceil_log2_sqrt_sqrt trick in that function. But in general this is the same as doing \"ceil_log2(worst_case_cubic(intolderance, devWidth, devHeight))\" right? Is there anyways to avoid doing the sqrts in the worst_case_cubic calculation as well or is the log2 really need for the math to all fall out?",
+      "range": {
+        "startLine": 123,
+        "startChar": 11,
+        "endLine": 123,
+        "endChar": 84
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
