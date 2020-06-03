@@ -70,6 +70,30 @@
       "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "026a358f_63ba4063",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2199,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-03T18:30:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3b0145c_d1a1d4b3",
+      "range": {
+        "startLine": 2199,
+        "startChar": 16,
+        "endLine": 2199,
+        "endChar": 23
+      },
+      "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
