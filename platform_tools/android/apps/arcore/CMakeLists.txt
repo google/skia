@@ -56,7 +56,6 @@ target_include_directories(hello_ar_native PRIVATE
             "${SKIA_INCLUDE_PATH}/config"
             "${SKIA_INCLUDE_PATH}/gpu"
             "${SKIA_INCLUDE_PATH}/android"
-            "${SKIA_INCLUDE_PATH}/atlastext"
             "${SKIA_INCLUDE_PATH}/c"
             "${SKIA_INCLUDE_PATH}/codec"
             "${SKIA_INCLUDE_PATH}/effects"

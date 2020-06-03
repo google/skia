@@ -395,6 +395,5 @@ gm_sources = [
 ]
 
 gl_gm_sources = [
-  "$_gm/atlastext.cpp",
   "$_gm/rectangletexture.cpp",
 ]
