@@ -254,8 +254,9 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
         auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
         // These tests are difficult to get working with Vulkan. See http://skbug.com/8705
         // and http://skbug.com/8275
+        // Also problematic on Dawn; see http://skbug.com/10326
         GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-        if (api == GrBackendApi::kVulkan) {
+        if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn) {
             continue;
         }
         DeathFn contextKillers[] = {destroy, abandon, releaseResourcesAndAbandon};
