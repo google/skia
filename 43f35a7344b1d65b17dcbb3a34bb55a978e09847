@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c6c2bec_fc3313ec",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-03T16:28:19Z",
+      "side": 1,
+      "message": "can we delete this too?",
+      "revId": "43f35a7344b1d65b17dcbb3a34bb55a978e09847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
