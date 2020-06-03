@@ -16,6 +16,24 @@
       "revId": "0f997bff8a66396e5e551be8709f3a117e9f0975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106d4bd4_b26324ef",
+        "filename": "src/ports/SkFontMgr_custom_embedded.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 10616
+      },
+      "writtenOn": "2020-06-03T13:13:29Z",
+      "side": 1,
+      "message": "I\u0027m not familiar with this neither, but it seems that duplicating an SkMemoryStream just increment a ref to SkData",
+      "parentUuid": "5cbd9028_b88f83d9",
+      "revId": "0f997bff8a66396e5e551be8709f3a117e9f0975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
