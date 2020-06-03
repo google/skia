@@ -53,7 +53,6 @@ public:
         return *this;
     }
 
-
      void setImageLayout(VkImageLayout layout) {
         // Defaulting to use std::memory_order_seq_cst
         fLayout.store(layout);

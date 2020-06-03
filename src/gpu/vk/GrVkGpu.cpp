@@ -1976,8 +1976,32 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
                                                   barrier);
 }
 
+static void set_backend_surface_state(GrVkGpu* gpu,
+                                      GrVkImageInfo info,
+                                      sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
+                                      SkISize dimensions,
+                                      const GrVkSharedImageInfo& newInfo) {
+    sk_sp<GrVkTexture> texture = GrVkTexture::MakeWrappedTexture(
+            gpu, dimensions, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType, info,
+            std::move(currentState));
+    SkASSERT(texture);
+    if (!texture) {
+        return;
+    }
+    // Even though internally we use this helper for getting src access flags and stages they
+    // can also be used for general dst flags since we don't know exactly what the client
+    // plans on using the image for.
+    VkImageLayout newLayout = newInfo.getImageLayout();
+    VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
+    VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
+    texture->setImageLayoutAndQueueIndex(gpu, newLayout, dstAccess, dstStage, false,
+                                         newInfo.getQueueFamilyIndex());
+}
+
 void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+        GrSurfaceProxy* proxies[],
+        int numProxies,
+        SkSurface::BackendSurfaceAccess access,
         const GrPrepareForExternalIORequests& externalRequests) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
@@ -2046,6 +2070,31 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
         } else {
             vkRT->prepareForExternal(this);
         }
+    }
+
+    for (int i = 0; i < externalRequests.fNumBackendTextures; ++i) {
+        const GrBackendTexture& beTex = externalRequests.fBackendTextures[i];
+        GrVkImageInfo info;
+        SkAssertResult(beTex.getVkImageInfo(&info));
+        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = beTex.getMutableState();
+        SkASSERT(mutableState);
+        SkASSERT(externalRequests.fBackendTextureStates[i].fBackend == GrBackend::kVulkan);
+        const GrVkSharedImageInfo& sharedInfo = externalRequests.fBackendTextureStates[i].fVkState;
+        set_backend_surface_state(this, info, std::move(mutableState), beTex.dimensions(),
+                                  sharedInfo);
+    }
+
+    for (int i = 0; i < externalRequests.fNumBackendRenderTarget; ++i) {
+        const GrBackendRenderTarget& beRT = externalRequests.fBackendRenderTargets[i];
+        GrVkImageInfo info;
+        SkAssertResult(beRT.getVkImageInfo(&info));
+        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = beRT.getMutableState();
+        SkASSERT(mutableState);
+        SkASSERT(externalRequests.fBackendRenderTargetStates[i].fBackend == GrBackend::kVulkan);
+        const GrVkSharedImageInfo& sharedInfo =
+                externalRequests.fBackendRenderTargetStates[i].fVkState;
+        set_backend_surface_state(this, info, std::move(mutableState), beRT.dimensions(),
+                                  sharedInfo);
     }
 }
 
