@@ -119,26 +119,58 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
     }
 }
 
-void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
-                               VkAccessFlags dstAccessMask,
-                               VkPipelineStageFlags dstStageMask,
-                               bool byRegion, bool releaseFamilyQueue) {
+void GrVkImage::setImageLayoutAndQueueIndex(const GrVkGpu* gpu,
+                                            VkImageLayout newLayout,
+                                            VkAccessFlags dstAccessMask,
+                                            VkPipelineStageFlags dstStageMask,
+                                            bool byRegion,
+                                            uint32_t newQueueFamilyIndex) {
     SkASSERT(!gpu->isDeviceLost());
-    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
-             VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
+    SkASSERT(newLayout == this->currentLayout() ||
+             (VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
+              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout));
     VkImageLayout currentLayout = this->currentLayout();
+    uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
 
-    if (releaseFamilyQueue && this->currentQueueFamilyIndex() == fInitialQueueFamily &&
-        newLayout == currentLayout) {
-        // We never transfered the image to this queue and we are releasing it so don't do anything.
-        return;
+#ifdef SK_DEBUG
+    if (fInfo.fSharingMode == VK_SHARING_MODE_CONCURRENT) {
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
+        } else {
+            SkASSERT(newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED);
+        }
+    } else {
+        SkASSERT(fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE);
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED ||
+            currentQueueIndex == gpu->queueIndex()) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT ||
+                     currentQueueIndex == gpu->queueIndex());
+        } else if (newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                   newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == gpu->queueIndex());
+        }
+    }
+#endif
+
+    if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+            newQueueFamilyIndex = gpu->queueIndex();
+        }
+        if (currentQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
+            currentQueueIndex = gpu->queueIndex();
+        }
     }
 
     // If the old and new layout are the same and the layout is a read only layout, there is no need
     // to put in a barrier unless we also need to switch queues.
-    if (newLayout == currentLayout && !releaseFamilyQueue &&
-        (this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_IGNORED ||
-         this->currentQueueFamilyIndex() == gpu->queueIndex()) &&
+    if (newLayout == currentLayout && currentQueueIndex == newQueueFamilyIndex &&
         (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
@@ -150,33 +182,6 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fInfo.fFormat);
 
-    uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    if (this->currentQueueFamilyIndex() != VK_QUEUE_FAMILY_IGNORED &&
-        this->currentQueueFamilyIndex() != gpu->queueIndex()) {
-        // The image still is owned by its original queue family and we need to transfer it into
-        // ours.
-        SkASSERT(!releaseFamilyQueue);
-        SkASSERT(this->currentQueueFamilyIndex() == fInitialQueueFamily);
-        // We only support transferring from external or foreign queues here and not arbitrary
-        // ones.
-        SkASSERT(this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_EXTERNAL ||
-                 this->currentQueueFamilyIndex() == VK_QUEUE_FAMILY_FOREIGN_EXT);
-        srcQueueFamilyIndex = this->currentQueueFamilyIndex();
-        if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
-            dstQueueFamilyIndex = gpu->queueIndex();
-        } else {
-            dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        }
-        this->setQueueFamilyIndex(dstQueueFamilyIndex);
-    } else if (releaseFamilyQueue) {
-        // We are releasing the image so we must transfer the image back to its original queue
-        // family.
-        srcQueueFamilyIndex = this->currentQueueFamilyIndex();
-        dstQueueFamilyIndex = fInitialQueueFamily;
-        this->setQueueFamilyIndex(fInitialQueueFamily);
-    }
-
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
         nullptr,                                         // pNext
@@ -184,8 +189,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         dstAccessMask,                                   // dstAccessMask
         currentLayout,                                   // oldLayout
         newLayout,                                       // newLayout
-        srcQueueFamilyIndex,                             // srcQueueFamilyIndex
-        dstQueueFamilyIndex,                             // dstQueueFamilyIndex
+        currentQueueIndex,                               // srcQueueFamilyIndex
+        newQueueFamilyIndex,                             // dstQueueFamilyIndex
         fInfo.fImage,                                    // image
         { aspectFlags, 0, fInfo.fLevelCount, 0, 1 }      // subresourceRange
     };
@@ -194,6 +199,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                &imageMemoryBarrier);
 
     this->updateImageLayout(newLayout);
+    this->setQueueFamilyIndex(newQueueFamilyIndex);
 }
 
 bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
@@ -284,23 +290,38 @@ void GrVkImage::prepareForPresent(GrVkGpu* gpu) {
             layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         }
     }
-    this->setImageLayout(gpu, layout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false, true);
+    this->setImageLayoutAndQueueIndex(gpu, layout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false,
+                                      fInitialQueueFamily);
 }
 
 void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
-    this->setImageLayout(gpu, this->currentLayout(), 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false,
-                         true);
+    this->setImageLayoutAndQueueIndex(gpu, this->currentLayout(), 0,
+                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false,
+                                     fInitialQueueFamily);
 }
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
-    if (!gpu->isDeviceLost() && this->currentQueueFamilyIndex() != fInitialQueueFamily) {
+    uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
+    uint32_t initialQueueIndex = fInitialQueueFamily;
+    if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+        // Since we are going to compare the current and initial queue indices we need to make sure
+        // we're comparing consistent values if we have an ignored index.
+        if (currentQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
+            currentQueueIndex = gpu->queueIndex();
+        }
+        if (initialQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
+            initialQueueIndex = gpu->queueIndex();
+        }
+    }
+    if (!gpu->isDeviceLost() && currentQueueIndex != initialQueueIndex) {
         // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image
         // memory barrier says the dstStageMask must not be zero. However, in the spec when it talks
         // about family queue transfers it says the dstStageMask is ignored and should be set to
         // zero. Assuming it really is ignored we set it to VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT here
         // since it makes the Vulkan validation layers happy.
-        this->setImageLayout(gpu, this->currentLayout(), 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                             false, true);
+        this->setImageLayoutAndQueueIndex(gpu, this->currentLayout(), 0,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, false,
+                                          initialQueueIndex);
     }
     if (fResource) {
         fResource->removeOwningTexture();

@@ -27,10 +27,12 @@ GrVkImageInfo GrVkBackendSurfaceInfo::snapImageInfo(
 bool GrVkBackendSurfaceInfo::operator==(const GrVkBackendSurfaceInfo& that) const {
     GrVkImageInfo cpyInfoThis = fImageInfo;
     GrVkImageInfo cpyInfoThat = that.fImageInfo;
-    // We don't care about the fImageLayout here since we require they use the same
-    // GrVkImageLayout.
+    // We don't care about the fImageLayout or fCurrentQueueFamily here since we require they use
+    // the same mutableState.
     cpyInfoThis.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     cpyInfoThat.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    cpyInfoThis.fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    cpyInfoThat.fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
     return cpyInfoThis == cpyInfoThat;
 }
 #endif

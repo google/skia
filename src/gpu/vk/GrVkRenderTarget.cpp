@@ -214,15 +214,6 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
 
 sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
         GrVkGpu* gpu, SkISize dimensions, const GrVkDrawableInfo& vkInfo) {
-    // We only set the few properties of the GrVkImageInfo that we know like layout and format. The
-    // others we keep at the default "null" values.
-    GrVkImageInfo info;
-    info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    info.fFormat = vkInfo.fFormat;
-
-    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
-
     const GrVkRenderPass* rp =
             gpu->resourceProvider().findCompatibleExternalRenderPass(vkInfo.fCompatibleRenderPass,
                                                                      vkInfo.fColorAttachmentIndex);
@@ -233,6 +224,15 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
     if (vkInfo.fSecondaryCommandBuffer == VK_NULL_HANDLE) {
         return nullptr;
     }
+
+    // We only set the few properties of the GrVkImageInfo that we know like layout and format. The
+    // others we keep at the default "null" values.
+    GrVkImageInfo info;
+    info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    info.fFormat = vkInfo.fFormat;
+
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
 
     GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
                                                   rp, vkInfo.fSecondaryCommandBuffer);
