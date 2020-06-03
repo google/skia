@@ -22,6 +22,30 @@
       "revId": "64c8b811b55aeb3c077dac0e32a12a3b40b1c128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daf70669_42a46e87",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-03T19:52:31Z",
+      "side": 0,
+      "message": "Right. I knew I missed something...",
+      "parentUuid": "c4268d5e_4c325ebd",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 10
+      },
+      "revId": "64c8b811b55aeb3c077dac0e32a12a3b40b1c128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
