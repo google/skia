@@ -91,11 +91,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
     textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
     textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
     textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
-#if SK_SUPPORT_ATLAS_TEXT
-    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
-        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
-    }
-#endif
 
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,

@@ -249,9 +249,6 @@ BASE_SRCS_ALL = struct(
 
         # Only used to regenerate the lexer
         "src/sksl/lex/*",
-
-        # Atlas text
-        "src/atlastext/*",
     ],
 )
 
@@ -604,7 +601,6 @@ DM_SRCS_ALL = struct(
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
         "tests/SkParagraphTest.cpp",  # Skipping tests for now.
         "tests/skia_test.cpp",  # Old main.
-        "tools/gpu/atlastext/*",
         "tools/gpu/d3d/*",
         "tools/gpu/dawn/*",
         "tools/gpu/gl/angle/*",
