@@ -130,6 +130,8 @@ echo "Compiling bitcode"
   skia_use_wuffs=false \
   skia_use_zlib=false \
   skia_enable_fontmgr_empty=true \
+  skia_enable_fontmgr_custom_directory=false \
+  skia_enable_fontmgr_custom_embedded=false \
   skia_enable_fontmgr_custom_empty=false \
   skia_enable_sksl_interpreter=false \
   \

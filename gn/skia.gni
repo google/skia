@@ -94,9 +94,12 @@ declare_args() {
 
 declare_args() {
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
-  skia_enable_fontmgr_custom =
-      is_linux && skia_use_freetype && !skia_use_fontconfig
-  skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
+  skia_enable_fontmgr_custom_directory = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_empty = skia_use_freetype
+  skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
+  skia_enable_fontmgr_FontConfigInterface =
+      skia_use_freetype && skia_use_fontconfig
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
@@ -106,6 +109,31 @@ declare_args() {
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
   skia_use_vma = skia_use_vulkan
+}
+
+declare_args() {
+  # skia_fontmgr_factory should define SkFontMgr::Factory()
+  if (skia_enable_fontmgr_empty) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_empty_factory.cpp"
+  } else if (is_android && skia_enable_fontmgr_android) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_android_factory.cpp"
+  } else if (is_win && skia_enable_fontmgr_win) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_win_dw_factory.cpp"
+  } else if (is_mac && skia_use_fonthost_mac) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_mac_ct_factory.cpp"
+  } else if (skia_enable_fontmgr_fontconfig) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_fontconfig_factory.cpp"
+  } else if (skia_enable_fontmgr_custom_directory) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_custom_directory_factory.cpp"
+  } else if (skia_enable_fontmgr_custom_embedded) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_custom_embedded_factory.cpp"
+  } else if (skia_enable_fontmgr_custom_empty) {
+    skia_fontmgr_factory = "src/ports/SkFontMgr_custom_empty_factory.cpp"
+  } else {
+    #"src/ports/SkFontMgr_FontConfigInterface_factory.cpp" #WontFix
+    #"src/ports/SkFontMgr_win_gdi_factory.cpp" # WontFix
+    skia_fontmgr_factory = "src/ports/SkFontMgr_empty_factory.cpp"
+  }
 }
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
