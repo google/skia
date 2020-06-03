@@ -305,6 +305,10 @@ bool GrTextBlob::SubRun::needsPadding() const {
     return fType == kTransformedPath || fType == kTransformedMask;
 }
 
+int GrTextBlob::SubRun::atlasPadding() const {
+    return SkTo<int>(this->needsPadding());
+}
+
 auto GrTextBlob::SubRun::vertexData() const -> SkSpan<const VertexData> {
     return fVertexData;
 }
@@ -915,28 +919,32 @@ using VR = GrTextBlob::VertexRegenerator;
 // happen.
 // TODO we can handle some of these cases if we really want to, but the long term solution is to
 // get the actual glyph image itself when we get the glyph metrics.
-GrDrawOpAtlas::ErrorCode VR::addGlyphToAtlas(const SkGlyph& skGlyph, GrGlyph* grGlyph) {
+GrDrawOpAtlas::ErrorCode VR::addGlyphToAtlas(
+        const SkGlyph& skGlyph, GrGlyph* grGlyph, int padding) {
     if (skGlyph.image() == nullptr) {
         return GrDrawOpAtlas::ErrorCode::kError;
     }
-
     SkASSERT(grGlyph != nullptr);
 
-    GrMaskFormat expectedMaskFormat = fFullAtlasManager->resolveMaskFormat(fSubRun->maskFormat());
+    GrMaskFormat glyphFormat = GrGlyph::FormatFromSkGlyph(skGlyph.maskFormat());
+    GrMaskFormat expectedMaskFormat = fFullAtlasManager->resolveMaskFormat(glyphFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
-    SkASSERT(!fSubRun->needsPadding() || skGlyph.maskFormat() != SkMask::kSDF_Format);
+    if (padding > 0) {
+        SkASSERT(skGlyph.maskFormat() != SkMask::kSDF_Format);
+    }
 
+    SkASSERT(padding == 0 || padding == 1);
     // Add 1 pixel padding around grGlyph if needed.
-    const int width = fSubRun->needsPadding() ? skGlyph.width() + 2 : skGlyph.width();
-    const int height = fSubRun->needsPadding() ? skGlyph.height() + 2 : skGlyph.height();
+    const int width = skGlyph.width() + 2*padding;
+    const int height = skGlyph.height() + 2*padding;
     int rowBytes = width * bytesPerPixel;
     size_t size = height * rowBytes;
 
     // Temporary storage for normalizing grGlyph image.
     SkAutoSMalloc<1024> storage(size);
     void* dataPtr = storage.get();
-    if (fSubRun->needsPadding()) {
+    if (padding > 0) {
         sk_bzero(dataPtr, size);
         // Advance in one row and one column.
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
@@ -980,7 +988,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
 
         if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
             const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
-            auto code = this->addGlyphToAtlas(skGlyph, grGlyph);
+            auto code = this->addGlyphToAtlas(skGlyph, grGlyph, fSubRun->atlasPadding());
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
             }
