@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cbd9028_b88f83d9",
+        "filename": "src/ports/SkFontMgr_custom_embedded.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-03T12:50:33Z",
+      "side": 1,
+      "message": "I don\u0027t know this code very well, but seems like it\u0027d be nice to not end up with numFaces copies of data+size.",
+      "revId": "0f997bff8a66396e5e551be8709f3a117e9f0975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
