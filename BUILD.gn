@@ -41,9 +41,6 @@ config("skia_public") {
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
   }
-  if (skia_enable_atlas_text) {
-    defines += [ "SK_SUPPORT_ATLAS_TEXT=1" ]
-  }
   if (is_fuchsia) {
     defines += fuchsia_defines
   }
@@ -639,10 +636,6 @@ optional("gpu") {
     cflags_objcc += [ "-fobjc-arc" ]
   }
 
-  if (skia_enable_atlas_text) {
-    sources += skia_atlas_text_sources
-  }
-
   if (is_debug) {
     public_defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
@@ -1157,7 +1150,6 @@ if (skia_enable_tools) {
   skia_public_includes = [
     "client_utils/android",
     "include/android",
-    "include/atlastext",
     "include/c",
     "include/codec",
     "include/config",
@@ -1353,10 +1345,8 @@ if (skia_enable_tools) {
     libs = []
 
     if (skia_use_gl) {
-      sources += [
-        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-        "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
-      ]
+      sources +=
+          [ "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp" ]
       if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
         libs += [ "OpenGLES.framework" ]

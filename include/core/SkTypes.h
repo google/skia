@@ -263,12 +263,6 @@
 #  undef SK_DIRECT3D
 #endif
 
-#if !defined(SK_SUPPORT_ATLAS_TEXT)
-#  define SK_SUPPORT_ATLAS_TEXT 0
-#elif SK_SUPPORT_ATLAS_TEXT && !SK_SUPPORT_GPU
-#  error "SK_SUPPORT_ATLAS_TEXT requires SK_SUPPORT_GPU"
-#endif
-
 #if !defined(SkUNREACHABLE)
 #  if defined(_MSC_VER) && !defined(__clang__)
 #    define SkUNREACHABLE __assume(false)
