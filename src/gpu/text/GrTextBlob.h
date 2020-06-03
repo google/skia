@@ -269,7 +269,7 @@ private:
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
 
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph, GrGlyph* grGlyph);
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph, GrGlyph* grGlyph, int padding);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -337,6 +337,7 @@ public:
     bool drawAsDistanceFields() const;
     bool needsTransform() const;
     bool needsPadding() const;
+    int atlasPadding() const;
     SkSpan<const VertexData> vertexData() const;
 
 
