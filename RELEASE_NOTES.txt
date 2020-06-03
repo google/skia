@@ -24,6 +24,8 @@ Milestone 85
 
   * Move SkBitmapRegionDecoder into client_utils/android.
 
+  * SkCanvas.clear and SkCanvas.drawColor now accept SkColor4f in addition to SkColor.
+
   * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
     This factory existed to work around issues with GL_TEXTURE_RECTANGLE that existed
     in Chrome's command buffer. Those issues have since been resolved. Use
