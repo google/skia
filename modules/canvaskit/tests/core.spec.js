@@ -766,6 +766,13 @@ describe('Core canvas behavior', () => {
             canvas.concat(new DOMMatrix().rotateAxisAngle(0, 0, 1, radiansToDegrees(Math.PI/16)));
             canvas.concat(new DOMMatrix().translate(-CANVAS_WIDTH/2, 0, 0));
 
+            const localMatrix = canvas.getLocalToDevice();
+            expect4x4MatricesToMatch([
+             0.693519, -0.137949,  0.707106,   91.944030,
+             0.698150,  0.370924, -0.612372, -209.445297,
+            -0.177806,  0.918359,  0.353553,   53.342029,
+             0       ,  0       ,  0       ,    1       ], localMatrix);
+
             // Draw some stripes to help the eye detect the turn
             const stripeWidth = 10;
             paint.setColor(CanvasKit.BLACK);

@@ -693,22 +693,6 @@ describe('Canvas Behavior', () => {
             0  ,  0  , 0,  1], matr);
     });
 
-    const expect3x3MatricesToMatch = (expected, actual) => {
-        expect(expected.length).toEqual(9);
-        expect(actual.length).toEqual(9);
-        for (let i = 0; i < expected.length; i++) {
-            expect(expected[i]).toBeCloseTo(actual[i], 5);
-        }
-    };
-
-    const expect4x4MatricesToMatch = (expected, actual) => {
-        expect(expected.length).toEqual(16);
-        expect(actual.length).toEqual(16);
-        for (let i = 0; i < expected.length; i++) {
-            expect(expected[i]).toBeCloseTo(actual[i], 5);
-        }
-    };
-
     it('can mark a CTM and retrieve it', () => {
         const canvas = new CanvasKit.SkCanvas();
 
@@ -839,3 +823,19 @@ describe('Canvas Behavior', () => {
         }
     });
 });
+
+const expect3x3MatricesToMatch = (expected, actual) => {
+    expect(expected.length).toEqual(9);
+    expect(actual.length).toEqual(9);
+    for (let i = 0; i < expected.length; i++) {
+        expect(expected[i]).toBeCloseTo(actual[i], 5);
+    }
+};
+
+const expect4x4MatricesToMatch = (expected, actual) => {
+    expect(expected.length).toEqual(16);
+    expect(actual.length).toEqual(16);
+    for (let i = 0; i < expected.length; i++) {
+        expect(expected[i]).toBeCloseTo(actual[i], 5);
+    }
+};
