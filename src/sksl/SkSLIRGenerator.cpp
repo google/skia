@@ -2061,10 +2061,17 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
             }
             std::unique_ptr<Expression> initialValue = expr(decl.fValue);
             const Variable* old = decl.fVar;
+            // need to copy the var name in case the originating function is discarded and we lose
+            // its symbols
+            std::unique_ptr<String> name(new String(old->fName));
+            String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+            std::unique_ptr<Symbol> type(new Type(old->fType));
+            Type* typePtr = (Type*) fSymbolTable->takeOwnership(std::move(type));
             Variable* clone = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                   new Variable(offset, old->fModifiers, old->fName,
-                                                                  old->fType, old->fStorage,
-                                                                  initialValue.get())));
+                                                   new Variable(offset, old->fModifiers,
+                                                                namePtr->c_str(), *typePtr,
+                                                                old->fStorage,
+                                                                initialValue.get())));
             (*varMap)[old] = clone;
             return std::unique_ptr<Statement>(new VarDeclaration(clone, std::move(sizes),
                                                                  std::move(initialValue)));
@@ -2075,8 +2082,10 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
             for (const auto& var : decls.fVars) {
                 vars.emplace_back((VarDeclaration*) stmt(var).release());
             }
+            std::unique_ptr<Symbol> type(new Type(decls.fBaseType));
+            Type* typePtr = (Type*) fSymbolTable->takeOwnership(std::move(type));
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
-                    std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, &decls.fBaseType,
+                    std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, typePtr,
                                                                          std::move(vars)))));
         }
         case Statement::kWhile_Kind: {
