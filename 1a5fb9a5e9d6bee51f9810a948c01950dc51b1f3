@@ -22,6 +22,30 @@
       "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "719e835d_c5d55dce",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2199,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-03T17:56:25Z",
+      "side": 1,
+      "message": "If one of these results is empty then something went wrong and I am not interested in the results. It\u0027s really just for debugging, I am going to keep it for a while and then remove many samples that do not demonstrate any new features.",
+      "parentUuid": "47ff2fd9_a3c278b0",
+      "range": {
+        "startLine": 2199,
+        "startChar": 16,
+        "endLine": 2199,
+        "endChar": 23
+      },
+      "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
