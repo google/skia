@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69d7e1f7_76896d23",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-03T13:30:58Z",
+      "side": 1,
+      "message": "After looking at this again, this case isn\u0027t quite right. It\u0027s possible for the geometry processor to output a different color than the paint color (a simple example is if the primitive being drawn has per-primitive color, like drawVertices). In that case, the geometry processor will emit some fragment shader code that sets the initial color (per fragment) to the interpolated vertex color.\n\nSo here, I think we need a really simple FP that actually returns the \"input\" color. I don\u0027t think we have anything that does that yet, because almost a no-op. You could base it on GrPremulInputFragmentProcessor.fp, but without the premul (so the .fp main is literally just sk_OutColor \u003d sk_InColor).",
+      "revId": "d63bfcc22b79312a8a232864e6232757115e8087",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
