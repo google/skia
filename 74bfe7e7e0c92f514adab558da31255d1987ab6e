@@ -22,6 +22,30 @@
       "revId": "74bfe7e7e0c92f514adab558da31255d1987ab6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72e6fe43_1c8c9842",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-03T15:08:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f4f2db5_3f9faffe",
+      "range": {
+        "startLine": 1146,
+        "startChar": 19,
+        "endLine": 1146,
+        "endChar": 28
+      },
+      "revId": "74bfe7e7e0c92f514adab558da31255d1987ab6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
