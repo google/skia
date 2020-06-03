@@ -16,6 +16,24 @@
       "revId": "d63bfcc22b79312a8a232864e6232757115e8087",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bcd732a_fccf6e1e",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-03T16:28:16Z",
+      "side": 1,
+      "message": "Thanks for looking at this!\nI\u0027m going to abandon the CL based on our earlier discussion, since we are no longer planning to extract the existing FP stack from the GrPaint when building a new FP.",
+      "parentUuid": "69d7e1f7_76896d23",
+      "revId": "d63bfcc22b79312a8a232864e6232757115e8087",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
