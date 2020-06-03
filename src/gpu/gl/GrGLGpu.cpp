@@ -3582,9 +3582,9 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
 
-    // If we have mips make sure the base level is set to 0 and the max level set to numMipLevesl-1
+    // If we have mips make sure the base level is set to 0 and the max level set to numMipLevels-1
     // so that the uploads go to the right levels.
-    if (numMipLevels) {
+    if (numMipLevels && this->glCaps().mipMapLevelAndLodControlSupport()) {
         auto params = backendTexture.getGLTextureParams();
         GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
         if (params->nonsamplerState().fBaseMipMapLevel != 0) {
