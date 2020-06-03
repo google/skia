@@ -20,6 +20,12 @@ GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         , fCpuDescriptorManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {}
 
+void GrD3DResourceProvider::destroyResources() {
+    fSamplers.reset();
+
+    fPipelineStateCache->release();
+}
+
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
     if (fAvailableDirectCommandLists.count()) {
         std::unique_ptr<GrD3DDirectCommandList> list =
@@ -84,14 +90,46 @@ void GrD3DResourceProvider::recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HAN
     fCpuDescriptorManager.recycleConstantOrShaderView(view);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createSampler(
-        D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressModeU,
-        D3D12_TEXTURE_ADDRESS_MODE addressModeV) {
-    return fCpuDescriptorManager.createSampler(fGpu, filter, addressModeU, addressModeV);
+static D3D12_TEXTURE_ADDRESS_MODE wrap_mode_to_d3d_address_mode(GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+    case GrSamplerState::WrapMode::kClamp:
+        return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    case GrSamplerState::WrapMode::kRepeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    case GrSamplerState::WrapMode::kMirrorRepeat:
+        return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+    case GrSamplerState::WrapMode::kClampToBorder:
+        return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    }
+    SK_ABORT("Unknown wrap mode.");
 }
 
-void GrD3DResourceProvider::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* sampler) {
-    fCpuDescriptorManager.recycleSampler(sampler);
+D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler(
+        const GrSamplerState& params) {
+    uint32_t key = GrSamplerState::GenerateKey(params);
+    D3D12_CPU_DESCRIPTOR_HANDLE* samplerPtr = fSamplers.find(key);
+    if (samplerPtr) {
+        return *samplerPtr;
+    }
+
+    static D3D12_FILTER d3dFilterModes[] = {
+        D3D12_FILTER_MIN_MAG_MIP_POINT,
+        D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT,
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR
+    };
+
+    static_assert((int)GrSamplerState::Filter::kNearest == 0);
+    static_assert((int)GrSamplerState::Filter::kBilerp == 1);
+    static_assert((int)GrSamplerState::Filter::kMipMap == 2);
+
+    D3D12_FILTER filter = d3dFilterModes[static_cast<int>(params.filter())];
+    D3D12_TEXTURE_ADDRESS_MODE addressModeU = wrap_mode_to_d3d_address_mode(params.wrapModeX());
+    D3D12_TEXTURE_ADDRESS_MODE addressModeV = wrap_mode_to_d3d_address_mode(params.wrapModeY());
+
+    D3D12_CPU_DESCRIPTOR_HANDLE sampler = fCpuDescriptorManager.createSampler(
+            fGpu, filter, addressModeU, addressModeV);
+    fSamplers.set(key, sampler);
+    return sampler;
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
@@ -163,6 +201,10 @@ GrD3DResourceProvider::PipelineStateCache::~PipelineStateCache() {
         SkDebugf("---------------------\n");
     }
 #endif
+}
+
+void GrD3DResourceProvider::PipelineStateCache::release() {
+    fMap.reset();
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::PipelineStateCache::refPipelineState(
