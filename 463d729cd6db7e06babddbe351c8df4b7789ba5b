@@ -16,6 +16,24 @@
       "revId": "463d729cd6db7e06babddbe351c8df4b7789ba5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1163e86e_0d073b9e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-03T14:35:41Z",
+      "side": 1,
+      "message": "(Looks like this full link also worked, maybe because of the space between skia: and the link?)",
+      "parentUuid": "f2b5a44c_0c89cce2",
+      "revId": "463d729cd6db7e06babddbe351c8df4b7789ba5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
