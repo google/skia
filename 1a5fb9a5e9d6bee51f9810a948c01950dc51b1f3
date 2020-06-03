@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47ff2fd9_a3c278b0",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2199,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T17:34:43Z",
+      "side": 1,
+      "message": "It seems a bit surprising to \u0027return\u0027 out of a \u0027isVerbose\u0027 block (even if that does currently just skip the rest of the block. Perhaps it would be better to move up the associated \u0027auto\u0027/\u0027SkDebugf\u0027 below into \u0027else\u0027 blocks on these \u0027if\u0027s.",
+      "range": {
+        "startLine": 2199,
+        "startChar": 16,
+        "endLine": 2199,
+        "endChar": 23
+      },
+      "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
