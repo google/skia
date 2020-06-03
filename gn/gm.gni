@@ -394,7 +394,4 @@ gm_sources = [
   "$_gm/yuvtorgbeffect.cpp",
 ]
 
-gl_gm_sources = [
-  "$_gm/atlastext.cpp",
-  "$_gm/rectangletexture.cpp",
-]
+gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
