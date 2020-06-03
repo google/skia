@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f4f2db5_3f9faffe",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-03T14:53:25Z",
+      "side": 1,
+      "message": "const SkColor4f\u0026",
+      "range": {
+        "startLine": 1146,
+        "startChar": 19,
+        "endLine": 1146,
+        "endChar": 28
+      },
+      "revId": "74bfe7e7e0c92f514adab558da31255d1987ab6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
