@@ -879,11 +879,5 @@ skia_native_gpu_sources = [
 ]
 
 skia_atlas_text_sources = [
-  "$_include/atlastext/SkAtlasTextContext.h",
-  "$_include/atlastext/SkAtlasTextFont.h",
-  "$_include/atlastext/SkAtlasTextRenderer.h",
-  "$_include/atlastext/SkAtlasTextTarget.h",
-  "$_src/atlastext/SkAtlasTextContext.cpp",
-  "$_src/atlastext/SkAtlasTextTarget.cpp",
-  "$_src/atlastext/SkInternalAtlasTextContext.cpp",
+
 ]
