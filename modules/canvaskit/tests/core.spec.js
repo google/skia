@@ -644,14 +644,14 @@ describe('Core canvas behavior', () => {
     });
 
     gm('draw shadow', (canvas) => {
-        const lightRadius = 30;
+        const lightRadius = 20;
         const flags = 0;
-        const lightPos = [250,150,300];
+        const lightPos = [500,500,20];
         const zPlaneParams = [0,0,1];
         const path = starPath(CanvasKit);
 
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
-                              CanvasKit.RED, CanvasKit.MAGENTA, flags);
+                              CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
     })
 
     describe('ColorSpace Support', () => {
