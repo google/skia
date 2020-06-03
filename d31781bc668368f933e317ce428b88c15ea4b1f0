@@ -46,6 +46,30 @@
       "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b24a6306_9495c03c",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-03T21:23:40Z",
+      "side": 1,
+      "message": "In that case, I can simplify this and remove \u0027finish\u0027. Instead the applied clip will always take the logical size and backing store size and start with the logical scissor. When there isn\u0027t any padding, it\u0027ll automatically not turn on the scissor test.\n\nI\u0027ll update tomorrow morning and we can re-evaluate.",
+      "parentUuid": "01c998b1_d6ec1d53",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
