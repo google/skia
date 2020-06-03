@@ -4081,6 +4081,7 @@ size_t offset_alignment_for_transfer_buffer(GrGLenum externalType) {
         case GR_GL_UNSIGNED_INT:                    return sizeof(GrGLuint);
         case GR_GL_INT:                             return sizeof(GrGLint);
         case GR_GL_HALF_FLOAT:                      return sizeof(GrGLhalf);
+        case GR_GL_HALF_FLOAT_OES:                  return sizeof(GrGLhalf);
         case GR_GL_FLOAT:                           return sizeof(GrGLfloat);
         case GR_GL_UNSIGNED_SHORT_5_6_5:            return sizeof(GrGLushort);
         case GR_GL_UNSIGNED_SHORT_4_4_4_4:          return sizeof(GrGLushort);
