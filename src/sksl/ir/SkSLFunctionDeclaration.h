@@ -114,6 +114,7 @@ struct FunctionDeclaration : public Symbol {
     Modifiers fModifiers;
     const std::vector<const Variable*> fParameters;
     const Type& fReturnType;
+    mutable std::atomic<int> fCallCount = 0;
 
     typedef Symbol INHERITED;
 };
