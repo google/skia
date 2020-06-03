@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5bf15b0_7733c54c",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-03T14:54:05Z",
+      "side": 1,
+      "message": "I did debated this logic. We could always apply the logicalRTDimensions as a scissor, even if there\u0027s no stencil use. At the high-level, a GrClip will be based on the logical dimensions so that it\u0027s more likely for draws to be completely skipped. Enabling the scissor for those dimensions would reduce the number of filled fragments when a draw intersected the edge. It may be that this outweighs the cost of the test since that\u0027s pretty lightweight. Since the RT dimensions won\u0027t change, it won\u0027t impact op batching.\n\nThe one place where relaxing the test is still critical is fullscreen clears on tiled architectures, since then the change from a scissor\u0027ed clear is big. However, that can call relaxTest directly so we can address them separately.\n\nWhat are people\u0027s thoughts?",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
