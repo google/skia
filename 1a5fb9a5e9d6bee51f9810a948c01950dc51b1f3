@@ -46,6 +46,30 @@
       "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3b0145c_d1a1d4b3",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2199,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T18:17:49Z",
+      "side": 1,
+      "message": "I realize that, it\u0027s just that returning from inside this block will bite someone later. It would be better to just do this like\n\n    if (f1.empty() {\n        SkDebugf(\"F1 is empty\\n\");\n    } else {\n        auto rf1 \u003d f1[0];\n        SkDebugf(\"f1: [%f:%f] %s\\n\",\n                 rf1.rect.fLeft, rf1.rect.fRight,\n                 rf1.direction \u003d\u003d TextDirection::kRtl ? \"rtl\" : \"ltr\");\n    }\n\nwhich makes things more consistent and less surprising.",
+      "parentUuid": "719e835d_c5d55dce",
+      "range": {
+        "startLine": 2199,
+        "startChar": 16,
+        "endLine": 2199,
+        "endChar": 23
+      },
+      "revId": "1a5fb9a5e9d6bee51f9810a948c01950dc51b1f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
