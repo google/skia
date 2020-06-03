@@ -367,6 +367,11 @@ public:
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
 
     /**
+     *  Returns true if the intersection is non-empty, storing the new path in result.
+     */
+    static bool Intersect(const SkPath&, const SkRect&, SkPath* result);
+
+    /**
      * Gets the number of GenIDChangeListeners. If another thread has access to this path then
      * this may be stale before return and only indicates that the count was the return value
      * at some point during the execution of the function.

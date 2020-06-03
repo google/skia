@@ -302,5 +302,59 @@ protected:
 private:
     typedef Sample INHERITED;
 };
-
 DEF_SAMPLE( return new EdgeClipView; )
+
+#include "src/core/SkPathPriv.h"
+
+class PathPrivIntersect : public Sample {
+    enum {
+        N = 3
+    };
+public:
+    SkPath  fPath;
+    SkRect  fClip;
+
+    PathPrivIntersect() : fClip({150, 150, 550, 450}) {
+        SkScalar x = 500,
+                 y = 500;
+        fPath.addCircle(x, y, 400, SkPathDirection::kCW);
+        fPath.addCircle(x, y, 300, SkPathDirection::kCCW);
+    }
+
+protected:
+    SkString name() override { return SkString("pathpriv_intersect"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(0xFFDDDDDD);
+        canvas->drawPath(fPath, paint);
+
+        SkPath result;
+        if (SkPathPriv::Intersect(fPath, fClip, &result)) {
+            paint.setColor(0x44FF4444);
+            canvas->drawPath(result, paint);
+            paint.setColor(0xFFFF4444);
+            paint.setStroke(true);
+            canvas->drawPath(result, paint);
+        }
+
+        paint.setStroke(false);
+        paint.setColor(0x444444FF);
+        canvas->drawRect(fClip, paint);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        if (fClip.contains(x, y)) {
+            return new Click([this](Click* click) {
+                fClip.offset(click->fCurr.fX - click->fPrev.fX,
+                             click->fCurr.fY - click->fPrev.fY);
+                return true;
+            });
+        }
+        return nullptr;
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new PathPrivIntersect; )
