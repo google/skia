@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2b5a44c_0c89cce2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-03T14:32:22Z",
+      "side": 1,
+      "message": "For future reference, this should just be\n\nBug: skia:10322",
+      "revId": "463d729cd6db7e06babddbe351c8df4b7789ba5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
