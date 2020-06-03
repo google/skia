@@ -34,6 +34,24 @@
       "revId": "0f997bff8a66396e5e551be8709f3a117e9f0975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8095aa9b_637b9420",
+        "filename": "src/ports/SkFontMgr_custom_embedded.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-03T14:19:33Z",
+      "side": 1,
+      "message": "Ah, yeah, it does.  That\u0027s perfect.",
+      "parentUuid": "106d4bd4_b26324ef",
+      "revId": "0f997bff8a66396e5e551be8709f3a117e9f0975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
