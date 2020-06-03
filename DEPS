@@ -10,11 +10,11 @@ deps = {
   "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@6c1581646c4685c457bdc9381ede430e15253bef",
   # Dawn requires jinja2 and markupsafe for the code generator, and glslang and shaderc for SPIRV compilation.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
-  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@adbf9153d909de0ac57141e0812ab88fe0ca5770",
-  "third_party/externals/glslang"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/glslang@d39b8afc47a1f700b5670463c0d1068878acee6f",
+  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@295a4177aebc5c306a84b0d2c49218496299b2ce",
+  "third_party/externals/glslang"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/glslang@2b0eafb1de5b4a1b77cf123545ea269d44248885",
   "third_party/externals/jinja2"          : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@b41863e42637544c2941b574c7877d3e1f663e25",
   "third_party/externals/markupsafe"      : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@8f45f5cfa0009d2a70589bcda0349b8cb2b72783",
-  "third_party/externals/shaderc"         : "https://chromium.googlesource.com/external/github.com/google/shaderc@da87b8d8b0a1d474655098faea7ffe544764e69e",
+  "third_party/externals/shaderc"         : "https://chromium.googlesource.com/external/github.com/google/shaderc@d8eca133b4b18e4fb8b2ab9b9f04dc53d5ce2537",
   "third_party/externals/dng_sdk"         : "https://android.googlesource.com/platform/external/dng_sdk.git@c8d0c9b1d16bfda56f15165d39e0ffa360a11123",
   "third_party/externals/egl-registry"    : "https://skia.googlesource.com/external/github.com/KhronosGroup/EGL-Registry@a0bca08de07c7d7651047bedc0b653cfaaa4f2ae",
   "third_party/externals/expat"           : "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git@e976867fb57a0cd87e3b0fe05d59e0ed63c6febb",
