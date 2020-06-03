@@ -9,13 +9,13 @@ CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
   _scratchColor = CanvasKit.Malloc(Float32Array, 4); // 4 color scalars.
-  _scratchColorPtr = _scratchColor.byteOffset;
+  _scratchColorPtr = _scratchColor['byteOffset'];
 
   _scratch4x4Matrix = CanvasKit.Malloc(Float32Array, 16); // 16 matrix scalars.
-  _scratch4x4MatrixPtr = _scratch4x4Matrix.byteOffset;
+  _scratch4x4MatrixPtr = _scratch4x4Matrix['byteOffset'];
 
   _scratch3x3Matrix = CanvasKit.Malloc(Float32Array, 9); // 9 matrix scalars.
-  _scratch3x3MatrixPtr = _scratch3x3Matrix.byteOffset;
+  _scratch3x3MatrixPtr = _scratch3x3Matrix['byteOffset'];
   // Create single copies of all three supported color spaces
   // These are sk_sp<SkColorSpace>
   CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
