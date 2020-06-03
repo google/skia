@@ -8,7 +8,11 @@ Milestone 85
 ------------
 
   * <insert new release notes here>
-  
+
+  * On Gpu flush calls allow passing in an array of backend surfaces and mutable states.
+    We will set the state of the backend surfaces to that state at the end of the flush.
+    https://review.skia.org/293844
+
   * SkSurface::asyncRescaleAndReadPixels and SkSurfaceasyncRescaleAndReadPixelsYUV420
     now require explicit GrContext submit to guarantee finite time before callback
     is invoked.
