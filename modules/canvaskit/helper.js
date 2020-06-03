@@ -24,8 +24,13 @@ CanvasKit.ColorAsInt = function(r, g, b, a) {
   if (a === undefined) {
       a = 255;
   }
-  // This is consistent with how Skia represents colors in C++
-  return (clamp(a) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0);
+  // This is consistent with how Skia represents colors in C++, as a signed int.
+  // This is also consistent with how Flutter represents colors:
+  // https://github.com/flutter/engine/blob/243bb59c7179a7e701ce478080d6ce990710ae73/lib/web_ui/lib/src/ui/painting.dart#L50
+  return ((clamp(a) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0))
+   & 0xFFFFFFFF; // This truncates the int to 32 bits and signals to JS engines they can
+                 // represent the number with an int instead of a double.
+  ;
 }
 // Construct a 4-float color.
 // Opaque if opacity is omitted.
