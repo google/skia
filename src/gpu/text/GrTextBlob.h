@@ -337,6 +337,8 @@ public:
     bool drawAsDistanceFields() const;
     bool needsTransform() const;
     bool needsPadding() const;
+    SkSpan<const VertexData> vertexData() const;
+
 
     // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
     void prepareGrGlyphs(GrStrikeCache*);
