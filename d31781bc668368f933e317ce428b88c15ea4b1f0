@@ -22,6 +22,30 @@
       "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01c998b1_d6ec1d53",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-03T21:20:16Z",
+      "side": 1,
+      "message": "I strongly suspect it is more performant to scissor to the logical RT size in this case, particularly on tilers where it may mean entire tiles can be skipped. I\u0027m pretty sure we\u0027ve had perf regressions in the past where the root cause was drawing into the padding.",
+      "parentUuid": "e5bf15b0_7733c54c",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
