@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61b76016_6d538b18",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T18:59:06Z",
+      "side": 1,
+      "message": "can this hold an sk_sp so we don\u0027t need to manually unref each sampler?",
+      "range": {
+        "startLine": 109,
+        "startChar": 19,
+        "endLine": 109,
+        "endChar": 31
+      },
+      "revId": "593873dff1d26541bb418816e54c43d2f415f6ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cf6cb7e_c5359bbf",
+        "filename": "src/gpu/d3d/GrD3DSampler.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-03T18:59:06Z",
+      "side": 1,
+      "message": "change this to Make and return an sk_sp?",
+      "range": {
+        "startLine": 20,
+        "startChar": 11,
+        "endLine": 20,
+        "endChar": 31
+      },
+      "revId": "593873dff1d26541bb418816e54c43d2f415f6ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
