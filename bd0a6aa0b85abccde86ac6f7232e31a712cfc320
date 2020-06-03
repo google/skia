@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "217f3f32_d25daccf",
+        "filename": "src/gpu/d3d/GrD3DSampler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-03T20:21:08Z",
+      "side": 1,
+      "message": "Missed a little something.",
+      "range": {
+        "startLine": 52,
+        "startChar": 29,
+        "endLine": 52,
+        "endChar": 43
+      },
+      "revId": "bd0a6aa0b85abccde86ac6f7232e31a712cfc320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
