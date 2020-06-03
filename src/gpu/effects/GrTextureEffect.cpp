@@ -300,10 +300,18 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
             }
             auto* fb = args.fFragBuilder;
             if (te.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed) {
+                // FIXME this is very similar to the extra logic in
+                // GrGLSLFragmentShaderBuilder::ensureCoords2D
                 args.fUniformHandler->writeUniformMappings(te.sampleMatrix().fOwner, fb);
-                coords = SkStringPrintf("(%s * _matrix * float3(%s, 1)).xy",
-                                        te.sampleMatrix().fExpression.c_str(),
-                                        coords.c_str());
+                SkString coords2D;
+                coords2D.printf("%s_teSample", coords.c_str());
+
+                fb->codeAppendf("float3 %s_3d = %s * _matrix * %s.xy1;\n",
+                                coords2D.c_str(), te.sampleMatrix().fExpression.c_str(),
+                                coords.c_str());
+                fb->codeAppendf("float2 %s = %s_3d.xy / %s_3d.z;\n",
+                                coords2D.c_str(), coords2D.c_str(), coords2D.c_str());
+                coords = coords2D;
             }
             if (te.fShaderModes[0] == ShaderMode::kNone &&
                 te.fShaderModes[1] == ShaderMode::kNone) {
