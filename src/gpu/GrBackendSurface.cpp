@@ -772,6 +772,12 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
         return false;
     }
 
+    // For our tests when checking equality we are assuming the both backendTexture objects will
+    // be using the same mutable state object.
+    if (t0.fMutableState != t1.fMutableState) {
+        return false;
+    }
+
     switch (t0.fBackend) {
 #ifdef SK_GL
         case GrBackendApi::kOpenGL:
