@@ -183,6 +183,10 @@ public:
         not exceed context capabilities, and the context must be able to support
         back-end textures.
 
+        Upon success textureReleaseProc is called when it is safe to delete the texture in the
+        backend API (accounting only for use of the texture by this surface). If SkSurface creation
+        fails textureReleaseProc is called before this function returns.
+
         If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
         @param context             GPU context
@@ -214,6 +218,10 @@ public:
         not exceed context capabilities, and the context must be able to support
         back-end render targets.
 
+        Upon success releaseProc is called when it is safe to delete the render target in the
+        backend API (accounting only for use of the render target by this surface). If SkSurface
+        creation fails releaseProc is called before this function returns.
+
         If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
         @param context                  GPU context
@@ -221,8 +229,8 @@ public:
         @param colorSpace               range of colors
         @param surfaceProps             LCD striping orientation and setting for device independent
                                         fonts; may be nullptr
-        @param releaseProc              function called when texture can be released
-        @param releaseContext           state passed to textureReleaseProc
+        @param releaseProc              function called when backendRenderTarget can be released
+        @param releaseContext           state passed to releaseProc
         @return                         SkSurface if all parameters are valid; otherwise, nullptr
     */
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
@@ -434,6 +442,10 @@ public:
         SkSurfaceCharacterization::isCompatible can be used to determine if a given backend texture
         is compatible with a specific surface characterization.
 
+        Upon success textureReleaseProc is called when it is safe to delete the texture in the
+        backend API (accounting only for use of the texture by this surface). If SkSurface creation
+        fails textureReleaseProc is called before this function returns.
+
         @param context             GPU context
         @param characterization    characterization of the desired surface
         @param backendTexture      texture residing on GPU
@@ -565,6 +577,10 @@ public:
         copied into the new texture. SkCanvas state is preserved. The original sample count is
         used. The GrBackendFormat and dimensions of replacement texture must match that of
         the original.
+
+        Upon success textureReleaseProc is called when it is safe to delete the texture in the
+        backend API (accounting only for use of the texture by this surface). If SkSurface creation
+        fails textureReleaseProc is called before this function returns.
 
         @param backendTexture      the new backing texture for the surface
         @param mode                Retain or discard current Content

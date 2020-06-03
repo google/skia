@@ -9,6 +9,11 @@ Milestone 85
 
   * <insert new release notes here>
   
+  * SkSurface factores that take GrBackendTexture or GrBackendRenderTarget now always
+    call the release proc (if provided) on failure. SkSurface::replaceBackendTexture 
+    also calls the release proc on failure.
+    https://review.skia.org/293762
+
   * SkSurface::asyncRescaleAndReadPixels and SkSurfaceasyncRescaleAndReadPixelsYUV420
     now require explicit GrContext submit to guarantee finite time before callback
     is invoked.
