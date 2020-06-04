@@ -71,6 +71,7 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
 }
 
 void Paragraph::cleanMeasurements() {
+    // Initialize all paragraph values
     fAlphabeticBaseline = 0;
     fIdeographicBaseline = 0;
     fHeight = 0;
