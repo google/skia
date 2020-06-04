@@ -22,6 +22,30 @@
       "revId": "76c8d8a4c5e3ec4ccaaf8c5621525fe5135d5566",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f7854bc_857336fe",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T23:11:49Z",
+      "side": 1,
+      "message": "I think this just means moving the lines\n\n        , fState(kUnknown)\n        , fUnresolvedGlyphs(0)\n        , fPicture(nullptr)\n        , fStrutMetrics(false)\n        , fOldWidth(0)\n        , fOldHeight(0)\n        , fOrigin(SkRect::MakeEmpty()\n\nfrom the constructor below to this constructor instead?",
+      "parentUuid": "8685e453_298a5966",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "76c8d8a4c5e3ec4ccaaf8c5621525fe5135d5566",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
