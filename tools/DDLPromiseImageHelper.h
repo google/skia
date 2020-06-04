@@ -42,6 +42,11 @@ public:
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
 
     void setBackendTexture(const GrBackendTexture& backendTexture);
+    const GrBackendTexture& backendTexture() const {
+        SkASSERT(fPromiseImageTexture);
+
+        return fPromiseImageTexture->backendTexture();
+    }
 
     void destroyBackendTexture() {
         SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
@@ -142,8 +147,13 @@ public:
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
+                                  SkData* compressedPictureData,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
+
+    // reinflate a deflated SKP, replacing all the indices with instantiated images
+    sk_sp<SkPicture> reinflateSKP2(GrContext*,
+                                   SkData* compressedPictureData,
+                                   SkTArray<sk_sp<SkImage>>* images) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
     void reset() { fImageInfo.reset(); }
@@ -162,6 +172,7 @@ private:
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
         bool isYUV() const { return SkToBool(fYUVData.get()); }
 
+        SkISize overallDim() const { return fImageInfo.dimensions(); }
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
         SkColorType overallColorType() const { return fImageInfo.colorType(); }
@@ -214,6 +225,10 @@ private:
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->backendFormat();
         }
+        const GrBackendTexture& backendTexture(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
+            return fCallbackContexts[index]->backendTexture();
+        }
         const SkPromiseImageTexture* promiseTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->promiseImageTexture();
@@ -257,6 +272,7 @@ private:
     // This stack-based context allows each thread to re-inflate the image indices into
     // promise images while still using the same GrBackendTexture.
     struct PerRecorderContext {
+        GrContext*                     fContext;
         SkDeferredDisplayListRecorder* fRecorder;
         const DDLPromiseImageHelper*   fHelper;
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;

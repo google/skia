@@ -42,7 +42,7 @@ public:
                                    const DDLPromiseImageHelper& helper);
 
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
-        void createDDL();
+        void createDDL(SkPicture*, SkTArray<sk_sp<SkImage>>* promiseImages);
 
         void dropDDL() { fDisplayList.reset(); }
 
@@ -89,8 +89,8 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>          fTileSurface;
 
-        sk_sp<SkPicture>          fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
+        sk_sp<SkPicture>          fReconstitutedPicture1;
+        SkTArray<sk_sp<SkImage>>  fPromiseImages1;    // All the promise images in the
                                                      // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
@@ -100,7 +100,9 @@ public:
                   const SkIRect& viewport,
                   int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
+
+    sk_sp<SkPicture> createSKP(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
