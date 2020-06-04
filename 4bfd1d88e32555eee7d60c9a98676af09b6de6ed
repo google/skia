@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10613944_80cf0c0a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T22:06:03Z",
+      "side": 1,
+      "message": "it seems it would be better to just add all the field initializers to the initialization list and have the other constructor delegate to this one. eg...\n\n    , fAlphabeticBaseline(0)\n    , fIdeaographicBaseline(0)\n    ...",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 24
+      },
+      "revId": "4bfd1d88e32555eee7d60c9a98676af09b6de6ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea32c8d9_3d89eca2",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T22:06:03Z",
+      "side": 1,
+      "message": "And then this like\n\n    ParagraphImpl::ParagraphImpl(const std::u16string\u0026 utf16text,\n                                 ParagraphStyle style,\n                                 SkTArray\u003cBlock, true\u003e blocks,\n                                 SkTArray\u003cPlaceholder, true\u003e placeholders,\n                                 sk_sp\u003cFontCollection\u003e fonts)\n    : ParagraphImpl(SkStringFromU16String(utf16text), style, std::move(blocks),\n                    std::move(placeholders), std::move(fonts))\n    {}\n\nWhich is cleaner anyway. Then you can just remove \u0027cleanElements\u0027.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 1
+      },
+      "revId": "4bfd1d88e32555eee7d60c9a98676af09b6de6ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
