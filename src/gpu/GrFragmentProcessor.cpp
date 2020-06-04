@@ -188,30 +188,38 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         std::unique_ptr<GrFragmentProcessor> fp, const GrSwizzle& swizzle) {
     class SwizzleFragmentProcessor : public GrFragmentProcessor {
     public:
-        static std::unique_ptr<GrFragmentProcessor> Make(const GrSwizzle& swizzle) {
-            return std::unique_ptr<GrFragmentProcessor>(new SwizzleFragmentProcessor(swizzle));
+        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                         const GrSwizzle& swizzle) {
+            return std::unique_ptr<GrFragmentProcessor>(
+                new SwizzleFragmentProcessor(std::move(fp), swizzle));
         }
 
         const char* name() const override { return "Swizzle"; }
         const GrSwizzle& swizzle() const { return fSwizzle; }
 
-        std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(fSwizzle); }
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            return Make(this->childProcessor(0).clone(), fSwizzle);
+        }
 
     private:
-        SwizzleFragmentProcessor(const GrSwizzle& swizzle)
-                : INHERITED(kSwizzleFragmentProcessor_ClassID, kAll_OptimizationFlags)
-                , fSwizzle(swizzle) {}
+        SwizzleFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp, const GrSwizzle& swizzle)
+                : INHERITED(kSwizzleFragmentProcessor_ClassID, ProcessorOptimizationFlags(fp.get()))
+                , fSwizzle(swizzle) {
+            this->registerChildProcessor(std::move(fp));
+        }
 
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
+                    SkString childColor = this->invokeChild(0, args);
+
                     const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
                     const GrSwizzle& swizzle = sfp.swizzle();
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                     fragBuilder->codeAppendf("%s = %s.%s;",
-                            args.fOutputColor, args.fInputColor, swizzle.asString().c_str());
+                            args.fOutputColor, childColor.c_str(), swizzle.asString().c_str());
                 }
             };
             return new GLFP;
@@ -241,9 +249,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
     if (GrSwizzle::RGBA() == swizzle) {
         return fp;
     }
-    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
-                                                          SwizzleFragmentProcessor::Make(swizzle) };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+    return SwizzleFragmentProcessor::Make(std::move(fp), swizzle);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
