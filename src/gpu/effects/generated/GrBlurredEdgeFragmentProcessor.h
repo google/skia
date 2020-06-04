@@ -18,18 +18,26 @@
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     Mode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrBlurredEdgeFragmentProcessor(std::move(inputFP), mode));
     }
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
+    int inputFP_index = -1;
     Mode mode;
 
 private:
-    GrBlurredEdgeFragmentProcessor(Mode mode)
+    GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
-            , mode(mode) {}
+            , mode(mode) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

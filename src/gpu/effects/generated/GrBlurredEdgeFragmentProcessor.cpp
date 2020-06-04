@@ -26,12 +26,19 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
+        SkString _sample328;
+        if (_outer.inputFP_index >= 0) {
+            _sample328 = this->invokeChild(_outer.inputFP_index, args);
+        } else {
+            _sample328 = "half4(1)";
+        }
         fragBuilder->codeAppendf(
-                "half factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
-                "exp((-factor * factor) * 4.0) - 0.017999999225139618;\n        break;\n    case "
-                "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
-                "half4(factor);\n",
-                args.fInputColor, (int)_outer.mode, args.fOutputColor);
+                "half inputAlpha = %s ? %s.w : %s.w;\nhalf factor = 1.0 - inputAlpha;\n@switch "
+                "(%d) {\n    case 0:\n        factor = exp((-factor * factor) * 4.0) - "
+                "0.017999999225139618;\n        break;\n    case 1:\n        factor = "
+                "smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = half4(factor);\n",
+                _outer.inputFP_index >= 0 ? "true" : "false", _sample328.c_str(), args.fInputColor,
+                (int)_outer.mode, args.fOutputColor);
     }
 
 private:
@@ -54,7 +61,16 @@ bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
         : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
-        , mode(src.mode) {}
+        , inputFP_index(src.inputFP_index)
+        , mode(src.mode) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
 }
