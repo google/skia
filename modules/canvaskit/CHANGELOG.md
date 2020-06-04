@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `CanvasKit.FloatColorBuilder` is now available for use with `CanvasKit.SkShader.Make*Gradient`.
+   Be sure to call `.toTypedArray()` on the builder before passing it in.
+
+### Deprecated
+ - `CanvasKit.SkShader.Make*Gradient` will soon only accept colors as a 1d Float32Array, no longer
+   a 2D Float32Array.
+ - `CanvasKit.SkColorBuilder` has been superseded by `FloatColorBuilder` and will be removed
+   eventually.
+
 ## [0.16.1] - 2020-06-04
 
 ### Fixed

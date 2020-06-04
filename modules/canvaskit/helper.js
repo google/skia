@@ -673,6 +673,8 @@ CanvasKit.RSXFormBuilder = CanvasKit.FourFloatArrayHelper;
  */
 CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
 
+CanvasKit.FloatColorBuilder = CanvasKit.FourFloatArrayHelper;
+
 /**
  * Malloc returns a TypedArray backed by the C++ memory of the
  * given length. It should only be used by advanced users who
