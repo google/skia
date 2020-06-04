@@ -167,7 +167,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType edg
     if (GrClipEdgeType::kHairlineAA == edgeType){
         return nullptr;
     }
-    return GrAARectEffect::Make(edgeType, rect);
+    return GrAARectEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
 }
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
