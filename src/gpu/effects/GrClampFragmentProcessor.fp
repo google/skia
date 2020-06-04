@@ -5,19 +5,22 @@
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 layout(key) in bool clampToPremul;
 
 @optimizationFlags {
-    kConstantOutputForConstantInput_OptimizationFlag |
-    kPreservesOpaqueInput_OptimizationFlag
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    (kConstantOutputForConstantInput_OptimizationFlag |
+     kPreservesOpaqueInput_OptimizationFlag)
 }
 
 void main() {
+    half4 inputColor = (inputFP != null) ? sample(inputFP) : sk_InColor;
     @if (clampToPremul) {
-        half alpha = saturate(sk_InColor.a);
-        sk_OutColor = half4(clamp(sk_InColor.rgb, 0, alpha), alpha);
+        half alpha = saturate(inputColor.a);
+        sk_OutColor = half4(clamp(inputColor.rgb, 0, alpha), alpha);
     } else {
-        sk_OutColor = saturate(sk_InColor);
+        sk_OutColor = saturate(inputColor);
     }
 }
 
@@ -33,5 +36,5 @@ void main() {
 }
 
 @test(d) {
-    return GrClampFragmentProcessor::Make(d->fRandom->nextBool());
+    return GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, d->fRandom->nextBool());
 }
