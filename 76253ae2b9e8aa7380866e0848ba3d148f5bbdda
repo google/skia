@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5ede2188_db434376",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "I think I would prefer to leave it if you don\u0027t mind. This is a standard double indent (8 spaces) after an open parenthesis.",
+      "parentUuid": "a74b5c3d_da7c0c73",
+      "range": {
+        "startLine": 95,
+        "startChar": 12,
+        "endLine": 95,
+        "endChar": 13
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba77a607_fa78930d",
         "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a51ef8_1b3eecd0",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba77a607_fa78930d",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 190,
+        "endChar": 89
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "bfe74af9_f199469f",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78eff236_26c35b95",
+      "range": {
+        "startLine": 58,
+        "startChar": 36,
+        "endLine": 58,
+        "endChar": 38
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c37d48b_3369aeaf",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6bac8ed_a78fb76f",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Yes, this is cleaner. I was slightly concerned about perf, since this might evaluate as:\n\n  2 * (.75f * intolerance)\n\nInstead of:\n\n  (2 *.75f) * intolerance -\u003e 1.5f * intolerance\n\nBut I like the look better, and found no perf difference when I measured it.",
+      "parentUuid": "1c37d48b_3369aeaf",
+      "range": {
+        "startLine": 60,
+        "startChar": 20,
+        "endLine": 60,
+        "endChar": 38
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5a74f987_a674fd16",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0718e7a_57707b0d",
+      "range": {
+        "startLine": 96,
+        "startChar": 15,
+        "endLine": 96,
+        "endChar": 55
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52dab646_d2dbcaa5",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5cb7571_dcd927b9",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52dab646_d2dbcaa5",
+      "range": {
+        "startLine": 113,
+        "startChar": 15,
+        "endLine": 113,
+        "endChar": 54
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "08bb8504_b148b6dc",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d94d2b8_bcfa74bf",
+      "range": {
+        "startLine": 122,
+        "startChar": 19,
+        "endLine": 122,
+        "endChar": 60
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03abd22f_130a4b7e",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 2
@@ -183,6 +351,30 @@
       "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f58342d9_17148ca0",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-04T22:51:51Z",
+      "side": 1,
+      "message": "The log2 is needed, because it takes advantage of the logarithmic identity:\n\n  log(x^.25) \u003d\u003d .25 log(x)",
+      "parentUuid": "03abd22f_130a4b7e",
+      "range": {
+        "startLine": 123,
+        "startChar": 11,
+        "endLine": 123,
+        "endChar": 84
+      },
+      "revId": "76253ae2b9e8aa7380866e0848ba3d148f5bbdda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
