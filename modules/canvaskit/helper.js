@@ -17,20 +17,20 @@ CanvasKit.Color = function(r, g, b, a) {
   return CanvasKit.Color4f(clamp(r)/255, clamp(g)/255, clamp(b)/255, a);
 }
 
-// Constructs a Color as a 32 bit integer, with 8 bits assigned to each channel.
+// Constructs a Color as a 32 bit unsigned integer, with 8 bits assigned to each channel.
 // Channels are expected to be between 0 and 255 and will be clamped as such.
 CanvasKit.ColorAsInt = function(r, g, b, a) {
   // default to opaque
   if (a === undefined) {
       a = 255;
   }
-  // This is consistent with how Skia represents colors in C++, as a signed int.
+  // This is consistent with how Skia represents colors in C++, as an unsigned int.
   // This is also consistent with how Flutter represents colors:
   // https://github.com/flutter/engine/blob/243bb59c7179a7e701ce478080d6ce990710ae73/lib/web_ui/lib/src/ui/painting.dart#L50
-  return ((clamp(a) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0))
-   & 0xFFFFFFFF; // This truncates the int to 32 bits and signals to JS engines they can
-                 // represent the number with an int instead of a double.
-  ;
+  return (((clamp(a) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0)
+   & 0xFFFFFFF) // This truncates the unsigned to 32 bits and signals to JS engines they can
+                // represent the number with an int instead of a double.
+    >>> 0);     // This makes the value an unsigned int.
 }
 // Construct a 4-float color.
 // Opaque if opacity is omitted.

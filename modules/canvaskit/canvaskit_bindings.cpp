@@ -921,10 +921,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr, SkBlendMode mode) {
             self.drawColor(ptrToSkColor4f(cPtr), mode);
         }))
-        .function("drawColorInt", optional_override([](SkCanvas& self, int32_t color) {
+        .function("drawColorInt", optional_override([](SkCanvas& self, SkColor color) {
             self.drawColor(color);
         }))
-        .function("drawColorInt", optional_override([](SkCanvas& self, int32_t color, SkBlendMode mode) {
+        .function("drawColorInt", optional_override([](SkCanvas& self, SkColor color, SkBlendMode mode) {
             self.drawColor(color, mode);
         }))
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
@@ -1289,10 +1289,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 sk_sp<SkColorSpace> colorSpace) {
             self.setColor(ptrToSkColor4f(cPtr), colorSpace.get());
         }))
-        .function("setColorInt", optional_override([](SkPaint& self, int32_t color) {
+        .function("setColorInt", optional_override([](SkPaint& self, SkColor color) {
             self.setColor(SkColor4f::FromColor(color), nullptr);
         }))
-        .function("setColorInt", optional_override([](SkPaint& self, int32_t color,
+        .function("setColorInt", optional_override([](SkPaint& self, SkColor color,
                 sk_sp<SkColorSpace> colorSpace) {
             self.setColor(SkColor4f::FromColor(color), colorSpace.get());
         }))

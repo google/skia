@@ -632,12 +632,15 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(0.5, 0.6, 0.7, 0.8));
 
         paint.setColorInt(CanvasKit.ColorAsInt(50, 100, 150, 200));
-        const color = paint.getColor();
+        let color = paint.getColor();
         expect(color.length).toEqual(4);
-        expect(color[0]).toBeCloseTo(50/255, 5);
-        expect(color[1]).toBeCloseTo(100/255, 5);
-        expect(color[2]).toBeCloseTo(150/255, 5);
-        expect(color[3]).toBeCloseTo(200/255, 5);
+        expect(color[0]).toBeCloseTo(50/255, 5);  // Red
+        expect(color[1]).toBeCloseTo(100/255, 5); // Green
+        expect(color[2]).toBeCloseTo(150/255, 5); // Blue
+        expect(color[3]).toBeCloseTo(200/255, 5); // Alpha
+
+        paint.setColorInt(0xFF000000);
+        expect(paint.getColor()).toEqual(Float32Array.of(0, 0, 0, 1.0));
     });
 
     gm('draw shadow', (canvas) => {
