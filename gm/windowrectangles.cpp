@@ -108,6 +108,9 @@ DrawResult WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanv
         SkClipOp op = element->getOp();
         bool isAA = element->isAA();
         switch (element->getDeviceSpaceType()) {
+            case SkClipStack::Element::DeviceSpaceType::kShader:
+                canvas->clipShader(element->refShader(), op);
+                break;
             case SkClipStack::Element::DeviceSpaceType::kPath:
                 canvas->clipPath(element->getDeviceSpacePath(), op, isAA);
                 break;

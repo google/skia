@@ -25,7 +25,9 @@
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
+#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/shaders/SkShaderBase.h"
 
 /**
  * There are plenty of optimizations that could be added here. Maybe flips could be folded into
@@ -59,8 +61,14 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
     if (GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
-        fInitialState = insideOut ? InitialState::kAllIn : InitialState::kAllOut;
-        return;
+        if (!stackBounds.isEmpty() || !insideOut) {
+            fInitialState = insideOut ? InitialState::kAllIn : InitialState::kAllOut;
+            return;
+        }
+        // else we are inside out and an empty bounds stack. Normally this would appear as wide open
+        // but if we're inside GrReducedClip, we know we aren't wide open. This means there's some
+        // a shader or other tricky element that doesn't really have bounds that we can't just skip
+        SkASSERT(!stack.isWideOpen());
     }
 
     if (iior) {
@@ -171,6 +179,18 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         if (SkClipStack::kWideOpenGenID == element->getGenID()) {
             initialTriState = InitialTriState::kAllIn;
             break;
+        }
+
+        if (element->getDeviceSpaceType() == Element::DeviceSpaceType::kShader) {
+            if (fShader) {
+                // Combine multiple shaders together with src-in blending. This works because all
+                // shaders are effectively intersections (difference ops have been modified to be
+                // 1 - alpha already).
+                fShader = SkShaders::Blend(SkBlendMode::kSrcIn, element->refShader(), fShader);
+            } else {
+                fShader = element->refShader();
+            }
+            continue;
         }
 
         bool skippable = false;
@@ -480,6 +500,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
 }
 
 GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* element) {
+    SkASSERT(element->getDeviceSpaceType() != Element::DeviceSpaceType::kShader);
+
     SkIRect elementIBounds;
     if (!element->isAA()) {
         element->getBounds().round(&elementIBounds);
@@ -523,12 +545,17 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
         case Element::DeviceSpaceType::kPath:
             return this->addAnalyticFP(element->getDeviceSpacePath(),
                                        Invert(element->isInverseFilled()), GrAA(element->isAA()));
+
+        case Element::DeviceSpaceType::kShader:
+            SkUNREACHABLE;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
 }
 
 GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* element) {
+    SkASSERT(element->getDeviceSpaceType() != Element::DeviceSpaceType::kShader);
+
     switch (element->getDeviceSpaceType()) {
         case Element::DeviceSpaceType::kEmpty:
             return ClipResult::kMadeEmpty;
@@ -589,6 +616,9 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
         case Element::DeviceSpaceType::kPath:
             return this->addAnalyticFP(element->getDeviceSpacePath(),
                                        Invert(!element->isInverseFilled()), GrAA(element->isAA()));
+
+        case Element::DeviceSpaceType::kShader:
+            SkUNREACHABLE;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -850,7 +880,17 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
     return true;
 }
 
+static std::unique_ptr<GrFragmentProcessor> get_clip_fp(std::unique_ptr<GrFragmentProcessor> fp) {
+    // Must coerce the likely color-oriented SkShader to act as a coverage modifier.
+    // So we only select the alpha channel and we override the input color passed to the
+    // shader so that we don't want to compound the input coverage over and over again.
+    // fp = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false); // FIXME needed?
+    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::AAAA());
+    return fp;
+}
+
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
+        GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
         GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
     // Make sure finishAndDetachAnalyticFPs hasn't been called already.
     SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
@@ -864,6 +904,17 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
             fAnalyticFPs.push_back(std::move(fp));
         }
         fCCPRClipPaths.reset();
+    }
+
+    static const GrColorInfo kCoverageColorInfo = GrColorInfo(GrColorType::kUnknown,
+                                                              kPremul_SkAlphaType,
+                                                              nullptr);
+    if (fShader) {
+        GrFPArgs args(context, matrixProvider, kNone_SkFilterQuality, &kCoverageColorInfo);
+        auto fp = get_clip_fp(as_SB(fShader)->asFragmentProcessor(args));
+        if (fp) {
+            fAnalyticFPs.push_back(std::move(fp));
+        }
     }
 
     return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
