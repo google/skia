@@ -20,6 +20,7 @@ public:
 
     ~GrAtlasTextOp() override {
         for (int i = 0; i < fGeoCount; i++) {
+            int j = SkTo<uint16_t>(i);
             fGeoData[i].fBlob->unref();
         }
     }
@@ -34,8 +35,7 @@ public:
         SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
-        std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> textTargetCreateVertexData(
-                int offset, int count) const;
+
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
