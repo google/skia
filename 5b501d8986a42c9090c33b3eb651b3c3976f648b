@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eab5f12b_cfc266bb",
+        "filename": "modules/skparagraph/include/ParagraphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "I don\u0027t see this state being set or used anywhere. Either it should be used and maybe named \u0027kAnalyzed\u0027 or something like that or removed (since it isn\u0027t used).",
+      "range": {
+        "startLine": 16,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7db1d53_7ffaf601",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "This is now something like \u0027computeCodeUnitProperties\u0027.\n\nThe fact that this uses ICU is simply an implementation detail, and part of the purpose of this CL is to hide that detail, so it\u0027s quite odd to put ICU in the name. Also, the name \u0027extractICUInformation\u0027 is a bit vague, ICU contains a lot of information.",
+      "range": {
+        "startLine": 304,
+        "startChar": 20,
+        "endLine": 304,
+        "endChar": 41
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7835f845_1d280c64",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "This is really \u0027computeWords\u0027.",
+      "range": {
+        "startLine": 372,
+        "startChar": 20,
+        "endLine": 372,
+        "endChar": 35
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "803ef3ef_25306585",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "This is more like forEachCodeUnitPropertyRange.",
+      "range": {
+        "startLine": 959,
+        "startChar": 20,
+        "endLine": 959,
+        "endChar": 47
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1f84ce0_6de9dccb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "Note that you can include SkBitmaskEnum and do\n\nnamespace sknonstd {\ntemplate \u003c\u003e struct is_bitmask_enum\u003cCodeUnitFlags\u003e : std::true_type {};\n}\n\nwhich will provide these operators.\n\nOr, you could just not mark this enum \u0027class\u0027",
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f343718_aa0c6467",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "This should return CodeUnitFlags. Returning bool like this is tempting but very confusing in the end. If you really just need this we need something with \u0027has\u0027 in the name. The current SkBitmaskEnum way to do this is probably\n\nif (sknonstd::Any(foo \u0026 Foo::kBar))",
+      "range": {
+        "startLine": 90,
+        "startChar": 7,
+        "endLine": 90,
+        "endChar": 11
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0f471a_11bf6628",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "Should the two \u0027size_t\u0027 parameters be combined into a TextRange to be consistent?",
+      "range": {
+        "startLine": 204,
+        "startChar": 42,
+        "endLine": 204,
+        "endChar": 67
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4af4a19_026a932c",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "The \u0027CodeUnitFlags flags\u0027 parameter doesn\u0027t appear to be needed. Should remove.",
+      "range": {
+        "startLine": 204,
+        "startChar": 69,
+        "endLine": 204,
+        "endChar": 88
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f857d37e_8bffe4c3",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "This is a CodeUnitRangeVisitor?",
+      "range": {
+        "startLine": 204,
+        "startChar": 10,
+        "endLine": 204,
+        "endChar": 13
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e33c0b58_84249318",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "property",
+      "range": {
+        "startLine": 205,
+        "startChar": 51,
+        "endLine": 205,
+        "endChar": 56
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2958a06f_aebbb1b7",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T16:40:52Z",
+      "side": 1,
+      "message": "textRange",
+      "range": {
+        "startLine": 206,
+        "startChar": 42,
+        "endLine": 206,
+        "endChar": 50
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
