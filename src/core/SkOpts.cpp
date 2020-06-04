@@ -107,7 +107,6 @@ namespace SkOpts {
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
-    void Init_sse41();
     void Init_sse42();
     void Init_avx();
     void Init_hsw();
@@ -119,10 +118,6 @@ namespace SkOpts {
     #if defined(SK_CPU_X86)
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
-        #endif
-
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE41
-            if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
         #endif
 
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE42
