@@ -9,6 +9,7 @@
 #define GrTessellatePathOp_DEFINED
 
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class GrAppliedHardClip;
 class GrStencilPathShader;
@@ -18,20 +19,13 @@ class GrResolveLevelCounter;
 // either GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it
 // requires a render target that supports either MSAA or mixed samples if AA is desired.
 class GrTessellatePathOp : public GrDrawOp {
-public:
-    enum class Flags {
-        kNone = 0,
-        kStencilOnly = (1 << 0),
-        kWireframe = (1 << 1)
-    };
-
 private:
     DEFINE_OP_CLASS_ID
 
     GrTessellatePathOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                       GrAAType aaType, Flags flags = Flags::kNone)
+                       GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags)
             : GrDrawOp(ClassID())
-            , fFlags(flags)
+            , fOpFlags(opFlags)
             , fViewMatrix(viewMatrix)
             , fPath(path)
             , fAAType(aaType)
@@ -115,7 +109,7 @@ private:
     void drawStencilPass(GrOpFlushState*);
     void drawCoverPass(GrOpFlushState*);
 
-    const Flags fFlags;
+    const GrTessellationPathRenderer::OpFlags fOpFlags;
     const SkMatrix fViewMatrix;
     const SkPath fPath;
     const GrAAType fAAType;
@@ -168,7 +162,5 @@ public:
     // This serves as a base class for benchmarking individual methods on GrTessellatePathOp.
     class TestingOnly_Benchmark;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellatePathOp::Flags);
 
 #endif
