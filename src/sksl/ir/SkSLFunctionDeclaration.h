@@ -15,6 +15,8 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <atomic>
+
 namespace SkSL {
 
 struct FunctionDefinition;
