@@ -12,7 +12,7 @@
 
 class GrTextureResolveRenderTask final : public GrRenderTask {
 public:
-    GrTextureResolveRenderTask() : GrRenderTask() {}
+    GrTextureResolveRenderTask(GrDrawingManager* drawingMgr) : GrRenderTask(drawingMgr) {}
     ~GrTextureResolveRenderTask() override;
 
     void addProxy(sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags, const GrCaps&);

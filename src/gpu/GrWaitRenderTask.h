@@ -13,10 +13,10 @@
 
 class GrWaitRenderTask final : public GrRenderTask {
 public:
-    GrWaitRenderTask(GrSurfaceProxyView surfaceView,
+    GrWaitRenderTask(GrDrawingManager* drawingMgr, GrSurfaceProxyView surfaceView,
                      std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
                      int numSemaphores)
-            : GrRenderTask(std::move(surfaceView))
+            : GrRenderTask(drawingMgr, std::move(surfaceView))
             , fSemaphores(std::move(semaphores))
             , fNumSemaphores(numSemaphores) {}
 

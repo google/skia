@@ -15,9 +15,11 @@
 #include "src/gpu/GrTexturePriv.h"
 
 GrTextureResolveRenderTask::~GrTextureResolveRenderTask() {
-    for (const auto& resolve : fResolves) {
-        // Ensure the proxy doesn't keep hold of a dangling back pointer.
-        resolve.fProxy->setLastRenderTask(nullptr);
+    if (fDrawingManager) {
+        for (const auto& resolve : fResolves) {
+            // Ensure the proxy doesn't refer to a dangling back pointer.
+            fDrawingManager->setLastRenderTask(resolve.fProxy.get(), nullptr);
+        }
     }
 }
 
@@ -28,7 +30,8 @@ void GrTextureResolveRenderTask::addProxy(
 
     // Ensure the last render task that operated on the proxy is closed. That's where msaa and
     // mipmaps should have been marked dirty.
-    SkASSERT(!proxy->getLastRenderTask() || proxy->getLastRenderTask()->isClosed());
+    SkASSERT(!fDrawingManager->getLastRenderTask(proxy)
+             || fDrawingManager->getLastRenderTask(proxy)->isClosed());
     SkASSERT(GrSurfaceProxy::ResolveFlags::kNone != flags);
 
     if (GrSurfaceProxy::ResolveFlags::kMSAA & flags) {
@@ -49,7 +52,7 @@ void GrTextureResolveRenderTask::addProxy(
     // Add the proxy as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
     this->addDependency(proxy, GrMipMapped::kNo, GrTextureResolveManager(nullptr), caps);
-    proxy->setLastRenderTask(this);
+    fDrawingManager->setLastRenderTask(proxy, this);
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {

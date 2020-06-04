@@ -377,7 +377,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
                            std::move(colorSpace))
         , fWriteView(std::move(writeView))
-        , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
+        , fOpsTask(sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy())))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask) {
     if (fOpsTask) {
@@ -393,7 +393,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
 #ifdef SK_DEBUG
 void GrRenderTargetContext::onValidate() const {
     if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(fWriteView.proxy()->getLastRenderTask() == fOpsTask.get());
+        SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask.get());
     }
 }
 #endif

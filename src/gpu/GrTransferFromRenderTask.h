@@ -12,13 +12,14 @@
 
 class GrTransferFromRenderTask final : public GrRenderTask {
 public:
-    GrTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+    GrTransferFromRenderTask(GrDrawingManager* drawingMgr,
+                             sk_sp<GrSurfaceProxy> srcProxy,
                              const SkIRect& srcRect,
                              GrColorType surfaceColorType,
                              GrColorType dstColorType,
                              sk_sp<GrGpuBuffer> dstBuffer,
                              size_t dstOffset)
-            : GrRenderTask()
+            : GrRenderTask(drawingMgr)
             , fSrcProxy(std::move(srcProxy))
             , fSrcRect(srcRect)
             , fSurfaceColorType(surfaceColorType)

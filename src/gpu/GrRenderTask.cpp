@@ -21,22 +21,24 @@ uint32_t GrRenderTask::CreateUniqueID() {
     return id;
 }
 
-GrRenderTask::GrRenderTask()
-        : fUniqueID(CreateUniqueID())
+GrRenderTask::GrRenderTask(GrDrawingManager* drawingManager)
+        : fDrawingManager(drawingManager)
+        , fUniqueID(CreateUniqueID())
         , fFlags(0) {
 }
 
-GrRenderTask::GrRenderTask(GrSurfaceProxyView targetView)
+GrRenderTask::GrRenderTask(GrDrawingManager* drawingManager, GrSurfaceProxyView targetView)
         : fTargetView(std::move(targetView))
+        , fDrawingManager(drawingManager)
         , fUniqueID(CreateUniqueID())
         , fFlags(0) {
 }
 
 GrRenderTask::~GrRenderTask() {
     GrSurfaceProxy* proxy = fTargetView.proxy();
-    if (proxy && this == proxy->getLastRenderTask()) {
+    if (fDrawingManager && proxy && this == fDrawingManager->getLastRenderTask(proxy)) {
         // Ensure the target proxy doesn't keep hold of a dangling back pointer.
-        proxy->setLastRenderTask(nullptr);
+        fDrawingManager->setLastRenderTask(proxy, nullptr);
     }
 }
 
@@ -110,6 +112,14 @@ void GrRenderTask::addDependenciesFromOtherTask(GrRenderTask* otherTask) {
     }
 }
 
+void GrRenderTask::setDrawingManager(GrDrawingManager* drawingManager) {
+    // Can't detach until closed.
+    SkASSERT((nullptr != drawingManager) || this->isClosed());
+    // Must detach before attaching to new manager.
+    SkASSERT((nullptr == drawingManager) != (nullptr == fDrawingManager));
+    fDrawingManager = drawingManager;
+}
+
 // Convert from a GrSurface-based dependency to a GrRenderTask one
 void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapped,
                                  GrTextureResolveManager textureResolveManager,
@@ -117,7 +127,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
     // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
     SkASSERT(!this->isClosed());
 
-    GrRenderTask* dependedOnTask = dependedOn->getLastRenderTask();
+    GrRenderTask* dependedOnTask = fDrawingManager->getLastRenderTask(dependedOn);
 
     if (dependedOnTask == this) {
         // self-read - presumably for dst reads. We don't need to do anything in this case. The
@@ -172,7 +182,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
 
         // addProxy() should have closed the texture proxy's previous task.
         SkASSERT(!dependedOnTask || dependedOnTask->isClosed());
-        SkASSERT(dependedOn->getLastRenderTask() == fTextureResolveTask);
+        SkASSERT(fDrawingManager->getLastRenderTask(dependedOn) == fTextureResolveTask);
 
 #ifdef SK_DEBUG
         // addProxy() should have called addDependency (in this instance, recursively) on
@@ -192,7 +202,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         if (textureProxy) {
             SkASSERT(!textureProxy->mipMapsAreDirty());
         }
-        SkASSERT(dependedOn->getLastRenderTask() == fTextureResolveTask);
+        SkASSERT(fDrawingManager->getLastRenderTask(dependedOn) == fTextureResolveTask);
 #endif
         return;
     }

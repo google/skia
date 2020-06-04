@@ -25,8 +25,8 @@ class GrTextureResolveRenderTask;
 // contents. (e.g., an opsTask that executes a command buffer, a task to regenerate mipmaps, etc.)
 class GrRenderTask : public SkRefCnt {
 public:
-    GrRenderTask();
-    GrRenderTask(GrSurfaceProxyView);
+    GrRenderTask(GrDrawingManager*);
+    GrRenderTask(GrDrawingManager*, GrSurfaceProxyView);
     ~GrRenderTask() override;
 
     void makeClosed(const GrCaps&);
@@ -43,6 +43,9 @@ public:
     virtual void endFlush() {}
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
+
+    GrDrawingManager* drawingManager() { return fDrawingManager; }
+    void setDrawingManager(GrDrawingManager*);
 
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
@@ -112,6 +115,8 @@ protected:
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
     // executing. Can this be replaced?
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
+
+    GrDrawingManager* fDrawingManager;
 
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure

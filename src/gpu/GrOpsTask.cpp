@@ -357,14 +357,15 @@ inline void GrOpsTask::OpChain::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrOpsTask::GrOpsTask(GrRecordingContext::Arenas arenas,
+GrOpsTask::GrOpsTask(GrDrawingManager* drawingManager,
+                     GrRecordingContext::Arenas arenas,
                      GrSurfaceProxyView view,
                      GrAuditTrail* auditTrail)
-        : GrRenderTask(std::move(view))
+        : GrRenderTask(drawingManager, std::move(view))
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
-    fTargetView.proxy()->setLastRenderTask(this);
+    fDrawingManager->setLastRenderTask(fTargetView.proxy(), this);
 }
 
 void GrOpsTask::deleteOps() {
@@ -394,8 +395,8 @@ void GrOpsTask::endFlush() {
     fClipAllocator.reset();
 
     GrSurfaceProxy* proxy = fTargetView.proxy();
-    if (proxy && this == proxy->getLastRenderTask()) {
-        proxy->setLastRenderTask(nullptr);
+    if (proxy && this == fDrawingManager->getLastRenderTask(proxy)) {
+        fDrawingManager->setLastRenderTask(proxy, nullptr);
     }
 
     fTargetView.reset();
