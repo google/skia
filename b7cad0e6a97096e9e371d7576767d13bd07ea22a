@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "289b0c53_8c1edac9",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-04T13:52:38Z",
+      "side": 1,
+      "message": "Minor nit: To keep the pattern of incrementally building up fp, maybe just do:\n\nfp - GrClampFragmentProcessor::Make(...);\n\nThen you just need the single call to addColorFragmentProcessor below, outside the if.",
+      "range": {
+        "startLine": 1072,
+        "startChar": 0,
+        "endLine": 1073,
+        "endChar": 88
+      },
+      "revId": "b7cad0e6a97096e9e371d7576767d13bd07ea22a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
