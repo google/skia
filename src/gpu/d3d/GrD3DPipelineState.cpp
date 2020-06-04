@@ -133,8 +133,12 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
                 { d3dSampler, static_cast<GrD3DTexture*>(dstTexture) };
     }
 
-    // TODO: bind descriptors
     SkASSERT(fNumSamplers == currTextureBinding);
+    std::unique_ptr<GrD3DDescriptorTable> srvTable =
+            gpu->resourceProvider().createShaderOrConstantResourceTable(fNumSamplers);
+    std::unique_ptr<GrD3DDescriptorTable> samplerTable =
+            gpu->resourceProvider().createSamplerTable(fNumSamplers);
+    // TODO: fill in tables and bind to root signature
 }
 
 void GrD3DPipelineState::bindBuffers(GrD3DGpu* gpu, const GrBuffer* indexBuffer,
