@@ -18,10 +18,10 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    // A fullscreen or scissored clear, depending on the clip and proxy dimensions
     static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
                                            const GrScissorState& scissor,
-                                           const SkPMColor4f& color,
-                                           const GrSurfaceProxy* dstProxy);
+                                           const SkPMColor4f& color);
 
     const char* name() const override { return "Clear"; }
 
@@ -41,13 +41,10 @@ public:
     }
 #endif
 
-    const SkPMColor4f& color() const { return fColor; }
-    void setColor(const SkPMColor4f& color) { fColor = color; }
-
 private:
     friend class GrOpMemoryPool; // for ctors
 
-    GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color, const GrSurfaceProxy* proxy);
+    GrClearOp(const GrScissorState& scissor, const SkPMColor4f& color);
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {
