@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "108030f5_c4a5af92",
+        "filename": "modules/skparagraph/include/ParagraphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "eab5f12b_cfc266bb",
+      "range": {
+        "startLine": 16,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7db1d53_7ffaf601",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a19ca549_19f0b911",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7db1d53_7ffaf601",
+      "range": {
+        "startLine": 304,
+        "startChar": 20,
+        "endLine": 304,
+        "endChar": 41
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8836645d_90d7905e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7835f845_1d280c64",
+      "range": {
+        "startLine": 372,
+        "startChar": 20,
+        "endLine": 372,
+        "endChar": 35
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "803ef3ef_25306585",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 6
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "e51b1cbb_0d3a8c5c",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "803ef3ef_25306585",
+      "range": {
+        "startLine": 959,
+        "startChar": 20,
+        "endLine": 959,
+        "endChar": 47
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1f84ce0_6de9dccb",
         "filename": "modules/skparagraph/src/ParagraphImpl.h",
         "patchSetId": 6
@@ -108,6 +204,24 @@
       "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57f7c87e_c513bd74",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1f84ce0_6de9dccb",
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -131,6 +245,30 @@
       "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e1bd2b3_1266ed58",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f343718_aa0c6467",
+      "range": {
+        "startLine": 90,
+        "startChar": 7,
+        "endLine": 90,
+        "endChar": 11
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -203,6 +341,78 @@
     },
     {
       "key": {
+        "uuid": "801055e0_c3a8608c",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4af4a19_026a932c",
+      "range": {
+        "startLine": 204,
+        "startChar": 69,
+        "endLine": 204,
+        "endChar": 88
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2efcda3e_6d1ee7e0",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd0f471a_11bf6628",
+      "range": {
+        "startLine": 204,
+        "startChar": 42,
+        "endLine": 204,
+        "endChar": 67
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd122fe2_d95a1ded",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f857d37e_8bffe4c3",
+      "range": {
+        "startLine": 204,
+        "startChar": 10,
+        "endLine": 204,
+        "endChar": 13
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e33c0b58_84249318",
         "filename": "modules/skparagraph/src/ParagraphImpl.h",
         "patchSetId": 6
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "69ee031b_c3a6e1b2",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e33c0b58_84249318",
+      "range": {
+        "startLine": 205,
+        "startChar": 51,
+        "endLine": 205,
+        "endChar": 56
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2958a06f_aebbb1b7",
         "filename": "modules/skparagraph/src/ParagraphImpl.h",
         "patchSetId": 6
@@ -246,6 +480,30 @@
       "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1833f5_08423b12",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T18:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2958a06f_aebbb1b7",
+      "range": {
+        "startLine": 206,
+        "startChar": 42,
+        "endLine": 206,
+        "endChar": 50
+      },
+      "revId": "5b501d8986a42c9090c33b3eb651b3c3976f648b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
