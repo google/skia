@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2020-06-04
+
 ### Fixed
- - Colors were are now unsigned to be compatible with Flutter Web and previous behavior, not
+ - Colors are unsigned to be compatible with Flutter Web and previous behavior, not
    signed ints.
 
 ## [0.16.0] - 2020-06-03
