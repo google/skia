@@ -7,8 +7,6 @@
 
 #include "modules/skshaper/include/SkShaper.h"
 
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-
 #ifdef SK_BUILD_FOR_MAC
 #import <ApplicationServices/ApplicationServices.h>
 #endif
@@ -287,9 +285,3 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
         handler->commitLine();
     }
 }
-
-#else
-std::unique_ptr<SkShaper> SkShaper::MakeCoreText() {
-    return nullptr;
-}
-#endif

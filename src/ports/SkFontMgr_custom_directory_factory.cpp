@@ -9,7 +9,11 @@
 #include "include/ports/SkFontMgr_directory.h"
 
 #ifndef SK_FONT_FILE_PREFIX
+#  if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#    define SK_FONT_FILE_PREFIX "/System/Library/Fonts/"
+#  else
 #    define SK_FONT_FILE_PREFIX "/usr/share/fonts/"
+#  endif
 #endif
 
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
