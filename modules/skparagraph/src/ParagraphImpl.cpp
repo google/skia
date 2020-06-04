@@ -70,16 +70,18 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
-void Paragraph::cleanMeasurements() {
-    fAlphabeticBaseline = 0;
-    fIdeographicBaseline = 0;
-    fHeight = 0;
-    fWidth = 0;
-    fMaxIntrinsicWidth = 0;
-    fMinIntrinsicWidth = 0;
-    fLongestLine = 0;
-    fExceededMaxLines = 0;
-}
+Paragraph::Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts)
+            : fFontCollection(std::move(fonts))
+            , fParagraphStyle(std::move(style))
+            , fAlphabeticBaseline(0)
+            , fIdeographicBaseline(0)
+            , fHeight(0)
+            , fWidth(0)
+            , fMaxIntrinsicWidth(0)
+            , fMinIntrinsicWidth(0)
+            , fLongestLine(0)
+            , fExceededMaxLines(0)
+{ }
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
@@ -97,7 +99,6 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
-    cleanMeasurements();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -105,19 +106,12 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              SkTArray<Block, true> blocks,
                              SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
-        : Paragraph(std::move(style), std::move(fonts))
-        , fTextStyles(std::move(blocks))
-        , fPlaceholders(std::move(placeholders))
-        , fText(SkStringFromU16String(utf16text))
-        , fState(kUnknown)
-        , fUnresolvedGlyphs(0)
-        , fPicture(nullptr)
-        , fStrutMetrics(false)
-        , fOldWidth(0)
-        , fOldHeight(0)
-        , fOrigin(SkRect::MakeEmpty()) {
-    cleanMeasurements();
-}
+        : ParagraphImpl(SkStringFromU16String(utf16text),
+                        std::move(style),
+                        std::move(blocks),
+                        std::move(placeholders),
+                        std::move(fonts))
+{ }
 
 ParagraphImpl::~ParagraphImpl() = default;
 
