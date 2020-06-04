@@ -16,6 +16,24 @@
       "revId": "aeef2a760c7402f87b996d15ecb6adc7040259d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d399160_28c1b19d",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T19:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66d1f25b_00b062f1",
+      "revId": "aeef2a760c7402f87b996d15ecb6adc7040259d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
