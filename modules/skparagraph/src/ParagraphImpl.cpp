@@ -1,5 +1,4 @@
 // Copyright 2019 Google LLC.
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkMatrix.h"
@@ -70,6 +69,40 @@ TextRange operator*(const TextRange& a, const TextRange& b) {
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
+bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
+    #if defined(SK_USING_THIRD_PARTY_ICU)
+    if (!SkLoadICU()) {
+        return false;
+    }
+    #endif
+
+    UErrorCode status = U_ZERO_ERROR;
+    fIterator = nullptr;
+    fSize = text.size();
+    UText sUtf8UText = UTEXT_INITIALIZER;
+    std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>> utf8UText(
+        utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Could not create utf8UText: %s", u_errorName(status));
+        return false;
+    }
+    fIterator.reset(ubrk_open(type, "en", nullptr, 0, &status));
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Could not create line break iterator: %s", u_errorName(status));
+        SK_ABORT("");
+    }
+
+    ubrk_setUText(fIterator.get(), utf8UText.get(), &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Could not setText on break iterator: %s", u_errorName(status));
+        return false;
+    }
+
+    fInitialized = true;
+    fPos = 0;
+    return true;
+}
+
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
@@ -85,7 +118,9 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0)
-        , fOrigin(SkRect::MakeEmpty()) { }
+        , fOrigin(SkRect::MakeEmpty()) {
+    // TODO: extractStyles();
+}
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
@@ -102,7 +137,9 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0)
-        , fOrigin(SkRect::MakeEmpty()) {}
+        , fOrigin(SkRect::MakeEmpty()) {
+    // TODO: extractStyles();
+}
 
 ParagraphImpl::~ParagraphImpl() = default;
 
@@ -118,28 +155,22 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
     // TODO: This rounding is done to match Flutter tests. Must be removed...
     auto floorWidth = SkScalarFloorToScalar(rawWidth);
-
-    if ((!SkScalarIsFinite(rawWidth) || fLongestLine <= floorWidth) &&
-        fState >= kLineBroken &&
-         fLines.size() == 1 && fLines.front().ellipsis() == nullptr) {
-        // Most common case: one line of text (and one line is never justified, so no cluster shifts)
-        fWidth = floorWidth;
-        fState = kLineBroken;
-    } else if (fState >= kLineBroken && fOldWidth != floorWidth) {
+    if (fState < kShaped) {
+        // Layout marked as dirty for performance/testing reasons
+        this->fRuns.reset();
+        this->fClusters.reset();
+        this->resetShifts();
+    } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
+        this->fClusters.reset();
+        this->resetShifts();
         fState = kShaped;
-    } else {
-        // Nothing changed case: we can reuse the data from the last layout
     }
 
     if (fState < kShaped) {
-        this->fCodeUnitProperties.reset();
-        this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
-        this->fWords.clear();
-        this->fBidiRegions.reset();
-        this->fGraphemes16.reset();
-        this->fCodepoints.reset();
-        this->fRuns.reset();
+        fGraphemes.reset();
+        this->markGraphemes();
+
         if (!this->shapeTextIntoEndlessLine()) {
             this->resetContext();
             // TODO: merge the two next calls - they always come together
@@ -156,7 +187,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             }
             fAlphabeticBaseline = fEmptyMetrics.alphabeticBaseline();
             fIdeographicBaseline = fEmptyMetrics.ideographicBaseline();
-            fLongestLine = FLT_MIN - FLT_MAX; // That is what flutter has
             fMinIntrinsicWidth = 0;
             fMaxIntrinsicWidth = 0;
             this->fOldWidth = floorWidth;
@@ -164,16 +194,25 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
             return;
         }
+
+        this->fClusters.reset();
+        this->resetShifts();
         fState = kShaped;
     }
 
     if (fState < kMarked) {
-        this->fClusters.reset();
-        this->resetShifts();
         this->buildClusterTable();
         fState = kClusterized;
+
+        this->markLineBreaks();
         this->spaceGlyphs();
         fState = kMarked;
+    }
+
+    if (fState >= kLineBroken) {
+        if (fOldWidth != floorWidth || fOldHeight != fHeight) {
+            fState = kMarked;
+        }
     }
 
     if (fState < kLineBroken) {
@@ -233,264 +272,6 @@ void ParagraphImpl::resetContext() {
     fExceededMaxLines = false;
 }
 
-class TextBreaker {
-public:
-    TextBreaker() : fInitialized(false), fPos(-1) {}
-
-    bool initialize(SkSpan<const char> text, UBreakIteratorType type) {
-
-        UErrorCode status = U_ZERO_ERROR;
-        fIterator = nullptr;
-        fSize = text.size();
-        UText sUtf8UText = UTEXT_INITIALIZER;
-        std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>> utf8UText(
-            utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Could not create utf8UText: %s", u_errorName(status));
-            return false;
-        }
-        fIterator.reset(ubrk_open(type, "en", nullptr, 0, &status));
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Could not create line break iterator: %s", u_errorName(status));
-            SK_ABORT("");
-        }
-
-        ubrk_setUText(fIterator.get(), utf8UText.get(), &status);
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Could not setText on break iterator: %s", u_errorName(status));
-            return false;
-        }
-
-        fInitialized = true;
-        fPos = 0;
-        return true;
-    }
-
-    bool initialized() const { return fInitialized; }
-
-    size_t first() {
-        fPos = ubrk_first(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t next() {
-        fPos = ubrk_next(fIterator.get());
-        return eof() ? fSize : fPos;
-    }
-
-    size_t preceding(size_t offset) {
-        auto pos = ubrk_preceding(fIterator.get(), offset);
-        return pos == UBRK_DONE ? 0 : pos;
-    }
-
-    size_t following(size_t offset) {
-        auto pos = ubrk_following(fIterator.get(), offset);
-        return pos == UBRK_DONE ? fSize : pos;
-    }
-
-    int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
-
-    bool eof() { return fPos == UBRK_DONE; }
-
-private:
-    std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
-    bool fInitialized;
-    int32_t fPos;
-    size_t fSize;
-};
-
-// shapeTextIntoEndlessLine is the thing that calls this method
-// (that contains all ICU dependencies except for words)
-bool ParagraphImpl::computeCodeUnitProperties() {
-
-    #if defined(SK_USING_THIRD_PARTY_ICU)
-    if (!SkLoadICU()) {
-        return false;
-    }
-    #endif
-
-    {
-        const char* start = fText.c_str();
-        const char* end = start + fText.size();
-        const char* ch = start;
-        while (ch < end) {
-            auto index = ch - start;
-            auto unichar = utf8_next(&ch, end);
-            if (u_isWhitespace(unichar)) {
-                auto ending = ch - start;
-                for (auto k = index; k < ending; ++k) {
-                  fCodeUnitProperties[k] |= CodeUnitFlags::kPartOfWhiteSpace;
-                }
-            }
-        }
-    }
-    {
-        TextBreaker breaker;
-        if (!breaker.initialize(this->text(), UBRK_LINE)) {
-            return false;
-        }
-        while (!breaker.eof()) {
-            size_t currentPos = breaker.next();
-          fCodeUnitProperties[currentPos] |=
-              breaker.status() == UBRK_LINE_HARD ? CodeUnitFlags::kHardLineBreakBefore : CodeUnitFlags::kSoftLineBreakBefore;
-        }
-    }
-    {
-        TextBreaker breaker;
-        if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
-            return false;
-        }
-
-        while (!breaker.eof()) {
-            auto currentPos = breaker.next();
-          fCodeUnitProperties[currentPos] |= CodeUnitFlags::kGraphemeBreakBefore;
-        }
-    }
-/*
-    SkString breaks;
-    SkString graphemes;
-    SkString whitespaces;
-    size_t index = 0;
-    for (auto flag : fIcuFlags) {
-        if ((flag & IcuFlagTypes::kHardLineBreak) != 0) {
-            breaks += "H";
-        } else if ((flag & IcuFlagTypes::kSoftLineBreak) != 0) {
-            breaks += "S";
-        } else {
-            breaks += " ";
-        }
-        graphemes += (flag & IcuFlagTypes::kGrapheme) == 0 ? " " : "G";
-        whitespaces += (flag & IcuFlagTypes::kWhiteSpace) == 0 ? " " : "W";
-        ++index;
-    }
-    SkDebugf("%s\n%s\n%s\n", breaks.c_str(), graphemes.c_str(), whitespaces.c_str());
-*/
-    return true;
-}
-
-// getWordBoundary is the thing that calls this method lazily
-bool ParagraphImpl::computeWords() {
-
-    if (!fWords.empty()) {
-        return true;
-    }
-
-    UErrorCode errorCode = U_ZERO_ERROR;
-
-    auto iter = ubrk_open(UBRK_WORD, uloc_getDefault(), nullptr, 0, &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
-        return false;
-    }
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, fText.c_str(), fText.size(), &errorCode);
-    errorCode = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, fText.c_str(), fText.size(), &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(errorCode));
-        return false;
-    }
-
-    UText sUtf16UText = UTEXT_INITIALIZER;
-    ICUUText utf8UText(utext_openUChars(&sUtf16UText, utf16.get(), utf16Units, &errorCode));
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
-        return false;
-    }
-
-    ubrk_setUText(iter, utf8UText.get(), &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
-        return false;
-    }
-
-    int32_t pos = ubrk_first(iter);
-    while (pos != UBRK_DONE) {
-        fWords.emplace_back(pos);
-        pos = ubrk_next(iter);
-    }
-
-    return true;
-}
-
-bool ParagraphImpl::getBidiRegions() {
-
-    if (!fBidiRegions.empty()) {
-        return true;
-    }
-
-    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
-    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
-    size_t utf8Bytes = fText.size();
-    const char* utf8 = fText.c_str();
-    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                            ? UBIDI_LTR
-                            : UBIDI_RTL;
-    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
-        SkDEBUGF("Bidi error: text too long");
-        return false;
-    }
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    UErrorCode status = U_ZERO_ERROR;
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
-        return false;
-    }
-
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-    SkASSERT(bidi);
-
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-
-    SkTArray<BidiRegion> bidiRegions;
-    const char* start8 = utf8;
-    const char* end8 = utf8 + utf8Bytes;
-    TextRange textRange(0, 0);
-    UBiDiLevel currentLevel = 0;
-
-    int32_t pos16 = 0;
-    int32_t end16 = ubidi_getLength(bidi.get());
-    while (pos16 < end16) {
-        auto level = ubidi_getLevelAt(bidi.get(), pos16);
-        if (pos16 == 0) {
-            currentLevel = level;
-        } else if (level != currentLevel) {
-            textRange.end = start8 - utf8;
-            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-            currentLevel = level;
-            textRange = TextRange(textRange.end, textRange.end);
-        }
-        SkUnichar u = utf8_next(&start8, end8);
-        pos16 += SkUTF::ToUTF16(u);
-    }
-
-    textRange.end = start8 - utf8;
-    if (!textRange.empty()) {
-        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-    }
-
-    return true;
-}
-
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
 
@@ -500,9 +281,13 @@ void ParagraphImpl::buildClusterTable() {
         auto runStart = fClusters.size();
         if (run.isPlaceholder()) {
             // There are no glyphs but we want to have one cluster
-            fClusters.emplace_back(this, runIndex, 0ul, 1ul, this->text(run.textRange()), run.advance().fX, run.advance().fY);
-            fCodeUnitProperties[run.textRange().start] |= CodeUnitFlags::kSoftLineBreakBefore;
-            fCodeUnitProperties[run.textRange().end] |= CodeUnitFlags::kSoftLineBreakBefore;
+            SkSpan<const char> text = this->text(run.textRange());
+            if (!fClusters.empty()) {
+                fClusters.back().setBreakType(Cluster::SoftLineBreak);
+            }
+            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
+                                                   run.advance().fY);
+            cluster.setBreakType(Cluster::SoftLineBreak);
         } else {
             fClusters.reserve(fClusters.size() + run.size());
             // Walk through the glyph in the direction of input text
@@ -514,14 +299,19 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
                 SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
-                fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
+                auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
+                                                       width, height);
+                cluster.setIsWhiteSpaces();
+                if (fGraphemes.find(cluster.fTextRange.end) != nullptr) {
+                    cluster.setBreakType(Cluster::BreakType::GraphemeBreak);
+                }
             });
         }
 
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
-    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
+    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
 void ParagraphImpl::spaceGlyphs() {
@@ -570,6 +360,41 @@ void ParagraphImpl::spaceGlyphs() {
     }
 }
 
+void ParagraphImpl::markLineBreaks() {
+
+    // Find all possible (soft) line breaks
+    // This iterator is used only once for a paragraph so we don't have to keep it
+    TextBreaker breaker;
+    if (!breaker.initialize(this->text(), UBRK_LINE)) {
+        return;
+    }
+
+    // Mark all soft line breaks
+    // Remove soft line breaks that are not on grapheme cluster edge
+    Cluster* current = fClusters.begin();
+    while (!breaker.eof() && current < fClusters.end()) {
+        size_t currentPos = breaker.next();
+        while (current < fClusters.end()) {
+            if (current->textRange().end > currentPos) {
+                break;
+            } else if (current->textRange().end == currentPos) {
+                if (breaker.status() == UBRK_LINE_HARD) {
+                    // Hard line break stronger than anything
+                    current->setBreakType(Cluster::BreakType::HardLineBreak);
+                } else if (current->isGraphemeBreak()) {
+                    // Only allow soft line break if it's grapheme break
+                    current->setBreakType(Cluster::BreakType::SoftLineBreak);
+                } else {
+                    // Leave it as is (either it's no break or a placeholder)
+                }
+                ++current;
+                break;
+            }
+            ++current;
+        }
+    }
+}
+
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     if (fText.size() == 0) {
@@ -579,10 +404,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     // Check the font-resolved text against the cache
     if (fFontCollection->getParagraphCache()->findParagraph(this)) {
         return true;
-    }
-
-    if (!computeCodeUnitProperties()) {
-        return false;
     }
 
     fFontSwitches.reset();
@@ -767,7 +588,12 @@ void ParagraphImpl::markGraphemes16() {
         return;
     }
 
-    // Fill out code points 16
+    // This breaker gets called only once for a paragraph so we don't have to keep it
+    TextBreaker breaker;
+    if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
+        return;
+    }
+
     auto ptr = fText.c_str();
     auto end = fText.c_str() + fText.size();
     while (ptr < end) {
@@ -776,39 +602,54 @@ void ParagraphImpl::markGraphemes16() {
         SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         uint16_t buffer[2];
         size_t count = SkUTF::ToUTF16(u, buffer);
-        fCodepoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
+        fCodePoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
         if (count > 1) {
-            fCodepoints.emplace_back(EMPTY_INDEX, index, 1);
+            fCodePoints.emplace_back(EMPTY_INDEX, index, 1);
         }
     }
 
     CodepointRange codepoints(0ul, 0ul);
 
-  forEachCodeUnitPropertyRange(
-      CodeUnitFlags::kGraphemeBreakBefore,
-      [&](TextRange textRange) {
+    size_t endPos = 0;
+    while (!breaker.eof()) {
+        auto startPos = endPos;
+        endPos = breaker.next();
+
         // Collect all the codepoints that belong to the grapheme
-        while (codepoints.end < fCodepoints.size()
-            && fCodepoints[codepoints.end].fTextIndex < textRange.end) {
-          ++codepoints.end;
+        while (codepoints.end < fCodePoints.size() && fCodePoints[codepoints.end].fTextIndex < endPos) {
+            ++codepoints.end;
         }
 
-        if (textRange.start == textRange.end) {
-          return true;
+        if (startPos == endPos) {
+            continue;
         }
 
         //SkDebugf("Grapheme #%d [%d:%d)\n", fGraphemes16.size(), startPos, endPos);
 
         // Update all the codepoints that belong to this grapheme
         for (auto i = codepoints.start; i < codepoints.end; ++i) {
-          //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
-          fCodepoints[i].fGrapheme = fGraphemes16.size();
+            //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
+            fCodePoints[i].fGrapheme = fGraphemes16.size();
         }
 
-        fGraphemes16.emplace_back(codepoints, textRange);
+        fGraphemes16.emplace_back(codepoints, TextRange(startPos, endPos));
         codepoints.start = codepoints.end;
-        return true;
-      });
+    }
+}
+
+void ParagraphImpl::markGraphemes() {
+
+    // This breaker gets called only once for a paragraph so we don't have to keep it
+    TextBreaker breaker;
+    if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
+        return;
+    }
+
+    auto endPos = breaker.first();
+    while (!breaker.eof()) {
+        fGraphemes.add(endPos);
+        endPos = breaker.next();
+    }
 }
 
 // Returns a vector of bounding boxes that enclose all text between
@@ -829,7 +670,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
     markGraphemes16();
 
-    if (start >= end || start > fCodepoints.size() || end == 0) {
+    if (start >= end || start > fCodePoints.size() || end == 0) {
         return results;
     }
 
@@ -842,14 +683,14 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // One flutter test fails because of it but the editing experience is correct
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
-    if (start < fCodepoints.size()) {
-        auto codepoint = fCodepoints[start];
+    if (start < fCodePoints.size()) {
+        auto codepoint = fCodePoints[start];
         auto grapheme = fGraphemes16[codepoint.fGrapheme];
         text.start = grapheme.fTextRange.start;
     }
 
-    if (end < fCodepoints.size()) {
-        auto codepoint = fCodepoints[end];
+    if (end < fCodePoints.size()) {
+        auto codepoint = fCodePoints[end];
         auto grapheme = fGraphemes16[codepoint.fGrapheme];
         text.end = grapheme.fTextRange.start;
     }
@@ -934,9 +775,44 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // the glyph at index offset.
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
+    if (fWords.empty()) {
+        UErrorCode errorCode = U_ZERO_ERROR;
 
-    if (!computeWords()) {
-        return {0, 0 };
+        auto iter = ubrk_open(UBRK_WORD, uloc_getDefault(), nullptr, 0, &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
+
+        // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+        int32_t utf16Units;
+        u_strFromUTF8(nullptr, 0, &utf16Units, fText.c_str(), fText.size(), &errorCode);
+        errorCode = U_ZERO_ERROR;
+        std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+        u_strFromUTF8(utf16.get(), utf16Units, nullptr, fText.c_str(), fText.size(), &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Invalid utf8 input: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
+
+        UText sUtf16UText = UTEXT_INITIALIZER;
+        ICUUText utf8UText(utext_openUChars(&sUtf16UText, utf16.get(), utf16Units, &errorCode));
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
+
+        ubrk_setUText(iter, utf8UText.get(), &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
+
+        int32_t pos = ubrk_first(iter);
+        while (pos != UBRK_DONE) {
+            fWords.emplace_back(pos);
+            pos = ubrk_next(iter);
+        }
     }
 
     int32_t start = 0;
@@ -951,34 +827,8 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         break;
       }
     }
-
     //SkDebugf("getWordBoundary(%d): %d - %d\n", offset, start, end);
     return { SkToU32(start), SkToU32(end) };
-}
-
-void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUnitRangeVisitor visitor) {
-
-    size_t first = 0;
-    for (size_t i = 1; i < fText.size(); ++i) {
-        auto properties = fCodeUnitProperties[i];
-        if (properties & property) {
-            visitor({first, i});
-            first = i;
-        }
-
-    }
-    visitor({first, fText.size()});
-}
-
-size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
-    size_t len = 0;
-    for (auto i = textRange.start; i < textRange.end; ++i) {
-        auto properties = fCodeUnitProperties[i];
-        if (properties & CodeUnitFlags::kPartOfWhiteSpace) {
-            ++len;
-        }
-    }
-    return len;
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
@@ -1034,12 +884,6 @@ void ParagraphImpl::setState(InternalState state) {
     switch (fState) {
         case kUnknown:
             fRuns.reset();
-            fCodeUnitProperties.reset();
-            fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
-            fWords.clear();
-            fBidiRegions.reset();
-            fGraphemes16.reset();
-            fCodepoints.reset();
         case kShaped:
             fClusters.reset();
         case kClusterized:
@@ -1135,6 +979,79 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     for (auto& textStyle : fTextStyles) {
         textStyle.fStyle.setBackgroundColor(paint);
     }
+}
+
+bool ParagraphImpl::calculateBidiRegions(SkTArray<BidiRegion>* regions) {
+
+    regions->reset();
+
+    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
+    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
+    size_t utf8Bytes = fText.size();
+    const char* utf8 = fText.c_str();
+    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                            ? UBIDI_LTR
+                            : UBIDI_RTL;
+    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
+        SkDEBUGF("Bidi error: text too long");
+        return false;
+    }
+
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t utf16Units;
+    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
+    status = U_ZERO_ERROR;
+    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
+        return false;
+    }
+
+    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return false;
+    }
+    SkASSERT(bidi);
+
+    // The required lifetime of utf16 isn't well documented.
+    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
+    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return false;
+    }
+
+    SkTArray<BidiRegion> bidiRegions;
+    const char* start8 = utf8;
+    const char* end8 = utf8 + utf8Bytes;
+    TextRange textRange(0, 0);
+    UBiDiLevel currentLevel = 0;
+
+    int32_t pos16 = 0;
+    int32_t end16 = ubidi_getLength(bidi.get());
+    while (pos16 < end16) {
+        auto level = ubidi_getLevelAt(bidi.get(), pos16);
+        if (pos16 == 0) {
+            currentLevel = level;
+        } else if (level != currentLevel) {
+            textRange.end = start8 - utf8;
+            regions->emplace_back(textRange.start, textRange.end, currentLevel);
+            currentLevel = level;
+            textRange = TextRange(textRange.end, textRange.end);
+        }
+        SkUnichar u = utf8_next(&start8, end8);
+        pos16 += SkUTF::ToUTF16(u);
+    }
+
+    textRange.end = start8 - utf8;
+    if (!textRange.empty()) {
+        regions->emplace_back(textRange.start, textRange.end, currentLevel);
+    }
+
+    return true;
 }
 
 }  // namespace textlayout
