@@ -272,15 +272,7 @@ skia_core_sources = [
   "$_src/core/SkOSFile.h",
   "$_src/core/SkOpts.cpp",
   "$_src/core/SkOpts.h",
-
-  #"$_src/core/SkOpts_avx.cpp",
-  #"$_src/core/SkOpts_crc32.cpp",
-  "$_src/core/SkOpts_hsw.cpp",
   "$_src/core/SkOpts_skx.cpp",
-
-  #"$_src/core/SkOpts_sse41.cpp",
-  #"$_src/core/SkOpts_sse42.cpp",
-  #"$_src/core/SkOpts_ssse3.cpp",
   "$_src/core/SkOrderedReadBuffer.h",
   "$_src/core/SkOverdrawCanvas.cpp",
   "$_src/core/SkPaint.cpp",
