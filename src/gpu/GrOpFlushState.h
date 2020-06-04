@@ -145,7 +145,7 @@ public:
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     const GrAppliedHardClip& appliedHardClip() const {
         return (fOpArgs->appliedClip()) ?
-                fOpArgs->appliedClip()->hardClip() : GrAppliedHardClip::Disabled();
+                fOpArgs->appliedClip()->hardClip() : GrAppliedClip::Disabled().hardClip();
     }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {

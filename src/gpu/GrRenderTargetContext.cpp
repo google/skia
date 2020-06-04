@@ -500,30 +500,35 @@ void GrRenderTargetContext::internalClear(const SkIRect* scissor,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "clear", fContext);
 
-    // The clear will be fullscreen if no scissor is provided, or if the scissor is larger than
-    // the logical bounds of the render target, or if the special flag was provided that allows
-    // partial clears to upgrade to full (because it's a scratch resource and the caller knows
-    // anything outside the scissor doesn't matter, but if full screen clears aren't free, then
-    // the scissor is still provided so that fewer pixels are written to).
-    // TODO: wrt the shouldInitializeTextures path, it would be more performant to
-    // only clear the entire target if we knew it had not been cleared before. As
-    // is this could end up doing a lot of redundant clears.
-    GrScissorState scissorState;
-    if (scissor) {
-        // TODO(michaelludwig) - This will get simpler when GrScissorState knows the device dims
-        scissorState.set(*scissor);
-        if (!scissorState.intersect(SkIRect::MakeWH(this->width(), this->height()))) {
-            // The clear is offscreen, so skip it (normally this would be handled by addDrawOp,
-            // except clear ops are not draw ops).
-            return;
+    // There are three ways clears are handled: load ops, native clears, and draws. Load ops are
+    // only for fullscreen clears; native clears can be fullscreen or with scissors if the backend
+    // supports then. Drawing an axis-aligned rect is the fallback path.
+    GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
+    if (scissor && !scissorState.set(*scissor)) {
+        // The clear is offscreen, so skip it (normally this would be handled by addDrawOp,
+        // except clear ops are not draw ops).
+        return;
+    }
+
+    // If we have a scissor but it's okay to clear beyond it for performance reasons, then disable
+    // the test. We only do this when the clear would be handled by a load op or natively.
+    if (scissorState.enabled() && !this->caps()->performColorClearsAsDraws()) {
+        if (upgradePartialToFull && (this->caps()->preferFullscreenClears() ||
+                                     this->caps()->shouldInitializeTextures())) {
+            // TODO: wrt the shouldInitializeTextures path, it would be more performant to
+            // only clear the entire target if we knew it had not been cleared before. As
+            // is this could end up doing a lot of redundant clears.
+            scissorState.setDisabled();
+        } else {
+            // Unlike with stencil clears, we also allow clears up to the logical dimensions of the
+            // render target to overflow into any approx-fit padding of the backing store dimensions
+            scissorState.relaxTest(this->dimensions());
         }
     }
-    bool isFull = !scissorState.enabled() ||
-                  scissorState.rect().contains(SkIRect::MakeWH(this->width(), this->height())) ||
-                  (upgradePartialToFull && (this->caps()->preferFullscreenClears() ||
-                   this->caps()->shouldInitializeTextures()));
 
-    if (isFull) {
+    if (!scissorState.enabled()) {
+        // This is a fullscreen clear, so could be handled as a load op. Regardless, we can also
+        // discard all prior ops in the current task since the color buffer will be overwritten.
         GrOpsTask* opsTask = this->getOpsTask();
         if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
             !this->caps()->performColorClearsAsDraws()) {
@@ -535,38 +540,20 @@ void GrRenderTargetContext::internalClear(const SkIRect* scissor,
             // blow away the color buffer contents
             opsTask->setColorLoadOp(GrLoadOp::kDiscard);
         }
+    }
 
-        // Must add an op to the list (either because we couldn't use a load op, or because the
-        // clear load op isn't supported)
-        if (this->caps()->performColorClearsAsDraws()) {
-            SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
-            GrPaint paint;
-            clear_to_grpaint(color, &paint);
-            this->addDrawOp(nullptr,
-                            GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                                        rtRect));
-        } else {
-            this->addOp(GrClearOp::Make(fContext, GrScissorState(), color, this->asSurfaceProxy()));
-        }
+    // At this point we are either a partial clear or a fullscreen clear that couldn't be applied
+    // as a load op.
+    bool clearAsDraw = this->caps()->performColorClearsAsDraws() ||
+                       (scissorState.enabled() && this->caps()->performPartialClearsAsDraws());
+    if (clearAsDraw) {
+        GrPaint paint;
+        clear_to_grpaint(color, &paint);
+        this->addDrawOp(nullptr,
+                        GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                    SkRect::Make(scissorState.rect())));
     } else {
-        if (this->caps()->performPartialClearsAsDraws()) {
-            // performPartialClearsAsDraws() also returns true if any clear has to be a draw.
-            GrPaint paint;
-            clear_to_grpaint(color, &paint);
-
-            this->addDrawOp(nullptr,
-                            GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                                        SkRect::Make(scissorState.rect())));
-        } else {
-            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, scissorState, color,
-                                                     this->asSurfaceProxy()));
-            // This version of the clear op factory can return null if the clip doesn't intersect
-            // with the surface proxy's boundary
-            if (!op) {
-                return;
-            }
-            this->addOp(std::move(op));
-        }
+        this->addOp(GrClearOp::Make(fContext, scissorState, color));
     }
 }
 
@@ -641,16 +628,9 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     // better to just keep the old flags instead of introducing mixed edge flags.
     GrQuadAAFlags oldFlags = quad->fEdgeFlags;
 
-    SkRect rtRect;
-    if (stencilSettings) {
-        // Must use size at which the rendertarget will ultimately be allocated so that stencil
-        // buffer updates on approximately sized render targets don't get corrupted.
-        rtRect = this->asSurfaceProxy()->backingStoreBoundsRect();
-    } else {
-        // Use the logical size of the render target, which allows for "fullscreen" clears even if
-        // the render target has an approximate backing fit
-        rtRect = SkRect::MakeWH(this->width(), this->height());
-    }
+    // Use the logical size of the render target, which allows for "fullscreen" clears even if
+    // the render target has an approximate backing fit
+    SkRect rtRect = this->asSurfaceProxy()->getBoundsRect();
 
     SkRect drawBounds = quad->fDevice.bounds();
     if (constColor) {
@@ -961,30 +941,25 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
 void GrRenderTargetContext::internalStencilClear(const SkIRect* scissor, bool insideStencilMask) {
     this->setNeedsStencil(/* useMixedSamplesIfNotMSAA = */ false);
 
+    GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
+    if (scissor && !scissorState.set(*scissor)) {
+        // The requested clear region is off screen, so nothing to do.
+        return;
+    }
+
     bool clearWithDraw = this->caps()->performStencilClearsAsDraws() ||
-                         (scissor && this->caps()->performPartialClearsAsDraws());
+                         (scissorState.enabled() && this->caps()->performPartialClearsAsDraws());
     if (clearWithDraw) {
         const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
-        SkRect rect = scissor ? SkRect::Make(*scissor)
-                              : SkRect::MakeWH(this->width(), this->height());
 
         // Configure the paint to have no impact on the color buffer
         GrPaint paint;
         paint.setXPFactory(GrDisableColorXPFactory::Get());
-        this->addDrawOp(nullptr, GrFillRectOp::MakeNonAARect(fContext, std::move(paint),
-                                                             SkMatrix::I(), rect, ss));
+        this->addDrawOp(nullptr,
+                        GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                    SkRect::Make(scissorState.rect()), ss));
     } else {
-        GrScissorState scissorState;
-        if (scissor) {
-            scissorState.set(*scissor);
-        }
-
-        std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(
-                fContext, scissorState, insideStencilMask, this->asRenderTargetProxy()));
-        if (!op) {
-            return;
-        }
-        this->addOp(std::move(op));
+        this->addOp(GrClearStencilClipOp::Make(fContext, scissorState, insideStencilMask));
     }
 }
 
@@ -1009,7 +984,9 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     // Setup clip and reject offscreen paths; we do this explicitly instead of relying on addDrawOp
     // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
     // during this clip application.
-    GrAppliedHardClip appliedClip;
+    GrAppliedHardClip appliedClip(fRenderTargetContext->dimensions(),
+                                  fRenderTargetContext->asSurfaceProxy()->backingStoreDimensions());
+
     if (clip && !clip->apply(fRenderTargetContext->width(), fRenderTargetContext->height(),
                              &appliedClip, &bounds)) {
         return;
@@ -2496,7 +2473,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
-    GrAppliedClip appliedClip;
+    GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
     bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;

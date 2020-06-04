@@ -742,7 +742,7 @@ static void draw_element(GrRenderTargetContext* rtc,
 bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
-    GrFixedClip clip(SkIRect::MakeWH(fScissor.width(), fScissor.height()));
+    GrFixedClip clip(rtc->dimensions(), SkIRect::MakeWH(fScissor.width(), fScissor.height()));
 
     if (!fWindowRects.empty()) {
         clip.setWindowRectangles(fWindowRects.makeOffset(-fScissor.left(), -fScissor.top()),

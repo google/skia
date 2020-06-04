@@ -200,8 +200,7 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     maskPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
 
     // setup new clip
-    const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
-    GrFixedClip clip(clipRect);
+    GrFixedClip clip(rtContext->dimensions(), SkIRect::MakeWH(maskRect.width(), maskRect.height()));
 
     // Draw the mask into maskTexture with the path's integerized top-left at the origin using
     // maskPaint.
