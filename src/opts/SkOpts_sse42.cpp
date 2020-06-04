@@ -5,4 +5,14 @@
  * found in the LICENSE file.
  */
 
-// Intentionally empty, to be cleaned up.
+#include "src/core/SkOpts.h"
+
+#define SK_OPTS_NS sse42
+#include "src/opts/SkChecksum_opts.h"
+
+namespace SkOpts {
+    void Init_sse42() {
+        hash_fn = sse42::hash_fn;
+    }
+}
+
