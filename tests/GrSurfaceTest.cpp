@@ -602,10 +602,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // one where the the texture was drawn but the context is not flushed.
                 // In each scenario we test holding a ref beyond the context shutdown and not.
 
-                // These tests are difficult to get working with Vulkan and Direct3D.
-                // See http://skbug.com/8705 and http://skbug.com/8277
+                // These tests are difficult to get working with Vulkan, Direct3D, and Dawn.
+                // See http://skbug.com/8705, http://skbug.com/8277, and http://skbug.com/10326
                 GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D) {
+                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D ||
+                    api == GrBackendApi::kDawn) {
                     continue;
                 }
                 int id = 3;
