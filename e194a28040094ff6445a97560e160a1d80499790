@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f181260b_31910f55",
+        "filename": "gm/swizzle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-04T14:12:20Z",
+      "side": 1,
+      "message": "wow do we really need this many includes for this tiny gm?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 27
+      },
+      "revId": "e194a28040094ff6445a97560e160a1d80499790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
