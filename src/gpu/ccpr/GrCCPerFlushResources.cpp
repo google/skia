@@ -96,8 +96,10 @@ public:
         GrCCPathProcessor pathProc(coverageMode, fSrcProxy->peekTexture(), swizzle,
                                    GrCCAtlas::kTextureOrigin);
 
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().writeSwizzle());
+        bool hasScissor = flushState->appliedClip() &&
+                          flushState->appliedClip()->scissorState().enabled();
+        GrPipeline pipeline(hasScissor ? GrScissorTest::kEnabled : GrScissorTest::kDisabled,
+                            SkBlendMode::kSrc, flushState->drawOpArgs().writeSwizzle());
 
         pathProc.drawPaths(flushState, pipeline, *fSrcProxy, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
