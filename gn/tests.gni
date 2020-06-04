@@ -161,6 +161,7 @@ tests_sources = [
   "$_tests/MetaDataTest.cpp",
   "$_tests/MipMapTest.cpp",
   "$_tests/MultiPictureDocumentTest.cpp",
+  "$_tests/NdkDecodeTest.cpp",
   "$_tests/NonlinearBlendingTest.cpp",
   "$_tests/OSPathTest.cpp",
   "$_tests/OctoBoundsTest.cpp",
