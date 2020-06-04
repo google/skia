@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "134ce9ca_b5985ae4",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-04T14:45:03Z",
+      "side": 1,
+      "message": "I had interpreted Brian\u0027s comment as:\n   \n   fp \u003d GrColorSpaceXform...;\n   if (saturate) \n      fp \u003d GrClampFragmentProcessor::Make(std::move(fp), ...);\n   paint.addColorFP(std::move(fp)",
+      "range": {
+        "startLine": 1071,
+        "startChar": 7,
+        "endLine": 1075,
+        "endChar": 9
+      },
+      "revId": "307e705ee9cc95532ce63ca4e4af31955f946aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
