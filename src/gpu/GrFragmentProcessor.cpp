@@ -181,11 +181,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(
     if (!fp) {
         return nullptr;
     }
-    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = {
-        std::move(fp),
-        GrClampFragmentProcessor::Make(true)
-    };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+    return GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/true);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(

@@ -23,20 +23,30 @@ public:
         return {SkTPin(input.fR, 0.f, clampVal), SkTPin(input.fG, 0.f, clampVal),
                 SkTPin(input.fB, 0.f, clampVal), clampedAlpha};
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(bool clampToPremul) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrClampFragmentProcessor(clampToPremul));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     bool clampToPremul) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrClampFragmentProcessor(std::move(inputFP), clampToPremul));
     }
     GrClampFragmentProcessor(const GrClampFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ClampFragmentProcessor"; }
+    int inputFP_index = -1;
     bool clampToPremul;
 
 private:
-    GrClampFragmentProcessor(bool clampToPremul)
+    GrClampFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, bool clampToPremul)
             : INHERITED(kGrClampFragmentProcessor_ClassID,
-                        (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag |
-                                kPreservesOpaqueInput_OptimizationFlag)
-            , clampToPremul(clampToPremul) {}
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                (kConstantOutputForConstantInput_OptimizationFlag |
+                                 kPreservesOpaqueInput_OptimizationFlag))
+            , clampToPremul(clampToPremul) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
