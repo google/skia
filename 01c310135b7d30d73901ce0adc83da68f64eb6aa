@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5d47a06_e6e69c20",
+        "filename": "src/gpu/effects/GrDeviceSpaceEffect.fp",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-04T14:51:07Z",
+      "side": 1,
+      "message": "Nesting a GrMatrixEffect inside a GrDeviceSpaceEffect did not seem to produce the right transform. This effect was only previously used for alpha mask generation during clipping, and in the windowrectangles GM. Since alpha masks are skipped, adding a transform to the effect here is pretty benign.\n\nEventually it\u0027d be nice for composition to work",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "01c310135b7d30d73901ce0adc83da68f64eb6aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
