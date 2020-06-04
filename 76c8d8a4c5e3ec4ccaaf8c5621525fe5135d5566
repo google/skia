@@ -46,6 +46,30 @@
       "revId": "76c8d8a4c5e3ec4ccaaf8c5621525fe5135d5566",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3afbde30_068e54d7",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-04T23:12:29Z",
+      "side": 1,
+      "message": "I am not sure what you mean by that.\nThis one is Paragraph, the other two are ParagraphImpl.\nI could make Paragraph abstract.",
+      "parentUuid": "8685e453_298a5966",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "76c8d8a4c5e3ec4ccaaf8c5621525fe5135d5566",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
