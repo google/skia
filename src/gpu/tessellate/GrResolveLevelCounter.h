@@ -22,7 +22,7 @@ public:
         SkDEBUGCODE(fHasCalledReset = true;)
     }
 
-    int reset(const SkPath& path, const SkMatrix& viewMatrix, float intolerance) {
+    void reset(const SkPath& path, const SkMatrix& viewMatrix, float intolerance) {
         this->reset();
         GrVectorXform xform(viewMatrix);
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
@@ -38,7 +38,6 @@ public:
                     break;
             }
         }
-        return fTotalCubicInstanceCount;
     }
 
     void countCubic(int resolveLevel) {

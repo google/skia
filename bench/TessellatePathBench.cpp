@@ -37,7 +37,7 @@ public:
     BenchmarkTarget() {
         GrMockOptions mockOptions;
         mockOptions.fDrawInstancedSupport = true;
-        mockOptions.fTessellationSupport = true;
+        mockOptions.fMaxTessellationSegments = 64;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kMSAA;
@@ -110,7 +110,7 @@ private:
 class GrTessellatePathOp::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
-            : fOp(m, path, GrPaint(), GrAAType::kMSAA) {
+            : fOp(m, path, GrPaint(), GrAAType::kMSAA, GrTessellationPathRenderer::OpFlags::kNone) {
         fName.printf("tessellate_%s", subName);
     }
 

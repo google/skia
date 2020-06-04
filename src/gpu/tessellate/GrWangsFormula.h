@@ -22,6 +22,11 @@ SK_ALWAYS_INLINE static float length(const Sk2f& n) {
     return std::sqrt(nn[0] + nn[1]);
 }
 
+// Constant term for the quatratic formula.
+constexpr float quadratic_k(float intolerance) {
+    return .25f * intolerance;
+}
+
 // Returns the minimum number of evenly spaced (in the parametric sense) line segments that the
 // quadratic must be chopped into in order to guarantee all lines stay within a distance of
 // "1/intolerance" pixels from the true curve.
@@ -29,8 +34,13 @@ SK_ALWAYS_INLINE static float quadratic(float intolerance, const SkPoint pts[]) 
     Sk2f p0 = Sk2f::Load(pts);
     Sk2f p1 = Sk2f::Load(pts + 1);
     Sk2f p2 = Sk2f::Load(pts + 2);
-    float k = intolerance * .25f;
+    float k = quadratic_k(intolerance);
     return SkScalarSqrt(k * length(p0 - p1*2 + p2));
+}
+
+// Constant term for the cubic formula.
+constexpr float cubic_k(float intolerance) {
+    return .75f * intolerance;
 }
 
 // Returns the minimum number of evenly spaced (in the parametric sense) line segments that the
@@ -41,9 +51,17 @@ SK_ALWAYS_INLINE static float cubic(float intolerance, const SkPoint pts[]) {
     Sk2f p1 = Sk2f::Load(pts + 1);
     Sk2f p2 = Sk2f::Load(pts + 2);
     Sk2f p3 = Sk2f::Load(pts + 3);
-    float k = intolerance * .75f;
+    float k = cubic_k(intolerance);
     return SkScalarSqrt(k * length(Sk2f::Max((p0 - p1*2 + p2).abs(),
                                              (p1 - p2*2 + p3).abs())));
+}
+
+// Returns the maximum number of line segments a cubic with the given device-space bounding box size
+// would ever need to be divided into. This is simply a special case of the cubic formula where we
+// maximize its value by placing control points on specific corners of the bounding box.
+SK_ALWAYS_INLINE static float worst_case_cubic(float intolerance, float devWidth, float devHeight) {
+    float k = cubic_k(intolerance);
+    return SkScalarSqrt(2*k * SkVector::Length(devWidth, devHeight));
 }
 
 // Returns the log2 of the provided value, were that value to be rounded up to the next power of 2.
@@ -63,6 +81,10 @@ SK_ALWAYS_INLINE static int nextlog2(float value) {
     return exp & ~(exp >> 31);  // Return 0 for negative or denormalized floats, and exponents < 0.
 }
 
+SK_ALWAYS_INLINE static int ceil_log2_sqrt_sqrt(float f) {
+    return (nextlog2(f) + 3) >> 2;  // i.e., "ceil(log2(sqrt(sqrt(f))))
+}
+
 // Returns the minimum log2 number of evenly spaced (in the parametric sense) line segments that the
 // transformed quadratic must be chopped into in order to guarantee all lines stay within a distance
 // of "1/intolerance" pixels from the true curve.
@@ -74,9 +96,9 @@ SK_ALWAYS_INLINE static int quadratic_log2(float intolerance, const SkPoint pts[
     Sk2f v = p0 + p1*-2 + p2;
     v = vectorXform(v);
     Sk2f vv = v*v;
-    float k = intolerance * .25f;
+    float k = quadratic_k(intolerance);
     float f = k*k * (vv[0] + vv[1]);
-    return (nextlog2(f) + 3) >> 2;  // ceil(log2(sqrt(sqrt(f))))
+    return ceil_log2_sqrt_sqrt(f);
 }
 
 // Returns the minimum log2 number of evenly spaced (in the parametric sense) line segments that the
@@ -91,9 +113,17 @@ SK_ALWAYS_INLINE static int cubic_log2(float intolerance, const SkPoint pts[],
     v = vectorXform(v);
     Sk4f vv = v*v;
     vv = Sk4f::Max(vv, SkNx_shuffle<2,3,0,1>(vv));
-    float k = intolerance * .75f;
+    float k = cubic_k(intolerance);
     float f = k*k * (vv[0] + vv[1]);
-    return (nextlog2(f) + 3) >> 2;  // ceil(log2(sqrt(sqrt(f))))
+    return ceil_log2_sqrt_sqrt(f);
+}
+
+// Returns the maximum log2 number of line segments a cubic with the given device-space bounding box
+// size would ever need to be divided into.
+SK_ALWAYS_INLINE static int worst_case_cubic_log2(float intolerance, float devWidth,
+                                                  float devHeight) {
+    float k = cubic_k(intolerance);
+    return ceil_log2_sqrt_sqrt(4*k*k * (devWidth * devWidth + devHeight * devHeight));
 }
 
 }  // namespace

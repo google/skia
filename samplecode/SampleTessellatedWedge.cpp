@@ -51,7 +51,7 @@ private:
 
     SkMatrix fLastViewMatrix = SkMatrix::I();
     SkPath fPath;
-    GrTessellatePathOp::Flags fFlags = GrTessellatePathOp::Flags::kWireframe;
+    GrTessellationPathRenderer::OpFlags fOpFlags = GrTessellationPathRenderer::OpFlags::kWireframe;
 
     class Click;
 };
@@ -92,7 +92,7 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
 
     GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
     rtc->priv().testingOnly_addDrawOp(pool->allocate<GrTessellatePathOp>(
-            canvas->getTotalMatrix(), fPath, std::move(paint), aa, fFlags));
+            canvas->getTotalMatrix(), fPath, std::move(paint), aa, fOpFlags));
 
     // Draw the path points.
     SkPaint pointsPaint;
@@ -149,8 +149,8 @@ bool TessellatedWedge::onClick(Sample::Click* click) {
 bool TessellatedWedge::onChar(SkUnichar unichar) {
     switch (unichar) {
         case 'w':
-            fFlags = (GrTessellatePathOp::Flags)(
-                    (int)fFlags ^ (int)GrTessellatePathOp::Flags::kWireframe);
+            fOpFlags = (GrTessellationPathRenderer::OpFlags)(
+                    (int)fOpFlags ^ (int)GrTessellationPathRenderer::OpFlags::kWireframe);
             return true;
         case 'D': {
             fPath.dump();
