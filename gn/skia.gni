@@ -64,6 +64,7 @@ declare_args() {
   skia_use_libwebp_encode = true
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_metal = false
+  skia_use_ndk_decode = true
   skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_wuffs = false
