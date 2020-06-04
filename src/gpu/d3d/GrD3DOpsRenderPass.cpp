@@ -51,8 +51,7 @@ void GrD3DOpsRenderPass::onBegin() {
     // TODO: set stencil too
 
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fGpu->currentCommandList()->clearRenderTargetView(
-                d3dRT, fClearColor, GrScissorState(fRenderTarget->dimensions()));
+        fGpu->currentCommandList()->clearRenderTargetView(d3dRT, fClearColor, GrScissorState());
     }
 }
 

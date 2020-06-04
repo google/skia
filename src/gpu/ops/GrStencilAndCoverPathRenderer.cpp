@@ -125,16 +125,15 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                            args.fRenderTargetContext->height()); // Inverse fill.
 
         // fake inverse with a stencil and cover
-        GrAppliedClip appliedClip(args.fRenderTargetContext->dimensions());
+        GrAppliedClip appliedClip;
         if (args.fClip && !args.fClip->apply(
                 args.fContext, args.fRenderTargetContext, doStencilMSAA, true, &appliedClip,
                 &devBounds)) {
             return true;
         }
-        GrStencilClip stencilClip(args.fRenderTargetContext->dimensions(),
-                                  appliedClip.stencilStackID());
+        GrStencilClip stencilClip(appliedClip.stencilStackID());
         if (appliedClip.scissorState().enabled()) {
-            SkAssertResult(stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect()));
+            stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
         }
         if (appliedClip.windowRectsState().enabled()) {
             stencilClip.fixedClip().setWindowRectangles(appliedClip.windowRectsState().windows(),
