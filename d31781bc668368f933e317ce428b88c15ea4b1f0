@@ -70,6 +70,30 @@
       "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43005169_50d3c376",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-04T14:52:01Z",
+      "side": 1,
+      "message": "Updated to always scissor, PTAL.",
+      "parentUuid": "b24a6306_9495c03c",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "d31781bc668368f933e317ce428b88c15ea4b1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
