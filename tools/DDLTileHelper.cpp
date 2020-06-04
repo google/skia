@@ -256,11 +256,10 @@ DDLTileHelper::DDLTileHelper(GrContext* context,
     }
 }
 
-void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
-                                     const DDLPromiseImageHelper& helper) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createTileSpecificSKP(compressedPictureData, helper);
-    }
+sk_sp<SkPicture> DDLTileHelper::createSKP(SkData* compressedPictureData,
+                                          const DDLPromiseImageHelper& helper) {
+
+    result = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 }
 
 void DDLTileHelper::createDDLsInParallel() {
@@ -298,26 +297,40 @@ static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
 void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
                                         GrContext* gpuThreadContext) {
-    SkASSERT(recordingTaskGroup && gpuTaskGroup && gpuThreadContext);
+    SkASSERT(gpuThreadContext);
 
-    for (int i = 0; i < this->numTiles(); ++i) {
-        TileData* tile = &fTiles[i];
+    if (recordingTaskGroup && gpuTaskGroup) {
+        for (int i = 0; i < this->numTiles(); ++i) {
+            TileData* tile = &fTiles[i];
 
-        // On a recording thread:
-        //    generate the tile's DDL
-        //    schedule gpu-thread processing of the DDL
-        // Note: a finer grained approach would be add a scheduling task which would evaluate
-        //       which DDLs were ready to be rendered based on their prerequisites
-        recordingTaskGroup->add([tile, gpuTaskGroup, gpuThreadContext]() {
-                                    tile->createDDL();
+            // On a recording thread:
+            //    generate the tile's DDL
+            //    schedule gpu-thread processing of the DDL
+            // Note: a finer grained approach would be add a scheduling task which would evaluate
+            //       which DDLs were ready to be rendered based on their prerequisites
+            recordingTaskGroup->add([tile, gpuTaskGroup, gpuThreadContext]() {
+                                        tile->createDDL();
 
-                                    gpuTaskGroup->add([gpuThreadContext, tile]() {
-                                        do_gpu_stuff(gpuThreadContext, tile);
+                                        gpuTaskGroup->add([gpuThreadContext, tile]() {
+                                            do_gpu_stuff(gpuThreadContext, tile);
+                                        });
                                     });
-                                });
-    }
+        }
 
-    recordingTaskGroup->add([this] { this->createComposeDDL(); });
+        recordingTaskGroup->add([this] { this->createComposeDDL(); });
+    } else {
+        SkASSERT(!recordingTaskGroup && !gpuTaskGroup);
+
+        for (int i = 0; i < this->numTiles(); ++i) {
+            TileData* tile = &fTiles[i];
+
+            tile->createDDL();
+
+            do_gpu_stuff(gpuThreadContext, tile);
+        }
+
+        this->createComposeDDL();
+    }
 }
 
 // Only called from ViaDDL

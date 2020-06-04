@@ -100,7 +100,7 @@ public:
                   const SkIRect& viewport,
                   int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+    sk_sp<SkPicture> createSKP(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
