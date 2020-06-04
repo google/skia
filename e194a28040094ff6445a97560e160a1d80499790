@@ -22,6 +22,30 @@
       "revId": "e194a28040094ff6445a97560e160a1d80499790",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2abeb5b_f60d342e",
+        "filename": "gm/swizzle.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-04T14:14:05Z",
+      "side": 1,
+      "message": "Probably not. I started with an existing GM (gm/fpcoordinateoverride.cpp) and cut it down. I removed the most obviously unnecessary #includes already but I will do another cleanup pass on the #include list.",
+      "parentUuid": "f181260b_31910f55",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 27
+      },
+      "revId": "e194a28040094ff6445a97560e160a1d80499790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
