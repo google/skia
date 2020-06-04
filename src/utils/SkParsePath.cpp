@@ -238,11 +238,52 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
     for (;;) {
         switch (iter.next(pts)) {
             case SkPath::kConic_Verb: {
-                const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
-                SkAutoConicToQuads quadder;
-                const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
-                for (int i = 0; i < quadder.countQuads(); ++i) {
-                    append_scalars(&stream, 'Q', &quadPts[i*2 + 1].fX, 4);
+                // When conic is ellipse, approximate each conic segment with a single cubic curve
+                const SkScalar wt = iter.conicWeight();
+                if (wt < SK_Scalar1) {
+                    // compute the transform matrix from unit circle to the ellipse
+                    // on unit circle, S0: start point, E0: end point, Q0: conic point with wt
+                    const SkScalar theta = 2.0f * acos(wt);
+                    const SkVector S0 = {1.0f, 0.0f};
+                    const SkVector E0 = {cosf(theta), sinf(theta)};
+                    SkVector Q0 = {SK_Scalar1 + E0.fX, E0.fY};
+                    Q0.setLength(SkScalarInvert(iter.conicWeight()));
+                    // T * M0 = M1, so T = M1 * inv(M0), M0, M1 represent conic on unit circle and ellipse
+                    SkMatrix M0;
+                    M0.setAll(S0.fX, Q0.fX, E0.fX,
+                              S0.fY, Q0.fY, E0.fY,
+                              1, 1, 1);
+                    bool invertSuccess = M0.invert(&M0);
+                    assert(invertSuccess);
+                    SkMatrix M1;
+                    M1.setAll(pts[0].fX, pts[1].fX, pts[2].fX,
+                              pts[0].fY, pts[1].fY, pts[2].fY,
+                              1, 1, 1);
+                    SkMatrix T = SkMatrix::Concat(M1, M0);
+                    // first compute cubic control points on unit circle
+                    const SkScalar r = SkPoint::Distance(E0, Q0) / tan(theta * 0.5f);
+                    const SkScalar a = 4.0f / 3.0f * tan(theta * 0.25f);
+                    const SkScalar offset = r * a;
+                    SkVector SQ0 = Q0 - S0;
+                    SkVector EQ0 = Q0 - E0;
+                    SQ0.setLength(offset);
+                    EQ0.setLength(offset);
+                    const SkPoint C1 = S0 + SQ0;
+                    const SkPoint C2 = E0 + EQ0;
+                    pts[0] = S0;
+                    pts[1] = C1;
+                    pts[2] = C2;
+                    pts[3] = E0;
+                    // then map to ellipse using transform T
+                    T.mapPoints(pts, 4);
+                    append_scalars(&stream, 'C', &pts[1].fX, 6);
+                } else {
+                    const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
+                    SkAutoConicToQuads quadder;
+                    const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
+                    for (int i = 0; i < quadder.countQuads(); ++i) {
+                        append_scalars(&stream, 'Q', &quadPts[i*2 + 1].fX, 4);
+                    }
                 }
             } break;
            case SkPath::kMove_Verb:
