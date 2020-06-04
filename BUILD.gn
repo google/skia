@@ -200,7 +200,7 @@ opts("avx") {
   } else {
     cflags = [ "-mavx" ]
     if (is_mac && is_debug) {
-      cflags += [ "-O1" ]  # Work around skia:9709
+      cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
   }
 }
@@ -213,7 +213,7 @@ opts("hsw") {
   } else {
     cflags = [ "-march=haswell" ]
     if (is_mac && is_debug) {
-      cflags += [ "-O1" ]  # Work around skia:9709
+      cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
   }
 }
