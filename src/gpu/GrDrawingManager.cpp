@@ -637,7 +637,7 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
+        // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
         // end of the single opsTask but referred to a far earlier RT need to appear in their
         // own opsTask.
@@ -645,6 +645,8 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
         fActiveOpsTask = nullptr;
     }
 
+    // TODO: Ref the ddl (once it's an sk_sp) here, and add a render task after playing the
+    // ddl to unref it. Until then, users are required to preserve the ddl until after flush.
     this->addDDLTarget(newDest);
 
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.

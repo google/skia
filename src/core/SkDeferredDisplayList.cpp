@@ -29,11 +29,6 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
 }
 
 SkDeferredDisplayList::~SkDeferredDisplayList() {
-#if SK_SUPPORT_GPU && defined(SK_DEBUG)
-    for (auto& renderTask : fRenderTasks) {
-        SkASSERT(renderTask->unique());
-    }
-#endif
 }
 
 //-------------------------------------------------------------------------------------------------
