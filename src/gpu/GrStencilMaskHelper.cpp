@@ -334,7 +334,8 @@ bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
     }
 
     fClip.setStencilClip(genID);
-    fClip.fixedClip().setScissor(bounds);
+    // Should have caught bounds not intersecting the render target much earlier in clip application
+    SkAssertResult(fClip.fixedClip().setScissor(bounds));
     if (!windowRects.empty()) {
         fClip.fixedClip().setWindowRectangles(
                 windowRects, GrWindowRectsState::Mode::kExclusive);

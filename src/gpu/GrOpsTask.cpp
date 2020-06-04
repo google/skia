@@ -613,7 +613,7 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     if (GrLoadOp::kClear == fColorLoadOp) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
         SkASSERT(proxy);
-        fTotalBounds = proxy->getBoundsRect();
+        fTotalBounds = proxy->backingStoreBoundsRect();
     }
 }
 
@@ -894,7 +894,9 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
     });
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
-        SkRect clippedContentBounds = proxy->getBoundsRect();
+        // Use the entire backing store bounds since the GPU doesn't clip automatically to the
+        // logical dimensions.
+        SkRect clippedContentBounds = proxy->backingStoreBoundsRect();
         // TODO: If we can fix up GLPrograms test to always intersect the fTargetView proxy bounds
         // then we can simply assert here that the bounds intersect.
         if (clippedContentBounds.intersect(fTotalBounds)) {
