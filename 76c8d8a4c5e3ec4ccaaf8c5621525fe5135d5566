@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8685e453_298a5966",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T23:02:43Z",
+      "side": 1,
+      "message": "I didn\u0027t know about this constructor, but since it is public it seems odd that the other two constructors are now setting all the fields (at least I think they are... it\u0027s a lot of fields) but this one isn\u0027t. Does it matter that if this constructor is called some fields of this object won\u0027t be initialized?",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "76c8d8a4c5e3ec4ccaaf8c5621525fe5135d5566",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
