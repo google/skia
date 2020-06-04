@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dab7ffa2_ae40c4db",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-04T13:43:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67614c10_9447b930",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 74
+      },
+      "revId": "6ad1cce9e222ceac353203aaf47c90a8a7d1d40f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3bacfb0_3684cb3d",
         "filename": "src/gpu/text/GrAtlasManager.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "6ad1cce9e222ceac353203aaf47c90a8a7d1d40f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "549da1fa_1521b74b",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-04T13:43:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3bacfb0_3684cb3d",
+      "range": {
+        "startLine": 138,
+        "startChar": 33,
+        "endLine": 138,
+        "endChar": 51
+      },
+      "revId": "6ad1cce9e222ceac353203aaf47c90a8a7d1d40f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

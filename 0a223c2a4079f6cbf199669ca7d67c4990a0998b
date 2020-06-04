@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "265e47ab_951f9348",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-04T13:43:43Z",
+      "side": 1,
+      "message": "I don\u0027t understand why this function originally used an array. In addition, I don\u0027t understand why it was static. This version can execute at compile time.",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 0
+      },
+      "revId": "0a223c2a4079f6cbf199669ca7d67c4990a0998b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
