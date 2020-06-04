@@ -13,6 +13,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
 #include "include/private/SkDeque.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMessageBus.h"
@@ -59,8 +60,10 @@ public:
             kRRect,
             //!< This element combines a device space path with the current clip.
             kPath,
+            //!< This element does not have geometry, but applies a shader to the clip
+            kShader,
 
-            kLastType = kPath
+            kLastType = kShader
         };
         static const int kTypeCnt = (int)DeviceSpaceType::kLastType + 1;
 
@@ -81,6 +84,10 @@ public:
 
         Element(const SkPath& path, const SkMatrix& m, SkClipOp op, bool doAA) {
             this->initPath(0, path, m, op, doAA);
+        }
+
+        Element(sk_sp<SkShader> shader) {
+            this->initShader(0, std::move(shader));
         }
 
         ~Element();
@@ -111,6 +118,14 @@ public:
             SkASSERT(DeviceSpaceType::kRect == fDeviceSpaceType &&
                      (fDeviceSpaceRRect.isRect() || fDeviceSpaceRRect.isEmpty()));
             return fDeviceSpaceRRect.getBounds();
+        }
+
+        //!<Call if getDeviceSpaceType() is kShader to get a reference to the clip shader.
+        sk_sp<SkShader> refShader() const {
+            return fShader;
+        }
+        const SkShader* getShader() const {
+            return fShader.get();
         }
 
         //!< Call if getDeviceSpaceType() is not kEmpty to get the set operation used to combine
@@ -195,6 +210,7 @@ public:
 
         SkTLazy<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;
+        sk_sp<SkShader> fShader;
         int fSaveCount;  // save count of stack when this element was added.
         SkClipOp fOp;
         DeviceSpaceType fDeviceSpaceType;
@@ -239,11 +255,16 @@ public:
             this->initPath(saveCount, path, m, op, doAA);
         }
 
+        Element(int saveCount, sk_sp<SkShader> shader) {
+            this->initShader(saveCount, std::move(shader));
+        }
+
         void initCommon(int saveCount, SkClipOp op, bool doAA);
         void initRect(int saveCount, const SkRect&, const SkMatrix&, SkClipOp, bool doAA);
         void initRRect(int saveCount, const SkRRect&, const SkMatrix&, SkClipOp, bool doAA);
         void initPath(int saveCount, const SkPath&, const SkMatrix&, SkClipOp, bool doAA);
         void initAsPath(int saveCount, const SkPath&, const SkMatrix&, SkClipOp, bool doAA);
+        void initShader(int saveCount, sk_sp<SkShader>);
 
         void setEmpty();
 
@@ -345,6 +366,7 @@ public:
     void clipRect(const SkRect&, const SkMatrix& matrix, SkClipOp, bool doAA);
     void clipRRect(const SkRRect&, const SkMatrix& matrix, SkClipOp, bool doAA);
     void clipPath(const SkPath&, const SkMatrix& matrix, SkClipOp, bool doAA);
+    void clipShader(sk_sp<SkShader>);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
     void setDeviceClipRestriction(const SkIRect& rect) {
@@ -513,4 +535,3 @@ private:
 };
 
 #endif
-

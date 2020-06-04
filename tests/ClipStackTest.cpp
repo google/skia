@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrResourceKey.h"
@@ -294,8 +295,9 @@ static void test_bounds(skiatest::Reporter* reporter,
                                        SkPathFillType::kEvenOdd);
 
             switch (primType) {
+                case SkClipStack::Element::DeviceSpaceType::kShader:
                 case SkClipStack::Element::DeviceSpaceType::kEmpty:
-                    SkDEBUGFAIL("Don't call this with kEmpty.");
+                    SkDEBUGFAIL("Don't call this with kEmpty or kShader.");
                     break;
                 case SkClipStack::Element::DeviceSpaceType::kRect:
                     stack.clipRect(rectA, SkMatrix::I(), kIntersect_SkClipOp, false);
@@ -837,16 +839,24 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
         SkRegion boundsRgn(bounds);
         SkPath path;
 
+        bool skip = false;
         switch (element->getDeviceSpaceType()) {
             case SkClipStack::Element::DeviceSpaceType::kEmpty:
                 elemRegion.setEmpty();
+                break;
+            case SkClipStack::Element::DeviceSpaceType::kShader:
+                // Shaders aren't geometric, so don't include in the region.
+                skip = true;
                 break;
             default:
                 element->asDeviceSpacePath(&path);
                 elemRegion.setPath(path, boundsRgn);
                 break;
         }
-        region->op(elemRegion, (SkRegion::Op)element->getOp());
+
+        if (!skip) {
+            region->op(elemRegion, (SkRegion::Op)element->getOp());
+        }
     }
 }
 
@@ -924,6 +934,16 @@ static void add_oval(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* 
     stack->clipPath(path, SkMatrix::I(), op, doAA);
 };
 
+static void add_shader(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
+                       bool doAA) {
+    // invert, op, and doAA don't apply to shaders at the SkClipStack level; this is handled earlier
+    // in the SkCanvas->SkDevice stack. Use rect to produce unique gradients, however.
+    SkPoint corners[2] = { {rect.fLeft, rect.fTop}, {rect.fRight, rect.fBottom} };
+    SkColor colors[2] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    auto gradient = SkGradientShader::MakeLinear(corners, colors, nullptr, 2, SkTileMode::kDecal);
+    stack->clipShader(std::move(gradient));
+}
+
 static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* stack) {
     switch (element.getDeviceSpaceType()) {
         case SkClipStack::Element::DeviceSpaceType::kRect:
@@ -937,6 +957,10 @@ static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* 
         case SkClipStack::Element::DeviceSpaceType::kPath:
             stack->clipPath(element.getDeviceSpacePath(), SkMatrix::I(), element.getOp(),
                             element.isAA());
+            break;
+        case SkClipStack::Element::DeviceSpaceType::kShader:
+            SkDEBUGFAIL("Why did the reducer put this in the mask elements.");
+            stack->clipShader(element.refShader());
             break;
         case SkClipStack::Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Why did the reducer produce an explicit empty.");
@@ -986,6 +1010,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         add_rect,
         add_round_rect,
         add_oval,
+        add_shader
     };
 
     SkRandom r;
@@ -1076,6 +1101,9 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
         for (ElementList::Iter iter(reduced->maskElements()); iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
+        }
+        if (reduced->hasShader()) {
+            reducedStack.clipShader(reduced->shader());
         }
 
         SkIRect scissor = reduced->hasScissor() ? reduced->scissor() : kIBounds;
