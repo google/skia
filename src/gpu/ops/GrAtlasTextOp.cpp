@@ -62,17 +62,6 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
-// Entry point just for the SkAtlasTextTarget
-std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> GrAtlasTextOp::Geometry::textTargetCreateVertexData(
-        int offset, int count) const {
-    std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> data{new GrTextBlob::Mask3DVertex[count][4]};
-
-    fSubRunPtr->fillTextTargetVertexData(data.get(), offset, count, fColor.toBytes_RGBA(),
-                                         fDrawOrigin);
-
-    return data;
-}
-
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
     fSubRunPtr->fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
                                fDrawMatrix, fDrawOrigin, fClipRect);
