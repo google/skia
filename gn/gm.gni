@@ -349,6 +349,7 @@ gm_sources = [
   "$_gm/stroketext.cpp",
   "$_gm/subsetshader.cpp",
   "$_gm/surface.cpp",
+  "$_gm/swizzle.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
   "$_gm/tessellation.cpp",
