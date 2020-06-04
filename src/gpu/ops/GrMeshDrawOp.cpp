@@ -33,7 +33,7 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
     this->createProgramInfo(context->priv().caps(), arena, writeView,
                             std::move(appliedClip), dstProxyView);
