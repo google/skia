@@ -42,7 +42,8 @@ SkDashImpl::~SkDashImpl() {
 bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* cullRect) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      SkPathEffect::kNone_DashAlignment);
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -363,6 +364,7 @@ SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
         }
         info->fCount = fCount;
         info->fPhase = fPhase;
+        info->fAlignment = SkPathEffect::kNone_DashAlignment;
     }
     return kDash_DashType;
 }
@@ -385,6 +387,53 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
     }
+    return nullptr;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkAlignedDashImpl::SkAlignedDashImpl(const SkScalar intervals[], int count)
+        : fInitialDashLength(-1)
+        , fInitialDashIndex(0)
+        , fIntervalLength(0) {
+    SkASSERT(intervals);
+    SkASSERT(count > 1 && SkIsAlign2(count));
+
+    fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * count);
+    fCount = count;
+    for (int i = 0; i < count; i++) {
+        fIntervals[i] = intervals[i];
+    }
+
+    SkDashPath::CalcDashParameters(0, fIntervals, fCount,
+            &fInitialDashLength, &fInitialDashIndex, &fIntervalLength, nullptr);
+}
+
+SkAlignedDashImpl::~SkAlignedDashImpl() {
+    sk_free(fIntervals);
+}
+
+SkPathEffect::DashType SkAlignedDashImpl::onAsADash(DashInfo* info) const {
+    if (info) {
+        if (info->fCount >= fCount && info->fIntervals) {
+            memcpy(info->fIntervals, fIntervals, fCount * sizeof(SkScalar));
+        }
+        info->fCount = fCount;
+        info->fPhase = 0;
+        info->fAlignment = DashAlignment::kPathVerbs_DashAlignment;
+    }
+    return kDash_DashType;
+}
+
+bool SkAlignedDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                     const SkRect* cullRect) const {
+    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      DashAlignment::kPathVerbs_DashAlignment);
+}
+
+sk_sp<SkFlattenable> SkAlignedDashImpl::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 

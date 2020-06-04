@@ -282,11 +282,19 @@ private:
     SkScalar fPathLength;
 };
 
+// Computes an "error" metric for aligned dashes. The error metric is the amount of
+// distance left over after tiling the dash intervals an even number of times.
+static double computeAlignedDashError(double length, double intervalLengthSum) {
+    // Round up to nearest even number of tilings.
+    const long n = 2 * std::ceil((length / intervalLengthSum) / 2);
+    return (length - n * intervalLengthSum) / n;
+}
 
 bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkScalar aIntervals[],
                                 int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength,
+                                SkPathEffect::DashAlignment alignment,
                                 StrokeRecApplication strokeRecApplication) {
     // we must always have an even number of intervals
     SkASSERT(is_even(count));
@@ -300,10 +308,13 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     const SkScalar* intervals = aIntervals;
     SkScalar        dashCount = 0;
     int             segCount = 0;
+    const bool      alignedDashes = alignment == SkPathEffect::kPathVerbs_DashAlignment;
 
     SkPath cullPathStorage;
     const SkPath* srcPtr = &src;
-    if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
+    // Aligned dashing depends on path geometry, meaning if we modify it with culling, the dashed
+    // result won't correctly represent the original geometry.
+    if (!alignedDashes && cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
         // if rect is closed, starts in a dash, and ends in a dash, add the initial join
         // potentially a better fix is described here: bug.skia.org/7445
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
@@ -383,42 +394,85 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         double  distance = 0;
         double  dlen = initialDashLength;
 
+        double currentVerbLength = meas.getVerbLength(0);
+        double totalVerbLengths  = currentVerbLength;
+        double currentVerbAlignErr = computeAlignedDashError(currentVerbLength, intervalLength);
+        const double firstVerbAlignErr = currentVerbAlignErr;
+        bool firstInVerb = true;
+
         while (distance < length) {
             SkASSERT(dlen >= 0);
             addedSegment = false;
-            if (is_even(index) && !skipFirstSegment) {
-                addedSegment = true;
-                ++segCount;
 
-                if (specialLine) {
-                    lineRec.addSegment(SkDoubleToScalar(distance),
-                                       SkDoubleToScalar(distance + dlen),
-                                       dst);
-                } else {
-                    meas.getSegment(SkDoubleToScalar(distance),
-                                    SkDoubleToScalar(distance + dlen),
-                                    dst, true);
+            if (alignedDashes) {
+                // Fraction of error 'absorbed' by this interval.
+                const float f = dlen / intervalLength;
+                dlen += currentVerbAlignErr * f;
+            }
+            SkASSERT(dlen >= 0);
+
+            const bool lastInVerb = (distance + dlen) >= totalVerbLengths;
+            if (is_even(index)) {
+                if (alignedDashes && (firstInVerb || lastInVerb)) {
+                    dlen *= 0.5f;
+                }
+                if (!skipFirstSegment) {
+                    addedSegment = true;
+                    ++segCount;
+                    if (specialLine) {
+                        lineRec.addSegment(
+                                SkDoubleToScalar(distance), SkDoubleToScalar(distance + dlen), dst);
+                    } else {
+                        const bool moveTo = !alignedDashes || segCount == 1 || !firstInVerb;
+                        meas.getSegment(SkDoubleToScalar(distance),
+                                        SkDoubleToScalar(distance + dlen), dst, moveTo);
+
+                        // Add a final half-interval aligned dash if the contour is closed.
+                        const bool lastInContour = SkScalarNearlyZero(length - (distance + dlen));
+                        if (meas.isClosed() && lastInContour && alignedDashes) {
+                            const float f = initialDashLength / intervalLength;
+                            const float firstDLen = 0.5f * (initialDashLength + firstVerbAlignErr * f);
+                            meas.getSegment(0, firstDLen, dst, false);
+                        }
+                    }
                 }
             }
+
             distance += dlen;
+            firstInVerb = false;
+            if (SkScalarNearlyZero(totalVerbLengths - distance)) {
+                distance = totalVerbLengths;
+                // Adding a small delta to ensure we get the next verb's length.
+                currentVerbLength = meas.getVerbLength(
+                        std::min<double>(distance + SK_ScalarNearlyZero, length));
+                totalVerbLengths += currentVerbLength;
+                currentVerbAlignErr = computeAlignedDashError(currentVerbLength, intervalLength);
+                firstInVerb = true;
+            }
 
             // clear this so we only respect it the first time around
             skipFirstSegment = false;
 
             // wrap around our intervals array if necessary
-            index += 1;
-            SkASSERT(index <= count);
-            if (index == count) {
-                index = 0;
+            if (alignedDashes && lastInVerb) {
+                // With aligned dashing, we always begin and end on the first dash.
+                SkASSERT(index == initialDashIndex);
+            } else {
+                index += 1;
+                SkASSERT(index <= count);
+                if (index == count) {
+                    index = 0;
+                }
             }
 
             // fetch our next dlen
             dlen = intervals[index];
+
         }
 
         // extend if we ended on a segment and we need to join up with the (skipped) initial segment
         if (meas.isClosed() && is_even(initialDashIndex) &&
-            initialDashLength >= 0) {
+            initialDashLength >= 0 && !alignedDashes) {
             meas.getSegment(0, initialDashLength, dst, !addedSegment);
             ++segCount;
         }
@@ -442,7 +496,7 @@ bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     CalcDashParameters(info.fPhase, info.fIntervals, info.fCount,
                        &initialDashLength, &initialDashIndex, &intervalLength);
     return InternalFilter(dst, src, rec, cullRect, info.fIntervals, info.fCount, initialDashLength,
-                          initialDashIndex, intervalLength);
+                          initialDashIndex, intervalLength, info.fAlignment);
 }
 
 bool SkDashPath::ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count) {
