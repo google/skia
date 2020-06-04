@@ -323,13 +323,6 @@ public:
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const;
 
-    void fillTextTargetVertexData(
-            Mask3DVertex vertexDst[][4],
-            int offset,
-            int count,
-            GrColor color,
-            SkPoint origin) const;
-
     int glyphCount() const;
 
     bool drawAsDistanceFields() const;

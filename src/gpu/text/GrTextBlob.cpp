@@ -261,30 +261,6 @@ void GrTextBlob::SubRun::fillVertexData(
     }
 }
 
-// Note: this method is only used with SkAtlasTextTarget. The SkAtlasTextTarget only uses SDF,
-// and does the rectangle transforms on the GPU. For the normal text execution path see
-// fillVertexData.
-void GrTextBlob::SubRun::fillTextTargetVertexData(
-        Mask3DVertex vertexDst[][4], int offset, int count, GrColor color, SkPoint origin) const {
-    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
-    SkPoint inset = {SK_DistanceFieldInset, SK_DistanceFieldInset};
-    for (auto[dst, vertexData] : SkMakeZip(vertexDst, fVertexData.subspan(offset, count))) {
-        auto[glyph, pos, rect] = vertexData;
-        auto [l, t, r, b] = rect;
-        SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos + origin,
-                sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos + origin;
-        SkPoint3 lt = SkPoint3{sLT.x(), sLT.y(), 1.f},
-                 lb = SkPoint3{sLT.x(), sRB.y(), 1.f},
-                 rt = SkPoint3{sRB.x(), sLT.y(), 1.f},
-                 rb = SkPoint3{sRB.x(), sRB.y(), 1.f};
-        auto[al, at, ar, ab] = glyph.grGlyph->fAtlasLocator.getUVs(SK_DistanceFieldInset);
-        dst[0] = {lt, color, {al, at}};  // L,T
-        dst[1] = {lb, color, {al, ab}};  // L,B
-        dst[2] = {rt, color, {ar, at}};  // R,T
-        dst[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
 int GrTextBlob::SubRun::glyphCount() const {
     return fVertexData.count();
 }
