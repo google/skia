@@ -125,7 +125,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
         , fRenderTargetContext(std::move(renderTargetContext))
-        , fClip(&this->cs()) {
+        , fClip(&this->cs(), &this->asMatrixProvider()) {
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
