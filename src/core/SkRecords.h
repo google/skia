@@ -109,25 +109,6 @@ private:
     Optional& operator=(const Optional&) = delete;
 };
 
-// Like Optional, but ptr must not be NULL.
-template <typename T>
-class Adopted {
-public:
-    Adopted(T* ptr) : fPtr(ptr) { SkASSERT(fPtr); }
-    Adopted(Adopted* source) {
-        // Transfer ownership from source to this.
-        fPtr = source->fPtr;
-        source->fPtr = NULL;
-    }
-    ~Adopted() { if (fPtr) fPtr->~T(); }
-
-    ACT_AS_PTR(fPtr)
-private:
-    T* fPtr;
-    Adopted(const Adopted&) = delete;
-    Adopted& operator=(const Adopted&) = delete;
-};
-
 // PODArray doesn't own the pointer's memory, and we assume the data is POD.
 template <typename T>
 class PODArray {
@@ -299,7 +280,7 @@ RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
         unsigned count;
-        SkPoint* pts);
+        PODArray<SkPoint> pts);
 RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect rrect);
