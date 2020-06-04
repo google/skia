@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 86
 ------------
 
+  * Add SkImageGeneratorNDK for using Android's NDK APIs to decode.
+    https://review.skia.org/305689
+
   * SkImage:remove DecodeToRaster, DecodeToTexture
     https://review.skia.org/306331
 
