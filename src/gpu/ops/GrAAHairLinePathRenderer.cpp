@@ -1117,7 +1117,7 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     const GrCaps* caps = context->priv().caps();
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
     // Conservatively predict which programs will be required
     fCharacterization = this->predictPrograms(caps);

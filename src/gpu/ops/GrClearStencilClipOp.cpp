@@ -15,10 +15,11 @@
 
 std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrRecordingContext* context,
                                                  const GrScissorState& scissor,
-                                                 bool insideStencilMask) {
+                                                 bool insideStencilMask,
+                                                 GrRenderTargetProxy* proxy) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrClearStencilClipOp>(scissor, insideStencilMask);
+    return pool->allocate<GrClearStencilClipOp>(scissor, insideStencilMask, proxy);
 }
 
 void GrClearStencilClipOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {

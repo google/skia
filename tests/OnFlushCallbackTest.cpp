@@ -84,7 +84,7 @@ public:
         GrProcessorAnalysisColor gpColor;
         gpColor.setToUnknown();
         // We ignore the clip so pass this rather than the GrAppliedClip param.
-        static GrAppliedClip kNoClip = GrAppliedClip::Disabled();
+        static GrAppliedClip kNoClip;
         return fHelper.finalizeProcessors(caps, &kNoClip, hasMixedSampledCoverage, clampType,
                                           GrProcessorAnalysisCoverage::kNone, &gpColor);
     }

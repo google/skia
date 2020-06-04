@@ -2260,9 +2260,8 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         // Apple's extension uses the scissor as the blit bounds.
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
-        GrScissorState scissor(rt->dimensions());
-        SkAssertResult(scissor.set(resolveRect));
-        this->flushScissor(scissor, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
+        this->flushScissor(GrScissorState(resolveRect), rt->width(), rt->height(),
+                           kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {

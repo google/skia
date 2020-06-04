@@ -250,7 +250,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
         this->createProgramInfo(context->priv().caps(), arena, writeView,
                                 std::move(appliedClip), dstProxyView);

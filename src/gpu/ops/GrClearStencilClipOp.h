@@ -21,7 +21,8 @@ public:
 
     static std::unique_ptr<GrOp> Make(GrRecordingContext* context,
                                       const GrScissorState& scissor,
-                                      bool insideStencilMask);
+                                      bool insideStencilMask,
+                                      GrRenderTargetProxy* proxy);
 
     const char* name() const override { return "ClearStencilClip"; }
 
@@ -43,11 +44,14 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrClearStencilClipOp(const GrScissorState& scissor, bool insideStencilMask)
+    GrClearStencilClipOp(const GrScissorState& scissor, bool insideStencilMask,
+                         GrRenderTargetProxy* proxy)
             : INHERITED(ClassID())
             , fScissor(scissor)
             , fInsideStencilMask(insideStencilMask) {
-        this->setBounds(SkRect::Make(scissor.rect()), HasAABloat::kNo, IsHairline::kNo);
+        const SkRect& bounds =
+                fScissor.enabled() ? SkRect::Make(fScissor.rect()) : proxy->getBoundsRect();
+        this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
     void onPrePrepare(GrRecordingContext*,

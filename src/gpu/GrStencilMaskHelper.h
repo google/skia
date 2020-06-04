@@ -39,8 +39,7 @@ public:
     // of which must outlive the helper.
     GrStencilMaskHelper(GrRecordingContext* context, GrRenderTargetContext* rtc)
             : fContext(context)
-            , fRTC(rtc)
-            , fClip(rtc->dimensions()) {}
+            , fRTC(rtc) {}
 
     // Returns true if the stencil mask must be redrawn
     bool init(const SkIRect& maskBounds, uint32_t genID,
