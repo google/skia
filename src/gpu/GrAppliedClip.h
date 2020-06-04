@@ -21,6 +21,14 @@
  */
 class GrAppliedHardClip {
 public:
+    static const GrAppliedHardClip& Disabled() {
+        // The size doesn't really matter here since it's returned as const& so an actual scissor
+        // will never be set on it, and applied clips are not used to query or bounds test like
+        // the GrClip is.
+        static const GrAppliedHardClip kDisabled({1 << 29, 1 << 29});
+        return kDisabled;
+    }
+
     GrAppliedHardClip(const SkISize& rtDims) : fScissorState(rtDims) {}
     GrAppliedHardClip(const SkISize& logicalRTDims, const SkISize& backingStoreDims)
             : fScissorState(backingStoreDims) {
@@ -82,9 +90,6 @@ private:
 class GrAppliedClip {
 public:
     static GrAppliedClip Disabled() {
-        // The size doesn't really matter here since it's returned as const& so an actual scissor
-        // will never be set on it, and applied clips are not used to query or bounds test like
-        /// the GrClip is.
         return GrAppliedClip({1 << 29, 1 << 29});
     }
 
