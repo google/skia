@@ -473,7 +473,8 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
 bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
-    if (!fParagraph->getBidiRegions()) {
+    SkTArray<BidiRegion> bidiRegions;
+    if (!fParagraph->calculateBidiRegions(&bidiRegions)) {
         return false;
     }
 
@@ -484,8 +485,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
         if (placeholder.fTextBefore.width() > 0) {
             // Shape the text by bidi regions
-            while (bidiIndex < fParagraph->fBidiRegions.size()) {
-                BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
+            while (bidiIndex < bidiRegions.size()) {
+                BidiRegion& bidiRegion = bidiRegions[bidiIndex];
                 auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
                 auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
@@ -644,17 +645,15 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
 
         if (dir == Dir::right) {
             while (index < fCurrentRun->fTextRange.end) {
-                if (this->fParagraph->codeUnitHasProperty(index,
-                                                          CodeUnitFlags::kGraphemeBreakBefore)) {
+                if (this->fParagraph->fGraphemes.contains(index)) {
                     return index;
                 }
                 ++index;
             }
             return fCurrentRun->fTextRange.end;
         } else {
-            while (index > fCurrentRun->fTextRange.start) {
-                if (this->fParagraph->codeUnitHasProperty(index,
-                                                          CodeUnitFlags::kGraphemeBreakBefore)) {
+            while (index >= fCurrentRun->fTextRange.start) {
+                if (this->fParagraph->fGraphemes.contains(index)) {
                     return index;
                 }
                 --index;
