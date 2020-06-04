@@ -27,6 +27,7 @@
 #include "tools/flags/CommonFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/MemoryCache.h"
+#include "tools/gpu/TestSurface.h"
 #include "tools/trace/EventTracingPriv.h"
 #include <chrono>
 #include <functional>
@@ -329,16 +330,13 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
             break;
 
         case SurfaceType::kBackendRenderTarget:
-            backendRT = context->priv().getGpu()
-                ->createTestingOnlyBackendRenderTarget(info.width(),
-                                                       info.height(),
-                                                       SkColorTypeToGrColorType(info.colorType()));
-            surface = SkSurface::MakeFromBackendRenderTarget(context,
-                                                             backendRT,
-                                                             kBottomLeft_GrSurfaceOrigin,
-                                                             info.colorType(),
-                                                             info.refColorSpace(),
-                                                             &props);
+            surface = MakeBackendRenderTargetSurface(context,
+                                                     info.dimensions(),
+                                                     FLAGS_samples,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     info.colorType(),
+                                                     info.refColorSpace(),
+                                                     &props);
             break;
     }
 

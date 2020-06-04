@@ -1026,25 +1026,37 @@ bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     }
 }
 
-GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
-        return GrBackendRenderTarget();
+GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                     GrColorType ct,
+                                                                     int sampleCnt,
+                                                                     const SkPMColor4f* color) {
+    if (sampleCnt != 1) {
+        return {};
+    }
+    if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
+        return {};
     }
 
     MTLPixelFormat format = this->mtlCaps().getFormatFromColorType(ct);
     if (format == MTLPixelFormatInvalid) {
-        return GrBackendRenderTarget();
+        return {};
     }
 
     GrMtlTextureInfo info;
-    if (!this->createMtlTextureForBackendSurface(format, {w, h}, GrTexturable::kNo,
+    if (!this->createMtlTextureForBackendSurface(format, dimensions, GrTexturable::kNo,
                                                  GrRenderable::kYes,
                                                  GrMipMapped::kNo, &info)) {
         return {};
     }
 
-    GrBackendRenderTarget backendRT(w, h, 1, info);
-    return backendRT;
+    if (color) {
+        GrBackendTexture bet(dimensions.width(), dimensions.height(), GrMipMapped::kNo, info);
+        BackendTextureData data(SkColor4f{color->fR, color->fG, color->fB, color->fA});
+        this->updateBackendTexture(bet, nullptr, nullptr, &data);
+    }
+
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), sampleCnt, info);
 }
 
 void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
