@@ -820,6 +820,13 @@ optional("jpeg_encode") {
   ]
 }
 
+optional("ndk_decode") {
+  enabled = skia_use_ndk_decode
+  public_defines = [ "SK_ENABLE_NDK_DECODING" ]
+  sources = [ "src/ports/SkImageGeneratorNDK.cpp" ]
+  libs = [ "jnigraphics" ]
+}
+
 optional("pdf") {
   enabled = skia_use_zlib && skia_enable_pdf
   public_defines = [ "SK_SUPPORT_PDF" ]
@@ -1044,6 +1051,7 @@ component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpeg_encode",
+    ":ndk_decode",
     ":none",
     ":png_decode",
     ":png_encode",
