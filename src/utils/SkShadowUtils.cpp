@@ -84,7 +84,8 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 
 std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo&) const {
-    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
+    return GrBlurredEdgeFragmentProcessor::Make(
+        /*inputFP=*/nullptr, GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
 }
 #endif
 
