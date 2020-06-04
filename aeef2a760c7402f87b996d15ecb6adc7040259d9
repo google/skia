@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66d1f25b_00b062f1",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-04T19:00:23Z",
+      "side": 1,
+      "message": "I think these two lines need two more spaces of indentation?",
+      "revId": "aeef2a760c7402f87b996d15ecb6adc7040259d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
