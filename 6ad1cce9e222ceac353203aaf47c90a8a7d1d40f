@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67614c10_9447b930",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-04T12:33:38Z",
+      "side": 1,
+      "message": "Can these two be known at compile time ?",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 74
+      },
+      "revId": "6ad1cce9e222ceac353203aaf47c90a8a7d1d40f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3bacfb0_3684cb3d",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-04T12:33:38Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 138,
+        "startChar": 33,
+        "endLine": 138,
+        "endChar": 51
+      },
+      "revId": "6ad1cce9e222ceac353203aaf47c90a8a7d1d40f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
