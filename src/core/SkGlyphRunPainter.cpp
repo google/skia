@@ -261,18 +261,6 @@ auto SkGlyphRunListPainter::ensureBuffers(const SkGlyphRunList& glyphRunList) ->
 
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
-SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
-    SkColor4f filteredColor = paint.getColor4f();
-    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-        filteredColor = xform->apply(filteredColor);
-    }
-    if (paint.getColorFilter() != nullptr) {
-        filteredColor = paint.getColorFilter()->filterColor4f(filteredColor, colorInfo.colorSpace(),
-                                                              colorInfo.colorSpace());
-    }
-    return filteredColor.premul();
-}
-
 void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
                                      GrTextTarget* target,
                                      const GrClip* clip,
@@ -289,12 +277,6 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
     // Get the first paint to use as the key paint.
     const SkPaint& blobPaint = glyphRunList.paint();
 
-    const GrColorInfo& colorInfo = target->colorInfo();
-    // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(blobPaint, colorInfo);
-    // When creating the a new blob, use the GrColor calculated from the drawingColor.
-    GrColor initialVertexColor = drawingColor.toBytes_RGBA();
-
     SkPoint drawOrigin = glyphRunList.origin();
 
     SkMaskFilterBase::BlurRec blurRec;
@@ -303,7 +285,7 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
     const SkMaskFilter* mf = blobPaint.getMaskFilter();
     bool canCache = glyphRunList.canCache() && !(blobPaint.getPathEffect() ||
                                                 (mf && !as_MFB(mf)->asABlur(&blurRec)));
-    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(colorInfo);
+    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorInfo());
 
     sk_sp<GrTextBlob> cachedBlob;
     GrTextBlob::Key key;
@@ -338,8 +320,7 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cachedBlob.get());
-            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
-                                                       initialVertexColor);
+            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix);
 
             painter->processGlyphRunList(
                     glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -348,17 +329,15 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
         }
     } else {
         if (canCache) {
-            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
-                                                       initialVertexColor);
+            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix);
         } else {
-            cachedBlob = GrTextBlob::Make(glyphRunList, drawMatrix, initialVertexColor);
+            cachedBlob = GrTextBlob::Make(glyphRunList, drawMatrix);
         }
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
-    cachedBlob->insertOpsIntoTarget(target, props, blobPaint, drawingColor, clip, matrixProvider,
-                                    drawOrigin);
+    cachedBlob->insertOpsIntoTarget(target, props, blobPaint, clip, matrixProvider, drawOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -384,8 +363,6 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
 
     size_t textLen = (int)strlen(text);
 
-    SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorInfo());
-    GrColor color = filteredColor.toBytes_RGBA();
     const SkMatrix& drawMatrix(mtxProvider.localToDevice());
 
     auto drawOrigin = SkPoint::Make(x, y);
@@ -395,7 +372,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix, color);
+        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
         SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,
@@ -407,7 +384,6 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                                        drawOrigin,
                                        SkIRect::MakeEmpty(),
                                        skPaint,
-                                       filteredColor,
                                        surfaceProps,
                                        rtc->textTarget());
 }

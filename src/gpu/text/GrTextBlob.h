@@ -98,8 +98,7 @@ public:
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  const SkMatrix& drawMatrix,
-                                  GrColor color);
+                                  const SkMatrix& drawMatrix);
 
     // Key manipulation functions
     void setupKey(const GrTextBlob::Key& key,
@@ -122,7 +121,6 @@ public:
     void insertOpsIntoTarget(GrTextTarget* target,
                              const SkSurfaceProps& props,
                              const SkPaint& paint,
-                             const SkPMColor4f& filteredColor,
                              const GrClip* clip,
                              const SkMatrixProvider& deviceMatrix,
                              SkPoint drawOrigin);
@@ -157,7 +155,6 @@ private:
     GrTextBlob(size_t allocSize,
                const SkMatrix& drawMatrix,
                SkPoint origin,
-               GrColor color,
                SkColor initialLuminance);
 
     void insertSubRun(SubRun* subRun);
@@ -189,8 +186,6 @@ private:
     // blob.
     const SkPoint fInitialOrigin;
 
-    // The color of the text to draw for solid colors.
-    const GrColor fColor;
     const SkColor fInitialLuminance;
 
     SkMaskFilterBase::BlurRec fBlurRec;
@@ -338,7 +333,6 @@ public:
     void insertSubRunOpsIntoTarget(GrTextTarget* target,
                                    const SkSurfaceProps& props,
                                    const SkPaint& paint,
-                                   const SkPMColor4f& filteredColor,
                                    const GrClip* clip,
                                    const SkMatrixProvider& deviceMatrix,
                                    SkPoint drawOrigin);
@@ -347,7 +341,6 @@ public:
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
                                           const SkPaint& paint,
-                                          const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
 
