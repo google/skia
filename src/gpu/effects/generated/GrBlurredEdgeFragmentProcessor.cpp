@@ -26,9 +26,10 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
+        SkString _input328 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample328;
         if (_outer.inputFP_index >= 0) {
-            _sample328 = this->invokeChild(_outer.inputFP_index, args);
+            _sample328 = this->invokeChild(_outer.inputFP_index, _input328.c_str(), args);
         } else {
             _sample328 = "half4(1)";
         }

@@ -212,7 +212,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    SkString childColor = this->invokeChild(0, args);
+                    SkString childColor = this->invokeChild(0, args.fInputColor, args);
 
                     const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
                     const GrSwizzle& swizzle = sfp.swizzle();
