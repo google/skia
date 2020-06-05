@@ -932,6 +932,7 @@ component("skia") {
     ":raw",
     ":sksl_interpreter",
     ":skvm_jit",
+    ":skx",
     ":sse2",
     ":sse41",
     ":sse42",
