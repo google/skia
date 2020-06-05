@@ -131,20 +131,19 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo&) const {
     switch (fDomain) {
         case Domain::kRGBA:
-            return GrColorMatrixFragmentProcessor::Make(fMatrix,
+            return GrColorMatrixFragmentProcessor::Make(/* inputFP = */        nullptr,
+                                                        fMatrix,
                                                         /* premulInput = */    true,
                                                         /* clampRGBOutput = */ true,
                                                         /* premulOutput = */   true);
         case Domain::kHSLA: {
-            std::unique_ptr<GrFragmentProcessor> series[] = {
-                GrRGBToHSLFilterEffect::Make(),
-                GrColorMatrixFragmentProcessor::Make(fMatrix,
-                                                     /* premulInput = */    false,
-                                                     /* clampRGBOutput = */ false,
-                                                     /* premulOutput = */   false),
-                GrHSLToRGBFilterEffect::Make(),
-            };
-            return GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series));
+            auto fp = GrRGBToHSLFilterEffect::Make(/* inputFP = */ nullptr);
+            fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
+                                                      /* premulInput = */    false,
+                                                      /* clampRGBOutput = */ false,
+                                                      /* premulOutput = */   false);
+            fp = GrHSLToRGBFilterEffect::Make(std::move(fp));
+            return fp;
         }
     }
 
