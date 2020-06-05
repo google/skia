@@ -40,15 +40,17 @@ public:
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-    virtual void endFlush() {}
+    virtual void endFlush(GrDrawingManager*) {}
+
+    virtual void disown(GrDrawingManager*);
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, GrMipMapped, GrTextureResolveManager,
-                       const GrCaps& caps);
+    void addDependency(GrDrawingManager*, GrSurfaceProxy* dependedOn, GrMipMapped,
+                       GrTextureResolveManager, const GrCaps& caps);
 
     /*
      * Notify this GrRenderTask that it relies on the contents of all GrRenderTasks which otherTask
@@ -62,6 +64,7 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
+    GrSurfaceProxyView targetView() const { return fTargetView; }
 
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
@@ -193,6 +196,7 @@ private:
 
     const uint32_t         fUniqueID;
     uint32_t               fFlags;
+    SkDEBUGCODE(bool       fDisowned = false);
 
     // 'this' GrRenderTask relies on the output of the GrRenderTasks in 'fDependencies'
     SkSTArray<1, GrRenderTask*, true> fDependencies;
