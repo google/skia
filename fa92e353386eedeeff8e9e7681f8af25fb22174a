@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89a9c9c4_5d360341",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-05T17:58:46Z",
+      "side": 1,
+      "message": "Why is the uniform effect.rate in particles.particleUniforms() and not in particles.effectUniforms()? Is there a way to access uniforms by name?",
+      "revId": "fa92e353386eedeeff8e9e7681f8af25fb22174a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
