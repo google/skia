@@ -30,18 +30,26 @@ public:
 
         return SkColor4f{rgba[0], rgba[1], rgba[2], rgba[3]}.premul();
     }
-    static std::unique_ptr<GrFragmentProcessor> Make() {
-        return std::unique_ptr<GrFragmentProcessor>(new GrHSLToRGBFilterEffect());
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrHSLToRGBFilterEffect(std::move(inputFP)));
     }
     GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "HSLToRGBFilterEffect"; }
+    int inputFP_index = -1;
 
 private:
-    GrHSLToRGBFilterEffect()
+    GrHSLToRGBFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
             : INHERITED(kGrHSLToRGBFilterEffect_ClassID,
-                        (OptimizationFlags)(kConstantOutputForConstantInput_OptimizationFlag |
-                                            kPreservesOpaqueInput_OptimizationFlag)) {}
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                (kConstantOutputForConstantInput_OptimizationFlag |
+                                 kPreservesOpaqueInput_OptimizationFlag)) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
