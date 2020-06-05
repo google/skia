@@ -25,8 +25,10 @@
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 
+in fragmentProcessor? inputFP;
+
 void main() {
-    half4 c = sk_InColor;
+    half4 c = (inputFP != null) ? sample(inputFP, sk_InColor) : sk_InColor;
     half4 p = (c.g < c.b) ? half4(c.bg, -1,  2/3.0)
                           : half4(c.gb,  0, -1/3.0);
     half4 q = (c.r < p.x) ? half4(p.x, c.r, p.yw)
@@ -48,6 +50,7 @@ void main() {
 }
 
 @optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
     (kConstantOutputForConstantInput_OptimizationFlag | kPreservesOpaqueInput_OptimizationFlag)
 }
 
