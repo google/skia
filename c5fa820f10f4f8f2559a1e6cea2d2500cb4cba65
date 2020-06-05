@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adcdeb58_b7ccbfdc",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-05T17:26:57Z",
+      "side": 1,
+      "message": "Can we not get this all in one go between changes to .gn/.gni and public.bzl?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 49
+      },
+      "revId": "c5fa820f10f4f8f2559a1e6cea2d2500cb4cba65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
