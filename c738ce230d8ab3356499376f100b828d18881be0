@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec7648a4_e893b074",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-05T13:42:02Z",
+      "side": 1,
+      "message": "While you\u0027re modifying this WDYT of getting rid of all the SkASSERTs? It seems like none of them should be there.",
+      "range": {
+        "startLine": 1214,
+        "startChar": 0,
+        "endLine": 1236,
+        "endChar": 1
+      },
+      "revId": "c738ce230d8ab3356499376f100b828d18881be0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
