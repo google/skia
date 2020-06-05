@@ -10,7 +10,6 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMathPriv.h"
-#include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
@@ -20,8 +19,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/SkGpuDevice.h"
 
 #include <initializer_list>
 
@@ -454,21 +451,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
     test_write_pixels(reporter, ctxInfo.grContext(), 1);
 }
 
-
-static bool render_target_supports_write_pixels(const GrCaps* caps, SkSurface* surface) {
-    auto surfaceGpu = static_cast<SkSurface_Gpu*>(surface);
-    GrRenderTargetContext* context = surfaceGpu->getDevice()->accessRenderTargetContext();
-    GrRenderTarget* rt = context->accessRenderTarget();
-    if (!rt) {
-        return false;
-    }
-    return caps->surfaceSupportsWritePixels(rt);
-}
-
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           GrContext* context,
                                           int sampleCnt) {
-
+    // Dawn currently doesn't support writePixels to a texture-as-render-target.
+    // See http://skbug.com/10336.
+    if (GrBackendApi::kDawn == context->backend()) {
+        return;
+    }
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex;
         CreateBackendTexture(context, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,
@@ -479,7 +469,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
         SkColorType colorType = kN32_SkColorType;
         sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
                 context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
-        if (surface && render_target_supports_write_pixels(context->priv().caps(), surface.get())) {
+        if (surface) {
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
