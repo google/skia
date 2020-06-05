@@ -57,6 +57,7 @@ void MemoryCache::store(const SkData& key, const SkData& data) {
         SkDebugf("Store Key: %s\n\tData: %s\n\n", data_to_str(key).c_str(),
                  data_to_str(data).c_str());
     }
+    ++fCacheStoreCnt;
     fMap[Key(key)] = Value(data);
 }
 
