@@ -18,6 +18,8 @@ describe('Skottie behavior', () => {
         .then((response) => response.arrayBuffer());
     const jsonPromise = fetch('/assets/animated_gif.json')
         .then((response) => response.text());
+    const washPromise = fetch('/assets/map-shield.json')
+        .then((response) => response.text());
 
     gm('skottie_animgif', (canvas, promises) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
@@ -40,4 +42,20 @@ describe('Skottie behavior', () => {
         animation.render(canvas, bounds);
         animation.delete();
     }, imgPromise, jsonPromise);
+
+    gm('skottie_setcolor', (canvas, promises) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+        const bounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+        canvas.clear(CanvasKit.WHITE);
+
+        const animation = CanvasKit.MakeManagedAnimation(promises[0]);
+        expect(animation).toBeTruthy();
+        animation.setColor('$Icon.$Icon Fill.Color', CanvasKit.RED);
+        animation.seek(0.5);
+        animation.render(canvas, bounds);
+        animation.delete();
+    }, washPromise);
 });
