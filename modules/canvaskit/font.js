@@ -65,13 +65,13 @@ CanvasKit._extraInitializations.push(function() {
     var sizes = [];
     for (var i = 0; i < fonts.length; i++) {
       var data = new Uint8Array(fonts[i]);
-      var dptr = copy1dArray(data, CanvasKit.HEAPU8);
+      var dptr = copy1dArray(data, "HEAPU8");
       dPtrs.push(dptr);
       sizes.push(data.byteLength);
     }
     // Pointers are 32 bit unsigned ints
-    var datasPtr = copy1dArray(dPtrs, CanvasKit.HEAPU32);
-    var sizesPtr = copy1dArray(sizes, CanvasKit.HEAPU32);
+    var datasPtr = copy1dArray(dPtrs, "HEAPU32");
+    var sizesPtr = copy1dArray(sizes, "HEAPU32");
     var fm = CanvasKit.SkFontMgr._fromData(datasPtr, sizesPtr, fonts.length);
     // The SkFontMgr has taken ownership of the bytes we allocated in the for loop.
     CanvasKit._free(datasPtr);
@@ -83,7 +83,7 @@ CanvasKit._extraInitializations.push(function() {
   CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function(fontData) {
     var data = new Uint8Array(fontData);
 
-    var fptr = copy1dArray(data, CanvasKit.HEAPU8);
+    var fptr = copy1dArray(data, "HEAPU8");
     var font = this._makeTypefaceFromData(fptr, data.byteLength);
     if (!font) {
       SkDebug('Could not decode font data');

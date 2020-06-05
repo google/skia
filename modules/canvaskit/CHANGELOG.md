@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - A bug where loading fonts (and other memory intensive calls) would cause CanvasKit
+   to infrequently crash with
+   `TypeError: Cannot perform %TypedArray%.prototype.set on a neutered ArrayBuffer`
+
 ## [0.16.1] - 2020-06-04
 
 ### Fixed
