@@ -1563,12 +1563,13 @@ Result GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStr
     SkBitmap reference;
     SkString refLog;
     SkDynamicMemoryWStream refStream;
-    memoryCache.resetNumCacheMisses();
+    memoryCache.resetCacheStats();
     Result refResult = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
     if (!refResult.isOk()) {
         return refResult;
     }
     SkASSERT(!memoryCache.numCacheMisses());
+    SkASSERT(!memoryCache.numCacheStores());
 
     return compare_bitmaps(reference, *dst);
 }
