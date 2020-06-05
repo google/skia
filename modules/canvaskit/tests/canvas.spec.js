@@ -821,6 +821,13 @@ describe('Canvas Behavior', () => {
                 canvas.restore();
             }
         }
+
+        const eu = particles.effectUniforms();
+        const pu = particles.particleUniforms();
+        expect(eu.length).toEqual(1);
+        expect(pu.length).toEqual(21);
+        expect(pu[4]).toEqual(200); // 4th uniform happens to be effect.rate
+
     });
 });
 
