@@ -1443,13 +1443,13 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             // TODO: Either treat the output of this shader as sRGB or allow client to specify a
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
-            auto inner =
-                    GrConstColorProcessor::Make(SkPMColor4f::FromBytes_RGBA(0x80404040),
-                                                GrConstColorProcessor::InputMode::kModulateRGBA);
+            auto inner = GrConstColorProcessor::Make(
+                /*inputFP=*/nullptr, SkPMColor4f::FromBytes_RGBA(0x80404040),
+                GrConstColorProcessor::InputMode::kModulateRGBA);
             return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
         }
         // Emit zero.
-        return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
+        return GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
     }
 
