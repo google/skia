@@ -95,6 +95,11 @@ GrCaps::SurfaceReadPixelsSupport GrDawnCaps::surfaceSupportsReadPixels(
                                 : SurfaceReadPixelsSupport::kUnsupported;
 }
 
+bool GrDawnCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
+    // We currently support writePixels only to Textures and TextureRenderTargets.
+    return surface->asTexture() != nullptr;
+}
+
 size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
     wgpu::TextureFormat dawnFormat;
     if (!backendFormat.asDawnFormat(&dawnFormat)) {
