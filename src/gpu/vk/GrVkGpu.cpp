@@ -1552,6 +1552,7 @@ bool generate_compressed_data(GrVkGpu* gpu, char* mapPtr,
 
 bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              SkISize dimensions,
+                                             int sampleCnt,
                                              GrTexturable texturable,
                                              GrRenderable renderable,
                                              GrMipMapped mipMapped,
@@ -1567,7 +1568,11 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
         return false;
     }
 
-    if (renderable == GrRenderable::kYes && !fVkCaps->isFormatRenderable(vkFormat, 1)) {
+    if (renderable == GrRenderable::kYes && !fVkCaps->isFormatRenderable(vkFormat, sampleCnt)) {
+        return false;
+    }
+    // MSAA images are only currently used by createTestingOnlyBackendRenderTarget.
+    if (sampleCnt > 1 && (texturable == GrTexturable::kYes || renderable == GrRenderable::kNo)) {
         return false;
     }
 
@@ -1592,7 +1597,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     imageDesc.fWidth = dimensions.width();
     imageDesc.fHeight = dimensions.height();
     imageDesc.fLevels = numMipLevels;
-    imageDesc.fSamples = 1;
+    imageDesc.fSamples = sampleCnt;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -1725,9 +1730,8 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              renderable, mipMapped,
-                                              &info, isProtected)) {
+    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, 1, GrTexturable::kYes,
+                                              renderable, mipMapped, &info, isProtected)) {
         return {};
     }
 
@@ -1761,9 +1765,8 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
     }
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              GrRenderable::kNo, mipMapped,
-                                              &info, isProtected)) {
+    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, 1, GrTexturable::kYes,
+                                              GrRenderable::kNo, mipMapped, &info, isProtected)) {
         return {};
     }
 
@@ -1868,23 +1871,63 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return false;
 }
 
-GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
+GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                    GrColorType ct,
+                                                                    int sampleCnt,
+                                                                    const SkPMColor4f* color) {
     this->handleDirtyContext();
 
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
-        return GrBackendRenderTarget();
+    GrVkPrimaryCommandBuffer* cmdBuffer = nullptr;
+    if (color && !(cmdBuffer = this->currentCommandBuffer())) {
+        return {};
+    }
+
+    if (dimensions.width() > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
+        return {};
     }
 
     VkFormat vkFormat = this->vkCaps().getFormatFromColorType(ct);
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
-                                              GrRenderable::kYes, GrMipMapped::kNo,
-                                              &info, GrProtected::kNo)) {
-      return {};
+    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, sampleCnt, GrTexturable::kNo,
+                                              GrRenderable::kYes, GrMipMapped::kNo, &info,
+                                              GrProtected::kNo)) {
+        return {};
     }
+    auto bert = GrBackendRenderTarget(dimensions.width(), dimensions.height(), 1, 0, info);
+    if (color) {
+        auto rt = GrVkRenderTarget::MakeWrappedRenderTarget(this, dimensions, sampleCnt, info,
+                                                            bert.getMutableState());
+        SkASSERT(rt);
+        rt->setImageLayout(this,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           VK_ACCESS_TRANSFER_WRITE_BIT,
+                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                           false);
 
-    return GrBackendRenderTarget(w, h, 1, 0, info);
+        VkClearColorValue vkColor;
+        // If we ever support SINT or UINT formats this needs to be updated to use the int32 and
+        // uint32 union members in those cases.
+        vkColor.float32[0] = color->fR;
+        vkColor.float32[1] = color->fG;
+        vkColor.float32[2] = color->fB;
+        vkColor.float32[3] = color->fA;
+        VkImageSubresourceRange range;
+        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        range.baseArrayLayer = 0;
+        range.baseMipLevel = 0;
+        range.layerCount = 1;
+        range.levelCount = info.fLevelCount;
+        cmdBuffer->clearColorImage(this, rt.get(), &vkColor, 1, &range);
+        this->submitCommandBuffer(kSkip_SyncQueue);
+        rt->setImageLayout(this,
+                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                           VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                           VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                           false);
+    }
+    return bert;
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

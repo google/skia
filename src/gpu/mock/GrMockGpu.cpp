@@ -333,12 +333,14 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return fOutstandingTestingOnlyTextureIDs.contains(info.id());
 }
 
-GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                      GrColorType colorType) {
+GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                      GrColorType colorType,
+                                                                      int sampleCnt,
+                                                                      const SkPMColor4f*) {
     GrMockRenderTargetInfo info(colorType, NextExternalRenderTargetID());
-    static constexpr int kSampleCnt = 1;
     static constexpr int kStencilBits = 8;
-    return GrBackendRenderTarget(w, h, kSampleCnt, kStencilBits, info);
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), sampleCnt, kStencilBits,
+                                 info);
 }
 
 void GrMockGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) {}
