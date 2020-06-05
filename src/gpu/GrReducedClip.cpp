@@ -651,8 +651,14 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpace
         return ClipResult::kNotClipped;
     }
 
-    fAnalyticFPs.push_back(GrAARectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRect));
-    SkASSERT(fAnalyticFPs.back());
+    if (fAnalyticFPs.empty()) {
+        fAnalyticFPs.push_back(nullptr);
+    }
+
+    fAnalyticFPs.back() = GrAARectEffect::Make(std::move(fAnalyticFPs.back()),
+                                               GetClipEdgeType(invert, aa), deviceSpaceRect);
+
+    SkASSERT(fAnalyticFPs.back() != nullptr);
 
     return ClipResult::kClipped;
 }

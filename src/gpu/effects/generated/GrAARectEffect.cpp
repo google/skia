@@ -51,11 +51,21 @@ public:
                 args.fUniformHandler->getUniformCStr(rectUniformVar));
         fragBuilder->codeAppendf(
                 "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) {\n    "
-                "alpha = 1.0 - alpha;\n}\n%s = %s * alpha;\n",
+                "alpha = 1.0 - alpha;\n}",
                 (int)_outer.edgeType,
-                (int)_outer.edgeType,
-                args.fOutputColor,
-                args.fInputColor);
+                (int)_outer.edgeType);
+        SkString _input1697 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample1697;
+        if (_outer.inputFP_index >= 0) {
+            _sample1697 = this->invokeChild(_outer.inputFP_index, _input1697.c_str(), args);
+        } else {
+            _sample1697 = "half4(1)";
+        }
+        fragBuilder->codeAppendf("\nhalf4 inputColor = %s ? %s : %s;\n%s = inputColor * alpha;\n",
+                                 _outer.inputFP_index >= 0 ? "true" : "false",
+                                 _sample1697.c_str(),
+                                 args.fInputColor,
+                                 args.fOutputColor);
     }
 
 private:
@@ -94,8 +104,17 @@ bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
+        , inputFP_index(src.inputFP_index)
         , edgeType(src.edgeType)
-        , rect(src.rect) {}
+        , rect(src.rect) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(*this));
 }
@@ -111,7 +130,7 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestD
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
-        fp = GrAARectEffect::Make(edgeType, rect);
+        fp = GrAARectEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
     } while (nullptr == fp);
     return fp;
 }
