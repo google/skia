@@ -877,16 +877,24 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.concat44 = CanvasKit.SkCanvas.prototype.concat;
 
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
-  // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
-  // or just arrays of floats in groups of 4.
-  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of float colors (arrays of 4 floats)
+  // srcRects, dstXforms, and colors should be CanvasKit.SkRectBuilder, CanvasKit.RSXFormBuilder,
+  // and CanvasKit.SkColorBuilder (fastest)
+  // Or they can be an array of floats of length 4*number of destinations.
+  // colors are optional and used to tint the drawn images using the optional blend mode
+  // drawAtlas ONLY accepts uint colors such as those created with CanvasKit.ColorAsInt(r, g, b, a)
+  // whether they are provided as an array or a builder.
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
       SkDebug('Doing nothing since missing a required input');
       return;
     }
-    if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
+
+    // builder arguments report the length as the number of rects, but when passed as arrays
+    // their.length attribute is 4x higher because it's the number of total components of all rects.
+    // colors is always going to report the same length, at least until floats colors are supported
+    // by this function.
+    if (srcRects.length !== dstXforms.length) {
       SkDebug('Doing nothing since input arrays length mismatches');
       return;
     }
@@ -901,11 +909,14 @@ CanvasKit.onRuntimeInitialized = function() {
       srcRectPtr = copy1dArray(srcRects, "HEAPF32");
     }
 
+    var count = 1;
     var dstXformPtr;
     if (dstXforms.build) {
       dstXformPtr = dstXforms.build();
+      count = dstXforms.length;
     } else {
       dstXformPtr = copy1dArray(dstXforms, "HEAPF32");
+      count = dstXforms.length / 4;
     }
 
     var colorPtr = nullptr;
@@ -913,19 +924,11 @@ CanvasKit.onRuntimeInitialized = function() {
       if (colors.build) {
         colorPtr = colors.build();
       } else {
-        if (!isCanvasKitColor(colors[0])) {
-          SkDebug('DrawAtlas color argument expected to be CanvasKit.SkRectBuilder or array of ' +
-            'float arrays, but got '+colors);
-          return;
-        }
-        // convert here
-        colors = colors.map(toUint32Color);
         colorPtr = copy1dArray(colors, "HEAPU32");
       }
     }
 
-    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, dstXforms.length,
-                    blendMode, paint);
+    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, count, blendMode, paint);
 
     if (srcRectPtr && !srcRects.build) {
       freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);

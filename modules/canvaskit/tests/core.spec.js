@@ -184,7 +184,80 @@ describe('Core canvas behavior', () => {
             CanvasKit.SkColorSpace.SRGB);
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
+        paint.delete();
     });
+
+    gm('draw_atlas_with_builders', (canvas, fetchedByteBuffers) => {
+        const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(atlas).toBeTruthy();
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+        const srcs = new CanvasKit.SkRectBuilder();
+        // left top right bottom
+        srcs.push(  0,   0, 256, 256);
+        srcs.push(256,   0, 512, 256);
+        srcs.push(  0, 256, 256, 512);
+        srcs.push(256, 256, 512, 512);
+
+        const dsts = new CanvasKit.RSXFormBuilder();
+        // scos, ssin, tx, ty
+        dsts.push(0.5, 0,  20,  20);
+        dsts.push(0.5, 0, 300,  20);
+        dsts.push(0.5, 0,  20, 300);
+        dsts.push(0.5, 0, 300, 300);
+
+        const colors = new CanvasKit.SkColorBuilder();
+        // note that the SkColorBuilder expects int colors to be pushed.
+        // pushing float colors to it only causes weird problems way downstream.
+        // It does no type checking.
+        colors.push(CanvasKit.ColorAsInt( 85, 170,  10, 128)); // light green
+        colors.push(CanvasKit.ColorAsInt( 51,  51, 191, 128)); // light blue
+        colors.push(CanvasKit.ColorAsInt(  0,   0,   0, 128));
+        colors.push(CanvasKit.ColorAsInt(256, 256, 256, 128));
+
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+
+        atlas.delete();
+        paint.delete();
+    }, '/assets/mandrill_512.png')
+
+    gm('draw_atlas_with_arrays', (canvas, fetchedByteBuffers) => {
+        const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(atlas).toBeTruthy();
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+        const srcs = [
+              0,   0, 256, 256,
+            256,   0, 512, 256,
+              0, 256, 256, 512,
+            256, 256, 512, 512,
+        ];
+
+        const dsts = [
+            0.5, 0,  20,  20,
+            0.5, 0, 300,  20,
+            0.5, 0,  20, 300,
+            0.5, 0, 300, 300,
+        ];
+
+        const colors = [
+            CanvasKit.ColorAsInt( 85, 170,  10, 128), // light green
+            CanvasKit.ColorAsInt( 51,  51, 191, 128), // light blue
+            CanvasKit.ColorAsInt(  0,   0,   0, 128),
+            CanvasKit.ColorAsInt(256, 256, 256, 128),
+        ];
+
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+
+        atlas.delete();
+        paint.delete();
+    }, '/assets/mandrill_512.png')
 
     gm('sweep_gradient', (canvas) => {
         const paint = new CanvasKit.SkPaint();
