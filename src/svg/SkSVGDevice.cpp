@@ -760,6 +760,9 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
                 path.addAttribute("clip-rule", "evenodd");
             }
         } break;
+        case SkClipStack::Element::DeviceSpaceType::kShader:
+            // TODO: handle shader clipping, perhaps rasterize and apply as a mask image?
+            break;
         }
 
         return cid;
