@@ -29,8 +29,7 @@ public:
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
                                      const SkMatrix& viewMatrix,
-                                     GrColor color,
-                                     bool forceW);
+                                     GrColor color);
 
     sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const;
 

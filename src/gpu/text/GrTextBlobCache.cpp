@@ -28,8 +28,8 @@ GrTextBlobCache::~GrTextBlobCache() {
 sk_sp<GrTextBlob>
 GrTextBlobCache::makeCachedBlob(const SkGlyphRunList& glyphRunList, const GrTextBlob::Key& key,
                                 const SkMaskFilterBase::BlurRec& blurRec,
-                                const SkMatrix& viewMatrix, GrColor color, bool forceW) {
-    sk_sp<GrTextBlob> cacheBlob(GrTextBlob::Make(glyphRunList, viewMatrix, color, forceW));
+                                const SkMatrix& viewMatrix, GrColor color) {
+    sk_sp<GrTextBlob> cacheBlob(GrTextBlob::Make(glyphRunList, viewMatrix, color));
     cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
     this->add(cacheBlob);
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);

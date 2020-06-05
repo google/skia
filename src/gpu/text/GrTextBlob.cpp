@@ -288,9 +288,7 @@ auto GrTextBlob::SubRun::vertexData() const -> SkSpan<const VertexData> {
 }
 
 bool GrTextBlob::SubRun::hasW() const {
-    if (fType == kTransformedSDFT) {
-        return fBlob->hasPerspective() || fBlob->forceWForDistanceFields();
-    } else if (fType == kTransformedMask || fType == kTransformedPath) {
+    if (fType == kTransformedSDFT || fType == kTransformedMask || fType == kTransformedPath) {
         return fBlob->hasPerspective();
     }
 
@@ -546,8 +544,7 @@ GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    const SkMatrix& drawMatrix,
-                                   GrColor color,
-                                   bool forceWForDistanceFields) {
+                                   GrColor color) {
     // The difference in alignment from the storage of VertexData to SubRun;
     constexpr size_t alignDiff = alignof(SubRun) - alignof(SubRun::VertexData);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
@@ -560,8 +557,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-            arenaSize, drawMatrix, glyphRunList.origin(),
-            color, initialLuminance, forceWForDistanceFields}};
+            arenaSize, drawMatrix, glyphRunList.origin(), color, initialLuminance}};
 
     return blob;
 }
@@ -731,12 +727,10 @@ GrTextBlob::GrTextBlob(size_t allocSize,
                        const SkMatrix& drawMatrix,
                        SkPoint origin,
                        GrColor color,
-                       SkColor initialLuminance,
-                       bool forceWForDistanceFields)
+                       SkColor initialLuminance)
         : fSize{allocSize}
         , fInitialMatrix{drawMatrix}
         , fInitialOrigin{origin}
-        , fForceWForDistanceFields{forceWForDistanceFields}
         , fColor{color}
         , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
@@ -782,8 +776,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 auto GrTextBlob::firstSubRun() const -> SubRun* { return fFirstSubRun; }
-
-bool GrTextBlob::forceWForDistanceFields() const { return fForceWForDistanceFields; }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
