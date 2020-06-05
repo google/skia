@@ -202,7 +202,7 @@ function almostEqual(floata, floatb) {
 var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 
 // arr can be a normal JS array or a TypedArray
-// dest is something like CanvasKit.HEAPF32
+// dest is a string like "HEAPU32" that specifies the type that the src array is.
 // ptr can be optionally provided if the memory was already allocated.
 function copy1dArray(arr, dest, ptr) {
   if (!arr || !arr.length) {
@@ -212,8 +212,9 @@ function copy1dArray(arr, dest, ptr) {
   if (arr['_ck']) {
     return arr.byteOffset;
   }
+  var bytesPerElement = CanvasKit[dest].BYTES_PER_ELEMENT;
   if (!ptr) {
-    ptr = CanvasKit._malloc(arr.length * dest.BYTES_PER_ELEMENT);
+    ptr = CanvasKit._malloc(arr.length * bytesPerElement);
   }
   // In c++ terms, the WASM heap is a uint8_t*, a long buffer/array of single
   // byte elements. When we run _malloc, we always get an offset/pointer into
@@ -224,7 +225,10 @@ function copy1dArray(arr, dest, ptr) {
   // Concretely, we need to convert ptr to go from an index into a 1-byte-wide
   // buffer to an index into a 4-byte-wide buffer (in the case of HEAPF32)
   // and thus we divide ptr by 4.
-  dest.set(arr, ptr / dest.BYTES_PER_ELEMENT);
+  // It is important to make sure we are grabbing the freshest view of the
+  // memory possible because if we call _malloc and the heap needs to grow,
+  // the TypedArrayView will no longer be valid.
+  CanvasKit[dest].set(arr, ptr / bytesPerElement);
   return ptr;
 }
 
@@ -232,15 +236,19 @@ function copy1dArray(arr, dest, ptr) {
 //     inside themselves). A common use case is points.
 // dest is something like CanvasKit.HEAPF32
 // ptr can be optionally provided if the memory was already allocated.
+// TODO(kjlubick): Remove 2d arrays - everything should be flat.
 function copy2dArray(arr, dest, ptr) {
   if (!arr || !arr.length) {
     return nullptr;
   }
+  var bytesPerElement = CanvasKit[dest].BYTES_PER_ELEMENT;
   if (!ptr) {
-    ptr = CanvasKit._malloc(arr.length * arr[0].length * dest.BYTES_PER_ELEMENT);
+    ptr = CanvasKit._malloc(arr.length * arr[0].length * bytesPerElement);
   }
+  // Make sure we have a fresh view of the heap after we malloc.
+  dest = CanvasKit[dest];
   var idx = 0;
-  var adjustedPtr = ptr / dest.BYTES_PER_ELEMENT;
+  var adjustedPtr = ptr / bytesPerElement;
   for (var r = 0; r < arr.length; r++) {
     for (var c = 0; c < arr[0].length; c++) {
       dest[adjustedPtr + idx] = arr[r][c];
@@ -273,7 +281,7 @@ function copy3x3MatrixToWasm(matr) {
     }
     // This should be an array or typed array.
     // have to divide the pointer by 4 to "cast" it from bytes to float.
-    var mPtr = copy1dArray(matr, CanvasKit.HEAPF32, _scratch3x3MatrixPtr);
+    var mPtr = copy1dArray(matr, "HEAPF32", _scratch3x3MatrixPtr);
     if (matr.length === 6) {
       // Overwrite the last 3 floats with the default perspective. The divide
       // by 4 casts the pointer into a float pointer.
@@ -312,7 +320,7 @@ function copy4x4MatrixToWasm(matr) {
     if (matr.length === 16) {
       // This should be an array or typed array.
       // have to divide the pointer by 4 to "cast" it from bytes to float.
-      return copy1dArray(matr, CanvasKit.HEAPF32, _scratch4x4MatrixPtr);
+      return copy1dArray(matr, "HEAPF32", _scratch4x4MatrixPtr);
     }
     // Upscale the row-major 3x3 or 3x2 matrix into a 4x4 row-major matrix
     // TODO(skbug.com/10108) This will need to change when we convert our
@@ -384,7 +392,7 @@ var _scratchColorPtr = nullptr;
 var _scratchColor; // the result from CanvasKit.Malloc
 
 function copyColorToWasm(color4f, ptr) {
-  return copy1dArray(color4f, CanvasKit.HEAPF32, ptr || _scratchColorPtr);
+  return copy1dArray(color4f, "HEAPF32", ptr || _scratchColorPtr);
 }
 
 function copyColorComponentsToWasm(r, g, b, a) {
@@ -398,7 +406,7 @@ function copyColorComponentsToWasm(r, g, b, a) {
 
 function copyColorToWasmNoScratch(color4f) {
   // TODO(kjlubick): accept 4 floats or int color
-  return copy1dArray(color4f, CanvasKit.HEAPF32);
+  return copy1dArray(color4f, "HEAPF32");
 }
 
 // copies the four floats at the given pointer in a js Float32Array
@@ -449,7 +457,7 @@ function loadCmdsTypedArray(arr) {
     }
   }
 
-  var ptr = copy1dArray(ta, CanvasKit.HEAPF32);
+  var ptr = copy1dArray(ta, "HEAPF32");
   return [ptr, len];
 }
 
@@ -539,7 +547,7 @@ CanvasKit.FourFloatArrayHelper.prototype.build = function() {
   if (this._ptr) {
     return this._ptr;
   }
-  this._ptr = copy1dArray(this._floats, CanvasKit.HEAPF32);
+  this._ptr = copy1dArray(this._floats, "HEAPF32");
   return this._ptr;
 }
 
@@ -612,7 +620,7 @@ CanvasKit.OneUIntArrayHelper.prototype.build = function() {
   if (this._ptr) {
     return this._ptr;
   }
-  this._ptr = copy1dArray(this._uints, CanvasKit.HEAPU32);
+  this._ptr = copy1dArray(this._uints, "HEAPU32");
   return this._ptr;
 }
 

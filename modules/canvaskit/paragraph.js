@@ -89,7 +89,7 @@
         var strPtr = cacheOrCopyString(strings[i]);
         sPtrs.push(strPtr);
       }
-      return copy1dArray(sPtrs, CanvasKit.HEAPU32);
+      return copy1dArray(sPtrs, "HEAPU32");
     }
 
     // maps string -> malloc'd pointer

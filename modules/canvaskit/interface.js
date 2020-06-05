@@ -591,7 +591,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ptr = points.byteOffset;
       n = points.length/2;
     } else {
-      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      ptr = copy2dArray(points, "HEAPF32");
       n = points.length;
     }
     this._addPoly(ptr, n, close);
@@ -641,7 +641,7 @@ CanvasKit.onRuntimeInitialized = function() {
       SkDebug('addRoundRect needs 8 radii provided. Got ' + radii.length);
       return null;
     }
-    var rptr = copy1dArray(radii, CanvasKit.HEAPF32);
+    var rptr = copy1dArray(radii, "HEAPF32");
     if (args.length === 3 || args.length === 4) {
       var r = args[0];
       var ccw = args[args.length - 1];
@@ -898,14 +898,14 @@ CanvasKit.onRuntimeInitialized = function() {
     if (srcRects.build) {
       srcRectPtr = srcRects.build();
     } else {
-      srcRectPtr = copy1dArray(srcRects, CanvasKit.HEAPF32);
+      srcRectPtr = copy1dArray(srcRects, "HEAPF32");
     }
 
     var dstXformPtr;
     if (dstXforms.build) {
       dstXformPtr = dstXforms.build();
     } else {
-      dstXformPtr = copy1dArray(dstXforms, CanvasKit.HEAPF32);
+      dstXformPtr = copy1dArray(dstXforms, "HEAPF32");
     }
 
     var colorPtr = nullptr;
@@ -920,7 +920,7 @@ CanvasKit.onRuntimeInitialized = function() {
         }
         // convert here
         colors = colors.map(toUint32Color);
-        colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+        colorPtr = copy1dArray(colors, "HEAPU32");
       }
     }
 
@@ -968,7 +968,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ptr = points.byteOffset;
       n = points.length/2;
     } else {
-      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      ptr = copy2dArray(points, "HEAPF32");
       n = points.length;
     }
     this._drawPoints(mode, ptr, n, paint);
@@ -1061,7 +1061,7 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || CanvasKit.SkColorSpace.SRGB;
     var srcRowBytes = bytesPerPixel * srcWidth;
 
-    var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+    var pptr = copy1dArray(pixels, "HEAPU8");
     var ok = this._writePixels({
       'width': srcWidth,
       'height': srcHeight,
@@ -1085,7 +1085,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!colorMatrix || colorMatrix.length !== 20) {
       throw 'invalid color matrix';
     }
-    var fptr = copy1dArray(colorMatrix, CanvasKit.HEAPF32);
+    var fptr = copy1dArray(colorMatrix, "HEAPF32");
     // We know skia memcopies the floats, so we can free our memory after the call returns.
     var m = CanvasKit.SkColorFilter._makeMatrix(fptr);
     freeArraysThatAreNotMallocedByUsers(fptr, colorMatrix);
@@ -1174,7 +1174,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!intervals.length || intervals.length % 2 === 1) {
       throw 'Intervals array must have even length';
     }
-    var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
+    var ptr = copy1dArray(intervals, "HEAPF32");
     var dpe = CanvasKit.SkPathEffect._MakeDash(ptr, intervals.length, phase);
     freeArraysThatAreNotMallocedByUsers(ptr, intervals);
     return dpe;
@@ -1189,8 +1189,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var colorPtr = copy2dArray(colors, "HEAPF32");
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
@@ -1204,8 +1204,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var colorPtr = copy2dArray(colors, "HEAPF32");
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
@@ -1219,8 +1219,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var colorPtr = copy2dArray(colors, "HEAPF32");
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
@@ -1239,8 +1239,8 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                             colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var colorPtr = copy2dArray(colors, "HEAPF32");
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
@@ -1366,7 +1366,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colo
     'colorType': colorType,
     'colorSpace': colorSpace,
   };
-  var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+  var pptr = copy1dArray(pixels, "HEAPU8");
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
@@ -1393,16 +1393,16 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
 
   var builder = new CanvasKit._SkVerticesBuilder(mode,  positions.length, idxCount, flags);
 
-  copy2dArray(positions,            CanvasKit.HEAPF32, builder.positions());
+  copy2dArray(positions,            "HEAPF32", builder.positions());
   if (builder.texCoords()) {
-    copy2dArray(textureCoordinates, CanvasKit.HEAPF32, builder.texCoords());
+    copy2dArray(textureCoordinates, "HEAPF32", builder.texCoords());
   }
   if (builder.colors()) {
     // Convert from canvaskit 4f colors to 32 bit uint colors which builder supports.
-    copy1dArray(colors.map(toUint32Color), CanvasKit.HEAPU32, builder.colors());
+    copy1dArray(colors.map(toUint32Color), "HEAPU32", builder.colors());
   }
   if (builder.indices()) {
-    copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());
+    copy1dArray(indices, "HEAPU16", builder.indices());
   }
 
   var idxCount = (indices && indices.length) || 0;
