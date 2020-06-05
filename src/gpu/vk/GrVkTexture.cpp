@@ -149,7 +149,7 @@ void GrVkTexture::onRelease() {
 
     fDescSetCache.reset();
 
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
 
     INHERITED::onRelease();
 }
@@ -183,7 +183,7 @@ void GrVkTexture::onAbandon() {
 
     fDescSetCache.reset();
 
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     INHERITED::onAbandon();
 }
 
