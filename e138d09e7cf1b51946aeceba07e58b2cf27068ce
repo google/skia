@@ -22,6 +22,30 @@
       "revId": "e138d09e7cf1b51946aeceba07e58b2cf27068ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38cada51_349a1009",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-05T19:42:23Z",
+      "side": 1,
+      "message": "I suppose :P \n\nUpdated the comment to clarify that they define a coverage for every pixel, just like a clipShader (except their rule is a constant).",
+      "parentUuid": "5810629d_c7d59a66",
+      "range": {
+        "startLine": 100,
+        "startChar": 70,
+        "endLine": 100,
+        "endChar": 78
+      },
+      "revId": "e138d09e7cf1b51946aeceba07e58b2cf27068ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
