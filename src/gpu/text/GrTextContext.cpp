@@ -110,9 +110,7 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
     }
 
     if (viewMatrix.hasPerspective()) {
-        if (!options.fDistanceFieldVerticesAlwaysHaveW) {
-            return false;
-        }
+        return false;
     } else {
         SkScalar maxScale = viewMatrix.getMaxScale();
         SkScalar scaledTextSize = maxScale * font.getSize();
