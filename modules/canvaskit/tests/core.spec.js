@@ -66,6 +66,25 @@ describe('Core canvas behavior', () => {
         expect(out.spot[3]).toBeCloseTo(expectedSpot[3], 3);
     });
 
+    it('can compute tonal colors with malloced values', () => {
+        const ambientColor = CanvasKit.Malloc(Float32Array, 4);
+        ambientColor.toTypedArray().set(CanvasKit.BLUE);
+        const spotColor = CanvasKit.Malloc(Float32Array, 4);
+        spotColor.toTypedArray().set(CanvasKit.RED);
+        const input = {
+            ambient: ambientColor,
+            spot: spotColor,
+        };
+        const out = CanvasKit.computeTonalColors(input);
+        expect(new Float32Array(out.ambient)).toEqual(CanvasKit.BLACK);
+        const expectedSpot = [0.173, 0, 0, 0.969];
+        expect(out.spot.length).toEqual(4);
+        expect(out.spot[0]).toBeCloseTo(expectedSpot[0], 3);
+        expect(out.spot[1]).toBeCloseTo(expectedSpot[1], 3);
+        expect(out.spot[2]).toBeCloseTo(expectedSpot[2], 3);
+        expect(out.spot[3]).toBeCloseTo(expectedSpot[3], 3);
+    });
+
     // This helper is used for all the MakeImageFromEncoded tests.
     // TODO(kjlubick): rewrite this and callers to use gm
     function decodeAndDrawSingleFrameImage(imgName, goldName, done) {

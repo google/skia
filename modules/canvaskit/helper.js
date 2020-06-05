@@ -739,7 +739,7 @@ CanvasKit.Free = function(mallocObj) {
 // This helper will free the given pointer unless the provided array is one
 // that was returned by CanvasKit.Malloc.
 function freeArraysThatAreNotMallocedByUsers(ptr, arr) {
-  if (!arr || !arr['_ck']) {
+  if (!arr['_ck']) {
     CanvasKit._free(ptr);
   }
 }
