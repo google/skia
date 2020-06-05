@@ -22,8 +22,10 @@ public:
 
     ~GrD3DDescriptorHeap() = default;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE getCPUHandle(unsigned int index); // only if non-shader-visible
+    D3D12_CPU_DESCRIPTOR_HANDLE getCPUHandle(unsigned int index); // write-only if shader-visible
     D3D12_GPU_DESCRIPTOR_HANDLE getGPUHandle(unsigned int index);
+    ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.get(); }
+    size_t handleIncrementSize() { return fHandleIncrementSize; }
 
     bool getIndex(D3D12_CPU_DESCRIPTOR_HANDLE handle, size_t* indexPtr) {
         if (handle.ptr < fCPUHeapStart.ptr) {
