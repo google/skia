@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55ef2adc_f08d8677",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T20:44:09Z",
+      "side": 1,
+      "message": "Just in terms of logical flow of things this seems odd to call here for every draw. Cause of d3d\u0027s style Like binding new heaps seems like something that would be controlled outside of a per draw basis.",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d864d6f_ceb98a81",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T20:44:09Z",
+      "side": 1,
+      "message": "If I\u0027m reading the spec right, then number of dst ranges (1 here) needs to match the number of src ranges (fNumSamplers here). Seems like you\u0027ll need to make a one off range for each step in the dst even though they are contiguous. I wonder if it makes it cleaner at all do do this copy in the code above instead of building up the arrays?",
+      "range": {
+        "startLine": 145,
+        "startChar": 6,
+        "endLine": 147,
+        "endChar": 54
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d116da49_7df9b74c",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T20:44:09Z",
+      "side": 1,
+      "message": "ditto as with srv above",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 61
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5306c6e_4355a8b8",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T20:44:09Z",
+      "side": 1,
+      "message": "why whould we unbind heaps just cause one draw doesn\u0027t use them? The next draw might want them bound and each time we bind may do a big flush of the gpu. Should just leave them bound.\n\nI guess this is part of my mindset when I was suggesting that the resource provider just returns heaps since those really are the resources here (tables just really being offsets and lengths into the heap).\nSo something (some GrD3DHeapManager or GrD3DGpu) has a function to return a table. In that function it tries to allocate a table from its current heap. If it cannot fit in current heap or it doesn\u0027t have a heap yet, then it gets one from the resource provider. When it gets the new heap it binds it to the command list at that moment and the command list refs the heap resource. When the command list is done it recycles the heap back to the GrResourceProvider (which possibly throws it away like you have in there).\n\nLong story short, I don\u0027t think any individual draw call should ever worry about binding heaps and the Manager or Gpu should know what its currently bound heap is and be responsible for allocating tables from it (via allocate calls on heap which you already have).",
+      "range": {
+        "startLine": 161,
+        "startChar": 5,
+        "endLine": 163,
+        "endChar": 5
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
