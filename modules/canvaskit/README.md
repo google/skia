@@ -6,6 +6,13 @@ compilation.
 
 [1]: https://emscripten.org/docs/getting_started/downloads.html
 
+## MacOS specific notes
+Make sure you have Python3 installed, otherwise the downloading emscripten toolchain
+can fail with errors about SSL certificates. <https://github.com/emscripten-core/emsdk/pull/273>
+
+See also <https://github.com/emscripten-core/emscripten/issues/9036#issuecomment-532092743>
+for a solution to Python3 using the wrong certificates.
+
 # Compile and Run Local Example
 
 ```
