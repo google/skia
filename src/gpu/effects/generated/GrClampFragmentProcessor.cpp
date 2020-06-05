@@ -25,9 +25,10 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
+        SkString _input484 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample484;
         if (_outer.inputFP_index >= 0) {
-            _sample484 = this->invokeChild(_outer.inputFP_index, args);
+            _sample484 = this->invokeChild(_outer.inputFP_index, _input484.c_str(), args);
         } else {
             _sample484 = "half4(1)";
         }
