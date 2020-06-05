@@ -22,6 +22,30 @@
       "revId": "c5fa820f10f4f8f2559a1e6cea2d2500cb4cba65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ecc1b99_f94db507",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-05T17:28:26Z",
+      "side": 1,
+      "message": "This is a port, so everyone does their own thing. In particular Chromium.",
+      "parentUuid": "adcdeb58_b7ccbfdc",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 49
+      },
+      "revId": "c5fa820f10f4f8f2559a1e6cea2d2500cb4cba65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
