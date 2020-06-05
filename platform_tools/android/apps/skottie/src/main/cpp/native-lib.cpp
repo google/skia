@@ -29,7 +29,7 @@
 
 #include <GLES3/gl3.h>
 #include <android/trace.h>
-#include "third_party/aosp/JavaInputStreamAdaptor.h"
+#include "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.h"
 
 #define STENCIL_BUFFER_SIZE 8
 
