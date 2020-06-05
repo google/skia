@@ -9,13 +9,14 @@
 #define GrTextContext_DEFINED
 
 #include "src/core/SkGlyphRun.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #if GR_TEST_UTILS
 #include "src/gpu/GrDrawOpTest.h"
 #endif
 
+class GrClip;
 class GrDrawOp;
 class GrRecordingContext;
 class GrRenderTargetContext;
@@ -44,7 +45,7 @@ public:
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
     void drawGlyphRunList(GrRecordingContext*,
-                          GrTextTarget*,
+                          GrRenderTargetContext*,
                           const GrClip*,
                           const SkMatrixProvider&,
                           const SkSurfaceProps&,
