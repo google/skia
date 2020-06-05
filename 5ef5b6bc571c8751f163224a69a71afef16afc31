@@ -16,6 +16,24 @@
       "revId": "5ef5b6bc571c8751f163224a69a71afef16afc31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0264532_c75eab24",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-05T13:26:33Z",
+      "side": 1,
+      "message": "If dest is a typedArray, either CanvasKit[dest] will crash because you can\u0027t use a typedArray as a key to an object or CanvasKit[dest].BYTES_PER_ELEMENT will crash because CanvasKit[dest] is undefined. I\u0027m not sure an explicit check would add benefit other than documentation.",
+      "parentUuid": "942a53d2_0926866c",
+      "revId": "5ef5b6bc571c8751f163224a69a71afef16afc31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
