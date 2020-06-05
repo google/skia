@@ -16,6 +16,24 @@
       "revId": "f16ae423f1410e4ebd26ebc80eb01bac390150e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09d74c9c_d5f51b47",
+        "filename": "include/ports/SkFontMgr_mac_ct.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-05T21:27:22Z",
+      "side": 1,
+      "message": "I\u0027m cargo culting include/ports/SkTypeface_mac.h here. I\u0027ve made a note to see if these can all be removed.",
+      "parentUuid": "aa0bd5f1_77b2ee0d",
+      "revId": "f16ae423f1410e4ebd26ebc80eb01bac390150e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
