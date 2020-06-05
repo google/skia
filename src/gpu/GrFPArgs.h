@@ -28,7 +28,13 @@ struct GrFPArgs {
     }
 
     class WithPreLocalMatrix;
-    class WithPostLocalMatrix;
+
+    GrFPArgs withNewMatrixProvider(const SkMatrixProvider& provider) const {
+        GrFPArgs newArgs(fContext, provider, fFilterQuality, fDstColorInfo);
+        newArgs.fInputColorIsOpaque = fInputColorIsOpaque;
+        newArgs.fPreLocalMatrix = fPreLocalMatrix;
+        return newArgs;
+    }
 
     GrRecordingContext* fContext;
     const SkMatrixProvider& fMatrixProvider;
@@ -65,4 +71,3 @@ private:
 };
 
 #endif
-

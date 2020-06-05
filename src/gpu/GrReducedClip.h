@@ -53,6 +53,13 @@ public:
     bool hasScissor() const { return fHasScissor; }
 
     /**
+     * Indicates if there is a clip shader, representing the merge of all shader elements of the
+     * original stack.
+     */
+    bool hasShader() const { return SkToBool(fShader); }
+    sk_sp<SkShader> shader() const { SkASSERT(fShader); return fShader; }
+
+    /**
      * If nonempty, the clip mask is not valid inside these windows and the caller must clip them
      * out using the window rectangles GPU extension.
      */
@@ -97,6 +104,7 @@ public:
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
     std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(
+            GrRecordingContext*, const SkMatrixProvider& matrixProvider,
             GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
 
 private:
@@ -146,6 +154,9 @@ private:
     bool fMaskRequiresAA;
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
     SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opsTask ID for CCPR.
+    // Will be the combination of all kShader elements or null if there's no clip shader.
+    // Does not count against the analytic FP limit.
+    sk_sp<SkShader> fShader;
 };
 
 #endif

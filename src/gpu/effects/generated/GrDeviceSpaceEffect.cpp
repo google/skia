@@ -23,17 +23,27 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDeviceSpaceEffect& _outer = args.fFp.cast<GrDeviceSpaceEffect>();
         (void)_outer;
-        SkString _input204 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample204;
-        SkString _coords204("sk_FragCoord.xy");
-        _sample204 =
-                this->invokeChild(_outer.fp_index, _input204.c_str(), args, _coords204.c_str());
-        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, _sample204.c_str());
+        auto matrix = _outer.matrix;
+        (void)matrix;
+        matrixVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kFloat3x3_GrSLType, "matrix");
+        fragBuilder->codeAppendf("float3 p = %s * float3(sk_FragCoord.xy, 1);",
+                                 args.fUniformHandler->getUniformCStr(matrixVar));
+        SkString _input276 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample276;
+        SkString _coords276("p.xy / p.z");
+        _sample276 =
+                this->invokeChild(_outer.fp_index, _input276.c_str(), args, _coords276.c_str());
+        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample276.c_str());
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc) override {
+        const GrDeviceSpaceEffect& _outer = _proc.cast<GrDeviceSpaceEffect>();
+        { pdman.setSkMatrix(matrixVar, (_outer.matrix)); }
+    }
+    UniformHandle matrixVar;
 };
 GrGLSLFragmentProcessor* GrDeviceSpaceEffect::onCreateGLSLInstance() const {
     return new GrGLSLDeviceSpaceEffect();
@@ -43,10 +53,13 @@ void GrDeviceSpaceEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrDeviceSpaceEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDeviceSpaceEffect& that = other.cast<GrDeviceSpaceEffect>();
     (void)that;
+    if (matrix != that.matrix) return false;
     return true;
 }
 GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
-        : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()), fp_index(src.fp_index) {
+        : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags())
+        , fp_index(src.fp_index)
+        , matrix(src.matrix) {
     {
         auto clone = src.childProcessor(fp_index).clone();
         if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {

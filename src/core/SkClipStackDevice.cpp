@@ -39,6 +39,10 @@ void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     fClipStack.clipPath(path, this->localToDevice(), op, aa);
 }
 
+void SkClipStackDevice::onClipShader(sk_sp<SkShader> shader) {
+    fClipStack.clipShader(std::move(shader));
+}
+
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;

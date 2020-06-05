@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #endif
 
 #if SK_SUPPORT_GPU
@@ -172,8 +173,23 @@ private:
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    return as_SB(fProxyShader)->asFragmentProcessor(
-        GrFPArgs::WithPreLocalMatrix(args, this->getLocalMatrix()));
+    SkMatrix ctmInv;
+    if (!fCTM.invert(&ctmInv)) {
+        return nullptr;
+    }
+
+    auto ctmProvider = SkOverrideDeviceMatrixProvider(args.fMatrixProvider, fCTM);
+    auto base = as_SB(fProxyShader)->asFragmentProcessor(
+        GrFPArgs::WithPreLocalMatrix(args.withNewMatrixProvider(ctmProvider),
+                                     this->getLocalMatrix()));
+    if (!base) {
+        return nullptr;
+    }
+
+    // In order for the shader to be evaluated with the original CTM, we explicitly evaluate it
+    // at sk_FragCoord, and pass that through the inverse of the original CTM. This avoids requiring
+    // local coords for the shader and mapping from the draw's local to device and then back.
+    return GrDeviceSpaceEffect::Make(std::move(base), ctmInv);
 }
 #endif
 
@@ -183,6 +199,5 @@ sk_sp<SkFlattenable> SkCTMShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
-    return postM.isIdentity() ? sk_ref_sp(this)
-                              : sk_sp<SkShader>(new SkCTMShader(sk_ref_sp(this), postM));
+    return sk_sp<SkShader>(new SkCTMShader(sk_ref_sp(this), postM));
 }

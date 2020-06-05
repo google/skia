@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrResourceKey.h"
@@ -294,8 +295,9 @@ static void test_bounds(skiatest::Reporter* reporter,
                                        SkPathFillType::kEvenOdd);
 
             switch (primType) {
+                case SkClipStack::Element::DeviceSpaceType::kShader:
                 case SkClipStack::Element::DeviceSpaceType::kEmpty:
-                    SkDEBUGFAIL("Don't call this with kEmpty.");
+                    SkDEBUGFAIL("Don't call this with kEmpty or kShader.");
                     break;
                 case SkClipStack::Element::DeviceSpaceType::kRect:
                     stack.clipRect(rectA, SkMatrix::I(), kIntersect_SkClipOp, false);
@@ -846,6 +848,7 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
                 elemRegion.setPath(path, boundsRgn);
                 break;
         }
+
         region->op(elemRegion, (SkRegion::Op)element->getOp());
     }
 }
@@ -924,12 +927,15 @@ static void add_oval(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* 
     stack->clipPath(path, SkMatrix::I(), op, doAA);
 };
 
-static void add_noop(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
-                     bool doAA) {
-    // FIXME (michaelludwig) - this will be replaced with add_shader, but this lets us tickle a
-    // bug in GrReducedClip due to the particular set of random clips the test generated, which
-    // requires an additional clip element type.
-};
+static void add_shader(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
+                       bool doAA) {
+    // invert, op, and doAA don't apply to shaders at the SkClipStack level; this is handled earlier
+    // in the SkCanvas->SkDevice stack. Use rect to produce unique gradients, however.
+    SkPoint corners[2] = { {rect.fLeft, rect.fTop}, {rect.fRight, rect.fBottom} };
+    SkColor colors[2] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    auto gradient = SkGradientShader::MakeLinear(corners, colors, nullptr, 2, SkTileMode::kDecal);
+    stack->clipShader(std::move(gradient));
+}
 
 static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* stack) {
     switch (element.getDeviceSpaceType()) {
@@ -945,6 +951,10 @@ static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* 
             stack->clipPath(element.getDeviceSpacePath(), SkMatrix::I(), element.getOp(),
                             element.isAA());
             break;
+        case SkClipStack::Element::DeviceSpaceType::kShader:
+            SkDEBUGFAIL("Why did the reducer put this in the mask elements.");
+            stack->clipShader(element.refShader());
+            break;
         case SkClipStack::Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Why did the reducer produce an explicit empty.");
             stack->clipEmpty();
@@ -952,7 +962,7 @@ static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* 
     }
 }
 
-static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
+static void test_reduced_clip_stack(skiatest::Reporter* reporter, bool enableClipShader) {
     // We construct random clip stacks, reduce them, and then rasterize both versions to verify that
     // they are equal.
 
@@ -993,7 +1003,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         add_rect,
         add_round_rect,
         add_oval,
-        add_noop,
+        add_shader
     };
 
     SkRandom r;
@@ -1007,7 +1017,9 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         int numElems = r.nextRangeU(kMinElemsPerTest, kMaxElemsPerTest);
         bool doAA = r.nextBiasedBool(kFractionAntialiased);
         for (int e = 0; e < numElems; ++e) {
-            SkClipOp op = kOps[r.nextULessThan(SK_ARRAY_COUNT(kOps))];
+            size_t opLimit = enableClipShader ? ((size_t) kIntersect_SkClipOp + 1)
+                                              : SK_ARRAY_COUNT(kOps);
+            SkClipOp op = kOps[r.nextULessThan(opLimit)];
             if (op == kReplace_SkClipOp) {
                 if (r.nextU() % kReplaceDiv) {
                     --e;
@@ -1042,8 +1054,11 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
 
             bool invert = r.nextBiasedBool(kFractionInverted);
 
-            kElementFuncs[r.nextULessThan(SK_ARRAY_COUNT(kElementFuncs))](rect, invert, op, &stack,
-                                                                          doAA);
+            size_t functionLimit = SK_ARRAY_COUNT(kElementFuncs);
+            if (!enableClipShader) {
+                functionLimit--;
+            }
+            kElementFuncs[r.nextULessThan(functionLimit)](rect, invert, op, &stack, doAA);
             if (doSave) {
                 stack.save();
             }
@@ -1084,6 +1099,10 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
         for (ElementList::Iter iter(reduced->maskElements()); iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
+        }
+        if (reduced->hasShader()) {
+            REPORTER_ASSERT(reporter, enableClipShader);
+            reducedStack.clipShader(reduced->shader());
         }
 
         SkIRect scissor = reduced->hasScissor() ? reduced->scissor() : kIBounds;
@@ -1516,7 +1535,8 @@ DEF_TEST(ClipStack, reporter) {
     test_quickContains(reporter);
     test_invfill_diff_bug(reporter);
 
-    test_reduced_clip_stack(reporter);
+    test_reduced_clip_stack(reporter, /* clipShader */ false);
+    test_reduced_clip_stack(reporter, /* clipShader */ true);
     test_reduced_clip_stack_genid(reporter);
     test_reduced_clip_stack_no_aa_crash(reporter);
     test_reduced_clip_stack_aa(reporter);

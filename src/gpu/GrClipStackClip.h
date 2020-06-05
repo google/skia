@@ -20,9 +20,15 @@ class GrTextureProxy;
  */
 class GrClipStackClip final : public GrClip {
 public:
-    GrClipStackClip(const SkClipStack* stack = nullptr) { this->reset(stack); }
+    GrClipStackClip(const SkClipStack* stack = nullptr,
+                    const SkMatrixProvider* matrixProvider = nullptr) {
+        this->reset(stack, matrixProvider);
+    }
 
-    void reset(const SkClipStack* stack) { fStack = stack; }
+    void reset(const SkClipStack* stack, const SkMatrixProvider* matrixProvider) {
+        fStack = stack;
+        fMatrixProvider = matrixProvider;
+    }
 
     bool quickContains(const SkRect&) const final;
     bool quickContains(const SkRRect&) const final;
@@ -61,7 +67,8 @@ private:
                               const GrRenderTargetContext*,
                               const GrReducedClip&);
 
-    const SkClipStack*  fStack;
+    const SkClipStack*      fStack;
+    const SkMatrixProvider* fMatrixProvider; // for applying clip shaders
 };
 
 #endif // GrClipStackClip_DEFINED
