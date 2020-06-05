@@ -25,7 +25,10 @@ void main() {
 }
 
 @class {
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        SkPMColor4f input = this->numChildProcessors()
+                            ? ConstantOutputForConstantInput(this->childProcessor(0), inColor)
+                            : inColor;
         float clampedAlpha = SkTPin(input.fA, 0.f, 1.f);
         float clampVal = clampToPremul ? clampedAlpha : 1.f;
         return {SkTPin(input.fR, 0.f, clampVal),
