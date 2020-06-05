@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7658cb05_9975be77",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-05T18:10:12Z",
+      "side": 1,
+      "message": "(i.e., CanonicalColor) ?",
+      "range": {
+        "startLine": 279,
+        "startChar": 42,
+        "endLine": 279,
+        "endChar": 43
+      },
+      "revId": "98e33b26b9fd8f910143f325d90a3f2763d6f240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4342cd95_2b49d9d8",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-05T18:10:12Z",
+      "side": 1,
+      "message": "rm \u0027\\n\u0027 ?",
+      "revId": "98e33b26b9fd8f910143f325d90a3f2763d6f240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
