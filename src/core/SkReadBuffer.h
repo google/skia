@@ -32,6 +32,8 @@ public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
 
+    void setMemory(const void*, size_t);
+
     /**
      *  Returns true IFF the version is older than the specified version.
      */
@@ -194,7 +196,6 @@ private:
 
     void setInvalid();
     bool readArray(void* value, size_t size, size_t elementSize);
-    void setMemory(const void*, size_t);
 
     SkReader32 fReader;
 
