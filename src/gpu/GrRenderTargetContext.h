@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyphRunPainter.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -21,7 +22,6 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -573,8 +573,6 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
-    GrTextTarget* textTarget() { return fTextTarget.get(); }
-
     void wasClosed(const GrOpsTask& task) override;
 
 #if GR_TEST_UTILS
@@ -583,13 +581,25 @@ public:
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
 
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
+    GrRecordingContext* context() { return fContext; }
+
+    // Allows caller of addDrawOp to know which op list an op will be added to.
+    using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+    // These perform processing specific to GrDrawOp-derived ops before recording them into an
+    // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
+    // will not be called in the event that the op is discarded. Moreover, the op may merge into
+    // another op after the function is called (either before addDrawOp returns or some time later).
+    //
+    // If the clip pointer is null, no clipping will be performed.
+    void addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
+                   const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
+
 private:
-    class TextTarget;
     enum class QuadOptimization;
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
@@ -674,17 +684,6 @@ private:
 
     void addOp(std::unique_ptr<GrOp>);
 
-    // Allows caller of addDrawOp to know which op list an op will be added to.
-    using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
-    // These perform processing specific to GrDrawOp-derived ops before recording them into an
-    // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
-    // will not be called in the event that the op is discarded. Moreover, the op may merge into
-    // another op after the function is called (either before addDrawOp returns or some time later).
-    //
-    // If the clip pointer is null, no clipping will be performed.
-    void addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
-                   const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
-
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
@@ -699,8 +698,6 @@ private:
 
     GrOpsTask* getOpsTask();
 
-    std::unique_ptr<GrTextTarget> fTextTarget;
-
     GrSurfaceProxyView fWriteView;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
@@ -714,7 +711,7 @@ private:
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
-
+    SkGlyphRunListPainter fGlyphPainter;
     typedef GrSurfaceContext INHERITED;
 };
 

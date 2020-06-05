@@ -15,12 +15,12 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlob.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #include <cstddef>
 #include <new>
@@ -381,7 +381,7 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
     return SubRun::InitForAtlas(kTransformedMask, drawables, strikeSpec, format, blob, alloc);
 }
 
-void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
+void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrRenderTargetContext* target,
                                                    const SkSurfaceProps& props,
                                                    const SkPaint& paint,
                                                    const SkPMColor4f& filteredColor,
@@ -414,7 +414,9 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                 SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
 
                 GrStyledShape shape(path, paint);
-                target->drawShape(clip, runPaint, strikeToDevice, shape);
+                GrBlurUtils::drawShapeWithMaskFilter(
+                        target->context(), target, clip, paint, deviceMatrix,shape);
+                //target->drawShape(clip, runPaint, strikeToDevice, shape);
             }
         } else {
             // Transform the path to device because the deviceMatrix must be unchanged to
@@ -430,7 +432,9 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                 path.transform(pathMatrix, &deviceOutline);
                 deviceOutline.setIsVolatile(true);
                 GrStyledShape shape(deviceOutline, paint);
-                target->drawShape(clip, runPaint, deviceMatrix, shape);
+                GrBlurUtils::drawShapeWithMaskFilter(
+                        target->context(), target, clip, paint, deviceMatrix,shape);
+                //target->drawShape(clip, runPaint, deviceMatrix, shape);
             }
         }
     } else {
@@ -473,17 +477,23 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
 
 
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider& matrixProvider,
-                                                  SkPoint drawOrigin,
-                                                  const SkIRect& clipRect,
-                                                  const SkPaint& paint,
-                                                  const SkPMColor4f& filteredColor,
-                                                  const SkSurfaceProps& props,
-                                                  GrTextTarget* target) {
+                                                          SkPoint drawOrigin,
+                                                          const SkIRect& clipRect,
+                                                          const SkPaint& paint,
+                                                          const SkPMColor4f& filteredColor,
+                                                          const SkSurfaceProps& props,
+                                                          GrRenderTargetContext* target) {
     GrPaint grPaint;
-    target->makeGrPaint(this->maskFormat(), paint, matrixProvider, &grPaint);
+    GrRecordingContext* context = target->context();
+    if (kARGB_GrMaskFormat == this->maskFormat()) {
+        SkPaintToGrPaintWithPrimitiveColor(
+                context, target->colorInfo(), paint, matrixProvider, &grPaint);
+    } else {
+        SkPaintToGrPaint(context, target->colorInfo(), paint, matrixProvider, &grPaint);
+    }
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
-        return GrAtlasTextOp::MakeDistanceField(target->getContext(),
+        return GrAtlasTextOp::MakeDistanceField(target->context(),
                                                 std::move(grPaint),
                                                 this,
                                                 matrixProvider.localToDevice(),
@@ -494,7 +504,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider
                                                 SkPaintPriv::ComputeLuminanceColor(paint),
                                                 props);
     } else {
-        return GrAtlasTextOp::MakeBitmap(target->getContext(),
+        return GrAtlasTextOp::MakeBitmap(target->context(),
                                          std::move(grPaint),
                                          this,
                                          matrixProvider.localToDevice(),
@@ -679,7 +689,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     return false;
 }
 
-void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
+void GrTextBlob::insertOpsIntoTarget(GrRenderTargetContext* target,
                                      const SkSurfaceProps& props,
                                      const SkPaint& paint,
                                      const SkPMColor4f& filteredColor,
