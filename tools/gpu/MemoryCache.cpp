@@ -97,7 +97,7 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
         // run glslang on the input.
         const char* ext = GrBackendApi::kOpenGL == api ? "frag" : "spv";
-        SkReader32 reader(data->data(), data->size());
+        SkReadBuffer reader(data->data(), data->size());
         GrPersistentCacheUtils::GetType(&reader); // Shader type tag
         GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders,
                                                     inputsIgnored, kGrShaderTypeCount);

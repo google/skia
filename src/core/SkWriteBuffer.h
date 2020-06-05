@@ -122,6 +122,7 @@ public:
 
     bool writeToStream(SkWStream*) const;
     void writeToMemory(void* dst) const { fWriter.flatten(dst); }
+    sk_sp<SkData> snapshotAsData() const { return fWriter.snapshotAsData(); }
 
     void setFactoryRecorder(sk_sp<SkFactorySet>);
     void setTypefaceRecorder(sk_sp<SkRefCntSet>);
