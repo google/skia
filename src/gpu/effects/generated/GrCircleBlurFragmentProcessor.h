@@ -17,28 +17,37 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext*,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrRecordingContext*,
                                                      const SkRect& circle,
                                                      float sigma);
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
+    int inputFP_index = -1;
     SkRect circleRect;
     float textureRadius;
     float solidRadius;
     TextureSampler blurProfileSampler;
 
 private:
-    GrCircleBlurFragmentProcessor(SkRect circleRect,
+    GrCircleBlurFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                  SkRect circleRect,
                                   float textureRadius,
                                   float solidRadius,
                                   GrSurfaceProxyView blurProfileSampler)
             : INHERITED(kGrCircleBlurFragmentProcessor_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , circleRect(circleRect)
             , textureRadius(textureRadius)
             , solidRadius(solidRadius)
             , blurProfileSampler(std::move(blurProfileSampler)) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
