@@ -1277,15 +1277,19 @@ CanvasKit.onRuntimeInitialized = function() {
 // }
 // Returns the same format
 CanvasKit.computeTonalColors = function(tonalColors) {
+    // copy the colors into WASM
     var cPtrAmbi = copyColorToWasmNoScratch(tonalColors['ambient']);
     var cPtrSpot = copyColorToWasmNoScratch(tonalColors['spot']);
+    // The output of this function will be the same pointers we passed in.
     this._computeTonalColors(cPtrAmbi, cPtrSpot);
+    // Read the results out.
     var result =  {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
     }
-    freeArraysThatAreNotMallocedByUsers(cPtrAmbi);
-    freeArraysThatAreNotMallocedByUsers(cPtrSpot);
+    // If the user passed us malloced colors in here, we don't want to clean them up.
+    freeArraysThatAreNotMallocedByUsers(cPtrAmbi, tonalColors['ambient']);
+    freeArraysThatAreNotMallocedByUsers(cPtrSpot, tonalColors['spot']);
     return result;
 }
 
