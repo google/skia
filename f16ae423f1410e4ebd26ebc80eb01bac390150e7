@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa0bd5f1_77b2ee0d",
+        "filename": "include/ports/SkFontMgr_mac_ct.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-05T20:58:40Z",
+      "side": 1,
+      "message": "isn\u0027t this implicitly extern?",
+      "revId": "f16ae423f1410e4ebd26ebc80eb01bac390150e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
