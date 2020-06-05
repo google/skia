@@ -8,6 +8,10 @@ Milestone 85
 ------------
 
   * <insert new release notes here>
+ 
+  * On Gpu flush calls allow passing in an array of backend surfaces and mutable states.
+    We will set the state of the backend surfaces to that state at the end of the flush.
+    https://review.skia.org/293844
   
   * SkSurface factores that take GrBackendTexture or GrBackendRenderTarget now always
     call the release proc (if provided) on failure. SkSurface::replaceBackendTexture 

@@ -12,6 +12,9 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrConfig.h"
 
+class GrBackendSurfaceMutableState;
+class GrBackendTexture;
+class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class SkImage;
 class SkSurface;
@@ -317,8 +320,15 @@ struct GrPrepareForExternalIORequests {
     int fNumSurfaces = 0;
     SkSurface** fSurfaces = nullptr;
     bool* fPrepareSurfaceForPresent = nullptr;
+    int fNumBackendTextures = 0;
+    GrBackendTexture* fBackendTextures = nullptr;
+    GrBackendSurfaceMutableState* fBackendTextureStates = nullptr;
+    int fNumBackendRenderTarget = 0;
+    GrBackendRenderTarget* fBackendRenderTargets = nullptr;
+    GrBackendSurfaceMutableState* fBackendRenderTargetStates = nullptr;
 
-    bool hasRequests() const { return fNumImages || fNumSurfaces; }
+    bool hasRequests() const { return fNumImages || fNumSurfaces || fNumBackendTextures ||
+                                      fNumBackendRenderTarget; }
 };
 
 #endif

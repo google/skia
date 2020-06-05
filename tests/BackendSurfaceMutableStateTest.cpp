@@ -9,13 +9,14 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 
 #ifdef SK_VULKAN
-
+#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkTexture.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxInfo) {
@@ -101,6 +102,30 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     REPORTER_ASSERT(reporter, backendTexImage.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
     REPORTER_ASSERT(reporter, initQueue == info.fCurrentQueueFamily);
+
+    // We want to test changing state using flush. However, this actually does a real transition,
+    // so we must use valid queues. We don't have any other valid queue available so instead we
+    // try to transition to external queue.
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+    if (gpu->vkCaps().supportsExternalMemory()) {
+        GrBackendSurfaceMutableState externalState(VK_IMAGE_LAYOUT_GENERAL, VK_QUEUE_FAMILY_EXTERNAL);
+
+        GrPrepareForExternalIORequests externalIO;
+        externalIO.fNumBackendTextures = 1;
+        externalIO.fBackendTextures = &backendTex;
+        externalIO.fBackendTextureStates = &externalState;
+
+        context->flush({}, externalIO);
+        context->submit();
+
+        REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+        REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
+        REPORTER_ASSERT(reporter, VK_QUEUE_FAMILY_EXTERNAL == info.fCurrentQueueFamily);
+
+        // We must submit this work before we try to delete the backend texture.
+        context->submit(true);
+    }
+
 
     context->deleteBackendTexture(backendTex);
 }

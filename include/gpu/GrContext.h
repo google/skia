@@ -663,6 +663,29 @@ public:
                                                     GrGpuFinishedProc finishedProc = nullptr,
                                                     GrGpuFinishedContext finishedContext = nullptr);
 
+    // These first two options together. All our other GrBackendTexture apis work on one texture at
+    // a time.
+    bool setBackendTextureState(const GrBackendTexture&,
+                                const GrBackendSurfaceMutableState&,
+                                GrGpuFinishedProc finishedProc,
+                                GrGpuFinishedContext finishedContext);
+    bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                     const GrBackendSurfaceMutableState&,
+                                     GrGpuFinishedProc finishedProc,
+                                     GrGpuFinishedContext finishedContext);
+
+
+    // Or this combined thing that handles multiple in one call.
+    bool setBackendSurfaceState(int fNumBackendTextures,
+                                GrBackendTexture* fBackendTextures,
+                                GrBackendSurfaceMutableState* fBackendTextureStates,
+                                int fNumBackendRenderTarget,
+                                GrBackendRenderTarget* fBackendRenderTargets,
+                                GrBackendSurfaceMutableState* fBackendRenderTargetStates,
+                                GrGpuFinishedProc finishedProc,
+                                GrGpuFinishedContext finishedContext);
+
+
     void deleteBackendTexture(GrBackendTexture);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.
