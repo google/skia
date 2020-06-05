@@ -300,7 +300,7 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
 }
 
 void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
-                                     GrTextTarget* target,
+                                     GrRenderTargetContext* target,
                                      const GrClip* clip,
                                      const SkMatrixProvider& matrixProvider,
                                      const SkSurfaceProps& props,
@@ -424,7 +424,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
         blob = GrTextBlob::Make(glyphRunList, drawMatrix, color);
-        SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
+        SkGlyphRunListPainter* painter = rtc->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,
                 context->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
@@ -437,7 +437,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                                        skPaint,
                                        filteredColor,
                                        surfaceProps,
-                                       rtc->textTarget());
+                                       rtc);
 }
 
 #endif  // GR_TEST_UTILS

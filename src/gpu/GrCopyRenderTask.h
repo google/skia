@@ -9,6 +9,7 @@
 #define GrCopyRenderTask_DEFINED
 
 #include "src/gpu/GrRenderTask.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:

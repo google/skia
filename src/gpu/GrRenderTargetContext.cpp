@@ -71,55 +71,6 @@
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
 #include "src/gpu/text/GrTextContext.h"
-#include "src/gpu/text/GrTextTarget.h"
-
-class GrRenderTargetContext::TextTarget : public GrTextTarget {
-public:
-    TextTarget(GrRenderTargetContext* renderTargetContext)
-            : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
-                           renderTargetContext->colorInfo())
-            , fRenderTargetContext(renderTargetContext)
-            , fGlyphPainter{*renderTargetContext} {}
-
-    void addDrawOp(const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op) override {
-        fRenderTargetContext->addDrawOp(clip, std::move(op));
-    }
-
-    void drawShape(const GrClip* clip,
-                   const SkPaint& paint,
-                   const SkMatrixProvider& matrixProvider,
-                   const GrStyledShape& shape) override {
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                             clip, paint, matrixProvider, shape);
-    }
-
-    void makeGrPaint(GrMaskFormat maskFormat,
-                     const SkPaint& skPaint,
-                     const SkMatrixProvider& matrixProvider,
-                     GrPaint* grPaint) override {
-        auto context = fRenderTargetContext->fContext;
-        const GrColorInfo& colorInfo = fRenderTargetContext->colorInfo();
-        if (kARGB_GrMaskFormat == maskFormat) {
-            SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, matrixProvider,
-                                               grPaint);
-        } else {
-            SkPaintToGrPaint(context, colorInfo, skPaint, matrixProvider, grPaint);
-        }
-    }
-
-    GrRecordingContext* getContext() override {
-        return fRenderTargetContext->fContext;
-    }
-
-    SkGlyphRunListPainter* glyphPainter() override {
-        return &fGlyphPainter;
-    }
-
-private:
-    GrRenderTargetContext* fRenderTargetContext;
-    SkGlyphRunListPainter fGlyphPainter;
-
-};
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -379,14 +330,14 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fWriteView(std::move(writeView))
         , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fManagedOpsTask(managedOpsTask) {
+        , fManagedOpsTask(managedOpsTask)
+        , fGlyphPainter(*this) {
     if (fOpsTask) {
         fOpsTask->addClosedObserver(this);
     }
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
     SkASSERT(this->origin() == fWriteView.origin());
 
-    fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
 
@@ -462,7 +413,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
-    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, matrixProvider,
+    atlasTextContext->drawGlyphRunList(fContext, this, clip, matrixProvider,
                                        fSurfaceProps, blob);
 }
 

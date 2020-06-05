@@ -119,7 +119,7 @@ public:
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void insertOpsIntoTarget(GrTextTarget* target,
+    void insertOpsIntoTarget(GrRenderTargetContext* target,
                              const SkSurfaceProps& props,
                              const SkPaint& paint,
                              const SkPMColor4f& filteredColor,
@@ -335,7 +335,7 @@ public:
                                        GrTextBlob* blob,
                                        SkArenaAlloc* alloc);
 
-    void insertSubRunOpsIntoTarget(GrTextTarget* target,
+    void insertSubRunOpsIntoTarget(GrRenderTargetContext* target,
                                    const SkSurfaceProps& props,
                                    const SkPaint& paint,
                                    const SkPMColor4f& filteredColor,
@@ -349,7 +349,7 @@ public:
                                           const SkPaint& paint,
                                           const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&,
-                                          GrTextTarget*);
+                                          GrRenderTargetContext*);
 
     SubRun* fNextSubRun{nullptr};
     GrTextBlob* fBlob;
