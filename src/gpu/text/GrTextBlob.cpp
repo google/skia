@@ -384,7 +384,6 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
 void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkSurfaceProps& props,
                                                    const SkPaint& paint,
-                                                   const SkPMColor4f& filteredColor,
                                                    const GrClip* clip,
                                                    const SkMatrixProvider& deviceMatrix,
                                                    SkPoint drawOrigin) {
@@ -463,24 +462,36 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             skipClip = true;
         }
 
-        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect,
-                                 paint, filteredColor, props, target);
+        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
         if (op != nullptr) {
             target->addDrawOp(skipClip ? nullptr : clip, std::move(op));
         }
     }
 }
 
+SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
+    SkColor4f c = paint.getColor4f();
+    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
+        c = xform->apply(c);
+    }
+    if (auto* cf = paint.getColorFilter()) {
+        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
+    }
+    return c.premul();
+}
 
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkIRect& clipRect,
                                                   const SkPaint& paint,
-                                                  const SkPMColor4f& filteredColor,
                                                   const SkSurfaceProps& props,
                                                   GrTextTarget* target) {
     GrPaint grPaint;
     target->makeGrPaint(this->maskFormat(), paint, matrixProvider, &grPaint);
+    const GrColorInfo& colorInfo = target->colorInfo();
+    // This is the color the op will use to draw.
+    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
+
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
         return GrAtlasTextOp::MakeDistanceField(target->getContext(),
@@ -489,7 +500,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider
                                                 matrixProvider.localToDevice(),
                                                 drawOrigin,
                                                 clipRect,
-                                                filteredColor,
+                                                drawingColor,
                                                 target->colorInfo().isLinearlyBlended(),
                                                 SkPaintPriv::ComputeLuminanceColor(paint),
                                                 props);
@@ -500,7 +511,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider
                                          matrixProvider.localToDevice(),
                                          drawOrigin,
                                          clipRect,
-                                         filteredColor);
+                                         drawingColor);
     }
 }
 
@@ -680,13 +691,11 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
                                      const SkSurfaceProps& props,
                                      const SkPaint& paint,
-                                     const SkPMColor4f& filteredColor,
                                      const GrClip* clip,
                                      const SkMatrixProvider& deviceMatrix,
                                      SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
-        subRun->insertSubRunOpsIntoTarget(target, props, paint, filteredColor, clip, deviceMatrix,
-                                          drawOrigin);
+        subRun->insertSubRunOpsIntoTarget(target, props, paint, clip, deviceMatrix, drawOrigin);
     }
 }
 
