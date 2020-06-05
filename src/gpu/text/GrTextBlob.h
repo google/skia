@@ -121,7 +121,6 @@ public:
     void insertOpsIntoTarget(GrTextTarget* target,
                              const SkSurfaceProps& props,
                              const SkPaint& paint,
-                             const SkPMColor4f& filteredColor,
                              const GrClip* clip,
                              const SkMatrixProvider& deviceMatrix,
                              SkPoint drawOrigin);
@@ -334,7 +333,6 @@ public:
     void insertSubRunOpsIntoTarget(GrTextTarget* target,
                                    const SkSurfaceProps& props,
                                    const SkPaint& paint,
-                                   const SkPMColor4f& filteredColor,
                                    const GrClip* clip,
                                    const SkMatrixProvider& deviceMatrix,
                                    SkPoint drawOrigin);
@@ -343,7 +341,6 @@ public:
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
                                           const SkPaint& paint,
-                                          const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
 
