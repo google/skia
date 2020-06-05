@@ -34,8 +34,6 @@ GrD3DDescriptorHeap::GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>& heap
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::getCPUHandle(unsigned int index) {
-    // valid only for non-shader-visible heaps
-    SkASSERT(!SkToBool(fHeap->GetDesc().Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
     SkASSERT(index < fHeap->GetDesc().NumDescriptors);
     D3D12_CPU_DESCRIPTOR_HANDLE handle = fCPUHeapStart;
     handle.ptr += index * fHandleIncrementSize;

@@ -352,6 +352,17 @@ void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
     fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
 }
 
+void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
+        unsigned int rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
+    fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
+}
+
+void GrD3DDirectCommandList::setDescriptorHeaps(unsigned int numDescriptorHeaps,
+                                                ID3D12DescriptorHeap* const * heaps) {
+    fCommandList->SetDescriptorHeaps(numDescriptorHeaps, heaps);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(ID3D12Device* device) {
