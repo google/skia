@@ -53,38 +53,6 @@ std::unique_ptr<GrTextContext> GrTextContext::Make(const Options& options) {
     return std::unique_ptr<GrTextContext>(new GrTextContext(options));
 }
 
-SkColor GrTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd) {
-    SkColor canonicalColor = SkPaintPriv::ComputeLuminanceColor(paint);
-    if (lcd) {
-        // This is the correct computation, but there are tons of cases where LCD can be overridden.
-        // For now we just regenerate if any run in a textblob has LCD.
-        // TODO figure out where all of these overrides are and see if we can incorporate that logic
-        // at a higher level *OR* use sRGB
-        SkASSERT(false);
-        //canonicalColor = SkMaskGamma::CanonicalColor(canonicalColor);
-    } else {
-        // A8, though can have mixed BMP text but it shouldn't matter because BMP text won't have
-        // gamma corrected masks anyways, nor color
-        U8CPU lum = SkComputeLuminance(SkColorGetR(canonicalColor),
-                                       SkColorGetG(canonicalColor),
-                                       SkColorGetB(canonicalColor));
-        // reduce to our finite number of bits
-        canonicalColor = SkMaskGamma::CanonicalColor(SkColorSetRGB(lum, lum, lum));
-    }
-    return canonicalColor;
-}
-
-SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(const GrColorInfo& colorInfo) {
-    // If we're doing linear blending, then we can disable the gamma hacks.
-    // Otherwise, leave them on. In either case, we still want the contrast boost:
-    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    if (colorInfo.isLinearlyBlended()) {
-        return SkScalerContextFlags::kBoostContrast;
-    } else {
-        return SkScalerContextFlags::kFakeGammaAndBoostContrast;
-    }
-}
-
 void GrTextContext::SanitizeOptions(Options* options) {
     if (options->fMaxDistanceFieldFontSize < 0.f) {
         options->fMaxDistanceFieldFontSize = kDefaultMaxDistanceFieldFontSize;
