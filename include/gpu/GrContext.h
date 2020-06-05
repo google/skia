@@ -482,8 +482,8 @@ public:
      * If possible, create a backend texture initialized to a particular color. The client should
      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
-     * client can assume the upload work has been submitted to the gpu. The finishedProc will always
-     * get called even if we failed to create the GrBackendTexture.
+     * client is required to call GrContext::submit to send the upload work to the gpu. The
+     * finishedProc will always get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -500,8 +500,8 @@ public:
      * If possible, create a backend texture initialized to a particular color. The client should
      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
-     * client can assume the upload work has been submitted to the gpu. The finishedProc will always
-     * get called even if we failed to create the GrBackendTexture.
+     * client is required to call GrContext::submit to send the upload work to the gpu. The
+     * finishedProc will always get called even if we failed to create the GrBackendTexture.
      * If successful, the created backend texture will be compatible with the provided
      * SkColorType.
      * For the Vulkan backend the layout of the created VkImage will be:
@@ -520,9 +520,9 @@ public:
      * If possible, create a backend texture initialized to a particular color that is
      * compatible with the provided characterization. The client should ensure that the
      * returned backend texture is valid. The client can pass in a finishedProc to be notified when
-     * the data has been uploaded by the gpu and the texture can be deleted. The client can assume
-     * the upload work has been submitted to the gpu. The finishedProc will always get called even
-     * if we failed to create the GrBackendTexture.
+     * the data has been uploaded by the gpu and the texture can be deleted. The client is required
+     * to call GrContext::submit to send the upload work to the gpu. The finishedProc will always
+     * get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if texturaeble
      *      VK_IMAGE_LAYOUT_UNDEFINED                if not textureable
@@ -536,11 +536,12 @@ public:
      * If possible, create a backend texture initialized with the provided pixmap data. The client
      * should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * If successful, the created backend texture will be compatible with the provided
      * pixmap(s). Compatible, in this case, means that the backend format will be the result
-     * of calling defaultBackendFormat on the base pixmap's colortype.
+     * of calling defaultBackendFormat on the base pixmap's colortype. The src data can be deleted
+     * when this call returns.
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. In the mipmapped case all the
      * colortypes of the provided pixmaps must be the same. Additionally, all the miplevels
@@ -568,8 +569,8 @@ public:
      * If possible, updates a backend texture to be filled to a particular color. The client should
      * check the return value to see if the update was successful. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to update the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to update the GrBackendTexture.
      * For the Vulkan backend after a successful update the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -582,10 +583,11 @@ public:
      * If possible, updates a backend texture filled with the provided pixmap data. The client
      * should check the return value to see if the update was successful. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * The backend texture must be compatible with the provided pixmap(s). Compatible, in this case,
-     * means that the backend format is compatible with the base pixmap's colortype.
+     * means that the backend format is compatible with the base pixmap's colortype. The src data
+     * can be deleted when this call returns.
      * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
      * In the mipmapped case all the colortypes of the provided pixmaps must be the same.
      * Additionally, all the miplevels must be sized correctly (please see
@@ -614,8 +616,8 @@ public:
      *If possible, create a compressed backend texture initialized to a particular color. The
      * client should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -639,8 +641,8 @@ public:
      * If possible, create a backend texture initialized with the provided raw data. The client
      * should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. Additionally, all the miplevels
      * must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).

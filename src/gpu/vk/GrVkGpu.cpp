@@ -241,7 +241,6 @@ void GrVkGpu::destroyResources() {
         fMainCmdPool->getPrimaryCommandBuffer()->end(this);
         fMainCmdPool->close();
     }
-    SkASSERT(!fTempCmdPool);
 
     // wait for all commands to finish
     VkResult res = VK_CALL(QueueWaitIdle(fQueue));
@@ -301,7 +300,6 @@ void GrVkGpu::disconnect(DisconnectType type) {
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
         fMainCmdBuffer = nullptr;
-        SkASSERT(!fTempCmdBuffer);
         fDisconnected = true;
     }
 }
@@ -323,40 +321,6 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
-}
-
-GrVkPrimaryCommandBuffer* GrVkGpu::getTempCommandBuffer() {
-    SkASSERT(!fTempCmdPool && !fTempCmdBuffer);
-    fTempCmdPool = fResourceProvider.findOrCreateCommandPool();
-    if (!fTempCmdPool) {
-        return nullptr;
-    }
-    fTempCmdBuffer = fTempCmdPool->getPrimaryCommandBuffer();
-    SkASSERT(fTempCmdBuffer);
-    fTempCmdBuffer->begin(this);
-    return fTempCmdBuffer;
-}
-
-bool GrVkGpu::submitTempCommandBuffer(SyncQueue sync, sk_sp<GrRefCntedCallback> finishedCallback) {
-    SkASSERT(fTempCmdBuffer);
-
-    fTempCmdBuffer->end(this);
-    fTempCmdPool->close();
-
-    SkASSERT(fMainCmdBuffer->validateNoSharedImageResources(fTempCmdBuffer));
-
-    fTempCmdBuffer->addFinishedProc(std::move(finishedCallback));
-
-    SkTArray<GrVkSemaphore::Resource*, false> fEmptySemaphores;
-    bool didSubmit = fTempCmdBuffer->submitToQueue(this, fQueue, fEmptySemaphores,
-                                                   fEmptySemaphores);
-    if (didSubmit && sync == kForce_SyncQueue) {
-        fTempCmdBuffer->forceSync(this);
-    }
-    fTempCmdPool->unref();
-    fTempCmdPool = nullptr;
-    fTempCmdBuffer = nullptr;
-    return didSubmit;
 }
 
 bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
@@ -1658,7 +1622,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         return false;
     }
 
-    GrVkPrimaryCommandBuffer* cmdBuffer = this->getTempCommandBuffer();
+    GrVkPrimaryCommandBuffer* cmdBuffer = this->currentCommandBuffer();
     if (!cmdBuffer) {
         return false;
     }
@@ -1727,7 +1691,10 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                             VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                             false);
 
-    return this->submitTempCommandBuffer(kSkip_SyncQueue, std::move(finishedCallback));
+    if (finishedCallback) {
+        this->addFinishedCallback(std::move(finishedCallback));
+    }
+    return this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
@@ -2052,7 +2019,14 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
 void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                               GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    this->addFinishedCallback(std::move(finishedCallback));
+}
+
+void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+    SkASSERT(finishedCallback);
+    fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
 }
 
 bool GrVkGpu::onSubmitToGpu(bool syncCpu) {
