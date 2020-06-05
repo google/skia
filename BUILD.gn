@@ -378,16 +378,7 @@ optional("fontmgr_fuchsia") {
 optional("fontmgr_mac") {
   enabled = skia_use_fonthost_mac
 
-  public = [ "include/ports/SkFontMgr_mac_ct.h" ]
-  sources = [
-    #"src/ports/SkFontHost_mac.cpp",
-    "src/ports/SkFontMgr_mac_ct.cpp",
-    "src/ports/SkFontMgr_mac_ct_factory.cpp",
-    "src/ports/SkScalerContext_mac_ct.cpp",
-    "src/ports/SkScalerContext_mac_ct.h",
-    "src/ports/SkTypeface_mac_ct.cpp",
-    "src/ports/SkTypeface_mac_ct.h",
-  ]
+  sources = [ "src/ports/SkFontHost_mac.cpp" ]
 
   if (is_mac) {
     libs = [
