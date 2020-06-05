@@ -22,6 +22,6 @@
 class SkFontMgr;
 
 /** Create a font manager for CoreText. If the collection is nullptr the system default will be used. */
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_CoreText(CTFontCollectionRef);
+SK_API extern sk_sp<SkFontMgr> SkFontMgr_New_CoreText(CTFontCollectionRef);
 
 #endif // SkFontMgr_mac_ct_DEFINED
