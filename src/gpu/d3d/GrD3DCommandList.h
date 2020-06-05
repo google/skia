@@ -148,6 +148,9 @@ public:
 
     void setGraphicsRootConstantBufferView(unsigned int rootParameterIndex,
                                            D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+    void setGraphicsRootDescriptorTable(unsigned int rootParameterIndex,
+                                        D3D12_GPU_DESCRIPTOR_HANDLE bufferLocation);
+    void setDescriptorHeaps(unsigned int numDescriptorHeaps, ID3D12DescriptorHeap* const *);
 
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
