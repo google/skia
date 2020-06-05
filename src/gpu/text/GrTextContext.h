@@ -82,11 +82,6 @@ public:
 private:
     GrTextContext(const Options& options);
 
-    // sets up the descriptor on the blob and returns a detached cache.  Client must attach
-    static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
-    // Determines if we need to use fake gamma (and contrast boost):
-    static SkScalerContextFlags ComputeScalerContextFlags(const GrColorInfo&);
-
     Options fOptions;
 
 #if GR_TEST_UTILS
