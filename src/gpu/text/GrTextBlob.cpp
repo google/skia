@@ -542,9 +542,7 @@ void* GrTextBlob::operator new(size_t, void* p) { return p; }
 
 GrTextBlob::~GrTextBlob() = default;
 
-sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
-                                   const SkMatrix& drawMatrix,
-                                   GrColor color) {
+sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkMatrix& drawMatrix) {
     // The difference in alignment from the storage of VertexData to SubRun;
     constexpr size_t alignDiff = alignof(SubRun) - alignof(SubRun::VertexData);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
@@ -557,7 +555,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-            arenaSize, drawMatrix, glyphRunList.origin(), color, initialLuminance}};
+            arenaSize, drawMatrix, glyphRunList.origin(), initialLuminance}};
 
     return blob;
 }
@@ -726,12 +724,10 @@ void GrTextBlob::addMultiMaskFormat(
 GrTextBlob::GrTextBlob(size_t allocSize,
                        const SkMatrix& drawMatrix,
                        SkPoint origin,
-                       GrColor color,
                        SkColor initialLuminance)
         : fSize{allocSize}
         , fInitialMatrix{drawMatrix}
         , fInitialOrigin{origin}
-        , fColor{color}
         , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
