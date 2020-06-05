@@ -266,6 +266,7 @@ template("optional") {
       forward_variables_from(invoker,
                              "*",
                              [
+                               "public",
                                "public_defines",
                                "public_deps",
                                "deps",
