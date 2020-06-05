@@ -328,7 +328,6 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
         cachedBlob = textBlobCache->find(key);
     }
 
-    bool forceW = fOptions.fDistanceFieldVerticesAlwaysHaveW;
     bool supportsSDFT = context->priv().caps()->shaderCaps()->supportsDistanceFieldText();
     SkGlyphRunListPainter* painter = target->glyphPainter();
     const SkMatrix& drawMatrix(matrixProvider.localToDevice());
@@ -340,7 +339,7 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cachedBlob.get());
             cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
-                                                       initialVertexColor, forceW);
+                                                       initialVertexColor);
 
             painter->processGlyphRunList(
                     glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -350,9 +349,9 @@ void GrTextContext::drawGlyphRunList(GrRecordingContext* context,
     } else {
         if (canCache) {
             cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
-                                                       initialVertexColor, forceW);
+                                                       initialVertexColor);
         } else {
-            cachedBlob = GrTextBlob::Make(glyphRunList, drawMatrix, initialVertexColor, forceW);
+            cachedBlob = GrTextBlob::Make(glyphRunList, drawMatrix, initialVertexColor);
         }
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -396,7 +395,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix, color, false);
+        blob = GrTextBlob::Make(glyphRunList, drawMatrix, color);
         SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,

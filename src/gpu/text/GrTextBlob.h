@@ -99,8 +99,7 @@ public:
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
                                   const SkMatrix& drawMatrix,
-                                  GrColor color,
-                                  bool forceWForDistanceFields);
+                                  GrColor color);
 
     // Key manipulation functions
     void setupKey(const GrTextBlob::Key& key,
@@ -159,8 +158,7 @@ private:
                const SkMatrix& drawMatrix,
                SkPoint origin,
                GrColor color,
-               SkColor initialLuminance,
-               bool forceWForDistanceFields);
+               SkColor initialLuminance);
 
     void insertSubRun(SubRun* subRun);
 
@@ -190,9 +188,6 @@ private:
     // Initial position of this blob. Used for calculating position differences when reusing this
     // blob.
     const SkPoint fInitialOrigin;
-
-    // From the distance field options to force distance fields to have a W coordinate.
-    const bool fForceWForDistanceFields;
 
     // The color of the text to draw for solid colors.
     const GrColor fColor;

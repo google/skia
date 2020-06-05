@@ -90,7 +90,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
     GrTextContext::Options textContextOptions;
     textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
     textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
-    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
 
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
