@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc2d4f7d_b7863a97",
+        "filename": "src/gpu/GrFPArgs.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-05T15:36:06Z",
+      "side": 0,
+      "message": "This had been removed earlier, just happened to notice this declaration hiding.",
+      "range": {
+        "startLine": 31,
+        "startChar": 10,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "ebf83bdb43d5557fcb8b7741a3e52a6c54ab6856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40e79a01_a2043eae",
+        "filename": "src/shaders/SkLocalMatrixShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-05T15:36:06Z",
+      "side": 0,
+      "message": "Since the CTM could change from identity before we actually apply the clip shader, this can cause problems for the GPU, where we rely on having the SkCTMShader providing sk_FragCoord to the shader.",
+      "range": {
+        "startLine": 186,
+        "startChar": 10,
+        "endLine": 186,
+        "endChar": 29
+      },
+      "revId": "ebf83bdb43d5557fcb8b7741a3e52a6c54ab6856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

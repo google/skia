@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac33bb32_c0a55323",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-05T15:36:06Z",
+      "side": 1,
+      "message": "With the swizzle updates to use a child FP instead of running in series, we need to propagate the input color through instead of defaulting to white (which is the 2-arg invokeChild behavior). Otherwise the coverages from analytic geometry FPs aren\u0027t combined with the clip shader.",
+      "range": {
+        "startLine": 215,
+        "startChar": 63,
+        "endLine": 215,
+        "endChar": 81
+      },
+      "revId": "865a0e151209b039d4e6550749e90bd5cfebfcd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29eeedd7_1efb1f1a",
+        "filename": "src/gpu/effects/GrDeviceSpaceEffect.fp",
+        "patchSetId": 14
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-05T15:36:06Z",
+      "side": 1,
+      "message": "At the moment (but I think it\u0027s being worked on), wrapping a GrMatrixEffect with a GrDeviceSpaceEffect ends up using original local coords * matrix instead of device * matrix. Since GrDeviceSpaceEffect was only used for the disabled alpha masks, and one GM, this isn\u0027t a significant change in behavior.\n\nAs sample matrices get more capable, I think wrapping like this and having DeviceEffect just pass sk_FragCoord through will be cleaner.",
+      "range": {
+        "startLine": 13,
+        "startChar": 15,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "865a0e151209b039d4e6550749e90bd5cfebfcd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
