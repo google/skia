@@ -17,7 +17,10 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrColorMatrixFragmentProcessor : public GrFragmentProcessor {
 public:
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        SkPMColor4f input = this->numChildProcessors() ? ConstantOutputForConstantInput(
+                                                                 this->childProcessor(0), inColor)
+                                                       : inColor;
         SkColor4f color;
         if (unpremulInput) {
             color = input.unpremul();
@@ -42,7 +45,8 @@ public:
         }
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20],
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     const float matrix[20],
                                                      bool unpremulInput,
                                                      bool clampRGBOutput,
                                                      bool premulOutput) {
@@ -51,11 +55,12 @@ public:
                   matrix[17], matrix[18]);
         SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
         return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(
-                m44, v4, unpremulInput, clampRGBOutput, premulOutput));
+                std::move(inputFP), m44, v4, unpremulInput, clampRGBOutput, premulOutput));
     }
     GrColorMatrixFragmentProcessor(const GrColorMatrixFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ColorMatrixFragmentProcessor"; }
+    int inputFP_index = -1;
     SkM44 m;
     SkV4 v;
     bool unpremulInput;
@@ -63,15 +68,26 @@ public:
     bool premulOutput;
 
 private:
-    GrColorMatrixFragmentProcessor(
-            SkM44 m, SkV4 v, bool unpremulInput, bool clampRGBOutput, bool premulOutput)
+    GrColorMatrixFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   SkM44 m,
+                                   SkV4 v,
+                                   bool unpremulInput,
+                                   bool clampRGBOutput,
+                                   bool premulOutput)
             : INHERITED(kGrColorMatrixFragmentProcessor_ClassID,
-                        (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kConstantOutputForConstantInput_OptimizationFlag)
             , m(m)
             , v(v)
             , unpremulInput(unpremulInput)
             , clampRGBOutput(clampRGBOutput)
-            , premulOutput(premulOutput) {}
+            , premulOutput(premulOutput) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
