@@ -27,6 +27,7 @@ namespace SkSL {
 class ByteCode;
 struct PipelineStageArgs;
 struct Program;
+struct SampleMatrix;
 class SharedCompiler;
 }
 
@@ -148,7 +149,8 @@ private:
     // This is necessary to get the correct values of settings.
     bool toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
                          GrContextOptions::ShaderErrorHandler* errorHandler,
-                         SkSL::PipelineStageArgs* outArgs);
+                         SkSL::PipelineStageArgs* outArgs,
+                         std::vector<SkSL::SampleMatrix>* outMatrices);
 #endif
 
     friend class SkRTShader;            // toByteCode & uniformSize
