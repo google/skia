@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "942a53d2_0926866c",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-05T13:19:59Z",
+      "side": 1,
+      "message": "How about adding a safety check at in the copy*array() methods to confirm dest is a string, not a typedArray?",
+      "revId": "5ef5b6bc571c8751f163224a69a71afef16afc31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
