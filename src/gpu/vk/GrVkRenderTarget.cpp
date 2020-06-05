@@ -366,10 +366,8 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer, bool withS
 }
 
 void GrVkRenderTarget::releaseInternalObjects() {
-    GrVkGpu* gpu = this->getVkGpu();
-
     if (fMSAAImage) {
-        fMSAAImage->releaseImage(gpu);
+        fMSAAImage->releaseImage();
         fMSAAImage.reset();
     }
 
@@ -406,13 +404,13 @@ void GrVkRenderTarget::releaseInternalObjects() {
 
 void GrVkRenderTarget::onRelease() {
     this->releaseInternalObjects();
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     GrRenderTarget::onRelease();
 }
 
 void GrVkRenderTarget::onAbandon() {
     this->releaseInternalObjects();
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     GrRenderTarget::onAbandon();
 }
 

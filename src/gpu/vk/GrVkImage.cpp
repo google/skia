@@ -300,29 +300,7 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
                                      fInitialQueueFamily);
 }
 
-void GrVkImage::releaseImage(GrVkGpu* gpu) {
-    uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
-    uint32_t initialQueueIndex = fInitialQueueFamily;
-    if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
-        // Since we are going to compare the current and initial queue indices we need to make sure
-        // we're comparing consistent values if we have an ignored index.
-        if (currentQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
-            currentQueueIndex = gpu->queueIndex();
-        }
-        if (initialQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
-            initialQueueIndex = gpu->queueIndex();
-        }
-    }
-    if (!gpu->isDeviceLost() && currentQueueIndex != initialQueueIndex) {
-        // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image
-        // memory barrier says the dstStageMask must not be zero. However, in the spec when it talks
-        // about family queue transfers it says the dstStageMask is ignored and should be set to
-        // zero. Assuming it really is ignored we set it to VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT here
-        // since it makes the Vulkan validation layers happy.
-        this->setImageLayoutAndQueueIndex(gpu, this->currentLayout(), 0,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, false,
-                                          initialQueueIndex);
-    }
+void GrVkImage::releaseImage() {
     if (fResource) {
         fResource->removeOwningTexture();
         fResource->unref();

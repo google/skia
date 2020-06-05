@@ -160,7 +160,7 @@ public:
 #endif
 
 protected:
-    void releaseImage(GrVkGpu* gpu);
+    void releaseImage();
     bool hasResource() const { return fResource; }
 
     GrVkImageInfo                    fInfo;
