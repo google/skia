@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5810629d_c7d59a66",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-05T19:26:03Z",
+      "side": 1,
+      "message": "I\u0027m not sure empty is infinite.",
+      "range": {
+        "startLine": 100,
+        "startChar": 70,
+        "endLine": 100,
+        "endChar": 78
+      },
+      "revId": "e138d09e7cf1b51946aeceba07e58b2cf27068ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
