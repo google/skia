@@ -839,9 +839,14 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
         SkRegion boundsRgn(bounds);
         SkPath path;
 
+        bool skip = false;
         switch (element->getDeviceSpaceType()) {
             case SkClipStack::Element::DeviceSpaceType::kEmpty:
                 elemRegion.setEmpty();
+                break;
+            case SkClipStack::Element::DeviceSpaceType::kShader:
+                // Shaders aren't geometric, so don't include in the region.
+                skip = true;
                 break;
             default:
                 element->asDeviceSpacePath(&path);
@@ -849,7 +854,23 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
                 break;
         }
 
-        region->op(elemRegion, (SkRegion::Op)element->getOp());
+        if (!skip) {
+            region->op(elemRegion, (SkRegion::Op)element->getOp());
+        }
+
+        if (debug) {
+            SkIRect eBounds = element->getBounds().roundOut();
+            SkIRect rBounds = elemRegion.getBounds();
+            SkDebugf("op: %d, type: %d, bounds: [%d %d %d %d], region: [%d %d %d %d]\n",
+                (int) element->getOp(), (int) element->getDeviceSpaceType(),
+                eBounds.fLeft, eBounds.fTop, eBounds.fRight, eBounds.fBottom,
+                rBounds.fLeft, rBounds.fTop, rBounds.fRight, rBounds.fBottom);
+
+            rBounds = region->getBounds();
+            SkDebugf("starting bounds: [%d %d %d %d], region: [%d %d %d %d]\n",
+                bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
+                rBounds.fLeft, rBounds.fTop, rBounds.fRight, rBounds.fBottom);
+        }
     }
 }
 
@@ -1011,6 +1032,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter, bool enableCli
     for (int i = 0; i < kNumTests; ++i) {
         SkString testCase;
         testCase.printf("Iteration %d", i);
+        SkDebugf("starting %d\n", i);
 
         // Randomly generate a clip stack.
         SkClipStack stack;
@@ -1118,6 +1140,17 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter, bool enableCli
         SkRegion reducedRegion;
         set_region_to_stack(reducedStack, scissor, &reducedRegion);
 
+
+        if (region != reducedRegion) {
+            SkDebugf("original stack\n");
+            SkRegion r1;
+            set_region_to_stack(stack, scissor, &r1, true);
+            SkDebugf("\nreduced stack\n");
+            SkRegion r2;
+            set_region_to_stack(reducedStack, scissor, &r2, true);
+            break;
+        }
+
         REPORTER_ASSERT(reporter, region == reducedRegion, testCase.c_str());
 
         reduced->~GrReducedClip();
@@ -1219,8 +1252,8 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             // Other tests:
             { XYWH(0, 0, 100, 100), 4, genIDD, GrReducedClip::InitialState::kAllOut, stackBounds },
 
-            // Rect in the middle, touches none (so should not be drawn)
-            { XYWH(26, 26, 24, 24), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllOut, SkIRect::MakeEmpty() },
+            // Rect in the middle, touches none.
+            { XYWH(26, 26, 24, 24), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllOut, IXYWH(26, 26, 24, 24) },
 
             // Rect in the middle, touches all the rects. GenID is the last rect.
             { XYWH(24, 24, 27, 27), 4, genIDD, GrReducedClip::InitialState::kAllOut, IXYWH(24, 24, 27, 27) },
@@ -1242,14 +1275,10 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             }
             REPORTER_ASSERT(reporter, reduced.initialState() == testCases[i].initialState);
             SkASSERT(reduced.initialState() == testCases[i].initialState);
-
-            bool expectsScissor = !testCases[i].clipIRect.isEmpty();
-            REPORTER_ASSERT(reporter, expectsScissor == reduced.hasScissor());
-            SkASSERT(expectsScissor == reduced.hasScissor());
-            if (expectsScissor) {
-                REPORTER_ASSERT(reporter, reduced.scissor() == testCases[i].clipIRect);
-                SkASSERT(reduced.scissor() == testCases[i].clipIRect);
-            }
+            REPORTER_ASSERT(reporter, reduced.hasScissor());
+            SkASSERT(reduced.hasScissor());
+            REPORTER_ASSERT(reporter, reduced.scissor() == testCases[i].clipIRect);
+            SkASSERT(reduced.scissor() == testCases[i].clipIRect);
         }
     }
 }
