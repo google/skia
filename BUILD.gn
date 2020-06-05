@@ -2107,8 +2107,8 @@ if (skia_enable_tools) {
       is_shared_library = true
 
       sources = [
-        "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
         "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "third_party/aosp/JavaInputStreamAdaptor.cpp",
       ]
       libs = []
 
