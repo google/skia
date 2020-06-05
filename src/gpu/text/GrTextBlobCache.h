@@ -28,8 +28,7 @@ public:
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkMatrix& viewMatrix,
-                                     GrColor color);
+                                     const SkMatrix& viewMatrix);
 
     sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const;
 
