@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "01fb4957_f6a42ba1",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T14:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b299bc3_8e33be1e",
+      "range": {
+        "startLine": 539,
+        "startChar": 47,
+        "endLine": 539,
+        "endChar": 72
+      },
+      "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87d8576b_87196b67",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b6a4704_62603a29",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T14:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87d8576b_87196b67",
+      "range": {
+        "startLine": 585,
+        "startChar": 54,
+        "endLine": 585,
+        "endChar": 73
+      },
+      "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b36d6b3b_850dee1b",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T14:26:17Z",
+      "side": 1,
+      "message": "At first I wasn\u0027t going to update the compressed comments since they in general go down different code paths that have been updated to the new system. But looking more at the code the actual final upload step in Vulkan does share the same as the non-compressed path so it isn\u0027t doing a submit anymore with this change.\n\nI don\u0027t think adding this requirement here now hurts any other backend and it is where we will want clients to land anyways in the future. So yeah updating the contract now seems fine.",
+      "parentUuid": "1e4e15b6_8b827357",
+      "range": {
+        "startLine": 617,
+        "startChar": 42,
+        "endLine": 617,
+        "endChar": 72
+      },
+      "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb7ab165_08e25863",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba84727a_0a4a0bba",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-05T14:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb7ab165_08e25863",
+      "range": {
+        "startLine": 642,
+        "startChar": 54,
+        "endLine": 642,
+        "endChar": 72
+      },
+      "revId": "43b3e27c08bd17e115c32b96f3c41b052706a112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
