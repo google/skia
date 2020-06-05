@@ -115,6 +115,13 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         // Now that we have determined the bounds to use and filtered out the trivial cases, call
         // the helper that actually walks the stack.
         this->walkStack(stack, tighterQuery);
+
+        if (fInitialState == InitialState::kAllOut && fMaskElements.isEmpty()) {
+            // The clip starts with no coverage and there are no elements to add coverage with
+            // expanding ops. We ignore the AAClipRectGenID since it is an implied intersection.
+            this->makeEmpty();
+            return;
+        }
     }
 
     if (SK_InvalidGenID != fAAClipRectGenID && // Is there an AA clip rect?

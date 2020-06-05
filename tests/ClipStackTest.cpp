@@ -924,6 +924,13 @@ static void add_oval(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* 
     stack->clipPath(path, SkMatrix::I(), op, doAA);
 };
 
+static void add_noop(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
+                     bool doAA) {
+    // FIXME (michaelludwig) - this will be replaced with add_shader, but this lets us tickle a
+    // bug in GrReducedClip due to the particular set of random clips the test generated, which
+    // requires an additional clip element type.
+};
+
 static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* stack) {
     switch (element.getDeviceSpaceType()) {
         case SkClipStack::Element::DeviceSpaceType::kRect:
@@ -986,6 +993,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         add_rect,
         add_round_rect,
         add_oval,
+        add_noop,
     };
 
     SkRandom r;
@@ -1192,8 +1200,8 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             // Other tests:
             { XYWH(0, 0, 100, 100), 4, genIDD, GrReducedClip::InitialState::kAllOut, stackBounds },
 
-            // Rect in the middle, touches none.
-            { XYWH(26, 26, 24, 24), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllOut, IXYWH(26, 26, 24, 24) },
+            // Rect in the middle, touches none (so should not be drawn)
+            { XYWH(26, 26, 24, 24), 0, SkClipStack::kInvalidGenID, GrReducedClip::InitialState::kAllOut, SkIRect::MakeEmpty() },
 
             // Rect in the middle, touches all the rects. GenID is the last rect.
             { XYWH(24, 24, 27, 27), 4, genIDD, GrReducedClip::InitialState::kAllOut, IXYWH(24, 24, 27, 27) },
@@ -1208,17 +1216,16 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             const GrReducedClip reduced(stack, testCases[i].testBounds, caps);
             REPORTER_ASSERT(reporter, reduced.maskElements().count() ==
                             testCases[i].reducedClipCount);
-            SkASSERT(reduced.maskElements().count() == testCases[i].reducedClipCount);
             if (reduced.maskElements().count()) {
                 REPORTER_ASSERT(reporter, reduced.maskGenID() == testCases[i].reducedGenID);
-                SkASSERT(reduced.maskGenID() == testCases[i].reducedGenID);
             }
             REPORTER_ASSERT(reporter, reduced.initialState() == testCases[i].initialState);
-            SkASSERT(reduced.initialState() == testCases[i].initialState);
-            REPORTER_ASSERT(reporter, reduced.hasScissor());
-            SkASSERT(reduced.hasScissor());
-            REPORTER_ASSERT(reporter, reduced.scissor() == testCases[i].clipIRect);
-            SkASSERT(reduced.scissor() == testCases[i].clipIRect);
+
+            bool expectsScissor = !testCases[i].clipIRect.isEmpty();
+            REPORTER_ASSERT(reporter, expectsScissor == reduced.hasScissor());
+            if (expectsScissor) {
+                REPORTER_ASSERT(reporter, reduced.scissor() == testCases[i].clipIRect);
+            }
         }
     }
 }
