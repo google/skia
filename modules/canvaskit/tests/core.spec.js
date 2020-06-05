@@ -279,7 +279,7 @@ describe('Core canvas behavior', () => {
     // TODO(kjlubick): There's a lot of shared code between the gradient gms
     // It would be best to deduplicate that in a nice DAMP way.
     // Inspired by https://fiddle.skia.org/c/b29ce50a341510784ac7d5281586d076
-    gm('linear_gradients', (canvas) => {
+    pause_gm('linear_gradients', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
         const strokePaint = new CanvasKit.SkPaint();
@@ -290,20 +290,23 @@ describe('Core canvas behavior', () => {
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         const transparentGreen = CanvasKit.Color(0, 255, 255, 0);
 
-        const lgs = CanvasKit.SkShader.MakeLinearGradient(
-            [0, 0], [50, 100], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
-            [0, 0.65, 1.0],
-            CanvasKit.TileMode.Mirror
-        );
-        paint.setShader(lgs);
-        let r = CanvasKit.LTRBRect(0, 0, 100, 100);
-        canvas.drawRect(r, paint);
-        canvas.drawRect(r, strokePaint);
+        // const lgs = CanvasKit.SkShader.MakeLinearGradient(
+        //     [0, 0], [50, 100], // start and stop points
+        //     [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+        //     [0, 0.65, 1.0],
+        //     CanvasKit.TileMode.Mirror
+        // );
+        // paint.setShader(lgs);
+        // let r = CanvasKit.LTRBRect(0, 0, 100, 100);
+        // canvas.drawRect(r, paint);
+        // canvas.drawRect(r, strokePaint);
 
         const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 0], [150, 100], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            Uint32Array.of(
+                CanvasKit.ColorAsInt(0, 255, 255, 0),
+                CanvasKit.ColorAsInt(0, 0, 255, 255),
+                CanvasKit.ColorAsInt(255, 0, 0, 255)),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -314,21 +317,28 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
-            [0, 100], [50, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
-            [0, 0.65, 1.0],
-            CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
-        );
-        paint.setShader(lgs45);
-        r = CanvasKit.LTRBRect(0, 100, 100, 200);
-        canvas.drawRect(r, paint);
-        canvas.drawRect(r, strokePaint);
+        // const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
+        //     [0, 100], [50, 200], // start and stop points
+        //     Float32Array.of(...transparentGreen, ...CanvasKit.BLUE, ...CanvasKit.RED),
+        //     [0, 0.65, 1.0],
+        //     CanvasKit.TileMode.Mirror,
+        //     CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
+        // );
+        // paint.setShader(lgs45);
+        // r = CanvasKit.LTRBRect(0, 100, 100, 200);
+        // canvas.drawRect(r, paint);
+        // canvas.drawRect(r, strokePaint);
+
+        // malloc'd color array
+        const colors = CanvasKit.Malloc(Float32Array, 12);
+        const typedColorsArray = colors.toTypedArray();
+        typedColorsArray.set(transparentGreen, 0);
+        typedColorsArray.set(CanvasKit.BLUE, 4);
+        typedColorsArray.set(CanvasKit.RED, 8);
 
         const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 100], [150, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            typedColorsArray,
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
@@ -339,12 +349,15 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        lgs.delete();
-        lgs45.delete();
-        lgsPremul.delete();
-        lgs45Premul.delete();
-        strokePaint.delete();
-        paint.delete();
+        // lgs.delete();
+        // lgs45.delete();
+        // lgsPremul.delete();
+        // lgs45Premul.delete();
+        // strokePaint.delete();
+        // paint.delete();
+
+        CanvasKit.Free(colors);
+colors
     });
 
     gm('radial_gradients', (canvas) => {

@@ -1192,15 +1192,15 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, "HEAPF32");
-    var posPtr =   copy1dArray(pos,    "HEAPF32");
+    cPtrInfo = copyFlexibleColorArray(colors);
+    var posPtr =   copy1dArray(pos, "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrixPtr, colorSpace);
+    var lgs = CanvasKit._MakeLinearGradientShader(start, end, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                  cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(colorPtr);
+    CanvasKit._free(cPtrInfo.colorPtr);// Should we always free this?
     freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return lgs;
   }
@@ -1402,6 +1402,7 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
   }
   if (builder.colors()) {
     // Convert from canvaskit 4f colors to 32 bit uint colors which builder supports.
+    // TODO(nifong): this is untested and broken if you give float colors to the builder, it doesn't accept them.
     copy1dArray(colors.map(toUint32Color), "HEAPU32", builder.colors());
   }
   if (builder.indices()) {
