@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac9fec49_1824447c",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-06T03:33:27Z",
+      "side": 1,
+      "message": "I am not proud of this, but for a temporary hack I think it will work and cut out a round trip of build edits. The issue is that Chromium and Pdfium (which should be the only ones left building this file that we need to update in step) will exclude this file from skia_utils_sources on ios because of [0] and this file has \u0027mac/\u0027 in the pathname. We currently force things back in with set_sources_assignment_filter([]) and maybe skia_utils_sources should be broken up into skia_utils_sources, skia_utils_sources_mac, skia_utils_sources_win, etc so that we can just disable the sources assignment filter for the whole thing without needing to subtract anything (and thereby mentioning it).\n\n[0] https://source.chromium.org/chromium/chromium/src/+/master:build/config/BUILDCONFIG.gn;l\u003d334;drc\u003daf001fe4b6649ebeab4a2295e5e584041589ca64",
+      "revId": "aece05d430c6a434f945601776f1ff0ae458eb83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
