@@ -20,18 +20,18 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	github.com/stretchr/testify v1.6.0
+	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200605045204-39c0f2d93834 // indirect
-	go.skia.org/infra v0.0.0-20200604211856-3c19627e244c
-	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
+	go.chromium.org/luci v0.0.0-20200605231454-b70b93d4ae6d // indirect
+	go.skia.org/infra v0.0.0-20200605163027-b867fb6b6232
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200604183345-4d5ea46c79fe // indirect
+	golang.org/x/tools v0.0.0-20200606014950-c42cb6316fb6 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.26.0
-	google.golang.org/genproto v0.0.0-20200604104852-0b0486081ffb // indirect
+	google.golang.org/genproto v0.0.0-20200605102947-12044bf5ea91 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
