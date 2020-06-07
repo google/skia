@@ -19,10 +19,11 @@ require (
 	github.com/luci/gtreap v0.0.0-20161228054646-35df89791e8f // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/common v0.10.0 // indirect
+	github.com/prometheus/procfs v0.1.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200605231454-b70b93d4ae6d // indirect
+	go.chromium.org/luci v0.0.0-20200606210838-0cf95fe43711 // indirect
 	go.skia.org/infra v0.0.0-20200605163027-b867fb6b6232
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
