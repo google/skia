@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7386c4f8_e2bdbca4",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-07T19:04:35Z",
+      "side": 1,
+      "message": "is this pattern used elsewhere? (i.e. in any raster blitter setup? Is it something we can consolidate/share?",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
