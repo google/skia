@@ -1,0 +1,53 @@
+/*
+ * Copyright 2020 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "experimental/skrive/src/reader/StreamReader.h"
+#include "tests/Test.h"
+
+using namespace skrive::internal;
+
+DEF_TEST(SkRive_JsonReader, reporter) {
+    static constexpr char json[] = R"({
+                                         "version": 24,
+                                         "artboards": [
+                                           {
+                                             "name": "artboard 1",
+                                             "type": "artboard"
+                                           },
+                                           {
+                                             "name": "artboard 2",
+                                             "type": "artboard"
+                                           }
+                                         ]
+                                     })";
+
+    auto sr = StreamReader::Make(json, strlen(json));
+
+    REPORTER_ASSERT(reporter, sr);
+    {
+        StreamReader::AutoOpenBlock aob(sr);
+        REPORTER_ASSERT(reporter, aob.type() == StreamReader::BlockType::kArtboards);
+
+        {
+            StreamReader::AutoOpenBlock aob(sr);
+            REPORTER_ASSERT(reporter, aob.type() == StreamReader::BlockType::kActorArtboard);
+        }
+        {
+            StreamReader::AutoOpenBlock aob(sr);
+            REPORTER_ASSERT(reporter, aob.type() == StreamReader::BlockType::kActorArtboard);
+        }
+        {
+            StreamReader::AutoOpenBlock aob(sr);
+            REPORTER_ASSERT(reporter, aob.type() == StreamReader::BlockType::kEoB);
+        }
+    }
+    {
+        StreamReader::AutoOpenBlock aob(sr);
+        SkDebugf("%d\n", aob.type());
+        REPORTER_ASSERT(reporter, aob.type() == StreamReader::BlockType::kEoB);
+    }
+}
