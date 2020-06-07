@@ -22,6 +22,30 @@
       "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42265c5d_b0fddba0",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-07T20:33:51Z",
+      "side": 1,
+      "message": "This is the right order of steps, but there\u0027s no way to merge it any code like SkRasterPipelineBlitter I can remember.  That\u0027s got to handle way more between.\n\nI bet using terser identifiers could help make it read as simple as it is:\n\n    SkColor4f c \u003d paint.getColor4f();\n    if (auto* xform \u003d info.colorSpaceXformFromSRGB()) {\n        c \u003d xform-\u003eapply(c);\n    }\n    if (auto* cf \u003d paint.getColorFilter()) {\n        c \u003d cf-\u003efilterColor4f(c, info.colorSpace()\n                               , info.colorSpace());\n    }\n    return c.premul();\n\nDo we SkASSERT(!paint.getShader()) somewhere?",
+      "parentUuid": "7386c4f8_e2bdbca4",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
