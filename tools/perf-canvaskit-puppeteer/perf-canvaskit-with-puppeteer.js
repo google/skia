@@ -33,6 +33,11 @@ const opts = [
     description: 'The Lottie JSON file to process.'
   },
   {
+    name: 'input_skp',
+    typeLabel: '{underline file}',
+    description: 'The SKP file to process.'
+  },
+  {
     name: 'assets',
     typeLabel: '{underline file}',
     description: 'A directory containing any assets needed by the lottie file (e.g. images/fonts).'
@@ -136,6 +141,12 @@ app.get('/static/canvaskit.wasm', function(req, res) {
 if (options.input_lottie) {
   const lottieJSON = fs.readFileSync(options.input_lottie, 'utf8');
   app.get('/static/lottie.json', (req, res) => res.send(lottieJSON));
+}
+if (options.input_skp) {
+  const skpBytes = fs.readFileSync(options.input_skp, 'binary');
+  app.get('/static/test.skp', (req, res) => {
+    res.send(new Buffer(skpBytes, 'binary'));
+  });
 }
 if (options.assets) {
   app.use('/static/assets/', express.static(options.assets));
