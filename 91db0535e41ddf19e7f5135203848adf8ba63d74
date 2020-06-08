@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8094dc25_8cb13a0d",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-08T17:43:15Z",
+      "side": 1,
+      "message": "On my first read through my thought was \"huh, those seem preeeeeetty complex,\" getting confused by why some things were disabled in the header and some in the .cpp.  I certainly wouldn\u0027t mind if everything were unconditionally declared and SK_DISABLE_READBUFFER_COMPLEX_TYPES were only checked in the .cpp.\n\nBut this is starting to remind me why we did things this way.  IIRC the reason I had it all no-op\u0027d out in the header was WASM/Flutter code size, letting users of SkReadBuffer see all the inevitable failures and nullptrs... so maybe worth comparing probably 4-5 things for size?\n   1) head\n   2) head with SK_DISABLE_READBUFFER\n   3) this CL\n   4) this CL, everything checked in .cpp\n   5) this CL, everything checked in header\n\nObviously we\u0027re gonna go with some form of this CL, because we need SkReadBuffer, but it\u0027d be interesting to know all data points again.  Could be we even find that we might as well just drop the #define altogether if we\u0027re enabling enough here that the rest comes cheap.  (There\u0027s still SK_DISABLE_EFFECT_DESERIALIZATION guarding all the effects.)",
+      "range": {
+        "startLine": 137,
+        "startChar": 1,
+        "endLine": 138,
+        "endChar": 37
+      },
+      "revId": "91db0535e41ddf19e7f5135203848adf8ba63d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
