@@ -1,0 +1,216 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7554d80_f5c09ce0",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "Do we need this here ?",
+      "range": {
+        "startLine": 56,
+        "startChar": 45,
+        "endLine": 56,
+        "endChar": 72
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46ad8f68_9cebf614",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "Can these return values be const ?",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f4299fe_a408b290",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "I guess, for now, just use the old syntax for this. These things are widely reviled and are probably going away.",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 35
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06381df2_f0200076",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd2f7fc6_31d3131e",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34edaf58_d44405e0",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a9348f3_d498381b",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "update ?",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 80
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3be7a712_386440a4",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 13,
+        "endLine": 48,
+        "endChar": 15
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08aab739_af28d794",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "// This method \"disowns\" all the GrSurfaceProxies this RenderTask modifies. In\n// practice this just means telling the drawingManager to forget the relevant\n// mappings from surface proxy to last modifying rendertask.\n\n?",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8232c496_2b21c801",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-08T15:23:03Z",
+      "side": 1,
+      "message": "Just delete ?",
+      "range": {
+        "startLine": 19,
+        "startChar": 8,
+        "endLine": 19,
+        "endChar": 69
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
