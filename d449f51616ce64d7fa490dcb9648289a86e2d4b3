@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fae28475_c052e273",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T22:32:42Z",
+      "side": 1,
+      "message": "Marking fHeightMultiplier const has made Run non-assignable so we should \u0027operator\u003d() \u003d delete\u0027 to document that. (That\u0027s probably what the warning said, that \u0027\u003d default\u0027 was the same as \u0027\u003d delete\u0027 in that case (so use \u0027\u003d delete\u0027).",
+      "revId": "d449f51616ce64d7fa490dcb9648289a86e2d4b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
