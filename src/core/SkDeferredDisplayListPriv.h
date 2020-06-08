@@ -22,6 +22,10 @@ public:
         return fDDL->fRenderTasks.count();
     }
 
+    GrRenderTargetProxy* targetProxy() const {
+        return fDDL->fTargetProxy.get();
+    }
+
     const SkDeferredDisplayList::LazyProxyData* lazyProxyData() const {
         return fDDL->fLazyProxyData.get();
     }
