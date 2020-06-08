@@ -2842,6 +2842,60 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView45 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph45"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+      // This test crashed when resources/fonts directory had only 5 fonts listed below
+      std::string fonts = GetResourcePath("fonts/").c_str();
+      std::set<std::pair<std::string, std::string>> font_paths = {
+          {"Roboto", "Roboto-Regular.ttf"},
+          {"Roboto", "Roboto-Bold.ttf"},
+          {"Noto","NotoSansCJK-Regular.ttc"},
+          {"Noto", "NotoSansCJK-Bold.ttc"},
+          {"Emoji","NotoColorEmoji.ttf"}};
+
+      sk_sp<TypefaceFontProvider> font_provider = sk_make_sp<TypefaceFontProvider>();
+
+      for (auto& pair : font_paths) {
+        SkString family_name = SkString(pair.first.c_str());
+        std::string path = fonts;
+        path += pair.second;
+
+        auto data = SkData::MakeFromFileName(path.c_str());
+        font_provider->registerTypeface(SkTypeface::MakeFromData(std::move(data)), family_name);
+      }
+
+      sk_sp<FontCollection> font_collection = sk_make_sp<FontCollection>();
+      font_collection->setAssetFontManager(std::move(font_provider));
+      font_collection->getParagraphCache()->turnOn(false);
+
+        const std::u16string text = u"❤️🕵🏾‍♀️ 🕵🏾 👩🏾‍⚕️ 👨🏾‍⚕️ 👩🏾‍🌾 👨🏾‍🌾 👩🏾‍🍳 👨🏾‍🍳 👩🏾‍🎓 👨🏾‍🎓 👩🏾‍🎤 👨🏾‍🎤 👩🏾‍🏫 👨🏾‍🏫 👩🏾‍🏭 👨🏾‍🏭 👩🏾‍💻 👨🏾‍💻 👩🏾‍💼 👨🏾‍💼 👩🏾‍🔧 👨🏾‍🔧 👩🏾‍🔬 👨🏾‍🔬 👩🏾‍🎨 👨🏾‍🎨 👩🏾‍🚒 👨🏾‍🚒 👩🏾‍✈️ 👨🏾‍✈️ 👩🏾‍🚀 👨🏾‍🚀 👩🏾‍⚖️ 👨🏾‍⚖️ 🤶🏾 🎅🏾";
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(1);
+        paragraph_style.setHeight(0);
+        paragraph_style.setEllipsis(u"\u2026");
+        ParagraphBuilderImpl builder(paragraph_style, font_collection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto"), SkString("Emoji")});
+        text_style.setFontSize(20);
+        text_style.setFontStyle(SkFontStyle::Bold());
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2887,3 +2941,4 @@ DEF_SAMPLE(return new ParagraphView41();)
 DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
+DEF_SAMPLE(return new ParagraphView45();)
