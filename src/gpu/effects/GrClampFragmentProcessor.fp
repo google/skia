@@ -15,7 +15,7 @@ layout(key) in bool clampToPremul;
 }
 
 void main() {
-    half4 inputColor = (inputFP != null) ? sample(inputFP, sk_InColor) : sk_InColor;
+    half4 inputColor = sample(inputFP, sk_InColor);
     @if (clampToPremul) {
         half alpha = saturate(inputColor.a);
         sk_OutColor = half4(clamp(inputColor.rgb, 0, alpha), alpha);

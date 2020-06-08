@@ -28,7 +28,7 @@
 in fragmentProcessor? inputFP;
 
 void main() {
-    half4 c = (inputFP != null) ? sample(inputFP, sk_InColor) : sk_InColor;
+    half4 c = sample(inputFP, sk_InColor);
     half4 p = (c.g < c.b) ? half4(c.bg, -1,  2/3.0)
                           : half4(c.gb,  0, -1/3.0);
     half4 q = (c.r < p.x) ? half4(p.x, c.r, p.yw)
