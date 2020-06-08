@@ -624,7 +624,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     bool found;
     ClusterIndex startIndex;
     ClusterIndex endIndex;
-    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange, limitToClusters);
+    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
     if (!found) {
         SkASSERT(textRange.empty() || limitToClusters);
         return result;
