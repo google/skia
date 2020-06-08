@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0bfc4a5f_1f800f26",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-08T13:30:48Z",
+      "side": 1,
+      "message": "Not sure :) it was the original variable name from the header. I renamed it to \u0027other\u0027",
+      "parentUuid": "5033efe2_6fd4759b",
+      "range": {
+        "startLine": 47,
+        "startChar": 15,
+        "endLine": 47,
+        "endChar": 17
+      },
+      "revId": "ada18e6cbdfb059d4b78cb6e2dc7ccc7e7dfa848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acfce77d_97bc1e0b",
         "filename": "src/gpu/ops/GrClearOp.h",
         "patchSetId": 9
@@ -39,6 +63,24 @@
       "revId": "ada18e6cbdfb059d4b78cb6e2dc7ccc7e7dfa848",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c402a08_d3ee642d",
+        "filename": "src/gpu/ops/GrClearOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-08T13:30:48Z",
+      "side": 1,
+      "message": "Not really, I switched to using a bit mask.",
+      "parentUuid": "acfce77d_97bc1e0b",
+      "revId": "ada18e6cbdfb059d4b78cb6e2dc7ccc7e7dfa848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
