@@ -106,9 +106,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    // For this to be deleted the opsTask that held a ref on it (if there was one) must have been
-    // deleted. Which would have cleared out this back pointer.
-    SkASSERT(!fLastRenderTask);
 }
 
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
@@ -217,21 +214,6 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) co
 
     GrTexturePriv::ComputeScratchKey(caps, this->backendFormat(), this->backingStoreDimensions(),
                                      renderable, sampleCount, mipMapped, fIsProtected, key);
-}
-
-void GrSurfaceProxy::setLastRenderTask(GrRenderTask* renderTask) {
-#ifdef SK_DEBUG
-    if (fLastRenderTask) {
-        SkASSERT(fLastRenderTask->isClosed());
-    }
-#endif
-
-    // Un-reffed
-    fLastRenderTask = renderTask;
-}
-
-GrOpsTask* GrSurfaceProxy::getLastOpsTask() {
-    return fLastRenderTask ? fLastRenderTask->asOpsTask() : nullptr;
 }
 
 SkISize GrSurfaceProxy::backingStoreDimensions() const {

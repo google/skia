@@ -373,10 +373,10 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
                            std::move(colorSpace))
         , fWriteView(std::move(writeView))
-        , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask)
         , fGlyphPainter(*this) {
+    fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
     if (fOpsTask) {
         fOpsTask->addClosedObserver(this);
     }
@@ -390,7 +390,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
 #ifdef SK_DEBUG
 void GrRenderTargetContext::onValidate() const {
     if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(fWriteView.proxy()->getLastRenderTask() == fOpsTask.get());
+        SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask.get());
     }
 }
 #endif
@@ -2459,8 +2459,9 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 }
 
 void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
-    this->getOpsTask()->addOp(
-            std::move(op), GrTextureResolveManager(this->drawingManager()), *this->caps());
+    GrDrawingManager* drawingMgr = this->drawingManager();
+    this->getOpsTask()->addOp(drawingMgr,
+            std::move(op), GrTextureResolveManager(drawingMgr), *this->caps());
 }
 
 void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op,
@@ -2532,8 +2533,8 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
-    opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxyView,
-                       GrTextureResolveManager(this->drawingManager()), *this->caps());
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), analysis, std::move(appliedClip),
+                       dstProxyView,GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxyView(const GrClip* clip, const GrOp& op,

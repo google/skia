@@ -12,14 +12,16 @@
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:
-    static sk_sp<GrRenderTask> Make(GrSurfaceProxyView srcView,
+    static sk_sp<GrRenderTask> Make(GrDrawingManager*,
+                                    GrSurfaceProxyView srcView,
                                     const SkIRect& srcRect,
                                     GrSurfaceProxyView dstView,
                                     const SkIPoint& dstPoint,
                                     const GrCaps*);
 
 private:
-    GrCopyRenderTask(GrSurfaceProxyView srcView,
+    GrCopyRenderTask(GrDrawingManager*,
+                     GrSurfaceProxyView srcView,
                      const SkIRect& srcRect,
                      GrSurfaceProxyView dstView,
                      const SkIPoint& dstPoint);

@@ -11,6 +11,7 @@
 #include <set>
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTHash.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrPathRenderer.h"
@@ -111,6 +112,10 @@ public:
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
+    GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;
+    GrOpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
+    void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
+
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
     void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
@@ -130,7 +135,7 @@ private:
         void closeAll(const GrCaps* caps);
 
         // A yucky combination of closeAll and reset
-        void cleanup(const GrCaps* caps);
+        void cleanup(GrDrawingManager*, const GrCaps* caps);
 
         void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
 
@@ -185,6 +190,8 @@ private:
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
                             int* numRenderTasksExecuted);
 
+    void removeRenderTasks(int startIndex, int stopIndex);
+
     bool flush(GrSurfaceProxy* proxies[],
                int numProxies,
                SkSurface::BackendSurfaceAccess access,
@@ -238,6 +245,9 @@ private:
     // DDL replaying.
     // Note: we do not expect a whole lot of these per flush
     std::set<GrSurfaceProxy*> fDDLTargets;
+
+    // Keys are UniqueID of GrSurfaceProxys.
+    SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
 };
 
 #endif

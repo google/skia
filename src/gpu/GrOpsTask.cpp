@@ -357,14 +357,14 @@ inline void GrOpsTask::OpChain::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrOpsTask::GrOpsTask(GrRecordingContext::Arenas arenas,
+GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas arenas,
                      GrSurfaceProxyView view,
                      GrAuditTrail* auditTrail)
         : GrRenderTask(std::move(view))
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
-    fTargetView.proxy()->setLastRenderTask(this);
+    drawingMgr->setLastRenderTask(fTargetView.proxy(), this);
 }
 
 void GrOpsTask::deleteOps() {
@@ -388,20 +388,22 @@ void GrOpsTask::removeClosedObserver(GrOpsTaskClosedObserver* observer) {
     }
 }
 
-void GrOpsTask::endFlush() {
+void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
     fClipAllocator.reset();
 
     GrSurfaceProxy* proxy = fTargetView.proxy();
-    if (proxy && this == proxy->getLastRenderTask()) {
-        proxy->setLastRenderTask(nullptr);
+    if (proxy && this == drawingMgr->getLastRenderTask(proxy)) {
+        drawingMgr->setLastRenderTask(proxy, nullptr);
     }
 
     fTargetView.reset();
     fDeferredProxies.reset();
     fSampledProxies.reset();
     fAuditTrail = nullptr;
+
+    GrRenderTask::endFlush(drawingMgr);
 }
 
 void GrOpsTask::onPrePrepare(GrRecordingContext* context) {

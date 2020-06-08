@@ -51,7 +51,7 @@ private:
 public:
     // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(GrDrawingManager*, GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -68,7 +68,7 @@ public:
     /**
      * Empties the draw buffer of any queued up draws.
      */
-    void endFlush() override;
+    void endFlush(GrDrawingManager*) override;
 
     void onPrePrepare(GrRecordingContext*) override;
     /**
@@ -88,11 +88,11 @@ public:
         fSampledProxies.push_back(proxy);
     }
 
-    void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
-               const GrCaps& caps) {
-        auto addDependency = [ textureResolveManager, &caps, this ] (
+    void addOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrOp> op,
+               GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+        auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
                 GrSurfaceProxy* p, GrMipMapped mipmapped) {
-            this->addDependency(p, mipmapped, textureResolveManager, caps);
+            this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);
@@ -100,19 +100,20 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
-    void addWaitOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
-                   const GrCaps& caps) {
+    void addWaitOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrOp> op,
+                   GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         fHasWaitOp = true;
-        this->addOp(std::move(op), textureResolveManager, caps);
+        this->addOp(drawingMgr, std::move(op), textureResolveManager, caps);
     }
 
-    void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
+    void addDrawOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrDrawOp> op,
+                   const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
-        auto addDependency = [ textureResolveManager, &caps, this ] (
+        auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
                 GrSurfaceProxy* p, GrMipMapped mipmapped) {
             this->addSampledTexture(p);
-            this->addDependency(p, mipmapped, textureResolveManager, caps);
+            this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);

@@ -13,9 +13,11 @@
 class GrTextureResolveRenderTask final : public GrRenderTask {
 public:
     GrTextureResolveRenderTask() : GrRenderTask() {}
-    ~GrTextureResolveRenderTask() override;
 
-    void addProxy(sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags, const GrCaps&);
+    void disown(GrDrawingManager*) override;
+
+    void addProxy(GrDrawingManager*, sk_sp<GrSurfaceProxy> proxy,
+                  GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
