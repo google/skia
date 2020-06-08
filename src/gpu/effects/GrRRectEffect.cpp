@@ -679,7 +679,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType
     }
 
     if (rrect.isOval()) {
-        return GrOvalEffect::Make(edgeType, rrect.getBounds(), caps);
+        return GrOvalEffect::Make(/*inputFP=*/nullptr, edgeType, rrect.getBounds(), caps);
     }
 
     if (rrect.isSimple()) {
