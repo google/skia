@@ -380,7 +380,6 @@ optional("fontmgr_mac") {
 
   public = [ "include/ports/SkFontMgr_mac_ct.h" ]
   sources = [
-    #"src/ports/SkFontHost_mac.cpp",
     "src/ports/SkFontMgr_mac_ct.cpp",
     "src/ports/SkFontMgr_mac_ct_factory.cpp",
     "src/ports/SkScalerContext_mac_ct.cpp",
