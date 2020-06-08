@@ -589,6 +589,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel3":          {"blueline", "PQ1A.190105.004"},
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
 				"Pixel4":          {"flame", "QD1A.190821.011.C4"},
+				"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 			}[b.parts["model"]]
 			if !ok {
