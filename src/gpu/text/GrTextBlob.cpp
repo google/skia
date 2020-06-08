@@ -600,30 +600,31 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
     fMinMaxScale = std::min(scaledMax, fMinMaxScale);
 }
 
-bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosition,
-                                const SkMaskFilterBase::BlurRec& blurRec,
-                                const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+bool GrTextBlob::canReuse(const SkPaint& paint,
+                          const SkMaskFilterBase::BlurRec& blurRec,
+                          const SkMatrix& drawMatrix,
+                          SkPoint drawOrigin) {
     // If we have LCD text then our canonical color will be set to transparent, in this case we have
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects
     if (fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
         fInitialLuminance != SkPaintPriv::ComputeLuminanceColor(paint)) {
-        return true;
+        return false;
     }
 
     if (fInitialMatrix.hasPerspective() != drawMatrix.hasPerspective()) {
-        return true;
+        return false;
     }
 
     /** This could be relaxed for blobs with only distance field glyphs. */
     if (fInitialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix)) {
-        return true;
+        return false;
     }
 
     // We only cache one masked version
     if (fKey.fHasBlur &&
         (fBlurRec.fSigma != blurRec.fSigma || fBlurRec.fStyle != blurRec.fStyle)) {
-        return true;
+        return false;
     }
 
     // Similarly, we only cache one version for each style
@@ -631,15 +632,14 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
         (fStrokeInfo.fFrameWidth != paint.getStrokeWidth() ||
          fStrokeInfo.fMiterLimit != paint.getStrokeMiter() ||
          fStrokeInfo.fJoin != paint.getStrokeJoin())) {
-        return true;
+        return false;
     }
 
     // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
     // for mixed blobs if this becomes an issue.
     if (this->hasBitmap() && this->hasDistanceField()) {
         // Identical view matrices and we can reuse in all cases
-        return !(SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix) &&
-                 drawOrigin == fInitialOrigin);
+        return SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix) && drawOrigin == fInitialOrigin;
     }
 
     if (this->hasBitmap()) {
@@ -647,7 +647,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
             fInitialMatrix.getScaleY() != drawMatrix.getScaleY() ||
             fInitialMatrix.getSkewX() != drawMatrix.getSkewX() ||
             fInitialMatrix.getSkewY() != drawMatrix.getSkewY()) {
-            return true;
+            return false;
         }
 
         // TODO(herb): this is not needed for full pixel glyph choice, but is needed to adjust
@@ -669,7 +669,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
         SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
 
         if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
-            return true;
+            return false;
         }
     } else if (this->hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
@@ -678,14 +678,12 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
         SkScalar oldMaxScale = fInitialMatrix.getMaxScale();
         SkScalar scaleAdjust = newMaxScale / oldMaxScale;
         if (scaleAdjust < fMaxMinScale || scaleAdjust > fMinMaxScale) {
-            return true;
+            return false;
         }
     }
 
-    // It is possible that a blob has neither distanceField nor bitmaptext.  This is in the case
-    // when all of the runs inside the blob are drawn as paths.  In this case, we always regenerate
-    // the blob anyways at flush time, so no need to regenerate explicitly
-    return false;
+    // If the blob is all paths, there is no reason to regenerate.
+    return true;
 }
 
 void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,

@@ -115,8 +115,8 @@ public:
     void setHasBitmap();
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
 
-    bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
+                  const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
     void insertOpsIntoTarget(GrTextTarget* target,
                              const SkSurfaceProps& props,
