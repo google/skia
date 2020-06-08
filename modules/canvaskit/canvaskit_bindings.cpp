@@ -772,19 +772,33 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
+
+    // Here and in other gradient functions, cPtr is a pointer to an array of data representing colors.
+    // whether this is an array of SkColor or SkColor4f is indicated by the colorType
+    // argument. Only RGBA_8888 and RGBA_F32 are accepted.
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
-                                uintptr_t /* SkColor4f*  */ cPtr,
+                                uintptr_t cPtr, SkColorType colorType,
                                 uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags,
                                 uintptr_t /* SkScalar*  */ mPtr,
                                 sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
         OptionalMatrix localMatrix(mPtr);
-        return SkGradientShader::MakeLinear(points, colors, colorSpace, positions, count,
+
+        if (colorType == SkColorType::kRGBA_F32_SkColorType) {
+            const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+            return SkGradientShader::MakeLinear(points, colors, colorSpace, positions, count,
                                                 mode, flags, &localMatrix);
+        } else  if (colorType == SkColorType::kRGBA_8888_SkColorType) {
+            const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
+            return SkGradientShader::MakeLinear(points, colors, positions, count,
+                                                mode, flags, &localMatrix);
+        } else {
+            SkDebugf("%d is not an accepted colorType\n", colorType);
+            return nullptr;
+        }
     }), allow_raw_pointers());
 #ifdef SK_SERIALIZE_SKP
     function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
