@@ -55,7 +55,6 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
-#include "src/gpu/ops/GrClearStencilClipOp.h"
 #include "src/gpu/ops/GrDrawAtlasOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrDrawVerticesOp.h"
@@ -553,7 +552,7 @@ void GrRenderTargetContext::internalClear(const SkIRect* scissor,
                         GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                     SkRect::Make(scissorState.rect())));
     } else {
-        this->addOp(GrClearOp::Make(fContext, scissorState, color));
+        this->addOp(GrClearOp::MakeColor(fContext, scissorState, color));
     }
 }
 
@@ -959,7 +958,7 @@ void GrRenderTargetContext::internalStencilClear(const SkIRect* scissor, bool in
                         GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                     SkRect::Make(scissorState.rect()), ss));
     } else {
-        this->addOp(GrClearStencilClipOp::Make(fContext, scissorState, insideStencilMask));
+        this->addOp(GrClearOp::MakeStencilClip(fContext, scissorState, insideStencilMask));
     }
 }
 
