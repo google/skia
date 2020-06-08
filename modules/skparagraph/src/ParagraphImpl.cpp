@@ -179,6 +179,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kMarked) {
         this->fClusters.reset();
         this->resetShifts();
+        this->fClustersIndexFromCodeUnit.reset();
+        this->fClustersIndexFromCodeUnit.push_back_n(fText.size() + 1, EMPTY_INDEX);
         this->buildClusterTable();
         fState = kClusterized;
         this->spaceGlyphs();
@@ -508,6 +510,10 @@ void ParagraphImpl::buildClusterTable() {
         auto runIndex = run.index();
         auto runStart = fClusters.size();
         if (run.isPlaceholder()) {
+            // Add info to cluster indexes table (text -> cluster)
+            for (auto i = run.textRange().start; i < run.textRange().end; ++i) {
+              fClustersIndexFromCodeUnit[i] = fClusters.size();
+            }
             // There are no glyphs but we want to have one cluster
             fClusters.emplace_back(this, runIndex, 0ul, 1ul, this->text(run.textRange()), run.advance().fX, run.advance().fY);
             fCodeUnitProperties[run.textRange().start] |= CodeUnitFlags::kSoftLineBreakBefore;
@@ -522,6 +528,10 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar width,
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
+                // Add info to cluster indexes table (text -> cluster)
+                for (auto i = charStart; i < charEnd; ++i) {
+                  fClustersIndexFromCodeUnit[i] = fClusters.size();
+                }
                 SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
                 fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
             });
@@ -530,6 +540,7 @@ void ParagraphImpl::buildClusterTable() {
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
+  fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
 }
 

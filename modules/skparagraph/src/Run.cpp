@@ -88,63 +88,25 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
     }
 }
 
-std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool extendToClusters) const {
-
+// Find a cluster range from text range (within one run)
+// Cluster range is normalized ([start:end) start < end regardless of TextDirection
+// Boolean value in triple indicates whether the cluster range was found or not
+std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text) const {
     if (text.width() == 0) {
-        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
-            auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().end >= text.end && cluster.textRange().start <= text.start) {
-                return std::make_tuple(true, i, i);
-            }
-        }
-        return std::make_tuple(false, 0, 0);
-    }
-    Cluster* start = nullptr;
-    Cluster* end = nullptr;
-    if (extendToClusters) {
-        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
-            auto& cluster = fMaster->cluster(i);
-            auto clusterRange = cluster.textRange();
-            if (clusterRange.end <= text.start) {
-                continue;
-            } else if (clusterRange.start >= text.end) {
-                break;
-            }
-
-            TextRange s = TextRange(std::max(clusterRange.start, text.start),
-                                    std::min(clusterRange.end, text.end));
-            if (s.width() > 0) {
-                if (start == nullptr) {
-                    start = &cluster;
-                }
-                end = &cluster;
-            }
-        }
-    } else {
-        // We need this branch when we draw styles for the part of a cluster
-        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
-            auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().end > text.start && start == nullptr) {
-                start = &cluster;
-            }
-            if (cluster.textRange().start < text.end) {
-                end = &cluster;
-            } else {
-                break;
-            }
+        // Special Flutter case for "\n" and "...\n"
+        if (text.end > this->fTextRange.start) {
+            ClusterIndex index = fMaster->clusterIndex(text.end - 1);
+            return std::make_tuple(true, index, index);
+        } else {
+            return std::make_tuple(false, 0, 0);
         }
     }
 
-    if (start == nullptr || end == nullptr) {
-        return std::make_tuple(false, 0, 0);
-    }
-
+    ClusterIndex startIndex = fMaster->clusterIndex(text.start);
+    ClusterIndex endIndex = fMaster->clusterIndex(text.end - 1);
     if (!leftToRight()) {
-        std::swap(start, end);
+        std::swap(startIndex, endIndex);
     }
-
-    size_t startIndex = start - fMaster->clusters().begin();
-    size_t endIndex   = end   - fMaster->clusters().begin();
     return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
 }
 
