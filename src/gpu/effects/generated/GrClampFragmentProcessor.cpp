@@ -25,19 +25,19 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
-        SkString _input484 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample484;
+        SkString _input464 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample464;
         if (_outer.inputFP_index >= 0) {
-            _sample484 = this->invokeChild(_outer.inputFP_index, _input484.c_str(), args);
+            _sample464 = this->invokeChild(_outer.inputFP_index, _input464.c_str(), args);
         } else {
-            _sample484 = "half4(1)";
+            _sample464 = _input464;
         }
         fragBuilder->codeAppendf(
-                "half4 inputColor = %s ? %s : %s;\n@if (%s) {\n    half alpha = "
-                "clamp(inputColor.w, 0.0, 1.0);\n    %s = half4(clamp(inputColor.xyz, 0.0, alpha), "
-                "alpha);\n} else {\n    %s = clamp(inputColor, 0.0, 1.0);\n}\n",
-                _outer.inputFP_index >= 0 ? "true" : "false", _sample484.c_str(), args.fInputColor,
-                (_outer.clampToPremul ? "true" : "false"), args.fOutputColor, args.fOutputColor);
+                "half4 inputColor = %s;\n@if (%s) {\n    half alpha = clamp(inputColor.w, 0.0, "
+                "1.0);\n    %s = half4(clamp(inputColor.xyz, 0.0, alpha), alpha);\n} else {\n    "
+                "%s = clamp(inputColor, 0.0, 1.0);\n}\n",
+                _sample464.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
+                args.fOutputColor);
     }
 
 private:
