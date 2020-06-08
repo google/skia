@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 in float sigma;
 layout(ctype=SkRect) in float4 rect;
 in uniform half cornerRadius;
@@ -100,11 +101,13 @@ uniform half blurRadius;
 }
 
 @optimizationFlags {
-    kCompatibleWithCoverageAsAlpha_OptimizationFlag
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+            kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrRecordingContext* context,
                                                      float sigma,
                                                      float xformedSigma,
                                                      const SkRRect& srcRRect,
@@ -112,11 +115,13 @@ uniform half blurRadius;
 }
 
 @cpp {
-    std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext* context,
-                                                                 float sigma,
-                                                                 float xformedSigma,
-                                                                 const SkRRect& srcRRect,
-                                                                 const SkRRect& devRRect) {
+    std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
+            std::unique_ptr<GrFragmentProcessor> inputFP,
+            GrRecordingContext* context,
+            float sigma,
+            float xformedSigma,
+            const SkRRect& srcRRect,
+            const SkRRect& devRRect) {
         SkASSERT(!SkRRectPriv::IsCircle(devRRect) && !devRRect.isRect()); // Should've been caught up-stream
 
         // TODO: loosen this up
@@ -152,7 +157,7 @@ uniform half blurRadius;
         }
 
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrRRectBlurEffect(xformedSigma, devRRect.getBounds(),
+                new GrRRectBlurEffect(std::move(inputFP), xformedSigma, devRRect.getBounds(),
                                       SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
     }
 }
@@ -164,7 +169,7 @@ uniform half blurRadius;
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(/*inputFP=*/nullptr, d->context(), sigma, sigma, rrect, rrect);
 }
 
 void main() {
@@ -176,12 +181,12 @@ void main() {
     half2 middle = half2(proxyRect.zw - proxyRect.xy - 2.0 * threshold);
 
     if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x + threshold)) {
-            translatedFragPos.x = threshold;
+        translatedFragPos.x = threshold;
     } else if (translatedFragPos.x >= (middle.x + threshold)) {
         translatedFragPos.x -= middle.x - 1.0;
     }
 
-    if (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {
+    if (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y + threshold)) {
         translatedFragPos.y = threshold;
     } else if (translatedFragPos.y >= (middle.y + threshold)) {
         translatedFragPos.y -= middle.y - 1.0;
@@ -190,7 +195,8 @@ void main() {
     half2 proxyDims = half2(2.0 * threshold + 1.0);
     half2 texCoord = translatedFragPos / proxyDims;
 
-    sk_OutColor = sk_InColor * sample(ninePatchSampler, texCoord);
+    half4 inputColor = sample(inputFP, sk_InColor);
+    sk_OutColor = inputColor * sample(ninePatchSampler, texCoord);
 }
 
 @setData(pdman) {

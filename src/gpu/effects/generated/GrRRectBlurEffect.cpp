@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #include "GrRRectBlurEffect.h"
 
-std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext* context,
-                                                             float sigma,
-                                                             float xformedSigma,
-                                                             const SkRRect& srcRRect,
-                                                             const SkRRect& devRRect) {
+std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        GrRecordingContext* context,
+        float sigma,
+        float xformedSigma,
+        const SkRRect& srcRRect,
+        const SkRRect& devRRect) {
     SkASSERT(!SkRRectPriv::IsCircle(devRRect) &&
              !devRRect.isRect());  // Should've been caught up-stream
 
@@ -46,7 +48,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext*
     }
 
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrRRectBlurEffect(xformedSigma, devRRect.getBounds(),
+            new GrRRectBlurEffect(std::move(inputFP), xformedSigma, devRRect.getBounds(),
                                   SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
 }
 #include "src/gpu/GrTexture.h"
@@ -90,9 +92,17 @@ public:
         fragBuilder->codeAppendf(
                 "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
                 "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
-                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
-                "sample(%s, float2(texCoord)).%s;\n",
-                args.fOutputColor, args.fInputColor,
+                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;");
+        SkString _input8208 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample8208;
+        if (_outer.inputFP_index >= 0) {
+            _sample8208 = this->invokeChild(_outer.inputFP_index, _input8208.c_str(), args);
+        } else {
+            _sample8208 = _input8208;
+        }
+        fragBuilder->codeAppendf(
+                "\nhalf4 inputColor = %s;\n%s = inputColor * sample(%s, float2(texCoord)).%s;\n",
+                _sample8208.c_str(), args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
@@ -146,10 +156,18 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         : INHERITED(kGrRRectBlurEffect_ClassID, src.optimizationFlags())
+        , inputFP_index(src.inputFP_index)
         , sigma(src.sigma)
         , rect(src.rect)
         , cornerRadius(src.cornerRadius)
         , ninePatchSampler(src.ninePatchSampler) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
     this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
@@ -167,6 +185,6 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTe
     SkScalar sigma = d->fRandom->nextRangeF(1.f, 10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(/*inputFP=*/nullptr, d->context(), sigma, sigma, rrect, rrect);
 }
 #endif
