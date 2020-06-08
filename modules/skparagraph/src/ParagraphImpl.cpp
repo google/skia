@@ -1013,11 +1013,6 @@ Cluster& ParagraphImpl::cluster(ClusterIndex clusterIndex) {
     return fClusters[clusterIndex];
 }
 
-Run& ParagraphImpl::run(RunIndex runIndex) {
-    SkASSERT(runIndex < fRuns.size());
-    return fRuns[runIndex];
-}
-
 Run& ParagraphImpl::runByCluster(ClusterIndex clusterIndex) {
     auto start = cluster(clusterIndex);
     return this->run(start.fRunIndex);

@@ -153,7 +153,10 @@ public:
     SkSpan<const char> text(TextRange textRange);
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
     Cluster& cluster(ClusterIndex clusterIndex);
-    Run& run(RunIndex runIndex);
+    Run& run(RunIndex runIndex) {
+        SkASSERT(runIndex < fRuns.size());
+        return fRuns[runIndex];
+    }
     Run& runByCluster(ClusterIndex clusterIndex);
     SkSpan<Block> blocks(BlockRange blockRange);
     Block& block(BlockIndex blockIndex);
