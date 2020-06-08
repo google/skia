@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "245fc2bf_f4d2dd6c",
+        "filename": "src/utils/mac/SkCGBase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T17:49:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e23f04f4_5088a03f",
+      "revId": "5b74f00d836cb345872cf45cf8b1607c64baa10f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6a00469_041c6042",
         "filename": "src/utils/mac/SkCGBase.h",
         "patchSetId": 4
@@ -48,6 +66,30 @@
       "writtenOn": "2020-06-08T17:41:11Z",
       "side": 1,
       "message": "Wow, this reminds me that when this code was originally written we may have still had to support the 10.4 SDK which didn\u0027t have this define.",
+      "range": {
+        "startLine": 19,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 28
+      },
+      "revId": "5b74f00d836cb345872cf45cf8b1607c64baa10f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fcc87e7_33043814",
+        "filename": "src/utils/mac/SkCGBase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T17:49:13Z",
+      "side": 1,
+      "message": "LOL! I never even owned a Mac before Leopard.",
+      "parentUuid": "b6a00469_041c6042",
       "range": {
         "startLine": 19,
         "startChar": 11,
