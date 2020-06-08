@@ -44,6 +44,8 @@ public:
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
+        void createDDL(SkPicture*);
+
         void dropDDL() { fDisplayList.reset(); }
 
         // Precompile all the programs required to draw this tile's DDL
@@ -89,8 +91,8 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>          fTileSurface;
 
-        sk_sp<SkPicture>          fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
+        sk_sp<SkPicture>          fReconstitutedPicture1;
+        SkTArray<sk_sp<SkImage>>  fPromiseImages1;    // All the promise images in the
                                                      // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
@@ -100,11 +102,12 @@ public:
                   const SkIRect& viewport,
                   int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
-                             GrContext* gpuThreadContext);
+                             GrContext* gpuThreadContext,
+                             SkPicture* picture);
 
     void createDDLsInParallel();
 
