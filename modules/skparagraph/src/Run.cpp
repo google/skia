@@ -89,7 +89,7 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
 }
 
 std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool extendToClusters) const {
-
+/*
     if (text.width() == 0) {
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
@@ -99,8 +99,26 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
         }
         return std::make_tuple(false, 0, 0);
     }
-    Cluster* start = nullptr;
-    Cluster* end = nullptr;
+*/
+    if (text.width() == 0) {
+        // Special Flutter case for "\n" and "...\n"
+        if (text.end > this->fTextRange.start) {
+            ClusterIndex index = fMaster->clusterIndex(text.end - 1);
+            return std::make_tuple(true, index, index);
+        } else {
+            return std::make_tuple(false, 0, 0);
+        }
+    }
+
+    ClusterIndex startIndex = fMaster->clusterIndex(text.start);
+    ClusterIndex endIndex = fMaster->clusterIndex(text.end - 1);
+    if (!leftToRight()) {
+        std::swap(startIndex, endIndex);
+    }
+    return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
+    /*
+    Cluster* start = null_ptr;
+    Cluster* end = null_ptr;
     if (extendToClusters) {
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
@@ -146,6 +164,7 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
     size_t startIndex = start - fMaster->clusters().begin();
     size_t endIndex   = end   - fMaster->clusters().begin();
     return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
+    */
 }
 
 void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {

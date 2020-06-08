@@ -153,6 +153,11 @@ public:
     SkSpan<const char> text(TextRange textRange);
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
     Cluster& cluster(ClusterIndex clusterIndex);
+    ClusterIndex clusterIndex(TextIndex textIndex) {
+        auto clusterIndex = this->fClusterIndexes[textIndex];
+        SkASSERT(clusterIndex != EMPTY_INDEX);
+        return clusterIndex;
+    }
     Run& run(RunIndex runIndex);
     Run& runByCluster(ClusterIndex clusterIndex);
     SkSpan<Block> blocks(BlockRange blockRange);
@@ -237,6 +242,7 @@ private:
     SkTArray<Run, false> fRuns;         // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
+    SkTArray<size_t> fClusterIndexes;
     std::vector<size_t> fWords;
     SkTArray<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
