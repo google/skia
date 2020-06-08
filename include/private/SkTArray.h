@@ -281,6 +281,19 @@ public:
         return fItemArray + fCount - n;
     }
 
+    T* append() { return (T*)this->push_back_raw(1); }
+    T* append(size_t n) { return (T*)this->push_back_raw(n); }
+    T* append(size_t n, const T src[]) {
+        size_t oldCount = this->count();
+        if (n) {
+            T* dst = this->append(n);
+            if (src) {
+                memcpy(dst, src, n * sizeof(T));
+            }
+        }
+        return this->begin() + oldCount;
+    }
+
     /**
      * Removes the last element. Not safe to call when count() == 0.
      */
