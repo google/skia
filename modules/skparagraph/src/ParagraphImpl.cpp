@@ -1008,11 +1008,6 @@ SkSpan<Cluster> ParagraphImpl::clusters(ClusterRange clusterRange) {
     return SkSpan<Cluster>(&fClusters[clusterRange.start], clusterRange.width());
 }
 
-Cluster& ParagraphImpl::cluster(ClusterIndex clusterIndex) {
-    SkASSERT(clusterIndex < fClusters.size());
-    return fClusters[clusterIndex];
-}
-
 Run& ParagraphImpl::runByCluster(ClusterIndex clusterIndex) {
     auto start = cluster(clusterIndex);
     return this->run(start.fRunIndex);

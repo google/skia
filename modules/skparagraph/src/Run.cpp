@@ -124,7 +124,7 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
         // We need this branch when we draw styles for the part of a cluster
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().end > text.start && start == nullptr) {
+            if (start == nullptr && cluster.textRange().end > text.start) {
                 start = &cluster;
             }
             if (cluster.textRange().start < text.end) {
