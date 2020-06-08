@@ -11,8 +11,7 @@ flutter_defines = [
   # Remove software rasterizers to save some code size.
   "SK_DISABLE_AAA",
 
-  # Flutter doesn't deserialize anything.
-  "SK_DISABLE_READBUFFER",
+  # Flutter doesn't deserialize effects.
   "SK_DISABLE_EFFECT_DESERIALIZATION",
 
   # Staging

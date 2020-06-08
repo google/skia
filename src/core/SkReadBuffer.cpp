@@ -17,8 +17,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
 
-#ifndef SK_DISABLE_READBUFFER
-
 namespace {
     // This generator intentionally should always fail on all attempts to get its pixels,
     // simulating a bad or empty codec stream.
@@ -461,5 +459,3 @@ int32_t SkReadBuffer::checkInt(int32_t min, int32_t max) {
 SkFilterQuality SkReadBuffer::checkFilterQuality() {
     return this->checkRange<SkFilterQuality>(kNone_SkFilterQuality, kLast_SkFilterQuality);
 }
-
-#endif // #ifndef SK_DISABLE_READBUFFER
