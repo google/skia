@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e23f04f4_5088a03f",
+        "filename": "src/utils/mac/SkCGBase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T17:41:11Z",
+      "side": 1,
+      "message": "I wouldn\u0027t change this right now if you don\u0027t really need it. This will bite you sometimes, depending on build rules. If we ever want to change the way we do this we\u0027d need a careful review of at least our build and Chromium\u0027s build of Skia.\n\nAlso this file is really new and you\u0027re not actually seeing this change exactly in the Chromium build right now due to build fun and things still landing.",
+      "revId": "5b74f00d836cb345872cf45cf8b1607c64baa10f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a00469_041c6042",
+        "filename": "src/utils/mac/SkCGBase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T17:41:11Z",
+      "side": 1,
+      "message": "Wow, this reminds me that when this code was originally written we may have still had to support the 10.4 SDK which didn\u0027t have this define.",
+      "range": {
+        "startLine": 19,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 28
+      },
+      "revId": "5b74f00d836cb345872cf45cf8b1607c64baa10f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
