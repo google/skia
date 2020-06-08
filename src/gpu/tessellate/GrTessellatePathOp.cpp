@@ -16,9 +16,14 @@
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
 #include "src/gpu/tessellate/GrResolveLevelCounter.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
-constexpr static int kMaxResolveLevel = GrMiddleOutCubicShader::kMaxResolveLevel;
-constexpr static float kTessellationIntolerance = 4;  // 1/4 of a pixel.
+constexpr static float kLinearizationIntolerance =
+        GrTessellationPathRenderer::kLinearizationIntolerance;
+
+constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
+
+using OpFlags = GrTessellationPathRenderer::OpFlags;
 
 GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
@@ -61,11 +66,8 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* flushState) {
             // mode is to maximize GPU performance, and the middle-out topology used by our indirect
             // draws is easier on the rasterizer than a tessellated fan. There also seems to be a
             // small amount of fixed tessellation overhead that this avoids.
-            //
-            // NOTE: This will count fewer cubics than above if it discards any for resolveLevel=0.
             GrResolveLevelCounter resolveLevelCounter;
-            numCountedCubics = resolveLevelCounter.reset(fPath, fViewMatrix,
-                                                         kTessellationIntolerance);
+            resolveLevelCounter.reset(fPath, fViewMatrix, kLinearizationIntolerance);
             this->prepareIndirectOuterCubics(flushState, resolveLevelCounter);
             return;
         }
@@ -75,14 +77,16 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* flushState) {
     // that contains both the inner triangles and the outer cubics, instead of using hardware
     // tessellation. Also take this path if tessellation is not supported.
     bool drawTrianglesAsIndirectCubicDraw = (numVerbs < 50);
-    if (drawTrianglesAsIndirectCubicDraw ||
-        !flushState->caps().shaderCaps()->tessellationSupport()) {
+    if (drawTrianglesAsIndirectCubicDraw || (fOpFlags & OpFlags::kDisableHWTessellation)) {
         // Prepare outer cubics with indirect draws.
         GrResolveLevelCounter resolveLevelCounter;
         this->prepareMiddleOutTrianglesAndCubics(flushState, &resolveLevelCounter,
                                                  drawTrianglesAsIndirectCubicDraw);
         return;
     }
+
+    // The caller should have sent Flags::kDisableHWTessellation if it was not supported.
+    SkASSERT(flushState->caps().shaderCaps()->tessellationSupport());
 
     // Next see if we can split up the inner triangles and outer cubics into two draw calls. This
     // allows for a more efficient inner triangle topology that can reduce the rasterizer load by a
@@ -116,14 +120,15 @@ bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Targe
         // simple.
         return false;
     }
-    if (((Flags::kStencilOnly | Flags::kWireframe) & fFlags) || GrAAType::kCoverage == fAAType ||
+    if (((OpFlags::kStencilOnly | OpFlags::kWireframe) & fOpFlags) ||
+        GrAAType::kCoverage == fAAType ||
         (target->appliedClip() && target->appliedClip()->hasStencilClip())) {
         // If we have certain flags, mixed samples, or a stencil clip then we unfortunately
         // can't fill the inner polygon directly. Indicate that these triangles need to be
         // stencilled.
         fDoStencilTriangleBuffer = true;
     }
-    if (!(Flags::kStencilOnly & fFlags)) {
+    if (!(OpFlags::kStencilOnly & fOpFlags)) {
         fDoFillTriangleBuffer = true;
     }
     return true;
@@ -184,7 +189,7 @@ void GrTessellatePathOp::prepareMiddleOutTrianglesAndCubics(
                 if (resolveLevelCounter) {
                     // Quadratics get converted to cubics before rendering.
                     resolveLevelCounter->countCubic(GrWangsFormula::quadratic_log2(
-                            kTessellationIntolerance, pts, xform));
+                            kLinearizationIntolerance, pts, xform));
                     break;
                 }
                 ++numCountedCurves;
@@ -193,7 +198,7 @@ void GrTessellatePathOp::prepareMiddleOutTrianglesAndCubics(
                 middleOut.pushVertex(pts[3]);
                 if (resolveLevelCounter) {
                     resolveLevelCounter->countCubic(GrWangsFormula::cubic_log2(
-                            kTessellationIntolerance, pts, xform));
+                            kLinearizationIntolerance, pts, xform));
                     break;
                 }
                 ++numCountedCurves;
@@ -351,7 +356,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
                 default:
                     continue;
                 case SkPathVerb::kQuad:
-                    level = GrWangsFormula::quadratic_log2(kTessellationIntolerance, pts, xform);
+                    level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
                     if (level == 0) {
                         continue;
                     }
@@ -359,7 +364,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
                     quad2cubic(pts, instanceLocations[level]);
                     break;
                 case SkPathVerb::kCubic:
-                    level = GrWangsFormula::cubic_log2(kTessellationIntolerance, pts, xform);
+                    level = GrWangsFormula::cubic_log2(kLinearizationIntolerance, pts, xform);
                     if (level == 0) {
                         continue;
                     }
@@ -483,7 +488,7 @@ void GrTessellatePathOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* tar
 
 void GrTessellatePathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     this->drawStencilPass(flushState);
-    if (!(Flags::kStencilOnly & fFlags)) {
+    if (!(OpFlags::kStencilOnly & fOpFlags)) {
         this->drawCoverPass(flushState);
     }
 }
@@ -513,7 +518,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
     if (GrAAType::kNone != fAAType) {
         initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
-    if (flushState->caps().wireframeSupport() && (Flags::kWireframe & fFlags)) {
+    if (flushState->caps().wireframeSupport() && (OpFlags::kWireframe & fOpFlags)) {
         initArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
     }
     SkASSERT(SkPathFillType::kWinding == fPath.getFillType() ||

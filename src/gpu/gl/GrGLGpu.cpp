@@ -64,7 +64,7 @@ static const GrGLenum gXfermodeEquation2Blend[] = {
     // Basic OpenGL blend equations.
     GR_GL_FUNC_ADD,
     GR_GL_FUNC_SUBTRACT,
-    GR_GL_FUNC_REVERSE_SUBTRACT,
+    GR_GL_MAX,
 
     // GL_KHR_blend_equation_advanced.
     GR_GL_SCREEN,

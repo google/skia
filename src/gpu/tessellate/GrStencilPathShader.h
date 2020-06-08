@@ -9,6 +9,7 @@
 #define GrStencilPathShader_DEFINED
 
 #include "src/gpu/tessellate/GrPathShader.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 // This is the base class for shaders that stencil path elements, namely, triangles, standalone
 // cubics, and wedges.
@@ -84,7 +85,7 @@ class GrMiddleOutCubicShader : public GrStencilPathShader {
 public:
     // Each resolveLevel linearizes the curve into 2^resolveLevel line segments. The finest
     // supported resolveLevel is therefore 2^12=4096 line segments.
-    constexpr static int kMaxResolveLevel = 12;
+    constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
     // How many vertices do we need to draw in order to triangulate a cubic with 2^resolveLevel
     // line segments?

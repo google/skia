@@ -64,16 +64,16 @@ class CCPRGeometryView : public Sample {
 
     void updateGpuData();
 
-    PrimitiveType fPrimitiveType = PrimitiveType::kTriangles;
+    PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
     SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
     SkPoint fPoints[4] = {
-            {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
+            {300, 200 + 100}, {300, 200}, {0, 0}, {300 + 100, 200}};
 
     float fConicWeight = .5;
-    float fStrokeWidth = 40;
-    bool fDoStroke = false;
+    float fStrokeWidth = 300;
+    bool fDoStroke = 1;
 
     SkTArray<TriPointInstance> fTriPointInstances;
     SkTArray<QuadPointInstance> fQuadPointInstances;
@@ -230,7 +230,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     pointsPaint.setStrokeWidth(8);
     pointsPaint.setAntiAlias(true);
 
-    if (PrimitiveType::kCubics == fPrimitiveType) {
+    if (0&&PrimitiveType::kCubics == fPrimitiveType) {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
         if (!fDoStroke) {
             int w = this->width(), h = this->height();
@@ -247,6 +247,22 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     SkPaint captionPaint;
     captionPaint.setColor(SK_ColorWHITE);
     canvas->drawString(caption, 10, 30, font, captionPaint);
+}
+
+float sq(SkVector v) {
+    return v.fX*v.fX + v.fY*v.fY;
+}
+
+static SkPath fit_cubic_to_unit_circle_arc(const SkPoint& p0, const SkPoint& p1) {
+    constexpr static float kM = -4.f/3;
+    constexpr static float kA = 4*SK_ScalarSqrt2/3;
+    SkPath path;
+    path.moveTo(p0);
+    float dot = p0.dot(p1);
+    float controlLength = (sk_float_sqrt(1 + dot) * kM + kA) * sk_float_rsqrt(1 - dot);
+    path.cubicTo(p0 + SkPoint{-p0.fY, p0.fX} * controlLength,
+                 p1 - SkPoint{-p1.fY, p1.fX} * controlLength, p1);
+    return path;
 }
 
 void CCPRGeometryView::updateGpuData() {
@@ -281,7 +297,19 @@ void CCPRGeometryView::updateGpuData() {
                     continue;
             }
         }
-        fPath.cubicTo(fPoints[1], fPoints[2], fPoints[3]);
+        SkPoint p0 = fPoints[1] - fPoints[0];
+        p0 = {p0.fY, -p0.fX};
+        p0.normalize();
+        SkPoint p1 = fPoints[3] - fPoints[1];
+        p1 = {p1.fY, -p1.fX};
+        p1.normalize();
+        if (p0.fX*p1.fY - p0.fY*p1.fX < 0) {
+            std::swap(p0, p1);
+        }
+        fPath = fit_cubic_to_unit_circle_arc(p0, p1);
+        SkMatrix m = SkMatrix::Scale(1.f/32, 1.f/32);
+        m.postTranslate(fPoints[1].fX, fPoints[1].fY);
+        fPath.transform(m);
     } else if (PrimitiveType::kTriangles != fPrimitiveType) {
         SkPoint P3[3] = {fPoints[0], fPoints[1], fPoints[3]};
         GrCCFillGeometry geometry;
@@ -419,10 +447,8 @@ public:
     void doClick(SkPoint points[]) {
         if (fPtIdx >= 0) {
             points[fPtIdx] += fCurr - fPrev;
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                points[i] += fCurr - fPrev;
-            }
+        } else for (int i = 0; i < 4; ++i) {
+            points[i] += fCurr - fPrev;
         }
     }
 

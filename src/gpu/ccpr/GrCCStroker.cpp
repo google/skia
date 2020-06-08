@@ -270,7 +270,7 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // As is common for CCPR, clockwise-winding triangles from the strip emit positive coverage, and
     // counter-clockwise triangles emit negative.
-    f->codeAppendf("%s = half4(sk_Clockwise ? +coverage : -coverage);", args.fOutputColor);
+    f->codeAppendf("%s = half4(sk_Clockwise ? +coverage : +coverage);", args.fOutputColor);
 
     // This shader doesn't use the built-in Ganesh coverage.
     f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -698,7 +698,7 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
             ? &fZeroTallies : fScissorSubBatches[startScissorSubBatch - 1].fEndInstances;
 
     GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                        flushState->drawOpArgs().writeSwizzle());
+                        flushState->drawOpArgs().writeSwizzle(), GrPipeline::InputFlags::kWireframe);
 
     // Draw linear strokes.
     this->drawLog2Strokes(0, flushState, LinearStrokeProcessor(), pipeline, batch, startIndices,
@@ -777,6 +777,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
                                          const Batch& batch, const InstanceTallies* startIndices[2],
                                          int startScissorSubBatch,
                                          const SkIRect& drawBounds) const {
+    return;
     processor.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
     processor.bindBuffers(flushState->opsRenderPass(), fInstanceBuffer.get());
 

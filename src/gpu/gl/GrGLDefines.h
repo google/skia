@@ -50,6 +50,8 @@
 #define GR_GL_FUNC_ADD                       0x8006
 #define GR_GL_FUNC_SUBTRACT                  0x800A
 #define GR_GL_FUNC_REVERSE_SUBTRACT          0x800B
+#define GR_GL_MIN                            0x8007
+#define GR_GL_MAX                            0x8008
 
 /* GL_KHR_blend_equation_advanced */
 #define GR_GL_SCREEN                         0x9295
@@ -1139,5 +1141,8 @@
 
 /** GL_NV_fence_sync */
 #define GR_GL_ALL_COMPLETED                                 0x84F2
+
+/* Tessellation */
+#define GR_GL_MAX_TESS_GEN_LEVEL_OES                        0x8E7E
 
 #endif

@@ -282,7 +282,7 @@ void GrCCStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float ma
     normalize2(tan0, tan1, normals);
 
     // Decide how many flat line segments to chop the curve into.
-    int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
+    int numSegments = 20;//wangs_formula_cubic(p0, p1, p2, p3);
     numSegments = std::min(numSegments, 1 << kMaxNumLinearSegmentsLog2);
     if (numSegments <= 1) {
         this->rotateTo(leftJoinVerb, normals[0]);
@@ -324,7 +324,7 @@ void GrCCStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float ma
     // would benefit significantly from a quick reject that detects curves that don't need special
     // treatment for strong curvature.
     bool isCurvatureTooStrong = calc_curvature_costheta(leftTan, rightTan) < fMaxCurvatureCosTheta;
-    if (isCurvatureTooStrong) {
+    if (0&&isCurvatureTooStrong) {
         SkPoint ptsBuffer[7];
         p0.store(ptsBuffer);
         p1.store(ptsBuffer + 1);

@@ -72,8 +72,6 @@ public:
 
     bool sampleMaskSupport() const { return fSampleMaskSupport; }
 
-    bool tessellationSupport() const { return fTessellationSupport; }
-
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
@@ -248,6 +246,11 @@ public:
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
+    // Maximum number of segments a tessellation edge can be divided into.
+    int maxTessellationSegments() const { return fMaxTessellationSegments; }
+
+    bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
+
     bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
@@ -271,7 +274,6 @@ private:
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fSampleMaskSupport                 : 1;
-    bool fTessellationSupport               : 1;
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
@@ -324,6 +326,7 @@ private:
     const char* fFBFetchExtensionString;
 
     int fMaxFragmentSamplers;
+    int fMaxTessellationSegments;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
