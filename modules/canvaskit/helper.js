@@ -258,6 +258,34 @@ function copy2dArray(arr, dest, ptr) {
   return ptr;
 }
 
+// Copys an array of colors to wasm, returning an object with the pointer
+// and info necessary to use the copied colors.
+// Accepts either a flat Float32Array, flat Uint32Array or Array of Float32Arrays.
+// If color is an object that was allocated with CanvasKit.Malloc, it's pointer is
+// returned and no extra copy is performed.
+function copyFlexibleColorArray(colors) {
+  var result = {
+    colorPtr: nullptr,
+    count: colors.length,
+    colorType: CanvasKit.ColorType.RGBA_F32,
+  }
+  if (colors instanceof Float32Array) {
+    result.colorPtr = copy1dArray(colors, "HEAPF32");
+    result.count = colors.length / 4;
+
+  } else if (colors instanceof Uint32Array) {
+    result.colorPtr = copy1dArray(colors, "HEAPU32");
+    result.colorType = CanvasKit.ColorType.RGBA_8888;
+
+  } else if (colors instanceof Array && colors[0] instanceof Float32Array) {
+    result.colorPtr = copy2dArray(colors, "HEAPF32");
+  } else {
+    console.log('Not a color array '+colors.constructor);
+    return nullptr;
+  }
+  return result;
+}
+
 var defaultPerspective = Float32Array.of(0, 0, 1);
 
 var _scratch3x3MatrixPtr = nullptr;
