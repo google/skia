@@ -1605,6 +1605,7 @@ if (skia_enable_tools) {
       ":skia",
       ":skvm_builders",
       ":tool_utils",
+      "experimental/skrive:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
