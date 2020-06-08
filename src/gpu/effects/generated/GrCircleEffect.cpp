@@ -35,18 +35,27 @@ public:
         fragBuilder->codeAppendf(
                 "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
                 "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "
-                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}\n@if "
-                "((%d == 1 || %d == 3) || %d == 4) {\n    %s = %s * clamp(d, 0.0, 1.0);\n} else "
-                "{\n    %s = d > 0.5 ? %s : half4(0.0);\n}\n",
+                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}",
                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
-                args.fUniformHandler->getUniformCStr(circleVar), (int)_outer.edgeType,
-                (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor, args.fInputColor,
-                args.fOutputColor, args.fInputColor);
+                args.fUniformHandler->getUniformCStr(circleVar));
+        SkString _input2569 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample2569;
+        if (_outer.inputFP_index >= 0) {
+            _sample2569 = this->invokeChild(_outer.inputFP_index, _input2569.c_str(), args);
+        } else {
+            _sample2569 = _input2569;
+        }
+        fragBuilder->codeAppendf(
+                "\nhalf4 inputColor = %s;\n@if ((%d == 1 || %d == 3) || %d == 4) {\n    %s = "
+                "inputColor * clamp(d, 0.0, 1.0);\n} else {\n    %s = d > 0.5 ? inputColor : "
+                "half4(0.0);\n}\n",
+                _sample2569.c_str(), (int)_outer.edgeType, (int)_outer.edgeType,
+                (int)_outer.edgeType, args.fOutputColor, args.fOutputColor);
     }
 
 private:
@@ -99,9 +108,18 @@ bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
         : INHERITED(kGrCircleEffect_ClassID, src.optimizationFlags())
+        , inputFP_index(src.inputFP_index)
         , edgeType(src.edgeType)
         , center(src.center)
-        , radius(src.radius) {}
+        , radius(src.radius) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));
 }
@@ -116,6 +134,6 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     do {
         et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make(et, center, radius);
+    return GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
 }
 #endif
