@@ -137,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "38588e04_7b3838ad",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:24:26Z",
+      "side": 1,
+      "message": "Oh LOL you\u0027re right. The header file says \"Rest of the stuff in this file is private and should not be used directly\". But since it\u0027s publicly documented and referenced in sample code let\u0027s trust that.",
+      "parentUuid": "3a2e7c2e_51a9ea1b",
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f6ed03f_ecf891f9",
         "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
         "patchSetId": 5
