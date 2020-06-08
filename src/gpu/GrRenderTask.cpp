@@ -62,6 +62,12 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
         if (proxy->requiresManualMSAAResolve()) {
             SkASSERT(fTargetView.asRenderTargetProxy());
+            printf("setting %d to %d %d %d %d ++++++++++++++++++++++++++++++++++++++++=\n",
+                    proxy->uniqueID().asUInt(),
+                    targetUpdateBounds.fLeft,
+                    targetUpdateBounds.fTop,
+                    targetUpdateBounds.fRight,
+                    targetUpdateBounds.fBottom);
             fTargetView.asRenderTargetProxy()->markMSAADirty(targetUpdateBounds,
                                                              fTargetView.origin());
         }

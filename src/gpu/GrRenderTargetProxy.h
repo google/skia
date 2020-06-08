@@ -67,6 +67,7 @@ public:
         fMSAADirtyRect.join(nativeRect.asSkIRect());
     }
     void markMSAAResolved() {
+        printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ marking resolved %d\n", this->uniqueID().asUInt());
         SkASSERT(this->requiresManualMSAAResolve());
         fMSAADirtyRect.setEmpty();
     }

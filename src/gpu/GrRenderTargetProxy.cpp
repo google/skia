@@ -161,6 +161,10 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
         // the proxy.
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
+    printf("proxy %d surface %d\n",
+        ((int)proxyFlags & kGrInternalRenderTargetFlagsMask),
+        ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
+        
     SkASSERT(((int)proxyFlags & kGrInternalRenderTargetFlagsMask) ==
              ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
 }
