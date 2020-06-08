@@ -12,7 +12,7 @@ flutter_defines = [
   "SK_DISABLE_AAA",
 
   # Flutter doesn't deserialize anything.
-  "SK_DISABLE_READBUFFER",
+  "SK_DISABLE_READBUFFER_COMPLEX_TYPES",
   "SK_DISABLE_EFFECT_DESERIALIZATION",
 
   # Staging

@@ -63,8 +63,8 @@ if [[ $@ == *cpu* ]]; then
 fi
 
 # Trim some skp-related code
-EXTRA_CFLAGS+=",\"-DSK_DISABLE_READBUFFER\""
-RELEASE_CONF+=" -DSK_DISABLE_READBUFFER"
+EXTRA_CFLAGS+=",\"-DSK_DISABLE_READBUFFER_COMPLEX_TYPES\""
+RELEASE_CONF+=" -DSK_DISABLE_READBUFFER_COMPLEX_TYPES"
 
 SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
              $BUILD_DIR/libsksg.a"
