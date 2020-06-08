@@ -10,7 +10,6 @@
 
 #include "src/core/SkGlyphRun.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #if GR_TEST_UTILS
 #include "src/gpu/GrDrawOpTest.h"
