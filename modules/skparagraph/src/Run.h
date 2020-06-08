@@ -64,7 +64,9 @@ public:
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
+    Run& operator=(const Run&) = delete;
     Run(Run&&) = default;
+    Run& operator=(Run&&) = delete;
     ~Run() = default;
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
