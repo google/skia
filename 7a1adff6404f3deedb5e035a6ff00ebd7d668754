@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9e68dd0_17aa455e",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-08T14:19:40Z",
+      "side": 1,
+      "message": "I wonder if these should be guarded by the MEM_MOVE template, since it\u0027s based on memcpy and there isn\u0027t any initialization done?",
+      "range": {
+        "startLine": 284,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 40
+      },
+      "revId": "7a1adff6404f3deedb5e035a6ff00ebd7d668754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
