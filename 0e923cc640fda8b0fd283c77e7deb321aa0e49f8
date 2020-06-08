@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3487800b_050c2404",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7554d80_f5c09ce0",
+      "range": {
+        "startLine": 56,
+        "startChar": 45,
+        "endLine": 56,
+        "endChar": 72
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46ad8f68_9cebf614",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f41b6b5e_f6a3efa6",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "No, because many callers mutate the task (close it, add dependencies) after retrieving.",
+      "parentUuid": "46ad8f68_9cebf614",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "c82420a4_c90d36fd",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f4299fe_a408b290",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 35
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06381df2_f0200076",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 6
@@ -79,6 +145,24 @@
       "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de6fe648_70cf8793",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06381df2_f0200076",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "d443698b_8e512b00",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd2f7fc6_31d3131e",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34edaf58_d44405e0",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 6
@@ -125,6 +233,30 @@
       "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca1a29f1_0fb858cc",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34edaf58_d44405e0",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "553f4474_9f57880c",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a9348f3_d498381b",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 80
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3be7a712_386440a4",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 6
@@ -174,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "bb7835f0_6ff16d9a",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3be7a712_386440a4",
+      "range": {
+        "startLine": 48,
+        "startChar": 13,
+        "endLine": 48,
+        "endChar": 15
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08aab739_af28d794",
         "filename": "src/gpu/GrRenderTask.h",
         "patchSetId": 6
@@ -188,6 +368,24 @@
       "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a6f6c46_bc1754c8",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done – thanks for the copy!",
+      "parentUuid": "08aab739_af28d794",
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -211,6 +409,30 @@
       "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b754250_b03efb0e",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T16:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8232c496_2b21c801",
+      "range": {
+        "startLine": 19,
+        "startChar": 8,
+        "endLine": 19,
+        "endChar": 69
+      },
+      "revId": "0e923cc640fda8b0fd283c77e7deb321aa0e49f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
