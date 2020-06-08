@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78476b5b_30a58405",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-08T16:37:58Z",
+      "side": 1,
+      "message": "what is this doing (that wasn\u0027t here before)?",
+      "range": {
+        "startLine": 514,
+        "startChar": 24,
+        "endLine": 514,
+        "endChar": 25
+      },
+      "revId": "cfb811a6b662d151bef79beddbb297098e22af9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43c9a156_2acf9457",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-08T16:37:58Z",
+      "side": 1,
+      "message": "same question",
+      "range": {
+        "startLine": 531,
+        "startChar": 21,
+        "endLine": 531,
+        "endChar": 25
+      },
+      "revId": "cfb811a6b662d151bef79beddbb297098e22af9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
