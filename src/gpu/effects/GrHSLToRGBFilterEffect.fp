@@ -16,7 +16,7 @@
 in fragmentProcessor? inputFP;
 
 void main() {
-    half4   inputColor = (inputFP != null) ? sample(inputFP, sk_InColor) : sk_InColor;
+    half4   inputColor = sample(inputFP, sk_InColor);
     half3   hsl = inputColor.rgb;
 
     half      C = (1 - abs(2 * hsl.z - 1)) * hsl.y;

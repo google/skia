@@ -36,7 +36,7 @@ public:
         if (_outer.fp1_index >= 0) {
             _sample1335 = this->invokeChild(_outer.fp1_index, _input1335.c_str(), args);
         } else {
-            _sample1335 = "half4(1)";
+            _sample1335 = _input1335;
         }
         fragBuilder->codeAppendf("\nhalf4 in1 = %s ? %s : %s;\n%s = mix(in0, in1, %s);\n",
                                  _outer.fp1_index >= 0 ? "true" : "false", _sample1335.c_str(),

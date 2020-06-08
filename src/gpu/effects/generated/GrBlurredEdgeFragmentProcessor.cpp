@@ -26,20 +26,19 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
-        SkString _input328 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample328;
+        SkString _input308 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample308;
         if (_outer.inputFP_index >= 0) {
-            _sample328 = this->invokeChild(_outer.inputFP_index, _input328.c_str(), args);
+            _sample308 = this->invokeChild(_outer.inputFP_index, _input308.c_str(), args);
         } else {
-            _sample328 = "half4(1)";
+            _sample308 = _input308;
         }
         fragBuilder->codeAppendf(
-                "half inputAlpha = %s ? %s.w : %s.w;\nhalf factor = 1.0 - inputAlpha;\n@switch "
-                "(%d) {\n    case 0:\n        factor = exp((-factor * factor) * 4.0) - "
-                "0.017999999225139618;\n        break;\n    case 1:\n        factor = "
-                "smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = half4(factor);\n",
-                _outer.inputFP_index >= 0 ? "true" : "false", _sample328.c_str(), args.fInputColor,
-                (int)_outer.mode, args.fOutputColor);
+                "half inputAlpha = %s.w;\nhalf factor = 1.0 - inputAlpha;\n@switch (%d) {\n    "
+                "case 0:\n        factor = exp((-factor * factor) * 4.0) - 0.017999999225139618;\n "
+                "       break;\n    case 1:\n        factor = smoothstep(1.0, 0.0, factor);\n      "
+                "  break;\n}\n%s = half4(factor);\n",
+                _sample308.c_str(), (int)_outer.mode, args.fOutputColor);
     }
 
 private:

@@ -431,14 +431,15 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // must be properly formatted with a prefixed comma when the parameter should be inserted
         // into the invokeChild() parameter list.
         String inputArg;
+        String inputColorName = "\"half4(1)\"";
         if (c.fArguments.size() > 1 && c.fArguments[1]->fType.name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
-            String inputName = "_input" + to_string(c.fOffset);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputName));
+            inputColorName = "_input" + to_string(c.fOffset);
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputColorName));
 
             // invokeChild() needs a char*
-            inputArg = ", " + inputName + ".c_str()";
+            inputArg = ", " + inputColorName + ".c_str()";
         }
 
         bool hasCoords = c.fArguments.back()->fType.name() == "float2";
@@ -481,12 +482,11 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
             // expressions - thus we always fill the variable with something.
-            // Note: this is essentially dead code required to satisfy the compiler, because
-            // 'process' function calls should always be guarded at a higher level, in the .fp
-            // source.
+            // Sampling from a null fragment processor will provide in the input color as-is. This
+            // defaults to half4(1) if no color is specified.
             addExtraEmitCodeLine(
                 "} else {"
-                "    " + childName + " = \"half4(1)\";"
+                "    " + childName + " = " + inputColorName + ";"
                 "}");
         }
         this->write("%s");
