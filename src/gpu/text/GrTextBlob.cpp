@@ -15,12 +15,12 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlob.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #include <cstddef>
 #include <new>
@@ -381,8 +381,7 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
     return SubRun::InitForAtlas(kTransformedMask, drawables, strikeSpec, format, blob, alloc);
 }
 
-void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
-                                                   const SkSurfaceProps& props,
+void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrRenderTargetContext* rtc,
                                                    const SkPaint& paint,
                                                    const GrClip* clip,
                                                    const SkMatrixProvider& deviceMatrix,
@@ -413,7 +412,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                 SkPreConcatMatrixProvider strikeToDevice(deviceMatrix, pathMatrix);
 
                 GrStyledShape shape(path, paint);
-                target->drawShape(clip, runPaint, strikeToDevice, shape);
+                GrAtlasTextOp::DrawShape(rtc, clip, runPaint, strikeToDevice, shape);
             }
         } else {
             // Transform the path to device because the deviceMatrix must be unchanged to
@@ -429,7 +428,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                 path.transform(pathMatrix, &deviceOutline);
                 deviceOutline.setIsVolatile(true);
                 GrStyledShape shape(deviceOutline, paint);
-                target->drawShape(clip, runPaint, deviceMatrix, shape);
+                GrAtlasTextOp::DrawShape(rtc, clip, runPaint, deviceMatrix, shape);
             }
         }
     } else {
@@ -440,7 +439,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
 
         bool skipClip = false;
         SkIRect clipRect = SkIRect::MakeEmpty();
-        SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
+        SkRect rtBounds = SkRect::MakeWH(rtc->width(), rtc->height());
         SkRRect clipRRect = SkRRect::MakeRect(rtBounds);
         GrAA aa;
         // We can clip geometrically if we're not using SDFs or transformed glyphs,
@@ -462,56 +461,33 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             skipClip = true;
         }
 
-        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
+        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, rtc);
         if (op != nullptr) {
-            target->addDrawOp(skipClip ? nullptr : clip, std::move(op));
+            GrAtlasTextOp::AddDrawOp(rtc, skipClip ? nullptr : clip, std::move(op));
         }
     }
-}
-
-SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
-    SkColor4f c = paint.getColor4f();
-    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-        c = xform->apply(c);
-    }
-    if (auto* cf = paint.getColorFilter()) {
-        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
-    }
-    return c.premul();
 }
 
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider& matrixProvider,
                                                   SkPoint drawOrigin,
                                                   const SkIRect& clipRect,
                                                   const SkPaint& paint,
-                                                  const SkSurfaceProps& props,
-                                                  GrTextTarget* target) {
-    GrPaint grPaint;
-    target->makeGrPaint(this->maskFormat(), paint, matrixProvider, &grPaint);
-    const GrColorInfo& colorInfo = target->colorInfo();
-    // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
-
+                                                  GrRenderTargetContext* rtc) {
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
-        return GrAtlasTextOp::MakeDistanceField(target->getContext(),
-                                                std::move(grPaint),
+        return GrAtlasTextOp::MakeDistanceField(rtc,
+                                                paint,
                                                 this,
-                                                matrixProvider.localToDevice(),
+                                                matrixProvider,
                                                 drawOrigin,
-                                                clipRect,
-                                                drawingColor,
-                                                target->colorInfo().isLinearlyBlended(),
-                                                SkPaintPriv::ComputeLuminanceColor(paint),
-                                                props);
+                                                clipRect);
     } else {
-        return GrAtlasTextOp::MakeBitmap(target->getContext(),
-                                         std::move(grPaint),
+        return GrAtlasTextOp::MakeBitmap(rtc,
+                                         paint,
                                          this,
-                                         matrixProvider.localToDevice(),
+                                         matrixProvider,
                                          drawOrigin,
-                                         clipRect,
-                                         drawingColor);
+                                         clipRect);
     }
 }
 
@@ -687,14 +663,13 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
     return true;
 }
 
-void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
-                                     const SkSurfaceProps& props,
+void GrTextBlob::insertOpsIntoTarget(GrRenderTargetContext* rtc,
                                      const SkPaint& paint,
                                      const GrClip* clip,
                                      const SkMatrixProvider& deviceMatrix,
                                      SkPoint drawOrigin) {
     for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
-        subRun->insertSubRunOpsIntoTarget(target, props, paint, clip, deviceMatrix, drawOrigin);
+        subRun->insertSubRunOpsIntoTarget(rtc, paint, clip, deviceMatrix, drawOrigin);
     }
 }
 
