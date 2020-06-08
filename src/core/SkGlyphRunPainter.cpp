@@ -294,7 +294,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
         blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-        SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
+        SkGlyphRunListPainter* painter = rtc->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,
                 context->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
@@ -305,8 +305,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                                        drawOrigin,
                                        SkIRect::MakeEmpty(),
                                        skPaint,
-                                       surfaceProps,
-                                       rtc->textTarget());
+                                       rtc);
 }
 
 #endif  // GR_TEST_UTILS
