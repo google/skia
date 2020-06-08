@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2fd06b1_dd692e94",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "nit: wrap docs to 100 cols.",
+      "range": {
+        "startLine": 776,
+        "startChar": 96,
+        "endLine": 776,
+        "endChar": 102
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6617a2ce_19c31adc",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "nit: extra space?",
+      "range": {
+        "startLine": 794,
+        "startChar": 14,
+        "endLine": 794,
+        "endChar": 15
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ee2b2c4_25ecb518",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "Add a note that the arrray of float32 arrays is deprecated.",
+      "range": {
+        "startLine": 263,
+        "startChar": 68,
+        "endLine": 263,
+        "endChar": 81
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2222cb95_7a7ee571",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "Perhaps to avoid garbage collection, we can make a \"global\" result object that we re-use on each invocation.\n\nvar flexibleColorResult \u003d {\n  colorPtr: nullptr,\n  count: 0,\n  colorType: CanvasKit.ColorType.RGBA_F32,\n}\n\nfunction copyFlexibleColorArray(colors) {\n  flexibleColorResult.count \u003d colors.length;\n  ...\n  return flexibleColorResult.count;\n}",
+      "range": {
+        "startLine": 267,
+        "startChar": 2,
+        "endLine": 267,
+        "endChar": 16
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "397d432e_0e55e0d9",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "I would throw here. returning 0 will cause a failure in the client and it might not be as clear why.",
+      "range": {
+        "startLine": 284,
+        "startChar": 11,
+        "endLine": 284,
+        "endChar": 18
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d43430b_9b82f24b",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-08T19:58:29Z",
+      "side": 1,
+      "message": "I\u0027m glad you changed these to test the variety.",
+      "range": {
+        "startLine": 325,
+        "startChar": 12,
+        "endLine": 325,
+        "endChar": 23
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
