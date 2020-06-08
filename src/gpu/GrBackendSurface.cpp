@@ -708,6 +708,11 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
         case GrBackendApi::kDirect3D:
             return false; //TODO
 #endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn: {
+            return this->fDawnInfo.fTexture.Get() == that.fDawnInfo.fTexture.Get();
+        }
+#endif
         case GrBackendApi::kMock:
             return fMockInfo.id() == that.fMockInfo.id();
         default:
