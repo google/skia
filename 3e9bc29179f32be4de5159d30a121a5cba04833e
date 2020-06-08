@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "047160fc_c8d21eb2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T17:10:14Z",
+      "side": 1,
+      "message": "SkShaper_coretext",
+      "revId": "3e9bc29179f32be4de5159d30a121a5cba04833e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d97649ea_8cb6107c",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T17:10:14Z",
+      "side": 1,
+      "message": "I recently pulled out src/utils/mac/SkCGBase.h which has shared utility for these sorts of conversions. Probably want SkScalarFromCGFloat.",
+      "revId": "3e9bc29179f32be4de5159d30a121a5cba04833e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
