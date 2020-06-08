@@ -28,7 +28,7 @@ public:
         if (_outer.inputFP_index >= 0) {
             _sample1193 = this->invokeChild(_outer.inputFP_index, _input1193.c_str(), args);
         } else {
-            _sample1193 = "half4(1)";
+            _sample1193 = _input1193;
         }
         fragBuilder->codeAppendf(
                 "half4 c = %s ? %s : %s;\nhalf4 p = c.y < c.z ? half4(c.zy, -1.0, "

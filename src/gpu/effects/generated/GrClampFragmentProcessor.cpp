@@ -30,7 +30,7 @@ public:
         if (_outer.inputFP_index >= 0) {
             _sample484 = this->invokeChild(_outer.inputFP_index, _input484.c_str(), args);
         } else {
-            _sample484 = "half4(1)";
+            _sample484 = _input484;
         }
         fragBuilder->codeAppendf(
                 "half4 inputColor = %s ? %s : %s;\n@if (%s) {\n    half alpha = "
