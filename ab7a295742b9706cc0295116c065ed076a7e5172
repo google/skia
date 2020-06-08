@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "94498373_43c5d972",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-08T17:35:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fbd07e8_27b28432",
+      "revId": "ab7a295742b9706cc0295116c065ed076a7e5172",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e47701d_639c126c",
         "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "ab7a295742b9706cc0295116c065ed076a7e5172",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e3cc4ae_7456cefb",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-08T17:35:26Z",
+      "side": 1,
+      "message": "It added a new line at the end of the file.",
+      "parentUuid": "0e47701d_639c126c",
+      "revId": "ab7a295742b9706cc0295116c065ed076a7e5172",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
