@@ -984,6 +984,8 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 				asset = "ios-dev-image-12.4"
 			case "13.3.1":
 				asset = "ios-dev-image-13.3"
+			case "13.4.1":
+				asset = "ios-dev-image-13.4"
 			default:
 				log.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", b.Name, m[1])
 			}
