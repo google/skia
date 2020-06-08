@@ -97,8 +97,9 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
 
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(fContext);
+    SkASSERT(!fTargetProxy);
     SkASSERT(!fLazyProxyData);
-    SkASSERT(!fSurface);
+    SkASSERT(!fSurface1);
 
     if (!fCharacterization.isValid()) {
         return false;
@@ -142,6 +143,10 @@ bool SkDeferredDisplayListRecorder::init() {
     if (usesGLFBO0) {
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
+    if (fCharacterization.sampleCount() > 1 && !caps->msaaResolvesAutomatically()) {
+        surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+
     // FIXME: Why do we use GrMipMapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,
                                                                GrTextureType::k2D};
@@ -152,7 +157,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrSwizzle readSwizzle = caps->getReadSwizzle(fCharacterization.backendFormat(), grColorType);
 
-    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
+    fTargetProxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider,
                             const GrSurfaceProxy::LazySurfaceDesc&) {
                 // The proxy backing the destination surface had better have been instantiated
@@ -174,21 +179,21 @@ bool SkDeferredDisplayListRecorder::init() {
             fCharacterization.vulkanSecondaryCBCompatible(),
             GrSurfaceProxy::UseAllocator::kYes);
 
-    if (!proxy) {
+    if (!fTargetProxy) {
         return false;
     }
 
     GrSwizzle writeSwizzle = caps->getWriteSwizzle(fCharacterization.backendFormat(), grColorType);
 
-    GrSurfaceProxyView readView(proxy, fCharacterization.origin(), readSwizzle);
-    GrSurfaceProxyView writeView(std::move(proxy), fCharacterization.origin(), writeSwizzle);
+    GrSurfaceProxyView readView(fTargetProxy, fCharacterization.origin(), readSwizzle);
+    GrSurfaceProxyView writeView(fTargetProxy, fCharacterization.origin(), writeSwizzle);
 
     auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(readView),
                                                        std::move(writeView), grColorType,
                                                        fCharacterization.refColorSpace(),
                                                        &fCharacterization.surfaceProps());
-    fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
-    return SkToBool(fSurface.get());
+    fSurface1 = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
+    return SkToBool(fSurface1.get());
 }
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
@@ -196,11 +201,11 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
         return nullptr;
     }
 
-    if (!fSurface && !this->init()) {
+    if (!fSurface1 && !this->init()) {
         return nullptr;
     }
 
-    return fSurface->getCanvas();
+    return fSurface1->getCanvas();
 }
 
 std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
@@ -208,20 +213,22 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
         return nullptr;
     }
 
-    if (fSurface) {
-        SkCanvas* canvas = fSurface->getCanvas();
+    if (fSurface1) {
+        SkCanvas* canvas = fSurface1->getCanvas();
 
         canvas->restoreToCount(0);
     }
 
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
-                           new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
+                           new SkDeferredDisplayList(fCharacterization,
+                                                     std::move(fTargetProxy),
+                                                     std::move(fLazyProxyData)));
 
     fContext->priv().moveRenderTasksToDDL(ddl.get());
 
     // We want a new lazy proxy target for each recorded DDL so force the (lazy proxy-backed)
     // SkSurface to be regenerated for each DDL.
-    fSurface = nullptr;
+    fSurface1 = nullptr;
     return ddl;
 }
 

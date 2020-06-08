@@ -83,6 +83,7 @@ private:
     };
 
     SK_API SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                 sk_sp<GrRenderTargetProxy> fTargetProxy,
                                  sk_sp<LazyProxyData>);
 
 #if SK_SUPPORT_GPU
@@ -108,7 +109,8 @@ private:
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
     SkTArray<GrRecordingContext::ProgramData> fProgramData;
-    sk_sp<LazyProxyData>            fLazyProxyData;
+    sk_sp<GrRenderTargetProxy>      fTargetProxy;
+    sk_sp<LazyProxyData>            fLazyProxyData1;
 #endif
 };
 

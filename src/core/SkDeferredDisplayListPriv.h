@@ -22,8 +22,12 @@ public:
         return fDDL->fRenderTasks.count();
     }
 
+    GrRenderTargetProxy* targetProxy() const {
+        return fDDL->fTargetProxy.get();
+    }
+
     const SkDeferredDisplayList::LazyProxyData* lazyProxyData() const {
-        return fDDL->fLazyProxyData.get();
+        return fDDL->fLazyProxyData1.get();
     }
 
     const SkTArray<GrRecordingContext::ProgramData>& programData() const {
