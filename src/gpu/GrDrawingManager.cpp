@@ -57,21 +57,9 @@ void GrDrawingManager::RenderTaskDAG::reset() {
     fRenderTasks.reset();
 }
 
-void GrDrawingManager::RenderTaskDAG::removeRenderTask(int index) {
-    if (!fRenderTasks[index]->unique()) {
-        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
-        fRenderTasks[index]->endFlush();
-    }
-
-    fRenderTasks[index] = nullptr;
-}
-
 void GrDrawingManager::RenderTaskDAG::removeRenderTasks(int startIndex, int stopIndex) {
     for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fRenderTasks[i]) {
-            continue;
-        }
-        this->removeRenderTask(i);
+        fRenderTasks[i] = nullptr;
     }
 }
 
@@ -151,7 +139,7 @@ void GrDrawingManager::RenderTaskDAG::closeAll(const GrCaps* caps) {
     }
 }
 
-void GrDrawingManager::RenderTaskDAG::cleanup(const GrCaps* caps) {
+void GrDrawingManager::RenderTaskDAG::cleanup(GrDrawingManager* drawingMgr, const GrCaps* caps) {
     for (int i = 0; i < fRenderTasks.count(); ++i) {
         if (!fRenderTasks[i]) {
             continue;
@@ -160,13 +148,15 @@ void GrDrawingManager::RenderTaskDAG::cleanup(const GrCaps* caps) {
         // no renderTask should receive a dependency
         fRenderTasks[i]->makeClosed(*caps);
 
+        fRenderTasks[i]->disown(drawingMgr);
+
         // We shouldn't need to do this, but it turns out some clients still hold onto opsTasks
         // after a cleanup.
         // MDB TODO: is this still true?
         if (!fRenderTasks[i]->unique()) {
             // TODO: Eventually this should be guaranteed unique.
             // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-            fRenderTasks[i]->endFlush();
+            fRenderTasks[i]->endFlush(drawingMgr);
         }
     }
 
@@ -191,7 +181,7 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
 }
 
 void GrDrawingManager::cleanup() {
-    fDAG.cleanup(fContext->priv().caps());
+    fDAG.cleanup(this, fContext->priv().caps());
 
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
@@ -477,6 +467,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
             SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
         SkASSERT(onFlushRenderTask->unique());
+        onFlushRenderTask->disown(this);
         onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
@@ -511,9 +502,24 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     // resources are the last to be purged by the resource cache.
     flushState->reset();
 
-    fDAG.removeRenderTasks(startIndex, stopIndex);
+    this->removeRenderTasks(startIndex, stopIndex);
 
     return anyRenderTasksExecuted;
+}
+
+void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
+    for (int i = startIndex; i < stopIndex; ++i) {
+        GrRenderTask* task = fDAG.renderTask(i);
+        if (!task) {
+            continue;
+        }
+        if (!task->unique()) {
+            // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
+            task->endFlush(this);
+        }
+        task->disown(this);
+    }
+    fDAG.removeRenderTasks(startIndex, stopIndex);
 }
 
 GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
@@ -605,6 +611,26 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 }
 #endif
 
+void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTask* task) {
+#ifdef SK_DEBUG
+    if (GrRenderTask* prior = this->getLastRenderTask(proxy)) {
+        SkASSERT(prior->isClosed());
+    }
+#endif
+    fLastRenderTasks.set(proxy->uniqueID().asUInt(), task);
+}
+
+GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) const {
+    auto entry = fLastRenderTasks.find(proxy->uniqueID().asUInt());
+    return entry ? *entry : nullptr;
+}
+
+GrOpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
+    GrRenderTask* task = this->getLastRenderTask(proxy);
+    return task ? task->asOpsTask() : nullptr;
+}
+
+
 void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 
@@ -616,6 +642,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkASSERT(!fDAG.numRenderTasks());
 
     for (auto& renderTask : ddl->fRenderTasks) {
+        renderTask->disown(this);
         renderTask->prePrepare(fContext);
     }
 
@@ -697,7 +724,7 @@ void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) 
         // split in case they use both the old and new content. (This is a bit of an overkill: they
         // really only need to be split if they ever reference proxy's contents again but that is
         // hard to predict/handle).
-        if (GrRenderTask* lastRenderTask = target->getLastRenderTask()) {
+        if (GrRenderTask* lastRenderTask = this->getLastRenderTask(target)) {
             lastRenderTask->closeThoseWhoDependOnMe(*fContext->priv().caps());
         }
     } else if (fActiveOpsTask) {
@@ -718,10 +745,10 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     GrSurfaceProxy* proxy = surfaceView.proxy();
     this->closeRenderTasksForNewRenderTask(proxy);
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(fContext->priv().arenas(),
+    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas(),
                                            std::move(surfaceView),
                                            fContext->priv().auditTrail()));
-    SkASSERT(proxy->getLastRenderTask() == opsTask.get());
+    SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
 
     if (managedOpsTask) {
         fDAG.add(opsTask);
@@ -761,7 +788,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
                                                                     std::move(semaphores),
                                                                     numSemaphores);
     if (fReduceOpsTaskSplitting) {
-        GrRenderTask* lastTask = proxy->getLastRenderTask();
+        GrRenderTask* lastTask = this->getLastRenderTask(proxy.get());
         if (lastTask && !lastTask->isClosed()) {
             // We directly make the currently open renderTask depend on waitTask instead of using
             // the proxy version of addDependency. The waitTask will never need to trigger any
@@ -785,12 +812,12 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             if (lastTask) {
                 waitTask->addDependency(lastTask);
             }
-            proxy->setLastRenderTask(waitTask.get());
+            this->setLastRenderTask(proxy.get(), waitTask.get());
         }
         fDAG.add(waitTask);
     } else {
         if (fActiveOpsTask && (fActiveOpsTask->fTargetView.proxy() == proxy.get())) {
-            SkASSERT(proxy->getLastRenderTask() == fActiveOpsTask);
+            SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
             fDAG.addBeforeLast(waitTask);
             // In this case we keep the current renderTask open but just insert the new waitTask
             // before it in the list. The waitTask will never need to trigger any resolves or mip
@@ -812,10 +839,10 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             // there is a lastTask on the proxy we make waitTask depend on that task. This
             // dependency isn't strictly needed but it does keep the DAG from reordering the
             // waitTask earlier and blocking more tasks.
-            if (GrRenderTask* lastTask = proxy->getLastRenderTask()) {
+            if (GrRenderTask* lastTask = this->getLastRenderTask(proxy.get())) {
                 waitTask->addDependency(lastTask);
             }
-            proxy->setLastRenderTask(waitTask.get());
+            this->setLastRenderTask(proxy.get(), waitTask.get());
             this->closeRenderTasksForNewRenderTask(proxy.get());
             fDAG.add(waitTask);
         }
@@ -837,13 +864,15 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     this->closeRenderTasksForNewRenderTask(nullptr);
 
     GrRenderTask* task = fDAG.add(sk_make_sp<GrTransferFromRenderTask>(
-            srcProxy, srcRect, surfaceColorType, dstColorType, std::move(dstBuffer), dstOffset));
+            srcProxy, srcRect, surfaceColorType, dstColorType,
+            std::move(dstBuffer), dstOffset));
 
     const GrCaps& caps = *fContext->priv().caps();
 
     // We always say GrMipMapped::kNo here since we are always just copying from the base layer. We
     // don't need to make sure the whole mip map chain is valid.
-    task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->addDependency(this, srcProxy.get(), GrMipMapped::kNo,
+                        GrTextureResolveManager(this), caps);
     task->makeClosed(caps);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
@@ -865,7 +894,7 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
     GrSurfaceProxy* srcProxy = srcView.proxy();
 
     GrRenderTask* task =
-            fDAG.add(GrCopyRenderTask::Make(std::move(srcView), srcRect, std::move(dstView),
+            fDAG.add(GrCopyRenderTask::Make(this, std::move(srcView), srcRect, std::move(dstView),
                                             dstPoint, &caps));
     if (!task) {
         return false;
@@ -873,7 +902,7 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
 
     // We always say GrMipMapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
-    task->addDependency(srcProxy, GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->addDependency(this, srcProxy, GrMipMapped::kNo, GrTextureResolveManager(this), caps);
     task->makeClosed(caps);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there

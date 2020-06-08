@@ -40,15 +40,20 @@ public:
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-    virtual void endFlush() {}
+    virtual void endFlush(GrDrawingManager*) {}
+
+    // This method "disowns" all the GrSurfaceProxies this RenderTask modifies. In
+    // practice this just means telling the drawingManager to forget the relevant
+    // mappings from surface proxy to last modifying rendertask.
+    virtual void disown(GrDrawingManager*);
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, GrMipMapped, GrTextureResolveManager,
-                       const GrCaps& caps);
+    void addDependency(GrDrawingManager*, GrSurfaceProxy* dependedOn, GrMipMapped,
+                       GrTextureResolveManager, const GrCaps& caps);
 
     /*
      * Notify this GrRenderTask that it relies on the contents of all GrRenderTasks which otherTask
@@ -62,6 +67,7 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
+    GrSurfaceProxyView targetView() const { return fTargetView; }
 
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
@@ -144,10 +150,11 @@ private:
     static uint32_t CreateUniqueID();
 
     enum Flags {
-        kClosed_Flag    = 0x01,   //!< This GrRenderTask can't accept any more dependencies.
+        kClosed_Flag    = 0x01,   //!< This task can't accept any more dependencies.
+        kDisowned_Flag  = 0x02,   //!< This task is disowned by its creating GrDrawingManager.
 
-        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+        kWasOutput_Flag = 0x04,   //!< Flag for topological sorting
+        kTempMark_Flag  = 0x08,   //!< Flag for topological sorting
     };
 
     void setFlag(uint32_t flag) {
