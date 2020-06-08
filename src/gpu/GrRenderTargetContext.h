@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyphRunPainter.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -699,6 +700,8 @@ private:
 
     GrOpsTask* getOpsTask();
 
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
+
     std::unique_ptr<GrTextTarget> fTextTarget;
 
     GrSurfaceProxyView fWriteView;
@@ -714,7 +717,7 @@ private:
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
-
+    SkGlyphRunListPainter fGlyphPainter;
     typedef GrSurfaceContext INHERITED;
 };
 
