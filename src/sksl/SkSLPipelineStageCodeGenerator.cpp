@@ -19,9 +19,11 @@ PipelineStageCodeGenerator::PipelineStageCodeGenerator(
                                                   const Program* program,
                                                   ErrorReporter* errors,
                                                   OutputStream* out,
-                                                  PipelineStageArgs* outArgs)
+                                                  PipelineStageArgs* outArgs,
+                                                  std::vector<SampleMatrix>* outMatrices)
     : INHERITED(context, program, errors, out)
-    , fArgs(outArgs) {}
+    , fArgs(outArgs)
+    , fSampleMatrices(outMatrices) {}
 
 void PipelineStageCodeGenerator::writeHeader() {
 }
@@ -81,8 +83,17 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(found);
         this->write("%s");
         size_t childCallIndex = fArgs->fFormatArgs.size();
+        bool matrixCall = c.fArguments.size() == 2 &&
+                          c.fArguments[1]->fType.kind() == Type::kMatrix_Kind;
         fArgs->fFormatArgs.push_back(
-                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
+               Compiler::FormatArg(matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
+                                              : Compiler::FormatArg::Kind::kChildProcessor,
+                                   index));
+        if (matrixCall) {
+            fSampleMatrices->push_back(SampleMatrix(SampleMatrix::Kind::kVariable));
+        } else {
+            fSampleMatrices->push_back(SampleMatrix(SampleMatrix::Kind::kNone));
+        }
         OutputStream* oldOut = fOut;
         StringStream buffer;
         fOut = &buffer;
