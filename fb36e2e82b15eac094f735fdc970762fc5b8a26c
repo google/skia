@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c0d16f0_4b3f58e8",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-08T20:34:58Z",
+      "side": 1,
+      "message": "Here, indices into fSampleMatrices are based on # of children...",
+      "revId": "fb36e2e82b15eac094f735fdc970762fc5b8a26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d7d7736_7240ef90",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-08T20:34:58Z",
+      "side": 1,
+      "message": "... but here it seems like there will be one entry per sample() invocation in the shader. Is it a problem if they\u0027re sampled in a different order than they\u0027re declared? Or if one child is sampled more than once?",
+      "revId": "fb36e2e82b15eac094f735fdc970762fc5b8a26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
