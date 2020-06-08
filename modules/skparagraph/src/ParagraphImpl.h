@@ -152,7 +152,10 @@ public:
 
     SkSpan<const char> text(TextRange textRange);
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
-    Cluster& cluster(ClusterIndex clusterIndex);
+    Cluster& cluster(ClusterIndex clusterIndex) {
+        SkASSERT(clusterIndex < fClusters.size());
+        return fClusters[clusterIndex];
+    }
     Run& run(RunIndex runIndex) {
         SkASSERT(runIndex < fRuns.size());
         return fRuns[runIndex];
