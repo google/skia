@@ -72,8 +72,6 @@ SKP_JS="--pre-js $BASE_DIR/skp.js"
 GN_SKP_FLAGS=""
 WASM_SKP="-DSK_SERIALIZE_SKP"
 if [[ $@ == *no_skp* ]]; then
-  GN_SKP_FLAGS="\"-DSK_DISABLE_READBUFFER\","
-  WASM_SKP="-DSK_DISABLE_READBUFFER"
   SKP_JS=""
 fi
 
