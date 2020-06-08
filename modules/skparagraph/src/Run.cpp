@@ -20,12 +20,14 @@ Run::Run(ParagraphImpl* master,
          SkScalar lineHeight,
          size_t index,
          SkScalar offsetX)
-        : fMaster(master)
-        , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
-        , fClusterRange(EMPTY_CLUSTERS)
-        , fClusterStart(firstChar) {
-    fFont = info.fFont;
-    fHeightMultiplier = lineHeight;
+    : fMaster(master)
+    , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
+    , fClusterRange(EMPTY_CLUSTERS)
+    , fFont(info.fFont)
+    , fHeightMultiplier(lineHeight)
+    , fClusterStart(firstChar)
+{
+    SkDebugf("size %d\n", sizeof(*this));
     fBidiLevel = info.fBidiLevel;
     fAdvance = info.fAdvance;
     fIndex = index;

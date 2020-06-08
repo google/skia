@@ -211,12 +211,8 @@ private:
     ClusterRange fClusterRange;
 
     SkFont fFont;
-    SkFontMetrics fFontMetrics;
-    SkScalar fHeightMultiplier;
     size_t fPlaceholderIndex;
-    bool fEllipsis;
     size_t fIndex;
-    uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
     TextIndex fClusterStart;
@@ -229,7 +225,13 @@ private:
     SkSTArray<128, SkRect, true> fBounds;
 
     SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
+
+    SkFontMetrics fFontMetrics;
+    const SkScalar fHeightMultiplier;
+
     bool fSpaced;
+    bool fEllipsis;
+    uint8_t fBidiLevel;
 };
 
 struct CodepointRepresentation {
