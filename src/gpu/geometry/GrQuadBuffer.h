@@ -7,6 +7,7 @@
 #ifndef GrQuadBuffer_DEFINED
 #define GrQuadBuffer_DEFINED
 
+#include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/geometry/GrQuad.h"
 
@@ -31,6 +32,10 @@ public:
             , fLocalType(GrQuad::Type::kAxisAligned) {
         int entrySize = this->entrySize(fDeviceType, needsLocals ? &fLocalType : nullptr);
         fData.reserve(count * entrySize);
+    }
+
+    ~GrQuadBuffer() {
+//        SkDebugf("quadbuffer fData.size = %d\n", fData.count());
     }
 
     // The number of device-space quads (and metadata, and optional local quads) that are in the
@@ -169,7 +174,9 @@ private:
     // FIXME (michaelludwig) - Since this is intended only for ops, can we use the arena to
     //      allocate storage for the quad buffer? Since this is forward-iteration only, could also
     //      explore a linked-list structure for concatenating quads when batching ops
-    SkTDArray<char> fData;
+ //   SkTDArray<char> fData;
+    SkSTArray<88, char, true> fData;
+
 
     int fCount; // Number of (device, local, metadata) entries
     GrQuad::Type fDeviceType; // Most general type of all entries
