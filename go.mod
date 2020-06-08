@@ -23,8 +23,8 @@ require (
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200606210838-0cf95fe43711 // indirect
-	go.skia.org/infra v0.0.0-20200605163027-b867fb6b6232
+	go.chromium.org/luci v0.0.0-20200607214229-335dfe308d12 // indirect
+	go.skia.org/infra v0.0.0-20200607051952-f5b0a6c1ff19
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
