@@ -77,8 +77,7 @@ public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
             : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
                            renderTargetContext->colorInfo())
-            , fRenderTargetContext(renderTargetContext)
-            , fGlyphPainter{*renderTargetContext} {}
+            , fRenderTargetContext(renderTargetContext) {}
 
     void addDrawOp(const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -111,13 +110,11 @@ public:
     }
 
     SkGlyphRunListPainter* glyphPainter() override {
-        return &fGlyphPainter;
+        return fRenderTargetContext->glyphPainter();
     }
 
 private:
     GrRenderTargetContext* fRenderTargetContext;
-    SkGlyphRunListPainter fGlyphPainter;
-
 };
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
@@ -378,7 +375,8 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fWriteView(std::move(writeView))
         , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fManagedOpsTask(managedOpsTask) {
+        , fManagedOpsTask(managedOpsTask)
+        , fGlyphPainter(*this) {
     if (fOpsTask) {
         fOpsTask->addClosedObserver(this);
     }
