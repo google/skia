@@ -319,11 +319,11 @@ class ObjectValue final : public VectorValue<Member, Value::Type::kObject> {
 public:
     ObjectValue(const Member* src, size_t size, SkArenaAlloc& alloc);
 
-    const Value& operator[](const char*) const;
+    const  Value& operator[](const char*) const;
 
-private:
-    // Not particularly interesting - hiding for disambiguation.
-    const Member& operator[](size_t i) const = delete;
+    const Member& operator[](size_t i) const {
+        return this->VectorValue::operator[](i);
+    }
 };
 
 class DOM final : public SkNoncopyable {
