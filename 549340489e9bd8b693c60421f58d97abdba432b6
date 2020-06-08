@@ -46,6 +46,30 @@
       "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6994531a_a44c29b4",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-08T13:26:54Z",
+      "side": 1,
+      "message": "No we don\u0027t SkASSERT(!paint.getShader()). I\u0027m assuming that this is handled in the GPU if there is a shader. Brian, do you know where the shader is handled?\n\nThanks for the code cleanup.",
+      "parentUuid": "42265c5d_b0fddba0",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
