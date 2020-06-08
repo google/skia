@@ -95,7 +95,11 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-#define SK_REGISTER_FLATTENABLE(type) SkFlattenable::Register(#type, type::CreateProc)
+#if defined(SK_DISABLE_EFFECT_DESERIALIZATION)
+    #define SK_REGISTER_FLATTENABLE(type) (void)
+#else
+    #define SK_REGISTER_FLATTENABLE(type) SkFlattenable::Register(#type, type::CreateProc)
+#endif
 
 #define SK_FLATTENABLE_HOOKS(type)                                   \
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
