@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "757445ae_ccf8ef0f",
+        "filename": "src/utils/mac/SkCGBase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T17:47:26Z",
+      "side": 1,
+      "message": "And as a note I think the preferred way would be the other way around, to include ApplicationServices as a framework, see https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPFrameworks/Tasks/IncludingFrameworks.html .",
+      "parentUuid": "e23f04f4_5088a03f",
+      "revId": "5b74f00d836cb345872cf45cf8b1607c64baa10f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6a00469_041c6042",
         "filename": "src/utils/mac/SkCGBase.h",
         "patchSetId": 4
