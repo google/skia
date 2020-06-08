@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "851cc8d5_390ef588",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "Probably want to remove this bit now.",
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb4ada6_33308cd0",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "I know this is the same thing, but I actually like spelling out kCFAllocatorDefault because I don\u0027t always remember what the nullptr as the first argument to various CoreFoundation functions means (sometimes it\u0027s to indicate the default allocator, sometimes nullptr as the first parameter means something different). But if it\u0027s spelled kCFAllocatorDefault then I know what it is and my eye can slide past it without engaging the rest of my brain, while with nullptr I feel the need to remember what it is.\n\nOf course, this means I can be hacked by someone introducing a custom allocator named kCFAllocaterDefault, but that would just be evil anyway.",
+      "range": {
+        "startLine": 122,
+        "startChar": 53,
+        "endLine": 122,
+        "endChar": 60
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b07ca78a_1f045507",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "Is this supposed to be any different from just CFShow(CFTypeRef)? Can probably just use that directly wherever this \u0027dump\u0027 is used. I suppose that goes to stderr, but it shouldn\u0027t matter?",
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f6ed03f_ecf891f9",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "Since we\u0027re cleaning this up, this should return SkUniqueCFRef\u003cCTFontRef\u003e.",
+      "range": {
+        "startLine": 131,
+        "startChar": 7,
+        "endLine": 131,
+        "endChar": 16
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b96695bc_057486bb",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "I know you didn\u0027t change it, but kCFAllocatorDefault?",
+      "range": {
+        "startLine": 160,
+        "startChar": 36,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d03a9e56_fb09f198",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:02:10Z",
+      "side": 1,
+      "message": "kCFAllocatorDefault",
+      "range": {
+        "startLine": 177,
+        "startChar": 37,
+        "endLine": 177,
+        "endChar": 44
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
