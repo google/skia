@@ -148,13 +148,13 @@ bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 }
 
 void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
-    SkIRect rect;
-    SkIRect currentPipelineBounds =
-            SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
-    if (!rect.intersect(currentPipelineBounds, scissor)) {
-        rect = SkIRect::MakeEmpty();
-    }
-    fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
+    // Higher-level GrRenderTargetContext and clips should have already ensured draw bounds are
+    // restricted to the render target. This is a sanity check.
+    SkASSERT(SkIRect::MakeSize(fRenderTarget->dimensions()).contains(scissor));
+    auto nativeScissorRect =
+            GrNativeRect::MakeRelativeTo(fOrigin, fRenderTarget->height(), scissor);
+    fPassEncoder.SetScissorRect(nativeScissorRect.fX, nativeScissorRect.fY,
+                                nativeScissorRect.fWidth, nativeScissorRect.fHeight);
 }
 
 bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
