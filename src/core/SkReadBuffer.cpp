@@ -17,46 +17,29 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
 
-#ifndef SK_DISABLE_READBUFFER
-
-namespace {
-    // This generator intentionally should always fail on all attempts to get its pixels,
-    // simulating a bad or empty codec stream.
-    class EmptyImageGenerator final : public SkImageGenerator {
-    public:
-        EmptyImageGenerator(const SkImageInfo& info) : INHERITED(info) { }
-
-    private:
-        typedef SkImageGenerator INHERITED;
-    };
-
-    static sk_sp<SkImage> MakeEmptyImage(int width, int height) {
-        return SkImage::MakeFromGenerator(
-              std::make_unique<EmptyImageGenerator>(SkImageInfo::MakeN32Premul(width, height)));
-    }
-
-} // anonymous namespace
-
-
 SkReadBuffer::SkReadBuffer() {
     fVersion = 0;
 
+#if !defined(SK_DISABLE_READBUFFER_COMPLEX_TYPES)
     fTFArray = nullptr;
     fTFCount = 0;
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
+#endif
 }
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
     fVersion = 0;
     this->setMemory(data, size);
 
+#if !defined(SK_DISABLE_READBUFFER_COMPLEX_TYPES)
     fTFArray = nullptr;
     fTFCount = 0;
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
+#endif
 }
 
 void SkReadBuffer::setMemory(const void* data, size_t size) {
@@ -88,10 +71,6 @@ const void* SkReadBuffer::skip(size_t size) {
 
 const void* SkReadBuffer::skip(size_t count, size_t size) {
     return this->skip(SkSafeMath::Mul(count, size));
-}
-
-void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
-    fProcs = procs;
 }
 
 bool SkReadBuffer::readBool() {
@@ -287,6 +266,21 @@ uint32_t SkReadBuffer::getArrayCount() {
  *  data [ encoded, with raw width/height ]
  */
 sk_sp<SkImage> SkReadBuffer::readImage() {
+#if defined(SK_DISABLE_READBUFFER_COMPLEX_TYPES)
+    return nullptr;
+#else
+    auto make_empty_image = [](int width, int height) {
+        // This generator intentionally should always fail on all attempts to get its pixels,
+        // simulating a bad or empty codec stream.
+        class EmptyImageGenerator final : public SkImageGenerator {
+        public:
+            EmptyImageGenerator(const SkImageInfo& info) : SkImageGenerator(info) {}
+        };
+
+        return SkImage::MakeFromGenerator(
+                std::make_unique<EmptyImageGenerator>(SkImageInfo::MakeN32Premul(width, height)));
+    };
+
     SkIRect bounds;
     if (this->isVersionLT(SkPicturePriv::kStoreImageBounds_Version)) {
         bounds.fLeft = bounds.fTop = 0;
@@ -310,7 +304,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     }
     if (size == 0) {
         // The image could not be encoded at serialization time - return an empty placeholder.
-        return MakeEmptyImage(width, height);
+        return make_empty_image(width, height);
     }
 
     // we used to negate the size for "custom" encoded images -- ignore that signal (Dec-2017)
@@ -352,10 +346,14 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     }
     // Question: are we correct to return an "empty" image instead of nullptr, if the decoder
     //           failed for some reason?
-    return image ? image : MakeEmptyImage(width, height);
+    return image ? image : make_empty_image(width, height);
+#endif
 }
 
 sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
+#if defined(SK_DISABLE_READBUFFER_COMPLEX_TYPES)
+    return nullptr;
+#else
     // Read 32 bits (signed)
     //   0 -- return null (default font)
     //  >0 -- index
@@ -377,9 +375,13 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         }
         return fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx);
     }
+#endif
 }
 
 SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
+#if defined(SK_DISABLE_READBUFFER_COMPLEX_TYPES)
+    return nullptr;
+#else
     SkFlattenable::Factory factory = nullptr;
 
     if (fFactoryCount > 0) {
@@ -444,6 +446,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         return nullptr;
     }
     return obj.release();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -461,5 +464,3 @@ int32_t SkReadBuffer::checkInt(int32_t min, int32_t max) {
 SkFilterQuality SkReadBuffer::checkFilterQuality() {
     return this->checkRange<SkFilterQuality>(kNone_SkFilterQuality, kLast_SkFilterQuality);
 }
-
-#endif // #ifndef SK_DISABLE_READBUFFER
