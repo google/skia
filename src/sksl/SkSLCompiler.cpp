@@ -1628,11 +1628,12 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool Compiler::toPipelineStage(const Program& program, PipelineStageArgs* outArgs) {
+bool Compiler::toPipelineStage(const Program& program, PipelineStageArgs* outArgs,
+                               std::vector<SampleMatrix>* outMatrices) {
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs, outMatrices);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
