@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47aa5d69_8376f2d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-08T11:36:21Z",
+      "side": 1,
+      "message": "These are the old SSSE3 -\u003e AVX-512 numbers right?  not AVX2 -\u003e AVX-512?",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
