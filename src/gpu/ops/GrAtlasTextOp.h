@@ -38,24 +38,28 @@ public:
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext* rtc,
-                                                     GrPaint&& paint,
+                                                     const SkPaint&,
                                                      GrTextBlob::SubRun* subrun,
-                                                     const SkMatrix& drawMatrix,
+                                                     const SkMatrixProvider&,
                                                      SkPoint drawOrigin,
-                                                     const SkIRect& clipRect,
-                                                     const SkPMColor4f& filteredColor);
+                                                     const SkIRect& clipRect);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             GrRenderTargetContext*,
-            GrPaint&&,
+            const SkPaint&,
             GrTextBlob::SubRun*,
-            const SkMatrix& drawMatrix,
-            SkPoint drawOrigin,
-            const SkIRect& clipRect,
-            const SkPMColor4f& filteredColor,
-            bool useGammaCorrectDistanceTable,
-            SkColor luminanceColor,
-            const SkSurfaceProps&);
+            const SkMatrixProvider&,
+            SkPoint,
+            const SkIRect&);
+
+    static void AddDrawOp(
+            GrRenderTargetContext* rtc, const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op);
+
+    static void DrawShape(GrRenderTargetContext* rtc,
+                          const GrClip* clip,
+                          const SkPaint& paint,
+                          const SkMatrixProvider& matrixProvider,
+                          const GrStyledShape& shape);
 
     const char* name() const override { return "AtlasTextOp"; }
 

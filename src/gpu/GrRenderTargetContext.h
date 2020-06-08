@@ -22,7 +22,6 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -549,8 +548,6 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
-    GrTextTarget* textTarget() { return fTextTarget.get(); }
-
     void wasClosed(const GrOpsTask& task) override;
 
 #if GR_TEST_UTILS
@@ -558,9 +555,9 @@ public:
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
 private:
-    class TextTarget;
     enum class QuadOptimization;
 
     GrAAType chooseAAType(GrAA);
@@ -670,10 +667,6 @@ private:
                                                  GrXferProcessor::DstProxyView* result);
 
     GrOpsTask* getOpsTask();
-
-    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
-
-    std::unique_ptr<GrTextTarget> fTextTarget;
 
     GrSurfaceProxyView fWriteView;
 
