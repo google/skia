@@ -94,6 +94,30 @@
       "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df07378f_d91871f1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-08T15:45:57Z",
+      "side": 1,
+      "message": "I inherited the text color code from what was there, and since then I believe Greg was the last to look at it, adding him. But that sounds like the right process to me.",
+      "parentUuid": "cd0d7d6f_d15b36c1",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
