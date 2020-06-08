@@ -9,6 +9,7 @@
     #include "src/gpu/GrShaderCaps.h"
 }
 
+in fragmentProcessor? inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float2 radii;
@@ -23,7 +24,8 @@ bool medPrecision = !sk_Caps.floatIs32Bits;
 layout(when=medPrecision) uniform float2 scale;
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrClipEdgeType edgeType, SkPoint center,
                                                      SkPoint radii, const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
@@ -37,11 +39,15 @@ layout(when=medPrecision) uniform float2 scale;
         if (!caps.floatIs32Bits() && (radii.fX > 16384 || radii.fY > 16384)) {
             return nullptr;
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrEllipseEffect(std::move(inputFP), edgeType, center, radii));
     }
 }
 
-@optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+            kCompatibleWithCoverageAsAlpha_OptimizationFlag
+}
 
 @setData(pdman) {
     if (radii != prevRadii || center != prevCenter) {
@@ -114,7 +120,8 @@ void main() {
             // hairline not supported
             discard;
     }
-    sk_OutColor = sk_InColor * alpha;
+    half4 inputColor = sample(inputFP, sk_InColor);
+    sk_OutColor = inputColor * alpha;
 }
 
 @test(testData) {
@@ -127,6 +134,6 @@ void main() {
     do {
         et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry),
+    return GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
                                  *testData->caps()->shaderCaps());
 }

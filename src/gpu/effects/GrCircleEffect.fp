@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float radius;
@@ -16,18 +17,23 @@ float prevRadius = -1;
 uniform float4 circle;
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrClipEdgeType edgeType, SkPoint center,
                                                      float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
             return nullptr;
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+        return std::unique_ptr<GrFragmentProcessor>(
+            new GrCircleEffect(std::move(inputFP), edgeType, center, radius));
     }
 }
 
-@optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag
+}
 
 @setData(pdman) {
     if (radius != prevRadius || center != prevCenter) {
@@ -57,12 +63,13 @@ void main() {
     } else {
         d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);
     }
+    half4 inputColor = sample(inputFP, sk_InColor);
     @if (edgeType == GrClipEdgeType::kFillAA ||
          edgeType == GrClipEdgeType::kInverseFillAA ||
          edgeType == GrClipEdgeType::kHairlineAA) {
-        sk_OutColor = sk_InColor * saturate(d);
+        sk_OutColor = inputColor * saturate(d);
     } else {
-        sk_OutColor = d > 0.5 ? sk_InColor : half4(0);
+        sk_OutColor = d > 0.5 ? inputColor : half4(0);
     }
 }
 
@@ -75,5 +82,5 @@ void main() {
     do {
         et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make(et, center, radius);
+    return GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
 }

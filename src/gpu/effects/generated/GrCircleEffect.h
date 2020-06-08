@@ -17,7 +17,8 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrCircleEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrClipEdgeType edgeType,
                                                      SkPoint center,
                                                      float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
@@ -25,22 +26,34 @@ public:
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
             return nullptr;
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrCircleEffect(std::move(inputFP), edgeType, center, radius));
     }
     GrCircleEffect(const GrCircleEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
+    int inputFP_index = -1;
     GrClipEdgeType edgeType;
     SkPoint center;
     float radius;
 
 private:
-    GrCircleEffect(GrClipEdgeType edgeType, SkPoint center, float radius)
+    GrCircleEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                   GrClipEdgeType edgeType,
+                   SkPoint center,
+                   float radius)
             : INHERITED(kGrCircleEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , edgeType(edgeType)
             , center(center)
-            , radius(radius) {}
+            , radius(radius) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
