@@ -125,7 +125,6 @@ public:
         kGrPathProcessor_ClassID,
         kGrPerlinNoise2Effect_ClassID,
         kGrPipelineDynamicStateTestProcessor_ClassID,
-        kGrPremulInputFragmentProcessor_ClassID,
         kGrQuadEffect_ClassID,
         kGrRadialGradientLayout_ClassID,
         kGrRectBlurEffect_ClassID,
