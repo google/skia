@@ -16,6 +16,63 @@
       "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95eed7dd_dc6c6cae",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-08T12:51:21Z",
+      "side": 1,
+      "message": "We\u0027ve found that in some circumstances clang-cl fails to compile these functions with non-type template parameters when they\u0027ve got lambdas inside.\n\nPlease switch it over to passing as a normal parameter like we\u0027ve done for the rest of the functions in the file?",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e948103c_36faeac7",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-08T12:51:21Z",
+      "side": 1,
+      "message": "The AVX2 change found that AVX2 was no additional benefit over SSSE3 here.  Has that changed?",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 639,
+        "endChar": 1
+      },
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faf6928e_2fa264ba",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-08T12:51:21Z",
+      "side": 1,
+      "message": "There\u0027s no reason to duplicate this code unless you really want a ymm/AVX-512 implementation in parallel to the existing ymm/AVX2 implementation.  Just don\u0027t define it and don\u0027t overwrite the function pointer.  All the optimizations get a chance in order to fill in function pointers, so if we don\u0027t write it in SkOpts_skx, we\u0027ll use the one written in SkOpts_hsw.",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
