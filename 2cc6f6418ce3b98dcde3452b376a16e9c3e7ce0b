@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f72a0e99_3acb25a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-08T18:02:48Z",
+      "side": 1,
+      "message": "Can you add an overview of the new fields, and how they work (with the rest of the code)?",
+      "range": {
+        "startLine": 7,
+        "startChar": 9,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "2cc6f6418ce3b98dcde3452b376a16e9c3e7ce0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
