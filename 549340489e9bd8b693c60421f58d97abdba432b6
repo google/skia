@@ -70,6 +70,30 @@
       "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd0d7d6f_d15b36c1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-08T14:19:19Z",
+      "side": 1,
+      "message": "It looks like the shader will be handled much later, when we finally convert the SkPaint to a GrPaint (in GrTextBlob::SubRun::makeOp, for example). But this code looks slightly different than I remember, and I\u0027m struggling to see how this all works - it seems like if there is a shader, the work to pre-transform the paint color is just wasted? If there\u0027s a color filter but no shader, the SkPaint to GrPaint conversion will do the same work to convert the paint color on the CPU. Maybe everything does work?",
+      "parentUuid": "6994531a_a44c29b4",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
