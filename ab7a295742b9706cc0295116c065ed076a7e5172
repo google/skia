@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fbd07e8_27b28432",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T16:09:33Z",
+      "side": 1,
+      "message": "This is a bit confusing, since there doesn\u0027t seem to be such a change id, should probably just remove this line.",
+      "revId": "ab7a295742b9706cc0295116c065ed076a7e5172",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e47701d_639c126c",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T16:09:33Z",
+      "side": 1,
+      "message": "Looks like the Housekeeper bot wants\n\n    python tools/rewrite_includes.py modules/skparagraph/samples/SampleParagraph.cpp\n\neven though you haven\u0027t actually touched any includes?",
+      "revId": "ab7a295742b9706cc0295116c065ed076a7e5172",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
