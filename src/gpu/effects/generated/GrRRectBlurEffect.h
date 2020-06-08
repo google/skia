@@ -100,7 +100,8 @@ public:
         return mask;
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrRecordingContext* context,
                                                      float sigma,
                                                      float xformedSigma,
                                                      const SkRRect& srcRRect,
@@ -108,22 +109,30 @@ public:
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
+    int inputFP_index = -1;
     float sigma;
     SkRect rect;
     float cornerRadius;
     TextureSampler ninePatchSampler;
 
 private:
-    GrRRectBlurEffect(float sigma,
+    GrRRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                      float sigma,
                       SkRect rect,
                       float cornerRadius,
                       GrSurfaceProxyView ninePatchSampler)
             : INHERITED(kGrRRectBlurEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , sigma(sigma)
             , rect(rect)
             , cornerRadius(cornerRadius)
             , ninePatchSampler(std::move(ninePatchSampler)) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
