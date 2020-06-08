@@ -57,7 +57,6 @@ class DirText {
 
 class Run {
 public:
-    Run() = default;
     Run(ParagraphImpl* master,
         const SkShaper::RunHandler::RunInfo& info,
         size_t firstChar,
@@ -65,9 +64,7 @@ public:
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
-    Run& operator=(const Run&) = default;
     Run(Run&&) = default;
-    Run& operator=(Run&&) = default;
     ~Run() = default;
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
@@ -211,12 +208,8 @@ private:
     ClusterRange fClusterRange;
 
     SkFont fFont;
-    SkFontMetrics fFontMetrics;
-    SkScalar fHeightMultiplier;
     size_t fPlaceholderIndex;
-    bool fEllipsis;
     size_t fIndex;
-    uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
     TextIndex fClusterStart;
@@ -229,7 +222,13 @@ private:
     SkSTArray<128, SkRect, true> fBounds;
 
     SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
+
+    SkFontMetrics fFontMetrics;
+    const SkScalar fHeightMultiplier;
+
     bool fSpaced;
+    bool fEllipsis;
+    uint8_t fBidiLevel;
 };
 
 struct CodepointRepresentation {
