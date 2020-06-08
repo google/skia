@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1830d7c_8eb9a6a4",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-08T18:39:15Z",
+      "side": 1,
+      "message": "Just to be clear, this maps code unit offsets in fText to a glyph cluster index (and the glyph cluster index is an index into fClusters, not the code unit offset into fText where the current glyph cluster starts which would be \u0027fClusters[fClusterIndexes[\u003cindex into fText\u003e]].fTextRange.start\u0027 ).\n\nSo this is fClustersIndexFromCodeUnit. It\u0027s a way to get from an index in fText to an index in fClusters (can be used for other things as well, but that\u0027s what it does). Before you were calculating these values on the fly as needed, and here you\u0027re just caching them.",
+      "range": {
+        "startLine": 249,
+        "startChar": 21,
+        "endLine": 249,
+        "endChar": 36
+      },
+      "revId": "f7817c8e1a9fe1775f5aaea4a1b20e4f00454aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
