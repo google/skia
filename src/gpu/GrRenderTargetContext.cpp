@@ -408,6 +408,9 @@ GrRenderTargetContext::~GrRenderTargetContext() {
 }
 
 inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
+    printf("chooseAAType #samples %d aa %s\n",
+            this->numSamples(),
+            aa == GrAA::kNo ? "no" : "yes");
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.

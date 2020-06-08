@@ -1561,6 +1561,7 @@ bool SkCanvas::findMarkedCTM(const char* name, SkM44* mx) const {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
+    return;
     if (!rect.isFinite()) {
         return;
     }
@@ -1596,6 +1597,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
+    return;
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
@@ -1618,6 +1620,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
+    return;
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
 
@@ -1656,6 +1659,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
+    return;
     if (sh) {
         if (sh->isOpaque()) {
             if (op == SkClipOp::kIntersect) {
@@ -1680,6 +1684,7 @@ void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
+    return;
     this->checkForDeferredSave();
     this->onClipRegion(rgn, op);
 }
@@ -1873,6 +1878,7 @@ GrContext* SkCanvas::getGrContext() {
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
+                              return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (outer.isEmpty()) {
         return;
@@ -1907,11 +1913,13 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::drawClippedToSaveBehind(const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawBehind(paint);
 }
 
 void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (region.isEmpty()) {
         return;
@@ -1925,6 +1933,7 @@ void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
 }
 
 void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     // To avoid redundant logic in our culling code and various backends, we always sort rects
     // before passing them along.
@@ -1932,21 +1941,25 @@ void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawRRect(rrect, paint);
 }
 
 void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawPoints(mode, count, pts, paint);
 }
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
                             const SkPaint& paint) {
+                                return;
     this->drawVertices(vertices.get(), mode, paint);
 }
 
 void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
 
@@ -1989,11 +2002,13 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawPath(path, paint);
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     this->onDrawImage(image, x, y, paint);
@@ -2008,6 +2023,7 @@ static bool fillable(const SkRect& r) {
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
+                                 return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     if (!fillable(dst) || !fillable(src)) {
@@ -2018,11 +2034,13 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
+                                 return;
     RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
+    return;
     RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         kFast_SrcRectConstraint);
@@ -2057,6 +2075,7 @@ private:
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
+                                 return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     if (dst.isEmpty()) {
@@ -2072,6 +2091,7 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 const SkPaint* paint) {
+                                    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     if (dst.isEmpty()) {
@@ -2101,21 +2121,25 @@ static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+    return;
     this->drawImage(bitmap_as_image(bitmap), dx, dy, paint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
+                                  return;
     this->drawImageRect(bitmap_as_image(bitmap), src, dst, paint, constraint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
+                                  return;
     this->drawBitmapRect(bitmap, SkRect::Make(isrc), dst, paint, constraint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                               SrcRectConstraint constraint) {
+                                  return;
     this->drawBitmapRect(bitmap, SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst, paint,
                          constraint);
 }
@@ -2123,6 +2147,7 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const S
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                          const SkColor colors[], int count, SkBlendMode mode,
                          const SkRect* cull, const SkPaint* paint) {
+                             return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(atlas);
     if (count <= 0) {
@@ -2134,6 +2159,7 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (key) {
         this->onDrawAnnotation(rect, key, value);
@@ -2623,6 +2649,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 // These call the (virtual) onDraw... method
 void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                               SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
+                                  return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
@@ -2632,6 +2659,7 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
 
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
+                                return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
@@ -2666,6 +2694,7 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                          const SkPoint texCoords[4], SkBlendMode bmode,
                          const SkPaint& paint) {
+                             return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (nullptr == cubics) {
         return;
@@ -2695,7 +2724,9 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
+    return;
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
     TRACE_EVENT0("skia", TRACE_FUNC);
 #endif
     RETURN_ON_NULL(dr);
@@ -2708,6 +2739,7 @@ void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
+    return;
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
 #endif
@@ -2842,11 +2874,13 @@ void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
 }
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
+    return;
     const SkPoint pt = { x, y };
     this->drawPoints(kPoints_PointMode, 1, &pt, paint);
 }
 
 void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint) {
+    return;
     SkPoint pts[2];
     pts[0].set(x0, y0);
     pts[1].set(x1, y1);
@@ -2854,6 +2888,7 @@ void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, cons
 }
 
 void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint) {
+    return;
     if (radius < 0) {
         radius = 0;
     }
@@ -2865,6 +2900,7 @@ void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPai
 
 void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
                              const SkPaint& paint) {
+                                 return;
     if (rx > 0 && ry > 0) {
         SkRRect rrect;
         rrect.setRectXY(r, rx, ry);
@@ -2877,6 +2913,7 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
 void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
                        SkScalar sweepAngle, bool useCenter,
                        const SkPaint& paint) {
+                           return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (oval.isEmpty() || !sweepAngle) {
         return;
@@ -2902,6 +2939,7 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
 #define kMaxPictureOpsToUnrollInsteadOfRef  1
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(picture);
 

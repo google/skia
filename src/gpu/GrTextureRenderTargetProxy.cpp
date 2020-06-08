@@ -189,6 +189,10 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(!(proxyFlags & GrInternalSurfaceFlags::kReadOnly));
     SkASSERT(!(surfaceFlags & GrInternalSurfaceFlags::kReadOnly));
 
+    printf("TRTP proxy %d surface %d\n",
+        ((int)proxyFlags & kGrInternalRenderTargetFlagsMask),
+        ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
+        
     SkASSERT(((int)proxyFlags & kGrInternalTextureRenderTargetFlagsMask) ==
              ((int)surfaceFlags & kGrInternalTextureRenderTargetFlagsMask));
 }
