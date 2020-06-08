@@ -22,7 +22,6 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -574,8 +573,6 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
-    GrTextTarget* textTarget() { return fTextTarget.get(); }
-
     void wasClosed(const GrOpsTask& task) override;
 
 #if GR_TEST_UTILS
@@ -583,20 +580,19 @@ public:
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
 private:
-    class TextTarget;
     enum class QuadOptimization;
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;
 
-    // All the path renderers currently make their own ops
+    // All the path and text renderers currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
@@ -611,6 +607,7 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
+    friend class GrAtlasTextOp;                      // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
@@ -701,10 +698,6 @@ private:
                          ReadPixelsContext context);
 
     GrOpsTask* getOpsTask();
-
-    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
-
-    std::unique_ptr<GrTextTarget> fTextTarget;
 
     GrSurfaceProxyView fWriteView;
 
