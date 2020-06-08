@@ -596,6 +596,11 @@ bool OneLineShaper::shape() {
                 auto unresolvedCount = fUnresolvedBlocks.size();
                 while (unresolvedCount-- > 0) {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
+                    if (unresolvedRange == EMPTY_TEXT) {
+                        // Duplicate blocks should be ignored
+                        fUnresolvedBlocks.pop_front();
+                        continue;
+                    }
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
                     SkShaper::TrivialFontRunIterator fontIter(font, unresolvedText.size());
