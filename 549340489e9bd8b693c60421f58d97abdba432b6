@@ -118,6 +118,30 @@
       "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aacb1517_c5fd3b9f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-08T16:10:57Z",
+      "side": 1,
+      "message": "I don\u0027t recall every touching this code, but that doesn\u0027t mean I didn\u0027t. But what it does mean is that I don\u0027t think I have any extra insight to add outside of Brian and Jim.",
+      "parentUuid": "df07378f_d91871f1",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 35
+      },
+      "revId": "549340489e9bd8b693c60421f58d97abdba432b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
