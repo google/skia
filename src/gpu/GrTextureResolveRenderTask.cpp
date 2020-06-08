@@ -14,21 +14,24 @@
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 
-GrTextureResolveRenderTask::~GrTextureResolveRenderTask() {
+void GrTextureResolveRenderTask::disown(GrDrawingManager* drawingMgr) {
     for (const auto& resolve : fResolves) {
-        // Ensure the proxy doesn't keep hold of a dangling back pointer.
-        resolve.fProxy->setLastRenderTask(nullptr);
+        drawingMgr->setLastRenderTask(resolve.fProxy.get(), nullptr);
     }
+    GrRenderTask::disown(drawingMgr);
 }
 
-void GrTextureResolveRenderTask::addProxy(
-        sk_sp<GrSurfaceProxy> proxyRef, GrSurfaceProxy::ResolveFlags flags, const GrCaps& caps) {
+void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
+                                          sk_sp<GrSurfaceProxy> proxyRef,
+                                          GrSurfaceProxy::ResolveFlags flags,
+                                          const GrCaps& caps) {
     fResolves.emplace_back(std::move(proxyRef), flags);
     GrSurfaceProxy* proxy = fResolves.back().fProxy.get();
 
     // Ensure the last render task that operated on the proxy is closed. That's where msaa and
     // mipmaps should have been marked dirty.
-    SkASSERT(!proxy->getLastRenderTask() || proxy->getLastRenderTask()->isClosed());
+    SkASSERT(!drawingMgr->getLastRenderTask(proxy)
+             || drawingMgr->getLastRenderTask(proxy)->isClosed());
     SkASSERT(GrSurfaceProxy::ResolveFlags::kNone != flags);
 
     if (GrSurfaceProxy::ResolveFlags::kMSAA & flags) {
@@ -48,8 +51,9 @@ void GrTextureResolveRenderTask::addProxy(
 
     // Add the proxy as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
-    this->addDependency(proxy, GrMipMapped::kNo, GrTextureResolveManager(nullptr), caps);
-    proxy->setLastRenderTask(this);
+    this->addDependency(drawingMgr, proxy, GrMipMapped::kNo,
+                        GrTextureResolveManager(nullptr), caps);
+    drawingMgr->setLastRenderTask(proxy, this);
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
