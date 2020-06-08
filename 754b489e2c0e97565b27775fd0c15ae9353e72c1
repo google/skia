@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0508fa5d_ffabd40c",
+        "filename": "src/gpu/effects/GrEllipseEffect.fp",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-08T16:56:58Z",
+      "side": 1,
+      "message": "nit: indent another tab",
+      "range": {
+        "startLine": 43,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 16
+      },
+      "revId": "754b489e2c0e97565b27775fd0c15ae9353e72c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63df8b08_3742978d",
+        "filename": "src/gpu/effects/GrEllipseEffect.fp",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-08T16:56:58Z",
+      "side": 1,
+      "message": "nit: indent 8 (two tabs)",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 51
+      },
+      "revId": "754b489e2c0e97565b27775fd0c15ae9353e72c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ffbac9e_387a7d65",
+        "filename": "src/gpu/effects/GrOvalEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-08T16:56:58Z",
+      "side": 1,
+      "message": "nit: indent one more tab",
+      "range": {
+        "startLine": 15,
+        "startChar": 8,
+        "endLine": 15,
+        "endChar": 11
+      },
+      "revId": "754b489e2c0e97565b27775fd0c15ae9353e72c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
