@@ -13,6 +13,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -175,6 +176,20 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                          SkPaintPriv::ComputeLuminanceColor(paint),
                                          useGammaCorrectDistanceTable,
                                          DFGPFlags);
+}
+
+void GrAtlasTextOp::AddDrawOp(
+        GrRenderTargetContext* rtc, const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op) {
+    rtc->addDrawOp(clip, std::move(op));
+}
+
+void GrAtlasTextOp::DrawShape(GrRenderTargetContext* rtc,
+                              const GrClip* clip,
+                              const SkPaint& paint,
+                              const SkMatrixProvider& matrixProvider,
+                              const GrStyledShape& shape) {
+    GrBlurUtils::drawShapeWithMaskFilter(
+            rtc->fContext, rtc, clip, paint, matrixProvider, shape);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
@@ -612,8 +627,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
                                        drawOrigin,
                                        SkIRect::MakeEmpty(),
                                        skPaint,
-                                       surfaceProps,
-                                       rtc->textTarget());
+                                       rtc);
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {

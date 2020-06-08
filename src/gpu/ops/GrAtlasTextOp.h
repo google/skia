@@ -37,9 +37,9 @@ public:
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext*,
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext* rtc,
                                                      const SkPaint&,
-                                                     GrTextBlob::SubRun*,
+                                                     GrTextBlob::SubRun* subrun,
                                                      const SkMatrixProvider&,
                                                      SkPoint drawOrigin,
                                                      const SkIRect& clipRect);
@@ -49,8 +49,17 @@ public:
             const SkPaint&,
             GrTextBlob::SubRun*,
             const SkMatrixProvider&,
-            SkPoint drawOrigin,
-            const SkIRect& clipRect);
+            SkPoint,
+            const SkIRect&);
+
+    static void AddDrawOp(
+            GrRenderTargetContext* rtc, const GrClip* clip, std::unique_ptr<GrAtlasTextOp> op);
+
+    static void DrawShape(GrRenderTargetContext* rtc,
+                          const GrClip* clip,
+                          const SkPaint& paint,
+                          const SkMatrixProvider& matrixProvider,
+                          const GrStyledShape& shape);
 
     const char* name() const override { return "AtlasTextOp"; }
 

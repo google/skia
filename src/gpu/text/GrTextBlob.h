@@ -118,8 +118,7 @@ public:
     bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
                   const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void insertOpsIntoTarget(GrTextTarget* target,
-                             const SkSurfaceProps& props,
+    void insertOpsIntoTarget(GrRenderTargetContext* rtc,
                              const SkPaint& paint,
                              const GrClip* clip,
                              const SkMatrixProvider& deviceMatrix,
@@ -329,8 +328,7 @@ public:
                                        GrTextBlob* blob,
                                        SkArenaAlloc* alloc);
 
-    void insertSubRunOpsIntoTarget(GrTextTarget* target,
-                                   const SkSurfaceProps& props,
+    void insertSubRunOpsIntoTarget(GrRenderTargetContext* rtc,
                                    const SkPaint& paint,
                                    const GrClip* clip,
                                    const SkMatrixProvider& deviceMatrix,
@@ -340,8 +338,7 @@ public:
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
                                           const SkPaint& paint,
-                                          const SkSurfaceProps&,
-                                          GrTextTarget*);
+                                          GrRenderTargetContext*);
 
     GrTextBlob* fBlob;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
