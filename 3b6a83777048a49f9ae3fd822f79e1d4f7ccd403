@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ab59636c_4ad63dc7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "851cc8d5_390ef588",
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fb4ada6_33308cd0",
         "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "83dbcddf_678777e8",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "Done. In this case it was just a sneaky way to keep it as a one-liner – I see your reasoning.",
+      "parentUuid": "9fb4ada6_33308cd0",
+      "range": {
+        "startLine": 122,
+        "startChar": 53,
+        "endLine": 122,
+        "endChar": 60
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b07ca78a_1f045507",
         "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
         "patchSetId": 5
@@ -56,6 +98,24 @@
       "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d94134_5b8eabe2",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "CFShow is technically private :(",
+      "parentUuid": "b07ca78a_1f045507",
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "4c9f8eeb_8f38b4d7",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f6ed03f_ecf891f9",
+      "range": {
+        "startLine": 131,
+        "startChar": 7,
+        "endLine": 131,
+        "endChar": 16
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b96695bc_057486bb",
         "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
         "patchSetId": 5
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "7de1493f_c40f2f5d",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b96695bc_057486bb",
+      "range": {
+        "startLine": 160,
+        "startChar": 36,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d03a9e56_fb09f198",
         "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
         "patchSetId": 5
@@ -125,6 +233,30 @@
       "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ece84daa_02006d0a",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-08T18:13:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d03a9e56_fb09f198",
+      "range": {
+        "startLine": 177,
+        "startChar": 37,
+        "endLine": 177,
+        "endChar": 44
+      },
+      "revId": "3b6a83777048a49f9ae3fd822f79e1d4f7ccd403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
