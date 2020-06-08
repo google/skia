@@ -13,7 +13,6 @@
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrPremulInputFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -164,16 +163,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
         return nullptr;
     }
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp), SkBlendMode::kSrcIn);
-}
-
-std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::PremulInput(
-        std::unique_ptr<GrFragmentProcessor> fp) {
-    if (!fp) {
-        return nullptr;
-    }
-    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { GrPremulInputFragmentProcessor::Make(),
-                                                          std::move(fp) };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(
