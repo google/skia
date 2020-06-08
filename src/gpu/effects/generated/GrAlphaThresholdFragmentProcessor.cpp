@@ -10,15 +10,6 @@
  **************************************************************************************************/
 #include "GrAlphaThresholdFragmentProcessor.h"
 
-inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::optFlags(
-        float outerThreshold) {
-    if (outerThreshold >= 1.0) {
-        return kPreservesOpaqueInput_OptimizationFlag |
-               kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-    } else {
-        return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-    }
-}
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -41,6 +32,13 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
+        SkString _input1334 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample1334;
+        if (_outer.inputFP_index >= 0) {
+            _sample1334 = this->invokeChild(_outer.inputFP_index, _input1334.c_str(), args);
+        } else {
+            _sample1334 = _input1334;
+        }
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
@@ -49,7 +47,7 @@ public:
                 "*= scale;\n        color.w = %s;\n    }\n} else if (color.w < %s) {\n    half "
                 "scale = %s / max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    "
                 "color.w = %s;\n}\n%s = color;\n",
-                args.fInputColor,
+                _sample1334.c_str(),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()
@@ -94,9 +92,17 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         const GrAlphaThresholdFragmentProcessor& src)
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
         , maskCoordTransform(src.maskCoordTransform)
+        , inputFP_index(src.inputFP_index)
         , mask(src.mask)
         , innerThreshold(src.innerThreshold)
         , outerThreshold(src.outerThreshold) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&maskCoordTransform);
 }
@@ -123,7 +129,7 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
 
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskView), innerThresh, outerThresh,
-                                                   bounds);
+    return GrAlphaThresholdFragmentProcessor::Make(/*inputFP=*/nullptr, std::move(maskView),
+                                                   innerThresh, outerThresh, bounds);
 }
 #endif

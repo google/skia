@@ -5,25 +5,23 @@
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 in uniform sampler2D mask;
 in uniform half innerThreshold;
 in uniform half outerThreshold;
-
-@class {
-    inline OptimizationFlags optFlags(float outerThreshold);
-}
 
 @constructorParams {
     const SkIRect& bounds
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrSurfaceProxyView mask,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                std::move(mask), innerThreshold, outerThreshold, bounds));
+                std::move(inputFP), std::move(mask), innerThreshold, outerThreshold, bounds));
     }
 }
 
@@ -31,20 +29,14 @@ in uniform half outerThreshold;
     SkMatrix::Translate(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
 }
 
-@cpp {
-    inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::optFlags(
-                                                                             float outerThreshold) {
-        if (outerThreshold >= 1.0) {
-            return kPreservesOpaqueInput_OptimizationFlag |
-                   kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-        } else {
-            return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-        }
-    }
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+     ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
 }
 
 void main() {
-    half4 color = sk_InColor;
+    half4 color = sample(inputFP, sk_InColor);
     half4 mask_color = sample(mask, sk_TransformedCoords2D[0]);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
@@ -73,6 +65,6 @@ void main() {
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
 
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskView), innerThresh, outerThresh,
-                                                   bounds);
+    return GrAlphaThresholdFragmentProcessor::Make(/*inputFP=*/nullptr, std::move(maskView),
+                                                   innerThresh, outerThresh, bounds);
 }
