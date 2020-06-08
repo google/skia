@@ -58,15 +58,15 @@ public:
                 "0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), "
                 "0.0, 1.0);\n        break;\n    default:\n        discard;\n}",
                 (int)_outer.edgeType);
-        SkString _input4485 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample4485;
+        SkString _input4497 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample4497;
         if (_outer.inputFP_index >= 0) {
-            _sample4485 = this->invokeChild(_outer.inputFP_index, _input4485.c_str(), args);
+            _sample4497 = this->invokeChild(_outer.inputFP_index, _input4497.c_str(), args);
         } else {
-            _sample4485 = _input4485;
+            _sample4497 = _input4497;
         }
         fragBuilder->codeAppendf("\nhalf4 inputColor = %s;\n%s = inputColor * alpha;\n",
-                                 _sample4485.c_str(), args.fOutputColor);
+                                 _sample4497.c_str(), args.fOutputColor);
     }
 
 private:
