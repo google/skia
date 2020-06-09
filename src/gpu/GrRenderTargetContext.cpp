@@ -111,6 +111,10 @@ public:
         return fRenderTargetContext->fContext;
     }
 
+    GrRenderTargetContext* renderTargetContext() override {
+        return fRenderTargetContext;
+    }
+
     SkGlyphRunListPainter* glyphPainter() override {
         return fRenderTargetContext->glyphPainter();
     }
