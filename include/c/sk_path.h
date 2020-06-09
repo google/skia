@@ -90,6 +90,7 @@ SK_C_API void sk_path_rawiter_destroy (sk_path_rawiterator_t *iterator);
 SK_C_API bool sk_pathop_op(const sk_path_t* one, const sk_path_t* two, sk_pathop_t op, sk_path_t* result);
 SK_C_API bool sk_pathop_simplify(const sk_path_t* path, sk_path_t* result);
 SK_C_API bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result);
+SK_C_API bool sk_pathop_as_winding(const sk_path_t* path, sk_path_t* result);
 
 /* Path Op Builder */
 SK_C_API sk_opbuilder_t* sk_opbuilder_new(void);

@@ -264,6 +264,10 @@ bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result) {
     return TightBounds(*AsPath(path), AsRect(result));
 }
 
+bool sk_pathop_as_winding(const sk_path_t* path, sk_path_t* result) {
+    return AsWinding(*AsPath(path), AsPath(result));
+}
+
 sk_opbuilder_t* sk_opbuilder_new(void) {
     return ToOpBuilder(new SkOpBuilder());
 }
