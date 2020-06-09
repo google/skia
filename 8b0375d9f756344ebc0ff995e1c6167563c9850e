@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "9ce17b29_7f153eb1",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2020-06-09T16:48:31Z",
+      "side": 1,
+      "message": "Queues up in skia internal data structures and issue vk command with next submit() call? or queue up in skia main vk command buffer? could you please clearify it in the comments.  If in vk command buffer, will it cause problem if the backendtexture is wrapped and being use by skia?",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
