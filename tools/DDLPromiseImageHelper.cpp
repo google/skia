@@ -287,13 +287,13 @@ void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrContext* 
 }
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
-                                                   SkDeferredDisplayListRecorder* recorder,
+                                                   GrContext* context,
                                                    SkData* compressedPictureData,
                                                    SkTArray<sk_sp<SkImage>>* promiseImages) const {
-    PerRecorderContext perRecorderContext { recorder, this, promiseImages };
+    DeserialImageProcContext procContext { context, this, promiseImages };
 
     SkDeserialProcs procs;
-    procs.fImageCtx = (void*) &perRecorderContext;
+    procs.fImageCtx = (void*) &procContext;
     procs.fImageProc = CreatePromiseImages;
 
     return SkPicture::MakeFromData(compressedPictureData, &procs);
@@ -304,9 +304,9 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 // promise images referring to the same GrBackendTexture.
 sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                                           size_t length, void* ctxIn) {
-    PerRecorderContext* perRecorderContext = static_cast<PerRecorderContext*>(ctxIn);
-    const DDLPromiseImageHelper* helper = perRecorderContext->fHelper;
-    SkDeferredDisplayListRecorder* recorder = perRecorderContext->fRecorder;
+    DeserialImageProcContext* procContext = static_cast<DeserialImageProcContext*>(ctxIn);
+    const DDLPromiseImageHelper* helper = procContext->fHelper;
+    GrContext* context = procContext->fContext;
 
     SkASSERT(length == sizeof(int));
 
@@ -344,7 +344,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
             sizes[i] = SkISize::MakeEmpty();
         }
 
-        image = recorder->makeYUVAPromiseTexture(
+        image = context->makeYUVAPromiseTexture(
                 curImage.yuvColorSpace(),
                 backendFormats,
                 sizes,
@@ -357,7 +357,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 PromiseImageCallbackContext::PromiseImageReleaseProc,
                 PromiseImageCallbackContext::PromiseImageDoneProc,
                 contexts,
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+                GrContext::PromiseImageApiVersion::kNew);
         for (int i = 0; i < textureCount; ++i) {
             curImage.callbackContext(i)->wasAddedToImage();
         }
@@ -377,7 +377,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.
-        image = recorder->makePromiseTexture(
+        image = context->makePromiseTexture(
                 backendFormat,
                 curImage.overallWidth(),
                 curImage.overallHeight(),
@@ -390,10 +390,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 PromiseImageCallbackContext::PromiseImageReleaseProc,
                 PromiseImageCallbackContext::PromiseImageDoneProc,
                 (void*)curImage.refCallbackContext(0).release(),
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+                GrContext::PromiseImageApiVersion::kNew);
         curImage.callbackContext(0)->wasAddedToImage();
     }
-    perRecorderContext->fPromiseImages->push_back(image);
+    procContext->fPromiseImages->push_back(image);
     SkASSERT(image);
     return image;
 }

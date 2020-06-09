@@ -68,7 +68,7 @@ public:
 #endif
 
     /**
-     * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
+     * This is the implementation of GrContext::makeYUVAPromiseTexture.
      */
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
                                                  SkYUVColorSpace yuvColorSpace,

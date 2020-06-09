@@ -14,8 +14,8 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
 void DDLTileHelper::TileData::init(int id,
@@ -38,52 +38,19 @@ void DDLTileHelper::TileData::init(int id,
 
 DDLTileHelper::TileData::~TileData() {}
 
-void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
-                                                    const DDLPromiseImageHelper& helper) {
-    SkASSERT(!fReconstitutedPicture);
-
-    // This is bending the DDLRecorder contract! The promise images in the SKP should be
-    // created by the same recorder used to create the matching DDL.
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
-
-    fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
-
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
-    if (ddl->priv().numRenderTasks()) {
-        // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
-        // reinflation of the SKPs contains opsTasks that means some image subset operation
-        // created a draw.
-        fReconstitutedPicture.reset();
-    }
-}
-
-void DDLTileHelper::TileData::createDDL() {
-    SkASSERT(!fDisplayList && fReconstitutedPicture);
+void DDLTileHelper::TileData::createDDL(const SkPicture* picture,
+                                        const SkTArray<sk_sp<SkImage>>& promiseImages) {
+    SkASSERT(!fDisplayList && picture);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
-
-    // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
-    // Maybe set it up in the ctor?
     SkCanvas* recordingCanvas = recorder.getCanvas();
-
-    // Because we cheated in createTileSpecificSKP and used the wrong DDLRecorder, the GrContext's
-    // stored in fReconstitutedPicture's promise images are incorrect. Patch them with the correct
-    // one now.
-    for (int i = 0; i < fPromiseImages.count(); ++i) {
-        GrContext* newContext = recordingCanvas->getGrContext();
-
-        if (fPromiseImages[i]->isTextureBacked()) {
-            SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
-            gpuImage->resetContext(sk_ref_sp(newContext));
-        }
-    }
 
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
     recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
     // Note: in this use case we only render a picture to the deferred canvas
     // but, more generally, clients will use arbitrary draw calls.
-    recordingCanvas->drawPicture(fReconstitutedPicture);
+    recordingCanvas->drawPicture(picture);
 
     fDisplayList = recorder.detach();
 }
@@ -140,8 +107,9 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrContext* context
                                              &fCharacterization.surfaceProps());
 }
 
-void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
-    SkASSERT(!fDisplayList && !fTileSurface && fReconstitutedPicture);
+void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context,
+                                              const SkPicture* picture) {
+    SkASSERT(!fDisplayList && !fTileSurface && picture);
 
     fTileSurface = this->makeWrappedTileDest(context);
     if (fTileSurface) {
@@ -150,7 +118,7 @@ void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
         tileCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
         tileCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
-        tileCanvas->drawPicture(fReconstitutedPicture);
+        tileCanvas->drawPicture(picture);
 
         // We can't snap an image here bc, since we're using wrapped backend textures for the
         // surfaces, that would incur a copy.
@@ -232,7 +200,8 @@ DDLTileHelper::DDLTileHelper(GrContext* context,
                              const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
                              int numDivisions)
-        : fNumDivisions(numDivisions)
+        : fContext(context)
+        , fNumDivisions(numDivisions)
         , fTiles(numDivisions * numDivisions)
         , fDstCharacterization(dstChar) {
     SkASSERT(fNumDivisions > 0);
@@ -256,22 +225,34 @@ DDLTileHelper::DDLTileHelper(GrContext* context,
     }
 }
 
-void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
-                                     const DDLPromiseImageHelper& helper) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createTileSpecificSKP(compressedPictureData, helper);
+void DDLTileHelper::createSKP(SkData* compressedPictureData,
+                              const DDLPromiseImageHelper& helper) {
+    SkASSERT(!fReconstitutedPicture);
+
+    SkDeferredDisplayListRecorder recorder(fDstCharacterization);
+
+    fReconstitutedPicture = helper.reinflateSKP(fContext, compressedPictureData, &fPromiseImages);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    if (ddl->priv().numRenderTasks()) {
+        // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
+        // reinflation of the SKPs contains opsTasks that means some image subset operation
+        // created a draw.
+        fReconstitutedPicture.reset();
     }
 }
 
 void DDLTileHelper::createDDLsInParallel() {
 #if 1
-    SkTaskGroup().batch(this->numTiles(), [&](int i) { fTiles[i].createDDL(); });
+    SkTaskGroup().batch(this->numTiles(), [&](int i) {
+        fTiles[i].createDDL(fReconstitutedPicture.get(), fPromiseImages);
+    });
     SkTaskGroup().add([this]{ this->createComposeDDL(); });
     SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createDDL();
+        fTiles[i].createDDL(fReconstitutedPicture.get(), fPromiseImages);
     }
     this->createComposeDDL();
 #endif
@@ -308,8 +289,8 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
         //    schedule gpu-thread processing of the DDL
         // Note: a finer grained approach would be add a scheduling task which would evaluate
         //       which DDLs were ready to be rendered based on their prerequisites
-        recordingTaskGroup->add([tile, gpuTaskGroup, gpuThreadContext]() {
-                                    tile->createDDL();
+        recordingTaskGroup->add([this, tile, gpuTaskGroup, gpuThreadContext]() {
+                                    tile->createDDL(fReconstitutedPicture.get(), fPromiseImages);
 
                                     gpuTaskGroup->add([gpuThreadContext, tile]() {
                                         do_gpu_stuff(gpuThreadContext, tile);
@@ -331,7 +312,7 @@ void DDLTileHelper::precompileAndDrawAllTiles(GrContext* context) {
 // Only called from skpbench
 void DDLTileHelper::interleaveDDLCreationAndDraw(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createDDL();
+        fTiles[i].createDDL(fReconstitutedPicture.get(), fPromiseImages);
         fTiles[i].draw(context);
     }
 }
@@ -339,7 +320,7 @@ void DDLTileHelper::interleaveDDLCreationAndDraw(GrContext* context) {
 // Only called from skpbench
 void DDLTileHelper::drawAllTilesDirectly(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].drawSKPDirectly(context);
+        fTiles[i].drawSKPDirectly(context, fReconstitutedPicture.get());
     }
 }
 
