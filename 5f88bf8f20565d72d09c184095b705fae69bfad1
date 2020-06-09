@@ -22,6 +22,30 @@
       "revId": "5f88bf8f20565d72d09c184095b705fae69bfad1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c51e7ad6_8da5dabe",
+        "filename": "modules/skparagraph/src/Decorations.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-09T16:44:41Z",
+      "side": 1,
+      "message": "const SkRect\u0026",
+      "parentUuid": "11f2d524_76cdb4f9",
+      "range": {
+        "startLine": 23,
+        "startChar": 61,
+        "endLine": 23,
+        "endChar": 67
+      },
+      "revId": "5f88bf8f20565d72d09c184095b705fae69bfad1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
