@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "3afd343d_1b91cf7d",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:23:48Z",
+      "side": 1,
+      "message": "Let me know if the updated comment answers things. But to be clear work for a given backend texture is ordered in the order commands called by the client (note in this sense a flush call and all its internal commands are considered one \"command\" at this high level).",
+      "parentUuid": "9ce17b29_7f153eb1",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee0430dd_01c50ea7",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:23:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b31a3b34_cb86a864",
+      "range": {
+        "startLine": 670,
+        "startChar": 37,
+        "endLine": 672,
+        "endChar": 49
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edab9b90_244af838",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:23:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2abca7e9_f12d52a6",
+      "range": {
+        "startLine": 674,
+        "startChar": 7,
+        "endLine": 675,
+        "endChar": 47
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
