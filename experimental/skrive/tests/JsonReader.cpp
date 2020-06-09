@@ -16,9 +16,12 @@ DEF_TEST(SkRive_JsonReader, reporter) {
                                          "artboards": [
                                            {
                                              "name"        : "artboard 1",
+                                             "translation" : [ 24, 42 ],
                                              "width"       : 500,
                                              "height"      : 250,
+                                             "origin"      : [ 100, 100 ],
                                              "clipContents": true,
+                                             "color"       : [ 1, 1, 0, 1],
                                              "type"        : "artboard"
                                            }
                                          ]
@@ -35,9 +38,12 @@ DEF_TEST(SkRive_JsonReader, reporter) {
             StreamReader::AutoBlock ab(sr);
             REPORTER_ASSERT(reporter, ab.type() == StreamReader::BlockType::kActorArtboard);
             REPORTER_ASSERT(reporter, sr->readString("name").equals("artboard 1"));
+            REPORTER_ASSERT(reporter, sr->readV2("translation") == (SkV2{24,42}));
             REPORTER_ASSERT(reporter, sr->readFloat("width" ) == 500);
             REPORTER_ASSERT(reporter, sr->readFloat("height") == 250);
+            REPORTER_ASSERT(reporter, sr->readV2("origin") == (SkV2{100,100}));
             REPORTER_ASSERT(reporter, sr->readBool("clipContents"));
+            REPORTER_ASSERT(reporter, sr->readColor("color") == (SkColor4f{1,1,0,1}));
 
             REPORTER_ASSERT(reporter, sr->readString("INVALID").equals(""));
             REPORTER_ASSERT(reporter, sr->readFloat("INVALID" ) == 0);

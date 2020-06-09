@@ -79,6 +79,23 @@ private:
         return SkString(jstr ? jstr->begin() : nullptr);
     }
 
+    size_t readFloatArray(const char label[], float dst[], size_t count) override {
+        const auto* jarr = this->readProp<skjson::ArrayValue>(label);
+
+        if (!jarr) {
+            return 0;
+        }
+
+        count = std::min(count, jarr->size());
+
+        for (size_t i = 0; i < count; ++i) {
+            const skjson::NumberValue* jnum = (*jarr)[i];
+            dst[i] = jnum ? static_cast<float>(**jnum) : 0.0f;
+        }
+
+        return count;
+    }
+
     // "Blocks" map to either objects or arrays.  For object containers, the block type is encoded
     // as the key; for array containers, the type is an explicit "type" property *inside* the block
     // entry - which must be an object in this case.

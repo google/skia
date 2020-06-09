@@ -53,6 +53,9 @@
 #if defined(SK_ENABLE_SKOTTIE)
     #include "tools/viewer/SkottieSlide.h"
 #endif
+#if defined(SK_ENABLE_SKRIVE)
+    #include "tools/viewer/SkRiveSlide.h"
+#endif
 
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
 public:
@@ -135,10 +138,13 @@ static DEFINE_string2(match, m, nullptr,
     static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "/data/local/tmp/lotties",
                          "Directory to read (Bodymovin) jsons from.");
+    static DEFINE_string(rives, "/data/local/tmp/rives",
+                         "Directory to read Rive (Flare) files from.");
 #else
     static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
     static DEFINE_string(skps, "skps", "Directory to read skps from.");
     static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
+    static DEFINE_string(rives, "rives", "Directory to read Rive (Flare) files from.");
 #endif
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
@@ -694,6 +700,12 @@ void Viewer::initSlides() {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
 #endif
+    #if defined(SK_ENABLE_SKRIVE)
+            { ".flr", "skrive-dir", FLAGS_rives,
+                [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                    return sk_make_sp<SkRiveSlide>(name, path);}
+            },
+    #endif
 #if defined(SK_XML)
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {

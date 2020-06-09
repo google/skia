@@ -42,4 +42,20 @@ std::unique_ptr<StreamReader> StreamReader::Make(std::unique_ptr<SkStreamAsset> 
     return StreamReader::Make(static_cast<const char*>(data->data()), data->size());
 }
 
+SkV2 StreamReader::readV2(const char label[]) {
+    SkV2 v2{0,0};
+
+    this->readFloatArray(label, reinterpret_cast<float*>(&v2), 2);
+
+    return v2;
+}
+
+SkColor4f StreamReader::readColor(const char label[]) {
+    SkColor4f color{0,0,0,1};
+
+    this->readFloatArray(label, reinterpret_cast<float*>(&color), 4);
+
+    return color;
+}
+
 } // namespace skrive::internal
