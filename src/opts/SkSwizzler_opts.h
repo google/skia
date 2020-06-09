@@ -65,7 +65,7 @@ static void RGBA_to_BGRA_portable(uint32_t* dst, const uint32_t* src, int count)
     }
 }
 
-static void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
+static inline void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
     for (int i = 0; i < count; i++) {
         uint8_t r = src[0],
                 g = src[1],
@@ -78,7 +78,7 @@ static void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) 
     }
 }
 
-static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) {
+static inline void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) {
     for (int i = 0; i < count; i++) {
         uint8_t r = src[0],
                 g = src[1],
@@ -91,7 +91,7 @@ static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) 
     }
 }
 
-static void gray_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
+static inline void gray_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
     for (int i = 0; i < count; i++) {
         dst[i] = (uint32_t)0xFF   << 24
                | (uint32_t)src[i] << 16
@@ -474,6 +474,287 @@ static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, 
     inverted_cmyk_to(kBGR1, dst, src, count);
 }
 
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+// Scale a byte by another.
+// Inputs are stored in 16-bit lanes, but are not larger than 8-bits.
+static __m512i scale(__m512i x, __m512i y) {
+    const __m512i _128 = _mm512_set1_epi16(128);
+    const __m512i _257 = _mm512_set1_epi16(257);
+
+    // (x+127)/255 == ((x+128)*257)>>16 for 0 <= x <= 255*255.
+    return _mm512_mulhi_epu16(_mm512_add_epi16(_mm512_mullo_epi16(x, y), _128), _257);
+}
+
+static void premul_should_swapRB(bool kSwapRB, uint32_t* dst, const uint32_t* src, int count) {
+
+    auto premul8 = [=](__m512i* lo, __m512i* hi) {
+        const __m512i zeros = _mm512_setzero_si512();
+        skvx::Vec<64, uint8_t> mask;
+        if (kSwapRB) {
+            mask = { 2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15 };
+        } else {
+            mask = { 0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15 };
+        }
+        __m512i planar = skvx::bit_pun<__m512i>(mask);
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = _mm512_shuffle_epi8(*lo, planar);
+        *hi = _mm512_shuffle_epi8(*hi, planar);
+        __m512i rg = _mm512_unpacklo_epi32(*lo, *hi),
+                ba = _mm512_unpackhi_epi32(*lo, *hi);
+
+        // Unpack to 16-bit planar.
+        __m512i r = _mm512_unpacklo_epi8(rg, zeros),
+                g = _mm512_unpackhi_epi8(rg, zeros),
+                b = _mm512_unpacklo_epi8(ba, zeros),
+                a = _mm512_unpackhi_epi8(ba, zeros);
+
+        // Premultiply!
+        r = scale(r, a);
+        g = scale(g, a);
+        b = scale(b, a);
+
+        // Repack into interlaced pixels.
+        rg = _mm512_or_si512(r, _mm512_slli_epi16(g, 8));
+        ba = _mm512_or_si512(b, _mm512_slli_epi16(a, 8));
+        *lo = _mm512_unpacklo_epi16(rg, ba);
+        *hi = _mm512_unpackhi_epi16(rg, ba);
+    };
+
+    while (count >= 32) {
+        __m512i lo = _mm512_loadu_si512((const __m512i*) (src + 0)),
+                hi = _mm512_loadu_si512((const __m512i*) (src + 16));
+
+        premul8(&lo, &hi);
+
+        _mm512_storeu_si512((__m512i*) (dst + 0), lo);
+        _mm512_storeu_si512((__m512i*) (dst + 16), hi);
+
+        src += 32;
+        dst += 32;
+        count -= 32;
+    }
+
+    if (count >= 16) {
+        __m512i lo = _mm512_loadu_si512((const __m512i*) src),
+                hi = _mm512_setzero_si512();
+
+        premul8(&lo, &hi);
+
+        _mm512_storeu_si512((__m512i*) dst, lo);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    // Call portable code to finish up the tail of [0,16) pixels.
+    auto proc = kSwapRB ? RGBA_to_bgrA_portable : RGBA_to_rgbA_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_rgbA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(false, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_bgrA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(true, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    const uint8_t mask[64] = { 2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15,
+                               2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15,
+                               2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15,
+                               2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15 };
+    const __m512i swapRB = _mm512_loadu_si512(mask);
+
+    while (count >= 16) {
+        __m512i rgba = _mm512_loadu_si512((const __m512i*) src);
+        __m512i bgra = _mm512_shuffle_epi8(rgba, swapRB);
+        _mm512_storeu_si512((__m512i*) dst, bgra);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    RGBA_to_BGRA_portable(dst, src, count);
+}
+
+// Use SSSE3 impl as AVX2 / AVX-512 impl regresses performance for RGB_to_RGB1 / RGB_to_BGR1.
+
+// Use AVX2 impl as AVX-512 impl regresses performance for gray_to_RGB1.
+
+/*not static*/ inline void grayA_to_RGBA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 32) {
+        __m512i ga = _mm512_loadu_si512((const __m512i*) src);
+
+        __m512i gg = _mm512_or_si512(_mm512_and_si512(ga, _mm512_set1_epi16(0x00FF)),
+                                     _mm512_slli_epi16(ga, 8));
+
+        __m512i ggga_lo = _mm512_unpacklo_epi16(gg, ga);
+        __m512i ggga_hi = _mm512_unpackhi_epi16(gg, ga);
+
+        // 1st shuffle for pixel reorder.
+        // Note. 'p' stands for 'ggga'
+        // Before 1st shuffle:
+        //     ggga_lo = p0 p1 p2 p3 | p8  p9  p10 p11 | p16 p17 p18 p19 | p24 p25 p26 p27
+        //     ggga_hi = p4 p5 p6 p7 | p12 p13 p14 p15 | p20 p21 p22 p23 | p28 p29 p30 p31
+        //
+        // After 1st shuffle:
+        //     ggga_lo_shuffle_1 =
+        //               p0  p1  p2  p3  | p8  p9  p10 p11 | p4  p5  p6  p7  | p12 p13 p14 p15
+        //     ggga_hi_shuffle_1 =
+        //               p16 p17 p18 p19 | p24 p25 p26 p27 | p20 p21 p22 p23 | p28 p29 p30 p31
+        __m512i ggga_lo_shuffle_1 = _mm512_shuffle_i32x4(ggga_lo, ggga_hi, 0x44),
+                ggga_hi_shuffle_1 = _mm512_shuffle_i32x4(ggga_lo, ggga_hi, 0xee);
+
+        // 2nd shuffle for pixel reorder.
+        // After the 2nd shuffle:
+        //     ggga_lo_shuffle_2 =
+        //               p0  p1  p2  p3  | p4  p5  p6  p7  | p8  p9  p10 p11 | p12 p13 p14 p15
+        //     ggga_hi_shuffle_2 =
+        //               p16 p17 p18 p19 | p20 p21 p22 p23 | p24 p25 p26 p27 | p28 p29 p30 p31
+        __m512i ggga_lo_shuffle_2 = _mm512_shuffle_i32x4(ggga_lo_shuffle_1,
+                                                         ggga_lo_shuffle_1, 0xd8),
+                ggga_hi_shuffle_2 = _mm512_shuffle_i32x4(ggga_hi_shuffle_1,
+                                                         ggga_hi_shuffle_1, 0xd8);
+
+        _mm512_storeu_si512((__m512i*) (dst +  0), ggga_lo_shuffle_2);
+        _mm512_storeu_si512((__m512i*) (dst + 16), ggga_hi_shuffle_2);
+
+        src += 32*2;
+        dst += 32;
+        count -= 32;
+    }
+
+    grayA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void grayA_to_rgbA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 32) {
+        __m512i grayA = _mm512_loadu_si512((const __m512i*) src);
+
+        __m512i g0 = _mm512_and_si512(grayA, _mm512_set1_epi16(0x00FF));
+        __m512i a0 = _mm512_srli_epi16(grayA, 8);
+
+        // Premultiply
+        g0 = scale(g0, a0);
+
+        __m512i gg = _mm512_or_si512(g0, _mm512_slli_epi16(g0, 8));
+        __m512i ga = _mm512_or_si512(g0, _mm512_slli_epi16(a0, 8));
+
+        __m512i ggga_lo = _mm512_unpacklo_epi16(gg, ga);
+        __m512i ggga_hi = _mm512_unpackhi_epi16(gg, ga);
+
+        // 1st shuffle for pixel reorder, same as grayA_to_RGBA.
+        __m512i ggga_lo_shuffle_1 = _mm512_shuffle_i32x4(ggga_lo, ggga_hi, 0x44),
+                ggga_hi_shuffle_1 = _mm512_shuffle_i32x4(ggga_lo, ggga_hi, 0xee);
+
+        // 2nd shuffle for pixel reorder, same as grayA_to_RGBA.
+        __m512i ggga_lo_shuffle_2 = _mm512_shuffle_i32x4(ggga_lo_shuffle_1,
+                                                         ggga_lo_shuffle_1, 0xd8),
+                ggga_hi_shuffle_2 = _mm512_shuffle_i32x4(ggga_hi_shuffle_1,
+                                                         ggga_hi_shuffle_1, 0xd8);
+
+        _mm512_storeu_si512((__m512i*) (dst +  0), ggga_lo_shuffle_2);
+        _mm512_storeu_si512((__m512i*) (dst + 16), ggga_hi_shuffle_2);
+
+        src += 32*2;
+        dst += 32;
+        count -= 32;
+    }
+
+    grayA_to_rgbA_portable(dst, src, count);
+}
+
+enum Format { kRGB1, kBGR1 };
+static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, int count) {
+    auto convert8 = [=](__m512i* lo, __m512i* hi) {
+        const __m512i zeros = _mm512_setzero_si512();
+        skvx::Vec<64, uint8_t> mask;
+        if (kBGR1 == format) {
+            mask = { 2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15,
+                     2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15 };
+        } else {
+            mask = { 0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15,
+                     0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15 };
+        }
+        __m512i planar = skvx::bit_pun<__m512i>(mask);
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = _mm512_shuffle_epi8(*lo, planar);
+        *hi = _mm512_shuffle_epi8(*hi, planar);
+        __m512i cm = _mm512_unpacklo_epi32(*lo, *hi),
+                yk = _mm512_unpackhi_epi32(*lo, *hi);
+
+        // Unpack to 16-bit planar.
+        __m512i c = _mm512_unpacklo_epi8(cm, zeros),
+                m = _mm512_unpackhi_epi8(cm, zeros),
+                y = _mm512_unpacklo_epi8(yk, zeros),
+                k = _mm512_unpackhi_epi8(yk, zeros);
+
+        // Scale to r, g, b.
+        __m512i r = scale(c, k),
+                g = scale(m, k),
+                b = scale(y, k);
+
+        // Repack into interlaced pixels.
+        __m512i rg = _mm512_or_si512(r, _mm512_slli_epi16(g, 8)),
+                ba = _mm512_or_si512(b, _mm512_set1_epi16((uint16_t) 0xFF00));
+        *lo = _mm512_unpacklo_epi16(rg, ba);
+        *hi = _mm512_unpackhi_epi16(rg, ba);
+    };
+
+    while (count >= 32) {
+        __m512i lo = _mm512_loadu_si512((const __m512i*) (src + 0)),
+                hi = _mm512_loadu_si512((const __m512i*) (src + 16));
+
+        convert8(&lo, &hi);
+
+        _mm512_storeu_si512((__m512i*) (dst +  0), lo);
+        _mm512_storeu_si512((__m512i*) (dst + 16), hi);
+
+        src += 32;
+        dst += 32;
+        count -= 32;
+    }
+
+    if (count >= 16) {
+        __m512i lo = _mm512_loadu_si512((const __m512i*) src),
+                hi = _mm512_setzero_si512();
+
+        convert8(&lo, &hi);
+
+        _mm512_storeu_si512((__m512i*) dst, lo);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    auto proc = (kBGR1 == format) ? inverted_CMYK_to_BGR1_portable : inverted_CMYK_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_RGB1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kRGB1, dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_BGR1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kBGR1, dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
 
 // Scale a byte by another.
@@ -580,48 +861,7 @@ static void premul_should_swapRB(bool kSwapRB, uint32_t* dst, const uint32_t* sr
     RGBA_to_BGRA_portable(dst, src, count);
 }
 
-// Use SSSE3 impl as AVX2 impl regresses performance on some platforms.
-static void insert_alpha_should_swaprb(bool kSwapRB,
-                                       uint32_t dst[], const uint8_t* src, int count) {
-    const __m128i alphaMask = _mm_set1_epi32(0xFF000000);
-    __m128i expand;
-    const uint8_t X = 0xFF; // Used a placeholder.  The value of X is irrelevant.
-    if (kSwapRB) {
-        expand = _mm_setr_epi8(2,1,0,X, 5,4,3,X, 8,7,6,X, 11,10,9,X);
-    } else {
-        expand = _mm_setr_epi8(0,1,2,X, 3,4,5,X, 6,7,8,X, 9,10,11,X);
-    }
-
-    while (count >= 6) {
-        // Load a vector.  While this actually contains 5 pixels plus an
-        // extra component, we will discard all but the first four pixels on
-        // this iteration.
-        __m128i rgb = _mm_loadu_si128((const __m128i*) src);
-
-        // Expand the first four pixels to RGBX and then mask to RGB(FF).
-        __m128i rgba = _mm_or_si128(_mm_shuffle_epi8(rgb, expand), alphaMask);
-
-        // Store 4 pixels.
-        _mm_storeu_si128((__m128i*) dst, rgba);
-
-        src += 4*3;
-        dst += 4;
-        count -= 4;
-    }
-
-    // Call portable code to finish up the tail of [0,4) pixels.
-    auto proc = kSwapRB ? RGB_to_BGR1_portable : RGB_to_RGB1_portable;
-    proc(dst, src, count);
-
-}
-
-/*not static*/ inline void RGB_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
-    insert_alpha_should_swaprb(false, dst, src, count);
-}
-
-/*not static*/ inline void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
-    insert_alpha_should_swaprb(true, dst, src, count);
-}
+// // We saw no benefit from AVX2 over SSSE3 for RGB_to_RGB1 / RGB_to_BGR1.
 
 /*not static*/ inline void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
     const __m256i alphas = _mm256_set1_epi8((uint8_t) 0xFF);
