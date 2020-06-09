@@ -590,13 +590,12 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;
 
-    // All the path renderers currently make their own ops
+    // All the path and text renderers/ops currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
@@ -611,6 +610,7 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
+    friend class GrAtlasTextOp;                      // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
