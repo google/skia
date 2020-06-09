@@ -378,6 +378,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
         SkASSERT(!fDAG.renderTask(i) || fDAG.renderTask(i)->unique());
     }
 #endif
+    fLastRenderTasks.reset();
     fDAG.reset();
     this->clearDDLTargets();
 
@@ -617,7 +618,11 @@ void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTa
         SkASSERT(prior->isClosed());
     }
 #endif
-    fLastRenderTasks.set(proxy->uniqueID().asUInt(), task);
+    if (task) {
+        fLastRenderTasks.set(proxy->uniqueID().asUInt(), task);
+    } else {
+        fLastRenderTasks.remove(proxy->uniqueID().asUInt());
+    }
 }
 
 GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) const {

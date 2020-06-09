@@ -96,8 +96,6 @@ public:
 
     // Remove the value with this key from the hash table.
     void remove(const K& key) {
-        SkASSERT(this->find(key));
-
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
@@ -290,7 +288,6 @@ public:
 
     // Remove the key/value entry in the table with this key.
     void remove(const K& key) {
-        SkASSERT(this->find(key));
         fTable.remove(key);
     }
 
