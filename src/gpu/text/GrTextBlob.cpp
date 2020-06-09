@@ -485,12 +485,13 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
     return c.premul();
 }
 
-std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider& matrixProvider,
-                                                  SkPoint drawOrigin,
-                                                  const SkIRect& clipRect,
-                                                  const SkPaint& paint,
-                                                  const SkSurfaceProps& props,
-                                                  GrTextTarget* target) {
+std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
+        const SkMatrixProvider& matrixProvider,
+        SkPoint drawOrigin,
+        const SkIRect& clipRect,
+        const SkPaint& paint,
+        const SkSurfaceProps& props,
+        GrTextTarget* target) {
     GrPaint grPaint;
     target->makeGrPaint(this->maskFormat(), paint, matrixProvider, &grPaint);
     const GrColorInfo& colorInfo = target->colorInfo();
@@ -499,7 +500,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider
 
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
-        return GrAtlasTextOp::MakeDistanceField(target->getContext(),
+        return GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
                                                 std::move(grPaint),
                                                 this,
                                                 matrixProvider.localToDevice(),
@@ -510,7 +511,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(const SkMatrixProvider
                                                 SkPaintPriv::ComputeLuminanceColor(paint),
                                                 props);
     } else {
-        return GrAtlasTextOp::MakeBitmap(target->getContext(),
+        return GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
                                          std::move(grPaint),
                                          this,
                                          matrixProvider.localToDevice(),
