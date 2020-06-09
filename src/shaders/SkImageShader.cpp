@@ -37,11 +37,13 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              SkTileMode tmx, SkTileMode tmy,
                              const SkMatrix* localMatrix,
+                             FilterEnum filtering,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
     , fImage(std::move(img))
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
+    , fFiltering(filtering)
     , fClampAsIfUnpremul(clampAsIfUnpremul)
 {}
 
@@ -51,18 +53,26 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+
+    FilterEnum filtering = kInheritFromPaint;
+    if (!buffer.isVersionLT(SkPicturePriv::kFilteringInImageShader_Version)) {
+        filtering = buffer.read32LE<FilterEnum>(kInheritFromPaint);
+    }
+
     SkMatrix localMatrix;
     buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix);
+
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, filtering);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((unsigned)fTileModeX);
     buffer.writeUInt((unsigned)fTileModeY);
+    buffer.writeUInt((unsigned)fFiltering);
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
@@ -159,11 +169,14 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix,
+                                    FilterEnum filtering,
                                     bool clampAsIfUnpremul) {
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{ new SkImageShader(image, tmx, tmy, localMatrix, clampAsIfUnpremul) };
+    return sk_sp<SkShader>{
+        new SkImageShader(image, tmx, tmy, localMatrix, filtering, clampAsIfUnpremul)
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +253,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
-                               tmx, tmy, localMatrix);
+                               tmx, tmy, localMatrix, SkImageShader::kInheritFromPaint);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
