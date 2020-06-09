@@ -16,6 +16,24 @@
       "revId": "f3569f0f6d312570c7344b345f8b3a03a892f751",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b077fb4_d0fca452",
+        "filename": "src/gpu/GrColorSpaceInfo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-09T14:25:42Z",
+      "side": 1,
+      "message": "I should note that if you\u0027re struggling how to combine atomics and copy constructors / assignment, you\u0027re not alone... they\u0027re generally just not sound to combine without making some domain-specific hack around the issue.\n\nEven before using atomics here, I\u0027d really double check you need this cached value at all, or that it can\u0027t be proactively cached in the constructor.  I\u0027d be happy to help if this does end up important and we get stuck.",
+      "parentUuid": "8b803f01_7bf96727",
+      "revId": "f3569f0f6d312570c7344b345f8b3a03a892f751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
