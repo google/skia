@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b8fc77b9_716b478b",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-09T16:34:07Z",
+      "side": 1,
+      "message": "Still curious about this last case, FBO w/ MSAA with no resolve buffer. Won\u0027t we flag it as needing manual resolve but it isn\u0027t resolvable?",
+      "parentUuid": "1e2a327d_16343528",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 5
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81d7c2e3_9de369ec",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 10
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "I\u0027ve updated the comment. I don\u0027t think this behavior is only required in the wrapBackendTextureAsRenderTarget case. After all we\u0027re currently seeing Chrome rely on the auto-resolves even though that API has been retracted.",
       "parentUuid": "fc81c9ed_7ae0548b",
+      "range": {
+        "startLine": 533,
+        "startChar": 7,
+        "endLine": 533,
+        "endChar": 40
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4bcd34f_285b1154",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-09T16:34:07Z",
+      "side": 1,
+      "message": "ok makes sense. I guess a pure MSAA FBO will have proxy-\u003erequiresManualMSAAResolve as false, right?",
+      "parentUuid": "607e7e6b_e4e7d78f",
       "range": {
         "startLine": 533,
         "startChar": 7,
