@@ -43,8 +43,16 @@ sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
     return AsPaint(cpaint)->getColor();
 }
 
+void sk_paint_get_color4f(const sk_paint_t* paint, sk_color4f_t* color) {
+    *color = ToColor4f(AsPaint(paint)->getColor4f());
+}
+
 void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
     AsPaint(cpaint)->setColor(c);
+}
+
+void sk_paint_set_color4f(sk_paint_t* paint, sk_color4f_t* color, sk_colorspace_t* colorspace) {
+    AsPaint(paint)->setColor4f(AsColor4f(*color), AsColorSpace(colorspace));
 }
 
 void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
