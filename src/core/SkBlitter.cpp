@@ -653,12 +653,14 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
 
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
 
+    auto quality = SkPaintPriv::ResolveFilterQuality(paint);
+
     // The legacy blitters cannot handle any of these complex features (anymore).
     if (device.alphaType() == kUnpremul_SkAlphaType        ||
         matrix.hasPerspective()                            ||
         paint.getColorFilter()                             ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
-        paint.getFilterQuality() == kHigh_SkFilterQuality  ||
+        quality == kHigh_SkFilterQuality                   ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
         return true;
     }
