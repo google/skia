@@ -617,7 +617,11 @@ void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTa
         SkASSERT(prior->isClosed());
     }
 #endif
-    fLastRenderTasks.set(proxy->uniqueID().asUInt(), task);
+    if (nullptr == task) {
+        fLastRenderTasks.remove(proxy->uniqueID().asUInt());
+    } else {
+        fLastRenderTasks.set(proxy->uniqueID().asUInt(), task);
+    }
 }
 
 GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) const {
