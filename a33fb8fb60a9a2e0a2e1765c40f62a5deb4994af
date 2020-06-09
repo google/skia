@@ -63,6 +63,24 @@
       "revId": "a33fb8fb60a9a2e0a2e1765c40f62a5deb4994af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "028240f4_f264bd7c",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-09T20:09:49Z",
+      "side": 1,
+      "message": "I kept the null check although I don\u0027t think it\u0027s possible now.\nThis fix came up when I was testing this change.",
+      "parentUuid": "9e02a310_b5e57d21",
+      "revId": "a33fb8fb60a9a2e0a2e1765c40f62a5deb4994af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
