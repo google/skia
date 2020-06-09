@@ -17,10 +17,20 @@ class SkImageStageUpdater;
 
 class SkImageShader : public SkShaderBase {
 public:
+    enum FilterEnum {   // first 4 entries match SkFilterQuality
+        kNone,
+        kLow,
+        kMedium,
+        kHigh,
+        // this is the special value for backward compatibility
+        kInheritFromPaint,
+    };
+
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
                                 const SkMatrix* localMatrix,
+                                FilterEnum,
                                 bool clampAsIfUnpremul = false);
 
     bool isOpaque() const override;
@@ -29,6 +39,10 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
+    SkFilterQuality resolveFilterQuality(SkFilterQuality quality) const override {
+        return fFiltering == kInheritFromPaint ? quality : (SkFilterQuality)fFiltering;
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
 
@@ -36,6 +50,7 @@ private:
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkMatrix* localMatrix,
+                  FilterEnum,
                   bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
@@ -57,6 +72,7 @@ private:
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
+    const FilterEnum fFiltering;
     const bool       fClampAsIfUnpremul;
 
     friend class SkShaderBase;
