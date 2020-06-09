@@ -52,6 +52,24 @@
       "revId": "f3569f0f6d312570c7344b345f8b3a03a892f751",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34feaada_a74c44ef",
+        "filename": "src/gpu/GrColorSpaceInfo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:41:51Z",
+      "side": 1,
+      "message": "skbug.com/10352",
+      "parentUuid": "07a6b35c_5cab94aa",
+      "revId": "f3569f0f6d312570c7344b345f8b3a03a892f751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
