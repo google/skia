@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5c53ad67_fb4a382d",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-09T20:31:01Z",
+      "side": 1,
+      "message": "Agree, this is awkward. Not sure what else to do while we\u0027re still supporting \"legacy\" shaders that don\u0027t have a pref.",
+      "parentUuid": "5d9ac01d_d672c3d9",
+      "revId": "a6ef9aed190a80f9398e2271435a1e02ae3c7568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "168a9dec_f1eff158",
         "filename": "src/shaders/SkImageShader.h",
         "patchSetId": 7
