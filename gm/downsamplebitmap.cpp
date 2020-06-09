@@ -158,3 +158,38 @@ DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kHigh_SkFilterQuali
 DEF_GM( return new DownsampleBitmapGM(make_image, "image", kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapGM(make_image, "image",    kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kNone_SkFilterQuality); )
+
+static sk_sp<SkImage> make_checker_img(int w, int h, SkCanvas* origCanvas) {
+    auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+    auto surf = ToolUtils::makeSurface(origCanvas, info);
+    ToolUtils::draw_checkerboard(surf->getCanvas(), SK_ColorBLACK, SK_ColorWHITE, 1);
+    return surf->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(image_shader_filtering, canvas, 500, 500) {
+    auto img = make_checker_img(64, 64, canvas);
+    const SkFilterQuality quals[] = {
+        kNone_SkFilterQuality,
+        kLow_SkFilterQuality,
+        kMedium_SkFilterQuality,
+        kHigh_SkFilterQuality,
+    };
+    const SkScalar scales[] = { 2.0f, 1.0f, 0.5f, 0.25f, 0.125f };
+
+    canvas->translate(4, 4);
+
+    SkRect r = {0, 0, 64, 64};
+    SkPaint paint;
+    for (auto q : quals) {
+        for (auto scale : scales) {
+            SkMatrix m = SkMatrix::Scale(scale, scale);
+            paint.setFilterQuality(kNone_SkFilterQuality);
+            paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m, q));
+            canvas->drawRect(r, paint);
+
+            paint.setFilterQuality(q);  // this should have no effect, since we passed q to factory
+            canvas->drawRect(r.makeOffset(0, r.height() + 4), paint);
+        }
+        canvas->translate(r.width() + 4, 0);
+    }
+}
