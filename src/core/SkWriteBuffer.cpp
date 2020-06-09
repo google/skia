@@ -15,6 +15,7 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPtrRecorder.h"
+#include "src/core/SkVptr.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -219,14 +220,15 @@ void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
      *      already written the string, we write its index instead.
      */
 
-    SkFlattenable::Factory factory = flattenable->getFactory();
-    SkASSERT(factory);
 
     if (fFactorySet) {
+        SkFlattenable::Factory factory = flattenable->getFactory();
+        SkASSERT(factory);
         this->write32(fFactorySet->add(factory));
     } else {
+        void* vptr = SkVptr(*flattenable);
 
-        if (uint32_t* indexPtr = fFlattenableDict.find(factory)) {
+        if (uint32_t* indexPtr = fFlattenableDict.find(vptr)) {
             // We will write the index as a 32-bit int.  We want the first byte
             // that we send to be zero - this will act as a sentinel that we
             // have an index (not a string).  This means that we will send the
@@ -244,7 +246,7 @@ void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
             this->writeString(name);
 
             // Add key to dictionary.
-            fFlattenableDict.set(factory, fFlattenableDict.count() + 1);
+            fFlattenableDict.set(vptr, fFlattenableDict.count() + 1);
         }
     }
 
