@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e02a310_b5e57d21",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-09T19:50:32Z",
+      "side": 1,
+      "message": "This seems to be a very different change? Is this part of this change? It seems like this would have crashed in the past if this weren\u0027t true? If this is something wanted it should probably go in a different CL with an explanation.",
+      "revId": "a33fb8fb60a9a2e0a2e1765c40f62a5deb4994af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
