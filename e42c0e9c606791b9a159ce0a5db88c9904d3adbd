@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3ab8b386_ef1b1749",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "I believe so. Chris Dalton can confirm",
+      "parentUuid": "a93d4fff_1e35779d",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa0352d6_d77235b3",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b29bc3a9_1f913bf2",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "Done. Leaving as a const for now since it seems about equal to change it here vs on a flag.",
+      "parentUuid": "fa0352d6_d77235b3",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 14
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6e30f585_66ad7bc3",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc04845a_35692e12",
+      "range": {
+        "startLine": 87,
+        "startChar": 1,
+        "endLine": 87,
+        "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f179bd62_9eee06c2",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "e15a467e_eb9ea78c",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "It might be feasible, but I\u0027m hesitant to do so because of the dependencies it could incur. Added a TODO",
+      "parentUuid": "f179bd62_9eee06c2",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 28
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce7940cd_59cfe57d",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -105,6 +201,30 @@
       "writtenOn": "2020-06-09T12:04:30Z",
       "side": 1,
       "message": "Any chance you\u0027re interested in experimenting with uploading the results directly to GCS, rather than using a separate upload task?  It\u0027d give us a good example when it\u0027s time to do that with the normal test/perf tasks.",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 295,
+        "endChar": 2
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53ad54e2_84159929",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "Sure. Maybe in a followup CL? Do we have an example already I can base this off of, should I shell out to gsutil, or use the gcs go package?",
+      "parentUuid": "ce7940cd_59cfe57d",
       "range": {
         "startLine": 280,
         "startChar": 0,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "727d21ad_68191cfb",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "I think this is so trivial it doesn\u0027t warrent another step. There\u0027s already one to read in the file contents, I don\u0027t think parsing the JSON is really step-worthy.",
+      "parentUuid": "030f5443_c5fe893f",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 50
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "852e05cd_a0384b8a",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "d69c86d5_a074a46c",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "852e05cd_a0384b8a",
+      "range": {
+        "startLine": 366,
+        "startChar": 5,
+        "endLine": 366,
+        "endChar": 19
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa610897_93f48b99",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps_test.go",
         "patchSetId": 4
@@ -174,6 +342,30 @@
       "writtenOn": "2020-06-09T12:04:30Z",
       "side": 1,
       "message": "Nit: remove the temp dir, here and below",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d8e6d7_e3e05b45",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps_test.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T12:56:41Z",
+      "side": 1,
+      "message": "I don\u0027t think I can - I want to make sure /tmp/benchmark/out is created.\n\nI\u0027m also not sure what you mean by \"and below\". To my eye, all those folders are needed.",
+      "parentUuid": "fa610897_93f48b99",
       "range": {
         "startLine": 22,
         "startChar": 0,
