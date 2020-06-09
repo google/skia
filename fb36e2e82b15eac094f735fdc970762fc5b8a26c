@@ -33,6 +33,24 @@
       "revId": "fb36e2e82b15eac094f735fdc970762fc5b8a26c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f932a027_7e7280e4",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-09T13:34:39Z",
+      "side": 1,
+      "message": "Good catch, fixed.",
+      "parentUuid": "4d7d7736_7240ef90",
+      "revId": "fb36e2e82b15eac094f735fdc970762fc5b8a26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
