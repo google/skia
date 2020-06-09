@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8eefbedc_c601b201",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T13:53:59Z",
+      "side": 1,
+      "message": "Chris\u0027s SKPBench measured warm cache, and I belive the glyph and other caches aren\u0027t the heavyweight part, it\u0027s the shader compilation.",
+      "parentUuid": "3ab8b386_ef1b1749",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa0352d6_d77235b3",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -443,6 +467,75 @@
         "startChar": 0,
         "endLine": 23,
         "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76ff6fb4_83f4205a",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T13:53:59Z",
+      "side": 1,
+      "message": "Can these be made to build canvaskit if it isn\u0027t present?",
+      "range": {
+        "startLine": 1,
+        "startChar": 35,
+        "endLine": 1,
+        "endChar": 81
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f7cbedc_794abfd0",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T13:53:59Z",
+      "side": 1,
+      "message": "Canvaskit bindings are unlikely to have any impact on this compared to the bare skia benchmark of the same thing (I hypothesize ;)",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 54
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52fcbfff_5d2ff2b9",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T13:53:59Z",
+      "side": 1,
+      "message": "is there anything else useful you can add to this error, for the person trying to figure out why the GL context coulnd\u0027t be created?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 7
       },
       "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
