@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d9ac01d_d672c3d9",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-09T20:28:17Z",
+      "side": 1,
+      "message": "Gotta be a way we can rewrite this to avoid the need to ask this here?",
+      "revId": "a6ef9aed190a80f9398e2271435a1e02ae3c7568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "168a9dec_f1eff158",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-09T20:28:17Z",
+      "side": 1,
+      "message": "If we were to stick with SkFilterQuality, I kind of would have thought that this would be the main entry point to the split, with no code outside SkImageShader needing to know about the new enum.\n\ne.g.\n\n   static sk_sp\u003cSkShader\u003e Make(sk_sp\u003cSkImage\u003e, ... the rest ...);  // Quality from the SkPaint.\n   static sk_sp\u003cSkShader\u003e Make(sk_sp\u003cSkImage\u003e, SkFilterQuality, ... the rest ...);\n\nboth ultimately funneling into\n\n private:\n    enum FilterEnum { ... };\n    SkImageShader(sk_sp\u003cSkImage\u003e, FilterEnum, ... the rest ...);\n\nThe resolveFilterQuality() approach strikes me as keeping the paint in too much control, where we\u0027d prefer to just let the shader handle its own affairs.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "a6ef9aed190a80f9398e2271435a1e02ae3c7568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
