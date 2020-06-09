@@ -10,6 +10,7 @@
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/GrRecordingContext.h"
+#include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -522,6 +523,38 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
     fDAG.removeRenderTasks(startIndex, stopIndex);
 }
 
+static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
+    if (!proxy->isInstantiated()) {
+        return;
+    }
+
+    // In the flushSurfaces case, we need to resolve MSAA immediately after flush. This is
+    // because the client will call through to this method when drawing into a target created by
+    // wrapBackendTextureAsRenderTarget, and will expect the original texture to be fully
+    // resolved upon return.
+    if (proxy->requiresManualMSAAResolve()) {
+        auto* rtProxy = proxy->asRenderTargetProxy();
+        SkASSERT(rtProxy);
+        if (rtProxy->isMSAADirty()) {
+            SkASSERT(rtProxy->peekRenderTarget());
+            gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
+                                     GrGpu::ForExternalIO::kYes);
+            rtProxy->markMSAAResolved();
+        }
+    }
+    // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
+    // case their backend textures are being stolen.
+    // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
+    // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
+    if (auto* textureProxy = proxy->asTextureProxy()) {
+        if (textureProxy->mipMapsAreDirty()) {
+            SkASSERT(textureProxy->peekTexture());
+            gpu->regenerateMipMapLevels(textureProxy->peekTexture());
+            textureProxy->markMipMapsClean();
+        }
+    }
+}
+
 GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
                                                       SkSurface::BackendSurfaceAccess access,
                                                       const GrFlushInfo& info) {
@@ -553,41 +586,25 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     // We have a non abandoned and direct GrContext. It must have a GrGpu.
     SkASSERT(gpu);
 
+
+    std::vector<GrRenderTargetProxy*> ddlTargets;
+    for (int i = 0; i < numProxies; ++i) {
+        GrRenderTargetProxy* target = this->getDDLTarget(proxies[i]);
+        if (target) {
+            ddlTargets.push_back(target);
+        }
+    }
+
     // TODO: It is important to upgrade the drawingmanager to just flushing the
     // portion of the DAG required by 'proxies' in order to restore some of the
     // semantics of this method.
     bool didFlush = this->flush(proxies, numProxies, access, info,
                                 GrPrepareForExternalIORequests());
     for (int i = 0; i < numProxies; ++i) {
-        GrSurfaceProxy* proxy = proxies[i];
-        if (!proxy->isInstantiated()) {
-            continue;
-        }
-        // In the flushSurfaces case, we need to resolve MSAA immediately after flush. This is
-        // because the client will call through to this method when drawing into a target created by
-        // wrapBackendTextureAsRenderTarget, and will expect the original texture to be fully
-        // resolved upon return.
-        if (proxy->requiresManualMSAAResolve()) {
-            auto* rtProxy = proxy->asRenderTargetProxy();
-            SkASSERT(rtProxy);
-            if (rtProxy->isMSAADirty()) {
-                SkASSERT(rtProxy->peekRenderTarget());
-                gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
-                                         GrGpu::ForExternalIO::kYes);
-                rtProxy->markMSAAResolved();
-            }
-        }
-        // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
-        // case their backend textures are being stolen.
-        // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
-        // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
-        if (auto* textureProxy = proxy->asTextureProxy()) {
-            if (textureProxy->mipMapsAreDirty()) {
-                SkASSERT(textureProxy->peekTexture());
-                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
-                textureProxy->markMipMapsClean();
-            }
-        }
+        resolve_and_mipmap(gpu, proxies[i]);
+    }
+    for (auto tmp : ddlTargets) {
+        resolve_and_mipmap(gpu, tmp);
     }
 
     SkDEBUGCODE(this->validate());
@@ -672,7 +689,7 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
         fActiveOpsTask = nullptr;
     }
 
-    this->addDDLTarget(newDest);
+    this->addDDLTarget(newDest, ddl->priv().targetProxy());
 
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the copied opsTasks) will steal its GrTexture.
