@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7e2c233_1c68ed6a",
+        "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T19:08:36Z",
+      "side": 1,
+      "message": "Any way we can pass a Ganesh objects into here that have the ID3D12DescriptorHeap and the Resource in them? I\u0027ve always hated in the past where we\u0027ve called add*Resource outside of the commandbuffer/list classes as it is exposing some internal-ness of the class.\n\nOn a similar note, I wonder if this tracking of fCurrent*DescriptorHeap would be better to just have on the command list itself like we do for buffers and other objects.",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8cb30bf_67894a90",
+        "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T19:08:36Z",
+      "side": 1,
+      "message": "Do we need to expose this? Can resourceProvider just have a recycleHeap call which passes it through to its private mgr?",
+      "range": {
+        "startLine": 101,
+        "startChar": 29,
+        "endLine": 101,
+        "endChar": 49
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08b2021f_23d8bca2",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T19:08:36Z",
+      "side": 1,
+      "message": "just curious why this change?",
+      "range": {
+        "startLine": 87,
+        "startChar": 89,
+        "endLine": 87,
+        "endChar": 95
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "7a0b3106_0f77a24b",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T19:08:36Z",
+      "side": 1,
+      "message": "Yup your right. I didn\u0027t read the whole paragraph and mixed up descriptors and ranges from the first sentence.",
+      "parentUuid": "98b8c344_f134d95e",
+      "range": {
+        "startLine": 145,
+        "startChar": 6,
+        "endLine": 147,
+        "endChar": 54
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d116da49_7df9b74c",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 10
