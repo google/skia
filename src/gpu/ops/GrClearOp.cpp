@@ -14,52 +14,74 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
-std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
-                                           const GrFixedClip& clip,
-                                           const SkPMColor4f& color,
-                                           GrSurfaceProxy* dstProxy) {
-    const SkIRect rect = SkIRect::MakeSize(dstProxy->dimensions());
-    if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
-        return nullptr;
-    }
-
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-    return pool->allocate<GrClearOp>(clip, color, dstProxy);
+static bool contains_scissor(const GrScissorState& a, const GrScissorState& b) {
+    return !a.enabled() || (b.enabled() && a.rect().contains(b.rect()));
 }
 
-std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
-                                           const SkIRect& rect,
-                                           const SkPMColor4f& color,
-                                           bool fullScreen) {
-    SkASSERT(fullScreen || !rect.isEmpty());
-
+std::unique_ptr<GrClearOp> GrClearOp::MakeColor(GrRecordingContext* context,
+                                                const GrScissorState& scissor,
+                                                const SkPMColor4f& color) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-    return pool->allocate<GrClearOp>(rect, color, fullScreen);
+    return pool->allocate<GrClearOp>(Buffer::kColor, scissor, color, false);
 }
 
-GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy)
+std::unique_ptr<GrClearOp> GrClearOp::MakeStencilClip(GrRecordingContext* context,
+                                                      const GrScissorState& scissor,
+                                                      bool insideMask) {
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    return pool->allocate<GrClearOp>(Buffer::kStencilClip, scissor, SkPMColor4f(), insideMask);
+}
+
+GrClearOp::GrClearOp(Buffer buffer, const GrScissorState& scissor,
+                     const SkPMColor4f& color, bool insideMask)
         : INHERITED(ClassID())
-        , fClip(clip)
-        , fColor(color) {
-    const SkIRect rtRect = SkIRect::MakeSize(proxy->dimensions());
-    if (fClip.scissorEnabled()) {
-        // Don't let scissors extend outside the RT. This may improve op combining.
-        if (!fClip.intersect(rtRect)) {
-            SkASSERT(0);  // should be caught upstream
-            fClip = GrFixedClip(SkIRect::MakeEmpty());
-        }
+        , fScissor(scissor)
+        , fColor(color)
+        , fStencilInsideMask(insideMask)
+        , fBuffer(buffer) {
+    this->setBounds(SkRect::Make(scissor.rect()), HasAABloat::kNo, IsHairline::kNo);
+}
 
-        if (proxy->isFunctionallyExact() && fClip.scissorRect() == rtRect) {
-            fClip.disableScissor();
+GrOp::CombineResult GrClearOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
+                                                   const GrCaps& caps) {
+    GrClearOp* other = t->cast<GrClearOp>();
+
+    if (other->fBuffer == fBuffer) {
+        // This could be much more complicated. Currently we look at cases where the new clear
+        // contains the old clear, or when the new clear is a subset of the old clear and they clear
+        // to the same value (color or stencil mask depending on target).
+        if (contains_scissor(other->fScissor, fScissor)) {
+            fScissor = other->fScissor;
+            fColor = other->fColor;
+            fStencilInsideMask = other->fStencilInsideMask;
+            return CombineResult::kMerged;
+        } else if (other->fColor == fColor && other->fStencilInsideMask == fStencilInsideMask &&
+                   contains_scissor(fScissor, other->fScissor)) {
+            return CombineResult::kMerged;
         }
+    } else if (other->fScissor == fScissor) {
+        // When the scissors are the exact same but the buffers are different, we can combine and
+        // clear both stencil and clear together in onExecute().
+        if (other->fBuffer & Buffer::kColor) {
+            SkASSERT((fBuffer & Buffer::kStencilClip) && !(fBuffer & Buffer::kColor));
+            fColor = other->fColor;
+        }
+        if (other->fBuffer & Buffer::kStencilClip) {
+            SkASSERT(!(fBuffer & Buffer::kStencilClip) && (fBuffer & Buffer::kColor));
+            fStencilInsideMask = other->fStencilInsideMask;
+        }
+        fBuffer = Buffer::kBoth;
     }
-    this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
-                    HasAABloat::kNo, IsHairline::kNo);
+    return CombineResult::kCannotCombine;
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->opsRenderPass());
-    state->opsRenderPass()->clear(fClip, fColor);
+    if (fBuffer & Buffer::kColor) {
+        state->opsRenderPass()->clear(fScissor, fColor);
+    }
+
+    if (fBuffer & Buffer::kStencilClip) {
+        state->opsRenderPass()->clearStencilClip(fScissor, fStencilInsideMask);
+    }
 }

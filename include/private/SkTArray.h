@@ -20,10 +20,15 @@
 #include <new>
 #include <utility>
 
-/** When MEM_MOVE is true T will be bit copied when moved.
-    When MEM_MOVE is false, T will be copy constructed / destructed.
-    In all cases T will be default-initialized on allocation,
-    and its destructor will be called from this object's destructor.
+/** SkTArray<T> implements a typical, mostly std::vector-like array.
+    Each T will be default-initialized on allocation, and ~T will be called on destruction.
+
+    MEM_MOVE controls the behavior when a T needs to be moved (e.g. when the array is resized)
+      - true: T will be bit-copied via memcpy.
+      - false: T will be moved via move-constructors.
+
+    Modern implementations of std::vector<T> will generally provide similar performance
+    characteristics when used with appropriate care. Consider using std::vector<T> in new code.
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
@@ -468,7 +473,7 @@ private:
             fReserved = false;
         } else {
             fAllocCount = std::max(count, std::max(kMinHeapAllocCount, reserveCount));
-            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
         }
@@ -518,7 +523,7 @@ private:
     }
     template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
         for (int i = 0; i < fCount; ++i) {
-            new (static_cast<char*>(dst) + sizeof(T) * i) T(std::move(fItemArray[i]));
+            new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
             fItemArray[i].~T();
         }
     }
@@ -564,7 +569,7 @@ private:
 
         fAllocCount = Sk64_pin_to_s32(newAllocCount);
         SkASSERT(fAllocCount >= newCount);
-        T* newItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+        T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);

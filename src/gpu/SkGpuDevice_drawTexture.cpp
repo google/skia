@@ -125,12 +125,13 @@ static int determine_tile_size(const SkIRect& src, int maxTileSize) {
 // Given a bitmap, an optional src rect, and a context with a clip and matrix determine what
 // pixels from the bitmap are necessary.
 static SkIRect determine_clipped_src_rect(int width, int height,
-                                          const GrClip& clip,
+                                          const GrClip* clip,
                                           const SkMatrix& viewMatrix,
                                           const SkMatrix& srcToDstRect,
                                           const SkISize& imageDimensions,
                                           const SkRect* srcRectPtr) {
-    SkIRect clippedSrcIRect = clip.getConservativeBounds(width, height);
+    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds(width, height)
+                                   : SkIRect::MakeWH(width, height);
     SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
     if (!inv.invert(&inv)) {
         return SkIRect::MakeEmpty();
@@ -154,7 +155,7 @@ static SkIRect determine_clipped_src_rect(int width, int height,
 // tileSize and clippedSubset are valid if true is returned
 static bool should_tile_image_id(GrContext* context,
                                  SkISize rtSize,
-                                 const GrClip& clip,
+                                 const GrClip* clip,
                                  uint32_t imageID,
                                  const SkISize& imageSize,
                                  const SkMatrix& ctm,
@@ -319,7 +320,7 @@ static bool can_use_draw_texture(const SkPaint& paint) {
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
-static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const SkMatrix& ctm,
+static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const SkMatrix& ctm,
                          const SkPaint& paint, const SkRect& srcRect, const SkRect& dstRect,
                          const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                          SkCanvas::SrcRectConstraint constraint, GrSurfaceProxyView view,
@@ -382,7 +383,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
 static void draw_texture_producer(GrContext* context,
                                   GrRenderTargetContext* rtc,
-                                  const GrClip& clip,
+                                  const GrClip* clip,
                                   const SkMatrixProvider& matrixProvider,
                                   const SkPaint& paint,
                                   GrTextureProducer* producer,
@@ -510,7 +511,7 @@ static void draw_texture_producer(GrContext* context,
 
 void draw_tiled_bitmap(GrContext* context,
                        GrRenderTargetContext* rtc,
-                       const GrClip& clip,
+                       const GrClip* clip,
                        const SkBitmap& bitmap,
                        int tileSize,
                        const SkMatrixProvider& matrixProvider,

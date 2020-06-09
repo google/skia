@@ -6,7 +6,6 @@
  */
 
 #include "dawn/webgpu_cpp.h"
-#include "dawn_native/DawnNative.h"
 #include "tools/gpu/dawn/DawnTestContext.h"
 
 #ifdef SK_BUILD_FOR_UNIX
@@ -88,7 +87,7 @@ public:
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
         for (dawn_native::Adapter adapter : adapters) {
             if (adapter.GetBackendType() == type) {
-                return adapter.CreateDevice();
+                return wgpu::Device::Acquire(adapter.CreateDevice());
             }
         }
         return nullptr;
@@ -150,15 +149,13 @@ protected:
 private:
     DawnTestContextImpl(std::unique_ptr<dawn_native::Instance> instance,
                         const wgpu::Device& device)
-            : DawnTestContext(device)
-            , fInstance(std::move(instance)) {
+            : DawnTestContext(std::move(instance), device) {
         fFenceSupport = true;
     }
 
     void onPlatformMakeNotCurrent() const override {}
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
-    std::unique_ptr<dawn_native::Instance> fInstance;
 
     typedef sk_gpu_test::DawnTestContext INHERITED;
 };

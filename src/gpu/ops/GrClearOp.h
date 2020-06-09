@@ -8,7 +8,8 @@
 #ifndef GrClearOp_DEFINED
 #define GrClearOp_DEFINED
 
-#include "src/gpu/GrFixedClip.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrScissorState.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrOpFlushState;
@@ -18,15 +19,14 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
-                                           const GrFixedClip& clip,
-                                           const SkPMColor4f& color,
-                                           GrSurfaceProxy* dstProxy);
+    // A fullscreen or scissored clear, depending on the clip and proxy dimensions
+    static std::unique_ptr<GrClearOp> MakeColor(GrRecordingContext* context,
+                                                const GrScissorState& scissor,
+                                                const SkPMColor4f& color);
 
-    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
-                                           const SkIRect& rect,
-                                           const SkPMColor4f& color,
-                                           bool fullScreen);
+    static std::unique_ptr<GrClearOp> MakeStencilClip(GrRecordingContext* context,
+                                                      const GrScissorState& scissor,
+                                                      bool insideMask);
 
     const char* name() const override { return "Clear"; }
 
@@ -35,8 +35,8 @@ public:
         SkString string;
         string.append(INHERITED::dumpInfo());
         string.appendf("Scissor [ ");
-        if (fClip.scissorEnabled()) {
-            const SkIRect& r = fClip.scissorRect();
+        if (fScissor.enabled()) {
+            const SkIRect& r = fScissor.rect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         } else {
             string.append("disabled");
@@ -46,64 +46,37 @@ public:
     }
 #endif
 
-    const SkPMColor4f& color() const { return fColor; }
-    void setColor(const SkPMColor4f& color) { fColor = color; }
-
 private:
     friend class GrOpMemoryPool; // for ctors
 
-    GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy);
+    enum class Buffer {
+        kColor       = 0b01,
+        kStencilClip = 0b10,
 
-    GrClearOp(const SkIRect& rect, const SkPMColor4f& color, bool fullScreen)
-        : INHERITED(ClassID())
-        , fClip(GrFixedClip(rect))
-        , fColor(color) {
+        kBoth        = 0b11,
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Buffer);
 
-        if (fullScreen) {
-            fClip.disableScissor();
-        }
-        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsHairline::kNo);
-    }
+    GrClearOp(Buffer buffer, const GrScissorState& scissor, const SkPMColor4f& color, bool stencil);
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
-                                      const GrCaps& caps) override {
-        // This could be much more complicated. Currently we look at cases where the new clear
-        // contains the old clear, or when the new clear is a subset of the old clear and is the
-        // same color.
-        GrClearOp* cb = t->cast<GrClearOp>();
-        if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
-            return CombineResult::kCannotCombine;
-        }
-        if (cb->contains(this)) {
-            fClip = cb->fClip;
-            fColor = cb->fColor;
-            return CombineResult::kMerged;
-        } else if (cb->fColor == fColor && this->contains(cb)) {
-            return CombineResult::kMerged;
-        }
-        return CombineResult::kCannotCombine;
-    }
+                                      const GrCaps& caps) override;
 
-    bool contains(const GrClearOp* that) const {
-        // The constructor ensures that scissor gets disabled on any clip that fills the entire RT.
-        return !fClip.scissorEnabled() ||
-               (that->fClip.scissorEnabled() &&
-                fClip.scissorRect().contains(that->fClip.scissorRect()));
-    }
-
-    void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
-                      GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
 
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
 
-    GrFixedClip fClip;
-    SkPMColor4f fColor;
+    GrScissorState fScissor;
+    SkPMColor4f    fColor;
+    bool           fStencilInsideMask;
+    Buffer         fBuffer;
 
     typedef GrOp INHERITED;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrClearOp::Buffer)
 
 #endif

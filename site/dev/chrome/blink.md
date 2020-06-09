@@ -13,7 +13,7 @@ special coordination with the Blink gardener using these steps:
    detail on running the Blink layout tests\).
 2. Check in your code to the Skia repo.
 3. Ahead of the Skia auto roll including your change, manually push a change to the
-   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations), flagging tests expected to fail as a result of your change as follows:
+   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/blink/web_tests/TestExpectations), flagging tests expected to fail as a result of your change as follows:
    foo/bar/test-name.html [ Failure Pass ]  # Needs rebaseline
 
 4. Wait for the Skia roll to land successfully.
@@ -65,7 +65,7 @@ See https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search f
    know that they are not expected to fix it.
 2. Create a CL removing the code suppression from Chromium's
    skia/chromium\_skia\_defines\.gypi while simultaneously adding [ NeedsRebaseline ]
-   lines to Blink's LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations).
+   lines to Blink's LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/blink/web_tests/TestExpectations).
    Then the auto rebaseline bot will take care of the work of actually checking in the
    new images. This is generally acceptable for up to 600 or so rebaselined images.
    Above that you might still use [ NeedsRebaseline ], but it's best to coordinate with

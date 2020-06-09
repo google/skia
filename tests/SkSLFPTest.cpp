@@ -14,6 +14,7 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
+    settings.fRemoveDeadFunctions = false;
     SkSL::Compiler compiler;
     SkSL::StringStream output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
@@ -784,8 +785,8 @@ DEF_TEST(SkSLFPFunction, r) {
             "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
             "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args, "
                                       "\"return c.wzyx;\\n\", &flip_name);",
-            "fragBuilder->codeAppendf(\"%s = %s(%s);\\n\", args.fOutputColor, flip_name.c_str(), "
-                                      "args.fInputColor);"
+            "fragBuilder->codeAppendf(\"half4 inlineResult101;\\nhalf4 inlineArg101_0 = %s;\\n{\\n    inlineResult101 = inlineArg101_0.wzyx;\\n}\\n%s = inlineResult101;\\n\\n\", args.fInputColor, "
+                                       "args.fOutputColor);"
          });
 }
 

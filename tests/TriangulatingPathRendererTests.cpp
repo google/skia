@@ -10,8 +10,8 @@
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -714,7 +714,6 @@ static void test_path(GrContext* ctx,
         paint.addColorFragmentProcessor(std::move(fp));
     }
 
-    GrNoClip noClip;
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
@@ -723,7 +722,7 @@ static void test_path(GrContext* ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
-                                      &noClip,
+                                      nullptr,
                                       &clipConservativeBounds,
                                       &matrix,
                                       &shape,
@@ -762,7 +761,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     test_path(ctx, rtc.get(), create_path_14());
     test_path(ctx, rtc.get(), create_path_15());
     test_path(ctx, rtc.get(), create_path_16());
-    SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
+    SkMatrix nonInvertibleMatrix = SkMatrix::Scale(0, 0);
     std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
     test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
               std::move(fp));

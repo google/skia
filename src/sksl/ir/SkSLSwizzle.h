@@ -44,12 +44,6 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 3: return *context.fHalf3_Type;
             case 4: return *context.fHalf4_Type;
         }
-    } else if (base == *context.fDouble_Type) {
-        switch (count) {
-            case 2: return *context.fDouble2_Type;
-            case 3: return *context.fDouble3_Type;
-            case 4: return *context.fDouble4_Type;
-        }
     } else if (base == *context.fInt_Type) {
         switch (count) {
             case 2: return *context.fInt2_Type;
@@ -134,6 +128,10 @@ struct Swizzle : public Expression {
 
     bool hasProperty(Property property) const override {
         return fBase->hasProperty(property);
+    }
+
+    int nodeCount() const override {
+        return 1 + fBase->nodeCount();
     }
 
     std::unique_ptr<Expression> clone() const override {

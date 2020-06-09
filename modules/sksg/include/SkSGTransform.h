@@ -49,7 +49,7 @@ private:
  *
  *   auto m33 = Matrix<SkMatrix>::Make(SkMatrix::I());
  *   ...
- *   m33->setMatrix(SkMatrix::MakeTrans(10, 10));
+ *   m33->setMatrix(SkMatrix::Translate(10, 10));
  *
  */
 template <typename T>

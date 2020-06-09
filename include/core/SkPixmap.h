@@ -369,7 +369,7 @@ public:
     const uint8_t* addr8(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint8_t*)((const char*)this->addr8() + y * fRowBytes + (x << 0));
+        return (const uint8_t*)((const char*)this->addr8() + (size_t)y * fRowBytes + (x << 0));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -387,7 +387,7 @@ public:
     const uint16_t* addr16(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint16_t*)((const char*)this->addr16() + y * fRowBytes + (x << 1));
+        return (const uint16_t*)((const char*)this->addr16() + (size_t)y * fRowBytes + (x << 1));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -405,7 +405,7 @@ public:
     const uint32_t* addr32(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint32_t*)((const char*)this->addr32() + y * fRowBytes + (x << 2));
+        return (const uint32_t*)((const char*)this->addr32() + (size_t)y * fRowBytes + (x << 2));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -423,7 +423,7 @@ public:
     const uint64_t* addr64(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint64_t*)((const char*)this->addr64() + y * fRowBytes + (x << 3));
+        return (const uint64_t*)((const char*)this->addr64() + (size_t)y * fRowBytes + (x << 3));
     }
 
     /** Returns readable pixel address at (x, y).

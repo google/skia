@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyphRunPainter.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -140,7 +141,7 @@ public:
 
     ~GrRenderTargetContext() override;
 
-    virtual void drawGlyphRunList(const GrClip&, const SkMatrixProvider&, const SkGlyphRunList&);
+    virtual void drawGlyphRunList(const GrClip*, const SkMatrixProvider&, const SkGlyphRunList&);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -148,28 +149,23 @@ public:
      */
     void discard();
 
-    enum class CanClearFullscreen : bool {
-        kNo = false,
-        kYes = true
-    };
-
     /**
-     * Clear the entire or rect of the render target, ignoring any clips.
-     * @param rect  the rect to clear or the whole thing if rect is NULL.
+     * Clear the rect of the render target to the given color.
+     * @param rect  the rect to clear to
      * @param color the color to clear to.
-     * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
-     *                           tiling platforms where that is an optimization.
      */
-    void clear(const SkIRect* rect, const SkPMColor4f& color, CanClearFullscreen);
-
+    void clear(const SkIRect& rect, const SkPMColor4f& color) {
+        this->internalClear(&rect, color);
+    }
+    // Clears the entire render target to the color.
     void clear(const SkPMColor4f& color) {
-        return this->clear(nullptr, color, CanClearFullscreen::kYes);
+        this->internalClear(nullptr, color);
     }
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
      */
-    void drawPaint(const GrClip&, GrPaint&&, const SkMatrix& viewMatrix);
+    void drawPaint(const GrClip*, GrPaint&&, const SkMatrix& viewMatrix);
 
     /**
      * Draw the rect using a paint.
@@ -180,7 +176,7 @@ public:
      *                     allowed.
      * The rects coords are used to access the paint (through texture matrix)
      */
-    void drawRect(const GrClip&,
+    void drawRect(const GrClip*,
                   GrPaint&& paint,
                   GrAA,
                   const SkMatrix& viewMatrix,
@@ -196,7 +192,7 @@ public:
      * @param rectToDraw   the rectangle to draw
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
-    void fillRectToRect(const GrClip& clip,
+    void fillRectToRect(const GrClip* clip,
                         GrPaint&& paint,
                         GrAA aa,
                         const SkMatrix& viewMatrix,
@@ -210,7 +206,7 @@ public:
     /**
      * Fills a rect with a paint and a localMatrix.
      */
-    void fillRectWithLocalMatrix(const GrClip& clip,
+    void fillRectWithLocalMatrix(const GrClip* clip,
                                  GrPaint&& paint,
                                  GrAA aa,
                                  const SkMatrix& viewMatrix,
@@ -228,7 +224,7 @@ public:
      * This is a specialized version of fillQuadWithEdgeAA, but is kept separate since knowing
      * the geometry is a rectangle affords more optimizations.
      */
-    void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    void fillRectWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkRect& rect,
                             const SkRect* optionalLocalRect = nullptr) {
         const SkRect& localRect = optionalLocalRect ? *optionalLocalRect : rect;
@@ -248,7 +244,7 @@ public:
      * The last argument, 'optionalLocalQuad', can be null if no separate local coordinates are
      * necessary.
      */
-    void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+    void fillQuadWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkPoint points[4],
                             const SkPoint optionalLocalPoints[4]) {
         const SkPoint* localPoints = optionalLocalPoints ? optionalLocalPoints : points;
@@ -266,7 +262,7 @@ public:
     };
 
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-    void drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
+    void drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
                      const QuadSetEntry[], int cnt);
 
     /**
@@ -275,7 +271,7 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, GrSurfaceProxyView view, SkAlphaType srcAlphaType,
+    void drawTexture(const GrClip* clip, GrSurfaceProxyView view, SkAlphaType srcAlphaType,
                      GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
@@ -294,7 +290,7 @@ public:
      * 'subset' is null, it's equivalent to using the fast src rect constraint. If 'subset' is
      * provided, the strict src rect constraint is applied using 'subset'.
      */
-    void drawTextureQuad(const GrClip& clip, GrSurfaceProxyView view, GrColorType srcColorType,
+    void drawTextureQuad(const GrClip* clip, GrSurfaceProxyView view, GrColorType srcColorType,
                          SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
                          const SkPMColor4f& color, const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4], GrAA aa, GrQuadAAFlags edgeAA,
@@ -328,7 +324,7 @@ public:
      * can be inferred from the array within this function, but the information is already known
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
-    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, int proxyRunCnt,
+    void drawTextureSet(const GrClip*, TextureSetEntry[], int cnt, int proxyRunCnt,
                         GrSamplerState::Filter, SkBlendMode mode, GrAA aa,
                         SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
                         sk_sp<GrColorSpaceXform> texXform);
@@ -342,7 +338,7 @@ public:
      * @param rrect       the roundrect to draw
      * @param style       style to apply to the rrect. Currently path effects are not allowed.
      */
-    void drawRRect(const GrClip&,
+    void drawRRect(const GrClip*,
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
@@ -357,7 +353,7 @@ public:
      * @param path         the path to shadow
      * @param rec          parameters for shadow rendering
      */
-    bool drawFastShadow(const GrClip&,
+    bool drawFastShadow(const GrClip*,
                         const SkMatrix& viewMatrix,
                         const SkPath& path,
                         const SkDrawShadowRec& rec);
@@ -372,7 +368,7 @@ public:
      * @param outer        the outer roundrect
      * @param inner        the inner roundrect
      */
-    void drawDRRect(const GrClip&,
+    void drawDRRect(const GrClip*,
                     GrPaint&&,
                     GrAA,
                     const SkMatrix& viewMatrix,
@@ -388,7 +384,7 @@ public:
      * @param path          the path to draw
      * @param style         style to apply to the path.
      */
-    void drawPath(const GrClip&,
+    void drawPath(const GrClip*,
                   GrPaint&&,
                   GrAA,
                   const SkMatrix& viewMatrix,
@@ -403,7 +399,7 @@ public:
      * @param viewMatrix    transformation matrix
      * @param shape         the shape to draw
      */
-    void drawShape(const GrClip&,
+    void drawShape(const GrClip*,
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
@@ -419,7 +415,7 @@ public:
      * @param   overridePrimType primitive type to draw. If NULL, derive prim type from vertices.
      * @param   effect           runtime effect that will handle custom vertex attributes.
      */
-    void drawVertices(const GrClip&,
+    void drawVertices(const GrClip*,
                       GrPaint&& paint,
                       const SkMatrixProvider& matrixProvider,
                       sk_sp<SkVertices> vertices,
@@ -438,7 +434,7 @@ public:
      * @param   colors          optional array of per-sprite colors, supercedes
      *                          the paint's color field.
      */
-    void drawAtlas(const GrClip&,
+    void drawAtlas(const GrClip*,
                    GrPaint&& paint,
                    const SkMatrix& viewMatrix,
                    int spriteCount,
@@ -455,7 +451,7 @@ public:
      * @param region        the region to be drawn
      * @param style         style to apply to the region
      */
-    void drawRegion(const GrClip&,
+    void drawRegion(const GrClip*,
                     GrPaint&& paint,
                     GrAA aa,
                     const SkMatrix& viewMatrix,
@@ -472,7 +468,7 @@ public:
      * @param oval          the bounding rect of the oval.
      * @param style         style to apply to the oval. Currently path effects are not allowed.
      */
-    void drawOval(const GrClip&,
+    void drawOval(const GrClip*,
                   GrPaint&& paint,
                   GrAA,
                   const SkMatrix& viewMatrix,
@@ -493,7 +489,7 @@ public:
      *                      omitted.
      * @param style         style to apply to the oval.
      */
-    void drawArc(const GrClip&,
+    void drawArc(const GrClip*,
                  GrPaint&& paint,
                  GrAA,
                  const SkMatrix& viewMatrix,
@@ -506,7 +502,7 @@ public:
     /**
      * Draw the image as a set of rects, specified by |iter|.
      */
-    void drawImageLattice(const GrClip&,
+    void drawImageLattice(const GrClip*,
                           GrPaint&&,
                           const SkMatrix& viewMatrix,
                           GrSurfaceProxyView,
@@ -594,13 +590,12 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;
 
-    // All the path renderers currently make their own ops
+    // All the path and text renderers/ops currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
@@ -615,6 +610,7 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
+    friend class GrAtlasTextOp;                      // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
@@ -622,11 +618,12 @@ private:
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
 
-    void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
-    void internalStencilClear(const GrFixedClip&, bool insideStencilMask);
+    void internalClear(const SkIRect* scissor, const SkPMColor4f&,
+                       bool upgradePartialToFull = false);
+    void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
 
     // Only consumes the GrPaint if successful.
-    bool drawFilledDRRect(const GrClip& clip,
+    bool drawFilledDRRect(const GrClip* clip,
                           GrPaint&& paint,
                           GrAA,
                           const SkMatrix& viewMatrix,
@@ -642,7 +639,7 @@ private:
     //
     // 'stencilSettings' are provided merely for decision making purposes; When non-null,
     // optimization strategies that submit special ops are avoided.
-    QuadOptimization attemptQuadOptimization(const GrClip& clip,
+    QuadOptimization attemptQuadOptimization(const GrClip* clip,
                                              const SkPMColor4f* constColor,
                                              const GrUserStencilSettings* stencilSettings,
                                              GrAA* aa,
@@ -652,7 +649,7 @@ private:
     // can choose between coverage, MSAA as per chooseAAType(). This will always attempt to apply
     // quad optimizations, so all quad/rect public APIs should rely on this function for consistent
     // clipping behavior. 'quad' will be modified in place to reflect final rendered geometry.
-    void drawFilledQuad(const GrClip& clip,
+    void drawFilledQuad(const GrClip* clip,
                         GrPaint&& paint,
                         GrAA aa,
                         DrawQuad* quad,
@@ -660,7 +657,7 @@ private:
 
     // Like drawFilledQuad but does not require using a GrPaint or FP for texturing.
     // 'quad' may be modified in place to reflect final geometry.
-    void drawTexturedQuad(const GrClip& clip,
+    void drawTexturedQuad(const GrClip* clip,
                           GrSurfaceProxyView proxyView,
                           SkAlphaType alphaType,
                           sk_sp<GrColorSpaceXform> textureXform,
@@ -673,7 +670,7 @@ private:
 
     // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
     // will re-route through drawShape() to see if we can avoid path rendering one more time.
-    void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
+    void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrStyledShape&, bool attemptShapeFallback = true);
 
     void addOp(std::unique_ptr<GrOp>);
@@ -684,13 +681,17 @@ private:
     // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
     // will not be called in the event that the op is discarded. Moreover, the op may merge into
     // another op after the function is called (either before addDrawOp returns or some time later).
-    void addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>,
+    //
+    // If the clip pointer is null, no clipping will be performed.
+    void addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrClip&, const GrOp& op,
+    //
+    // The op should have already had setClippedBounds called on it.
+    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
 
     class AsyncReadResult;
@@ -700,6 +701,8 @@ private:
                          ReadPixelsContext context);
 
     GrOpsTask* getOpsTask();
+
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
     std::unique_ptr<GrTextTarget> fTextTarget;
 
@@ -716,7 +719,7 @@ private:
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
-
+    SkGlyphRunListPainter fGlyphPainter;
     typedef GrSurfaceContext INHERITED;
 };
 

@@ -45,9 +45,14 @@ GrD3DOpsRenderPass::~GrD3DOpsRenderPass() {}
 GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
 
 void GrD3DOpsRenderPass::onBegin() {
+    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
+    d3dRT->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    fGpu->currentCommandList()->setRenderTarget(d3dRT);
+    // TODO: set stencil too
+
     if (GrLoadOp::kClear == fColorLoadOp) {
-        GrFixedClip clip;
-        fGpu->clear(clip, fClearColor, fRenderTarget);
+        fGpu->currentCommandList()->clearRenderTargetView(
+                d3dRT, fClearColor, GrScissorState(fRenderTarget->dimensions()));
     }
 }
 
@@ -107,6 +112,7 @@ void set_primitive_topology(GrD3DGpu* gpu, const GrProgramInfo& info) {
         default:
             SkUNREACHABLE;
     }
+    gpu->currentCommandList()->setPrimitiveTopology(topology);
 }
 
 void set_scissor_rects(GrD3DGpu* gpu, const GrRenderTarget* renderTarget, GrSurfaceOrigin rtOrigin,
@@ -155,10 +161,10 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         return false;
     }
 
-    fCurrentPipelineState->setData(fRenderTarget, info);
+    fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
 
-    // TODO: bind uniforms (either a new method or in pipelineState->setData())
+    fCurrentPipelineState->setAndBindConstants(fGpu, fRenderTarget, info);
 
     set_stencil_ref(fGpu, info);
     set_blend_factor(fGpu, info);
@@ -197,7 +203,7 @@ bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     }
 
     // TODO: possibly check for success once we start binding properly
-    fCurrentPipelineState->setAndBindTextures(primProc, primProcTextures, pipeline);
+    fCurrentPipelineState->setAndBindTextures(fGpu, primProc, primProcTextures, pipeline);
 
     return true;
 }
@@ -214,9 +220,25 @@ void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
 
     // TODO: do we need a memory barrier here?
 
-    fCurrentPipelineState->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, currCmdList);
+    fCurrentPipelineState->bindBuffers(fGpu, indexBuffer, instanceBuffer, vertexBuffer,
+                                       currCmdList);
 }
 
-void GrD3DOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    fGpu->clear(clip, color, fRenderTarget);
+void GrD3DOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                                            int baseVertex) {
+    SkASSERT(fCurrentPipelineState);
+    fGpu->currentCommandList()->drawInstanced(vertexCount, instanceCount, baseVertex, baseInstance);
+    fGpu->stats()->incNumDraws();
+}
+
+void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
+                                                int baseInstance, int baseVertex) {
+    SkASSERT(fCurrentPipelineState);
+    fGpu->currentCommandList()->drawIndexedInstanced(indexCount, instanceCount, baseIndex,
+                                                     baseVertex, baseInstance);
+    fGpu->stats()->incNumDraws();
+}
+
+void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+    fGpu->clear(scissor, color, fRenderTarget);
 }

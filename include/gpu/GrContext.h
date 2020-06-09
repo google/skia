@@ -98,6 +98,7 @@ public:
 
     ~GrContext() override;
 
+    // TODO: Remove this from public after migrating Chrome.
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
@@ -296,7 +297,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
-
     /**
      * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
      * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
@@ -307,20 +307,34 @@ public:
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
+     * API. This is equivalent to calling GrContext::flush with a default GrFlushInfo followed by
+     * GrContext::submit.
      */
-    void flushAndSubmit() { this->flush(GrFlushInfo(), GrPrepareForExternalIORequests()); }
+    void flushAndSubmit() {
+        this->flush(GrFlushInfo(), GrPrepareForExternalIORequests());
+        this->submit();
+    }
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to GrContext::submit is always required to ensure work is actually sent to
+     * the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until a submission occurs.
      *
-     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will have
-     * been submitted and can be waited on (it is possible Skia failed to create a subset of the
-     * semaphores). If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have
-     * submitted any semaphores to be signaled on the GPU. Thus the client should not have the GPU
-     * wait on any of the semaphores passed in with the GrFlushInfo. Regardless of whether
-     * semaphores were submitted to the GPU or not, the client is still responsible for deleting any
-     * initialized semaphores.
+     *     Vulkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until a
+     *         submission occurs.
+     *
+     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
+     * submitted to the gpu during the next submit call (it is possible Skia failed to create a
+     * subset of the semaphores). The client should not wait on these semaphores until after submit
+     * has been called, and must keep them alive until then. If this call returns
+     * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
+     * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
+     * the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
+     * client is still responsible for deleting any initialized semaphores.
      * Regardleess of semaphore submission the context will still be flushed. It should be
      * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
      * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
@@ -331,26 +345,54 @@ public:
     }
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to GrContext::submit is always required to ensure work is actually sent to
+     * the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until submit is called.
      *
-     * If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have created or
-     * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
-     * any of the semaphores passed in with the GrFlushInfo. However, any pending commands to the
-     * context will still be flushed. It should be emphasized that a return value of
-     * GrSemaphoresSubmitted::kNo does not mean the flush did not happen. It simply means there were
-     * no semaphores submitted to the GPU. A caller should only take this as a failure if they
-     * passed in semaphores to be submitted.
+     *     Vulkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until
+     *         submit is called.
+     *
+     * Note: The default values for GrFlushInfo will submit the work the gpu.
+     *
+     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
+     * submitted to the gpu during the next submit call (it is possible Skia failed to create a
+     * subset of the semaphores). The client should not wait on these semaphores until after submit
+     * has been called, and must keep them alive until then. If this call returns
+     * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
+     * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
+     * the GrFlushInfo. The client is always responsible for deleting any initialized semaphores.
+     * Regardleess of semaphore submission the context will still be flushed. It should be
+     * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
+     * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
+     * take this as a failure if they passed in semaphores to be submitted.
      *
      * If the GrPrepareForExternalIORequests contains valid gpu backed SkSurfaces or SkImages, Skia
      * will put the underlying backend objects into a state that is ready for external uses. See
-     * declaration of GrPreopareForExternalIORequests for more details.
+     * declaration of GrPreopareForExternalIORequests for more details. Note that the backend
+     * objects will not be moved to this state until submit has been called. If subsequent flushes
+     * are called between this and submit, those objects are no longer guaranteed to be in a state
+     * that is ready for external use.
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo&, const GrPrepareForExternalIORequests&);
 
     /**
-     * Placeholder no-op submit call.
+     * Submit outstanding work to the gpu from all previously un-submitted flushes. The return
+     * value of the submit will indicate whether or not the submission to the GPU was successful.
+     *
+     * If the call returns true, all previously passed in semaphores in flush calls will have been
+     * submitted to the GPU and they can safely be waited on. The caller should wait on those
+     * semaphores or perform some other global synchronization before deleting the semaphores.
+     *
+     * If it returns false, then those same semaphores will not have been submitted and we will not
+     * try to submit them again. The caller is free to delete the semaphores at any time.
+     *
+     * If the syncCpu flag is true this function will return once the gpu has finished with all
+     * submitted work.
      */
-    bool submit(bool syncToCpu = false);
+    bool submit(bool syncCpu = false);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
@@ -440,8 +482,8 @@ public:
      * If possible, create a backend texture initialized to a particular color. The client should
      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
-     * client can assume the upload work has been submitted to the gpu. The finishedProc will always
-     * get called even if we failed to create the GrBackendTexture.
+     * client is required to call GrContext::submit to send the upload work to the gpu. The
+     * finishedProc will always get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -458,8 +500,8 @@ public:
      * If possible, create a backend texture initialized to a particular color. The client should
      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
-     * client can assume the upload work has been submitted to the gpu. The finishedProc will always
-     * get called even if we failed to create the GrBackendTexture.
+     * client is required to call GrContext::submit to send the upload work to the gpu. The
+     * finishedProc will always get called even if we failed to create the GrBackendTexture.
      * If successful, the created backend texture will be compatible with the provided
      * SkColorType.
      * For the Vulkan backend the layout of the created VkImage will be:
@@ -478,9 +520,9 @@ public:
      * If possible, create a backend texture initialized to a particular color that is
      * compatible with the provided characterization. The client should ensure that the
      * returned backend texture is valid. The client can pass in a finishedProc to be notified when
-     * the data has been uploaded by the gpu and the texture can be deleted. The client can assume
-     * the upload work has been submitted to the gpu. The finishedProc will always get called even
-     * if we failed to create the GrBackendTexture.
+     * the data has been uploaded by the gpu and the texture can be deleted. The client is required
+     * to call GrContext::submit to send the upload work to the gpu. The finishedProc will always
+     * get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if texturaeble
      *      VK_IMAGE_LAYOUT_UNDEFINED                if not textureable
@@ -494,11 +536,12 @@ public:
      * If possible, create a backend texture initialized with the provided pixmap data. The client
      * should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * If successful, the created backend texture will be compatible with the provided
      * pixmap(s). Compatible, in this case, means that the backend format will be the result
-     * of calling defaultBackendFormat on the base pixmap's colortype.
+     * of calling defaultBackendFormat on the base pixmap's colortype. The src data can be deleted
+     * when this call returns.
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. In the mipmapped case all the
      * colortypes of the provided pixmaps must be the same. Additionally, all the miplevels
@@ -526,8 +569,8 @@ public:
      * If possible, updates a backend texture to be filled to a particular color. The client should
      * check the return value to see if the update was successful. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to update the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to update the GrBackendTexture.
      * For the Vulkan backend after a successful update the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -540,10 +583,11 @@ public:
      * If possible, updates a backend texture filled with the provided pixmap data. The client
      * should check the return value to see if the update was successful. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * The backend texture must be compatible with the provided pixmap(s). Compatible, in this case,
-     * means that the backend format is compatible with the base pixmap's colortype.
+     * means that the backend format is compatible with the base pixmap's colortype. The src data
+     * can be deleted when this call returns.
      * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
      * In the mipmapped case all the colortypes of the provided pixmaps must be the same.
      * Additionally, all the miplevels must be sized correctly (please see
@@ -572,8 +616,8 @@ public:
      *If possible, create a compressed backend texture initialized to a particular color. The
      * client should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */
@@ -597,8 +641,8 @@ public:
      * If possible, create a backend texture initialized with the provided raw data. The client
      * should ensure that the returned backend texture is valid. The client can pass in a
      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
-     * deleted. The client can assume the upload work has been submitted to the gpu. The
-     * finishedProc will always get called even if we failed to create the GrBackendTexture
+     * deleted. The client is required to call GrContext::submit to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. Additionally, all the miplevels
      * must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).
@@ -648,15 +692,13 @@ public:
 #endif
 
 protected:
-    GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
+    GrContext(sk_sp<GrContextThreadSafeProxy>);
 
-    bool init(sk_sp<const GrCaps>) override;
+    bool init() override;
 
     GrContext* asDirectContext() override { return this; }
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
-
-    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed

@@ -18,6 +18,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
+#include "include/private/SkImageInfoPriv.h"
 
 #include "png.h"
 
@@ -430,4 +431,27 @@ DEF_TEST(Encode_WebpOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
     REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
+}
+
+DEF_TEST(Encode_Alpha, r) {
+    // These formats have no sensible way to encode alpha images.
+    for (auto format : { SkEncodedImageFormat::kJPEG,
+                         SkEncodedImageFormat::kPNG,
+                         SkEncodedImageFormat::kWEBP }) {
+        for (int ctAsInt = kUnknown_SkColorType + 1; ctAsInt <= kLastEnum_SkColorType; ctAsInt++) {
+            auto ct = static_cast<SkColorType>(ctAsInt);
+            // Non-alpha-only colortypes are tested elsewhere.
+            if (!SkColorTypeIsAlphaOnly(ct)) continue;
+            SkBitmap bm;
+            bm.allocPixels(SkImageInfo::Make(10, 10, ct, kPremul_SkAlphaType));
+            sk_bzero(bm.getPixels(), bm.computeByteSize());
+            auto data = SkEncodeBitmap(bm, format, 100);
+            if (format == SkEncodedImageFormat::kPNG && ct == kAlpha_8_SkColorType) {
+                // We support encoding alpha8 to png with our own private meaning.
+                REPORTER_ASSERT(r, data != nullptr);
+            } else {
+                REPORTER_ASSERT(r, data == nullptr);
+            }
+        }
+    }
 }

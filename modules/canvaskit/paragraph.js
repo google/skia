@@ -15,7 +15,7 @@
       var ret = [];
       for (var i = 0; i < floatArray.length; i+=5) {
         var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
-        if (floatArray[i+4] === 1) {
+        if (floatArray[i+4] === 0) {
           r['direction'] = CanvasKit.TextDirection.RTL;
         } else {
           r['direction'] = CanvasKit.TextDirection.LTR;
@@ -66,8 +66,6 @@
         s['color'] = CanvasKit.BLACK;
       }
 
-      s['foregroundColor'] = s['foregroundColor'] || CanvasKit.TRANSPARENT;
-      s['backgroundColor'] = s['backgroundColor'] || CanvasKit.TRANSPARENT;
       s['decoration'] = s['decoration'] || 0;
       s['decorationThickness'] = s['decorationThickness'] || 0;
       s['fontSize'] = s['fontSize'] || 0;
@@ -91,7 +89,7 @@
         var strPtr = cacheOrCopyString(strings[i]);
         sPtrs.push(strPtr);
       }
-      return copy1dArray(sPtrs, CanvasKit.HEAPU32);
+      return copy1dArray(sPtrs, "HEAPU32");
     }
 
     // maps string -> malloc'd pointer
@@ -114,18 +112,23 @@
       return strPtr;
     }
 
+    // These scratch arrays are allocated once to copy the color data into, which saves us
+    // having to free them after every invocation.
+    var scratchForegroundColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
+    var scratchBackgroundColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
+
     function copyArrays(textStyle) {
       // These color fields were arrays, but will set to WASM pointers before we pass this
       // object over the WASM interface.
-      textStyle['_colorPtr'] = copy1dArray(textStyle['color'], CanvasKit.HEAPF32);
+      textStyle['_colorPtr'] = copyColorToWasm(textStyle['color']);
       textStyle['_foregroundColorPtr'] = nullptr; // nullptr is 0, from helper.js
       textStyle['_backgroundColorPtr'] = nullptr;
 
-      if (isCanvasKitColor(textStyle['foregroundColor']) && textStyle['foregroundColor'][3] > 0) {
-        textStyle['_foregroundColorPtr'] = copy1dArray(textStyle['foregroundColor'], CanvasKit.HEAPF32);
+      if (textStyle['foregroundColor']) {
+        textStyle['_foregroundColorPtr'] = copyColorToWasm(textStyle['foregroundColor'], scratchForegroundColorPtr);
       }
-      if (isCanvasKitColor(textStyle['backgroundColor']) && textStyle['backgroundColor'][3] > 0) {
-        textStyle['_backgroundColorPtr'] = copy1dArray(textStyle['backgroundColor'], CanvasKit.HEAPF32);
+      if (textStyle['backgroundColor']) {
+        textStyle['_backgroundColorPtr'] = copyColorToWasm(textStyle['backgroundColor'], scratchBackgroundColorPtr);
       }
 
       if (Array.isArray(textStyle['fontFamilies']) && textStyle['fontFamilies'].length) {
@@ -139,9 +142,6 @@
     }
 
     function freeArrays(textStyle) {
-      CanvasKit._free(textStyle['_colorPtr']);
-      CanvasKit._free(textStyle['_foregroundColorPtr']);
-      CanvasKit._free(textStyle['_backgroundColorPtr']);
       // The font family strings will get copied to a vector on the C++ side, which is owned by
       // the text style.
       CanvasKit._free(textStyle['_fontFamiliesPtr']);

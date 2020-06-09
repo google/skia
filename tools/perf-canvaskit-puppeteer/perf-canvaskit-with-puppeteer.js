@@ -35,7 +35,7 @@ const opts = [
   {
     name: 'assets',
     typeLabel: '{underline file}',
-    description: 'Any assets needed by the lottie file (e.g. images/fonts).'
+    description: 'A directory containing any assets needed by the lottie file (e.g. images/fonts).'
   },
   {
     name: 'output',
@@ -57,6 +57,13 @@ const opts = [
     name: 'port',
     description: 'The port number to use, defaults to 8081.',
     type: Number,
+  },
+  {
+    name: 'query_params',
+    description: 'The query params to be added to the testing page URL. Useful for passing' +
+      'options to the perf html page.',
+    type: String,
+    multiple: true
   },
   {
     name: 'help',
@@ -141,7 +148,13 @@ let hash = "#cpu";
 if (options.use_gpu) {
   hash = "#gpu";
 }
-const targetURL = `http://localhost:${options.port}/${hash}`;
+let query_param_string = '?';
+if (options.query_params) {
+  for (const string of options.query_params) {
+    query_param_string += string + '&';
+  }
+}
+const targetURL = `http://localhost:${options.port}/${query_param_string}${hash}`;
 const viewPort = {width: 1000, height: 1000};
 
 // Drive chrome to load the web page from the server we have running.

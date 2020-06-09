@@ -268,11 +268,6 @@ public:
         return fSurfaceFlags & GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }
 
-    void setLastRenderTask(GrRenderTask*);
-    GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
-
-    GrOpsTask* getLastOpsTask();
-
     /**
      * Retrieves the amount of GPU memory that will be or currently is used by this resource
      * in bytes. It is approximate since we aren't aware of additional padding or copies made
@@ -436,15 +431,6 @@ private:
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
     mutable size_t         fGpuMemorySize;
-
-    // The last GrRenderTask that wrote to or is currently going to write to this surface
-    // The GrRenderTask can be closed (e.g., no surface context is currently bound
-    // to this proxy).
-    // This back-pointer is required so that we can add a dependancy between
-    // the GrRenderTask used to create the current contents of this surface
-    // and the GrRenderTask of a destination surface to which this one is being drawn or copied.
-    // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
-    GrRenderTask*          fLastRenderTask = nullptr;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)

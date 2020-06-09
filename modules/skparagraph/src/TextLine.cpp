@@ -1,13 +1,34 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/TextLine.h"
-#include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/Metrics.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextShadow.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Decorations.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/TextLine.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkSpan.h"
 
-#include "include/core/SkMaskFilter.h"
-#include "include/effects/SkDashPathEffect.h"
-#include "include/effects/SkDiscretePathEffect.h"
+#include <unicode/ubidi.h>
+#include <algorithm>
+#include <iterator>
+#include <limits>
+#include <map>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace skia {
 namespace textlayout {
@@ -107,16 +128,24 @@ TextLine::TextLine(ParagraphImpl* master,
     }
 
     // Get the logical order
-    std::vector<UBiDiLevel> runLevels;
+
+    // This is just chosen to catch the common/fast cases. Feel free to tweak.
+    constexpr int kPreallocCount = 4;
+
+    SkAutoSTArray<kPreallocCount, UBiDiLevel> runLevels(numRuns);
+
+    size_t runLevelsIndex = 0;
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fMaster->run(runIndex);
-        runLevels.emplace_back(run.fBidiLevel);
-        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
+        runLevels[runLevelsIndex++] = run.fBidiLevel;
+        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent,
+                                               run.fFontMetrics.fLeading));
     }
+    SkASSERT(runLevelsIndex == numRuns);
 
-    std::vector<int32_t> logicalOrder(numRuns);
+    SkAutoSTArray<kPreallocCount, int32_t> logicalOrder(numRuns);
+
     ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
-
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);
@@ -189,8 +218,7 @@ SkRect TextLine::calculateBoundaries() {
         boundaries.fBottom += shadowRect.fBottom;
     }
 
-    boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
-    boundaries.offset(this->fShift, 0);     // Shift produced by formatting
+    boundaries.offset(this->offset());         // Line offset from the beginning of the para
     boundaries.offset(0, this->baseline()); // Down by baseline
 
     return boundaries;
@@ -200,9 +228,6 @@ void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
     }
-
-    textCanvas->save();
-    textCanvas->translate(this->offset().fX, this->offset().fY);
 
     if (fHasBackground) {
         this->iterateThroughVisualRuns(false,
@@ -257,8 +282,6 @@ void TextLine::paint(SkCanvas* textCanvas) {
                 return true;
         });
     }
-
-    textCanvas->restore();
 }
 
 void TextLine::format(TextAlign align, SkScalar maxWidth) {
@@ -345,22 +368,25 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
     }
 
     // TODO: This is the change for flutter, must be removed later
-    SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
     SkTextBlobBuilder builder;
-    context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
-    canvas->save();
+    context.run->copyTo(builder, SkToU32(context.pos), context.size);
     if (context.clippingNeeded) {
-        canvas->clipRect(extendHeight(context));
+        canvas->save();
+        canvas->clipRect(extendHeight(context).makeOffset(this->offset()));
     }
 
-    canvas->translate(context.fTextShift, 0);
-    canvas->drawTextBlob(builder.make(), 0, 0, paint);
-    canvas->restore();
+    SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
+    canvas->drawTextBlob(builder.make(),
+        this->offset().fX + context.fTextShift, this->offset().fY + correctedBaseline, paint);
+
+    if (context.clippingNeeded) {
+        canvas->restore();
+    }
 }
 
 void TextLine::paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
     if (style.hasBackground()) {
-        canvas->drawRect(context.clip, style.getBackground());
+        canvas->drawRect(context.clip.makeOffset(this->offset()), style.getBackground());
     }
 }
 
@@ -378,25 +404,32 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
         }
 
         SkTextBlobBuilder builder;
-        context.run->copyTo(builder, context.pos, context.size, SkVector::Make(0, shiftDown));
-        canvas->save();
-        SkRect clip = context.clip;
-        clip.offset(shadow.fOffset);
+        context.run->copyTo(builder, context.pos, context.size);
+
         if (context.clippingNeeded) {
-            canvas->clipRect(extendHeight(context));
+            canvas->save();
+            SkRect clip = extendHeight(context);
+            clip.offset(this->offset());
+            canvas->clipRect(clip);
         }
-        canvas->translate(context.fTextShift, 0);
-        canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(), paint);
-        canvas->restore();
+        canvas->drawTextBlob(builder.make(),
+            this->offset().fX + shadow.fOffset.x() + context.fTextShift,
+            this->offset().fY + shadow.fOffset.y() + shiftDown,
+            paint);
+
+        if (context.clippingNeeded) {
+            canvas->restore();
+        }
     }
 }
 
 void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
 
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->translate(this->offset().fX, this->offset().fY);
     Decorations decorations;
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
-    decorations.paint(canvas, style, context, correctedBaseline, this->fShift);
-
+    decorations.paint(canvas, style, context, correctedBaseline, this->offset());
 }
 
 void TextLine::justify(SkScalar maxWidth) {
@@ -595,7 +628,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     bool found;
     ClusterIndex startIndex;
     ClusterIndex endIndex;
-    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange, limitToClusters);
+    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
     if (!found) {
         SkASSERT(textRange.empty() || limitToClusters);
         return result;
@@ -647,6 +680,12 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         // and we should ignore these spaces
         result.clippingNeeded = true;
         result.clip.fRight = fAdvance.fX;
+    }
+
+    if (result.clip.width() < 0) {
+        // Weird situation when glyph offsets move the glyph to the left
+        // (happens with zalgo texts, for instance)
+        result.clip.fRight = result.clip.fLeft;
     }
 
     // The text must be aligned with the lineOffset
@@ -1096,7 +1135,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     auto codepoint = std::lower_bound(
                         codepoints.begin(), codepoints.end(),
                         clusterIndex8,
-                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+                        [](const CodepointRepresentation& lhs, size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
 
                     return codepoint - codepoints.begin();
                 };

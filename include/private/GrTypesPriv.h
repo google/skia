@@ -121,18 +121,16 @@ static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
 /**
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
-static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
+inline constexpr int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
     SkASSERT(format < kMaskFormatCount);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kARGB (2) -> 4
-    static const int sBytesPerPixel[] = {1, 2, 4};
-    static_assert(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, "array_size_mismatch");
     static_assert(kA8_GrMaskFormat == 0, "enum_order_dependency");
     static_assert(kA565_GrMaskFormat == 1, "enum_order_dependency");
     static_assert(kARGB_GrMaskFormat == 2, "enum_order_dependency");
 
-    return sBytesPerPixel[(int)format];
+    return SkTo<int>(1u << format);
 }
 
 /** Ownership rules for external GPU resources imported into Skia. */

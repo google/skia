@@ -11,12 +11,13 @@
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrScissorState.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
@@ -37,21 +38,22 @@ void GrOpsRenderPass::end() {
     this->resetActiveBuffers();
 }
 
-void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
+void GrOpsRenderPass::clear(const GrScissorState& scissor, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
     // A clear at this level will always be a true clear, so make sure clears were not supposed to
     // be redirected to draws instead
     SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
-    SkASSERT(!clip.scissorEnabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
+    SkASSERT(!scissor.enabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onClear(clip, color);
+    this->onClear(scissor, color);
 }
 
-void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrOpsRenderPass::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
     // As above, make sure the stencil clear wasn't supposed to be a draw rect with stencil settings
     SkASSERT(!this->gpu()->caps()->performStencilClearsAsDraws());
+    SkASSERT(!scissor.enabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onClearStencilClip(clip, insideStencilMask);
+    this->onClearStencilClip(scissor, insideStencilMask);
 }
 
 void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {

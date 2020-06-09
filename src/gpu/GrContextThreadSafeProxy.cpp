@@ -19,16 +19,24 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #endif
 
+static int32_t next_id() {
+    static std::atomic<int32_t> nextID{1};
+    int32_t id;
+    do {
+        id = nextID++;
+    } while (id == SK_InvalidGenID);
+    return id;
+}
+
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
-                                                   const GrContextOptions& options,
-                                                   uint32_t contextID)
-        : INHERITED(backend, options, contextID) {
+                                                   const GrContextOptions& options)
+        : fBackend(backend), fOptions(options), fContextID(next_id()) {
 }
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-bool GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
-    return INHERITED::init(std::move(caps));
+void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
+    fCaps = std::move(caps);
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
@@ -38,6 +46,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      const SkSurfaceProps& surfaceProps,
                                      bool isMipMapped, bool willUseGLFBO0, bool isTextureable,
                                      GrProtected isProtected) {
+    SkASSERT(fCaps);
     if (!backendFormat.isValid()) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -49,39 +58,39 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!this->caps()->mipMapSupport()) {
+    if (!fCaps->mipMapSupport()) {
         isMipMapped = false;
     }
 
     GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
 
-    if (!this->caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
+    if (!fCaps->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!this->caps()->isFormatAsColorTypeRenderable(grColorType, backendFormat, sampleCnt)) {
+    if (!fCaps->isFormatAsColorTypeRenderable(grColorType, backendFormat, sampleCnt)) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendFormat);
+    sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, backendFormat);
     SkASSERT(sampleCnt);
 
     if (willUseGLFBO0 && isTextureable) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (isTextureable && !this->caps()->isFormatTexturable(backendFormat)) {
+    if (isTextureable && !fCaps->isFormatTexturable(backendFormat)) {
         // Skia doesn't agree that this is textureable.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     if (GrBackendApi::kVulkan == backendFormat.backend()) {
-        if (GrBackendApi::kVulkan != this->backend()) {
+        if (GrBackendApi::kVulkan != fBackend) {
             return SkSurfaceCharacterization(); // return an invalid characterization
         }
 
 #ifdef SK_VULKAN
-        const GrVkCaps* vkCaps = (const GrVkCaps*) this->caps();
+        const GrVkCaps* vkCaps = (const GrVkCaps*) fCaps.get();
 
         // The protection status of the characterization and the context need to match
         if (isProtected != GrProtected(vkCaps->supportsProtectedMemory())) {
@@ -101,18 +110,34 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      surfaceProps);
 }
 
+GrBackendFormat GrContextThreadSafeProxy::defaultBackendFormat(SkColorType skColorType,
+                                                               GrRenderable renderable) const {
+    SkASSERT(fCaps);
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+
+    GrBackendFormat format = fCaps->getDefaultBackendFormat(grColorType, renderable);
+    if (!format.isValid()) {
+        return GrBackendFormat();
+    }
+
+    SkASSERT(renderable == GrRenderable::kNo ||
+             fCaps->isFormatAsColorTypeRenderable(grColorType, format));
+
+    return format;
+}
+
+void GrContextThreadSafeProxy::abandonContext() {
+    fAbandoned.store(true, std::memory_order_relaxed);
+}
+
+bool GrContextThreadSafeProxy::abandoned() const {
+    return fAbandoned.load(std::memory_order_relaxed);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
                              GrBackendApi backend,
-                             const GrContextOptions& options,
-                             uint32_t contextID,
-                             sk_sp<const GrCaps> caps) {
-    sk_sp<GrContextThreadSafeProxy> proxy(new GrContextThreadSafeProxy(backend, options,
-                                                                       contextID));
-
-    if (!proxy->init(std::move(caps))) {
-        return nullptr;
-    }
-    return proxy;
+                             const GrContextOptions& options) {
+    return sk_sp<GrContextThreadSafeProxy>(new GrContextThreadSafeProxy(backend, options));
 }
 

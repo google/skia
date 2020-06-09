@@ -209,7 +209,7 @@ static SkPath make_path() {
 DEF_SIMPLE_GM(perspective_clip, canvas, 800, 800) {
     SkPath path = make_path();
     auto shader = GetResourceAsImage("images/mandrill_128.png")
-                                    ->makeShader(SkMatrix::MakeScale(3, 3));
+                                    ->makeShader(SkMatrix::Scale(3, 3));
 
     SkPaint paint;
     paint.setColor({0.75, 0.75, 0.75, 1});

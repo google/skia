@@ -23,6 +23,7 @@ declare_args() {
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_skottie = !(is_win && is_component_build)
+  skia_enable_skrive = true
   skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit =
       is_skia_dev_build && ((target_cpu == "x64" && (is_linux || is_mac)) ||
@@ -48,7 +49,7 @@ declare_args() {
   skia_use_ffmpeg = false
   skia_use_fixed_gamma_text = is_android
   skia_use_fontconfig = is_linux
-  skia_use_fonthost_mac = is_mac
+  skia_use_fonthost_mac = is_mac || is_ios
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_harfbuzz = true
   skia_use_gl = !is_fuchsia
@@ -92,7 +93,6 @@ declare_args() {
 }
 
 declare_args() {
-  skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_custom =
       is_linux && skia_use_freetype && !skia_use_fontconfig

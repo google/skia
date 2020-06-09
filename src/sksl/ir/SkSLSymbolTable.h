@@ -41,6 +41,8 @@ public:
 
     IRNode* takeOwnership(std::unique_ptr<IRNode> n);
 
+    String* takeOwnership(std::unique_ptr<String> n);
+
     void markAllFunctionsBuiltin();
 
     std::unordered_map<StringFragment, const Symbol*>::iterator begin();
@@ -55,6 +57,8 @@ private:
     std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
+
+    std::vector<std::unique_ptr<String>> fOwnedStrings;
 
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 

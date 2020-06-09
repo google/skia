@@ -84,7 +84,8 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 
 std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo&) const {
-    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
+    return GrBlurredEdgeFragmentProcessor::Make(
+        /*inputFP=*/nullptr, GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
 }
 #endif
 
@@ -594,8 +595,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkAutoDeviceTransformRestore adr(
                     this,
                     hasPerspective ? SkMatrix::I()
-                                   : SkMatrix::Concat(this->localToDevice(),
-                                                      SkMatrix::MakeTrans(tx, ty)));
+                                   : this->localToDevice() * SkMatrix::Translate(tx, ty));
             this->drawVertices(vertices, mode, paint);
         }
     };

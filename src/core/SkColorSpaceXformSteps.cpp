@@ -65,9 +65,6 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaT
     src->   transferFn(&this->srcTF   );
     dst->invTransferFn(&this->dstTFInv);
 
-    this->srcTF_is_sRGB = src->gammaCloseToSRGB();
-    this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
-
     // If we linearize then immediately reencode with the same transfer function, skip both.
     if ( this->flags.linearize       &&
         !this->flags.gamut_transform &&
@@ -131,29 +128,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
     }
 }
 
-void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) const {
-#ifndef SK_LEGACY_SRGB_STAGES
-    src_is_normalized = false;
-#endif
-    if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
-    if (flags.linearize) {
-        if (src_is_normalized && srcTF_is_sRGB) {
-            p->append(SkRasterPipeline::from_srgb);
-        } else {
-            p->append_transfer_function(srcTF);
-        }
-    }
-    if (flags.gamut_transform) {
-        p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
-    }
-    if (flags.encode) {
-        if (src_is_normalized && dstTF_is_sRGB) {
-            p->append(SkRasterPipeline::to_srgb);
-        } else {
-            p->append_transfer_function(dstTFInv);
-        }
-    }
-    if (flags.premul) { p->append(SkRasterPipeline::premul); }
+void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
+    if (flags.unpremul)        { p->append(SkRasterPipeline::unpremul); }
+    if (flags.linearize)       { p->append_transfer_function(srcTF); }
+    if (flags.gamut_transform) { p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix); }
+    if (flags.encode)          { p->append_transfer_function(dstTFInv); }
+    if (flags.premul)          { p->append(SkRasterPipeline::premul); }
 }
 
 skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,

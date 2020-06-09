@@ -60,7 +60,7 @@ public:
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
     void markMSAADirty(const SkIRect& dirtyRect, GrSurfaceOrigin origin) {
-        SkASSERT(SkIRect::MakeSize(this->dimensions()).contains(dirtyRect));
+        SkASSERT(SkIRect::MakeSize(this->backingStoreDimensions()).contains(dirtyRect));
         SkASSERT(this->requiresManualMSAAResolve());
         auto nativeRect = GrNativeRect::MakeRelativeTo(
                 origin, this->backingStoreDimensions().height(), dirtyRect);

@@ -9,7 +9,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -20,11 +19,12 @@ class SampleMatrixVariableEffect : public GrFragmentProcessor {
 public:
     static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 2;
 
-    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child, float xOffset,
+    SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child,
+                               float xOffset,
                                float yOffset)
-        : INHERITED(CLASS_ID, kNone_OptimizationFlags)
-        , fXOffset(xOffset)
-        , fYOffset(yOffset) {
+            : INHERITED(CLASS_ID, kNone_OptimizationFlags)
+            , fXOffset(xOffset)
+            , fYOffset(yOffset) {
         child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
         this->registerChildProcessor(std::move(child));
     }
@@ -36,12 +36,8 @@ public:
         return nullptr;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {
-    }
-
-    bool onIsEqual(const GrFragmentProcessor& that) const override {
-        return this == &that;
-    }
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -50,7 +46,6 @@ private:
     float fYOffset;
 
     typedef GrFragmentProcessor INHERITED;
-
     friend class GLSLSampleMatrixVariableEffect;
 };
 
@@ -74,31 +69,31 @@ GrGLSLFragmentProcessor* SampleMatrixVariableEffect::onCreateGLSLInstance() cons
 }
 
 DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
+    auto draw = [rtCtx](std::unique_ptr<GrFragmentProcessor> baseFP, float ofsX, float ofsY,
+                        int tx, int ty) {
+        auto fp = std::unique_ptr<GrFragmentProcessor>(
+                new SampleMatrixVariableEffect(std::move(baseFP), ofsX, ofsY));
+        GrPaint paint;
+        paint.addColorFragmentProcessor(std::move(fp));
+        rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
+                        SkRect::MakeIWH(256, 256));
+    };
+
     {
-        SkRect bounds = SkRect::MakeIWH(256, 256);
         SkBitmap bmp;
         GetResourceAsBitmap("images/mandrill_256.png", &bmp);
         GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
         auto view = maker.view(GrMipMapped::kNo);
         std::unique_ptr<GrFragmentProcessor> imgFP =
                 GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
-        imgFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
-        auto fp = std::unique_ptr<GrFragmentProcessor>(
-                new SampleMatrixVariableEffect(std::move(imgFP), -128, 256));
-
-        GrPaint paint;
-        paint.addCoverageFragmentProcessor(std::move(fp));
-        rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
+        draw(std::move(imgFP), -128, 256, 0, 0);
     }
 
     {
-        GrPaint paint;
-        SkRect bounds = SkRect::MakeLTRB(256, 0, 512, 256);
         static constexpr SkColor colors[] = { 0xff00ff00, 0xffff00ff };
-        static constexpr SkScalar   pos[] = {       0.0f,       1.0f };
         const SkPoint pts[] = {{ 256, 0 }, { 512, 0 }};
 
-        auto shader = SkGradientShader::MakeLinear(pts, colors, pos,
+        auto shader = SkGradientShader::MakeLinear(pts, colors, nullptr,
                                                    SK_ARRAY_COUNT(colors),
                                                    SkTileMode::kRepeat);
         SkMatrix matrix;
@@ -106,10 +101,6 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         GrColorInfo colorInfo;
         GrFPArgs args(ctx, matrixProvider, kHigh_SkFilterQuality, &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
-        gradientFP->setSampleMatrix(SkSL::SampleMatrix::Kind::kVariable);
-        auto fp = std::unique_ptr<GrFragmentProcessor>(
-                new SampleMatrixVariableEffect(std::move(gradientFP), -0.5, 1));
-        paint.addCoverageFragmentProcessor(std::move(fp));
-        rtCtx->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);
+        draw(std::move(gradientFP), -0.5f, 1.0f, 256, 0);
     }
 }

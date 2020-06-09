@@ -23,7 +23,6 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrImageInfo.h"
@@ -88,7 +87,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kBigSize/2 + 1, kBigSize/2 + 1});
 
-        rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(SK_PMColor4fBLACK);
 
         GrPaint paint;
 
@@ -96,7 +95,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 
-        rtc->drawPath(GrNoClip(), std::move(paint), GrAA::kNo,
+        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
                       SkMatrix::I(), invPath, style);
 
         rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
@@ -106,7 +105,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         auto rtc = GrRenderTargetContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
 
-        rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(SK_PMColor4fBLACK);
 
         GrPaint paint;
 
@@ -114,7 +113,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 
-        rtc->drawPath(GrNoClip(), std::move(paint), GrAA::kNo,
+        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
                       SkMatrix::I(), path, style);
 
         SkBitmap bm = read_back(rtc.get(), kBigSize, kBigSize);

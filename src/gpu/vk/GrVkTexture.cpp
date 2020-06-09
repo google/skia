@@ -23,11 +23,11 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          SkISize dimensions,
                          const GrVkImageInfo& info,
-                         sk_sp<GrVkImageLayout> layout,
+                         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, std::move(layout), GrBackendObjectOwnership::kOwned)
+        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
@@ -41,11 +41,12 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 }
 
 GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& info,
-                         sk_sp<GrVkImageLayout> layout, const GrVkImageView* view,
+                         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                         const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, std::move(layout), ownership)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected,
                     isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
@@ -61,12 +62,12 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& 
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkISize dimensions,
                          const GrVkImageInfo& info,
-                         sk_sp<GrVkImageLayout> layout,
+                         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, layout, ownership)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
@@ -94,19 +95,16 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
     }
-    sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info.fImageLayout));
-
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, dimensions, info, std::move(layout),
-                                              imageView, mipMapsStatus));
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(
+            new GrBackendSurfaceMutableStateImpl(info.fImageLayout, info.fCurrentQueueFamily));
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, dimensions, info,
+                                              std::move(mutableState), imageView, mipMapsStatus));
 }
 
-sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
-                                                   SkISize dimensions,
-                                                   GrWrapOwnership wrapOwnership,
-                                                   GrWrapCacheable cacheable,
-                                                   GrIOType ioType,
-                                                   const GrVkImageInfo& info,
-                                                   sk_sp<GrVkImageLayout> layout) {
+sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
+        GrVkGpu* gpu, SkISize dimensions, GrWrapOwnership wrapOwnership, GrWrapCacheable cacheable,
+        GrIOType ioType, const GrVkImageInfo& info,
+        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState) {
     // Adopted textures require both image and allocation because we're responsible for freeing
     SkASSERT(VK_NULL_HANDLE != info.fImage &&
              (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
@@ -125,9 +123,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
             ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, info, std::move(layout), imageView,
-                                              mipMapsStatus, ownership, cacheable, ioType,
-                                              isExternal));
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, info, std::move(mutableState),
+                                              imageView, mipMapsStatus, ownership, cacheable,
+                                              ioType, isExternal));
 }
 
 GrVkTexture::~GrVkTexture() {
@@ -151,7 +149,7 @@ void GrVkTexture::onRelease() {
 
     fDescSetCache.reset();
 
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
 
     INHERITED::onRelease();
 }
@@ -185,12 +183,12 @@ void GrVkTexture::onAbandon() {
 
     fDescSetCache.reset();
 
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     INHERITED::onAbandon();
 }
 
 GrBackendTexture GrVkTexture::getBackendTexture() const {
-    return GrBackendTexture(this->width(), this->height(), fInfo, this->grVkImageLayout());
+    return GrBackendTexture(this->width(), this->height(), fInfo, this->getMutableState());
 }
 
 GrVkGpu* GrVkTexture::getVkGpu() const {

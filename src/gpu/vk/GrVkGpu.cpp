@@ -241,7 +241,6 @@ void GrVkGpu::destroyResources() {
         fMainCmdPool->getPrimaryCommandBuffer()->end(this);
         fMainCmdPool->close();
     }
-    SkASSERT(!fTempCmdPool);
 
     // wait for all commands to finish
     VkResult res = VK_CALL(QueueWaitIdle(fQueue));
@@ -301,7 +300,6 @@ void GrVkGpu::disconnect(DisconnectType type) {
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
         fMainCmdBuffer = nullptr;
-        SkASSERT(!fTempCmdBuffer);
         fDisconnected = true;
     }
 }
@@ -323,40 +321,6 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
-}
-
-GrVkPrimaryCommandBuffer* GrVkGpu::getTempCommandBuffer() {
-    SkASSERT(!fTempCmdPool && !fTempCmdBuffer);
-    fTempCmdPool = fResourceProvider.findOrCreateCommandPool();
-    if (!fTempCmdPool) {
-        return nullptr;
-    }
-    fTempCmdBuffer = fTempCmdPool->getPrimaryCommandBuffer();
-    SkASSERT(fTempCmdBuffer);
-    fTempCmdBuffer->begin(this);
-    return fTempCmdBuffer;
-}
-
-bool GrVkGpu::submitTempCommandBuffer(SyncQueue sync, sk_sp<GrRefCntedCallback> finishedCallback) {
-    SkASSERT(fTempCmdBuffer);
-
-    fTempCmdBuffer->end(this);
-    fTempCmdPool->close();
-
-    SkASSERT(fMainCmdBuffer->validateNoSharedImageResources(fTempCmdBuffer));
-
-    fTempCmdBuffer->addFinishedProc(std::move(finishedCallback));
-
-    SkTArray<GrVkSemaphore::Resource*, false> fEmptySemaphores;
-    bool didSubmit = fTempCmdBuffer->submitToQueue(this, fQueue, fEmptySemaphores,
-                                                   fEmptySemaphores);
-    if (didSubmit && sync == kForce_SyncQueue) {
-        fTempCmdBuffer->forceSync(this);
-    }
-    fTempCmdPool->unref();
-    fTempCmdPool = nullptr;
-    fTempCmdBuffer = nullptr;
-    return didSubmit;
 }
 
 bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
@@ -1198,7 +1162,8 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
-                             bool needsAllocation) {
+                             bool needsAllocation,
+                             uint32_t graphicsQueueIndex) {
     if (VK_NULL_HANDLE == info.fImage) {
         return false;
     }
@@ -1209,6 +1174,18 @@ static bool check_image_info(const GrVkCaps& caps,
 
     if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
         return false;
+    }
+
+    if (info.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
+        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
+        if (info.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+            if (info.fCurrentQueueFamily != graphicsQueueIndex) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     if (info.fYcbcrConversionInfo.isValid()) {
@@ -1256,7 +1233,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1268,10 +1246,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTex.getMutableState();
+    SkASSERT(mutableState);
     return GrVkTexture::MakeWrappedTexture(this, backendTex.dimensions(), ownership, cacheable,
-                                           ioType, imageInfo, std::move(layout));
+                                           ioType, imageInfo, std::move(mutableState));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture& beTex,
@@ -1282,7 +1260,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1294,10 +1273,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = beTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = beTex.getMutableState();
+    SkASSERT(mutableState);
     return GrVkTexture::MakeWrappedTexture(this, beTex.dimensions(), ownership, cacheable,
-                                           kRead_GrIOType, imageInfo, std::move(layout));
+                                           kRead_GrIOType, imageInfo, std::move(mutableState));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -1309,7 +1288,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
+                          this->queueIndex())) {
         return nullptr;
     }
 
@@ -1326,12 +1306,13 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
 
-    sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTex.getMutableState();
+    SkASSERT(mutableState);
 
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, backendTex.dimensions(),
                                                                    sampleCnt, ownership, cacheable,
-                                                                   imageInfo, std::move(layout));
+                                                                   imageInfo,
+                                                                   std::move(mutableState));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
@@ -1348,7 +1329,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), info, false)) {
+    if (!check_image_info(this->vkCaps(), info, false, this->queueIndex())) {
         return nullptr;
     }
 
@@ -1360,10 +1341,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = backendRT.getGrVkImageLayout();
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendRT.getMutableState();
+    SkASSERT(mutableState);
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(
-            this, backendRT.dimensions(), 1, info, std::move(layout));
+            this, backendRT.dimensions(), 1, info, std::move(mutableState));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!backendRT.stencilBits());
@@ -1380,7 +1362,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, false, this->queueIndex())) {
         return nullptr;
     }
 
@@ -1397,11 +1379,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
-    sk_sp<GrVkImageLayout> layout = tex.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = tex.getMutableState();
+    SkASSERT(mutableState);
 
     return GrVkRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt, imageInfo,
-                                                     std::move(layout));
+                                                     std::move(mutableState));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
@@ -1630,17 +1612,17 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     GrVkImageInfo info;
     SkAssertResult(backendTexture.getVkImageInfo(&info));
 
-    sk_sp<GrVkImageLayout> layout = backendTexture.getGrVkImageLayout();
-    SkASSERT(layout);
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTexture.getMutableState();
+    SkASSERT(mutableState);
     sk_sp<GrVkTexture> texture =
                 GrVkTexture::MakeWrappedTexture(this, backendTexture.dimensions(),
                                                 kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-                                                kRW_GrIOType, info, layout);
+                                                kRW_GrIOType, info, std::move(mutableState));
     if (!texture) {
         return false;
     }
 
-    GrVkPrimaryCommandBuffer* cmdBuffer = this->getTempCommandBuffer();
+    GrVkPrimaryCommandBuffer* cmdBuffer = this->currentCommandBuffer();
     if (!cmdBuffer) {
         return false;
     }
@@ -1709,7 +1691,10 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                             VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                             false);
 
-    return this->submitTempCommandBuffer(kSkip_SyncQueue, std::move(finishedCallback));
+    if (finishedCallback) {
+        this->addFinishedCallback(std::move(finishedCallback));
+    }
+    return this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
@@ -2059,7 +2044,14 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
 void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                               GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    this->addFinishedCallback(std::move(finishedCallback));
+}
+
+void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+    SkASSERT(finishedCallback);
+    fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
 }
 
 bool GrVkGpu::onSubmitToGpu(bool syncCpu) {

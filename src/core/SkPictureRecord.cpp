@@ -129,6 +129,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         flatFlags |= SAVELAYERREC_HAS_FLAGS;
         size += sizeof(uint32_t);
     }
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
     if (rec.fClipMask) {
         flatFlags |= SAVELAYERREC_HAS_CLIPMASK;
         size += sizeof(uint32_t); // clip image index
@@ -137,6 +138,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         flatFlags |= SAVELAYERREC_HAS_CLIPMATRIX;
         size += SkMatrixPriv::WriteToMemory(*rec.fClipMatrix, nullptr);
     }
+#endif
 
     const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
     this->addInt(flatFlags);
@@ -155,12 +157,14 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
         this->addInt(rec.fSaveLayerFlags);
     }
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
     if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
         this->addImage(rec.fClipMask);
     }
     if (flatFlags & SAVELAYERREC_HAS_CLIPMATRIX) {
         this->addMatrix(*rec.fClipMatrix);
     }
+#endif
     this->validate(initialOffset, size);
 }
 
@@ -241,11 +245,11 @@ void SkPictureRecord::didConcat44(const SkM44& m) {
 }
 
 void SkPictureRecord::didScale(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeScale(x, y));
+    this->didConcat(SkMatrix::Scale(x, y));
 }
 
 void SkPictureRecord::didTranslate(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeTrans(x, y));
+    this->didConcat(SkMatrix::Translate(x, y));
 }
 
 void SkPictureRecord::didConcat(const SkMatrix& matrix) {

@@ -19,7 +19,6 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -110,17 +109,15 @@ GrSurfaceProxyView SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingCont
     }
 
     SkRegion::Iterator iter(fRegion);
-    rtContext->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                     GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtContext->clear(SK_PMColor4fTRANSPARENT);
 
-    GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkRect rect = SkRect::Make(iter.rect());
 
-        rtContext->drawRect(clip, std::move(paint), GrAA::kNo, inMatrix, rect);
+        rtContext->drawRect(nullptr, std::move(paint), GrAA::kNo, inMatrix, rect);
 
         iter.next();
     }
@@ -168,7 +165,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
 
         auto textureFP = GrTextureEffect::Make(
                 std::move(inputView), input->alphaType(),
-                SkMatrix::MakeTrans(input->subset().x(), input->subset().y()));
+                SkMatrix::Translate(input->subset().x(), input->subset().y()));
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
                                                   input->alphaType(), ctx.colorSpace());
         if (!textureFP) {

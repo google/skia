@@ -6,6 +6,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2020-06-05
+
+### Fixed
+ - A bug where loading fonts (and other memory intensive calls) would cause CanvasKit
+   to infrequently crash with
+   `TypeError: Cannot perform %TypedArray%.prototype.set on a neutered ArrayBuffer`.
+ - Incorrectly freeing Malloced colors passed into computeTonalColors.
+
+## [0.16.1] - 2020-06-04
+
+### Fixed
+ - Colors are unsigned to be compatible with Flutter Web and previous behavior, not
+   signed ints.
+
+## [0.16.0] - 2020-06-03
+
+### Added
+ - Support for wide-gamut color spaces DisplayP3 and AdobeRGB. However, correct representation on a
+   WCG monitor requires that the browser is rendering everything to the DisplayP3 or AdobeRGB
+   profile, since there is not yet any way to indicate to the browser that a canvas element has a
+   non-sRGB color space. See color support example in extra.html. Only supported for WebGL2 backed
+   surfaces.
+ - Added `SkSurface.reportBackendType` which returns either 'CPU' or 'GPU'.
+ - Added `SkSurface.imageInfo` which returns an ImageInfo object describing the size and color
+   properties of the surface. colorSpace is added to ImageInfo everywhere it is used.
+ - `CanvasKit.Free` to explicitly clean up memory after `CanvasKit.Malloc`. All memory allocated
+   with `CanvasKit.Malloc` must be released with `CanvasKit.Free` or it will be leaked. This can
+   improve performance by reducing the copying of data between the JS and WASM side.
+ - `CanvasKit.ColorAsInt`, `SkPaint.setColorComponents`, `SkPaint.setColorInt`,
+   `SkCanvas.drawColorComponents`, `SkCanvas.drawColorInt` for when clients want
+   to avoid the overhead of allocating an array for color components and only need 8888 color.
+
+### Changed
+ - We now compile/ship with Emscripten v1.39.16.
+ - `CanvasKit.MakeCanvasSurface` accepts a new enum specifying one of the three color space and
+   pixel format combinations supported by CanvasKit.
+ - all `_Make*Shader` functions now accept a color space argument at the end. leaving it off or
+   passing null makes it behave as it did before, defaulting to sRGB
+ - `SkPaint.setColor` accepts a new color space argument, defaulting to sRGB.
+ - Fewer allocations required to send Color and Matrices between JS and WASM layer.
+ - All APIs that take a 1 dimensional array should also accept the object returned by Malloc. It is
+   recommended to pass the Malloc object, as the TypedArray could be invalidated any time
+   CanvasKit needs to allocate memory and needs to resize to accommodate.
+
+### Breaking
+ - `CanvasKitInit(...)` now directly returns a Promise. As such, `CanvasKitInit(...).ready()`
+   has been removed.
+ - `CanvasKit.MakeCanvasSurface` no longer accepts width/height arguments to override those on
+   the canvas element. Use the canvas element's width/height attributes to dictate the size of
+   the drawing area, and use CSS width/height to set the size it will appear on the page
+   (it is rescaled after drawing when css sizing applies).
+ - Memory returned by `CanvasKit.Malloc` will no longer be automatically cleaned up. Clients
+   must use `CanvasKit.Free` to release the memory.
+ - `CanvasKit.Malloc` no longer directly returns a TypedArray, but an object that can produce
+   them with toTypedArray(). This is to avoid "detached ArrayBuffer" errors:
+   <https://github.com/emscripten-core/emscripten/issues/6747>
+
+### Fixed
+ - WebGL context is no longer created with "antialias" flag. Using "antialias" caused poor AA
+   quality in Ganesh when trying to do coverage-based AA with MSAA unknowingly enabled. It also
+   reduced performance.
+
 ## [0.15.0] - 2020-05-14
 
 ### Added

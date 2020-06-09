@@ -317,12 +317,14 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
-    this->createBuffers(swapchainCreateInfo.imageFormat, colorType);
+    this->createBuffers(swapchainCreateInfo.imageFormat, colorType,
+                        swapchainCreateInfo.imageSharingMode);
 
     return true;
 }
 
-void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) {
+void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType,
+                                        VkSharingMode sharingMode) {
     fGetSwapchainImagesKHR(fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
     fImages = new VkImage[fImageCount];
@@ -342,6 +344,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         info.fFormat = format;
         info.fLevelCount = 1;
         info.fCurrentQueueFamily = fPresentQueueIndex;
+        info.fSharingMode = sharingMode;
 
         if (fSampleCount == 1) {
             GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);

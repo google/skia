@@ -74,7 +74,7 @@ public:
     /**
      * Create a GrContext without a resource cache
      */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+    static sk_sp<GrContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
 
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves

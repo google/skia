@@ -101,7 +101,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     sk_sp<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
     args.fRenderTargetContext->priv().stencilPath(
-            *args.fClip, args.fDoStencilMSAA, *args.fViewMatrix, std::move(p));
+            args.fClip, args.fDoStencilMSAA, *args.fViewMatrix, std::move(p));
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -125,15 +125,16 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                            args.fRenderTargetContext->height()); // Inverse fill.
 
         // fake inverse with a stencil and cover
-        GrAppliedClip appliedClip;
-        if (!args.fClip->apply(
+        GrAppliedClip appliedClip(args.fRenderTargetContext->dimensions());
+        if (args.fClip && !args.fClip->apply(
                 args.fContext, args.fRenderTargetContext, doStencilMSAA, true, &appliedClip,
                 &devBounds)) {
             return true;
         }
-        GrStencilClip stencilClip(appliedClip.stencilStackID());
+        GrStencilClip stencilClip(args.fRenderTargetContext->dimensions(),
+                                  appliedClip.stencilStackID());
         if (appliedClip.scissorState().enabled()) {
-            stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
+            SkAssertResult(stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect()));
         }
         if (appliedClip.windowRectsState().enabled()) {
             stencilClip.fixedClip().setWindowRectangles(appliedClip.windowRectsState().windows(),
@@ -142,7 +143,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
         // final draw and it is meaningless to multiply by coverage when drawing to stencil.
         args.fRenderTargetContext->priv().stencilPath(
-                stencilClip, GrAA(doStencilMSAA), viewMatrix, std::move(path));
+                &stencilClip, GrAA(doStencilMSAA), viewMatrix, std::move(path));
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -179,14 +180,14 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 doStencilMSAA = GrAA::kYes;
             }
             args.fRenderTargetContext->priv().stencilRect(
-                    *args.fClip, &kInvertedCoverPass, std::move(args.fPaint), doStencilMSAA,
+                    args.fClip, &kInvertedCoverPass, std::move(args.fPaint), doStencilMSAA,
                     coverMatrix, coverBounds, &localMatrix);
         }
     } else {
         std::unique_ptr<GrDrawOp> op = GrDrawPathOp::Make(
                 args.fContext, viewMatrix, std::move(args.fPaint), GrAA(doStencilMSAA),
                 std::move(path));
-        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+        args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     }
 
     return true;

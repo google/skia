@@ -35,6 +35,7 @@ constexpr char kEvalCubicFn[] = R"(
         })";
 
 class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
+protected:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGP.cast<GrStencilPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
@@ -45,7 +46,7 @@ class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             args.fVertBuilder->codeAppendf(
-                    "float2 vertexpos = (%s * float3(point, 1)).xy;", viewMatrix);
+                    "float2 vertexpos = (%s * float3(inputPoint, 1)).xy;", viewMatrix);
             vertexPos.set(kFloat2_GrSLType, "vertexpos");
         }
 
@@ -75,8 +76,8 @@ GrGLSLPrimitiveProcessor* GrStencilPathShader::createGLSLInstance(const GrShader
     return new Impl;
 }
 
-SkString GrStencilCubicShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
-                                                        const GrShaderCaps&) const {
+SkString GrTessellateCubicShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+                                                           const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kWangsFormulaCubicFn);
     code.append(R"(
@@ -115,8 +116,8 @@ SkString GrStencilCubicShader::getTessControlShaderGLSL(const char* versionAndEx
     return code;
 }
 
-SkString GrStencilCubicShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
-                                                           const GrShaderCaps&) const {
+SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+                                                              const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kEvalCubicFn);
     code.append(R"(
@@ -147,8 +148,8 @@ SkString GrStencilCubicShader::getTessEvaluationShaderGLSL(const char* versionAn
     return code;
 }
 
-SkString GrStencilWedgeShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
-                                                        const GrShaderCaps&) const {
+SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+                                                           const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kWangsFormulaCubicFn);
     code.append(R"(
@@ -183,8 +184,8 @@ SkString GrStencilWedgeShader::getTessControlShaderGLSL(const char* versionAndEx
     return code;
 }
 
-SkString GrStencilWedgeShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
-                                                           const GrShaderCaps&) const {
+SkString GrTessellateWedgeShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+                                                              const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kEvalCubicFn);
     code.append(R"(
@@ -217,4 +218,110 @@ SkString GrStencilWedgeShader::getTessEvaluationShaderGLSL(const char* versionAn
             })");
 
     return code;
+}
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gMiddleOutIndexBufferKey);
+
+sk_sp<const GrGpuBuffer> GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
+        GrResourceProvider* resourceProvider) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gMiddleOutIndexBufferKey);
+    if (auto buffer = resourceProvider->findByUniqueKey<GrGpuBuffer>(gMiddleOutIndexBufferKey)) {
+        return std::move(buffer);
+    }
+
+    // One explicit triangle at index 0, and one middle-out cubic with kMaxResolveLevel line
+    // segments beginning at index 3.
+    constexpr static int indexCount = 3 + NumVerticesAtResolveLevel(kMaxResolveLevel);
+    auto buffer = resourceProvider->createBuffer(
+            indexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
+    if (!buffer) {
+        return nullptr;
+    }
+
+    // We shouldn't bin and/or cache static buffers.
+    SkASSERT(buffer->size() == indexCount * sizeof(uint16_t));
+    SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+    auto indexData = static_cast<uint16_t*>(buffer->map());
+    SkAutoTMalloc<uint16_t> stagingBuffer;
+    if (!indexData) {
+        SkASSERT(!buffer->isMapped());
+        indexData = stagingBuffer.reset(indexCount);
+    }
+
+    // Indices 0,1,2 contain special values that emit points P0, P1, and P2 respectively. (When the
+    // vertex shader is fed an index value larger than (1 << kMaxResolveLevel), it emits
+    // P[index % 4].)
+    int i = 0;
+    indexData[i++] = (1 << kMaxResolveLevel) + 4;  // % 4 == 0
+    indexData[i++] = (1 << kMaxResolveLevel) + 5;  // % 4 == 1
+    indexData[i++] = (1 << kMaxResolveLevel) + 6;  // % 4 == 2
+
+    // Starting at index 3, we triangulate a cubic with 2^kMaxResolveLevel line segments. Each
+    // index value corresponds to parametric value T=(index / 2^kMaxResolveLevel). Since the
+    // triangles are arranged in "middle-out" order, we will be able to conveniently control the
+    // resolveLevel by changing only the indexCount.
+    for (uint16_t advance = 1 << (kMaxResolveLevel - 1); advance; advance >>= 1) {
+        uint16_t T = 0;
+        do {
+            indexData[i++] = T;
+            indexData[i++] = (T += advance);
+            indexData[i++] = (T += advance);
+        } while (T != (1 << kMaxResolveLevel));
+    }
+    SkASSERT(i == indexCount);
+
+    if (buffer->isMapped()) {
+        buffer->unmap();
+    } else {
+        buffer->updateData(stagingBuffer, indexCount * sizeof(uint16_t));
+    }
+    buffer->resourcePriv().setUniqueKey(gMiddleOutIndexBufferKey);
+    return std::move(buffer);
+}
+
+class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+        const auto& shader = args.fGP.cast<GrMiddleOutCubicShader>();
+        args.fVaryingHandler->emitAttributes(shader);
+        args.fVertBuilder->defineConstant("kMaxResolveLevel", kMaxResolveLevel);
+        args.fVertBuilder->codeAppend(R"(
+                float4x2 P = float4x2(inputPoints_0_1, inputPoints_2_3);
+                float2 point;
+                if (sk_VertexID > (1 << kMaxResolveLevel)) {
+                    // This is a special index value that wants us to emit a specific point.
+                    point = P[sk_VertexID & 3];
+                } else {)");
+        // Evaluate the cubic at T=(sk_VertexID / 2^kMaxResolveLevel).
+        if (args.fShaderCaps->fpManipulationSupport()) {
+            args.fVertBuilder->codeAppend(R"(
+                    float T = ldexp(sk_VertexID, -kMaxResolveLevel);)");
+        } else {
+            args.fVertBuilder->codeAppend(R"(
+                    float T = sk_VertexID / float(1 << kMaxResolveLevel);)");
+        }
+        args.fVertBuilder->codeAppend(R"(
+                    float2 ab = mix(P[0], P[1], T);
+                    float2 bc = mix(P[1], P[2], T);
+                    float2 cd = mix(P[2], P[3], T);
+                    float2 abc = mix(ab, bc, T);
+                    float2 bcd = mix(bc, cd, T);
+                    point = mix(abc, bcd, T);
+                })");
+
+        GrShaderVar vertexPos("point", kFloat2_GrSLType);
+        if (!shader.viewMatrix().isIdentity()) {
+            const char* viewMatrix;
+            fViewMatrixUniform = args.fUniformHandler->addUniform(
+                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+            args.fVertBuilder->codeAppendf(R"(
+                    float2 transformedPoint = (%s * float3(point, 1)).xy;)", viewMatrix);
+            vertexPos.set(kFloat2_GrSLType, "transformedPoint");
+        }
+        gpArgs->fPositionVar = vertexPos;
+        // No fragment shader.
+    }
+};
+
+GrGLSLPrimitiveProcessor* GrMiddleOutCubicShader::createGLSLInstance(const GrShaderCaps&) const {
+    return new Impl;
 }

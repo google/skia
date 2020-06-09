@@ -114,10 +114,10 @@ void SkLuaCanvas::didConcat44(const SkM44&) {
     // TODO
 }
 void SkLuaCanvas::didScale(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeScale(x, y));
+    this->didConcat(SkMatrix::Scale(x, y));
 }
 void SkLuaCanvas::didTranslate(SkScalar x, SkScalar y) {
-    this->didConcat(SkMatrix::MakeTrans(x, y));
+    this->didConcat(SkMatrix::Translate(x, y));
 }
 void SkLuaCanvas::didConcat(const SkMatrix& matrix) {
     switch (matrix.getType()) {

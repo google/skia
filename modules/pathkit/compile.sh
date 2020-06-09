@@ -93,7 +93,7 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
-  extra_cflags=[\"-DSK_DISABLE_READBUFFER=1\",\"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
     \"-s\", \"MAIN_MODULE=1\",
     ${EXTRA_CFLAGS}
   ] \
@@ -110,10 +110,9 @@ echo "Generating WASM"
 ${EMCXX} $RELEASE_CONF -std=c++17 \
 -I. \
 --bind \
+--no-entry \
 --pre-js $BASE_DIR/helper.js \
 --pre-js $BASE_DIR/chaining.js \
---post-js $BASE_DIR/ready.js \
--DSK_DISABLE_READBUFFER=1 \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \
 -s ERROR_ON_UNDEFINED_SYMBOLS=1 \

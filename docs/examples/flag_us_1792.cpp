@@ -17,7 +17,7 @@ void draw(SkCanvas* canvas) {
     SkPath star;
     SkParsePath::FromSVGString("M 0 -150 L 88 121 L -143 -46 L 143 -46 L -88 121 Z", &star);
     for (int i = 0; i < 13; ++i) {
-        SkMatrix matrix = SkMatrix::MakeTrans(1482, 1050);
+        SkMatrix matrix = SkMatrix::Translate(1482, 1050);
         matrix.preRotate((360.0 / 13) * i);
         matrix.preTranslate(0, -785);
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);

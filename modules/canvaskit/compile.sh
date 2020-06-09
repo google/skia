@@ -72,8 +72,6 @@ SKP_JS="--pre-js $BASE_DIR/skp.js"
 GN_SKP_FLAGS=""
 WASM_SKP="-DSK_SERIALIZE_SKP"
 if [[ $@ == *no_skp* ]]; then
-  GN_SKP_FLAGS="\"-DSK_DISABLE_READBUFFER\","
-  WASM_SKP="-DSK_DISABLE_READBUFFER"
   SKP_JS=""
 fi
 
@@ -90,11 +88,13 @@ if [[ $@ == *no_skottie* ]]; then
   SKOTTIE_BINDINGS=""
 fi
 
+GN_VIEWER="skia_use_expat=false skia_enable_ccpr=false"
 VIEWER_BINDINGS=""
 VIEWER_LIB=""
 
 if [[ $@ == *viewer* ]]; then
   echo "Including viewer"
+  GN_VIEWER="skia_use_expat=true skia_enable_ccpr=true"
   VIEWER_BINDINGS="$BASE_DIR/viewer_bindings.cpp"
   VIEWER_LIB="$BUILD_DIR/libviewer_wasm.a"
   IS_OFFICIAL_BUILD="false"
@@ -268,7 +268,6 @@ echo "Compiling bitcode"
   skia_use_angle=false \
   skia_use_dng_sdk=false \
   skia_use_egl=true \
-  skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_libheif=false \
@@ -293,9 +292,9 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   ${GN_FONT} \
   ${GN_PARTICLES} \
+  ${GN_VIEWER} \
   \
   skia_enable_skshaper=true \
-  skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skparagraph=true \
   skia_enable_pdf=false"
@@ -331,6 +330,7 @@ ${EMCXX} \
     $FONT_CFLAGS \
     -std=c++17 \
     --bind \
+    --no-entry \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
@@ -343,7 +343,6 @@ ${EMCXX} \
     $RT_SHADER_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
-    --post-js $BASE_DIR/ready.js \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
@@ -365,7 +364,7 @@ ${EMCXX} \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s TOTAL_MEMORY=128MB \
+    -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

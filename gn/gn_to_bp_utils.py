@@ -36,7 +36,12 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
   # Skia components, gms, tests, etc).
   for dep in js['targets'][name]['deps']:
     if 'modules' in dep:
-      continue   # Modules require special handling -- skip for now.
+      skip = True
+      for white_list in ['skshaper', 'skparagraph']:
+        if white_list in dep:
+          skip = False
+      if skip:
+        continue   # Modules require special handling -- skip for now.
     if 'third_party' in dep:
       continue   # We've handled all third-party DEPS as static or shared_libs.
     if 'none' in dep:

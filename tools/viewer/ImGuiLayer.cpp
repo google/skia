@@ -53,7 +53,7 @@ ImGuiLayer::ImGuiLayer() {
     io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
     SkImageInfo info = SkImageInfo::MakeA8(w, h);
     SkPixmap pmap(info, pixels, info.minRowBytes());
-    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
+    SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
     auto fontShader = fontImage->makeShader(&localMatrix);
     fFontPaint.setShader(fontShader);

@@ -41,7 +41,7 @@ private:
                           const Format& format,
                           const GrVkImage::ImageDesc&,
                           const GrVkImageInfo&,
-                          sk_sp<GrVkImageLayout> layout,
+                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                           const GrVkImageView* stencilView);
 
     GrVkGpu* getVkGpu() const;

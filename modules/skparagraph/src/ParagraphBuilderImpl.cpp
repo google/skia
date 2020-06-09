@@ -1,10 +1,17 @@
 // Copyright 2019 Google LLC.
-#include "include/core/SkPaint.h"
+
+#include "include/core/SkTypes.h"
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "src/core/SkSpan.h"
-#include "unicode/unistr.h"
+#include "modules/skparagraph/src/ParagraphUtil.h"
+
+#include <algorithm>
+#include <utility>
 
 namespace skia {
 namespace textlayout {
@@ -67,19 +74,15 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-    icu::UnicodeString unicode;
-    unicode.setTo((UChar*)text.data());
-    std::string str;
-    unicode.toUTF8String(str);
-    fUtf8.insert(fUtf8.size(), str.c_str());
+    fUtf8.append(SkStringFromU16String(text));
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
-    fUtf8.insert(fUtf8.size(), text);
+    fUtf8.append(text);
 }
 
 void ParagraphBuilderImpl::addText(const char* text, size_t len) {
-    fUtf8.insert(fUtf8.size(), text, len);
+    fUtf8.append(text, len);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {

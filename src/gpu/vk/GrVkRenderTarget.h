@@ -34,7 +34,7 @@ class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
 public:
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, SkISize, int sampleCnt,
                                                            const GrVkImageInfo&,
-                                                           sk_sp<GrVkImageLayout>);
+                                                           sk_sp<GrBackendSurfaceMutableStateImpl>);
 
     static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*, SkISize,
                                                                const GrVkDrawableInfo& vkInfo);
@@ -119,9 +119,9 @@ protected:
                      SkISize dimensions,
                      int sampleCnt,
                      const GrVkImageInfo& info,
-                     sk_sp<GrVkImageLayout> layout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageInfo& msaaInfo,
-                     sk_sp<GrVkImageLayout> msaaLayout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
                      const GrVkImageView* colorAttachmentView,
                      const GrVkImageView* resolveAttachmentView,
                      GrBackendObjectOwnership);
@@ -129,7 +129,7 @@ protected:
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
                      const GrVkImageInfo& info,
-                     sk_sp<GrVkImageLayout> layout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageView* colorAttachmentView,
                      GrBackendObjectOwnership);
 
@@ -153,22 +153,22 @@ private:
                      SkISize dimensions,
                      int sampleCnt,
                      const GrVkImageInfo& info,
-                     sk_sp<GrVkImageLayout> layout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageInfo& msaaInfo,
-                     sk_sp<GrVkImageLayout> msaaLayout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
                      const GrVkImageView* colorAttachmentView,
                      const GrVkImageView* resolveAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
                      const GrVkImageInfo& info,
-                     sk_sp<GrVkImageLayout> layout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageView* colorAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
                      const GrVkImageInfo& info,
-                     sk_sp<GrVkImageLayout> layout,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkRenderPass* renderPass,
                      VkCommandBuffer secondaryCommandBuffer);
 

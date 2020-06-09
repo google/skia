@@ -54,20 +54,18 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
-
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fRenderTargetContext->singleOwner())
 
 uint32_t GrRenderTargetContextPriv::testingOnly_getOpsTaskID() {
     return fRenderTargetContext->getOpsTask()->uniqueID();
 }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
-    this->testingOnly_addDrawOp(GrNoClip(), std::move(op));
+    this->testingOnly_addDrawOp(nullptr, std::move(op), {});
 }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(
-        const GrClip& clip,
+        const GrClip* clip,
         std::unique_ptr<GrDrawOp> op,
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER

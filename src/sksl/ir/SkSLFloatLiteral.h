@@ -53,6 +53,10 @@ struct FloatLiteral : public Expression {
         return fValue;
     }
 
+    int nodeCount() const override {
+        return 1;
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
     }

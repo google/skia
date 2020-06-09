@@ -77,6 +77,7 @@ struct SampleMatrix {
     // The constant or uniform expression representing the matrix (will be the empty string when
     // kind == kNone or kVariable)
     String fExpression;
+    const GrFragmentProcessor* fBase = nullptr;
 };
 
 } // namespace

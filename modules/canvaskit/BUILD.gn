@@ -6,6 +6,10 @@
 component("viewer_wasm") {
   testonly = true
   include_dirs = [ "../.." ]
-  sources = [ "../../tools/viewer/SampleSlide.cpp" ]
+  sources = [
+    "../../tools/viewer/SKPSlide.cpp",
+    "../../tools/viewer/SampleSlide.cpp",
+    "../../tools/viewer/SvgSlide.cpp",
+  ]
   deps = [ "../..:samples" ]
 }

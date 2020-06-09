@@ -44,8 +44,7 @@ DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
 
     sk_sp<SkImage> img = surface->makeImageSnapshot();
 
-    SkMatrix m = SkMatrix::Concat(SkMatrix::MakeTrans(25, 214),
-                                  SkMatrix::MakeScale(2, 2));
+    SkMatrix m = SkMatrix::Translate(25, 214) * SkMatrix::Scale(2, 2);
     m.preSkew(0.5f, 0.5f);
 
     // The bug was present at all filter levels, but you might not notice it at kNone.

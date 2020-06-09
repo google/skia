@@ -33,7 +33,7 @@ public:
                                                  GrWrapCacheable,
                                                  GrIOType,
                                                  const GrVkImageInfo&,
-                                                 sk_sp<GrVkImageLayout>);
+                                                 sk_sp<GrBackendSurfaceMutableStateImpl>);
 
     ~GrVkTexture() override;
 
@@ -61,7 +61,7 @@ protected:
     GrVkTexture(GrVkGpu*,
                 SkISize dimensions,
                 const GrVkImageInfo&,
-                sk_sp<GrVkImageLayout>,
+                sk_sp<GrBackendSurfaceMutableStateImpl>,
                 const GrVkImageView*,
                 GrMipMapsStatus,
                 GrBackendObjectOwnership);
@@ -78,9 +78,10 @@ protected:
     void willRemoveLastRef() override;
 
 private:
-    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&, sk_sp<GrVkImageLayout> layout,
-                const GrVkImageView* imageView, GrMipMapsStatus);
-    GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
+    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&,
+                sk_sp<GrBackendSurfaceMutableStateImpl>, const GrVkImageView* imageView,
+                GrMipMapsStatus);
+    GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrBackendSurfaceMutableStateImpl>,
                 const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable,
                 GrIOType, bool isExternal);
 

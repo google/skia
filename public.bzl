@@ -2,39 +2,27 @@
 # Skylark macros
 ################################################################################
 
-is_bazel = not hasattr(native, "genmpm")
-
-def portable_select(select_dict, bazel_condition, default_condition):
-    """Replaces select() with a Bazel-friendly wrapper.
-
-    Args:
-      select_dict: Dictionary in the same format as select().
-    Returns:
-      If Blaze platform, returns select() using select_dict.
-      If Bazel platform, returns dependencies for condition
-          bazel_condition, or empty list if none specified.
-    """
-    if is_bazel:
-        return select_dict.get(bazel_condition, select_dict[default_condition])
-    else:
-        return select(select_dict)
-
 def skia_select(conditions, results):
-    """Replaces select() for conditions [UNIX, ANDROID, IOS, WASM]
+    """select() for conditions provided externally.
+
+    Instead of {"conditionA": resultA, "conditionB": resultB},
+    this takes two arrays, ["conditionA", "conditionB"] and [resultA, resultB].
+
+    This allows the exact targets of the conditions to be provided externally while
+    the results can live here, hiding the structure of those conditions in Google3.
+
+    Maybe this is too much paranoia?
 
     Args:
-      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM]
-      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM]
+      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM, ...]
+      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM, ....]
     Returns:
-      The result matching the platform condition.
+      The result matching the active condition.
     """
-    if len(conditions) != 4 or len(results) != 4:
-        fail("Must provide exactly 4 conditions and 4 results")
-
     selector = {}
-    for i in range(4):
+    for i in range(len(conditions)):
         selector[conditions[i]] = results[i]
-    return portable_select(selector, conditions[2], conditions[0])
+    return select(selector)
 
 def skia_glob(srcs):
     """Replaces glob() with a version that accepts a struct.
@@ -261,9 +249,6 @@ BASE_SRCS_ALL = struct(
 
         # Only used to regenerate the lexer
         "src/sksl/lex/*",
-
-        # Atlas text
-        "src/atlastext/*",
     ],
 )
 
@@ -416,6 +401,44 @@ PORTS_SRCS_WASM = struct(
     ],
 )
 
+GL_SRCS_FUCHSIA = struct(
+    include = [
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+    ],
+    exclude = [],
+)
+PORTS_SRCS_FUCHSIA = struct(
+    include = [
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        "src/ports/*FontConfig*",
+        #"src/ports/*FreeType*",
+        "src/ports/*WIC*",
+        "src/ports/*CG*",
+        "src/ports/*android*",
+        "src/ports/*chromium*",
+        "src/ports/*fontconfig*",
+        "src/ports/*mac*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        #"src/ports/SkDebug_stdio.cpp",
+        #"src/ports/SkFontMgr_custom.cpp",
+        "src/ports/SkFontMgr_custom_directory.cpp",
+        "src/ports/SkFontMgr_custom_directory_factory.cpp",
+        "src/ports/SkFontMgr_custom_embedded.cpp",
+        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+        "src/ports/SkFontMgr_custom_empty.cpp",
+        "src/ports/SkFontMgr_custom_empty_factory.cpp",
+        #"src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkFontMgr_fontconfig_factory.cpp",
+        #"src/ports/SkFontMgr_fuchsia.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+    ],
+)
+
 def base_srcs():
     return skia_glob(BASE_SRCS_ALL)
 
@@ -427,6 +450,7 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_ANDROID),
             skia_glob(PORTS_SRCS_IOS),
             skia_glob(PORTS_SRCS_WASM),
+            skia_glob(PORTS_SRCS_FUCHSIA),
         ],
     )
 
@@ -438,6 +462,7 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_ANDROID),
             skia_glob(GL_SRCS_IOS),
             skia_glob(GL_SRCS_WASM),
+            skia_glob(GL_SRCS_FUCHSIA),
         ],
     )
 
@@ -576,7 +601,6 @@ DM_SRCS_ALL = struct(
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
         "tests/SkParagraphTest.cpp",  # Skipping tests for now.
         "tests/skia_test.cpp",  # Old main.
-        "tools/gpu/atlastext/*",
         "tools/gpu/d3d/*",
         "tools/gpu/dawn/*",
         "tools/gpu/gl/angle/*",
@@ -601,8 +625,9 @@ def dm_srcs(os_conditions):
         [
             ["tests/FontMgrFontConfigTest.cpp"],
             ["tests/FontMgrAndroidParserTest.cpp"],
-            [],
-            [],
+            [],  # iOS
+            [],  # WASM
+            [],  # Fuchsia
         ],
     )
 
@@ -624,12 +649,11 @@ def DM_ARGS(asan):
 ################################################################################
 
 def base_copts(os_conditions):
-    return skia_select(
+    return ["-Wno-implicit-fallthrough"] + skia_select(
         os_conditions,
         [
             # UNIX
             [
-                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
                 # Internal use of deprecated methods. :(
                 "-Wno-deprecated-declarations",
                 # TODO(kjlubick)
@@ -637,19 +661,13 @@ def base_copts(os_conditions):
             ],
             # ANDROID
             [
-                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
                 # 'GrResourceCache' declared with greater visibility than the
                 # type of its field 'GrResourceCache::fPurgeableQueue'... bogus.
                 "-Wno-error=attributes",
             ],
-            # IOS
-            [
-                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
-            ],
-            # WASM
-            [
-                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
-            ],
+            [],  # iOS
+            [],  # wasm
+            [],  # Fuchsia
         ],
     )
 
@@ -716,6 +734,15 @@ def base_defines(os_conditions):
                 "SK_FORCE_8_BYTE_ALIGNMENT",
                 "SKNX_NO_SIMD",
             ],
+            # FUCHSIA
+            [
+                "SK_BUILD_FOR_UNIX",
+                "SK_CODEC_DECODES_PNG",
+                "SK_CODEC_DECODES_WEBP",
+                "SK_ENCODE_PNG",
+                "SK_ENCODE_WEBP",
+                "SK_R32_SHIFT=16",
+            ],
         ],
     )
 
@@ -729,8 +756,7 @@ def base_linkopts(os_conditions):
     ] + skia_select(
         os_conditions,
         [
-            # UNIX
-            [],
+            [],  # Unix
             # ANDROID
             [
                 "-lEGL",
@@ -744,8 +770,8 @@ def base_linkopts(os_conditions):
                 "-framework ImageIO",
                 "-framework MobileCoreServices",
             ],
-            # WASM
-            [],
+            [],  # wasm
+            [],  # Fuchsia
         ],
     )
 

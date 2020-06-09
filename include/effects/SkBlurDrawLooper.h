@@ -5,15 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkBlurDrawLooper_DEFINED
 #define SkBlurDrawLooper_DEFINED
 
 #include "include/core/SkDrawLooper.h"
 
 /**
- *  Draws a shadow of the object (possibly offset), and then draws the original object in
- *  its original position.
+ *  DEPRECATED: No longer supported in Skia.
  */
 namespace SkBlurDrawLooper {
     sk_sp<SkDrawLooper> SK_API Make(SkColor4f color, SkColorSpace* cs,

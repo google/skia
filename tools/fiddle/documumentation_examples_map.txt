@@ -2022,10 +2022,6 @@ SkColor4f getColor4f() const;
 SkPaint
 SkColorFilter* getColorFilter() const;
 
-[Paint_getDrawLooper]
-SkPaint
-SkDrawLooper* getDrawLooper() const;
-
 [Paint_getFillPath_2]
 [Shader_Methods_a]
 [Shader_Methods_b]
@@ -2196,10 +2192,6 @@ bool operator==(const SkPaint& a, const SkPaint& b);
 SkPaint
 sk_sp<SkColorFilter> refColorFilter() const;
 
-[Paint_refDrawLooper]
-SkPaint
-sk_sp<SkDrawLooper> refDrawLooper() const;
-
 [Paint_refImageFilter]
 SkPaint
 sk_sp<SkImageFilter> refImageFilter() const;
@@ -2266,11 +2258,6 @@ void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 SkPaint
 void setDither(bool dither);
 
-[Paint_setDrawLooper]
-[Text_Size]
-SkPaint
-void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
-
 [Paint_setEmbeddedBitmapText]
 SkPaint
 void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
@@ -2293,11 +2280,6 @@ void setFlags(uint32_t flags);
 [Paint_setHinting]
 SkPaint
 void setHinting(SkFontHinting hintingLevel);
-
-[Draw_Looper_Methods]
-[Paint_setImageFilter]
-SkPaint
-void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
 [Paint_setLCDRenderText]
 SkPaint
@@ -3923,10 +3905,6 @@ SkRegion
 [Surface_MakeFromBackendTexture]
 SkSurface
 static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
-
-[Surface_MakeFromBackendTextureAsRenderTarget]
-SkSurface
-static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
 
 [Surface_MakeNull]
 SkSurface

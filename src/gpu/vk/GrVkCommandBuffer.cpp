@@ -308,6 +308,7 @@ void GrVkCommandBuffer::drawIndirect(const GrVkGpu* gpu,
     SkASSERT(fActiveRenderPass);
     SkASSERT(!indirectBuffer->isCpuBuffer());
     this->addingWork(gpu);
+    this->addResource(indirectBuffer->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdDrawIndirect(fCmdBuffer,
                                                    indirectBuffer->buffer(),
                                                    offset,
@@ -324,6 +325,7 @@ void GrVkCommandBuffer::drawIndexedIndirect(const GrVkGpu* gpu,
     SkASSERT(fActiveRenderPass);
     SkASSERT(!indirectBuffer->isCpuBuffer());
     this->addingWork(gpu);
+    this->addResource(indirectBuffer->resource());
     GR_VK_CALL(gpu->vkInterface(), CmdDrawIndexedIndirect(fCmdBuffer,
                                                           indirectBuffer->buffer(),
                                                           offset,

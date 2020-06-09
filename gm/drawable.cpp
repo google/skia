@@ -43,7 +43,7 @@ DEF_SIMPLE_GM(drawable, canvas, 180, 275) {
     canvas->drawDrawable(drawable.get());
     canvas->drawDrawable(drawable.get(), 0, 150);
 
-    SkMatrix m = SkMatrix::MakeScale(1.5f, 0.8f);
+    SkMatrix m = SkMatrix::Scale(1.5f, 0.8f);
     m.postTranslate(70, 0);
     canvas->drawDrawable(drawable.get(), &m);
 

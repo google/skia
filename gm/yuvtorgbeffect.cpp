@@ -24,7 +24,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
@@ -342,7 +341,7 @@ protected:
             SkScalar x = kTestPad;
             // Columns are non-subsetted followed by subsetted with each WrapMode in a row
             for (uint32_t j = 0; j < GrSamplerState::kWrapModeCount + 1; ++j) {
-                SkMatrix ctm = SkMatrix::MakeTrans(x, y);
+                SkMatrix ctm = SkMatrix::Translate(x, y);
                 ctm.postScale(10.f, 10.f);
 
                 const SkRect* subset = j > 0 ? &kColorRect : nullptr;
@@ -362,7 +361,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->drawRect(
-                            GrNoClip(), std::move(grPaint), GrAA::kYes, ctm, rect);
+                            nullptr, std::move(grPaint), GrAA::kYes, ctm, rect);
                 }
                 x += rect.width() + kTestPad;
             }

@@ -42,8 +42,8 @@ private:
         // Entire run comes as one block fully resolved
         explicit RunBlock(std::shared_ptr<Run> run)
             : fRun(std::move(run))
-            , fText(run->fTextRange)
-            , fGlyphs(GlyphRange(0, run->size())) { }
+            , fText(fRun->fTextRange)
+            , fGlyphs(GlyphRange(0, fRun->size())) { }
 
         std::shared_ptr<Run> fRun;
         TextRange fText;
@@ -69,7 +69,6 @@ private:
 #ifdef SK_DEBUG
     void printState();
 #endif
-    void dropUnresolved();
     void finish(TextRange text, SkScalar height, SkScalar& advanceX);
 
     void beginLine() override {}
@@ -97,7 +96,6 @@ private:
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
     ClusterRange normalizeTextRange(GlyphRange glyphRange);
-    void increment(TextIndex& index);
     void fillGaps(size_t);
 
     ParagraphImpl* fParagraph;
@@ -109,7 +107,7 @@ private:
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;
-    std::queue<RunBlock> fUnresolvedBlocks;
+    std::deque<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
 
     // Keeping all resolved typefaces

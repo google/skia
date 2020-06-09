@@ -48,8 +48,7 @@
 #include "src/image/SkSurface_Gpu.h"
 #include "src/utils/SkUTF.h"
 
-#define ASSERT_SINGLE_OWNER \
-SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->priv().singleOwner());)
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,7 +124,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
-        , fRenderTargetContext(std::move(renderTargetContext)) {
+        , fRenderTargetContext(std::move(renderTargetContext))
+        , fClip(&this->cs(), &this->asMatrixProvider()) {
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
@@ -209,8 +209,7 @@ void SkGpuDevice::clearAll() {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
 
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fRenderTargetContext->clear(&rect, SK_PMColor4fTRANSPARENT,
-                                GrRenderTargetContext::CanClearFullscreen::kYes);
+    fRenderTargetContext->priv().clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
 }
 
 void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext> rtc,
@@ -722,13 +721,16 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
             SkRect clipGeometry = SkRect::MakeWH(clipImage->width(), clipImage->height());
             if (!clipGeometry.contains(inverseClipMatrix.mapRect(dstRect))) {
                 // Draw the clip geometry since it is smaller, using dstRect as an extra scissor
-                SkClipStack clip(this->cs());
-                clip.clipDevRect(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
-                                 SkClipOp::kIntersect);
+                SkClipStack dstRectClip(this->cs());
+                dstRectClip.clipDevRect(
+                        SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
+                        SkClipOp::kIntersect);
+                GrClipStackClip clip(&dstRectClip);
                 SkMatrix local = SkMatrix::Concat(SkMatrix::MakeRectToRect(
                         dstRect, srcRect, SkMatrix::kFill_ScaleToFit), ctm);
-                fRenderTargetContext->fillRectWithLocalMatrix(GrClipStackClip(&clip),
-                        std::move(grPaint), GrAA(paint.isAntiAlias()), ctm, clipGeometry, local);
+                fRenderTargetContext->fillRectWithLocalMatrix(&clip, std::move(grPaint),
+                                                              GrAA(paint.isAntiAlias()), ctm,
+                                                              clipGeometry, local);
                 return;
             }
             // Else fall through and draw the subset since that is contained in the clip geometry
@@ -1061,6 +1063,7 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 
 void SkGpuDevice::flush() {
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    this->context()->submit();
 }
 
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
@@ -1136,7 +1139,6 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
     }
     GrPaint grPaint;
     grPaint.setXPFactory(GrDisableColorXPFactory::Get());
-    GrNoClip noClip;
     static constexpr GrUserStencilSettings kDrawToStencil(
         GrUserStencilSettings::StaticInit<
             0x1,
@@ -1146,7 +1148,7 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
             GrUserStencilOp::kReplace,
             0x1>()
     );
-    rtc->drawRegion(noClip, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
+    rtc->drawRegion(nullptr, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
                     GrStyle::SimpleFill(), &kDrawToStencil);
     return true;
 }

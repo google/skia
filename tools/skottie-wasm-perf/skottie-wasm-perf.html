@@ -26,7 +26,7 @@
 
      CanvasKitInit({
         locateFile: (file) => '/res/'+file,
-    }).ready().then((CanvasKit) => {
+    }).then((CanvasKit) => {
         CK = CanvasKit;
         Bench(CK, lottieJSON);
     });

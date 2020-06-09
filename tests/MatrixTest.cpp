@@ -794,7 +794,7 @@ static bool check_decompScale(const SkMatrix& original) {
     original.mapPoints(v1, testPts, kNumPoints);
 
     SkPoint v2[kNumPoints];
-    SkMatrix scaleMat = SkMatrix::MakeScale(scale.width(), scale.height());
+    SkMatrix scaleMat = SkMatrix::Scale(scale.width(), scale.height());
 
     // Note, we intend the decomposition to be applied in the order scale and then remainder but,
     // due to skbug.com/7211, the order is reversed!
@@ -1004,7 +1004,7 @@ DEF_TEST(Matrix_maprects, r) {
     // We should report nonfinite-ness after a mapping
     {
         // We have special-cases in mapRect for different matrix types
-        SkMatrix m0 = SkMatrix::MakeScale(1e20f, 1e20f);
+        SkMatrix m0 = SkMatrix::Scale(1e20f, 1e20f);
         SkMatrix m1; m1.setRotate(30); m1.postScale(1e20f, 1e20f);
 
         for (const auto& m : { m0, m1 }) {

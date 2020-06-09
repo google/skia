@@ -2,19 +2,27 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
-#include "src/core/SkSpan.h"
 
+#include <stddef.h>
+#include <functional>
 #include <memory>
+#include <vector>
+
+class SkCanvas;
+class SkString;
 
 namespace skia {
 namespace textlayout {
+
+class ParagraphImpl;
 
 class TextLine {
 public:
@@ -29,6 +37,10 @@ public:
     };
 
     TextLine() = default;
+    TextLine(const TextLine&) = delete;
+    TextLine& operator=(const TextLine&) = delete;
+    TextLine(TextLine&&) = default;
+    TextLine& operator=(TextLine&&) = default;
     ~TextLine() = default;
 
     TextLine(ParagraphImpl* master,
@@ -126,8 +138,8 @@ private:
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
-
-    SkTArray<size_t, true> fRunsInVisualOrder;
+    // Avoid the malloc/free in the common case of one run per line
+    SkSTArray<1, size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Let right

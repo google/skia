@@ -126,10 +126,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Half2);
     ADD_TYPE(Half3);
     ADD_TYPE(Half4);
-    ADD_TYPE(Double);
-    ADD_TYPE(Double2);
-    ADD_TYPE(Double3);
-    ADD_TYPE(Double4);
     ADD_TYPE(Int);
     ADD_TYPE(Int2);
     ADD_TYPE(Int3);
@@ -176,18 +172,8 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Half4x2);
     ADD_TYPE(Half4x3);
     ADD_TYPE(Half4x4);
-    ADD_TYPE(Double2x2);
-    ADD_TYPE(Double2x3);
-    ADD_TYPE(Double2x4);
-    ADD_TYPE(Double3x2);
-    ADD_TYPE(Double3x3);
-    ADD_TYPE(Double3x4);
-    ADD_TYPE(Double4x2);
-    ADD_TYPE(Double4x3);
-    ADD_TYPE(Double4x4);
     ADD_TYPE(GenType);
     ADD_TYPE(GenHType);
-    ADD_TYPE(GenDType);
     ADD_TYPE(GenIType);
     ADD_TYPE(GenUType);
     ADD_TYPE(GenBType);
@@ -198,7 +184,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GVec3);
     ADD_TYPE(GVec4);
     ADD_TYPE(HVec);
-    ADD_TYPE(DVec);
     ADD_TYPE(IVec);
     ADD_TYPE(UVec);
     ADD_TYPE(SVec);
@@ -1269,6 +1254,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     break;
                 case BasicBlock::Node::kExpression_Kind:
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
+                    if ((*cfg.fBlocks[i].fNodes[0].expression())->fKind ==
+                        Expression::kBoolLiteral_Kind) {
+                        // Function inlining can generate do { ... } while(false) loops which always
+                        // break, so the boolean condition is considered unreachable. Since not
+                        // being able to reach a literal is a non-issue in the first place, we
+                        // don't report an error in this case.
+                        continue;
+                    }
                     break;
             }
             this->error(offset, String("unreachable"));
@@ -1453,6 +1446,20 @@ bool Compiler::optimize(Program& program) {
         for (auto& element : program) {
             if (element.fKind == ProgramElement::kFunction_Kind) {
                 this->scanCFG((FunctionDefinition&) element);
+            }
+        }
+        // we wait until after analysis to remove dead functions so that we still report errors
+        // even in unused code
+        if (program.fSettings.fRemoveDeadFunctions) {
+            for (auto iter = program.fElements.begin(); iter != program.fElements.end(); ) {
+                if ((*iter)->fKind == ProgramElement::kFunction_Kind) {
+                    const FunctionDefinition& f = (const FunctionDefinition&) **iter;
+                    if (!f.fDeclaration.fCallCount && f.fDeclaration.fName != "main") {
+                        iter = program.fElements.erase(iter);
+                        continue;
+                    }
+                }
+                ++iter;
             }
         }
         if (program.fKind != Program::kFragmentProcessor_Kind) {

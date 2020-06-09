@@ -12,7 +12,6 @@
 #include "src/gpu/text/GrTextBlob.h"
 
 class GrRecordingContext;
-class SkAtlasTextTarget;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -34,6 +33,8 @@ public:
         SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
+
+        void fillVertexData(void* dst, int offset, int count) const;
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext* context,
@@ -80,9 +81,6 @@ public:
     };
 
     MaskType maskType() const { return fMaskType; }
-
-    void finalizeForTextTarget(uint32_t color, const GrCaps&);
-    void executeForTextTarget(SkAtlasTextTarget*);
 
 private:
     friend class GrOpMemoryPool; // for ctor

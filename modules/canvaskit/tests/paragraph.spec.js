@@ -178,7 +178,7 @@ describe('Paragraph Behavior', function() {
             expect(rects.length).toEqual(test.expectedNum);
 
             for (const rect of rects) {
-                expect(rect.direction).toEqual(CanvasKit.TextDirection.LTR);
+                expect(rect.direction.value).toEqual(CanvasKit.TextDirection.LTR.value);
                 const p = new CanvasKit.SkPaint();
                 p.setColor(test.color);
                 p.setStyle(CanvasKit.PaintStyle.Stroke);

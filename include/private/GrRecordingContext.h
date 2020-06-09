@@ -75,8 +75,8 @@ protected:
         std::unique_ptr<SkArenaAlloc>   fRecordTimeAllocator;
     };
 
-    GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
-    bool init(sk_sp<const GrCaps>) override;
+    GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
+    bool init() override;
     void setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting);
 
     void abandonContext() override;

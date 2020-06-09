@@ -62,10 +62,6 @@ if [[ $@ == *cpu* ]]; then
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
 fi
 
-# Trim some skp-related code
-EXTRA_CFLAGS+=",\"-DSK_DISABLE_READBUFFER\""
-RELEASE_CONF+=" -DSK_DISABLE_READBUFFER"
-
 SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
              $BUILD_DIR/libsksg.a"
 
@@ -163,11 +159,11 @@ ${EMCXX} \
     $WASM_GPU \
     -std=c++17 \
     --bind \
+    --no-entry \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     --pre-js $BASE_DIR/postamble.js \
-    --post-js $BASE_DIR/ready.js \
     $BASE_DIR/skottiekit_bindings.cpp \
     modules/skresources/src/SkResources.cpp \
     $MANAGED_SKOTTIE_BINDINGS \
@@ -182,7 +178,7 @@ ${EMCXX} \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s TOTAL_MEMORY=128MB \
+    -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/skottiekit.js

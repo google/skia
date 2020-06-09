@@ -15,17 +15,9 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     D3D12_ROOT_PARAMETER parameters[3];
 
     // The first will always be our uniforms
-    D3D12_DESCRIPTOR_RANGE uniformRange{};
-    uniformRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-    uniformRange.NumDescriptors = 1;
-    uniformRange.BaseShaderRegister = 0;
-    // Spirv-Cross uses the descriptor set as the space in HSLS
-    uniformRange.RegisterSpace = GrSPIRVUniformHandler::kUniformDescriptorSet;
-    uniformRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-    parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    parameters[0].DescriptorTable.NumDescriptorRanges = 1;
-    parameters[0].DescriptorTable.pDescriptorRanges = &uniformRange;
+    parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    parameters[0].Descriptor.ShaderRegister = 0;
+    parameters[0].Descriptor.RegisterSpace = GrSPIRVUniformHandler::kUniformDescriptorSet;
     parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
     SkAutoTArray<D3D12_DESCRIPTOR_RANGE> samplerRanges(numTextureSamplers);

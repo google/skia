@@ -41,7 +41,7 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
         SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
     };
     const SkPoint pts[] = {{kShaderSize / 4, 0}, {3 * kShaderSize / 4, kShaderSize}};
-    const SkMatrix localMatrix = SkMatrix::MakeScale(shaderScale, shaderScale);
+    const SkMatrix localMatrix = SkMatrix::Scale(shaderScale, shaderScale);
 
     sk_sp<SkShader> grad = SkGradientShader::MakeLinear(pts, colors, nullptr,
                                                         SK_ARRAY_COUNT(colors),
@@ -51,8 +51,8 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
     return shaderScale == 1
         ? grad
         : sk_make_sp<SkLocalMatrixShader>(
-              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::MakeTrans(-10, 0)),
-              SkMatrix::MakeTrans(10, 0));
+              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::Translate(-10, 0)),
+              SkMatrix::Translate(10, 0));
 }
 
 static sk_sp<SkShader> make_shader2() {
@@ -384,7 +384,7 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
         }
     )";
     auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
-    SkMatrix scale = SkMatrix::MakeScale(2);
+    SkMatrix scale = SkMatrix::Scale(2, 2);
     sk_sp<SkShader> children[] = {
         GetResourceAsImage("images/mandrill_256.png")->makeShader(),
         GetResourceAsImage("images/color_wheel.png")->makeShader(scale),
@@ -544,7 +544,7 @@ static sk_sp<SkVertices> make_cone(Attr::Usage u, const char* markerName) {
     return builder.detach();
 }
 
-DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 300) {
+DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
     ToolUtils::draw_checkerboard(canvas);
 
     const char* kViewSpace = "local_to_view";
@@ -600,4 +600,29 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 300) {
     draw(150, 250, make_cone(Attr::Usage::kVector, kWorldSpace), vectorProg, 0.5f);
     draw(250, 250, make_cone(Attr::Usage::kNormalVector, kWorldSpace), vectorProg, 0.5f);
     draw(350, 250, make_cone(Attr::Usage::kPosition, kWorldSpace), vectorProg, 0.5f);
+
+    draw( 50, 350, make_cone(Attr::Usage::kVector, nullptr), vectorProg, 0.5f);
+    draw(150, 350, make_cone(Attr::Usage::kNormalVector, nullptr), vectorProg, 0.5f);
+
+    // For canvas-space positions, color them according to their position relative to the center.
+    // We do this test twice, with and without saveLayer. That ensures that we get the canvas CTM,
+    // not just a local-to-device matrix, which exposes effect authors to an implementation detail.
+
+    const char* ctmPositionProg250 = R"(
+        varying float3 vtx_pos;
+        void main(float2 p, inout half4 color) {
+            color.rgb = (half3(vtx_pos) - half3(250, 350, 0)) / 50 + 0.5;
+        }
+    )";
+    draw(250, 350, make_cone(Attr::Usage::kPosition, nullptr), ctmPositionProg250, 0.5f);
+
+    const char* ctmPositionProg350 = R"(
+        varying float3 vtx_pos;
+        void main(float2 p, inout half4 color) {
+            color.rgb = (half3(vtx_pos) - half3(350, 350, 0)) / 50 + 0.5;
+        }
+    )";
+    canvas->saveLayer({ 300, 300, 400, 400 }, nullptr);
+    draw(350, 350, make_cone(Attr::Usage::kPosition, nullptr), ctmPositionProg350, 0.5f);
+    canvas->restore();
 }

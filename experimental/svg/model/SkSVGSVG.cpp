@@ -14,7 +14,7 @@ SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }
 
 bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     auto viewPortRect  = ctx->lengthContext().resolveRect(fX, fY, fWidth, fHeight);
-    auto contentMatrix = SkMatrix::MakeTrans(viewPortRect.x(), viewPortRect.y());
+    auto contentMatrix = SkMatrix::Translate(viewPortRect.x(), viewPortRect.y());
     auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
 
     if (fViewBox.isValid()) {

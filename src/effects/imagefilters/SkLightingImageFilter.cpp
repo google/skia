@@ -19,7 +19,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -444,7 +443,6 @@ private:
     void drawRect(GrRenderTargetContext*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
-                  const GrClip& clip,
                   const SkRect& dstRect,
                   BoundaryMode boundaryMode,
                   const SkIRect* srcBounds,
@@ -461,7 +459,6 @@ private:
 void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTargetContext,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
-                                             const GrClip& clip,
                                              const SkRect& dstRect,
                                              BoundaryMode boundaryMode,
                                              const SkIRect* srcBounds,
@@ -472,8 +469,8 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
                                           *renderTargetContext->caps());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
-                                        srcRect);
+    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                        dstRect, srcRect);
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
@@ -499,9 +496,6 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     SkIRect dstIRect = SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height());
     SkRect dstRect = SkRect::Make(dstIRect);
 
-    // setup new clip
-    GrFixedClip clip(dstIRect);
-
     const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
     SkRect topLeft = SkRect::MakeXYWH(0, 0, 1, 1);
     SkRect top = SkRect::MakeXYWH(1, 0, dstRect.width() - 2, 1);
@@ -514,23 +508,23 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
 
     const SkIRect* pSrcBounds = inputBounds.contains(offsetBounds) ? nullptr : &inputBounds;
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, topLeft,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, topLeft,
                    kTopLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, top,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, top,
                    kTop_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, topRight,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, topRight,
                    kTopRight_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, left,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, left,
                    kLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, interior,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, interior,
                    kInterior_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, right,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, right,
                    kRight_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, bottomLeft,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, bottomLeft,
                    kBottomLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), inputView, matrix, clip, bottom,
+    this->drawRect(renderTargetContext.get(), inputView, matrix, bottom,
                    kBottom_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(renderTargetContext.get(), std::move(inputView), matrix, clip, bottomRight,
+    this->drawRect(renderTargetContext.get(), std::move(inputView), matrix, bottomRight,
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
     return SkSpecialImage::MakeDeferredFromGpu(

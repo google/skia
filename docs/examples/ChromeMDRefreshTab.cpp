@@ -62,7 +62,8 @@ SkPath GetBorderPath(float scale,
                SkPathDirection::kCCW, right, bottom - 1);
     path.close();
 
-    if (unscale_at_end && (scale != 1)) path.transform(SkMatrix::MakeScale(1.f / scale));
+    if (unscale_at_end && (scale != 1)) path.transform(SkMatrix::Scale(1.f / scale,
+                                                                       1.f / scale));
 
     return path;
 }
@@ -142,12 +143,12 @@ void draw(SkCanvas* canvas) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1);
     SkPath path = GetInteriorPath(1.f, SkISize::Make(250, 36), 16);
-    path.transform(SkMatrix::MakeTrans(0, 30));
+    path.transform(SkMatrix::Translate(0, 30));
     canvas->drawPath(path, p);
 
     p.setColor(SK_ColorBLUE);
     SkPath border_path = GetBorderPath(1.f, false, false, 16, SkISize::Make(250, 36));
-    border_path.transform(SkMatrix::MakeTrans(0, 30));
+    border_path.transform(SkMatrix::Translate(0, 30));
     canvas->drawPath(border_path, p);
 
     //  canvas->drawLine(20, 20, 100, 100, p);

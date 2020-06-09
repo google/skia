@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -97,8 +96,10 @@ public:
         GrCCPathProcessor pathProc(coverageMode, fSrcProxy->peekTexture(), swizzle,
                                    GrCCAtlas::kTextureOrigin);
 
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().writeSwizzle());
+        bool hasScissor = flushState->appliedClip() &&
+                          flushState->appliedClip()->scissorState().enabled();
+        GrPipeline pipeline(hasScissor ? GrScissorTest::kEnabled : GrScissorTest::kDisabled,
+                            SkBlendMode::kSrc, flushState->drawOpArgs().writeSwizzle());
 
         pathProc.drawPaths(flushState, pipeline, *fSrcProxy, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
@@ -541,7 +542,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 auto op = CopyAtlasOp::Make(
                         rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcProxy,
                         baseCopyInstance, endCopyInstance, atlas.drawBounds());
-                rtc->addDrawOp(GrNoClip(), std::move(op));
+                rtc->addDrawOp(nullptr, std::move(op));
             }
             baseCopyInstance = endCopyInstance;
         }
@@ -580,7 +581,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                         rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), atlas.drawBounds());
             }
-            rtc->addDrawOp(GrNoClip(), std::move(op));
+            rtc->addDrawOp(nullptr, std::move(op));
             if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
                 onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->asTextureProxy()),
                                                  GrSurfaceProxy::ResolveFlags::kMSAA);

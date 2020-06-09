@@ -454,7 +454,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           GrContext* context,
                                           int sampleCnt) {
-
+    // Dawn currently doesn't support writePixels to a texture-as-render-target.
+    // See http://skbug.com/10336.
+    if (GrBackendApi::kDawn == context->backend()) {
+        return;
+    }
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex;
         CreateBackendTexture(context, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,

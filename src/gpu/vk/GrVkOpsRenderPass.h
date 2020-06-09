@@ -84,9 +84,9 @@ private:
     void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                int drawCount) override;
 
-    void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
 
-    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
     void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
 

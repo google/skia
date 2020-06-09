@@ -236,15 +236,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fRectangleTextureSupport = true;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (ctxInfo.driver() == kChromium_GrGLDriver ||
-            ctxInfo.driver() == kSwiftShader_GrGLDriver) {
-            fRectangleTextureSupport = ctxInfo.hasExtension("GL_ARB_texture_rectangle");
-        } else {
-            // ANGLE will advertise the extension in ES2 contexts but actually using the texture in
-            // a shader requires ES3 shading language.
-            fRectangleTextureSupport = ctxInfo.hasExtension("GL_ANGLE_texture_rectangle") &&
-                                       ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
-        }
+        fRectangleTextureSupport = ctxInfo.hasExtension("GL_ARB_texture_rectangle") ||
+                                   ctxInfo.hasExtension("GL_ANGLE_texture_rectangle");
     } // no WebGL support
 
     // GrCaps defaults fClampToBorderSupport to true, so disable when unsupported
@@ -656,13 +649,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // Only in WebGL 2.0
         fSemaphoreSupport = fFenceSyncSupport = version >= GR_GL_VER(2, 0);
         fFenceType = FenceType::kSyncObject;
-    } else if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
+    } else if (GR_IS_GR_GL(standard) &&
+               (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync"))) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
-    } else if (GR_IS_GR_GL(standard) && version >= GR_GL_VER(3, 2)) {
-        fSemaphoreSupport = fFenceSyncSupport = true;
-        fFenceType = FenceType::kSyncObject;
-    } else if (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0)) {
+    } else if (GR_IS_GR_GL_ES(standard) &&
+               (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_APPLE_sync"))) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
     } else if (ctxInfo.hasExtension("GL_NV_fence")) {
@@ -894,17 +886,21 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
+    bool hasTessellationSupport = false;
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fTessellationSupport =
-                version >= GR_GL_VER(4,0) ||
-                ctxInfo.hasExtension("GL_ARB_tessellation_shader");
-    } else {
-        if (version >= GR_GL_VER(3,2)) {
-            shaderCaps->fTessellationSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
-            shaderCaps->fTessellationSupport = true;
-            shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
-        }
+        hasTessellationSupport = version >= GR_GL_VER(4,0) ||
+                                 ctxInfo.hasExtension("GL_ARB_tessellation_shader");
+    } else if (version >= GR_GL_VER(3,2)) {
+        hasTessellationSupport = true;
+    } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
+        hasTessellationSupport = true;
+        shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
+    }
+    if (hasTessellationSupport) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_TESS_GEN_LEVEL_OES,
+                          &shaderCaps->fMaxTessellationSegments);
+        // Just in case a driver returns a negative number?
+        shaderCaps->fMaxTessellationSegments = std::max(0, shaderCaps->fMaxTessellationSegments);
     }
 
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
@@ -3645,6 +3641,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // Tegra3 fract() seems to trigger undefined behavior for negative values, so we
         // must avoid this condition.
         shaderCaps->fCanUseFractForNegativeValues = false;
+
+        // Seeing crashes on Tegra3 with inlined functions that have early returns. Looks like the
+        // do { ... break; } while (false); construct is causing a crash in the driver.
+        shaderCaps->fCanUseDoLoops = false;
     }
 
     // On Intel GPU there is an issue where it reads the second argument to atan "- %s.x" as an int
@@ -3854,14 +3854,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             if (ctxInfo.version() >= GR_GL_VER(4,2)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
-                shaderCaps->fTessellationSupport = false;
+                shaderCaps->fMaxTessellationSegments = 0;
             }
         } else {
             // glMemoryBarrier wasn't around until es version 3.1.
             if (ctxInfo.version() >= GR_GL_VER(3,1)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
-                shaderCaps->fTessellationSupport = false;
+                shaderCaps->fMaxTessellationSegments = 0;
             }
         }
     }
@@ -3869,7 +3869,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kQualcomm_GrGLDriver == ctxInfo.driver()) {
         // Qualcomm fails to link programs with tessellation and does not give an error message.
         // http://skbug.com/9740
-        shaderCaps->fTessellationSupport = false;
+        shaderCaps->fMaxTessellationSegments = 0;
     }
 
 #ifdef SK_BUILD_FOR_WIN
@@ -4001,6 +4001,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         fMSFBOType = kNone_MSFBOType;
     }
+
+    // ANGLE doesn't support do-while loops
+    if (kANGLE_GrGLDriver == ctxInfo.driver()) {
+        shaderCaps->fCanUseDoLoops = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -4080,6 +4085,7 @@ size_t offset_alignment_for_transfer_buffer(GrGLenum externalType) {
         case GR_GL_UNSIGNED_INT:                    return sizeof(GrGLuint);
         case GR_GL_INT:                             return sizeof(GrGLint);
         case GR_GL_HALF_FLOAT:                      return sizeof(GrGLhalf);
+        case GR_GL_HALF_FLOAT_OES:                  return sizeof(GrGLhalf);
         case GR_GL_FLOAT:                           return sizeof(GrGLfloat);
         case GR_GL_UNSIGNED_SHORT_5_6_5:            return sizeof(GrGLushort);
         case GR_GL_UNSIGNED_SHORT_4_4_4_4:          return sizeof(GrGLushort);

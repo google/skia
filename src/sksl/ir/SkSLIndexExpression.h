@@ -33,14 +33,6 @@ static const Type& index_type(const Context& context, const Type& type) {
                 case 4: return *context.fHalf4_Type;
                 default: SkASSERT(false);
             }
-        } else {
-           SkASSERT(type.componentType() == *context.fDouble_Type);
-            switch (type.rows()) {
-                case 2: return *context.fDouble2_Type;
-                case 3: return *context.fDouble3_Type;
-                case 4: return *context.fDouble4_Type;
-                default: SkASSERT(false);
-            }
         }
     }
     return type.componentType();
@@ -60,6 +52,10 @@ struct IndexExpression : public Expression {
 
     bool hasProperty(Property property) const override {
         return fBase->hasProperty(property) || fIndex->hasProperty(property);
+    }
+
+    int nodeCount() const override {
+        return 1 + fBase->nodeCount() + fIndex->nodeCount();
     }
 
     std::unique_ptr<Expression> clone() const override {

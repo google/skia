@@ -13,6 +13,9 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 
+/**
+ *  DEPRECATED: No longer supported by Skia.
+ */
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
     ~SkLayerDrawLooper() override;

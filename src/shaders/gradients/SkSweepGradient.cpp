@@ -13,7 +13,7 @@
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
                                  const Descriptor& desc)
-    : SkGradientShaderBase(desc, SkMatrix::MakeTrans(-center.x(), -center.y()))
+    : SkGradientShaderBase(desc, SkMatrix::Translate(-center.x(), -center.y()))
     , fCenter(center)
     , fTBias(-t0)
     , fTScale(1 / (t1 - t0))
@@ -64,8 +64,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
 void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                            SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_unit_angle);
-    p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeScale(fTScale, 1),
-                                             SkMatrix::MakeTrans(fTBias , 0)));
+    p->append_matrix(alloc, SkMatrix::Scale(fTScale, 1) * SkMatrix::Translate(fTBias, 0));
 }
 
 skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,

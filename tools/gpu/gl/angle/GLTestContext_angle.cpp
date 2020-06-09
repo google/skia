@@ -25,6 +25,8 @@
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
 #define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE    0x320D
 
+#define EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE 0x3483
+
 using sk_gpu_test::ANGLEBackend;
 using sk_gpu_test::ANGLEContextVersion;
 
@@ -281,12 +283,20 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     }
 
     int versionNum = ANGLEContextVersion::kES2 == version ? 2 : 3;
-    const EGLint contextAttribs[] = {
+    std::vector<EGLint> contextAttribs = {
         EGL_CONTEXT_CLIENT_VERSION, versionNum,
-        EGL_NONE
     };
+
+    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+    if (strstr(extensions, "EGL_ANGLE_create_context_backwards_compatible")) {
+        contextAttribs.push_back(EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE);
+        contextAttribs.push_back(EGL_FALSE);
+    }
+
+    contextAttribs.push_back(EGL_NONE);
+
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
-    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
+    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs.data());
     if (EGL_NO_CONTEXT == fContext) {
         SkDebugf("Could not create context!");
         this->destroyGLContext();
@@ -337,7 +347,6 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     }
 #endif
-    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
     if (strstr(extensions, "EGL_KHR_image")) {
         fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
         fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");

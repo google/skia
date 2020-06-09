@@ -131,6 +131,8 @@ void GrDawnGpu::disconnect(DisconnectType type) {
             fDevice.Tick();
         }
     }
+    fQueue = nullptr;
+    fDevice = nullptr;
     INHERITED::disconnect(type);
 }
 

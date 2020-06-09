@@ -1,5 +1,7 @@
 // Adds compile-time JS functions to augment the CanvasKit interface.
-// Specifically, anything that should only be on the CPU version of canvaskit.
+// Implementations in this file are considerate of GPU builds, i.e. some
+// behavior is predicated on whether or not this is being compiled alongside
+// gpu.js.
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
@@ -7,6 +9,7 @@
     CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
         var canvas = idOrElement;
         if (canvas.tagName !== 'CANVAS') {
+          // TODO(nifong): unit test
           canvas = document.getElementById(idOrElement);
           if (!canvas) {
             throw 'Canvas with id ' + idOrElement + ' was not found';
@@ -26,6 +29,10 @@
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
     }
 
+    // Note that color spaces are currently not supported in CPU surfaces. due to the limitation
+    // canvas.getContext('2d').putImageData imposes a limitatin of using an RGBA_8888 color type.
+    // TODO(nifong): support WGC color spaces while still using an RGBA_8888 color type when
+    // on a cpu backend.
     CanvasKit.MakeSurface = function(width, height) {
       /* @dict */
       var imageInfo = {
@@ -35,6 +42,7 @@
         // Since we are sending these pixels directly into the HTML canvas,
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': CanvasKit.AlphaType.Unpremul,
+        'colorSpace': CanvasKit.SkColorSpace.SRGB,
       }
       var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
       // Allocate the buffer of pixels to be drawn into.
@@ -55,7 +63,9 @@
       return surface;
     };
 
-    CanvasKit.SkSurface.prototype.flush = function() {
+    // For GPU builds, simply proxies to native code flush.  For CPU builds,
+    // also updates the underlying HTML canvas, optionally with dirtyRect.
+    CanvasKit.SkSurface.prototype.flush = function(dirtyRect) {
       this._flush();
       // Do we have an HTML canvas to write the pixels to?
       // We will not if this a GPU build or a raster surface, for example.
@@ -63,7 +73,14 @@
         var pixels = new Uint8ClampedArray(CanvasKit.HEAPU8.buffer, this._pixelPtr, this._pixelLen);
         var imageData = new ImageData(pixels, this._width, this._height);
 
-        this._canvas.getContext('2d').putImageData(imageData, 0, 0);
+        if (!dirtyRect) {
+          this._canvas.getContext('2d').putImageData(imageData, 0, 0);
+        } else {
+          this._canvas.getContext('2d').putImageData(imageData, 0, 0,
+                                                     dirtyRect.fLeft, dirtyRect.fTop,
+                                                     dirtyRect.fRight - dirtyRect.fLeft,
+                                                     dirtyRect.fBottom - dirtyRect.fTop);
+        }
       }
     };
 

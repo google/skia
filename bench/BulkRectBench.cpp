@@ -12,7 +12,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/utils/SkRandom.h"
 
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
 
@@ -150,7 +149,7 @@ protected:
         SkSimpleMatrixProvider matrixProvider(view);
         GrPaint grPaint;
         SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
-        rtc->drawQuadSet(GrNoClip(), std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
+        rtc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
     }
 
     void drawSolidColorsRef(SkCanvas* canvas) const {

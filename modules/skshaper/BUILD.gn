@@ -16,7 +16,10 @@ if (skia_enable_skshaper) {
     if (is_component_build) {
       defines += [ "SKSHAPER_DLL" ]
     }
-    if (skia_use_icu) {
+    if (skia_use_fonthost_mac) {
+      defines += [ "SK_SHAPER_CORETEXT_AVAILABLE" ]
+    }
+    if (skia_use_icu && skia_use_harfbuzz) {
       defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
     }
   }
@@ -29,6 +32,9 @@ if (skia_enable_skshaper) {
     deps = [ "../..:skia" ]
     defines = [ "SKSHAPER_IMPLEMENTATION=1" ]
     sources = skia_shaper_primitive_sources
+    if (skia_use_fonthost_mac) {
+      sources += skia_shaper_coretext_sources
+    }
     if (skia_use_icu && skia_use_harfbuzz) {
       sources += skia_shaper_harfbuzz_sources
       deps += [
@@ -36,7 +42,10 @@ if (skia_enable_skshaper) {
         "//third_party/icu",
       ]
     }
-    configs += [ "../../:skia_private" ]
+    configs += [
+      "../../:skia_private",
+      "../../third_party/icu/config:no_cxx",
+    ]
   }
 } else {
   group("skshaper") {

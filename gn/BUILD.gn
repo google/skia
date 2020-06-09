@@ -97,9 +97,6 @@ config("default") {
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     cflags_cc += [ "/std:c++17" ]
-    if (is_clang) {
-      cflags += [ "-fms-compatibility-version=19" ]  # 2015
-    }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
@@ -424,11 +421,16 @@ config("warnings") {
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
       "-Wno-thread-safety-negative",
+      "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
     ]
+
+    # Turn back on after -Wno-conversion.
+    # This only affects public headers... see :warnings_except_public_headers.
+    cflags += [ "-Wsign-conversion" ]
 
     # We are unlikely to want to fix these.
     cflags += [
@@ -483,7 +485,10 @@ config("warnings") {
 }
 config("warnings_except_public_headers") {
   if (!is_win || is_clang) {
-    cflags = [ "-Wno-unused-parameter" ]
+    cflags = [
+      "-Wno-sign-conversion",
+      "-Wno-unused-parameter",
+    ]
   }
 }
 
