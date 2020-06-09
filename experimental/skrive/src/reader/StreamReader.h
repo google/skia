@@ -10,6 +10,8 @@
 
 #include <memory>
 
+#include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 
 class SkStreamAsset;
@@ -43,8 +45,15 @@ public:
     virtual float    readFloat (const char label[]) = 0;
     virtual SkString readString(const char label[]) = 0;
 
+    SkColor4f readColor(const char label[]);
+    SkV2      readV2(const char label[]);
+
     class AutoBlock final {
     public:
+        explicit AutoBlock(StreamReader* reader)
+            : fReader(reader)
+            , fType(reader->openBlock()) {}
+
         explicit AutoBlock(const std::unique_ptr<StreamReader>& reader)
             : fReader(reader.get())
             , fType(reader->openBlock()) {}
@@ -61,6 +70,9 @@ public:
         StreamReader* fReader;
         BlockType     fType;
     };
+
+protected:
+    virtual size_t readFloatArray(const char label[], float dst[], size_t count) = 0;
 };
 
 }
