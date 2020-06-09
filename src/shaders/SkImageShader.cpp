@@ -102,6 +102,9 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
+    if (rec.fPaint->getFilterQuality() == kHigh_SkFilterQuality) {
+        return nullptr;
+    }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
