@@ -45,6 +45,8 @@ public:
 
     virtual GrRecordingContext* getContext() = 0;
 
+    virtual GrRenderTargetContext* renderTargetContext() = 0;
+
     virtual SkGlyphRunListPainter* glyphPainter() = 0;
 
 protected:

@@ -16,6 +16,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
@@ -67,14 +68,14 @@ void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) c
                                fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRenderTargetContext* rtc,
                                                          GrPaint&& paint,
                                                          GrTextBlob::SubRun* subrun,
                                                          const SkMatrix& drawMatrix,
                                                          SkPoint drawOrigin,
                                                          const SkIRect& clipRect,
                                                          const SkPMColor4f& filteredColor) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
 
     MaskType maskType = [&]() {
         switch (subrun->maskFormat()) {
@@ -99,17 +100,17 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* con
 }
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-                                            GrRecordingContext* context,
-                                            GrPaint&& paint,
-                                            GrTextBlob::SubRun* subrun,
-                                            const SkMatrix& drawMatrix,
-                                            SkPoint drawOrigin,
-                                            const SkIRect& clipRect,
-                                            const SkPMColor4f& filteredColor,
-                                            bool useGammaCorrectDistanceTable,
-                                            SkColor luminanceColor,
-                                            const SkSurfaceProps& props) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+        GrRenderTargetContext* rtc,
+        GrPaint&& paint,
+        GrTextBlob::SubRun* subrun,
+        const SkMatrix& drawMatrix,
+        SkPoint drawOrigin,
+        const SkIRect& clipRect,
+        const SkPMColor4f& filteredColor,
+        bool useGammaCorrectDistanceTable,
+        SkColor luminanceColor,
+        const SkSurfaceProps& props) {
+    GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
     bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
     bool isLCD = subrun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
     MaskType maskType = !subrun->isAntiAliased() ? kAliasedDistanceField_MaskType

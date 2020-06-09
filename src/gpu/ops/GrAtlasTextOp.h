@@ -37,7 +37,7 @@ public:
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext* context,
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext* rtc,
                                                      GrPaint&& paint,
                                                      GrTextBlob::SubRun* subrun,
                                                      const SkMatrix& drawMatrix,
@@ -46,7 +46,7 @@ public:
                                                      const SkPMColor4f& filteredColor);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrRecordingContext*,
+            GrRenderTargetContext*,
             GrPaint&&,
             GrTextBlob::SubRun*,
             const SkMatrix& drawMatrix,
