@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dbd41f1b_6a06cdcc",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T15:57:43Z",
+      "side": 1,
+      "message": "I can try that, but as mentioned in the comment below there are some issues with that because it appears that heaps can be unbound by changing the root signature.",
+      "parentUuid": "55ef2adc_f08d8677",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d864d6f_ceb98a81",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-05T20:44:09Z",
       "side": 1,
       "message": "If I\u0027m reading the spec right, then number of dst ranges (1 here) needs to match the number of src ranges (fNumSamplers here). Seems like you\u0027ll need to make a one off range for each step in the dst even though they are contiguous. I wonder if it makes it cleaner at all do do this copy in the code above instead of building up the arrays?",
+      "range": {
+        "startLine": 145,
+        "startChar": 6,
+        "endLine": 147,
+        "endChar": 54
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98b8c344_f134d95e",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T15:57:43Z",
+      "side": 1,
+      "message": "It says the number of descriptors, not number of ranges. The number of descriptors in both cases adds up to fNumSamplers. The validator is not having any issues with it.\n\n\"The number of source descriptors (to copy from), specified as a set of descriptor ranges, must equal the number of destination descriptors (to copy to), specified as a separate set of descriptor ranges. The source and destination ranges do not otherwise have to line up. For example, a sparse set of descriptors could be copied to a contiguous destination, vice versa, or in some combination.\"",
+      "parentUuid": "0d864d6f_ceb98a81",
       "range": {
         "startLine": 145,
         "startChar": 6,
@@ -82,6 +130,30 @@
       "writtenOn": "2020-06-05T20:44:09Z",
       "side": 1,
       "message": "why whould we unbind heaps just cause one draw doesn\u0027t use them? The next draw might want them bound and each time we bind may do a big flush of the gpu. Should just leave them bound.\n\nI guess this is part of my mindset when I was suggesting that the resource provider just returns heaps since those really are the resources here (tables just really being offsets and lengths into the heap).\nSo something (some GrD3DHeapManager or GrD3DGpu) has a function to return a table. In that function it tries to allocate a table from its current heap. If it cannot fit in current heap or it doesn\u0027t have a heap yet, then it gets one from the resource provider. When it gets the new heap it binds it to the command list at that moment and the command list refs the heap resource. When the command list is done it recycles the heap back to the GrResourceProvider (which possibly throws it away like you have in there).\n\nLong story short, I don\u0027t think any individual draw call should ever worry about binding heaps and the Manager or Gpu should know what its currently bound heap is and be responsible for allocating tables from it (via allocate calls on heap which you already have).",
+      "range": {
+        "startLine": 161,
+        "startChar": 5,
+        "endLine": 163,
+        "endChar": 5
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5176722_a4144c21",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T15:57:43Z",
+      "side": 1,
+      "message": "Because it appears that when the root signature has no descriptor tables, it unbinds the heaps for you. I did leave the heaps bound, or rather, didn\u0027t change the binding, and when I tried to use them on a call after a root signature is set with 0 samplers, the validation layer informed me I had no heaps bound. I\u0027ll take another try at it, but it appears to be the case.",
+      "parentUuid": "e5306c6e_4355a8b8",
       "range": {
         "startLine": 161,
         "startChar": 5,
