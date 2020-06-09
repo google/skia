@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cfff924_b8cabc68",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T17:18:52Z",
+      "side": 1,
+      "message": "we traditionally put these on the line above.",
+      "range": {
+        "startLine": 501,
+        "startChar": 18,
+        "endLine": 501,
+        "endChar": 20
+      },
+      "revId": "2ea23ca828891d26fa91693e4bc70b1697c4c333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8163c5b_18fe72dc",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T17:18:52Z",
+      "side": 1,
+      "message": "Isn\u0027t this now the only place this is called? What about making it be \u0027canReuse\u0027 ?",
+      "range": {
+        "startLine": 532,
+        "startChar": 22,
+        "endLine": 532,
+        "endChar": 36
+      },
+      "revId": "2ea23ca828891d26fa91693e4bc70b1697c4c333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5581ad61_ff82b987",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T17:18:52Z",
+      "side": 1,
+      "message": "I\u0027m not really feeling the love for this construct. If we rename mustRegenerate, wdyt about just having the call blobbed into the following if test?",
+      "range": {
+        "startLine": 531,
+        "startChar": 0,
+        "endLine": 534,
+        "endChar": 6
+      },
+      "revId": "2ea23ca828891d26fa91693e4bc70b1697c4c333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
