@@ -102,3 +102,11 @@ void SkPaintPriv::RemoveColorFilter(SkPaint* p, SkColorSpace* dstCS) {
         p->setColorFilter(nullptr);
     }
 }
+
+SkFilterQuality SkPaintPriv::ResolveFilterQuality(const SkPaint& paint) {
+    SkFilterQuality quality = paint.getFilterQuality();
+    if (SkShader* shader = paint.getShader()) {
+        quality = as_SB(shader)->resolveFilterQuality(quality);
+    }
+    return quality;
+}
