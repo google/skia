@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "69cb1200_b3622479",
+        "filename": "modules/skparagraph/src/Run.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-09T19:51:14Z",
+      "side": 1,
+      "message": "tiny nit: we usually write\n\nthis-\u003ecalculateMetrics();\n\nno big deal.",
+      "range": {
+        "startLine": 285,
+        "startChar": 4,
+        "endLine": 285,
+        "endChar": 20
+      },
+      "revId": "a33fb8fb60a9a2e0a2e1765c40f62a5deb4994af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e02a310_b5e57d21",
         "filename": "modules/skparagraph/src/TextWrapper.h",
         "patchSetId": 1
