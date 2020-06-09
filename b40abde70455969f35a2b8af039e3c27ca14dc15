@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27096925_fa766bbe",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T13:43:05Z",
+      "side": 1,
+      "message": "nit: tab this over under the \u0027:\u0027",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81d7c2e3_9de369ec",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T13:43:05Z",
+      "side": 1,
+      "message": "can we somehow mark this code with something so we can revisit if it is needed after wrapBETexAsRT is gone?",
+      "range": {
+        "startLine": 533,
+        "startChar": 7,
+        "endLine": 533,
+        "endChar": 40
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b788b24f_1f5e930c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T13:43:05Z",
+      "side": 1,
+      "message": "could this cause double resolve/mipmap regen? I forget exactly how this all works but could a ddlTarget proxy and a normal proxy both point to the same underlying surface? Or will the proxies that point to ddlTargets all be uninstantiated so nothing actually happens? If this is the case can we put some assert here like: SkASSERT(!isDDLTarget(proxies[i]) || !proxies[i]-\u003eisInstantiated());",
+      "range": {
+        "startLine": 603,
+        "startChar": 2,
+        "endLine": 607,
+        "endChar": 37
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
