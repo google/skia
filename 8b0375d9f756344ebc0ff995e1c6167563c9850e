@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "7484e317_045ee175",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2020-06-09T21:08:07Z",
+      "side": 1,
+      "message": "Ack. Thanks for explanation. It would be great to mention all skimage and surface will be aware of the change as well.",
+      "parentUuid": "7f920feb_9785aa64",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
