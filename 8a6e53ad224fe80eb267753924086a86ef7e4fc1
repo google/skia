@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "130d9809_d4033f0d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-09T20:05:41Z",
+      "side": 1,
+      "message": "This cap is fine. What it is that we can *query* sample locations for use in the shader.",
+      "range": {
+        "startLine": 522,
+        "startChar": 8,
+        "endLine": 522,
+        "endChar": 31
+      },
+      "revId": "8a6e53ad224fe80eb267753924086a86ef7e4fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8c8d084_bd9a29e9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-09T20:05:41Z",
+      "side": 1,
+      "message": "This is the flag we want to disable. \"Sample locations\" hilariously means something else in Ganesh than it does in Vulkan.",
+      "range": {
+        "startLine": 528,
+        "startChar": 8,
+        "endLine": 528,
+        "endChar": 34
+      },
+      "revId": "8a6e53ad224fe80eb267753924086a86ef7e4fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
