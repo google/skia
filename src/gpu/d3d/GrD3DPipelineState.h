@@ -117,7 +117,7 @@ private:
 
     GrD3DPipelineStateDataManager fDataManager;
 
-    int fNumSamplers;
+    unsigned int fNumSamplers;
     size_t fVertexStride;
     size_t fInstanceStride;
 };

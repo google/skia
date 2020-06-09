@@ -15,6 +15,7 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DCpuDescriptorManager.h"
+#include "src/gpu/d3d/GrD3DDescriptorTableManager.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -49,6 +50,13 @@ public:
     void recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE*);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
+
+
+    std::unique_ptr<GrD3DDescriptorTable> createShaderOrConstantResourceTable(unsigned int size);
+    std::unique_ptr<GrD3DDescriptorTable> createSamplerTable(unsigned int size);
+    GrD3DDescriptorTableManager* descriptorTableMgr() {
+        return &fDescriptorTableManager;
+    }
 
     sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                                  const GrProgramInfo&);
@@ -94,6 +102,7 @@ private:
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 
     GrD3DCpuDescriptorManager fCpuDescriptorManager;
+    GrD3DDescriptorTableManager fDescriptorTableManager;
 
     sk_sp<GrD3DConstantRingBuffer> fConstantBuffer;
 

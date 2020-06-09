@@ -201,7 +201,9 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
     , fCurrentIndexBuffer(nullptr)
-    , fCurrentConstantRingBuffer(nullptr) {
+    , fCurrentConstantRingBuffer(nullptr)
+    , fCurrentSRVCRVDescriptorHeap(nullptr)
+    , fCurrentSamplerDescriptorHeap(nullptr) {
 }
 
 void GrD3DDirectCommandList::onReset() {
@@ -215,6 +217,8 @@ void GrD3DDirectCommandList::onReset() {
         fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
         fCurrentConstantRingBuffer = nullptr;
     }
+    fCurrentSRVCRVDescriptorHeap = nullptr;
+    fCurrentSamplerDescriptorHeap = nullptr;
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
@@ -351,6 +355,29 @@ void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
         unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
     fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
 }
+
+void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
+        unsigned int rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
+    fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
+}
+
+void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrvHeapResource,
+                                                ID3D12DescriptorHeap* srvCrvDescriptorHeap,
+                                                sk_sp<GrRecycledResource> samplerHeapResource,
+                                                ID3D12DescriptorHeap* samplerDescriptorHeap) {
+    if (srvCrvDescriptorHeap != fCurrentSRVCRVDescriptorHeap ||
+        samplerDescriptorHeap != fCurrentSamplerDescriptorHeap) {
+        ID3D12DescriptorHeap* heaps[2] = {
+            srvCrvDescriptorHeap,
+            samplerDescriptorHeap
+        };
+
+        fCommandList->SetDescriptorHeaps(2, heaps);
+        this->addRecycledResource(std::move(srvCrvHeapResource));
+        this->addRecycledResource(std::move(samplerHeapResource));
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
