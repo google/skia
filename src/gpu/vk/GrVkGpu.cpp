@@ -1778,6 +1778,51 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
     return beTex;
 }
 
+bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
+                                     sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
+                                     SkISize dimensions,
+                                     const GrVkSharedImageInfo& newInfo) {
+    sk_sp<GrVkTexture> texture = GrVkTexture::MakeWrappedTexture(
+            this, dimensions, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType, info,
+            std::move(currentState));
+    SkASSERT(texture);
+    if (!texture) {
+        return false;
+    }
+    // Even though internally we use this helper for getting src access flags and stages they
+    // can also be used for general dst flags since we don't know exactly what the client
+    // plans on using the image for.
+    VkImageLayout newLayout = newInfo.getImageLayout();
+    VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
+    VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
+    texture->setImageLayoutAndQueueIndex(this, newLayout, dstAccess, dstStage, false,
+                                         newInfo.getQueueFamilyIndex());
+    return true;
+}
+
+bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
+                                     const GrBackendSurfaceMutableState& newState,
+                                     sk_sp<GrRefCntedCallback> finishedCallback) {
+    GrVkImageInfo info;
+    SkAssertResult(backendTeture.getVkImageInfo(&info));
+    sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendTeture.getMutableState();
+    SkASSERT(currentState);
+    SkASSERT(newState.fBackend == GrBackend::kVulkan);
+    return this->setBackendSurfaceState(info, std::move(currentState), backendTeture.dimensions(),
+                                        newState.fVkState);
+}
+
+bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
+                                          const GrBackendSurfaceMutableState& newState,
+                                         sk_sp<GrRefCntedCallback> finishedCallback) {
+    GrVkImageInfo info;
+    SkAssertResult(backendRenderTarget.getVkImageInfo(&info));
+    sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendRenderTarget.getMutableState();
+    SkASSERT(currentState);
+    SkASSERT(newState.fBackend == GrBackend::kVulkan);
+    return this->setBackendSurfaceState(info, std::move(currentState),
+                                        backendRenderTarget.dimensions(), newState.fVkState);
+}
 
 void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
                                    SkTArray<SkPoint>* sampleLocations) {
@@ -1944,7 +1989,9 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
 }
 
 void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+        GrSurfaceProxy* proxies[],
+        int numProxies,
+        SkSurface::BackendSurfaceAccess access,
         const GrPrepareForExternalIORequests& externalRequests) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
