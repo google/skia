@@ -202,7 +202,8 @@ function almostEqual(floata, floatb) {
 var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 
 // arr can be a normal JS array or a TypedArray
-// dest is a string like "HEAPU32" that specifies the type that the src array is.
+// dest is a string like "HEAPU32" that specifies the type the src array
+// should be copied into.
 // ptr can be optionally provided if the memory was already allocated.
 function copy1dArray(arr, dest, ptr) {
   if (!arr || !arr.length) {
