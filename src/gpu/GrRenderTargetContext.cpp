@@ -2520,15 +2520,17 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     GrProcessorSet::Analysis analysis = op->finalize(
             *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
 
+    // Must be called before setDstProxyView so that it sees the final bounds of the op.
+    op->setClippedBounds(bounds);
+
     GrXferProcessor::DstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxyView(clip, *op, &dstProxyView)) {
+        if (!this->setupDstProxyView(*op, &dstProxyView)) {
             fContext->priv().opMemoryPool()->release(std::move(op));
             return;
         }
     }
 
-    op->setClippedBounds(bounds);
     auto opsTask = this->getOpsTask();
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
@@ -2537,7 +2539,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
                        dstProxyView,GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
-bool GrRenderTargetContext::setupDstProxyView(const GrClip* clip, const GrOp& op,
+bool GrRenderTargetContext::setupDstProxyView(const GrOp& op,
                                               GrXferProcessor::DstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
@@ -2557,37 +2559,20 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip* clip, const GrOp& op
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
-
-    SkIRect clippedRect = get_clip_bounds(this, clip);
-    SkRect opBounds = op.bounds();
-    // If the op has aa bloating or is a infinitely thin geometry (hairline) outset the bounds by
-    // 0.5 pixels.
-    if (op.hasAABloat() || op.hasZeroArea()) {
-        opBounds.outset(0.5f, 0.5f);
-        // An antialiased/hairline draw can sometimes bleed outside of the clips bounds. For
-        // performance we may ignore the clip when the draw is entirely inside the clip is float
-        // space but will hit pixels just outside the clip when actually rasterizing.
-        clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeSize(this->asSurfaceProxy()->dimensions()));
-    }
-    SkIRect opIBounds;
-    opBounds.roundOut(&opIBounds);
-    if (!clippedRect.intersect(opIBounds)) {
-#ifdef SK_DEBUG
-        GrCapsDebugf(this->caps(), "setupDstTexture: Missed an early reject bailing on draw.");
-#endif
-        return false;
-    }
-
     GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
             this->asRenderTargetProxy(), colorType);
 
+    SkIRect copyRect = SkIRect::MakeSize(this->asSurfaceProxy()->backingStoreDimensions());
     if (!restrictions.fMustCopyWholeSrc) {
-        copyRect = clippedRect;
+        // If we don't need the whole source, restrict to the op's bounds. We add an extra pixel
+        // of padding to account for AA bloat and the unpredictable rounding of coords near pixel
+        // centers during rasterization.
+        SkIRect conservativeDrawBounds = op.bounds().roundOut();
+        conservativeDrawBounds.outset(1, 1);
+        SkAssertResult(copyRect.intersect(conservativeDrawBounds));
     }
 
     SkIPoint dstOffset;
