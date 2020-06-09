@@ -21,7 +21,8 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
                                                                  bytes->size()),
                                                     settings);
     SkSL::PipelineStageArgs args;
-    if (!program || !compiler.toPipelineStage(*program, &args)) {
+    std::vector<SkSL::SampleMatrix> matrices;
+    if (!program || !compiler.toPipelineStage(*program, &args, &matrices)) {
         return false;
     }
     return true;
