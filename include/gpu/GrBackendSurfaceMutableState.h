@@ -51,6 +51,7 @@ public:
 
 private:
     friend class GrBackendSurfaceMutableStateImpl;
+    friend class GrVkGpu;
 
     union {
         char fDummy;
