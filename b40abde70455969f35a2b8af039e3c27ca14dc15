@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "abe2633e_b9c69d40",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T16:42:10Z",
+      "side": 1,
+      "message": "Done - first part.\n\nPTAL at the isTextureable change re the question.",
+      "parentUuid": "1e2a327d_16343528",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 5
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81d7c2e3_9de369ec",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 10
