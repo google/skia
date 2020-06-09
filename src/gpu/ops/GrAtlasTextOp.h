@@ -12,7 +12,6 @@
 #include "src/gpu/text/GrTextBlob.h"
 
 class GrRecordingContext;
-class SkAtlasTextTarget;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -82,9 +81,6 @@ public:
     };
 
     MaskType maskType() const { return fMaskType; }
-
-    void finalizeForTextTarget(uint32_t color, const GrCaps&);
-    void executeForTextTarget(SkAtlasTextTarget*);
 
 private:
     friend class GrOpMemoryPool; // for ctor
