@@ -133,7 +133,7 @@ private:
     SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
-    SkTHashMap<SkFlattenable::Factory, uint32_t> fFlattenableDict;
+    SkTHashMap<const char*, uint32_t> fFlattenableDict;
 };
 
 #endif // SkWriteBuffer_DEFINED

@@ -219,32 +219,29 @@ void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
      *      already written the string, we write its index instead.
      */
 
-    SkFlattenable::Factory factory = flattenable->getFactory();
-    SkASSERT(factory);
 
     if (fFactorySet) {
+        SkFlattenable::Factory factory = flattenable->getFactory();
+        SkASSERT(factory);
+
         this->write32(fFactorySet->add(factory));
     } else {
+        const char* name = flattenable->getTypeName();
+        SkASSERT(name);
+        SkASSERT(0 != strcmp("", name));
 
-        if (uint32_t* indexPtr = fFlattenableDict.find(factory)) {
+        if (uint32_t* indexPtr = fFlattenableDict.find(name)) {
             // We will write the index as a 32-bit int.  We want the first byte
             // that we send to be zero - this will act as a sentinel that we
             // have an index (not a string).  This means that we will send the
             // the index shifted left by 8.  The remaining 24-bits should be
             // plenty to store the index.  Note that this strategy depends on
-            // being little endian.
+            // being little endian, and type names being non-empty.
             SkASSERT(0 == *indexPtr >> 24);
             this->write32(*indexPtr << 8);
         } else {
-            const char* name = flattenable->getTypeName();
-            SkASSERT(name);
-            // Otherwise write the string.  Clients should not use the empty
-            // string as a name, or we will have a problem.
-            SkASSERT(0 != strcmp("", name));
             this->writeString(name);
-
-            // Add key to dictionary.
-            fFlattenableDict.set(factory, fFlattenableDict.count() + 1);
+            fFlattenableDict.set(name, fFlattenableDict.count() + 1);
         }
     }
 
