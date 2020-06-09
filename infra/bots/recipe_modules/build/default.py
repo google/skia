@@ -188,9 +188,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   if 'Exceptions' in extra_tokens:
     extra_cflags.append('/EHsc')
-  if 'Fast' in extra_tokens:
-    extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
-                         '-ffp-contract=off'])
 
   if len(extra_tokens) == 1 and extra_tokens[0].startswith('SK'):
     extra_cflags.append('-D' + extra_tokens[0])
