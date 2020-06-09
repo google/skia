@@ -43,6 +43,7 @@ samples_sources = [
   "$_samplecode/SampleFillType.cpp",
   "$_samplecode/SampleFilter2.cpp",
   "$_samplecode/SampleFilterQuality.cpp",
+  "$_samplecode/SampleFitCubicToCircle.cpp",
   "$_samplecode/SampleFlutterAnimate.cpp",
   "$_samplecode/SampleGlyphTransform.cpp",
   "$_samplecode/SampleGradients.cpp",
