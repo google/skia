@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a93d4fff_1e35779d",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Are we only interested in the cold-cache data?",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa0352d6_d77235b3",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Nit: \"iterations\" maybe?  Also, it seems like this should be a flag.",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 14
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc04845a_35692e12",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "nit",
+      "range": {
+        "startLine": 87,
+        "startChar": 1,
+        "endLine": 87,
+        "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f179bd62_9eee06c2",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Is it feasible to import this directly from perf code, or would doing so glob in a ton of dependencies?",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 28
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce7940cd_59cfe57d",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Any chance you\u0027re interested in experimenting with uploading the results directly to GCS, rather than using a separate upload task?  It\u0027d give us a good example when it\u0027s time to do that with the normal test/perf tasks.",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 295,
+        "endChar": 2
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "030f5443_c5fe893f",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Nit: can we make this a step?",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 50
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "852e05cd_a0384b8a",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "I\u0027m somewhat surprised that we don\u0027t have a built-in for this.  We may not need to worry about it for this use case, but floating point arithmetic can be surprisingly subtle, especially when len(d) is large, or values in d are large or widely varying.  If you think it might be a concern, some easy tricks would be to sort d into ascending order before summing, or just use a double for the accumulator.  This would also apply above.",
+      "range": {
+        "startLine": 366,
+        "startChar": 5,
+        "endLine": 366,
+        "endChar": 19
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa610897_93f48b99",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps_test.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T12:04:30Z",
+      "side": 1,
+      "message": "Nit: remove the temp dir, here and below",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
