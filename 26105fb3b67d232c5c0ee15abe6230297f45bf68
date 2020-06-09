@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b3490104_4eaef28f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-06-09T08:16:09Z",
+      "side": 1,
+      "message": "Yes, currently is old SSSE3-\u003eAVX-512.",
+      "parentUuid": "47aa5d69_8376f2d6",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95eed7dd_dc6c6cae",
         "filename": "src/opts/SkSwizzler_opts.h",
         "patchSetId": 4
