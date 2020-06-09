@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89359d5d_0bc2a7e1",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-09T20:35:08Z",
+      "side": 1,
+      "message": "Don\u0027t need this now either?",
+      "revId": "1b38d7d2c47beb2c55a3f9483661e2bf1c4a2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
