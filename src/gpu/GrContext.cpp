@@ -785,6 +785,48 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
                                                 finishedContext);
 }
 
+bool GrContext::setBackendTextureState(const GrBackendTexture& backendTexture,
+                                       const GrBackendSurfaceMutableState& state,
+                                       GrGpuFinishedProc finishedProc,
+                                       GrGpuFinishedContext finishedContext) {
+    if (!this->asDirectContext()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    if (this->abandoned()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+    return fGpu->setBackendTextureState(backendTexture, state, std::move(callback));
+}
+
+bool GrContext::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
+                                            const GrBackendSurfaceMutableState& state,
+                                            GrGpuFinishedProc finishedProc,
+                                            GrGpuFinishedContext finishedContext) {
+    if (!this->asDirectContext()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    if (this->abandoned()) {
+        finishedProc(finishedContext);
+        return false;
+    }
+
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+    return fGpu->setBackendRenderTargetState(backendRenderTarget, state, std::move(callback));
+}
+
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     // For the Vulkan backend we still must destroy the backend texture when the context is
@@ -795,6 +837,8 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
 
     fGpu->deleteBackendTexture(backendTex);
 }
+
+//////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::precompileShader(const SkData& key, const SkData& data) {
     return fGpu->precompileShader(key, data);

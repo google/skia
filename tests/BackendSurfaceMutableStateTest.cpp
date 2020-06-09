@@ -9,13 +9,14 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 
 #ifdef SK_VULKAN
-
+#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkTexture.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxInfo) {
@@ -101,6 +102,41 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     REPORTER_ASSERT(reporter, backendTexImage.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
     REPORTER_ASSERT(reporter, initQueue == info.fCurrentQueueFamily);
+
+    // Test using the setBackendTextureStateAPI. Unlike the previous test this will actually add
+    // real transitions to the image so we need to be careful about doing actual valid transitions.
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+
+    context->setBackendTextureState(backendTex, newState);
+
+    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
+    REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
+
+    // To test queue transitions, we don't have any other valid queue available so instead we try
+    // to transition to external queue.
+    if (gpu->vkCaps().supportsExternalMemory()) {
+        GrBackendSurfaceMutableState externalState(VK_IMAGE_LAYOUT_GENERAL,
+                                                   VK_QUEUE_FAMILY_EXTERNAL);
+
+        context->setBackendTextureState(backendTex, externalState);
+
+        REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+        REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
+        REPORTER_ASSERT(reporter, VK_QUEUE_FAMILY_EXTERNAL == info.fCurrentQueueFamily);
+
+        context->submit();
+
+        GrBackendSurfaceMutableState externalState2(VK_IMAGE_LAYOUT_GENERAL, initQueue);
+        context->setBackendTextureState(backendTex, externalState2);
+
+        REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+        REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
+        REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
+    }
+
+    // We must submit this work before we try to delete the backend texture.
+    context->submit(true);
 
     context->deleteBackendTexture(backendTex);
 }
