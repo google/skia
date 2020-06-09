@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "c54bde5f_3e4c1bf1",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-06-09T08:27:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95eed7dd_dc6c6cae",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e948103c_36faeac7",
         "filename": "src/opts/SkSwizzler_opts.h",
         "patchSetId": 4
@@ -65,6 +83,30 @@
       "writtenOn": "2020-06-08T12:51:21Z",
       "side": 1,
       "message": "The AVX2 change found that AVX2 was no additional benefit over SSSE3 here.  Has that changed?",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 639,
+        "endChar": 1
+      },
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1818a626_4f104d8c",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-06-09T08:27:40Z",
+      "side": 1,
+      "message": "Currently no change. So for RGB_to_RGB1 / RGB_to_BGR1, it will fall back to SSSE3 version. And for gray_to_RGB1, it will fall back to AVX2 version.",
+      "parentUuid": "e948103c_36faeac7",
       "range": {
         "startLine": 591,
         "startChar": 0,
@@ -91,6 +133,24 @@
       "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5527bae3_22ce1f30",
+        "filename": "src/opts/SkSwizzler_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-06-09T08:27:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "faf6928e_2fa264ba",
+      "revId": "26105fb3b67d232c5c0ee15abe6230297f45bf68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
