@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7bab1aee_63e9a775",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T17:12:58Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "dbd41f1b_6a06cdcc",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d864d6f_ceb98a81",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 10
@@ -154,6 +178,30 @@
       "side": 1,
       "message": "Because it appears that when the root signature has no descriptor tables, it unbinds the heaps for you. I did leave the heaps bound, or rather, didn\u0027t change the binding, and when I tried to use them on a call after a root signature is set with 0 samplers, the validation layer informed me I had no heaps bound. I\u0027ll take another try at it, but it appears to be the case.",
       "parentUuid": "e5306c6e_4355a8b8",
+      "range": {
+        "startLine": 161,
+        "startChar": 5,
+        "endLine": 163,
+        "endChar": 5
+      },
+      "revId": "11f3c2dd6c9a9a157bf8ba266de88595d7b91c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3c76422_e8a3c10d",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T17:12:58Z",
+      "side": 1,
+      "message": "I stand corrected -- it must have been a bug in the previous code.",
+      "parentUuid": "a5176722_a4144c21",
       "range": {
         "startLine": 161,
         "startChar": 5,
