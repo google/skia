@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "11f9407f_c68acbf1",
+        "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:51:40Z",
+      "side": 1,
+      "message": "Ah that makes sense about Heap. SGTM.",
+      "parentUuid": "089a86ec_22866aa5",
+      "range": {
+        "startLine": 101,
+        "startChar": 29,
+        "endLine": 101,
+        "endChar": 49
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08b2021f_23d8bca2",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 11
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "There seems to be a bug in SkDeque where if you use it both as a stack and a queue it gets into an inconsistent state and it asserts. I have to create a test to verify it, but this at least works around it.",
       "parentUuid": "08b2021f_23d8bca2",
+      "range": {
+        "startLine": 87,
+        "startChar": 89,
+        "endLine": 87,
+        "endChar": 95
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5533cdc_32c62a17",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:51:40Z",
+      "side": 1,
+      "message": "oh interesting.",
+      "parentUuid": "ace3f315_750046b9",
       "range": {
         "startLine": 87,
         "startChar": 89,
