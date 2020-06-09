@@ -241,7 +241,7 @@ bool GrSurfaceProxy::isFormatCompressed(const GrCaps* caps) const {
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {
-        SkASSERT(fTarget->getContext() == context);
+        SkASSERT(fTarget->getContext()->priv().matches(context));
     }
 }
 #endif
