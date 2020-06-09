@@ -655,10 +655,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
 
     // The legacy blitters cannot handle any of these complex features (anymore).
     if (device.alphaType() == kUnpremul_SkAlphaType        ||
-        matrix.hasPerspective()                            ||
-        paint.getColorFilter()                             ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
-        paint.getFilterQuality() == kHigh_SkFilterQuality  ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
         return true;
     }
