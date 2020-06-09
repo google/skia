@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "7a791f6e_7d1d3d82",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T21:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8eefbedc_c601b201",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa0352d6_d77235b3",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -497,6 +521,30 @@
     },
     {
       "key": {
+        "uuid": "07680482_d52a0661",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T21:42:56Z",
+      "side": 1,
+      "message": "This makefile is meant to codify a local invocation of the various benchmarks to make it easy to run locally. I\u0027d like to keep it as simple as possible; complex Makefiles make my head hurt.",
+      "parentUuid": "76ff6fb4_83f4205a",
+      "range": {
+        "startLine": 1,
+        "startChar": 35,
+        "endLine": 1,
+        "endChar": 81
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f7cbedc_794abfd0",
         "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
         "patchSetId": 4
@@ -520,6 +568,30 @@
     },
     {
       "key": {
+        "uuid": "f9575917_9f41aa25",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T21:42:56Z",
+      "side": 1,
+      "message": "Sure, but this way is easier, I don\u0027t have to build something new.",
+      "parentUuid": "4f7cbedc_794abfd0",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 54
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52fcbfff_5d2ff2b9",
         "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
         "patchSetId": 4
@@ -540,6 +612,30 @@
       "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc86d7ca_5b6e9160",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T21:42:56Z",
+      "side": 1,
+      "message": "I cannot easily do so. There are probably errors in the logs, but JS does not let you programmatically read them out, I don\u0027t believe.",
+      "parentUuid": "52fcbfff_5d2ff2b9",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 7
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
