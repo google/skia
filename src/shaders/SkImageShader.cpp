@@ -75,9 +75,7 @@ bool SkImageShader::isOpaque() const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
-    if (inv.hasPerspective()) {
-        return false;
-    }
+    SkASSERT(!inv.hasPerspective());
 
     // Scale+translate methods are always present, but affine might not be.
     if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
@@ -102,6 +100,9 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
+    if (rec.fPaint->getFilterQuality() == kHigh_SkFilterQuality) {
+        return nullptr;
+    }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
