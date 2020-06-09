@@ -21,6 +21,8 @@ class SkDeferredDisplayListPriv;
 class GrRenderTask;
 class GrRenderTargetProxy;
 struct GrCCPerOpsTaskPaths;
+#else
+using GrRenderTargetProxy = SkRefCnt;
 #endif
 
 /*
@@ -83,6 +85,7 @@ private:
     };
 
     SK_API SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                 sk_sp<GrRenderTargetProxy> fTargetProxy,
                                  sk_sp<LazyProxyData>);
 
 #if SK_SUPPORT_GPU
@@ -108,6 +111,7 @@ private:
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
     SkTArray<GrRecordingContext::ProgramData> fProgramData;
+    sk_sp<GrRenderTargetProxy>      fTargetProxy;
     sk_sp<LazyProxyData>            fLazyProxyData;
 #endif
 };

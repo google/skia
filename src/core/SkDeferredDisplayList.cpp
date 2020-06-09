@@ -20,10 +20,12 @@ class SkSurfaceCharacterization;
 #endif
 
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                             sk_sp<GrRenderTargetProxy> targetProxy,
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
 #if SK_SUPPORT_GPU
-    , fLazyProxyData(std::move(lazyProxyData))
+        , fTargetProxy(std::move(targetProxy))
+        , fLazyProxyData(std::move(lazyProxyData))
 #endif
 {
 }
