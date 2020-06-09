@@ -518,15 +518,16 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     // See skbug.com/10346
 #if 0
-    if (properties.limits.standardSampleLocations) {
+    if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1) &&
+        properties.limits.standardSampleLocations) {
         fSampleLocationsSupport = true;
     }
-#endif
 
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
     }
+#endif
 
     if (extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1)) {
         fMixedSamplesSupport = true;
