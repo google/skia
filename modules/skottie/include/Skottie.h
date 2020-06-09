@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/ExternalLayer.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skresources/include/SkResources.h"
 
 #include <memory>
@@ -38,8 +39,6 @@ namespace internal { class Animator; }
 
 using ImageAsset = skresources::ImageAsset;
 using ResourceProvider = skresources::ResourceProvider;
-
-class PropertyObserver;
 
 /**
  * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
@@ -68,9 +67,11 @@ public:
     class Builder final {
     public:
         enum Flags : uint32_t {
-            kDeferImageLoading = 0x01, // Normally, all static image frames are resolved at
-                                       // load time via ImageAsset::getFrame(0).  With this flag,
-                                       // frames are only resolved when needed, at seek() time.
+            kDeferImageLoading   = 0x01, // Normally, all static image frames are resolved at
+                                         // load time via ImageAsset::getFrame(0).  With this flag,
+                                         // frames are only resolved when needed, at seek() time.
+            kPreferEmbeddedFonts = 0x02, // Attempt to use the embedded fonts (glyph paths,
+                                         // normally used as fallback) over native Skia typefaces.
         };
 
         explicit Builder(uint32_t flags = 0);

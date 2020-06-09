@@ -160,15 +160,4 @@ private:
     }
 };
 
-/**
- * Specialized implementation for no clip.
- */
-class GrNoClip final : public GrHardClip {
-private:
-    bool quickContains(const SkRect&) const final { return true; }
-    bool quickContains(const SkRRect&) const final { return true; }
-    bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const final { return true; }
-    bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }
-};
-
 #endif

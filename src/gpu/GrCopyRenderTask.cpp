@@ -11,7 +11,8 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
-sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrSurfaceProxyView srcView,
+sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
+                                           GrSurfaceProxyView srcView,
                                            const SkIRect& srcRect,
                                            GrSurfaceProxyView dstView,
                                            const SkIPoint& dstPoint,
@@ -41,11 +42,12 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrSurfaceProxyView srcView,
     }
 
     sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(
-            std::move(srcView), clippedSrcRect, std::move(dstView), clippedDstPoint));
+            drawingMgr, std::move(srcView), clippedSrcRect, std::move(dstView), clippedDstPoint));
     return std::move(task);
 }
 
-GrCopyRenderTask::GrCopyRenderTask(GrSurfaceProxyView srcView,
+GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
+                                   GrSurfaceProxyView srcView,
                                    const SkIRect& srcRect,
                                    GrSurfaceProxyView dstView,
                                    const SkIPoint& dstPoint)
@@ -53,7 +55,7 @@ GrCopyRenderTask::GrCopyRenderTask(GrSurfaceProxyView srcView,
         , fSrcView(std::move(srcView))
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-    fTargetView.proxy()->setLastRenderTask(this);
+    drawingMgr->setLastRenderTask(fTargetView.proxy(), this);
 }
 
 void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {

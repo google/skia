@@ -9,7 +9,6 @@
 #include "tests/TestUtils.h"
 
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -35,13 +34,12 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
     for (auto filter : {GrSamplerState::Filter::kNearest,
                         GrSamplerState::Filter::kBilerp,
                         GrSamplerState::Filter::kMipMap}) {
-        rtContext->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA),
-                         GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
         auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
+        rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
         TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
                        "RectangleTexture-basic-draw");
     }
@@ -51,8 +49,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
     if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
-        rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(color0),
-                   GrRenderTargetContext::CanClearFullscreen::kNo);
+        rtc->clear(SkPMColor4f::FromBytes_RGBA(color0));
 
         int w = rtc->width();
         int h = rtc->height();
@@ -73,8 +70,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
         // Clear the the top to a different color.
         GrColor color1 = GrColorPackRGBA(0x1, 0x2, 0x3, 0x4);
         SkIRect rect = SkIRect::MakeWH(w, h/2);
-        rtc->clear(&rect, SkPMColor4f::FromBytes_RGBA(color1),
-                   GrRenderTargetContext::CanClearFullscreen::kNo);
+        rtc->clear(rect, SkPMColor4f::FromBytes_RGBA(color1));
 
         uint32_t expectedColor1 = 0;
         uint8_t* expectedBytes1 = reinterpret_cast<uint8_t*>(&expectedColor1);

@@ -1,7 +1,8 @@
 // Copyright 2019 Google LLC.
-#include <string>
+
+#include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
-#include "unicode/unistr.h"
+#include "modules/skparagraph/src/ParagraphUtil.h"
 
 namespace skia {
 namespace textlayout {
@@ -36,11 +37,7 @@ TextAlign ParagraphStyle::effective_align() const {
 }
 
 void ParagraphStyle::setEllipsis(const std::u16string& ellipsis) {
-    icu::UnicodeString unicode;
-    unicode.setTo((UChar*)ellipsis.data());
-    std::string str;
-    unicode.toUTF8String(str);
-    fEllipsis = SkString(str.c_str());
+    fEllipsis = SkStringFromU16String(ellipsis);
 }
 }  // namespace textlayout
 }  // namespace skia

@@ -79,7 +79,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
                                                                const GrCaps& caps) {
     GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                 GrSamplerState::Filter::kNearest);
-    auto m = SkMatrix::MakeTrans(-devBound.fLeft, -devBound.fTop);
+    auto m = SkMatrix::Translate(-devBound.fLeft, -devBound.fTop);
     auto subset = SkRect::Make(devBound.size());
     // We scissor to devBounds. The mask's texel centers are aligned to device space
     // pixel centers. Hence this domain of texture coordinates.
@@ -253,7 +253,8 @@ bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* 
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = renderTargetContext->getOpsTask()->uniqueID();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, opsTaskID)) {
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(context, *fMatrixProvider, ccpr,
+                                                              opsTaskID)) {
         out->addCoverageFP(std::move(clipFPs));
     }
 

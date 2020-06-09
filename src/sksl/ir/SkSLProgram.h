@@ -53,7 +53,7 @@ struct Program {
 
             Value(float f)
             : fKind(kFloat_Kind)
-            , fValue(f) {}
+            , fValueF(f) {}
 
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
@@ -67,8 +67,8 @@ struct Program {
                                                                           fValue));
                     case Program::Settings::Value::kFloat_Kind:
                         return std::unique_ptr<Expression>(new FloatLiteral(context,
-                                                                          offset,
-                                                                          fValue));
+                                                                            offset,
+                                                                            fValueF));
                     default:
                         SkASSERT(false);
                         return nullptr;
@@ -81,7 +81,10 @@ struct Program {
                 kFloat_Kind,
             } fKind;
 
-            int fValue;
+            union {
+                int   fValue;  // for kBool_Kind and kInt_Kind
+                float fValueF; // for kFloat_Kind
+            };
         };
 
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
@@ -108,6 +111,9 @@ struct Program {
         // binding and set number of the uniform buffer.
         int fRTHeightBinding = -1;
         int fRTHeightSet = -1;
+        // If true, remove any uncalled functions other than main(). Note that a function which
+        // starts out being used may end up being uncalled after optimization.
+        bool fRemoveDeadFunctions = true;
 
         std::unordered_map<String, Value> fArgs;
     };

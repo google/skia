@@ -199,9 +199,9 @@ bool SectionAndParameterHelper::hasCoordOverrides(const Statement& s, const Vari
         }
         case Statement::kFor_Kind: {
             const ForStatement& f = (const ForStatement&) s;
-            return this->hasCoordOverrides(*f.fInitializer, fp) ||
-                   this->hasCoordOverrides(*f.fTest, fp) ||
-                   this->hasCoordOverrides(*f.fNext, fp) ||
+            return (f.fInitializer ? this->hasCoordOverrides(*f.fInitializer, fp) : 0) ||
+                   (f.fTest        ? this->hasCoordOverrides(*f.fTest, fp)        : 0) ||
+                   (f.fNext        ? this->hasCoordOverrides(*f.fNext, fp)        : 0) ||
                    this->hasCoordOverrides(*f.fStatement, fp);
         }
         case Statement::kWhile_Kind: {
@@ -228,7 +228,6 @@ bool SectionAndParameterHelper::hasCoordOverrides(const Statement& s, const Vari
         case Statement::kBreak_Kind:
         case Statement::kContinue_Kind:
         case Statement::kDiscard_Kind:
-        case Statement::kGroup_Kind:
         case Statement::kNop_Kind:
             return false;
     }
@@ -321,6 +320,13 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Expression& e, const Var
     return SampleMatrix();
 }
 
+SampleMatrix SectionAndParameterHelper::getMatrix(const Expression* e, const Variable& fp) {
+    if (e) {
+        return this->getMatrix(*e, fp);
+    }
+    return SampleMatrix();
+}
+
 SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Variable& fp) {
     switch (s.fKind) {
         case Statement::kBlock_Kind: {
@@ -361,9 +367,9 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Vari
         }
         case Statement::kFor_Kind: {
             const ForStatement& f = (const ForStatement&) s;
-            return this->getMatrix(*f.fInitializer, fp).merge(
-                   this->getMatrix(*f.fTest, fp).merge(
-                   this->getMatrix(*f.fNext, fp).merge(
+            return this->getMatrix(f.fInitializer.get(), fp).merge(
+                   this->getMatrix(f.fTest.get(), fp).merge(
+                   this->getMatrix(f.fNext.get(), fp).merge(
                    this->getMatrix(*f.fStatement, fp))));
         }
         case Statement::kWhile_Kind: {
@@ -387,12 +393,19 @@ SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Vari
         case Statement::kBreak_Kind:
         case Statement::kContinue_Kind:
         case Statement::kDiscard_Kind:
-        case Statement::kGroup_Kind:
         case Statement::kNop_Kind:
             return SampleMatrix();
     }
     SkASSERT(false);
     return SampleMatrix();
 }
+
+SampleMatrix SectionAndParameterHelper::getMatrix(const Statement* s, const Variable& fp) {
+    if (s) {
+        return this->getMatrix(*s, fp);
+    }
+    return SampleMatrix();
+}
+
 
 }

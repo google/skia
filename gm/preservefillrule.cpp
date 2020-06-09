@@ -85,15 +85,15 @@ private:
         star7_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star7_evenOdd = star7_winding;
-        star7_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
+        star7_evenOdd.transform(SkMatrix::Translate(0, fStarSize));
         star7_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPath star5_winding = ToolUtils::make_star(starRect, 5);
-        star5_winding.transform(SkMatrix::MakeTrans(fStarSize, 0));
+        star5_winding.transform(SkMatrix::Translate(fStarSize, 0));
         star5_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star5_evenOdd = star5_winding;
-        star5_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
+        star5_evenOdd.transform(SkMatrix::Translate(0, fStarSize));
         star5_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPaint paint;

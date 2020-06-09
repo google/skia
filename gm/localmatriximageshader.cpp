@@ -34,7 +34,7 @@ static sk_sp<SkImage> make_image(SkCanvas* rootCanvas, SkColor color) {
 
 DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
     sk_sp<SkImage> redImage = make_image(canvas, SK_ColorRED);
-    SkMatrix translate = SkMatrix::MakeTrans(100.0f, 0.0f);
+    SkMatrix translate = SkMatrix::Translate(100.0f, 0.0f);
     SkMatrix rotate;
     rotate.setRotate(45.0f);
     sk_sp<SkShader> redImageShader = redImage->makeShader(&translate);
@@ -72,7 +72,7 @@ DEF_SIMPLE_GM(localmatriximageshader_filtering, canvas, 256, 256) {
     auto image = GetResourceAsImage("images/mandrill_256.png");
     SkPaint p;
     p.setFilterQuality(kHigh_SkFilterQuality);
-    SkMatrix m = SkMatrix::MakeScale(2.0f);
+    SkMatrix m = SkMatrix::Scale(2, 2);
     p.setShader(image->makeShader()->makeWithLocalMatrix(m));
 
     canvas->drawRect(SkRect::MakeXYWH(0, 0, 256, 256), p);

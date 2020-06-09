@@ -167,6 +167,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
             SkWriter32 writer;
+            writer.write32(GrPersistentCacheUtils::kCurrentVersion);
             writer.write32(kGLPB_Tag);
 
             writer.writePad(&inputs, sizeof(inputs));
@@ -299,6 +300,11 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
                     sksl[i] = &cached_sksl[i];
                 }
+                break;
+
+            default:
+                // We got something invalid, so pretend it wasn't there
+                cached = false;
                 break;
         }
     }
@@ -534,21 +540,21 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return sk_sp<GrGLProgram>(new GrGLProgram(fGpu,
-                                              fUniformHandles,
-                                              programID,
-                                              fUniformHandler.fUniforms,
-                                              fUniformHandler.fSamplers,
-                                              fVaryingHandler.fPathProcVaryingInfos,
-                                              std::move(fGeometryProcessor),
-                                              std::move(fXferProcessor),
-                                              std::move(fFragmentProcessors),
-                                              fFragmentProcessorCnt,
-                                              std::move(fAttributes),
-                                              fVertexAttributeCnt,
-                                              fInstanceAttributeCnt,
-                                              fVertexStride,
-                                              fInstanceStride));
+    return GrGLProgram::Make(fGpu,
+                             fUniformHandles,
+                             programID,
+                             fUniformHandler.fUniforms,
+                             fUniformHandler.fSamplers,
+                             fVaryingHandler.fPathProcVaryingInfos,
+                             std::move(fGeometryProcessor),
+                             std::move(fXferProcessor),
+                             std::move(fFragmentProcessors),
+                             fFragmentProcessorCnt,
+                             std::move(fAttributes),
+                             fVertexAttributeCnt,
+                             fInstanceAttributeCnt,
+                             fVertexStride,
+                             fInstanceStride);
 }
 
 bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,

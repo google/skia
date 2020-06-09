@@ -58,21 +58,29 @@ static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
     SkUNREACHABLE;
 }
 
+static bool AttributeUsesViewMatrix(const SkVertices::Attribute& attr) {
+    return (attr.fMarkerID == 0) && (attr.fUsage == SkVertices::Attribute::Usage::kVector ||
+                                     attr.fUsage == SkVertices::Attribute::Usage::kNormalVector ||
+                                     attr.fUsage == SkVertices::Attribute::Usage::kPosition);
+}
+
 // Container for a collection of [uint32_t, Matrix] pairs. For a GrDrawVerticesOp whose custom
 // attributes reference some set of IDs, this stores the actual values of those matrices,
 // at the time the Op is created.
 class MarkedMatrices {
 public:
-    // For each ID required by 'info', fetch the value of that matrix from 'matrixProvider'
+    // For each ID required by 'info', fetch the value of that matrix from 'matrixProvider'.
+    // For vectors/normals/positions, we let ID 0 refer to the canvas CTM matrix.
     void gather(const SkVerticesPriv& info, const SkMatrixProvider& matrixProvider) {
         for (int i = 0; i < info.attributeCount(); ++i) {
-            if (uint32_t id = info.attributes()[i].fMarkerID) {
+            uint32_t id = info.attributes()[i].fMarkerID;
+            if (id != 0 || AttributeUsesViewMatrix(info.attributes()[i])) {
                 if (std::none_of(fMatrices.begin(), fMatrices.end(),
                                  [id](const auto& m) { return m.first == id; })) {
                     SkM44 matrix;
-                    // SkCanvas should guarantee that this succeeds
+                    // SkCanvas should guarantee that this succeeds.
                     SkAssertResult(matrixProvider.getLocalToMarker(id, &matrix));
-                    fMatrices.push_back({id, matrix});
+                    fMatrices.emplace_back(id, matrix);
                 }
             }
         }
@@ -195,7 +203,7 @@ public:
                 SkString varyingIn(attr.name());
 
                 UniformHandle matrixHandle;
-                if (customAttr.fMarkerID) {
+                if (customAttr.fMarkerID || AttributeUsesViewMatrix(customAttr)) {
                     bool normal = customAttr.fUsage == Usage::kNormalVector;
                     for (const MarkedUniform& matrixUni : fCustomMatrixUniforms) {
                         if (matrixUni.fID == customAttr.fMarkerID && matrixUni.fNormal == normal) {
@@ -213,10 +221,6 @@ public:
                                 {customAttr.fMarkerID, normal, matrixHandle});
                     }
                 }
-
-                // TODO: For now, vectors/normals/positions with a 0 markerID get no transform.
-                // Those should use localToDevice instead. That means we need to change batching
-                // logic and then guarantee that we have the view matrix as a uniform here.
 
                 switch (customAttr.fUsage) {
                     case Usage::kRaw:

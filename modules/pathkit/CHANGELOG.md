@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
- - Updated to emscripten 1.39.6
+ - Updated to emscripten 1.39.16
+
+### Breaking
+ - `PathKitInit(...)` now directly returns a Promise. As such, `PathKitInit(...).ready()`
+   has been removed.
 
 ## [0.6.0] 2019-02-25
 

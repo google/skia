@@ -290,8 +290,8 @@ void HCodeGenerator::writeConstructor() {
             SampleMatrix matrix = fSectionAndParameterHelper.getMatrix(*param);
             switch (matrix.fKind) {
                 case SampleMatrix::Kind::kVariable:
-                    this->writef("            %s->setSampleMatrix(this, "
-                                                            "SkSL::SampleMatrix::Kind::kVariable);",
+                    this->writef("            %s->setSampleMatrix(SkSL::SampleMatrix("
+                                                     "SkSL::SampleMatrix::Kind::kVariable));",
                                  String(param->fName).c_str());
                     break;
                 case SampleMatrix::Kind::kConstantOrUniform:

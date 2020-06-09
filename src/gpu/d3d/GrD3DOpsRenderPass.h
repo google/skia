@@ -42,17 +42,23 @@ private:
                         const GrPipeline&) override;
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                        const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
-    void onDraw(int vertexCount, int baseVertex) override {}
+    void onDraw(int vertexCount, int baseVertex) override {
+        this->onDrawInstanced(1, 0, vertexCount, baseVertex);
+    }
     void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
-                       uint16_t maxIndexValue, int baseVertex) override {}
+                       uint16_t maxIndexValue, int baseVertex) override {
+        this->onDrawIndexedInstanced(indexCount, baseIndex, 1, 0, baseVertex);
+    }
     void onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
-                         int baseVertex) override {}
+                         int baseVertex) override;
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
-                                int baseVertex) override {}
+                                int baseVertex) override;
+    void onDrawIndirect(const GrBuffer*, size_t offset, int drawCount) override {}
+    void onDrawIndexedIndirect(const GrBuffer*, size_t offset, int drawCount) override {}
 
-    void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
 
-    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override {}
 
     GrD3DGpu* fGpu;
 

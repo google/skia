@@ -611,6 +611,7 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
     push_src("image", folder, src);
 }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
 static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode,
         uint32_t sampleSize) {
     SkString folder("brd_android_codec");
@@ -669,6 +670,7 @@ static void push_brd_srcs(Path path, bool gray) {
         }
     }
 }
+#endif // SK_ENABLE_ANDROID_UTILS
 
 static void push_codec_srcs(Path path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -797,6 +799,7 @@ static void push_codec_srcs(Path path) {
             }
         }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
         static const char* const brdExts[] = {
             "jpg", "jpeg", "png", "webp",
             "JPG", "JPEG", "PNG", "WEBP",
@@ -808,6 +811,7 @@ static void push_codec_srcs(Path path) {
                 break;
             }
         }
+#endif
     }
 
     // Push image generator GPU test.

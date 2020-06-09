@@ -27,7 +27,7 @@ public:
     }
 
     static bool GetShapeAndClipBounds(GrRenderTargetContext*,
-                                      const GrClip& clip,
+                                      const GrClip* clip,
                                       const GrStyledShape& shape,
                                       const SkMatrix& matrix,
                                       SkIRect* unclippedDevShapeBounds,
@@ -38,14 +38,14 @@ private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                               GrPaint&& paint,
                               const GrUserStencilSettings& userStencilSettings,
-                              const GrClip& clip,
+                              const GrClip* clip,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
     static void DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
                                   GrPaint&& paint,
                                   const GrUserStencilSettings& userStencilSettings,
-                                  const GrClip& clip,
+                                  const GrClip* clip,
                                   const SkMatrix& viewMatrix,
                                   const SkIRect& devClipBounds,
                                   const SkIRect& devPathBounds);
@@ -57,7 +57,7 @@ private:
                                           GrRenderTargetContext* renderTargetContext,
                                           GrPaint&& paint,
                                           const GrUserStencilSettings& userStencilSettings,
-                                          const GrClip& clip,
+                                          const GrClip* clip,
                                           const SkMatrix& viewMatrix,
                                           const SkIPoint& textureOriginInDeviceSpace,
                                           const SkIRect& deviceSpaceRectToDraw);

@@ -87,9 +87,6 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "vec";
             }
-            else if (component == *fContext.fDouble_Type) {
-                result = "dvec";
-            }
             else if (component.isSigned()) {
                 result = "ivec";
             }
@@ -110,9 +107,6 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             Type component = type.componentType();
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "mat";
-            }
-            else if (component == *fContext.fDouble_Type) {
-                result = "dmat";
             }
             else {
                 ABORT("unsupported matrix type");
@@ -1521,11 +1515,15 @@ void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statem
 }
 
 void GLSLCodeGenerator::writeBlock(const Block& b) {
-    this->writeLine("{");
-    fIndentation++;
+    if (b.fIsScope) {
+        this->writeLine("{");
+        fIndentation++;
+    }
     this->writeStatements(b.fStatements);
-    fIndentation--;
-    this->write("}");
+    if (b.fIsScope) {
+        fIndentation--;
+        this->write("}");
+    }
 }
 
 void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {

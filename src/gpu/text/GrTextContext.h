@@ -39,18 +39,9 @@ public:
          * be rendered from outline as individual paths. Negative means use a default value.
          */
         SkScalar fMaxDistanceFieldFontSize = -1.f;
-        /** Forces all distance field vertices to use 3 components, not just when in perspective. */
-        bool fDistanceFieldVerticesAlwaysHaveW = false;
     };
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
-
-    void drawGlyphRunList(GrRecordingContext*,
-                          GrTextTarget*,
-                          const GrClip&,
-                          const SkMatrixProvider&,
-                          const SkSurfaceProps&,
-                          const SkGlyphRunList&) const;
 
 #if GR_TEST_UTILS
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
@@ -80,14 +71,10 @@ public:
     static std::pair<SkScalar, SkScalar> InitDistanceFieldMinMaxScale(SkScalar textSize,
                                                                       const SkMatrix& viewMatrix,
                                                                       const Options& options);
+    Options options() const { return fOptions; }
 
 private:
     GrTextContext(const Options& options);
-
-    // sets up the descriptor on the blob and returns a detached cache.  Client must attach
-    static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
-    // Determines if we need to use fake gamma (and contrast boost):
-    static SkScalerContextFlags ComputeScalerContextFlags(const GrColorInfo&);
 
     Options fOptions;
 

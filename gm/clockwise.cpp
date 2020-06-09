@@ -23,7 +23,6 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -189,7 +188,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
                                                std::move(appliedClip), dstProxyView);
@@ -242,7 +241,7 @@ private:
 // Test.
 
 void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
-    rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.
     rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
@@ -254,11 +253,10 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
                 GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
-        topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                          GrRenderTargetContext::CanClearFullscreen::kYes);
+        topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
                          {0, 0, 100, 200}, {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
@@ -270,11 +268,10 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
                 GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
-        topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                          GrRenderTargetContext::CanClearFullscreen::kYes);
+        topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
                          {0, 0, 100, 200}, {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),

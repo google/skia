@@ -36,6 +36,14 @@ struct ExternalFunctionCall : public Expression {
         return false;
     }
 
+    int nodeCount() const override {
+        int result = 1;
+        for (const auto& a : fArguments) {
+            result += a->nodeCount();
+        }
+        return result;
+    }
+
     std::unique_ptr<Expression> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {

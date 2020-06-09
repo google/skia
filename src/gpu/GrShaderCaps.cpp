@@ -49,7 +49,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
     fSampleMaskSupport = false;
-    fTessellationSupport = false;
     fExternalTextureSupport = false;
     fVertexIDSupport = false;
     fFPManipulationSupport = false;
@@ -61,6 +60,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     // GL_ARB_texture_swizzle).
     fTextureSwizzleAppliedInShader = true;
     fBuiltinFMASupport = false;
+    fCanUseDoLoops = true;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -76,6 +76,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fMaxFragmentSamplers = 0;
+    fMaxTessellationSegments = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -132,7 +133,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
     writer->appendBool("Sample mask support", fSampleMaskSupport);
-    writer->appendBool("Tessellation Support", fTessellationSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
@@ -142,8 +142,10 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Texture swizzle applied in shader", fTextureSwizzleAppliedInShader);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
+    writer->appendBool("Can use do-while loops", fCanUseDoLoops);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
+    writer->appendS32("Max Tessellation Segments", fMaxTessellationSegments);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
 
@@ -183,7 +185,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fGeometryShaderSupport = false;
     }
     if (options.fSuppressTessellationShaders) {
-        fTessellationSupport = false;
+        fMaxTessellationSegments = 0;
     }
 #endif
 }

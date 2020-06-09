@@ -88,6 +88,18 @@ bool GrDawnCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFo
     return isFormatRenderable(format, sampleCount);
 }
 
+GrCaps::SurfaceReadPixelsSupport GrDawnCaps::surfaceSupportsReadPixels(
+      const GrSurface* surface) const {
+    // We currently support readbacks only from Textures and TextureRenderTargets.
+    return surface->asTexture() ? SurfaceReadPixelsSupport::kSupported
+                                : SurfaceReadPixelsSupport::kUnsupported;
+}
+
+bool GrDawnCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
+    // We currently support writePixels only to Textures and TextureRenderTargets.
+    return surface->asTexture() != nullptr;
+}
+
 size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
     wgpu::TextureFormat dawnFormat;
     if (!backendFormat.asDawnFormat(&dawnFormat)) {

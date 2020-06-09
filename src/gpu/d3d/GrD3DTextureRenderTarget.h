@@ -59,6 +59,7 @@ private:
                              int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
                              const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
@@ -71,6 +72,7 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
                              const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
                              GrMipMapsStatus);
 
@@ -80,6 +82,7 @@ private:
                              int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
                              const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
@@ -92,6 +95,7 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
+                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
                              const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
                              GrMipMapsStatus,
                              GrWrapCacheable);

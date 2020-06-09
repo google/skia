@@ -40,7 +40,7 @@ static const bool kDefaultReduceOpsTaskSplitting = false;
 class GrLegacyDirectContext : public GrContext {
 public:
     GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
-            : INHERITED(backend, options)
+            : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
             , fAtlasManager(nullptr) {
     }
 
@@ -72,16 +72,14 @@ public:
     }
 
 protected:
-    bool init(sk_sp<const GrCaps> caps) override {
-        SkASSERT(caps);
-        SkASSERT(!fThreadSafeProxy);
+    bool init() override {
+        const GrGpu* gpu = this->priv().getGpu();
+        if (!gpu) {
+            return false;
+        }
 
-        fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
-                                                              this->options(),
-                                                              this->contextID(),
-                                                              caps);
-
-        if (!INHERITED::init(std::move(caps))) {
+        fThreadSafeProxy->priv().init(gpu->refCaps());
+        if (!INHERITED::init()) {
             return false;
         }
 
@@ -93,8 +91,6 @@ protected:
         }
 
         this->setupDrawingManager(true, reduceOpsTaskSplitting);
-
-        SkASSERT(this->caps());
 
         GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
         if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
@@ -144,11 +140,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
 
     context->fGpu = GrGLGpu::Make(std::move(glInterface), options, context.get());
-    if (!context->fGpu) {
-        return nullptr;
-    }
-
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init()) {
         return nullptr;
     }
     return context;
@@ -165,11 +157,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMock, options));
 
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
-    if (!context->fGpu) {
-        return nullptr;
-    }
-
-    if (!context->init(context->fGpu->refCaps())) {
+    if (!context->init()) {
         return nullptr;
     }
 
@@ -191,13 +179,10 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kVulkan, options));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
-    if (!context->fGpu) {
+    if (!context->init()) {
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
-        return nullptr;
-    }
     return context;
 #else
     return nullptr;
@@ -214,13 +199,10 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
 
     context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
-    if (!context->fGpu) {
+    if (!context->init()) {
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
-        return nullptr;
-    }
     return context;
 }
 #endif
@@ -236,13 +218,10 @@ sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendConte
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDirect3D, options));
 
     context->fGpu = GrD3DGpu::Make(backendContext, options, context.get());
-    if (!context->fGpu) {
+    if (!context->init()) {
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
-        return nullptr;
-    }
     return context;
 }
 #endif
@@ -257,13 +236,10 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContext
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDawn, options));
 
     context->fGpu = GrDawnGpu::Make(device, options, context.get());
-    if (!context->fGpu) {
+    if (!context->init()) {
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps())) {
-        return nullptr;
-    }
     return context;
 }
 #endif

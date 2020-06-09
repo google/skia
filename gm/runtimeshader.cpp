@@ -48,8 +48,8 @@ class RuntimeShader : public skiagm::GM {
 DEF_GM(return new RuntimeShader;)
 
 static sk_sp<SkShader> make_shader(sk_sp<SkImage> img, SkISize size) {
-    SkMatrix scale = SkMatrix::MakeScale(size.width()  / (float)img->width(),
-                                         size.height() / (float)img->height());
+    SkMatrix scale = SkMatrix::Scale(size.width()  / (float)img->width(),
+                                     size.height() / (float)img->height());
     return img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &scale);
 }
 
@@ -237,3 +237,97 @@ class SpiralRT : public skiagm::GM {
     }
 };
 DEF_GM(return new SpiralRT;)
+
+class ColorCubeRT : public skiagm::GM {
+    sk_sp<SkImage> fMandrill, fMandrillSepia, fIdentityCube, fSepiaCube;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    void onOnceBeforeDraw() override {
+        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+        fMandrillSepia = GetResourceAsImage("images/mandrill_sepia.png");
+        fIdentityCube  = GetResourceAsImage("images/lut_identity.png");
+        fSepiaCube     = GetResourceAsImage("images/lut_sepia.png");
+
+        const char code[] = R"(
+            in shader input;
+            in shader color_cube;
+
+            uniform float rg_scale;
+            uniform float rg_bias;
+            uniform float b_scale;
+            uniform float inv_size;
+
+            void main(float2 xy, inout half4 color) {
+                float4 c = float4(unpremul(sample(input, xy)));
+
+                // Map to cube coords:
+                float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
+
+                // Compute slice coordinate
+                float2 coords1 = float2((floor(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+                float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+
+                // Two bilinear fetches, plus a manual lerp for the third axis:
+                color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
+                            half(fract(cubeCoords.b)));
+
+                // Premul again
+                color.rgb *= color.a;
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    SkString onShortName() override { return SkString("color_cube_rt"); }
+
+    SkISize onISize() override { return {512, 512}; }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (canvas->getGrContext() == nullptr) {
+            // until SkSL can handle child processors on the raster backend
+            return DrawResult::kSkip;
+        }
+
+        // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
+        canvas->drawImage(fMandrill,      0,   0);
+        canvas->drawImage(fMandrillSepia, 0, 256);
+
+        // LUT dimensions should be (kSize^2, kSize)
+        constexpr float kSize = 16.0f;
+
+        SkRuntimeShaderBuilder builder(fEffect);
+        builder.input("rg_scale")     = (kSize - 1) / kSize;
+        builder.input("rg_bias")      = 0.5f / kSize;
+        builder.input("b_scale")      = kSize - 1;
+        builder.input("inv_size")     = 1.0f / kSize;
+
+        builder.child("input")      = fMandrill->makeShader();
+
+        // TODO: Move filter quality to the shader itself. We need to enforce at least kLow here
+        // so that we bilerp the color cube image.
+        SkPaint paint;
+        paint.setFilterQuality(kLow_SkFilterQuality);
+
+        // TODO: Should we add SkImage::makeNormalizedShader() to handle this automatically?
+        SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
+
+        // Now draw the image with an identity color cube - it should look like the original
+        builder.child("color_cube") = fIdentityCube->makeShader(normalize);
+        paint.setShader(builder.makeShader(nullptr, true));
+        canvas->translate(256, 0);
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+
+        // ... and with a sepia-tone color cube. This should match the sepia-toned image.
+        builder.child("color_cube") = fSepiaCube->makeShader(normalize);
+        paint.setShader(builder.makeShader(nullptr, true));
+        canvas->translate(0, 256);
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+
+        return DrawResult::kOk;
+    }
+};
+DEF_GM(return new ColorCubeRT;)

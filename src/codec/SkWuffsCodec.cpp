@@ -755,7 +755,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         SkRasterClip rc(SkIRect::MakeSize(this->dstInfo().dimensions()));
         draw.fRC = &rc;
 
-        SkMatrix translate = SkMatrix::MakeTrans(dirty_rect.min_incl_x, dirty_rect.min_incl_y);
+        SkMatrix translate = SkMatrix::Translate(dirty_rect.min_incl_x, dirty_rect.min_incl_y);
         draw.drawBitmap(src, translate, nullptr, paint);
     }
 

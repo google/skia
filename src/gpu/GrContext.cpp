@@ -41,16 +41,14 @@
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED if (this->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (this->abandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (this->abandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t contextID)
-        : INHERITED(backend, options, contextID) {
+GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
 }
@@ -65,16 +63,14 @@ GrContext::~GrContext() {
     delete fResourceCache;
 }
 
-bool GrContext::init(sk_sp<const GrCaps> caps) {
+bool GrContext::init() {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
     SkASSERT(this->proxyProvider());
 
-    if (!INHERITED::init(std::move(caps))) {
+    if (!INHERITED::init()) {
         return false;
     }
 
-    SkASSERT(this->caps());
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
@@ -106,7 +102,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    return fThreadSafeProxy;
+    return INHERITED::threadSafeProxy();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -316,24 +312,35 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
                                        const GrPrepareForExternalIORequests& externalRequests) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
 
-    bool submitted = false;
-    if (this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      info, externalRequests)) {
-        bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag);
-        submitted = this->drawingManager()->submitToGpu(forceSync);
-    }
+    bool flushed = this->drawingManager()->flush(
+            nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, info, externalRequests);
 
-    if (!submitted || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
+    if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
     }
     return GrSemaphoresSubmitted::kYes;
 }
 
-bool GrContext::submit(bool syncToCpu) {
-    return true;
+bool GrContext::submit(bool syncCpu) {
+    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        return false;
+    }
+
+    if (!fGpu) {
+        return false;
+    }
+
+    return fGpu->submitToGpu(syncCpu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

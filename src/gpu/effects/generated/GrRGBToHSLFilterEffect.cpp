@@ -23,6 +23,13 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRGBToHSLFilterEffect& _outer = args.fFp.cast<GrRGBToHSLFilterEffect>();
         (void)_outer;
+        SkString _input1173 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample1173;
+        if (_outer.inputFP_index >= 0) {
+            _sample1173 = this->invokeChild(_outer.inputFP_index, _input1173.c_str(), args);
+        } else {
+            _sample1173 = _input1173;
+        }
         fragBuilder->codeAppendf(
                 "half4 c = %s;\nhalf4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666666666666663) : "
                 "half4(c.yz, 0.0, -0.33333333333333331);\nhalf4 q = c.x < p.x ? half4(p.x, c.x, "
@@ -31,7 +38,7 @@ public:
                 "9.9999997473787516e-05));\nhalf S = pmC / ((c.w + 9.9999997473787516e-05) - "
                 "abs(pmL * 2.0 - c.w));\nhalf L = pmL / (c.w + 9.9999997473787516e-05);\n%s = "
                 "half4(H, S, L, c.w);\n",
-                args.fInputColor, args.fOutputColor);
+                _sample1173.c_str(), args.fOutputColor);
     }
 
 private:
@@ -49,7 +56,16 @@ bool GrRGBToHSLFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrRGBToHSLFilterEffect::GrRGBToHSLFilterEffect(const GrRGBToHSLFilterEffect& src)
-        : INHERITED(kGrRGBToHSLFilterEffect_ClassID, src.optimizationFlags()) {}
+        : INHERITED(kGrRGBToHSLFilterEffect_ClassID, src.optimizationFlags())
+        , inputFP_index(src.inputFP_index) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrRGBToHSLFilterEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRGBToHSLFilterEffect(*this));
 }

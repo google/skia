@@ -3,9 +3,17 @@
 #define ParagraphStyle_DEFINED
 
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include <string>  // std::u16string
+
+#include <stddef.h>
+#include <algorithm>
+#include <limits>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace skia {
 namespace textlayout {

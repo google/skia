@@ -278,7 +278,7 @@ static void draw_stencil_rect(GrRenderTargetContext* rtc, const GrHardClip& clip
                               const SkRect& rect, GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
-    rtc->priv().stencilRect(clip, ss, std::move(paint), aa, matrix, rect);
+    rtc->priv().stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
 static void draw_path(GrRecordingContext* context, GrRenderTargetContext* rtc,
@@ -334,7 +334,8 @@ bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
     }
 
     fClip.setStencilClip(genID);
-    fClip.fixedClip().setScissor(bounds);
+    // Should have caught bounds not intersecting the render target much earlier in clip application
+    SkAssertResult(fClip.fixedClip().setScissor(bounds));
     if (!windowRects.empty()) {
         fClip.fixedClip().setWindowRectangles(
                 windowRects, GrWindowRectsState::Mode::kExclusive);
@@ -462,7 +463,15 @@ bool GrStencilMaskHelper::drawShape(const GrShape& shape,
 }
 
 void GrStencilMaskHelper::clear(bool insideStencil) {
-    fRTC->priv().clearStencilClip(fClip.fixedClip(), insideStencil);
+    if (fClip.fixedClip().hasWindowRectangles()) {
+        // Use a draw to benefit from window rectangles when resetting the stencil buffer; for
+        // large buffers with MSAA this can be significant.
+        draw_stencil_rect(fRTC, fClip.fixedClip(),
+                          GrStencilSettings::SetClipBitSettings(insideStencil), SkMatrix::I(),
+                          SkRect::Make(fClip.fixedClip().scissorRect()), GrAA::kNo);
+    } else {
+        fRTC->priv().clearStencilClip(fClip.fixedClip().scissorRect(), insideStencil);
+    }
 }
 
 void GrStencilMaskHelper::finish() {

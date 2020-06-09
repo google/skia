@@ -121,6 +121,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     auto buildProgram = [this](const SkSL::String& code, Program* p) {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
+        settings.fRemoveDeadFunctions = false;
 
         SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
 

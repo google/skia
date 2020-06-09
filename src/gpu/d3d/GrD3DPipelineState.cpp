@@ -20,6 +20,7 @@
 
 GrD3DPipelineState::GrD3DPipelineState(
         gr_cp<ID3D12PipelineState> pipelineState,
+        sk_sp<GrD3DRootSignature> rootSignature,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms, uint32_t uniformSize,
         uint32_t numSamplers,
@@ -30,6 +31,7 @@ GrD3DPipelineState::GrD3DPipelineState(
         size_t vertexStride,
         size_t instanceStride)
     : fPipelineState(std::move(pipelineState))
+    , fRootSignature(std::move(rootSignature))
     , fBuiltinUniformHandles(builtinUniformHandles)
     , fGeometryProcessor(std::move(geometryProcessor))
     , fXferProcessor(std::move(xferProcessor))
@@ -40,8 +42,9 @@ GrD3DPipelineState::GrD3DPipelineState(
     , fVertexStride(vertexStride)
     , fInstanceStride(instanceStride) {}
 
-void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
-                                 const GrProgramInfo& programInfo) {
+void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
+                                             const GrRenderTarget* renderTarget,
+                                             const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
@@ -60,6 +63,11 @@ void GrD3DPipelineState::setData(const GrRenderTarget* renderTarget,
         fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
                                 dstTexture, offset);
     }
+
+    D3D12_GPU_VIRTUAL_ADDRESS constantsAddress = fDataManager.uploadConstants(gpu);
+    gpu->currentCommandList()->setGraphicsRootConstantBufferView(
+        (unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+        constantsAddress);
 }
 
 void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
@@ -83,13 +91,13 @@ void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
     }
 }
 
-void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc,
+void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProcessor& primProc,
                                             const GrSurfaceProxy* const primProcTextures[],
                                             const GrPipeline& pipeline) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
 
     struct SamplerBindings {
-        GrSamplerState fState;
+        D3D12_CPU_DESCRIPTOR_HANDLE fSampler;
         GrD3DTexture* fTexture;
     };
     SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
@@ -99,7 +107,9 @@ void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc
         SkASSERT(primProcTextures[i]->asTextureProxy());
         const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrD3DTexture*>(primProcTextures[i]->peekTexture());
-        samplerBindings[currTextureBinding++] = { sampler.samplerState(), texture };
+        D3D12_CPU_DESCRIPTOR_HANDLE d3dSampler =
+                gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
+        samplerBindings[currTextureBinding++] = { d3dSampler, texture };
     }
 
     GrFragmentProcessor::CIter fpIter(pipeline);
@@ -107,33 +117,42 @@ void GrD3DPipelineState::setAndBindTextures(const GrPrimitiveProcessor& primProc
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
             const auto& sampler = fpIter->textureSampler(i);
+            D3D12_CPU_DESCRIPTOR_HANDLE d3dSampler =
+                    gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
             samplerBindings[currTextureBinding++] =
-            { sampler.samplerState(), static_cast<GrD3DTexture*>(sampler.peekTexture()) };
+                    { d3dSampler, static_cast<GrD3DTexture*>(sampler.peekTexture()) };
         }
     }
     SkASSERT(!fpIter && !glslIter);
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        samplerBindings[currTextureBinding++] = {
-                GrSamplerState::Filter::kNearest, static_cast<GrD3DTexture*>(dstTexture) };
+        D3D12_CPU_DESCRIPTOR_HANDLE d3dSampler =
+                gpu->resourceProvider().findOrCreateCompatibleSampler(
+                        GrSamplerState::Filter::kNearest);
+        samplerBindings[currTextureBinding++] =
+                { d3dSampler, static_cast<GrD3DTexture*>(dstTexture) };
     }
 
     // TODO: bind descriptors
     SkASSERT(fNumSamplers == currTextureBinding);
 }
 
-void GrD3DPipelineState::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                     const GrBuffer* vertexBuffer,
+void GrD3DPipelineState::bindBuffers(GrD3DGpu* gpu, const GrBuffer* indexBuffer,
+                                     const GrBuffer* instanceBuffer, const GrBuffer* vertexBuffer,
                                      GrD3DDirectCommandList* commandList) {
     // Here our vertex and instance inputs need to match the same 0-based bindings they were
     // assigned in the PipelineState. That is, vertex first (if any) followed by instance.
     if (auto* d3dVertexBuffer = static_cast<const GrD3DBuffer*>(vertexBuffer)) {
         SkASSERT(!d3dVertexBuffer->isCpuBuffer());
         SkASSERT(!d3dVertexBuffer->isMapped());
+        const_cast<GrD3DBuffer*>(d3dVertexBuffer)->setResourceState(
+                gpu, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         auto* d3dInstanceBuffer = static_cast<const GrD3DBuffer*>(instanceBuffer);
         if (d3dInstanceBuffer) {
             SkASSERT(!d3dInstanceBuffer->isCpuBuffer());
             SkASSERT(!d3dInstanceBuffer->isMapped());
+            const_cast<GrD3DBuffer*>(d3dInstanceBuffer)->setResourceState(
+                    gpu, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         }
         commandList->setVertexBuffers(0, d3dVertexBuffer, fVertexStride,
                                       d3dInstanceBuffer, fInstanceStride);
@@ -141,6 +160,8 @@ void GrD3DPipelineState::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer
     if (auto* d3dIndexBuffer = static_cast<const GrD3DBuffer*>(indexBuffer)) {
         SkASSERT(!d3dIndexBuffer->isCpuBuffer());
         SkASSERT(!d3dIndexBuffer->isMapped());
+        const_cast<GrD3DBuffer*>(d3dIndexBuffer)->setResourceState(
+                gpu, D3D12_RESOURCE_STATE_INDEX_BUFFER);
         commandList->setIndexBuffer(d3dIndexBuffer);
     }
 }

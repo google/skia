@@ -14,7 +14,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include <functional>
@@ -44,7 +43,6 @@ class SkData;
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(unbounded_set_rgb) M(swap_rb) M(swap_rb_dst)      \
-    M(from_srgb) M(to_srgb)                                        \
     M(black_color) M(white_color)                                  \
     M(uniform_color) M(unbounded_uniform_color) M(uniform_color_dst) \
     M(seed_shader) M(dither)                                       \

@@ -11,12 +11,12 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -570,7 +570,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(
                         backendFormat, GrColorType::kRGBA_8888);
                 GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);
-                rtc->drawTexture(GrNoClip(), view, kPremul_SkAlphaType,
+                rtc->drawTexture(nullptr, view, kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -584,7 +584,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(GrNoClip(), std::move(view), kPremul_SkAlphaType,
+                rtc->drawTexture(nullptr, std::move(view), kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone,
@@ -602,10 +602,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // one where the the texture was drawn but the context is not flushed.
                 // In each scenario we test holding a ref beyond the context shutdown and not.
 
-                // These tests are difficult to get working with Vulkan and Direct3D.
-                // See http://skbug.com/8705 and http://skbug.com/8277
+                // These tests are difficult to get working with Vulkan, Direct3D, and Dawn.
+                // See http://skbug.com/8705, http://skbug.com/8277, and http://skbug.com/10326
                 GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D) {
+                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D ||
+                    api == GrBackendApi::kDawn) {
                     continue;
                 }
                 int id = 3;
@@ -635,7 +636,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
                                                     swizzle);
                             rtc->drawTexture(
-                                    GrNoClip(), std::move(view), kPremul_SkAlphaType,
+                                    nullptr, std::move(view), kPremul_SkAlphaType,
                                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                     SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                     GrAA::kNo, GrQuadAAFlags::kNone,

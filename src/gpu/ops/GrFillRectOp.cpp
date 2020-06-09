@@ -250,7 +250,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         this->createProgramInfo(context->priv().caps(), arena, writeView,
                                 std::move(appliedClip), dstProxyView);
@@ -524,7 +524,7 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
 }
 
 void GrFillRectOp::AddFillRectOps(GrRenderTargetContext* rtc,
-                                  const GrClip& clip,
+                                  const GrClip* clip,
                                   GrRecordingContext* context,
                                   GrPaint&& paint,
                                   GrAAType aaType,

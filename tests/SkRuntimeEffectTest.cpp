@@ -146,6 +146,18 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
     pickColor.test(r, surface, 0x7F00007F);  // Tests that we clamp to valid premul
     pickColor["flag"] = 1;
     pickColor.test(r, surface, 0xFF00FF00);
+
+    TestEffect inlineColor(r, "in half c;", "color = half4(c, c, c, 1);");
+    inlineColor["c"] = 0.498f;
+    inlineColor.test(r, surface, 0xFF7F7F7F);
+
+    // Test sk_FragCoord, which we output to color. Since the surface is 2x2, we should see
+    // (0,0), (1,0), (0,1), (1,1), multiply by 0.498 to make sure we're not saturating unexpectedly.
+    // TODO: Remove this when sk_FragCoord is supported by interpreter.
+    if (context) {
+        TestEffect fragCoord(r, "", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
+        fragCoord.test(r, surface, 0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F);
+    }
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {

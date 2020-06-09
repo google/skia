@@ -117,6 +117,12 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
 
 GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlushInfo& info) {
     if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
 

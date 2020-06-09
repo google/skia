@@ -156,6 +156,7 @@ gm_sources = [
   "$_gm/emptypath.cpp",
   "$_gm/encode.cpp",
   "$_gm/encode_alpha_jpeg.cpp",
+  "$_gm/encode_color_types.cpp",
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
   "$_gm/exoticformats.cpp",
@@ -348,6 +349,7 @@ gm_sources = [
   "$_gm/stroketext.cpp",
   "$_gm/subsetshader.cpp",
   "$_gm/surface.cpp",
+  "$_gm/swizzle.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
   "$_gm/tessellation.cpp",
@@ -389,11 +391,9 @@ gm_sources = [
   "$_gm/xfermodes.cpp",
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
+  "$_gm/ycbcrimage.cpp",
   "$_gm/yuv420_odd_dim.cpp",
   "$_gm/yuvtorgbeffect.cpp",
 ]
 
-gl_gm_sources = [
-  "$_gm/atlastext.cpp",
-  "$_gm/rectangletexture.cpp",
-]
+gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]

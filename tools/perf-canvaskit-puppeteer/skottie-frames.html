@@ -36,7 +36,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
 
       const loadKit = CanvasKitInit({
         locateFile: (file) => '/static/' + file,
-      }).ready();
+      });
 
       const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
         return resp.text()
@@ -118,7 +118,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
   function getSurface(CanvasKit) {
     let surface;
     if (window.location.hash.indexOf('gpu') !== -1) {
-      surface = CanvasKit.MakeWebGLCanvasSurface('anim', WIDTH, HEIGHT);
+      surface = CanvasKit.MakeWebGLCanvasSurface('anim');
       if (!surface) {
         window._error = 'Could not make GPU surface';
         return null;
@@ -131,7 +131,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
         return null;
       }
     } else {
-      surface = CanvasKit.MakeSWCanvasSurface('anim', WIDTH, HEIGHT);
+      surface = CanvasKit.MakeSWCanvasSurface('anim');
       if (!surface) {
         window._error = 'Could not make CPU surface';
         return null;

@@ -25,6 +25,7 @@ public:
     using UniformInfoArray = GrD3DPipelineStateDataManager::UniformInfoArray;
 
     GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState,
+                       sk_sp<GrD3DRootSignature> rootSignature,
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,
@@ -49,14 +50,15 @@ public:
     void freeGPUData() const override {}
 
     ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
+    const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
-    void setData(const GrRenderTarget* renderTarget, const GrProgramInfo& programInfo);
+    void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
 
-    void setAndBindTextures(const GrPrimitiveProcessor& primProc,
+    void setAndBindTextures(GrD3DGpu*, const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],
                             const GrPipeline& pipeline);
 
-    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+    void bindBuffers(GrD3DGpu*, const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
 
 private:
@@ -86,7 +88,8 @@ private:
         void getRTAdjustmentVec(float* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
             destVec[1] = -1.f;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+            // D3D's NDC space is flipped from Vulkan and Metal
+            if (kTopLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 destVec[2] = -2.f / fRenderTargetSize.fHeight;
                 destVec[3] = 1.f;
             } else {
@@ -100,6 +103,7 @@ private:
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     gr_cp<ID3D12PipelineState> fPipelineState;
+    sk_sp<GrD3DRootSignature> fRootSignature;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;

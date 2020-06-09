@@ -68,6 +68,10 @@
     #include "include/svg/SkSVGCanvas.h"
     #include "src/xml/SkXMLWriter.h"
 #endif
+
+#if defined(SK_ENABLE_ANDROID_UTILS)
+    #include "client_utils/android/BitmapRegionDecoder.h"
+#endif
 #include "tests/TestUtils.h"
 
 #include <cmath>
@@ -120,6 +124,11 @@ std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static SkString get_scaled_name(const Path& path, float scale) {
+    return SkStringPrintf("%s_%.3f", SkOSPath::Basename(path.c_str()).c_str(), scale);
+}
+
+#ifdef SK_ENABLE_ANDROID_UTILS
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
     : fPath(path)
     , fMode(mode)
@@ -133,12 +142,9 @@ bool BRDSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-static SkBitmapRegionDecoder* create_brd(Path path) {
+static std::unique_ptr<android::skia::BitmapRegionDecoder> create_brd(Path path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-    if (!encoded) {
-        return nullptr;
-    }
-    return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
+    return android::skia::BitmapRegionDecoder::Make(encoded);
 }
 
 static inline void alpha8_to_gray8(SkBitmap* bitmap) {
@@ -169,7 +175,7 @@ Result BRDSrc::draw(SkCanvas* canvas) const {
             break;
     }
 
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    auto brd = create_brd(fPath);
     if (nullptr == brd.get()) {
         return Result::Skip("Could not create brd for %s.", fPath.c_str());
     }
@@ -273,16 +279,12 @@ Result BRDSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize BRDSrc::size() const {
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    auto brd = create_brd(fPath);
     if (brd) {
         return {std::max(1, brd->width() / (int)fSampleSize),
                 std::max(1, brd->height() / (int)fSampleSize)};
     }
     return {0, 0};
-}
-
-static SkString get_scaled_name(const Path& path, float scale) {
-    return SkStringPrintf("%s_%.3f", SkOSPath::Basename(path.c_str()).c_str(), scale);
 }
 
 Name BRDSrc::name() const {
@@ -293,6 +295,8 @@ Name BRDSrc::name() const {
     }
     return get_scaled_name(fPath, 1.0f / (float) fSampleSize);
 }
+
+#endif // SK_ENABLE_ANDROID_UTILS
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1127,6 +1131,9 @@ Result BisectSrc::draw(SkCanvas* canvas) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_ENABLE_SKOTTIE)
+static DEFINE_bool(useLottieGlyphPaths, false,
+                   "Prioritize embedded glyph paths over native fonts.");
+
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Result SkottieSrc::draw(SkCanvas* canvas) const {
@@ -1140,7 +1147,12 @@ Result SkottieSrc::draw(SkCanvas* canvas) const {
     auto precomp_interceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(resource_provider,
                                                                            kInterceptPrefix);
-    auto animation = skottie::Animation::Builder()
+    uint32_t flags = 0;
+    if (FLAGS_useLottieGlyphPaths) {
+        flags |= skottie::Animation::Builder::kPreferEmbeddedFonts;
+    }
+
+    auto animation = skottie::Animation::Builder(flags)
         .setResourceProvider(std::move(resource_provider))
         .setPrecompInterceptor(std::move(precomp_interceptor))
         .makeFromFile(fPath.c_str());
@@ -1551,12 +1563,13 @@ Result GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStr
     SkBitmap reference;
     SkString refLog;
     SkDynamicMemoryWStream refStream;
-    memoryCache.resetNumCacheMisses();
+    memoryCache.resetCacheStats();
     Result refResult = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
     if (!refResult.isOk()) {
         return refResult;
     }
     SkASSERT(!memoryCache.numCacheMisses());
+    SkASSERT(!memoryCache.numCacheStores());
 
     return compare_bitmaps(reference, *dst);
 }
@@ -1691,7 +1704,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                           dstSurface->draw(ddl);
                       });
 
-    // This should be the only explicit flush for the entire DDL draw
+    // This should be the only explicit flush for the entire DDL draw.
+    // TODO: remove the flushes in do_gpu_stuff
     gpuTaskGroup->add([gpuThreadCtx]() {
                                            // We need to ensure all the GPU work is finished so
                                            // the following 'deleteAllFromGPU' call will work

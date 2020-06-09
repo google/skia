@@ -639,6 +639,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"GCE":  "x86-64-Skylake_GCE",
 					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
+				"Rome": {
+					"GCE": "x86-64-AMD_Rome_GCE",
+				},
 				"Snapdragon850": {
 					"LenovoYogaC630": "arm64-64-Snapdragon850",
 				},

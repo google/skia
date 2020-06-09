@@ -74,7 +74,7 @@ public:
     }
 
 private:
-    uint32_t fValue;
+    int32_t fValue;
 };
 
 #endif

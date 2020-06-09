@@ -131,8 +131,8 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
     if (fDefaultFontManager == nullptr) {
         return nullptr;
     }
-    auto result = fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName.c_str(), SkFontStyle());
-    return sk_ref_sp<SkTypeface>(result);
+    return sk_sp<SkTypeface>(fDefaultFontManager->matchFamilyStyle(fDefaultFamilyName.c_str(),
+                                                                   SkFontStyle()));
 }
 
 

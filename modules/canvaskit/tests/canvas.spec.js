@@ -255,6 +255,81 @@ describe('Canvas Behavior', () => {
         final.delete();
     });
 
+    gm('blendmodes_canvas', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const blendModeNames = Object.keys(CanvasKit.BlendMode).filter((key) => key !== 'values');
+
+        const PASTEL_MUSTARD_YELLOW = CanvasKit.Color(248, 213, 85, 1.0);
+        const PASTEL_SKY_BLUE = CanvasKit.Color(74, 174, 245, 1.0);
+
+        const shapePaint = new CanvasKit.SkPaint();
+        shapePaint.setColor(PASTEL_MUSTARD_YELLOW);
+        shapePaint.setAntiAlias(true);
+
+        const textPaint = new CanvasKit.SkPaint();
+        textPaint.setAntiAlias(true);
+
+        const textFont = new CanvasKit.SkFont(null, 10);
+
+        let x = 10;
+        let y = 20;
+        for (const blendModeName of blendModeNames) {
+            // Draw a checkerboard for each blend mode.
+            // Each checkerboard is labelled with a blendmode's name.
+            canvas.drawText(blendModeName, x, y - 5, textPaint, textFont);
+            drawCheckerboard(canvas, x, y, x + 80, y + 80);
+
+            // A blue square is drawn on to each checkerboard with yellow circle.
+            // In each checkerboard the blue square is drawn using a different blendmode.
+            const blendMode = CanvasKit.BlendMode[blendModeName];
+            canvas.drawOval(CanvasKit.LTRBRect(x + 5, y + 5, x + 55, y + 55), shapePaint);
+            drawRectangle(x + 30, y + 30, x + 70, y + 70, PASTEL_SKY_BLUE, blendMode);
+
+            x += 90;
+            if (x > 500) {
+                x = 10;
+                y += 110;
+            }
+        }
+
+        function drawCheckerboard(canvas, x1, y1, x2, y2) {
+            const CHECKERBOARD_SQUARE_SIZE = 5;
+            const GREY = CanvasKit.Color(220, 220, 220, 0.5);
+            // Draw black border and white background for checkerboard
+            drawRectangle(x1-1, y1-1, x2+1, y2+1, CanvasKit.BLACK);
+            drawRectangle(x1, y1, x2, y2, CanvasKit.WHITE);
+
+            // Draw checkerboard squares
+            const numberOfColumns = (x2 - x1) / CHECKERBOARD_SQUARE_SIZE;
+            const numberOfRows = (y2 - y1) / CHECKERBOARD_SQUARE_SIZE
+
+            for (let row = 0; row < numberOfRows; row++) {
+                for (let column = 0; column < numberOfColumns; column++) {
+                    const rowIsEven = row % 2 === 0;
+                    const columnIsEven = column % 2 === 0;
+
+                    if ((rowIsEven && !columnIsEven) || (!rowIsEven && columnIsEven)) {
+                        drawRectangle(
+                            x1 + CHECKERBOARD_SQUARE_SIZE * row,
+                            y1 + CHECKERBOARD_SQUARE_SIZE * column,
+                            Math.min(x1 + CHECKERBOARD_SQUARE_SIZE * row + CHECKERBOARD_SQUARE_SIZE, x2),
+                            Math.min(y1 + CHECKERBOARD_SQUARE_SIZE * column + CHECKERBOARD_SQUARE_SIZE, y2),
+                            GREY
+                        );
+                    }
+                }
+            }
+        }
+
+        function drawRectangle(x1, y1, x2, y2, color, blendMode=CanvasKit.BlendMode.srcOver) {
+            canvas.save();
+            canvas.clipRect(CanvasKit.LTRBRect(x1, y1, x2, y2), CanvasKit.ClipOp.Intersect, true);
+            canvas.drawColor(color, blendMode);
+            canvas.restore();
+        }
+    });
+
     gm('colorfilters_malloc_canvas', (canvas) => {
         const paint = new CanvasKit.SkPaint();
 
@@ -264,7 +339,8 @@ describe('Canvas Behavior', () => {
             0.53, -0.918, -0.566,   0, -10,
                0,      0,      0, 0.8,   0,
         ]
-        const cm = new CanvasKit.Malloc(Float32Array, 20);
+        const colorObj = new CanvasKit.Malloc(Float32Array, 20);
+        const cm = colorObj.toTypedArray();
         for (i in src) {
             cm[i] = src[i];
         }
@@ -274,6 +350,7 @@ describe('Canvas Behavior', () => {
         paint.setColorFilter(final)
         canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
+        CanvasKit.Free(colorObj);
         paint.delete();
         final.delete();
     });
@@ -287,12 +364,12 @@ describe('Canvas Behavior', () => {
         canvas.save();
         // draw magenta around the outside edge of an rrect.
         canvas.clipRRect(rrect, CanvasKit.ClipOp.Difference, true);
-        canvas.drawColor(CanvasKit.Color(250, 30, 240, 0.9), CanvasKit.BlendMode.SrcOver);
+        canvas.drawColorComponents(250/255, 30/255, 240/255, 0.9, CanvasKit.BlendMode.SrcOver);
         canvas.restore();
 
         // draw grey inside of a star pattern, then the blue star on top
         canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
-        canvas.drawColor(CanvasKit.Color(200, 200, 200, 1.0), CanvasKit.BlendMode.SrcOver);
+        canvas.drawColorInt(CanvasKit.ColorAsInt(200, 200, 200, 255), CanvasKit.BlendMode.SrcOver);
         canvas.drawPath(path, paint);
 
         path.delete();
@@ -471,10 +548,14 @@ describe('Canvas Behavior', () => {
             }
             // Try with the malloc approach. Note that the drawPoints
             // will free the pointer when done.
-            const mPoints = CanvasKit.Malloc(Float32Array, 3*2);
+            const mPointsObj = CanvasKit.Malloc(Float32Array, 3*2);
+            const mPoints = mPointsObj.toTypedArray();
             mPoints.set([32, 16, 48, 48, 16, 32]);
-            canvas.drawPoints(CanvasKit.PointMode.Polygon, mPoints, paint);
+
+            // The obj from Malloc can be passed in instead of the typed array.
+            canvas.drawPoints(CanvasKit.PointMode.Polygon, mPointsObj, paint);
             canvas.translate(-192, 64);
+            CanvasKit.Free(mPointsObj);
         }
 
         paint.delete();
@@ -551,6 +632,14 @@ describe('Canvas Behavior', () => {
         let matr = canvas.getTotalMatrix();
         expect(matr).toEqual(CanvasKit.SkMatrix.identity());
 
+        // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
+        // make sure the 3x3 matrix properly sets these to 0 when it uses the same buffer.
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
+
         canvas.concat(CanvasKit.SkMatrix.rotated(Math.PI/4));
         const d = new DOMMatrix().translate(20, 10);
         canvas.concat(d);
@@ -561,23 +650,48 @@ describe('Canvas Behavior', () => {
             CanvasKit.SkMatrix.translated(20, 10)
         );
         expect3x3MatricesToMatch(expected, matr);
+
+        // The 3x3 should be expanded into a 4x4, with 0s in the 3rd row and column.
+        matr = canvas.getLocalToDevice();
+        expect4x4MatricesToMatch([
+            0.707106, -0.707106, 0,  7.071067,
+            0.707106,  0.707106, 0, 21.213203,
+            0       ,  0       , 0,  0       ,
+            0       ,  0       , 0,  1       ], matr);
     });
 
-    const expect3x3MatricesToMatch = (expected, actual) => {
-        expect(expected.length).toEqual(9);
-        expect(actual.length).toEqual(9);
-        for (let i = 0; i < expected.length; i++) {
-            expect(expected[i]).toBeCloseTo(actual[i], 5);
-        }
-    };
+    it('can accept a 3x2 matrix', () => {
+        const canvas = new CanvasKit.SkCanvas();
 
-    const expect4x4MatricesToMatch = (expected, actual) => {
-        expect(expected.length).toEqual(16);
-        expect(actual.length).toEqual(16);
-        for (let i = 0; i < expected.length; i++) {
-            expect(expected[i]).toBeCloseTo(actual[i], 5);
-        }
-    };
+        let matr = canvas.getTotalMatrix();
+        expect(matr).toEqual(CanvasKit.SkMatrix.identity());
+
+        // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
+        // make sure the 3x2 matrix properly sets these to 0 when it uses the same buffer.
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
+
+        canvas.concat([1.4, -0.2, 12,
+                       0.2,  1.4, 24]);
+
+        matr = canvas.getTotalMatrix();
+        const expected = [1.4, -0.2, 12,
+                          0.2,  1.4, 24,
+                            0,    0,  1];
+        expect3x3MatricesToMatch(expected, matr);
+
+        // The 3x2 should be expanded into a 4x4, with 0s in the 3rd row and column
+        // and the perspective filled in.
+        matr = canvas.getLocalToDevice();
+        expect4x4MatricesToMatch([
+            1.4, -0.2, 0, 12,
+            0.2,  1.4, 0, 24,
+            0  ,  0  , 0,  0,
+            0  ,  0  , 0,  1], matr);
+    });
 
     it('can mark a CTM and retrieve it', () => {
         const canvas = new CanvasKit.SkCanvas();
@@ -648,4 +762,80 @@ describe('Canvas Behavior', () => {
         path.delete();
     });
 
+    gm('particles_canvas', (canvas) => {
+        const curveParticles = {
+            'MaxCount': 1000,
+            'Drawable': {
+               'Type': 'SkCircleDrawable',
+               'Radius': 2
+            },
+            'EffectCode': [
+                `void effectSpawn(inout Effect effect) {
+                  effect.rate = 200;
+                  effect.color = float4(1, 0, 0, 1);
+                }`
+            ],
+            'Code': [
+               `void spawn(inout Particle p) {
+                  p.lifetime = 3 + rand(p.seed);
+                  p.vel.y = -50;
+                }
+
+                void update(inout Particle p) {
+                  float w = mix(15, 3, p.age);
+                  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
+                  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
+
+                  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
+                }`
+            ],
+            'Bindings': []
+        };
+
+        const particles = CanvasKit.MakeParticles(JSON.stringify(curveParticles));
+        particles.start(0, true);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setAntiAlias(true);
+        paint.setColor(CanvasKit.WHITE);
+        const font = new CanvasKit.SkFont(null, 12);
+
+        canvas.clear(CanvasKit.BLACK);
+
+        // Draw a 5x5 set of different times in the particle system
+        // like a filmstrip of motion of particles.
+        const LEFT_MARGIN = 90;
+        const TOP_MARGIN = 100;
+        for (let row = 0; row < 5; row++) {
+            for (let column = 0; column < 5; column++) {
+                canvas.save();
+                canvas.translate(LEFT_MARGIN + column*100, TOP_MARGIN + row*100);
+
+                // Time moves in row-major order in increments of 0.02.
+                const particleTime = row/10 + column/50;
+
+                canvas.drawText('time ' + particleTime.toFixed(2), -30, 20, paint, font);
+                particles.update(particleTime);
+
+                particles.draw(canvas);
+                canvas.restore();
+            }
+        }
+    });
 });
+
+const expect3x3MatricesToMatch = (expected, actual) => {
+    expect(expected.length).toEqual(9);
+    expect(actual.length).toEqual(9);
+    for (let i = 0; i < expected.length; i++) {
+        expect(expected[i]).toBeCloseTo(actual[i], 5);
+    }
+};
+
+const expect4x4MatricesToMatch = (expected, actual) => {
+    expect(expected.length).toEqual(16);
+    expect(actual.length).toEqual(16);
+    for (let i = 0; i < expected.length; i++) {
+        expect(expected[i]).toBeCloseTo(actual[i], 5);
+    }
+};

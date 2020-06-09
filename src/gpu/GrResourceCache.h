@@ -61,7 +61,7 @@ public:
     ~GrResourceCache();
 
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
-    static const size_t kDefaultMaxSize             = 96 * (1 << 20);
+    static const size_t kDefaultMaxSize             = 256 * (1 << 20);
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;

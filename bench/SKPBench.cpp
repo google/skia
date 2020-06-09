@@ -129,7 +129,7 @@ void SKPBench::drawMPDPicture() {
 
 void SKPBench::drawPicture() {
     for (int j = 0; j < fTileRects.count(); ++j) {
-        const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
+        const SkMatrix trans = SkMatrix::Translate(-fTileRects[j].fLeft / fScale,
                                                    -fTileRects[j].fTop / fScale);
         fSurfaces[j]->getCanvas()->drawPicture(fPic.get(), &trans, nullptr);
     }

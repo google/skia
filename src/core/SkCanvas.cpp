@@ -511,6 +511,7 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = nullptr;
+    fDeviceClipBounds = {0, 0, 0, 0};
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
@@ -930,7 +931,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         toRoot = SkMatrix::I();
         layerMatrix = ctm;
     } else if (ctm.decomposeScale(&scale, &toRoot)) {
-        layerMatrix = SkMatrix::MakeScale(scale.fWidth, scale.fHeight);
+        layerMatrix = SkMatrix::Scale(scale.fWidth, scale.fHeight);
     } else {
         // Perspective, for now, do no scaling of the layer itself.
         // TODO (michaelludwig) - perhaps it'd be better to explore a heuristic scale pulled from
@@ -1176,7 +1177,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         }
         newDevice->setMarkerStack(fMarkerStack.get());
     }
-    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix);
+    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix,
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
+                                   rec.fClipMask, rec.fClipMatrix
+#else
+                                   nullptr, nullptr
+#endif
+                                   );
 
     // only have a "next" if this new layer doesn't affect the clip (rare)
     layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;
@@ -1659,6 +1666,7 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
                 this->clipRect({0,0,0,0});
             }
         } else {
+            this->checkForDeferredSave();
             this->onClipShader(std::move(sh), op);
         }
     }
@@ -2628,6 +2636,19 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
+
+    // Overflow if more than 2^21 glyphs stopping a buffer overflow latter in the stack.
+    // See chromium:1080481
+    // TODO: can consider unrolling a few at a time if this limit becomes a problem.
+    int totalGlyphCount = 0;
+    constexpr int kMaxGlyphCount = 1 << 21;
+    SkTextBlob::Iter i(*blob);
+    SkTextBlob::Iter::Run r;
+    while (i.next(&r)) {
+        int glyphsLeft = kMaxGlyphCount - totalGlyphCount;
+        RETURN_ON_FALSE(r.fGlyphCount <= glyphsLeft);
+        totalGlyphCount += r.fGlyphCount;
+    }
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
@@ -2680,7 +2701,7 @@ void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
 #endif
     RETURN_ON_NULL(dr);
     if (x || y) {
-        SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+        SkMatrix matrix = SkMatrix::Translate(x, y);
         this->onDrawDrawable(dr, &matrix);
     } else {
         this->onDrawDrawable(dr, nullptr);
@@ -2814,7 +2835,7 @@ void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
 // methods, rather than actually drawing themselves.
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
+void SkCanvas::drawColor(const SkColor4f& c, SkBlendMode mode) {
     SkPaint paint;
     paint.setColor(c);
     paint.setBlendMode(mode);

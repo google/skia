@@ -15,7 +15,11 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <atomic>
+
 namespace SkSL {
+
+struct FunctionDefinition;
 
 /**
  * A function declaration (not a definition -- does not contain a body).
@@ -24,7 +28,7 @@ struct FunctionDeclaration : public Symbol {
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
-    , fDefined(false)
+    , fDefinition(nullptr)
     , fBuiltin(false)
     , fModifiers(modifiers)
     , fParameters(std::move(parameters))
@@ -107,11 +111,12 @@ struct FunctionDeclaration : public Symbol {
         return true;
     }
 
-    mutable bool fDefined;
+    mutable FunctionDefinition* fDefinition;
     bool fBuiltin;
     Modifiers fModifiers;
     const std::vector<const Variable*> fParameters;
     const Type& fReturnType;
+    mutable std::atomic<int> fCallCount = 0;
 
     typedef Symbol INHERITED;
 };

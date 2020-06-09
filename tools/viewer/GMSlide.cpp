@@ -21,6 +21,7 @@ GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
 GMSlide::~GMSlide() = default;
 
 void GMSlide::draw(SkCanvas* canvas) {
+    fGM->setMode(skiagm::GM::kSample_Mode);
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);

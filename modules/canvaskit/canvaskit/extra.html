@@ -34,118 +34,117 @@
 
 <h2> 3D perspective transformations </h2>
 <canvas id=camera3d width=500 height=500></canvas>
+<canvas id=glyphgame width=500 height=500></canvas>
 
-<h2> Use of offscreen surfaces </h2>
-<canvas id=surfaces width=500 height=500></canvas>
+<h2> Support for extended color spaces </h2>
+<a href="chrome://flags/#force-color-profile">Force P3 profile</a>
+<canvas id=colorsupport width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
-  var legoJSON = null;
-  var drinksJSON = null;
-  var confettiJSON = null;
-  var onboardingJSON = null;
-  var multiFrameJSON = null;
-  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
-
-  var robotoData = null;
-  var notoserifData = null;
-
-  var flightAnimGif = null;
-  var skpData = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
-  const ckLoaded = CanvasKitInit({
-    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).ready();
-  ckLoaded.then((CK) => {
-    CanvasKit = CK;
-    // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'image_0.png': flightAnimGif,
-    });
-    ParticlesAPI1(CanvasKit);
 
-    ParagraphAPI1(CanvasKit, robotoData);
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
 
-    RTShaderAPI1(CanvasKit);
+  const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((response) => response.text());
+  const loadDrinksJSON = fetch(cdn + 'drinks.json').then((response) => response.text());
+  const loadConfettiJSON = fetch(cdn + 'confetti.json').then((response) => response.text());
+  const loadOnboardingJSON = fetch(cdn + 'onboarding.json').then((response) => response.text());
+  const loadMultiframeJSON = fetch(cdn + 'skottie_sample_multiframe.json').then((response) => response.text());
 
-    SkpExample(CanvasKit, skpData);
-
-    SurfaceAPI1(CanvasKit);
-  });
-
-  fetch(cdn + 'lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    });
-  });
-
-  fetch(cdn + 'drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
-
-  fetch(cdn + 'skottie_sample_multiframe.json').then((resp) => {
-    resp.text().then((str) => {
-      multiFrameJSON = str;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch(cdn + 'flightAnim.gif').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      flightAnimGif = buffer;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      robotoData = buffer;
-      ParagraphAPI1(CanvasKit, robotoData);
-    });
-  });
-
-  fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
-    skpData = buffer;
-    SkpExample(CanvasKit, skpData);
-  });
-
+  const loadFlightGif = fetch(cdn + 'flightAnim.gif').then((response) => response.arrayBuffer());
+  const loadSkp = fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer());
+  const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
   const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
   const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
   const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
-  Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
+
+  const curves = {
+    "MaxCount": 1000,
+    "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+    },
+    "EffectCode": [`
+      void effectSpawn(inout Effect effect) {
+        effect.rate = 200;
+        effect.color = float4(1, 0, 0, 1);
+      }
+      `
+    ],
+    "Code": [`
+      void spawn(inout Particle p) {
+        p.lifetime = 3 + rand(p.seed);
+        p.vel.y = -50;
+      }
+      
+      void update(inout Particle p) {
+        float w = mix(15, 3, p.age);
+        p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
+        if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
+      
+        p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
+      }
+      `
+    ],
+    "Bindings": []
+  };
+
+  const spiralSkSL = `
+  uniform float rad_scale;
+  uniform float2 in_center;
+  uniform float4 in_colors0;
+  uniform float4 in_colors1;
+
+  void main(float2 p, inout half4 color) {
+      float2 pp = p - in_center;
+      float radius = sqrt(dot(pp, pp));
+      radius = sqrt(radius);
+      float angle = atan(pp.y / pp.x);
+      float t = (angle + 3.1415926/2) / (3.1415926);
+      t += radius * rad_scale;
+      t = fract(t);
+      color = half4(mix(in_colors0, in_colors1, t));
+  }`;
+
+  // Examples which only require canvaskit
+  ckLoaded.then((CK) => {
+    CanvasKit = CK;
+    ParticlesAPI1(CanvasKit);
+    RTShaderAPI1(CanvasKit);
+    ColorSupport(CanvasKit);
+  });
+
+  // Examples requiring external resources.
+  // Set bounds to fix the 4:3 resolution of the legos
+  Promise.all([ckLoaded, loadLegoJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_legos', jsonstr, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+  });
+  // Re-size to fit
+  let fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+  Promise.all([ckLoaded, loadDrinksJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_drinks', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadConfettiJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_party', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadOnboardingJSON]).then(([ck, jsonstr]) => {
+    SkottieExample(ck, 'sk_onboarding', jsonstr, fullBounds);
+  });
+  Promise.all([ckLoaded, loadMultiframeJSON, loadFlightGif]).then(([ck, jsonstr, gif]) => {
+    SkottieExample(ck, 'sk_animated_gif', jsonstr, fullBounds, {'image_0.png': gif});
+  });
+
+  Promise.all([ckLoaded, loadFont]).then((results) => {
+    ParagraphAPI1(...results);
+    GlyphGame(...results)
+  });
+  Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
+  Promise.all([ckLoaded, loadBrickTex, loadBrickBump, loadFont]).then((results) => {Camera3D(...results)});
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
@@ -209,107 +208,6 @@
     surface.requestAnimationFrame(drawFrame);
   }
 
-const curves = {
-   "MaxCount": 1000,
-   "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 2
-   },
-   "EffectCode": [
-      "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 200;",
-      "  effect.color = float4(1, 0, 0, 1);",
-      "}",
-      ""
-   ],
-   "Code": [
-      "void spawn(inout Particle p) {",
-      "  p.lifetime = 3 + rand(p.seed);",
-      "  p.vel.y = -50;",
-      "}",
-      "",
-      "void update(inout Particle p) {",
-      "  float w = mix(15, 3, p.age);",
-      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));",
-      "  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }",
-      "",
-      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;",
-      "}",
-      ""
-   ],
-   "Bindings": []
-};
-
-  function SurfaceAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('surfaces');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    console.log('SurfaceAPI1 top surface type = '+surface.reportBackendType() );
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-
-    //create a subsurface as a temporary workspace.
-    const subSurface = surface.makeSurface({
-      width: 50,
-      height: 50,
-      alphaType: CanvasKit.AlphaType.Premul,
-      colorType: CanvasKit.ColorType.RGBA_8888,
-    });
-
-    if (!subSurface) {
-      console.error('Could not make subsurface');
-      return;
-    }
-    console.log('SurfaceAPI1 subSurface type = '+subSurface.reportBackendType() );
-
-    // draw a small "scene"
-    const paint = new CanvasKit.SkPaint();
-    paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
-    paint.setStyle(CanvasKit.PaintStyle.Fill);
-    paint.setAntiAlias(true);
-
-    const subCanvas = subSurface.getCanvas();
-    subCanvas.clear(CanvasKit.BLACK);
-    subCanvas.drawRect(CanvasKit.LTRBRect(5, 15, 45, 40), paint);
-
-    paint.setColor(CanvasKit.Color(214, 93, 244)); // purplish
-    for (let i = 0; i < 10; i++) {
-      const x = Math.random() * 50;
-      const y = Math.random() * 50;
-
-      subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
-    }
-
-    // Snap it off as an SkImage - this image will be in the form the
-    // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
-    const img = subSurface.makeImageSnapshot();
-
-    // clean up the temporary surface
-    subSurface.delete();
-    paint.delete();
-
-    // Make it repeat a bunch with a shader
-    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
-    const patternPaint = new CanvasKit.SkPaint();
-    patternPaint.setShader(pattern);
-
-    let i = 0;
-
-    function drawFrame() {
-      i++;
-      CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.WHITE);
-
-      canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
-
-  }
-
   function ParagraphAPI1(CanvasKit, fontData) {
     if (!CanvasKit || !fontData) {
       return;
@@ -371,23 +269,6 @@ const curves = {
     document.getElementById('para1').addEventListener('pointermove', interact);
     return surface;
   }
-
-  const spiralSkSL = `
-    uniform float rad_scale;
-    uniform float2 in_center;
-    uniform float4 in_colors0;
-    uniform float4 in_colors1;
-
-    void main(float2 p, inout half4 color) {
-        float2 pp = p - in_center;
-        float radius = sqrt(dot(pp, pp));
-        radius = sqrt(radius);
-        float angle = atan(pp.y / pp.x);
-        float t = (angle + 3.1415926/2) / (3.1415926);
-        t += radius * rad_scale;
-        t = fract(t);
-        color = half4(mix(in_colors0, in_colors1, t));
-    }`;
 
   function RTShaderAPI1(CanvasKit) {
     if (!CanvasKit) {
@@ -557,10 +438,37 @@ const curves = {
     surface.drawOnce(drawFrame);
   }
 
-  function Camera3D(canvas, textureImgData, normalImgData) {
-    if (!canvas) {
-
+  // Return the inverse of an SkM44. throw an error if it's not invertible
+  function mustInvert(m) {
+    const m2 = CanvasKit.SkM44.invert(m);
+    if (m2 === null) {
+      throw "Matrix not invertible";
     }
+    return m2;
+  }
+
+  // TODO(nifong): This function is in desperate need of some explanation of what it does
+  // cam is a object having eye, coa, up, near, far, angle
+  function saveCamera(canvas, /* rect */ area, /* scalar */ zscale, cam) {
+    const camera = CanvasKit.SkM44.lookat(cam.eye, cam.coa, cam.up);
+    const perspective = CanvasKit.SkM44.perspective(cam.near, cam.far, cam.angle);
+    // Calculate viewport scale. Even through we know these values are all constants in this
+    // example it might be handy to change the size later.
+    const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+    const viewport = CanvasKit.SkM44.multiply(
+      CanvasKit.SkM44.translated(center),
+      CanvasKit.SkM44.scaled(viewScale));
+
+    // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+    // as part of our "camera".
+    canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
+    canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+    // Mark the matrix to make it available to the shader by this name.
+    canvas.markCTM('local_to_world');
+  }
+
+  function Camera3D(canvas, textureImgData, normalImgData, robotoData) {
     const surface = CanvasKit.MakeCanvasSurface('camera3d');
     if (!surface) {
       console.error('Could not make surface');
@@ -586,13 +494,15 @@ const curves = {
     const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(margin, margin,
       vSphereRadius - margin, vSphereRadius - margin), margin*2.5, margin*2.5);
 
-    const camNear = 0.05;
-    const camFar = 4;
     const camAngle = Math.PI / 12;
-
-    const camEye = [0, 0, 1 / Math.tan(camAngle/2) - 1];
-    const camCOA = [0, 0, 0];
-    const camUp =  [0, 1, 0];
+    const cam = {
+      'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+      'coa'  : [0, 0, 0],
+      'up'   : [0, 1, 0],
+      'near' : 0.05,
+      'far'  : 4,
+      'angle': camAngle,
+    };
 
     let mouseDown = false;
     let clickDown = [0, 0]; // location of click down
@@ -706,34 +616,6 @@ const curves = {
       return m2[10]
     }
 
-    // Return the inverse of an SkM44. throw an error if it's not invertible
-    function mustInvert(m) {
-      var m2 = CanvasKit.SkM44.invert(m);
-      if (m2 === null) {
-        throw "Matrix not invertible";
-      }
-      return m2;
-    }
-
-    function saveCamera(canvas, /* rect */ area, /* scalar */ zscale) {
-      const camera = CanvasKit.SkM44.lookat(camEye, camCOA, camUp);
-      const perspective = CanvasKit.SkM44.perspective(camNear, camFar, camAngle);
-      // Calculate viewport scale. Even through we know these values are all constants in this
-      // example it might be handy to change the size later.
-      const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
-      const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
-      const viewport = CanvasKit.SkM44.multiply(
-        CanvasKit.SkM44.translated(center),
-        CanvasKit.SkM44.scaled(viewScale));
-
-      // want "world" to be in our big coordinates (e.g. area), so apply this inverse
-      // as part of our "camera".
-      canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
-      canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
-      // Mark the matrix to make it available to the shader by this name.
-      canvas.markCTM('local_to_world');
-    }
-
     function setClickToWorld(canvas, matrix) {
       const l2d = canvas.getLocalToDevice();
       worldToClick = CanvasKit.SkM44.multiply(mustInvert(matrix), l2d);
@@ -763,7 +645,7 @@ const curves = {
       canvas.save();
       canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
       // pass surface dimensions as viewport size.
-      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2);
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2, cam);
       setClickToWorld(canvas, clickM);
       for (let f of faces) {
         const saveCount = canvas.getSaveCount();
@@ -889,5 +771,173 @@ const curves = {
     document.getElementById('camera3d').addEventListener('pointerup', interact);
 
     surface.requestAnimationFrame(drawFrame);
+  }
+
+  // Shows a hidden message by rotating all the characters in a kind of way that makes you
+  // search with your mouse.
+  function GlyphGame(canvas, robotoData) {
+    const surface = CanvasKit.MakeCanvasSurface('glyphgame');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const sizeX = document.getElementById('glyphgame').width;
+    const sizeY = document.getElementById('glyphgame').height;
+    const halfDim = Math.min(sizeX, sizeY) / 2;
+    const margin = 50;
+    const marginTop = 25;
+    let rotX = 0; //  expected to be updated in interact()
+    let rotY = 0;
+    let pointer = [500, 450];
+    const radPerPixel = 0.005; // radians of subject rotation per pixel distance moved by mouse.
+
+    const camAngle = Math.PI / 12;
+    const cam = {
+      'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+      'coa'  : [0, 0, 0],
+      'up'   : [0, 1, 0],
+      'near' : 0.02,
+      'far'  : 4,
+      'angle': camAngle,
+    };
+
+    let lastImage = null;
+
+    const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData]);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+            color: CanvasKit.Color(105, 56, 16), // brown
+            fontFamilies: ['Roboto'],
+            fontSize: 28,
+        },
+        textAlign: CanvasKit.TextAlign.Left,
+    });
+    const hStyle = CanvasKit.RectHeightStyle.Max;
+    const wStyle = CanvasKit.RectWidthStyle.Tight;
+
+    const quotes = [
+      'Some activities superficially familiar to you are merely stupid and should be avoided for your safety, although they are not illegal as such. These include: giving your bank account details to the son of the Nigerian Minister of Finance; buying title to bridges, skyscrapers, spacecraft, planets, or other real assets; murder; selling your identity; and entering into financial contracts with entities running Economics 2.0 or higher.',
+      // Charles Stross - Accelerando
+      'If only there were evil people somewhere insidiously committing evil deeds, and it were necessary only to separate them from the rest of us and destroy them. But the line dividing good and evil cuts through the heart of every human being. And who is willing to destroy a piece of his own heart?',
+      // Aleksandr Solzhenitsyn - The Gulag Archipelago
+      'There is one metaphor of which the moderns are very fond; they are always saying, “You can’t put the clock back.” The simple and obvious answer is “You can.” A clock, being a piece of human construction, can be restored by the human finger to any figure or hour. In the same way society, being a piece of human construction, can be reconstructed upon any plan that has ever existed.',
+      // G. K. Chesterton - What's Wrong With The World?
+    ];
+
+    // pick one at random
+    const text = quotes[Math.floor(Math.random()*3)];
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText(text);
+    const paragraph = builder.build();
+    const font = new CanvasKit.SkFont(null, 18);
+    // wrap the text to a given width.
+    paragraph.layout(sizeX - margin*2);
+
+    // to rotate every glyph individually, calculate the bounding rect of each one,
+    // construct an array of rects and paragraphs that would draw each glyph individually.
+    const letters = Array(text.length);
+    for (let i = 0; i < text.length; i++) {
+      const r = paragraph.getRectsForRange(i, i+1, hStyle, wStyle)[0];
+      // The character is drawn with drawParagraph so we can pass the paraStyle,
+      // and have our character be the exact size and shape the paragraph expected
+      // when it wrapped the text. canvas.drawText wouldn't cut it.
+      const tmpbuilder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+      tmpbuilder.addText(text[i]);
+      const para = tmpbuilder.build();
+      para.layout(100);
+      letters[i] = {
+        'r': r,
+        'para': para,
+      };
+    }
+
+    function drawFrame(canvas) {
+      // persistence of vision effect is done by drawing the past frame as an image,
+      // then covering with semitransparent background color.
+      if (lastImage) {
+        canvas.drawImage(lastImage, 0, 0, null);
+        canvas.drawColor(CanvasKit.Color(171, 244, 255, 0.1)); // sky blue, almost transparent 
+      } else {
+        canvas.clear(CanvasKit.Color(171, 244, 255)); // sky blue, opaque
+      }
+      canvas.save();
+      // Set up 3D view enviroment
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, sizeX, sizeY), halfDim, cam);
+
+      // Rotate the whole paragraph as a unit.
+      const paraRotPoint = [halfDim, halfDim, 1];
+      canvas.concat(CanvasKit.SkM44.multiply(
+        CanvasKit.SkM44.translated(paraRotPoint),
+        CanvasKit.SkM44.rotated([0,1,0], rotX),
+        CanvasKit.SkM44.rotated([1,0,0], rotY * 0.2),
+        CanvasKit.SkM44.translated(CanvasKit.SkVector.mulScalar(paraRotPoint, -1)),
+      ));
+
+      // Rotate every glyph in the paragraph individually.
+      let i = 0;
+      for (const letter of letters) {
+        canvas.save();
+        let r = letter['r'];
+        // rotate about the center of the glyph's rect.
+        rotationPoint = [
+          margin + r.fLeft + (r.fRight - r.fLeft) / 2,
+          marginTop + r.fTop + (r.fBottom - r.fTop) / 2,
+          0
+        ];
+        distanceFromPointer = CanvasKit.SkVector.dist(pointer, rotationPoint.slice(0, 2));
+        // Rotate more around the Y-axis depending on the glyph's distance from the pointer.
+        canvas.concat(CanvasKit.SkM44.multiply(
+          CanvasKit.SkM44.translated(rotationPoint),
+          // note that I'm rotating around the x axis first, undoing some of the rotation done to the whole
+          // paragraph above, where x came second. If I rotated y first, a lot of letters would end up
+          // upside down, which is a bit too hard to unscramble.
+          CanvasKit.SkM44.rotated([1,0,0], rotY * -0.6),
+          CanvasKit.SkM44.rotated([0,1,0], distanceFromPointer * -0.035),
+          CanvasKit.SkM44.translated(CanvasKit.SkVector.mulScalar(rotationPoint, -1)),
+        ));
+        canvas.drawParagraph(letter['para'], margin + r.fLeft, marginTop + r.fTop);
+        i++;
+        canvas.restore();
+      }
+      canvas.restore();
+      lastImage = surface.makeImageSnapshot();
+    }
+
+    function interact(e) {
+      pointer = [e.offsetX, e.offsetY]
+      rotX = (pointer[0] - halfDim) * radPerPixel;
+      rotY = (pointer[1] - halfDim) * radPerPixel * -1;
+      surface.requestAnimationFrame(drawFrame);
+    };
+
+    document.getElementById('glyphgame').addEventListener('pointermove', interact);
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function ColorSupport(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('colorsupport', CanvasKit.SkColorSpace.ADOBE_RGB);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+
+    // If the surface is correctly initialized with a higher bit depth color type,
+    // And chrome is compositing it into a buffer with the P3 color space,
+    // then the inner round rect should be distinct and less saturated than the full red background.
+    // Even if the monitor it is viewed on cannot accurately represent that color space.
+
+    let red = CanvasKit.Color4f(1, 0, 0, 1);
+    let paint = new CanvasKit.SkPaint();
+    paint.setColor(red, CanvasKit.SkColorSpace.ADOBE_RGB);
+    canvas.drawPaint(paint);
+    paint.setColor(red, CanvasKit.SkColorSpace.DISPLAY_P3);
+    canvas.drawRoundRect(CanvasKit.LTRBRect(50, 50, 250, 250), 30, 30, paint);
+    paint.setColor(red, CanvasKit.SkColorSpace.SRGB);
+    canvas.drawRoundRect(CanvasKit.LTRBRect(100, 100, 200, 200), 30, 30, paint);
+
+    surface.flush();
+    surface.delete();
   }
 </script>

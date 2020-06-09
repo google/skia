@@ -297,14 +297,14 @@ void FuzzNiceMatrix(Fuzz* fuzz, SkMatrix* m) {
         case 1:  // translate
             fuzz->nextRange(&buffer[0], -4000.0f, 4000.0f);
             fuzz->nextRange(&buffer[1], -4000.0f, 4000.0f);
-            *m = SkMatrix::MakeTrans(buffer[0], buffer[1]);
+            *m = SkMatrix::Translate(buffer[0], buffer[1]);
             return;
         case 2:  // translate + scale
             fuzz->nextRange(&buffer[0], -400.0f, 400.0f);
             fuzz->nextRange(&buffer[1], -400.0f, 400.0f);
             fuzz->nextRange(&buffer[2], -4000.0f, 4000.0f);
             fuzz->nextRange(&buffer[3], -4000.0f, 4000.0f);
-            *m = SkMatrix::MakeScale(buffer[0], buffer[1]);
+            *m = SkMatrix::Scale(buffer[0], buffer[1]);
             m->postTranslate(buffer[2], buffer[3]);
             return;
         case 3:  // affine

@@ -116,7 +116,7 @@ public:
     virtual bool directFilterMaskGPU(GrRecordingContext*,
                                      GrRenderTargetContext*,
                                      GrPaint&& paint,
-                                     const GrClip&,
+                                     const GrClip*,
                                      const SkMatrix& viewMatrix,
                                      const GrStyledShape& shape) const;
 

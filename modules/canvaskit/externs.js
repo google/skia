@@ -26,6 +26,7 @@ var CanvasKit = {
   // public API (i.e. things we declare in the pre-js file or in the cpp bindings)
   Color: function() {},
   Color4f: function() {},
+  ColorAsInt: function() {},
   /** @return {CanvasKit.SkRect} */
   LTRBRect: function() {},
   /** @return {CanvasKit.SkRect} */
@@ -60,6 +61,7 @@ var CanvasKit = {
   MakeWebGLCanvasSurface: function() {},
   /** @return {TypedArray} */
   Malloc: function() {},
+  Free: function() {},
   computeTonalColors: function() {},
   currentContext: function() {},
   getColorComponents: function() {},
@@ -184,6 +186,7 @@ var CanvasKit = {
     drawAnimatedImage: function() {},
     drawArc: function() {},
     drawCircle: function() {},
+    drawColorInt: function() {},
     drawDRRect:  function() {},
     drawImage: function() {},
     drawImageNine: function() {},
@@ -217,6 +220,7 @@ var CanvasKit = {
     prototype: {
       clear: function() {},
       drawColor: function() {},
+      drawColorComponents: function() {},
       drawShadow: function() {},
     },
 
@@ -257,6 +261,17 @@ var CanvasKit = {
     postTranslate: function() {},
     rotated: function() {},
     scaled: function() {},
+  },
+
+  SkColorSpace: {
+    Equals: function() {},
+    SRGB: {},
+    DISPLAY_P3: {},
+    ADOBE_RGB: {},
+    // private API (from C++ bindings)
+    _MakeSRGB: function() {},
+    _MakeDisplayP3: function() {},
+    _MakeAdobeRGB: function() {},
   },
 
   SkContourMeasureIter: {
@@ -363,6 +378,7 @@ var CanvasKit = {
     getStrokeWidth: function() {},
     setAntiAlias: function() {},
     setBlendMode: function() {},
+    setColorInt: function() {},
     setFilterQuality: function() {},
     setImageFilter: function() {},
     setMaskFilter: function() {},
@@ -376,6 +392,8 @@ var CanvasKit = {
 
     prototype: {
       setColor: function() {},
+      setColorComponents: function() {},
+      setColorInt: function() {},
     },
 
     // Private API
@@ -520,6 +538,7 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.SkCanvas} */
     getCanvas: function() {},
+    imageInfo: function() {},
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},

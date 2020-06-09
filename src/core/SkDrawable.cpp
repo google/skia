@@ -43,7 +43,7 @@ void SkDrawable::draw(SkCanvas* canvas, const SkMatrix* matrix) {
 }
 
 void SkDrawable::draw(SkCanvas* canvas, SkScalar x, SkScalar y) {
-    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+    SkMatrix matrix = SkMatrix::Translate(x, y);
     this->draw(canvas, &matrix);
 }
 

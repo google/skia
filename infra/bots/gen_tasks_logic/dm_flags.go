@@ -652,8 +652,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// skia:4095
 	badSerializeGMs := []string{
-		"strict_constraint_no_red_allowed",
-		"fast_constraint_red_is_allowed",
+		"strict_constraint_batch_no_red_allowed",  // https://crbug.com/skia/10278
+		"strict_constraint_no_red_allowed",        // https://crbug.com/skia/10278
+		"fast_constraint_red_is_allowed",          // https://crbug.com/skia/10278
 		"c_gms",
 		"colortype",
 		"colortype_xfermodes",

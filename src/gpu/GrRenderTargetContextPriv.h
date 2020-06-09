@@ -43,17 +43,21 @@ public:
                opsTask->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
-    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
+    // Clear at minimum the pixels within 'scissor', but is allowed to clear the full render target
+    // if that is the more performant option.
+    void clearAtLeast(const SkIRect& scissor, const SkPMColor4f& color) {
+        fRenderTargetContext->internalClear(&scissor, color, /* upgrade to full */ true);
+    }
 
-    void clear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
-
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
+    void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
+        fRenderTargetContext->internalStencilClear(&scissor, insideStencilMask);
+    }
 
     // While this can take a general clip, since GrReducedClip relies on this function, it must take
     // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
     // so that path renderers can use this function.
     void stencilRect(
-            const GrClip& clip, const GrUserStencilSettings* ss, GrPaint&& paint,
+            const GrClip* clip, const GrUserStencilSettings* ss, GrPaint&& paint,
             GrAA doStencilMSAA, const SkMatrix& viewMatrix, const SkRect& rect,
             const SkMatrix* localMatrix = nullptr) {
         // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
@@ -65,13 +69,13 @@ public:
     }
 
     void stencilPath(
-            const GrHardClip&, GrAA doStencilMSAA, const SkMatrix& viewMatrix, sk_sp<const GrPath>);
+            const GrHardClip*, GrAA doStencilMSAA, const SkMatrix& viewMatrix, sk_sp<const GrPath>);
 
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilPath(const GrHardClip&,
+    bool drawAndStencilPath(const GrHardClip*,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -95,7 +99,7 @@ public:
 
     using WillAddOpFn = GrRenderTargetContext::WillAddOpFn;
     void testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
-    void testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>,
+    void testingOnly_addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
                                const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     bool refsWrappedObjects() const {

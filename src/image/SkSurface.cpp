@@ -444,10 +444,6 @@ bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
                                                releaseContext);
 }
 
-void SkSurface::flushAndSubmit() {
-    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
-}
-
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlushInfo& flushInfo) {
     return asSB(this)->onFlush(access, flushInfo);
 }
@@ -527,14 +523,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
-                                                                 const GrBackendTexture&,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 SkColorType,
-                                                                 sk_sp<SkColorSpace>,
-                                                                 const SkSurfaceProps*) {
-    return nullptr;
+void SkSurface::flushAndSubmit() {
+    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }
 
 #endif

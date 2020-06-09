@@ -72,8 +72,6 @@ public:
 
     bool sampleMaskSupport() const { return fSampleMaskSupport; }
 
-    bool tessellationSupport() const { return fTessellationSupport; }
-
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
@@ -175,6 +173,10 @@ public:
     // http://skbug.com/8921
     bool canOnlyUseSampleMaskWithStencil() const { return fCanOnlyUseSampleMaskWithStencil; }
 
+    // ANGLE disallows do loops altogether, and we're seeing crashes on Tegra3 with do loops in at
+    // least some cases.
+    bool canUseDoLoops() const { return fCanUseDoLoops; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -244,6 +246,11 @@ public:
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
+    // Maximum number of segments a tessellation edge can be divided into.
+    int maxTessellationSegments() const { return fMaxTessellationSegments; }
+
+    bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
+
     bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
@@ -267,7 +274,6 @@ private:
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fSampleMaskSupport                 : 1;
-    bool fTessellationSupport               : 1;
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
@@ -301,6 +307,7 @@ private:
     bool fNoDefaultPrecisionForExternalSamplers       : 1;
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
     bool fColorSpaceMathNeedsFloat                    : 1;
+    bool fCanUseDoLoops                               : 1;
 
     const char* fVersionDeclString;
 
@@ -319,6 +326,7 @@ private:
     const char* fFBFetchExtensionString;
 
     int fMaxFragmentSamplers;
+    int fMaxTessellationSegments;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 

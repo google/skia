@@ -21,6 +21,13 @@
 #include "src/core/SkTextFormatParams.h"
 #include "tools/ToolUtils.h"
 
+#include "include/effects/SkStrokeAndFillPathEffect.h"
+static void set_strokeandfill(SkPaint* paint) {
+    SkASSERT(paint->getPathEffect() == nullptr);
+    paint->setPathEffect(SkStrokeAndFillPathEffect::Make());
+    paint->setStroke(true);
+}
+
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Papyrus"));
  * paint.getTextPath("H", 1, 100, 80, &textPath);
@@ -238,107 +245,107 @@ static SkPath hiragino_maru_gothic_pro_dash() {
 
 static void show_bold(SkCanvas* canvas, const char* text,
                       SkScalar x, SkScalar y, const SkPaint& paint, const SkFont& font) {
-        canvas->drawString(text, x, y, font, paint);
-        SkFont f(font);
-        f.setEmbolden(true);
-        canvas->drawString(text, x, y + 120, f, paint);
+    canvas->drawString(text, x, y, font, paint);
+    SkFont f(font);
+    f.setEmbolden(true);
+    canvas->drawString(text, x, y + 120, f, paint);
 }
 
 static void path_bold(SkCanvas* canvas, const SkPath& path,
                       const SkPaint& paint, float textSize) {
-        SkPaint p(paint);
-        canvas->drawPath(path, p);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
-        SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
-                kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
-                kStdFakeBoldInterpLength);
-        SkScalar extra = textSize * fakeBoldScale;
-        p.setStrokeWidth(extra);
-        canvas->save();
-        canvas->translate(0, 120);
-        canvas->drawPath(path, p);
-        canvas->restore();
+    SkPaint p(paint);
+    canvas->drawPath(path, p);
+    set_strokeandfill(&p);
+    SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
+            kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
+            kStdFakeBoldInterpLength);
+    SkScalar extra = textSize * fakeBoldScale;
+    p.setStrokeWidth(extra);
+    canvas->save();
+    canvas->translate(0, 120);
+    canvas->drawPath(path, p);
+    canvas->restore();
 }
 
 DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
                       SkString("stroke-fill")) {
-        SkScalar x = SkIntToScalar(100);
-        SkScalar y = SkIntToScalar(88);
+    SkScalar x = SkIntToScalar(100);
+    SkScalar y = SkIntToScalar(88);
 
-        // use the portable typeface to generically test the fake bold code everywhere
-        // (as long as the freetype option to do the bolding itself isn't enabled)
-        SkFont  font(ToolUtils::create_portable_typeface("serif", SkFontStyle()), 100);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(SkIntToScalar(5));
+    // use the portable typeface to generically test the fake bold code everywhere
+    // (as long as the freetype option to do the bolding itself isn't enabled)
+    SkFont  font(ToolUtils::create_portable_typeface("serif", SkFontStyle()), 100);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(SkIntToScalar(5));
 
-        // use paths instead of text to test the path data on all platforms, since the
-        // Mac-specific font may change or is not available everywhere
-        path_bold(canvas, papyrus_hello(), paint, font.getSize());
-        path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint, font.getSize());
+    // use paths instead of text to test the path data on all platforms, since the
+    // Mac-specific font may change or is not available everywhere
+    path_bold(canvas, papyrus_hello(), paint, font.getSize());
+    path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint, font.getSize());
 
-        show_bold(canvas, "Hi There", x + SkIntToScalar(430), y, paint, font);
+    show_bold(canvas, "Hi There", x + SkIntToScalar(430), y, paint, font);
 
-        paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    set_strokeandfill(&paint);
 
-        SkPath path;
-        path.setFillType(SkPathFillType::kWinding);
-        path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
-        path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCCW);
-        canvas->drawPath(path, paint);
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
+    path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCCW);
+    canvas->drawPath(path, paint);
 
-        SkPath path2;
-        path2.setFillType(SkPathFillType::kWinding);
-        path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
-        path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCW);
-        canvas->drawPath(path2, paint);
+    SkPath path2;
+    path2.setFillType(SkPathFillType::kWinding);
+    path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
+    path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCW);
+    canvas->drawPath(path2, paint);
 
-        path2.reset();
-        path2.addCircle(x + SkIntToScalar(240), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
-        canvas->drawPath(path2, paint);
-        SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCCW_FirstDirection));
+    path2.reset();
+    path2.addCircle(x + SkIntToScalar(240), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
+    canvas->drawPath(path2, paint);
+    SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCCW_FirstDirection));
 
-        path2.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path2, nullptr));
-        path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
-        SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCW_FirstDirection));
-        canvas->drawPath(path2, paint);
+    path2.reset();
+    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path2, nullptr));
+    path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
+    SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCW_FirstDirection));
+    canvas->drawPath(path2, paint);
 
-        SkRect r = SkRect::MakeXYWH(x - SkIntToScalar(50), y + SkIntToScalar(280),
-                                    SkIntToScalar(100), SkIntToScalar(100));
-        SkPath path3;
-        path3.setFillType(SkPathFillType::kWinding);
-        path3.addRect(r, SkPathDirection::kCW);
-        r.inset(SkIntToScalar(10), SkIntToScalar(10));
-        path3.addRect(r, SkPathDirection::kCCW);
-        canvas->drawPath(path3, paint);
+    SkRect r = SkRect::MakeXYWH(x - SkIntToScalar(50), y + SkIntToScalar(280),
+                                SkIntToScalar(100), SkIntToScalar(100));
+    SkPath path3;
+    path3.setFillType(SkPathFillType::kWinding);
+    path3.addRect(r, SkPathDirection::kCW);
+    r.inset(SkIntToScalar(10), SkIntToScalar(10));
+    path3.addRect(r, SkPathDirection::kCCW);
+    canvas->drawPath(path3, paint);
 
-        r = SkRect::MakeXYWH(x + SkIntToScalar(70), y + SkIntToScalar(280),
-                             SkIntToScalar(100), SkIntToScalar(100));
-        SkPath path4;
-        path4.setFillType(SkPathFillType::kWinding);
-        path4.addRect(r, SkPathDirection::kCCW);
-        r.inset(SkIntToScalar(10), SkIntToScalar(10));
-        path4.addRect(r, SkPathDirection::kCW);
-        canvas->drawPath(path4, paint);
+    r = SkRect::MakeXYWH(x + SkIntToScalar(70), y + SkIntToScalar(280),
+                         SkIntToScalar(100), SkIntToScalar(100));
+    SkPath path4;
+    path4.setFillType(SkPathFillType::kWinding);
+    path4.addRect(r, SkPathDirection::kCCW);
+    r.inset(SkIntToScalar(10), SkIntToScalar(10));
+    path4.addRect(r, SkPathDirection::kCW);
+    canvas->drawPath(path4, paint);
 
-        r = SkRect::MakeXYWH(x + SkIntToScalar(190), y + SkIntToScalar(280),
-                             SkIntToScalar(100), SkIntToScalar(100));
-        path4.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
-        path4.addRect(r, SkPathDirection::kCCW);
-        SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCCW_FirstDirection));
-        path4.moveTo(0, 0); // test for crbug.com/247770
-        canvas->drawPath(path4, paint);
+    r = SkRect::MakeXYWH(x + SkIntToScalar(190), y + SkIntToScalar(280),
+                         SkIntToScalar(100), SkIntToScalar(100));
+    path4.reset();
+    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
+    path4.addRect(r, SkPathDirection::kCCW);
+    SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCCW_FirstDirection));
+    path4.moveTo(0, 0); // test for crbug.com/247770
+    canvas->drawPath(path4, paint);
 
-        r = SkRect::MakeXYWH(x + SkIntToScalar(310), y + SkIntToScalar(280),
-                             SkIntToScalar(100), SkIntToScalar(100));
-        path4.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
-        path4.addRect(r, SkPathDirection::kCW);
-        SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCW_FirstDirection));
-        path4.moveTo(0, 0); // test for crbug.com/247770
-        canvas->drawPath(path4, paint);
+    r = SkRect::MakeXYWH(x + SkIntToScalar(310), y + SkIntToScalar(280),
+                         SkIntToScalar(100), SkIntToScalar(100));
+    path4.reset();
+    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
+    path4.addRect(r, SkPathDirection::kCW);
+    SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCW_FirstDirection));
+    path4.moveTo(0, 0); // test for crbug.com/247770
+    canvas->drawPath(path4, paint);
 }
 
 DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {

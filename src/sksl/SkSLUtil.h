@@ -144,6 +144,13 @@ public:
         return true;
     }
 
+    bool canUseDoLoops() const {
+        // we define this to false in standalone so we don't use do loops while inlining in FP files
+        // (which would then, being baked in, end up being used even in contexts where do loops are
+        // not allowed)
+        return false;
+    }
+
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }

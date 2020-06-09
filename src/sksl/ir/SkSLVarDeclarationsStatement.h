@@ -30,6 +30,10 @@ struct VarDeclarationsStatement : public Statement {
         return true;
     }
 
+    int nodeCount() const override {
+        return 1 + fDeclaration->nodeCount();
+    }
+
     std::unique_ptr<Statement> clone() const override {
         std::unique_ptr<VarDeclarations> cloned((VarDeclarations*) fDeclaration->clone().release());
         return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));

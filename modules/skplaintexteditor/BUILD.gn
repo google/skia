@@ -35,7 +35,8 @@ if (skia_use_icu && skia_use_harfbuzz) {
     include_dirs = [ "../.." ]
     public = [ "src/word_boundaries.h" ]
     sources = [ "src/word_boundaries.cpp" ]
-    deps = [ "../../third_party/icu" ]
+    configs += [ "../../third_party/icu/config:no_cxx" ]
+    deps = [ "//third_party/icu" ]
   }
 
   source_set("editor_app") {

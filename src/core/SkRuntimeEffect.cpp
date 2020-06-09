@@ -28,8 +28,8 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/effects/generated/GrMatrixEffect.h"
 #endif
 
 #include <algorithm>
@@ -858,9 +858,7 @@ public:
             fp->addChild(std::move(childFP));
         }
         std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
-        if (!matrix.isIdentity()) {
-            result = GrMatrixEffect::Make(matrix, std::move(result));
-        }
+        result = GrMatrixEffect::Make(matrix, std::move(result));
         if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
             return GrFragmentProcessor::ClampPremulOutput(std::move(result));
         } else {

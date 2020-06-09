@@ -1,5 +1,4 @@
 arcs_as_paths
-atlastext
 bigbitmaprect_i
 bigbitmaprect_s
 blurcircles2

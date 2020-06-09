@@ -8,6 +8,7 @@
 #ifndef GrDynamicAtlas_DEFINED
 #define GrDynamicAtlas_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
@@ -41,20 +42,27 @@ public:
                                                     const GrCaps&,
                                                     GrSurfaceProxy::UseAllocator);
 
+    enum class RectanizerAlgorithm {
+        kSkyline,
+        kPow2
+    };
+
     GrDynamicAtlas(GrColorType colorType, InternalMultisample, SkISize initialSize,
-                   int maxAtlasSize, const GrCaps&);
+                   int maxAtlasSize, const GrCaps&,
+                   RectanizerAlgorithm = RectanizerAlgorithm::kSkyline);
     virtual ~GrDynamicAtlas();
 
     void reset(SkISize initialSize, const GrCaps& desc);
 
+    int maxAtlasSize() const { return fMaxAtlasSize; }
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
     bool isInstantiated() const { return fTextureProxy->isInstantiated(); }
     int currentWidth() const { return fWidth; }
     int currentHeight() const { return fHeight; }
 
-    // Attempts to add a rect to the atlas. If successful, returns the integer offset from
-    // device-space pixels where the path will be drawn, to atlas pixels where its mask resides.
-    bool addRect(const SkIRect& devIBounds, SkIVector* atlasOffset);
+    // Attempts to add a rect to the atlas. Returns true if successful, along with the rect's
+    // top-left location in the atlas.
+    bool addRect(int width, int height, SkIPoint16* location);
     const SkISize& drawBounds() { return fDrawBounds; }
 
     // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
@@ -70,15 +78,19 @@ public:
 private:
     class Node;
 
+    Node* makeNode(Node* previous, int l, int t, int r, int b);
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
     const GrColorType fColorType;
     const InternalMultisample fInternalMultisample;
     const int fMaxAtlasSize;
+    const RectanizerAlgorithm fRectanizerAlgorithm;
     int fWidth;
     int fHeight;
-    std::unique_ptr<Node> fTopNode;
     SkISize fDrawBounds;
+
+    SkSTArenaAlloc<512> fNodeAllocator;
+    Node* fTopNode = nullptr;
 
     sk_sp<GrTextureProxy> fTextureProxy;
     sk_sp<GrTexture> fBackingTexture;

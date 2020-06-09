@@ -73,7 +73,7 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
     SkIRect clip2 = SkIRect::MakeWH(200, 200);
     SkImageFilterCacheKey key0(0, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
     SkImageFilterCacheKey key1(1, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
-    SkImageFilterCacheKey key2(0, SkMatrix::MakeTrans(5, 5), clip1,
+    SkImageFilterCacheKey key2(0, SkMatrix::Translate(5, 5), clip1,
                                    image->uniqueID(), image->subset());
     SkImageFilterCacheKey key3(0, SkMatrix::I(), clip2, image->uniqueID(), image->subset());
     SkImageFilterCacheKey key4(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());

@@ -10,9 +10,11 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/d3d/GrD3DAttachmentViewManager.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
+#include "src/gpu/d3d/GrD3DCpuDescriptorManager.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -20,10 +22,13 @@
 class GrD3DDirectCommandList;
 class GrD3DGpu;
 class GrD3DPipelineState;
+class GrSamplerState;
 
 class GrD3DResourceProvider {
 public:
     GrD3DResourceProvider(GrD3DGpu*);
+
+    void destroyResources();
 
     std::unique_ptr<GrD3DDirectCommandList> findOrCreateDirectCommandList();
 
@@ -37,8 +42,19 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE createDepthStencilView(ID3D12Resource* textureResource);
     void recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*);
 
-   sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
+    D3D12_CPU_DESCRIPTOR_HANDLE createConstantBufferView(ID3D12Resource* bufferResource,
+                                                         size_t offset,
+                                                         size_t size);
+    D3D12_CPU_DESCRIPTOR_HANDLE createShaderResourceView(ID3D12Resource* resource);
+    void recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
+
+    sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                                  const GrProgramInfo&);
+
+    D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
+    void prepForSubmit();
 
 private:
 #ifdef SK_DEBUG
@@ -50,6 +66,7 @@ private:
         PipelineStateCache(GrD3DGpu* gpu);
         ~PipelineStateCache();
 
+        void release();
         sk_sp<GrD3DPipelineState> refPipelineState(GrRenderTarget*, const GrProgramInfo&);
 
     private:
@@ -76,9 +93,13 @@ private:
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
     SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
 
-    GrD3DAttachmentViewManager fAttachmentViewManager;
+    GrD3DCpuDescriptorManager fCpuDescriptorManager;
+
+    sk_sp<GrD3DConstantRingBuffer> fConstantBuffer;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
+
+    SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
 };
 
 #endif
