@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "8b9c2fbc_9f3c40d3",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T13:17:18Z",
+      "side": 1,
+      "message": "I think the best practice for something like this is to have a helper package with zero dependencies (maybe even tests to ensure that no dependencies get added) designed specifically for this purpose. Task scheduler kind of does that with the poorly named \"specs\" package which is imported by gen_tasks in the client repos, but it could be more minimal. Seems useful for Gold too, maybe depending on how much of it is handled by goldctl.",
+      "parentUuid": "e15a467e_eb9ea78c",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 28
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce7940cd_59cfe57d",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 4
@@ -234,6 +258,30 @@
       "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af8a8e87_bd81f535",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T13:17:18Z",
+      "side": 1,
+      "message": "No example yet.  I tried doing it with goldctl at one point, ran into some roadblock I can\u0027t remember, and never managed to revisit.  Actually, the cleanest route might be to start by rewriting the upload task itself as a task driver, to make it super minimal.  Then we can copy/paste or even just import the upload step elsewhere.",
+      "parentUuid": "53ad54e2_84159929",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 295,
+        "endChar": 2
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -366,6 +414,30 @@
       "side": 1,
       "message": "I don\u0027t think I can - I want to make sure /tmp/benchmark/out is created.\n\nI\u0027m also not sure what you mean by \"and below\". To my eye, all those folders are needed.",
       "parentUuid": "fa610897_93f48b99",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 24
+      },
+      "revId": "e42c0e9c606791b9a159ce0a5db88c9904d3adbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bae262fa_9c27a638",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps_test.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-09T13:17:18Z",
+      "side": 1,
+      "message": "Sorry for being unclear, I meant `defer testutils.RemoveAll(t, benchmarkPath)`",
+      "parentUuid": "f0d8e6d7_e3e05b45",
       "range": {
         "startLine": 22,
         "startChar": 0,
