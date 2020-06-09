@@ -216,6 +216,10 @@ public:
                         SkFilterQuality quality, const SkColorInfo& dst,
                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
+    virtual SkFilterQuality resolveFilterQuality(SkFilterQuality quality) const {
+        return quality;
+    }
+
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
 
