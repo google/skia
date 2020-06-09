@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d063471_6d38d3cd",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "This was handled in the RETURN_IF_ABANDONED macro",
+      "range": {
+        "startLine": 491,
+        "startChar": 0,
+        "endLine": 494,
+        "endChar": 5
+      },
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abea7a29_83d15ddf",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "Replace with fContext-\u003epriv() and rm \u0027contextPriv\u0027 ?",
+      "range": {
+        "startLine": 495,
+        "startChar": 37,
+        "endLine": 495,
+        "endChar": 48
+      },
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90ddbc17_92827048",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "It seems odd to me that blurRec doesn\u0027t participate in this look up. I guess we regenerate if we get different blur parameters?",
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e9f2c58_a0cdc69a",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "with reuse ?",
+      "range": {
+        "startLine": 543,
+        "startChar": 47,
+        "endLine": 543,
+        "endChar": 53
+      },
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f9dfb14_61c20b46",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "Just fGlyphPainter now ?",
+      "range": {
+        "startLine": 548,
+        "startChar": 12,
+        "endLine": 548,
+        "endChar": 19
+      },
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85f723c4_7b17a522",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "same ?",
+      "range": {
+        "startLine": 560,
+        "startChar": 8,
+        "endLine": 560,
+        "endChar": 15
+      },
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "776deaec_ed8ec997",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T14:03:11Z",
+      "side": 1,
+      "message": "Can/should the \u0027processGlyphRunList\u0027 call be pulled out to here ?",
+      "revId": "232f5caecdbf478bb4135c9a0b8c919e3b31ba3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
