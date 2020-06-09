@@ -10,6 +10,7 @@ _include = get_path_info("include", "abspath")
 skia_skrive_public = [ "$_include/SkRive.h" ]
 
 skia_skrive_sources = [
+  "$_src/Artboard.cpp",
   "$_src/SkRive.cpp",
   "$_src/reader/BinaryReader.cpp",
   "$_src/reader/JsonReader.cpp",
