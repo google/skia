@@ -73,6 +73,14 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
+    bool setBackendTextureState(const GrBackendTexture&,
+                                const GrBackendSurfaceMutableState&,
+                                sk_sp<GrRefCntedCallback> finishedCallback) override;
+
+    bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                     const GrBackendSurfaceMutableState&,
+                                     sk_sp<GrRefCntedCallback> finishedCallback) override;
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
@@ -192,6 +200,11 @@ private:
     bool onUpdateBackendTexture(const GrBackendTexture&,
                                 sk_sp<GrRefCntedCallback> finishedCallback,
                                 const BackendTextureData*) override;
+
+    bool setBackendSurfaceState(GrVkImageInfo info,
+                                sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
+                                SkISize dimensions,
+                                const GrVkSharedImageInfo& newInfo);
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,

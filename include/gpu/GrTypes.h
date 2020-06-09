@@ -12,6 +12,9 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrConfig.h"
 
+class GrBackendSurfaceMutableState;
+class GrBackendTexture;
+class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class SkImage;
 class SkSurface;

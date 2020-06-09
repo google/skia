@@ -665,6 +665,26 @@ public:
                                                     GrGpuFinishedProc finishedProc = nullptr,
                                                     GrGpuFinishedContext finishedContext = nullptr);
 
+    /*
+     * Updates the state of the GrBackendTexture/RenderTarget to have the passed in
+     * GrBackendSurfaceMutableState. Unlike the state setting calls directly on GrBackendSurface,
+     * this call actually changes the state via the backend API (where as the GrBackendSurface calls
+     * just update Skia's tracking of the state). This call just queues up the state change to be
+     * executed on the GPU. GrContext::submit must be called to actually execute the state change.
+     * A finishedProc and finishedContext can be passed in which will be call when the state change
+     * actually occurs and finishes on the GPU.
+     *
+     * See GrBackendSurfaceMutableState to see what state can be set via this call.
+     */
+    bool setBackendTextureState(const GrBackendTexture&,
+                                const GrBackendSurfaceMutableState&,
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
+    bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                     const GrBackendSurfaceMutableState&,
+                                     GrGpuFinishedProc finishedProc = nullptr,
+                                     GrGpuFinishedContext finishedContext = nullptr);
+
     void deleteBackendTexture(GrBackendTexture);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.
