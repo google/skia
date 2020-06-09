@@ -540,7 +540,7 @@ void ParagraphImpl::buildClusterTable() {
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
     }
-  fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
+    fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
 }
 

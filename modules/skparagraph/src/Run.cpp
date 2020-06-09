@@ -17,7 +17,7 @@ namespace textlayout {
 Run::Run(ParagraphImpl* master,
          const SkShaper::RunHandler::RunInfo& info,
          size_t firstChar,
-         SkScalar lineHeight,
+         SkScalar heightMultiplier,
          size_t index,
          SkScalar offsetX)
     : fMaster(master)
@@ -25,7 +25,7 @@ Run::Run(ParagraphImpl* master,
     , fClusterRange(EMPTY_CLUSTERS)
     , fFont(info.fFont)
     , fClusterStart(firstChar)
-    , fHeightMultiplier(lineHeight)
+    , fHeightMultiplier(heightMultiplier)
 {
     fBidiLevel = info.fBidiLevel;
     fAdvance = info.fAdvance;
@@ -38,12 +38,27 @@ Run::Run(ParagraphImpl* master,
     fClusterIndexes.push_back_n(info.glyphCount + 1);
     fShifts.push_back_n(info.glyphCount + 1, 0.0);
     info.fFont.getMetrics(&fFontMetrics);
+
+    this->calculateMetrics();
+
     fSpaced = false;
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
+}
+
+void Run::calculateMetrics() {
+    fCorrectAscent = fFontMetrics.fAscent - fFontMetrics.fLeading * 0.5;
+    fCorrectDescent = fFontMetrics.fDescent + fFontMetrics.fLeading * 0.5;
+    fCorrectLeading = 0;
+    if (!SkScalarNearlyZero(fHeightMultiplier)) {
+        auto multiplier = fHeightMultiplier * fFont.getSize() /
+                             (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+        fCorrectAscent *= multiplier;
+        fCorrectDescent *= multiplier;
+    }
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
@@ -266,6 +281,8 @@ void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
             fFontMetrics.fAscent =  - height/2.0 - mid;
             break;
     }
+
+    this->calculateMetrics();
 
     // Make sure the placeholder can fit the line
     endlineMetrics->add(this);
