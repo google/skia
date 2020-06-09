@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b31a3b34_cb86a864",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-09T16:29:13Z",
+      "side": 1,
+      "message": "Kinda wonder if it\u0027s best to omit this. If those methods are clearly documented then this seems unnecessary to me.",
+      "range": {
+        "startLine": 670,
+        "startChar": 37,
+        "endLine": 672,
+        "endChar": 49
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2abca7e9_f12d52a6",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-09T16:29:13Z",
+      "side": 1,
+      "message": "Maybe: \"If finishedProc is not null then it will be called with finishedContext after the state transition is known to have occurred on the GPU\"",
+      "range": {
+        "startLine": 674,
+        "startChar": 7,
+        "endLine": 675,
+        "endChar": 47
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
