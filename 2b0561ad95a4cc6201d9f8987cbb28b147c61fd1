@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2f1b52a4_52f6d229",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-09T20:06:53Z",
+      "side": 1,
+      "message": "Yes, all of this was originally necessary but is now just stupid. Thanks for the catch.",
+      "parentUuid": "81929c2d_bd9e035f",
+      "revId": "2b0561ad95a4cc6201d9f8987cbb28b147c61fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d10e48f5_be9bb998",
         "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-09T18:48:46Z",
       "side": 1,
       "message": "This lgtm, but I\u0027m confused why the assert that you removed was invalid. My read of it was that this should be guaranteeing that fSampleMatrices is as large as the number of child FPs?",
+      "revId": "2b0561ad95a4cc6201d9f8987cbb28b147c61fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8cd5d83_d149d17c",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-09T20:06:53Z",
+      "side": 1,
+      "message": "Only if we actually call sample() on the children, since that\u0027s what populates the fSampleMatrices list. I ran into the (spurious) assertion failure when I had a child I wasn\u0027t actually sampling.",
+      "parentUuid": "d10e48f5_be9bb998",
       "revId": "2b0561ad95a4cc6201d9f8987cbb28b147c61fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
