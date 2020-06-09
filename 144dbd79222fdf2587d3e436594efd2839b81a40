@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "12f7be47_b483bb12",
+        "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T20:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7e2c233_1c68ed6a",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8cb30bf_67894a90",
         "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
         "patchSetId": 11
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "089a86ec_22866aa5",
+        "filename": "src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T20:45:00Z",
+      "side": 1,
+      "message": "I\u0027ll think about what can be done here. The Heap class is private to the GrD3DDescriptorTableManager class so it can\u0027t be passed to ResourceProvider. Another possibility might be storing a pointer to the DescriptorTableManager in the Heap and avoiding the ResourceProvider entirely.",
+      "parentUuid": "f8cb30bf_67894a90",
+      "range": {
+        "startLine": 101,
+        "startChar": 29,
+        "endLine": 101,
+        "endChar": 49
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "08b2021f_23d8bca2",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 11
@@ -59,6 +107,30 @@
       "writtenOn": "2020-06-09T19:08:36Z",
       "side": 1,
       "message": "just curious why this change?",
+      "range": {
+        "startLine": 87,
+        "startChar": 89,
+        "endLine": 87,
+        "endChar": 95
+      },
+      "revId": "144dbd79222fdf2587d3e436594efd2839b81a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ace3f315_750046b9",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-09T20:45:00Z",
+      "side": 1,
+      "message": "There seems to be a bug in SkDeque where if you use it both as a stack and a queue it gets into an inconsistent state and it asserts. I have to create a test to verify it, but this at least works around it.",
+      "parentUuid": "08b2021f_23d8bca2",
       "range": {
         "startLine": 87,
         "startChar": 89,
