@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9bf72955_34bdbae3",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T19:18:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2fd06b1_dd692e94",
+      "range": {
+        "startLine": 776,
+        "startChar": 96,
+        "endLine": 776,
+        "endChar": 102
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6617a2ce_19c31adc",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c2502d5_fcf86efb",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T19:18:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6617a2ce_19c31adc",
+      "range": {
+        "startLine": 794,
+        "startChar": 14,
+        "endLine": 794,
+        "endChar": 15
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7707649b_bafbe7fe",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T19:18:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ee2b2c4_25ecb518",
+      "range": {
+        "startLine": 263,
+        "startChar": 68,
+        "endLine": 263,
+        "endChar": 81
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2222cb95_7a7ee571",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "444f8a23_3748f382",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T19:18:33Z",
+      "side": 1,
+      "message": "Seems like a bug magnet for a little gain to me, but after researching it, it is a typical JS optimization. I\u0027ve tried to implement it and run into bugs I can\u0027t quite figure out yet. Seems that canvaskit isn\u0027t loaded in any test.\n\nI\u0027d really rather steer clear of this.",
+      "parentUuid": "2222cb95_7a7ee571",
+      "range": {
+        "startLine": 267,
+        "startChar": 2,
+        "endLine": 267,
+        "endChar": 16
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "397d432e_0e55e0d9",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 4
@@ -114,6 +210,30 @@
       "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8690add_3a954bd5",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-09T19:18:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "397d432e_0e55e0d9",
+      "range": {
+        "startLine": 284,
+        "startChar": 11,
+        "endLine": 284,
+        "endChar": 18
+      },
+      "revId": "4302754941b9ff4a60cf51b1ed079117667b3cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
