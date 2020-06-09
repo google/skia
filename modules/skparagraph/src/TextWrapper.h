@@ -75,7 +75,7 @@ class TextWrapper {
                 fStart = ClusterPos(cluster, cluster->startPos());
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
-            if (!cluster->run()->isPlaceholder()) {
+            if (cluster->run() != nullptr) {
                 fMetrics.add(cluster->run());
             }
             fWidth += cluster->width();
