@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81929c2d_bd9e035f",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-09T18:48:46Z",
+      "side": 1,
+      "message": "I think this was originally mutable because you were modifying it in the FP, right? But now it\u0027s only set at construction time (when calling toPipelineStage). Given that, I don\u0027t think it needs to be mutable? And it could actually be part of PipelineStageArgs? The GLSLFP doesn\u0027t really need it, but putting it there would eliminate the plumbing in a bunch of intermediate spots.",
+      "revId": "2b0561ad95a4cc6201d9f8987cbb28b147c61fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d10e48f5_be9bb998",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-09T18:48:46Z",
+      "side": 1,
+      "message": "This lgtm, but I\u0027m confused why the assert that you removed was invalid. My read of it was that this should be guaranteeing that fSampleMatrices is as large as the number of child FPs?",
+      "revId": "2b0561ad95a4cc6201d9f8987cbb28b147c61fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
