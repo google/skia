@@ -168,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "5bad32f2_8dc20c8f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T21:30:23Z",
+      "side": 1,
+      "message": "Added the mention of SkSurface and SkImage.",
+      "parentUuid": "7484e317_045ee175",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
