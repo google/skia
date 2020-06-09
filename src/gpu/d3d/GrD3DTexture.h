@@ -34,6 +34,7 @@ public:
     GrBackendTexture getBackendTexture() const override;
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE shaderResourceView() { return fShaderResourceView; }
 
     void textureParamsModified() override {}
 

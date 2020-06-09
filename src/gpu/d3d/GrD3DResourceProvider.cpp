@@ -18,6 +18,7 @@
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fCpuDescriptorManager(gpu)
+        , fDescriptorTableManager(gpu)
         , fPipelineStateCache(new PipelineStateCache(gpu)) {}
 
 void GrD3DResourceProvider::destroyResources() {
@@ -132,6 +133,15 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     return sampler;
 }
 
+std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createShaderOrConstantResourceTable(
+        unsigned int size) {
+    return fDescriptorTableManager.createShaderOrConstantResourceTable(fGpu, size);
+}
+
+std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createSamplerTable(unsigned int size) {
+    return fDescriptorTableManager.createSamplerTable(fGpu, size);
+}
+
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
@@ -162,6 +172,7 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
 
 void GrD3DResourceProvider::prepForSubmit() {
     fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
+    fDescriptorTableManager.prepForSubmit(fGpu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

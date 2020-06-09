@@ -759,6 +759,8 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DCpuDescriptorManager.h",
   "$_src/gpu/d3d/GrD3DDescriptorHeap.cpp",
   "$_src/gpu/d3d/GrD3DDescriptorHeap.h",
+  "$_src/gpu/d3d/GrD3DDescriptorTableManager.cpp",
+  "$_src/gpu/d3d/GrD3DDescriptorTableManager.h",
   "$_src/gpu/d3d/GrD3DGpu.cpp",
   "$_src/gpu/d3d/GrD3DGpu.h",
   "$_src/gpu/d3d/GrD3DOpsRenderPass.cpp",
