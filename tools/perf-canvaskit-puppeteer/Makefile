@@ -18,3 +18,9 @@ test_path_transform_with_snap:
 	--assets path_translate_assets \
 	--bench_html path-transform.html \
 	--query_params translate opacity snap
+
+skp_with_local:
+	node perf-canvaskit-with-puppeteer.js --canvaskit_js ../../out/canvaskit_wasm/canvaskit.js \
+	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
+	--input_skp ${HOME}/skps/desk_nytimes.skp \
+	--bench_html render-skp.html

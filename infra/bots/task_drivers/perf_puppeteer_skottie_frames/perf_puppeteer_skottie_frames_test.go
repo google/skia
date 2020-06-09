@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -250,8 +249,6 @@ func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testin
 	})
 	require.Empty(t, res.Errors)
 
-	// Re-seed the RNG, so we can get the filename the code wrote to.
-	rand.Seed(0)
 	b, err := ioutil.ReadFile(outputFile)
 	require.NoError(t, err)
 
