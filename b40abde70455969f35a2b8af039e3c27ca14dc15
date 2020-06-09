@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "44d2d478_869ec0e1",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T16:11:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27096925_fa766bbe",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e2a327d_16343528",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 10
@@ -95,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "607e7e6b_e4e7d78f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T16:11:50Z",
+      "side": 1,
+      "message": "I\u0027ve updated the comment. I don\u0027t think this behavior is only required in the wrapBackendTextureAsRenderTarget case. After all we\u0027re currently seeing Chrome rely on the auto-resolves even though that API has been retracted.",
+      "parentUuid": "fc81c9ed_7ae0548b",
+      "range": {
+        "startLine": 533,
+        "startChar": 7,
+        "endLine": 533,
+        "endChar": 40
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b788b24f_1f5e930c",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 10
@@ -106,6 +154,30 @@
       "writtenOn": "2020-06-09T13:43:05Z",
       "side": 1,
       "message": "could this cause double resolve/mipmap regen? I forget exactly how this all works but could a ddlTarget proxy and a normal proxy both point to the same underlying surface? Or will the proxies that point to ddlTargets all be uninstantiated so nothing actually happens? If this is the case can we put some assert here like: SkASSERT(!isDDLTarget(proxies[i]) || !proxies[i]-\u003eisInstantiated());",
+      "range": {
+        "startLine": 603,
+        "startChar": 2,
+        "endLine": 607,
+        "endChar": 37
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d13440f7_5699ba95",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T16:11:50Z",
+      "side": 1,
+      "message": "Indeed - this is very awkward. In the case I\u0027m seeing in Chrome, the surface\u0027s proxy isn\u0027t dirty wrt MSAA so it isn\u0027t resolved. The DDL\u0027s proxy, however, is so it does the resolve. \n\nThere is nothing to stop double mipmap generation though. \n\nI was wondering, with all the backend texture fanciness, there was a way to push this into Chrome\u0027s domain.",
+      "parentUuid": "b788b24f_1f5e930c",
       "range": {
         "startLine": 603,
         "startChar": 2,
