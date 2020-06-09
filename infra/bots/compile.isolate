@@ -41,7 +41,6 @@
       '../../gn',
       '../../include',
       '../../modules',
-      '../../platform_tools/android/apps/arcore/src/main/cpp',
       '../../platform_tools/android/apps/skottie/src/main/cpp',
       '../../platform_tools/android/launcher/skia_launcher.cpp',
       '../../platform_tools/android/vulkan/Skia_Vulkan_Android.h',
