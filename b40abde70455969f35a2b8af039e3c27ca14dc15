@@ -215,6 +215,30 @@
     },
     {
       "key": {
+        "uuid": "1497ca73_5f0004c3",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-09T16:44:19Z",
+      "side": 1,
+      "message": "Right. It won\u0027t be set on the proxy and won\u0027t get it from the surface.",
+      "parentUuid": "a4bcd34f_285b1154",
+      "range": {
+        "startLine": 533,
+        "startChar": 7,
+        "endLine": 533,
+        "endChar": 40
+      },
+      "revId": "b40abde70455969f35a2b8af039e3c27ca14dc15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b788b24f_1f5e930c",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 10
