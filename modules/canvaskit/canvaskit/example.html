@@ -40,6 +40,7 @@
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
+<canvas id=atlas2 width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -86,6 +87,7 @@
     TextShapingAPI2(...results);
   });
   Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI1(...results)});
+  Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI2(...results)});
 
   function DrawingExample(CanvasKit, robotoData) {
     if (!robotoData || !CanvasKit) {
@@ -1167,6 +1169,63 @@
       return;
     }
     const img = CanvasKit.MakeImageFromEncoded(imgData);
+
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+    const srcs = new CanvasKit.SkRectBuilder();
+    srcs.push(0, 0, 250, 250 ); // LTRB
+    srcs.push(250, 0, 500, 250 );
+
+    const dsts = new CanvasKit.RSXFormBuilder();
+    dsts.push(.5, 0, 0, 0); // scos, ssin, tx, ty
+    dsts.push(0, .8, 200, 100);
+
+    const colors = new CanvasKit.SkColorBuilder();
+    colors.push(CanvasKit.ColorAsInt(85, 170, 10, 128)); // light green
+    colors.push(CanvasKit.ColorAsInt(51, 51, 191, 128)); // light blue
+
+    let i = 0;
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      i++;
+      let scale = 0.5 + Math.sin(i/40)/4;
+
+      // update the coordinates of existing sprites - note that this
+      // does not require a full re-copy of the full array; they are
+      // updated in-place.
+      dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
+      dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
+
+      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
+
+      // Skip drawing the 17th frame to the screen, and instead draw it to
+      // an SkPicture - a format which can be useful for debugging.
+      // The C++ version of Skia can open a SKP created by the WASM version,
+      // which can aid performance diagnosis.
+      //if (i === 17) {
+      //   const pic = surface.captureFrameAsSkPicture(drawFrame, "frame17.skp");
+      //   pic.DEBUGONLY_saveAsFile("frame17.skp");
+      //   pic.delete();
+      // } else {
+        surface.requestAnimationFrame(drawFrame);
+       // }
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+  }
+
+  async function AtlasAPI2(CanvasKit, imgData) {
+    if (!CanvasKit || !imgData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('atlas2');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const img = await CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded(imgData);
 
     const paint = new CanvasKit.SkPaint();
     paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));

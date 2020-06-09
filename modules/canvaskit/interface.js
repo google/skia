@@ -1364,6 +1364,127 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+// Alternative method for decoding images using HTMLImageElement and Canvas2D
+// This method decodes an image through the following pipeline:
+//   ArrayBuffer -> Blob -> HTMLImageElement -> draw on Canvas2d -> context.getImageData ->
+//   Uint8Array -> CanvasKit.MakeImage
+CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded = async function(data) {
+  data = new Uint8Array(data);
+  var blob = new Blob( [ data ], { type: "image/png" } );
+
+  var imageUrl = URL.createObjectURL( blob );
+  var image = new Image();
+  image.src = imageUrl;
+
+  // Wait for image to load/decode
+  await new Promise((resolve) => image.addEventListener('load', resolve));
+  const width = image.width;
+  const height = image.height;
+
+  const canvasElement = document.createElement('canvas');
+  canvasElement.width = width;
+  canvasElement.height = height;
+
+  const ctx2d = canvasElement.getContext('2d');
+  ctx2d.drawImage(image, 0, 0)
+
+  let imageData = ctx2d.getImageData(0, 0, width, height);
+  imageData = new Uint8Array(imageData.data);
+
+  return CanvasKit.MakeImage(
+    imageData,
+    width,
+    height,
+    CanvasKit.AlphaType.Unpremul,
+    CanvasKit.ColorType.RGBA_8888,
+    CanvasKit.SkColorSpace.SRGB
+  );
+
+}
+
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+// Alternative method for decoding images using ImageBitmap and Canvas2D
+// This method decodes an image through the following pipeline:
+//   ArrayBuffer -> Blob -> ImageBitmap -> draw on Canvas2d -> context.getImageData ->
+//   Uint8Array -> CanvasKit.MakeImage
+CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded2 = async function(data) {
+  data = new Uint8Array(data);
+  var blob = new Blob( [ data ], { type: "image/png" } );
+
+  const imageBitmap = await createImageBitmap(blob);
+  const width = imageBitmap.width;
+  const height = imageBitmap.height;
+
+  const canvasElement = document.createElement('canvas');
+  canvasElement.width = width;
+  canvasElement.height = height;
+
+  // Alternatively, canvasElement.getContext("bitmaprenderer") could be used
+  // BUT, the bitmaprenderer context does not have a getImageData() method
+  // and the canvas may only have one context so the bitmaprenderer canvas would
+  // have to be copied to a canvas with a 2d context in order to get the  image
+  // data out of the canvas.
+  const ctx2d = canvasElement.getContext('2d');
+  ctx2d.drawImage(imageBitmap, 0, 0)
+
+  let imageData = ctx2d.getImageData(0, 0, width, height);
+  imageData = new Uint8Array(imageData.data);
+
+  return CanvasKit.MakeImage(
+    imageData,
+    width,
+    height,
+    CanvasKit.AlphaType.Unpremul,
+    CanvasKit.ColorType.RGBA_8888,
+    CanvasKit.SkColorSpace.SRGB
+  );
+}
+
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+// Alternative method for decoding images using ImageBitmap and Canvas2D
+// This method decodes an image through the following pipeline:
+//   ArrayBuffer -> Blob -> ImageBitmap -> draw on 1st canvas using bitmaprenderer context ->
+//   draw 1st canvas onto 2nd canvas using context2d.drawImage -> context2d.getImageData ->
+//   Uint8Array -> CanvasKit.MakeImage
+CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded3 = async function(data) {
+  data = new Uint8Array(data);
+  var blob = new Blob( [ data ], { type: "image/png" } );
+
+  const imageBitmap = await createImageBitmap(blob);
+  const width = imageBitmap.width;
+  const height = imageBitmap.height;
+
+  const canvas2dElement = document.createElement('canvas');
+  canvas2dElement.width = width;
+  canvas2dElement.height = height;
+  const canvasBitmapElement = document.createElement('canvas');
+  canvasBitmapElement.width = width;
+  canvasBitmapElement.height = height;
+
+  // Roundabout way of getting pixels to the canvas2dElement using bitmaprenderer context.
+  // May run faster if:
+  //   runtime of: transferFromImageBitmap(ImageBitmap) + drawImage(CanvasEl)
+  //   is less than runtime of: drawImage(ImageBitmap)
+  const ctxBitmap = canvasBitmapElement.getContext("bitmaprenderer");
+  ctxBitmap.transferFromImageBitmap(imageBitmap);
+
+  const ctx2d = canvas2dElement.getContext('2d');
+  ctx2d.drawImage(canvas2dElement, 0, 0)
+
+  let imageData = ctx2d.getImageData(0, 0, width, height);
+  imageData = new Uint8Array(imageData.data);
+
+  return CanvasKit.MakeImage(
+    imageData,
+    width,
+    height,
+    CanvasKit.AlphaType.Unpremul,
+    CanvasKit.ColorType.RGBA_8888,
+    CanvasKit.SkColorSpace.SRGB
+  );
+}
+
 // pixels must be a Uint8Array with bytes representing the pixel values
 // (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colorSpace) {

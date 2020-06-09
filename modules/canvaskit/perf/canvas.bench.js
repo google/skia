@@ -175,4 +175,86 @@ describe('Basic Canvas ops', () => {
 
         benchmarkAndReport('canvas_drawHugeGradient', setup, test, teardown);
     });
+
+    const CDN_URL = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+    fit('can decode an image using Blob, HTMLImageElement and Canvas2D', async () => {
+        let testImg = null;
+        function setup(ctx) {
+            ctx.surface = CanvasKit.MakeCanvasSurface('test');
+            ctx.canvas = ctx.surface.getCanvas();
+        }
+
+        async function test(ctx) {
+            const img = await CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded(testImg);
+            ctx.canvas.drawImage(img, 0, 0, null);
+        }
+
+        function teardown(ctx) {
+            ctx.surface.delete();
+        }
+        const imageResponse = await fetch(CDN_URL + 'test.png');
+        testImg = await imageResponse.arrayBuffer();
+        await asyncBenchmarkAndReport('canvas_HTMLImageElementDecoding', setup, test, teardown);
+    });
+
+    fit('can decode an image using Blob, ImageBitmap and Canvas2D', async () => {
+        let testImg = null;
+        function setup(ctx) {
+            ctx.surface = CanvasKit.MakeCanvasSurface('test');
+            ctx.canvas = ctx.surface.getCanvas();
+        }
+
+        async function test(ctx) {
+            const img = await CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded2(testImg);
+            ctx.canvas.drawImage(img, 0, 0, null);
+        }
+
+        function teardown(ctx) {
+            ctx.surface.delete();
+        }
+        const imageResponse = await fetch(CDN_URL + 'test.png');
+        testImg = await imageResponse.arrayBuffer();
+        await asyncBenchmarkAndReport('canvas_ImageBitmapDecoding', setup, test, teardown);
+    });
+
+    fit('can decode an image using Blob, ImageBitmap, Canvas2D, and Canvas bitmaprenderer', async () => {
+        let testImg = null;
+        function setup(ctx) {
+            ctx.surface = CanvasKit.MakeCanvasSurface('test');
+            ctx.canvas = ctx.surface.getCanvas();
+        }
+
+        async function test(ctx) {
+            const img = await CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded3(testImg);
+            ctx.canvas.drawImage(img, 0, 0, null);
+        }
+
+        function teardown(ctx) {
+            ctx.surface.delete();
+        }
+        const imageResponse = await fetch(CDN_URL + 'test.png');
+        testImg = await imageResponse.arrayBuffer();
+        await asyncBenchmarkAndReport('canvas_ImageBitmapContextDecoding', setup, test, teardown);
+    });
+
+    fit('can decode an image using image codecs in wasm', async () => {
+        let testImg = null;
+        function setup(ctx) {
+            ctx.surface = CanvasKit.MakeCanvasSurface('test');
+            ctx.canvas = ctx.surface.getCanvas();
+        }
+
+        function test(ctx) {
+            const img = CanvasKit.MakeImageFromEncoded(testImg);
+            ctx.canvas.drawImage(img, 0, 0, null);
+        }
+
+        function teardown(ctx) {
+            ctx.surface.delete();
+        }
+        const imageResponse = await fetch(CDN_URL + 'test.png');
+        testImg = await imageResponse.arrayBuffer();
+        benchmarkAndReport('canvas_wasmImageDecoding', setup, test, teardown);
+    });
 });
