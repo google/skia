@@ -292,16 +292,20 @@ protected:
         SkImageInfo vinfo = SkImageInfo::MakeA8(VSIZE, VSIZE);
         fBitmaps[2].allocPixels(vinfo);
 
-        int innerY = 149;
+        unsigned char innerY[16] = {149, 160, 130, 105,
+                                    160, 130, 105, 149,
+                                    130, 105, 149, 160,
+                                    105, 149, 160, 130};
         unsigned char innerU[4] = {43, 75, 145, 200};
         unsigned char innerV[4] = {88, 180, 200, 43};
         int outerYUV[] = {128, 128, 128};
         for (int i = 0; i < 3; ++i) {
             fBitmaps[i].eraseColor(SkColorSetARGB(outerYUV[i], 0, 0, 0));
         }
-        fBitmaps[0].eraseARGB(innerY, 0, 0, 0);
+        SkPixmap innerYPM(SkImageInfo::MakeA8(4, 4), innerY, 4);
         SkPixmap innerUPM(SkImageInfo::MakeA8(2, 2), innerU, 2);
         SkPixmap innerVPM(SkImageInfo::MakeA8(2, 2), innerV, 2);
+        fBitmaps[0].writePixels(innerYPM, 2, 2);
         fBitmaps[1].writePixels(innerUPM, 1, 1);
         fBitmaps[2].writePixels(innerVPM, 1, 1);
         for (auto& fBitmap : fBitmaps) {
