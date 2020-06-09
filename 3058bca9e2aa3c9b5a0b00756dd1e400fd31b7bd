@@ -22,6 +22,30 @@
       "revId": "3058bca9e2aa3c9b5a0b00756dd1e400fd31b7bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63c2dda3_df5e250b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-09T20:14:39Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "43252172_66f069e7",
+      "range": {
+        "startLine": 211,
+        "startChar": 47,
+        "endLine": 211,
+        "endChar": 66
+      },
+      "revId": "3058bca9e2aa3c9b5a0b00756dd1e400fd31b7bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
