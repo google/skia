@@ -35,21 +35,19 @@ Run::Run(ParagraphImpl* master,
     fGlyphs.push_back_n(info.glyphCount);
     fBounds.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
-    fOffsets.push_back_n(info.glyphCount + 1);
     fClusterIndexes.push_back_n(info.glyphCount + 1);
     fShifts.push_back_n(info.glyphCount + 1, 0.0);
     info.fFont.getMetrics(&fFontMetrics);
     fSpaced = false;
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
-    fOffsets[info.glyphCount] = { 0, 0};
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
-    return {fGlyphs.data(), fPositions.data(), fOffsets.data(), fClusterIndexes.data(), fOffset};
+    return {fGlyphs.data(), fPositions.data(), nullptr, fClusterIndexes.data(), fOffset};
 }
 
 void Run::commit() {
@@ -71,21 +69,24 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     return posX(end) - posX(start) + shift + correction;
 }
 
-void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector runOffset) const {
+void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size) const {
     SkASSERT(pos + size <= this->size());
     const auto& blobBuffer = builder.allocRunPos(fFont, SkToInt(size));
     sk_careful_memcpy(blobBuffer.glyphs, fGlyphs.data() + pos, size * sizeof(SkGlyphID));
-    for (size_t i = 0; i < size; ++i) {
-        auto point = fPositions[i + pos];
-        auto offset = fOffsets[i + pos];
-        point.offset(offset.fX, offset.fY);
-        if (fSpaced) {
-            point.fX += fShifts[i + pos];
+
+    if (!fSpaced && fJustificationShifts.empty()) {
+        sk_careful_memcpy(blobBuffer.points(), fPositions.data() + pos, size * sizeof(SkPoint));
+    } else {
+        for (size_t i = 0; i < size; ++i) {
+            auto point = fPositions[i + pos];
+            if (fSpaced) {
+                point.fX += fShifts[i + pos];
+            }
+            if (!fJustificationShifts.empty()) {
+                point.fX += fJustificationShifts[i + pos].fX;
+            }
+            blobBuffer.points()[i] = point;
         }
-        if (!fJustificationShifts.empty()) {
-            point.fX += fJustificationShifts[i + pos].fX;
-        }
-        blobBuffer.points()[i] = point + runOffset;
     }
 }
 
