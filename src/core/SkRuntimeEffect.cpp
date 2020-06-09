@@ -364,7 +364,8 @@ SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
 #if SK_SUPPORT_GPU
 bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
                                       GrContextOptions::ShaderErrorHandler* errorHandler,
-                                      SkSL::PipelineStageArgs* outArgs) {
+                                      SkSL::PipelineStageArgs* outArgs,
+                                      std::vector<SkSL::SampleMatrix>* outMatrices) {
     SkSL::SharedCompiler compiler;
 
     // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
@@ -386,7 +387,7 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
         return false;
     }
 
-    if (!compiler->toPipelineStage(*specialized, outArgs)) {
+    if (!compiler->toPipelineStage(*specialized, outArgs, outMatrices)) {
         errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
         return false;
     }
