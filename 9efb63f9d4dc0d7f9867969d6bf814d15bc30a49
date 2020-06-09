@@ -1,0 +1,51 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad794c87_d664be4b",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T20:01:47Z",
+      "side": 1,
+      "message": "what is i here?",
+      "range": {
+        "startLine": 160,
+        "startChar": 27,
+        "endLine": 160,
+        "endChar": 28
+      },
+      "revId": "9efb63f9d4dc0d7f9867969d6bf814d15bc30a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "387341e4_935c02a0",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-09T20:01:47Z",
+      "side": 1,
+      "message": "\u003e \"reccomended\" is a possible misspelling of \"recommended\".\n\nPlease fix.",
+      "parentUuid": "90c70e0f_b4d26127",
+      "range": {
+        "startLine": 1386,
+        "startChar": 65,
+        "endLine": 1386,
+        "endChar": 76
+      },
+      "revId": "9efb63f9d4dc0d7f9867969d6bf814d15bc30a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
