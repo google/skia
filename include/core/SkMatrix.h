@@ -1891,7 +1891,6 @@ private:
 
     friend class SkPerspIter;
     friend class SkMatrixPriv;
-    friend class SkReader32;
     friend class SerializationTest;
 };
 SK_END_REQUIRE_DENSE

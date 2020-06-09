@@ -60,13 +60,15 @@ SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
 void SkReadBuffer::setMemory(const void* data, size_t size) {
     this->validate(IsPtrAlign4(data) && (SkAlign4(size) == size));
     if (!fError) {
-        fReader.setMemory(data, size);
+        fBase = fCurr = (const char*)data;
+        fStop = fBase + size;
     }
 }
+
 void SkReadBuffer::setInvalid() {
     if (!fError) {
         // When an error is found, send the read cursor to the end of the stream
-        fReader.skip(fReader.available());
+        fCurr = fStop;
         fError = true;
     }
 }
@@ -74,13 +76,13 @@ void SkReadBuffer::setInvalid() {
 const void* SkReadBuffer::skip(size_t size) {
     size_t inc = SkAlign4(size);
     this->validate(inc >= size);
-    const void* addr = fReader.peek();
-    this->validate(IsPtrAlign4(addr) && fReader.isAvailable(inc));
+    const void* addr = fCurr;
+    this->validate(IsPtrAlign4(addr) && this->isAvailable(inc));
     if (fError) {
         return nullptr;
     }
 
-    fReader.skip(size);
+    fCurr += inc;
     return addr;
 }
 
@@ -105,14 +107,22 @@ SkColor SkReadBuffer::readColor() {
 
 int32_t SkReadBuffer::readInt() {
     const size_t inc = sizeof(int32_t);
-    this->validate(IsPtrAlign4(fReader.peek()) && fReader.isAvailable(inc));
-    return fError ? 0 : fReader.readInt();
+    if (!this->validate(IsPtrAlign4(fCurr) && this->isAvailable(inc))) {
+        return 0;
+    }
+    int32_t value = *((const int32_t*)fCurr);
+    fCurr += inc;
+    return value;
 }
 
 SkScalar SkReadBuffer::readScalar() {
     const size_t inc = sizeof(SkScalar);
-    this->validate(IsPtrAlign4(fReader.peek()) && fReader.isAvailable(inc));
-    return fError ? 0 : fReader.readScalar();
+    if (!this->validate(IsPtrAlign4(fCurr) && this->isAvailable(inc))) {
+        return 0;
+    }
+    SkScalar value = *((const SkScalar*)fCurr);
+    fCurr += inc;
+    return value;
 }
 
 uint32_t SkReadBuffer::readUInt() {
@@ -124,11 +134,11 @@ int32_t SkReadBuffer::read32() {
 }
 
 uint8_t SkReadBuffer::peekByte() {
-    if (fReader.available() <= 0) {
+    if (this->available() <= 0) {
         fError = true;
         return 0;
     }
-    return *((uint8_t*) fReader.peek());
+    return *((uint8_t*)fCurr);
 }
 
 bool SkReadBuffer::readPad32(void* buffer, size_t bytes) {
@@ -180,7 +190,7 @@ void SkReadBuffer::readPoint3(SkPoint3* point) {
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (this->isValid()) {
-        size = SkMatrixPriv::ReadFromMemory(matrix, fReader.peek(), fReader.available());
+        size = SkMatrixPriv::ReadFromMemory(matrix, fCurr, this->available());
         (void)this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!this->isValid()) {
@@ -202,15 +212,20 @@ void SkReadBuffer::readRect(SkRect* rect) {
 }
 
 void SkReadBuffer::readRRect(SkRRect* rrect) {
-    if (!this->validate(fReader.readRRect(rrect))) {
-        rrect->setEmpty();
+    size_t size = 0;
+    if (!fError) {
+        size = rrect->readFromMemory(fCurr, this->available());
+        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
+            rrect->setEmpty();
+        }
     }
+    (void)this->skip(size);
 }
 
 void SkReadBuffer::readRegion(SkRegion* region) {
     size_t size = 0;
     if (!fError) {
-        size = region->readFromMemory(fReader.peek(), fReader.available());
+        size = region->readFromMemory(fCurr, this->available());
         if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
             region->setEmpty();
         }
@@ -221,7 +236,7 @@ void SkReadBuffer::readRegion(SkRegion* region) {
 void SkReadBuffer::readPath(SkPath* path) {
     size_t size = 0;
     if (!fError) {
-        size = path->readFromMemory(fReader.peek(), fReader.available());
+        size = path->readFromMemory(fCurr, this->available());
         if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
             path->reset();
         }
@@ -270,7 +285,7 @@ const void* SkReadBuffer::skipByteArray(size_t* size) {
 
 sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
     size_t numBytes = this->getArrayCount();
-    if (!this->validate(fReader.isAvailable(numBytes))) {
+    if (!this->validate(this->isAvailable(numBytes))) {
         return nullptr;
     }
 
@@ -283,8 +298,10 @@ sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
 
 uint32_t SkReadBuffer::getArrayCount() {
     const size_t inc = sizeof(uint32_t);
-    fError = fError || !IsPtrAlign4(fReader.peek()) || !fReader.isAvailable(inc);
-    return fError ? 0 : *(uint32_t*)fReader.peek();
+    if (!this->validate(IsPtrAlign4(fCurr) && this->isAvailable(inc))) {
+        return 0;
+    }
+    return *((uint32_t*)fCurr);
 }
 
 /*  Format:
@@ -431,10 +448,10 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     sk_sp<SkFlattenable> obj;
     uint32_t sizeRecorded = this->read32();
     if (factory) {
-        size_t offset = fReader.offset();
+        size_t offset = this->offset();
         obj = (*factory)(*this);
         // check that we read the amount we expected
-        size_t sizeRead = fReader.offset() - offset;
+        size_t sizeRead = this->offset() - offset;
         if (sizeRecorded != sizeRead) {
             this->validate(false);
             return nullptr;
@@ -445,7 +462,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         }
     } else {
         // we must skip the remaining data
-        fReader.skip(sizeRecorded);
+        this->skip(sizeRecorded);
     }
     if (!this->isValid()) {
         return nullptr;

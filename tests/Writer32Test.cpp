@@ -7,7 +7,7 @@
 
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkReader32.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriter32.h"
 #include "tests/Test.h"
 
@@ -70,34 +70,6 @@ static void test_rewind(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_ptr(skiatest::Reporter* reporter) {
-    SkSWriter32<32> writer;
-
-    void* p0 = reporter;
-    void* p1 = &writer;
-
-    // try writing ptrs where at least one of them may be at a non-multiple of
-    // 8 boundary, to confirm this works on 64bit machines.
-
-    writer.writePtr(p0);
-    writer.write8(0x33);
-    writer.writePtr(p1);
-    writer.write8(0x66);
-
-    size_t size = writer.bytesWritten();
-    REPORTER_ASSERT(reporter, 2 * sizeof(void*) + 2 * sizeof(int32_t));
-
-    char buffer[32];
-    SkASSERT(sizeof(buffer) >= size);
-    writer.flatten(buffer);
-
-    SkReader32 reader(buffer, size);
-    REPORTER_ASSERT(reporter, reader.readPtr() == p0);
-    REPORTER_ASSERT(reporter, reader.readInt() == 0x33);
-    REPORTER_ASSERT(reporter, reader.readPtr() == p1);
-    REPORTER_ASSERT(reporter, reader.readInt() == 0x66);
-}
-
 static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     const uint32_t data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
@@ -110,37 +82,6 @@ static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     REPORTER_ASSERT(reporter, sizeof(buffer) == writer->bytesWritten());
     writer->flatten(buffer);
     REPORTER_ASSERT(reporter, !memcmp(data, buffer, sizeof(buffer)));
-}
-
-static void test2(skiatest::Reporter* reporter, SkWriter32* writer) {
-    static const char gStr[] = "abcdefghimjklmnopqrstuvwxyz";
-    size_t i;
-
-    size_t len = 0;
-    for (i = 0; i <= 26; ++i) {
-        len += SkWriter32::WriteStringSize(gStr, i);
-        writer->writeString(gStr, i);
-    }
-    REPORTER_ASSERT(reporter, writer->bytesWritten() == len);
-
-    SkAutoMalloc storage(len);
-    writer->flatten(storage.get());
-
-    SkReader32 reader;
-    reader.setMemory(storage.get(), len);
-    for (i = 0; i <= 26; ++i) {
-        REPORTER_ASSERT(reporter, !reader.eof());
-        const char* str = reader.readString(&len);
-        REPORTER_ASSERT(reporter, i == len);
-        REPORTER_ASSERT(reporter, strlen(str) == len);
-        REPORTER_ASSERT(reporter, !memcmp(str, gStr, len));
-        // Ensure that the align4 of the string is padded with zeroes.
-        size_t alignedSize = SkAlign4(len + 1);
-        for (size_t j = len; j < alignedSize; j++) {
-            REPORTER_ASSERT(reporter, 0 == str[j]);
-        }
-    }
-    REPORTER_ASSERT(reporter, reader.eof());
 }
 
 static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
@@ -166,8 +107,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
     SkAutoMalloc readStorage(totalBytes);
     writer->flatten(readStorage.get());
 
-    SkReader32 reader;
-    reader.setMemory(readStorage.get(), totalBytes);
+    SkReadBuffer reader(readStorage.get(), totalBytes);
 
     for (size_t len = 0; len < dataSize; len++) {
         const char* readPtr = static_cast<const char*>(reader.skip(len));
@@ -224,9 +164,6 @@ DEF_TEST(Writer32_dynamic, reporter) {
     test1(reporter, &writer);
 
     writer.reset();
-    test2(reporter, &writer);
-
-    writer.reset();
     testWritePad(reporter, &writer);
 
     writer.reset();
@@ -236,10 +173,8 @@ DEF_TEST(Writer32_dynamic, reporter) {
 DEF_TEST(Writer32_small, reporter) {
     SkSWriter32<8 * sizeof(intptr_t)> writer;
     test1(reporter, &writer);
-    writer.reset(); // should just rewind our storage
-    test2(reporter, &writer);
 
-    writer.reset();
+    writer.reset(); // should just rewind our storage
     testWritePad(reporter, &writer);
 
     writer.reset();
@@ -249,10 +184,8 @@ DEF_TEST(Writer32_small, reporter) {
 DEF_TEST(Writer32_large, reporter) {
     SkSWriter32<1024 * sizeof(intptr_t)> writer;
     test1(reporter, &writer);
-    writer.reset(); // should just rewind our storage
-    test2(reporter, &writer);
 
-    writer.reset();
+    writer.reset(); // should just rewind our storage
     testWritePad(reporter, &writer);
 
     writer.reset();
@@ -262,7 +195,6 @@ DEF_TEST(Writer32_large, reporter) {
 DEF_TEST(Writer32_misc, reporter) {
     test_reserve(reporter);
     test_string_null(reporter);
-    test_ptr(reporter);
     test_rewind(reporter);
 }
 
@@ -294,10 +226,10 @@ DEF_TEST(Writer32_data, reporter) {
 
     auto result(writer.snapshotAsData());
 
-    SkReader32 reader(result->data(), result->size());
-    auto d0(reader.readData()),
-         d1(reader.readData()),
-         d2(reader.readData());
+    SkReadBuffer reader(result->data(), result->size());
+    auto d0(reader.readByteArrayAsData()),
+         d1(reader.readByteArrayAsData()),
+         d2(reader.readByteArrayAsData());
 
     REPORTER_ASSERT(reporter, 0 == d0->size());
     REPORTER_ASSERT(reporter, strlen(str)+1 == d1->size());
