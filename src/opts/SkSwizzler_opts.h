@@ -65,7 +65,7 @@ static void RGBA_to_BGRA_portable(uint32_t* dst, const uint32_t* src, int count)
     }
 }
 
-static inline void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
+static void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count) {
     for (int i = 0; i < count; i++) {
         uint8_t r = src[0],
                 g = src[1],
@@ -78,7 +78,7 @@ static inline void RGB_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int 
     }
 }
 
-static inline void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) {
+static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) {
     for (int i = 0; i < count; i++) {
         uint8_t r = src[0],
                 g = src[1],
@@ -580,7 +580,48 @@ static void premul_should_swapRB(bool kSwapRB, uint32_t* dst, const uint32_t* sr
     RGBA_to_BGRA_portable(dst, src, count);
 }
 
-// We saw no benefit from AVX2 over SSSE3 for RGB_to_RGB1 / RGB_to_BGR1.
+// Use SSSE3 impl as AVX2 impl regresses performance on some platforms.
+static void insert_alpha_should_swaprb(bool kSwapRB,
+                                       uint32_t dst[], const uint8_t* src, int count) {
+    const __m128i alphaMask = _mm_set1_epi32(0xFF000000);
+    __m128i expand;
+    const uint8_t X = 0xFF; // Used a placeholder.  The value of X is irrelevant.
+    if (kSwapRB) {
+        expand = _mm_setr_epi8(2,1,0,X, 5,4,3,X, 8,7,6,X, 11,10,9,X);
+    } else {
+        expand = _mm_setr_epi8(0,1,2,X, 3,4,5,X, 6,7,8,X, 9,10,11,X);
+    }
+
+    while (count >= 6) {
+        // Load a vector.  While this actually contains 5 pixels plus an
+        // extra component, we will discard all but the first four pixels on
+        // this iteration.
+        __m128i rgb = _mm_loadu_si128((const __m128i*) src);
+
+        // Expand the first four pixels to RGBX and then mask to RGB(FF).
+        __m128i rgba = _mm_or_si128(_mm_shuffle_epi8(rgb, expand), alphaMask);
+
+        // Store 4 pixels.
+        _mm_storeu_si128((__m128i*) dst, rgba);
+
+        src += 4*3;
+        dst += 4;
+        count -= 4;
+    }
+
+    // Call portable code to finish up the tail of [0,4) pixels.
+    auto proc = kSwapRB ? RGB_to_BGR1_portable : RGB_to_RGB1_portable;
+    proc(dst, src, count);
+
+}
+
+/*not static*/ inline void RGB_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
+    insert_alpha_should_swaprb(false, dst, src, count);
+}
+
+/*not static*/ inline void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
+    insert_alpha_should_swaprb(true, dst, src, count);
+}
 
 /*not static*/ inline void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
     const __m256i alphas = _mm256_set1_epi8((uint8_t) 0xFF);
