@@ -60,7 +60,7 @@ public:
     Run(ParagraphImpl* master,
         const SkShaper::RunHandler::RunInfo& info,
         size_t firstChar,
-        SkScalar lineHeight,
+        SkScalar heightMultiplier,
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
@@ -84,36 +84,15 @@ public:
         fOffset.fY += shiftY;
     }
     SkVector advance() const {
-        return SkVector::Make(fAdvance.fX, fFontMetrics.fDescent - fFontMetrics.fAscent);
+        return SkVector::Make(fAdvance.fX, fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
     SkScalar descent() const { return fFontMetrics.fDescent; }
     SkScalar leading() const { return fFontMetrics.fLeading; }
-    SkScalar correctAscent() const {
-
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
-        }
-        return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
-    }
-    SkScalar correctDescent() const {
-
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
-        }
-        return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
-    }
-    SkScalar correctLeading() const {
-
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fAscent;
-        }
-        return fFontMetrics.fLeading * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
-    }
+    SkScalar correctAscent() const { return fCorrectAscent; }
+    SkScalar correctDescent() const { return fCorrectDescent; }
+    SkScalar correctLeading() const { return fCorrectLeading; }
     const SkFont& font() const { return fFont; }
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     TextDirection getTextDirection() const { return leftToRight() ? TextDirection::kLtr : TextDirection::kRtl; }
@@ -132,6 +111,7 @@ public:
 
     bool isEllipsis() const { return fEllipsis; }
 
+    void calculateMetrics();
     void updateMetrics(InternalLineMetrics* endlineMetrics);
 
     void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
@@ -217,6 +197,9 @@ private:
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;
+    SkScalar fCorrectAscent;
+    SkScalar fCorrectDescent;
+    SkScalar fCorrectLeading;
 
     bool fSpaced;
     bool fEllipsis;

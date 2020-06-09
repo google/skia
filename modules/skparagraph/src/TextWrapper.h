@@ -75,6 +75,7 @@ class TextWrapper {
                 fStart = ClusterPos(cluster, cluster->startPos());
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
+            // TODO: Make sure all the checks are correct and there are no unnecessary checks
             if (!cluster->run()->isPlaceholder()) {
                 fMetrics.add(cluster->run());
             }
