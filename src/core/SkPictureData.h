@@ -18,7 +18,6 @@
 
 class SkData;
 class SkPictureRecord;
-class SkReader32;
 struct SkSerialProcs;
 class SkStream;
 class SkWStream;
