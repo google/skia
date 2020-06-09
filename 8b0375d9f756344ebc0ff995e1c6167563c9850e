@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "7f920feb_9785aa64",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-09T20:49:11Z",
+      "side": 1,
+      "message": "Yes these states are all shared by the backend texture and SkSurface/Images that also reference the same thing.\n\nThe way I think of GrBackendTexture is that is just a wrapper of the VkImage itself. So in these cases the GrBackendTexture is still const in the sense that it still wraps the same VkImage. The state of the VkImage is not explicitly part of the GrBackendTexture. But instead it has functions for you to query what the current state is. So with all this, in my opinion at least, the const does make sense.",
+      "parentUuid": "437c4731_58401822",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
