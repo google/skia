@@ -38,7 +38,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
 
         auto width = context.clip.width();
         SkScalar x = context.clip.left();
-        SkScalar y = context.clip.top() + fPosition;
+        SkScalar y = context.clip.top() + baseline + fPosition;
 
         bool drawGaps = textStyle.getDecorationMode() == TextDecorationMode::kGaps &&
                         textStyle.getDecorationType() == TextDecoration::kUnderline;
@@ -55,9 +55,9 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
+                  calculateGaps(context, left, left + width, y, y + fThickness, fThickness);
                   canvas->drawPath(fPath, fPaint);
-                  calculateGaps(context, left, left + width, bottom, bottom + fThickness, baseline, fThickness);
+                  calculateGaps(context, left, left + width, bottom, bottom + fThickness, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   draw_line_as_rect(canvas, x,      y, width, fPaint);
@@ -70,7 +70,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, 0);
+                  calculateGaps(context, left, left + width, y, y + fThickness, 0);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   canvas->drawLine(x, y, x + width, y, fPaint);
@@ -80,7 +80,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
+                  calculateGaps(context, left, left + width, y, y + fThickness, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   draw_line_as_rect(canvas, x, y, width, fPaint);
@@ -91,16 +91,13 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
     }
 }
 
-void Decorations::calculateGaps(const TextLine::ClipContext& context, SkScalar x0, SkScalar x1, SkScalar y0, SkScalar y1, SkScalar baseline, SkScalar halo) {
+void Decorations::calculateGaps(const TextLine::ClipContext& context, SkScalar x0, SkScalar x1, SkScalar y0, SkScalar y1, SkScalar halo) {
 
       fPath.reset();
 
       // Create a special textblob for decorations
       SkTextBlobBuilder builder;
-      context.run->copyTo(builder,
-                          SkToU32(context.pos),
-                          context.size,
-                          SkVector::Make(0, baseline));
+      context.run->copyTo(builder, SkToU32(context.pos), context.size);
       auto blob = builder.make();
 
       const SkScalar bounds[2] = {y0, y1};
