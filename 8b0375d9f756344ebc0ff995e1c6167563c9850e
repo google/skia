@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "437c4731_58401822",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2020-06-09T20:41:50Z",
+      "side": 1,
+      "message": "So my understand is: this call will issue vk command in the command buffer, also change the state in the GrBackendTexture structure, so all SkImage and SkSurface based on it will also be aware of this change, right?\nBTW, GrBackendTexture is marked as const, it is a little bit confusing. Seems data in GrBackendTexture structure will not be changed.",
+      "parentUuid": "3afd343d_1b91cf7d",
+      "range": {
+        "startLine": 672,
+        "startChar": 65,
+        "endLine": 672,
+        "endChar": 91
+      },
+      "revId": "8b0375d9f756344ebc0ff995e1c6167563c9850e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2abca7e9_f12d52a6",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 7
