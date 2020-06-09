@@ -622,6 +622,18 @@ public:
                                                     GrGpuFinishedContext finishedContext,
                                                     const BackendTextureData*);
 
+    virtual bool setBackendTextureState(const GrBackendTexture&,
+                                        const GrBackendSurfaceMutableState&,
+                                        sk_sp<GrRefCntedCallback> finishedCallback) {
+        return false;
+    }
+
+    virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                             const GrBackendSurfaceMutableState&,
+                                             sk_sp<GrRefCntedCallback> finishedCallback) {
+        return false;
+    }
+
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
