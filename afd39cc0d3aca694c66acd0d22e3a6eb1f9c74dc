@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b74b2d4f_ab9eb552",
+        "filename": "modules/skparagraph/src/Decorations.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-09T15:02:02Z",
+      "side": 1,
+      "message": "nit: is this a rect? can it be?",
+      "range": {
+        "startLine": 23,
+        "startChar": 61,
+        "endLine": 23,
+        "endChar": 111
+      },
+      "revId": "afd39cc0d3aca694c66acd0d22e3a6eb1f9c74dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
