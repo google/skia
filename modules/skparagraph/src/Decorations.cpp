@@ -55,9 +55,9 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
+                  calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
-                  calculateGaps(context, left, left + width, bottom, bottom + fThickness, baseline, fThickness);
+                  calculateGaps(context, SkRect::MakeXYWH(left, bottom, width, fThickness), baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   draw_line_as_rect(canvas, x,      y, width, fPaint);
@@ -70,7 +70,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, 0);
+                  calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, 0);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   canvas->drawLine(x, y, x + width, y, fPaint);
@@ -80,7 +80,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
                   canvas->translate(context.fTextShift, 0);
-                  calculateGaps(context, left, left + width, y, y + fThickness, baseline, fThickness);
+                  calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, fThickness);
                   canvas->drawPath(fPath, fPaint);
               } else {
                   draw_line_as_rect(canvas, x, y, width, fPaint);
@@ -91,7 +91,7 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
     }
 }
 
-void Decorations::calculateGaps(const TextLine::ClipContext& context, SkScalar x0, SkScalar x1, SkScalar y0, SkScalar y1, SkScalar baseline, SkScalar halo) {
+void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRect& rect, SkScalar baseline, SkScalar halo) {
 
       fPath.reset();
 
@@ -99,27 +99,30 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, SkScalar x
       SkTextBlobBuilder builder;
       context.run->copyTo(builder,
                           SkToU32(context.pos),
-                          context.size,
-                          SkVector::Make(0, baseline));
+                          context.size);
       auto blob = builder.make();
 
-      const SkScalar bounds[2] = {y0, y1};
+      // Since we do not shift down the text by {baseline}
+      // (it now happens on drawTextBlob but we do not draw text here)
+      // we have to shift up the bounds to compensate
+      // This baseline thing ends with getIntercepts
+      const SkScalar bounds[2] = {rect.fTop - baseline, rect.fBottom - baseline};
       auto count = blob->getIntercepts(bounds, nullptr, &fPaint);
       SkTArray<SkScalar> intersections(count);
       intersections.resize(count);
       blob->getIntercepts(bounds, intersections.data(), &fPaint);
 
-      auto start = x0;
-      fPath.moveTo({x0, y0});
+      auto start = rect.fLeft;
+      fPath.moveTo(rect.fLeft, rect.fTop);
       for (int i = 0; i < intersections.count(); i += 2) {
           auto end = intersections[i] - halo;
           if (end - start >= halo) {
               start = intersections[i + 1] + halo;
-              fPath.lineTo(end, y0).moveTo(start, y0);
+              fPath.lineTo(end, rect.fTop).moveTo(start, rect.fTop);
           }
       }
-      if (!intersections.empty() && (x1 - start > halo)) {
-          fPath.lineTo(x1, y0);
+      if (!intersections.empty() && (rect.fRight - start > halo)) {
+          fPath.lineTo(rect.fRight, rect.fTop);
       }
 }
 

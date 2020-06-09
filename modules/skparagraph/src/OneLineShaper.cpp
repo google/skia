@@ -222,7 +222,6 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
                 piece->fBounds[index] = run->fBounds[i];
             }
             piece->fClusterIndexes[index] = run->fClusterIndexes[i];
-            piece->fOffsets[index] = run->fOffsets[i];
             piece->fPositions[index] = run->fPositions[i] - zero;
             piece->addX(index, advanceX);
         }
@@ -534,7 +533,6 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                                        advanceX);
 
         run.fPositions[0] = { advanceX, 0 };
-        run.fOffsets[0] = {0, 0};
         run.fClusterIndexes[0] = 0;
         run.fPlaceholderIndex = &placeholder - fParagraph->fPlaceholders.begin();
         advanceX += placeholder.fStyle.fWidth;
