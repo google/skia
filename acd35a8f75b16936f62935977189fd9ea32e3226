@@ -1,0 +1,383 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b408ccef_eb6979ca",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "I am so glad you took detailed notes. I\u0027ve taken the liberty of copying them into the commit message so they are easier to find in the future. (and also a little easier to comment on during review)",
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "465f1ce1_5d8ec8b5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "I would not expect this to work because the ImageData constructor takes in decoded bytes, not encoded bytes.",
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47ab7a21_b72d63af",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "For all of these, I think Blob will just take an ArrayBuffer",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 34
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e895c725_d4e1a50d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext says this doesn\u0027t work on Safari. Can you confirm?",
+      "range": {
+        "startLine": 44,
+        "startChar": 25,
+        "endLine": 44,
+        "endChar": 47
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74742493_86e08533",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "I would probably go for a simpler API use. Like decode the image and then draw it with drawImage.",
+      "range": {
+        "startLine": 1219,
+        "startChar": 17,
+        "endLine": 1219,
+        "endChar": 26
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d3f62fa_9b583224",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "nit: prefer single quotes (as per js style guide)",
+      "range": {
+        "startLine": 1374,
+        "startChar": 41,
+        "endLine": 1374,
+        "endChar": 43
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f9710a2_259b9a3b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "interface.js is fed into the Closure compiler which doesn\u0027t know about let/const. Everything has to be var. I\u0027m not sure if async will work either. Check this locally with make release.",
+      "range": {
+        "startLine": 1382,
+        "startChar": 2,
+        "endLine": 1382,
+        "endChar": 7
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75085e6f_e8d75e9c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "We should memoize this canvas creation. i.e. make it the first time and then re-use it on subsequent calls.",
+      "range": {
+        "startLine": 1385,
+        "startChar": 24,
+        "endLine": 1385,
+        "endChar": 56
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08c5633a_ddd8e466",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "You might not have to set the width/height. Canvas elements (I believe) are happy to draw things off screen.",
+      "range": {
+        "startLine": 1386,
+        "startChar": 24,
+        "endLine": 1386,
+        "endChar": 29
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "249b54b1_10e61ae3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "I don\u0027t think you have to convert to a Uint8Array. I would hope the MakeImage can take the Uint8ClampedArray type",
+      "range": {
+        "startLine": 1393,
+        "startChar": 18,
+        "endLine": 1393,
+        "endChar": 28
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cf063f0_f510de43",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "I don\u0027t think we should claim this is always png data. Let\u0027s go with binary/octet-stream if we can (or can we omit this?)",
+      "range": {
+        "startLine": 1413,
+        "startChar": 48,
+        "endLine": 1413,
+        "endChar": 51
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0e955a_671a9ed0",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "As above, let\u0027s try to memoize these canvases",
+      "range": {
+        "startLine": 1461,
+        "startChar": 8,
+        "endLine": 1461,
+        "endChar": 27
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4128f51_dedc871f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1488,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "Oh, this doc isn\u0027t entirely true. Any typed array should work (although we should suggest sticking to Uint8ClampedArray or Uint8Array for ease of use).",
+      "range": {
+        "startLine": 1488,
+        "startChar": 20,
+        "endLine": 1488,
+        "endChar": 30
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31d2fcee_d3fcde58",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "Please don\u0027t load from the internet during tests. Load from perf/assets/",
+      "range": {
+        "startLine": 179,
+        "startChar": 10,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39381d9_cf84dcea",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "be sure not to land code with \"fit\" in place.",
+      "range": {
+        "startLine": 181,
+        "startChar": 4,
+        "endLine": 181,
+        "endChar": 7
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e9e2341_249075a7",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "You\u0027ll want to free the memory for each of these with img.delete() at the end of each test function.",
+      "range": {
+        "startLine": 189,
+        "startChar": 18,
+        "endLine": 189,
+        "endChar": 21
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d56b3fd3_ff806b04",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T13:44:32Z",
+      "side": 1,
+      "message": "If we are trying to benchmark decoding, we probably don\u0027t want to also draw it. This simplifies things as we don\u0027t need a surface/canvas.",
+      "range": {
+        "startLine": 190,
+        "startChar": 23,
+        "endLine": 190,
+        "endChar": 32
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
