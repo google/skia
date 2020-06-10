@@ -16,6 +16,8 @@ class GrFragmentProcessor;
 namespace SkSL {
 
 struct Expression;
+struct Program;
+struct Variable;
 
 /**
  * Represents the matrix applied to a fragment processor by its parent's sample(child, matrix) call.
@@ -50,6 +52,8 @@ struct SampleMatrix {
     : fOwner(owner)
     , fKind(kind)
     , fExpression(expression) {}
+
+    static SampleMatrix Make(const Program& program, const Variable& fp);
 
     SampleMatrix merge(const SampleMatrix& other);
 
