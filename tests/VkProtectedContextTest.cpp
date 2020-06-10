@@ -20,165 +20,40 @@
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
-#include "tools/gpu/vk/VkTestUtils.h"
+#include "tools/gpu/vk/VkTestHelper.h"
 
-namespace {
-
-#define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
-
-#define ACQUIRE_INST_VK_PROC(name)                                                           \
-    fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, fBackendContext.fInstance,\
-                                                       VK_NULL_HANDLE));                     \
-    if (fVk##name == nullptr) {                                                              \
-        ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);            \
-        return false;                                                                        \
-    }
-
-#define ACQUIRE_DEVICE_VK_PROC(name)                                                          \
-    fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, VK_NULL_HANDLE, fDevice)); \
-    if (fVk##name == nullptr) {                                                               \
-        ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);             \
-        return false;                                                                         \
-    }
-
-class VulkanTestHelper {
-public:
-    VulkanTestHelper(bool isProtected) : fIsProtected(isProtected) {}
-
-    ~VulkanTestHelper() {
-        cleanup();
-    }
-
-    bool init(skiatest::Reporter* reporter);
-
-    GrContext* grContext() { return fGrContext.get(); }
-
-    sk_sp<SkSurface> createSkSurface(skiatest::Reporter* reporter);
-
-   private:
-    void cleanup();
-
-    DECLARE_VK_PROC(DestroyInstance);
-    DECLARE_VK_PROC(DeviceWaitIdle);
-    DECLARE_VK_PROC(DestroyDevice);
-
-    bool fIsProtected = false;
-    VkDevice fDevice = VK_NULL_HANDLE;
-
-    GrVkExtensions* fExtensions = nullptr;
-    VkPhysicalDeviceFeatures2* fFeatures = nullptr;
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
-    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
-    GrVkBackendContext fBackendContext;
-    sk_sp<GrContext> fGrContext;
-};
-
-} // namespace
-
-bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
-    PFN_vkGetInstanceProcAddr instProc;
-    PFN_vkGetDeviceProcAddr devProc;
-    if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-        return false;
-    }
-    auto getProc = [&instProc, &devProc](const char* proc_name,
-                                         VkInstance instance, VkDevice device) {
-        if (device != VK_NULL_HANDLE) {
-            return devProc(device, proc_name);
-        }
-        return instProc(instance, proc_name);
-    };
-
-    fExtensions = new GrVkExtensions();
-    fFeatures = new VkPhysicalDeviceFeatures2;
-    memset(fFeatures, 0, sizeof(VkPhysicalDeviceFeatures2));
-    fFeatures->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    fFeatures->pNext = nullptr;
-
-    fBackendContext.fInstance = VK_NULL_HANDLE;
-    fBackendContext.fDevice = VK_NULL_HANDLE;
-
-    if (!sk_gpu_test::CreateVkBackendContext(getProc, &fBackendContext, fExtensions,
-                                             fFeatures, &fDebugCallback, nullptr,
-                                             sk_gpu_test::CanPresentFn(), fIsProtected)) {
-        return false;
-    }
-    fDevice = fBackendContext.fDevice;
-
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback = (PFN_vkDestroyDebugReportCallbackEXT) instProc(
-                fBackendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
-    }
-    ACQUIRE_INST_VK_PROC(DestroyInstance)
-    ACQUIRE_INST_VK_PROC(DeviceWaitIdle)
-    ACQUIRE_INST_VK_PROC(DestroyDevice)
-
-    fGrContext = GrContext::MakeVulkan(fBackendContext);
-    if (!fGrContext) {
-        return false;
-    }
-
-    return true;
-}
-
-void VulkanTestHelper::cleanup() {
-    fGrContext.reset();
-
-    fBackendContext.fMemoryAllocator.reset();
-    if (fDevice != VK_NULL_HANDLE) {
-        fVkDeviceWaitIdle(fDevice);
-        fVkDestroyDevice(fDevice, nullptr);
-        fDevice = VK_NULL_HANDLE;
-    }
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback(fBackendContext.fInstance, fDebugCallback, nullptr);
-    }
-
-    if (fBackendContext.fInstance != VK_NULL_HANDLE) {
-        fVkDestroyInstance(fBackendContext.fInstance, nullptr);
-        fBackendContext.fInstance = VK_NULL_HANDLE;
-    }
-
-    delete fExtensions;
-
-    sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
-    delete fFeatures;
-}
-
-sk_sp<SkSurface> VulkanTestHelper::createSkSurface(skiatest::Reporter* reporter) {
+static sk_sp<SkSurface> create_protected_sksurface(GrContext* context,
+                                                   skiatest::Reporter* reporter) {
     const int kW = 8;
     const int kH = 8;
-    GrBackendTexture backendTex = this->grContext()->createBackendTexture(
-        kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes,
-        fIsProtected ? GrProtected::kYes : GrProtected::kNo);
+    GrBackendTexture backendTex = context->createBackendTexture(
+        kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
-    REPORTER_ASSERT(reporter, backendTex.isProtected() == fIsProtected);
+    REPORTER_ASSERT(reporter, backendTex.isProtected());
 
-    SkSurfaceProps surfaceProps =
-        SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
-        this->grContext(), backendTex, kTopLeft_GrSurfaceOrigin, 1,
+        context, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
     return surface;
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateNonprotectedContext, reporter, options) {
-    auto nonprotectedTestHelper = std::make_unique<VulkanTestHelper>(false);
-    REPORTER_ASSERT(reporter, nonprotectedTestHelper->init(reporter));
+    auto nonprotectedTestHelper = std::make_unique<VkTestHelper>(false);
+    REPORTER_ASSERT(reporter, nonprotectedTestHelper->init());
 }
 
-
 DEF_GPUTEST(VkProtectedContext_CreateProtectedContext, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
@@ -192,8 +67,7 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
-    SkSurfaceProps surfaceProps =
-        SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
         protectedTestHelper->grContext(), backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
@@ -203,8 +77,8 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
@@ -219,8 +93,8 @@ DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, repo
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(false);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(false);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
@@ -235,16 +109,15 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext, repo
 }
 
 DEF_GPUTEST(VkProtectedContext_ReadFromProtectedSurface, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
-    REPORTER_ASSERT(reporter,
-                    !surface->readPixels(SkImageInfo(), nullptr, 8, 0, 0));
+    REPORTER_ASSERT(reporter, !surface->readPixels(SkImageInfo(), nullptr, 8, 0, 0));
 
     protectedTestHelper->grContext()->deleteBackendTexture(
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
@@ -266,13 +139,13 @@ static void async_callback(void* c, std::unique_ptr<const SkSurface::AsyncReadRe
 }  // anonymous namespace
 
 DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     AsyncContext cbContext;
     const auto image_info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
@@ -292,13 +165,13 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -315,13 +188,13 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithAntiAlias, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -339,13 +212,13 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithAntiAlias, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithBlendMode, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -363,13 +236,13 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithBlendMode, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithFilter, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -389,13 +262,13 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithFilter, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawThinPath, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -415,13 +288,13 @@ DEF_GPUTEST(VkProtectedContext_DrawThinPath, reporter, options) {
 }
 
 DEF_GPUTEST(VkProtectedContext_SaveLayer, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
-    auto surface = protectedTestHelper->createSkSurface(reporter);
+    auto surface = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     SkCanvas* canvas = surface->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -441,20 +314,20 @@ DEF_GPUTEST(VkProtectedContext_SaveLayer, reporter, options) {
 
 
 DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, options) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
     // Create protected image.
-    auto surface1 = protectedTestHelper->createSkSurface(reporter);
+    auto surface1 = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface1);
     auto image = surface1->makeImageSnapshot();
     REPORTER_ASSERT(reporter, image);
 
     // Create protected canvas.
-    auto surface2 = protectedTestHelper->createSkSurface(reporter);
+    auto surface2 = create_protected_sksurface(protectedTestHelper->grContext(), reporter);
     REPORTER_ASSERT(reporter, surface2);
     SkCanvas* canvas = surface2->getCanvas();
     REPORTER_ASSERT(reporter, canvas);
@@ -479,8 +352,8 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
 void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter);
 
 DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
@@ -491,8 +364,8 @@ DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
 void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* reporter);
 
 DEF_GPUTEST(VkProtectedContext_DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
-    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
-    if (!protectedTestHelper->init(reporter)) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
         return;
     }
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
