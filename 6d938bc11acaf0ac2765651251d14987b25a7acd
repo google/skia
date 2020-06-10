@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "58af618b_bab8ea21",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-10T15:15:02Z",
+      "side": 1,
+      "message": "This can be backed by ICU, but using ICU here seems misleading. The point seems to be to provide and abstract interface to unicode algorithm implementations, so SkUnicode might be better, since that seems be the goal. I suppose this same comment goes for the name of this file.\n\nRambling note about naming follows:\n\nFor historical reasons Skia has both SkFontMgr_fontconfig and SkFontMgr_FontConfigInterface. The FontConfigInterface name has been the source of a lot of confusion over time (especially since the file name was originally even more confusing) when the point of the class was to be a remote abstraction so the user didn\u0027t need to know what it was backed by. If you\u0027re trying to hide an implementation detail, probably shouldn\u0027t put the implementation detail in the name.\n\nAlso note std::map which should have been named std::rb_tree and std::unordered_map which should have been named std::hash_table_chained. These have the opposite problem, using too generic a name for an implementation.\n\nNaming things is hard.",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 20
+      },
+      "revId": "6d938bc11acaf0ac2765651251d14987b25a7acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ba274ff_46d6ef76",
         "filename": "modules/skshaper/include/SkICUInterface.h",
         "patchSetId": 4
