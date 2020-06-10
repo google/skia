@@ -31,10 +31,10 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
-#include "src/gpu/text/GrTextContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -195,8 +195,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     auto gpu = context->priv().getGpu();
     auto resourceProvider = context->priv().resourceProvider();
-    auto drawingManager = context->priv().drawingManager();
-    auto textContext = drawingManager->getTextContext();
     auto opMemoryPool = context->priv().opMemoryPool();
 
     auto rtc = GrRenderTargetContext::Make(
@@ -212,8 +210,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
 
     std::unique_ptr<GrDrawOp> op =
-            textContext->createOp_TestingOnly(context, textContext, rtc.get(), paint, font,
-                                              matrixProvider, text, 16, 16);
+            GrAtlasTextOp::CreateOpTestingOnly(
+                    rtc.get(), paint, font, matrixProvider, text, 16, 16);
+
     bool hasMixedSampledCoverage = false;
     op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
 
