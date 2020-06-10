@@ -443,7 +443,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
 
         bool hasCoords = c.fArguments.back()->fType.name() == "float2";
-        SampleMatrix matrix = fSectionAndParameterHelper.getMatrix(child);
+        SampleMatrix matrix = SampleMatrix::Make(fProgram, child);
         // Write the output handling after the possible input handling
         String childName = "_sample" + to_string(c.fOffset);
         addExtraEmitCodeLine("SkString " + childName + ";");

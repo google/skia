@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLHCodeGenerator.h"
 
 #include "src/sksl/SkSLParser.h"
+#include "src/sksl/SkSLSampleMatrix.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -285,7 +286,7 @@ void HCodeGenerator::writeConstructor() {
                 this->writef("            %s->setSampledWithExplicitCoords();",
                              String(param->fName).c_str());
             }
-            SampleMatrix matrix = fSectionAndParameterHelper.getMatrix(*param);
+            SampleMatrix matrix = SampleMatrix::Make(fProgram, *param);
             switch (matrix.fKind) {
                 case SampleMatrix::Kind::kVariable:
                     this->writef("            %s->setSampleMatrix(SkSL::SampleMatrix("
