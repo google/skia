@@ -143,8 +143,7 @@ private:
             , invSixSigma(invSixSigma)
             , isFast(isFast) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         this->setTextureSamplerCnt(1);
     }

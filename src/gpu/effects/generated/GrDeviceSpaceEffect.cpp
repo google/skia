@@ -57,15 +57,13 @@ bool GrDeviceSpaceEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
-        : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags())
-        , fp_index(src.fp_index)
-        , matrix(src.matrix) {
+        : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()), matrix(src.matrix) {
     {
-        auto clone = src.childProcessor(fp_index).clone();
-        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        auto fp_clone = src.childProcessor(src.fp_index).clone();
+        if (src.childProcessor(src.fp_index).isSampledWithExplicitCoords()) {
+            fp_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        fp_index = this->registerChildProcessor(std::move(fp_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {

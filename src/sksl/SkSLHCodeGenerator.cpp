@@ -272,7 +272,7 @@ void HCodeGenerator::writeConstructor() {
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
     int samplerCount = 0;
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
         if (param->fType.kind() == Type::kSampler_Kind) {
             ++samplerCount;
         } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
@@ -281,8 +281,6 @@ void HCodeGenerator::writeConstructor() {
             } else {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
-            this->writef("            %s_index = this->numChildProcessors();",
-                         FieldName(String(param->fName).c_str()).c_str());
             if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
                 this->writef("            %s->setSampledWithExplicitCoords();",
                              String(param->fName).c_str());
@@ -309,7 +307,8 @@ void HCodeGenerator::writeConstructor() {
                 case SampleMatrix::Kind::kNone:
                     break;
             }
-            this->writef("            this->registerChildProcessor(std::move(%s));",
+            this->writef("            %s_index = this->registerChildProcessor(std::move(%s));",
+                         FieldName(String(param->fName).c_str()).c_str(),
                          String(param->fName).c_str());
             if (param->fType.kind() == Type::kNullable_Kind) {
                 this->writef("       }");
