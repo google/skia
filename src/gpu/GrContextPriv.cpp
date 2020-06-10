@@ -52,7 +52,7 @@ GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], in
         ASSERT_OWNED_PROXY(proxies[i]);
     }
     return fContext->drawingManager()->flushSurfaces(
-            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
 void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {

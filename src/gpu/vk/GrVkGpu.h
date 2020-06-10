@@ -267,9 +267,11 @@ private:
 
     void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
-    void prepareSurfacesForBackendAccessAndExternalIO(
-            GrSurfaceProxy* proxies[], int numProxies,
-            SkSurface::BackendSurfaceAccess access) override;
+    void prepareSurfacesForBackendAccessAndStateUpdates(
+            GrSurfaceProxy* proxies[],
+            int numProxies,
+            SkSurface::BackendSurfaceAccess access,
+            const GrBackendSurfaceMutableState* newState) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 
