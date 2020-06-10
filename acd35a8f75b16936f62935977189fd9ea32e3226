@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3d1a1270_2fa6cf7a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "b408ccef_eb6979ca",
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "465f1ce1_5d8ec8b5",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b7ea8c9_fe4bff73",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Ah, makes sense that it takes height and width if it expects decoded bytes.",
+      "parentUuid": "465f1ce1_5d8ec8b5",
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "af4a5cba_a9ed836b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "You are right, modified these notes and the code.",
+      "parentUuid": "47ab7a21_b72d63af",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 34
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e895c725_d4e1a50d",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -79,6 +139,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcda00f0_f4a62ab3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "I tested in Safari on my mac and it IS in fact working. \n\nI suppose I should find the Safari release notes and send a pull request to MDN to update this table.",
+      "parentUuid": "e895c725_d4e1a50d",
+      "range": {
+        "startLine": 44,
+        "startChar": 25,
+        "endLine": 44,
+        "endChar": 47
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "82b627a5_5090972b",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74742493_86e08533",
+      "range": {
+        "startLine": 1219,
+        "startChar": 17,
+        "endLine": 1219,
+        "endChar": 26
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d3f62fa_9b583224",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
@@ -125,6 +233,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10203b51_1b339822",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d3f62fa_9b583224",
+      "range": {
+        "startLine": 1374,
+        "startChar": 41,
+        "endLine": 1374,
+        "endChar": 43
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "21f186af_f789055f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Ah, thanks. async doesn\u0027t work either. I\u0027ve updated the code so it works with Closure.",
+      "parentUuid": "3f9710a2_259b9a3b",
+      "range": {
+        "startLine": 1382,
+        "startChar": 2,
+        "endLine": 1382,
+        "endChar": 7
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75085e6f_e8d75e9c",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
@@ -171,6 +327,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6428c81_f2399e3c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75085e6f_e8d75e9c",
+      "range": {
+        "startLine": 1385,
+        "startChar": 24,
+        "endLine": 1385,
+        "endChar": 56
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "9c696594_4bea1bcc",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "I tested without setting width and height, and the Canvas does not seem happy to draw things off screen. Either that  or it does like to getImageData from things off screen. getImageData gave back empty pixels when not setting width and height.",
+      "parentUuid": "08c5633a_ddd8e466",
+      "range": {
+        "startLine": 1386,
+        "startChar": 24,
+        "endLine": 1386,
+        "endChar": 29
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "249b54b1_10e61ae3",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
@@ -217,6 +421,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23938f69_409863be",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "You are right, it can. Done.",
+      "parentUuid": "249b54b1_10e61ae3",
+      "range": {
+        "startLine": 1393,
+        "startChar": 18,
+        "endLine": 1393,
+        "endChar": 28
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -263,6 +491,54 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b8cc64_f2e3b113",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "It does not, it still worked with Jpegs with the type set to \u0027image/png\u0027. The type has been omitted now, it doesn\u0027t seem to have any effect with the way we are using it.",
+      "parentUuid": "988e04bd_6a5ebfba",
+      "range": {
+        "startLine": 1413,
+        "startChar": 48,
+        "endLine": 1413,
+        "endChar": 51
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ef0c7be_2202349d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Thanks, omitting it works. Done.",
+      "parentUuid": "1cf063f0_f510de43",
+      "range": {
+        "startLine": 1413,
+        "startChar": 48,
+        "endLine": 1413,
+        "endChar": 51
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -313,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "88c80fdb_15f80818",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "I\u0027ve exposed a few other functions now which allow for some flexibility when creating a SkImage from an image the user wants to download/fetch. There is now:\n\n- MakeImageFromBlobExperimental1, MakeImageFromBlobExperimental2\n- MakeImageFromImageBitmapExperimental1, MakeImageFromImageBitmapExperimental2\n- MakeImageFromHTMLImageElement.\n\nMakeImageFromBlobExperimental1 and MakeImageFromBlobExperimental2 just wrap MakeImageFromImageBitmapExperimental1 and MakeImageFromImageBitmapExperimental2 respectively. @Nathaniel and @Kevin let me know which of these functions you think would be valuable to expose.",
+      "parentUuid": "ad7d4fcd_fb169259",
+      "range": {
+        "startLine": 1444,
+        "startChar": 39,
+        "endLine": 1444,
+        "endChar": 81
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0e955a_671a9ed0",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
@@ -333,6 +633,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83586efa_ddce8bb7",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd0e955a_671a9ed0",
+      "range": {
+        "startLine": 1461,
+        "startChar": 8,
+        "endLine": 1461,
+        "endChar": 27
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -359,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "fc3351a1_9d7216fa",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1488,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Thanks, changed to match your comment.",
+      "parentUuid": "f4128f51_dedc871f",
+      "range": {
+        "startLine": 1488,
+        "startChar": 20,
+        "endLine": 1488,
+        "endChar": 30
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31d2fcee_d3fcde58",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 2
@@ -382,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "37afb6ac_55a884f7",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31d2fcee_d3fcde58",
+      "range": {
+        "startLine": 179,
+        "startChar": 10,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e39381d9_cf84dcea",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 2
@@ -393,6 +765,30 @@
       "writtenOn": "2020-06-10T13:44:32Z",
       "side": 1,
       "message": "be sure not to land code with \"fit\" in place.",
+      "range": {
+        "startLine": 181,
+        "startChar": 4,
+        "endLine": 181,
+        "endChar": 7
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae897c45_b407f27e",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "I will make sure not to! Going to leave this comment unresolved until I fix this and am ready to land.",
+      "parentUuid": "e39381d9_cf84dcea",
       "range": {
         "startLine": 181,
         "startChar": 4,
@@ -428,6 +824,30 @@
     },
     {
       "key": {
+        "uuid": "3472362b_9c5130cc",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e9e2341_249075a7",
+      "range": {
+        "startLine": 189,
+        "startChar": 18,
+        "endLine": 189,
+        "endChar": 21
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d56b3fd3_ff806b04",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 2
@@ -448,6 +868,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a8d730b_1e02858c",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-10T22:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d56b3fd3_ff806b04",
+      "range": {
+        "startLine": 190,
+        "startChar": 23,
+        "endLine": 190,
+        "endChar": 32
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
