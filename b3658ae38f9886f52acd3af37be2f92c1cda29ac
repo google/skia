@@ -22,6 +22,30 @@
       "revId": "b3658ae38f9886f52acd3af37be2f92c1cda29ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d405d1a9_59694cc4",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-10T15:24:23Z",
+      "side": 1,
+      "message": "Hmmmm... maybe. It has a certain simplicity to it. Though if it actually gets used it would make it really difficult to rename or move these files (and maybe I should rename the ones that should be renamed first anyway). Also, I guess it feels a bit strange to let someone just inject a file into the build without checking (though I suppose we could check it against a whitelist of files here). That would let us \u0027move\u0027 the file later if we really wanted, someone could still use the old file name and we\u0027d translate it to the new one. I\u0027ll have to think for a bit about the pros and cons.",
+      "parentUuid": "c9fff4dd_861dbf09",
+      "range": {
+        "startLine": 317,
+        "startChar": 6,
+        "endLine": 317,
+        "endChar": 26
+      },
+      "revId": "b3658ae38f9886f52acd3af37be2f92c1cda29ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
