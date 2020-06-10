@@ -175,4 +175,98 @@ describe('Basic Canvas ops', () => {
 
         benchmarkAndReport('canvas_drawHugeGradient', setup, test, teardown);
     });
+
+    function NO_OP() {}
+
+    function htmlImageElementToDataURL(htmlImageElement) {
+        const canvas = document.createElement('canvas');
+        canvas.height = htmlImageElement.height;
+        canvas.width = htmlImageElement.width;
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(htmlImageElement, 0, 0);
+        return canvas.toDataURL();
+    }
+
+    const TEST_IMAGE_FILENAMES = ['test_64x64.png', 'test_512x512.png', 'test_1500x959.jpg'];
+    for (const testImageFilename of TEST_IMAGE_FILENAMES) {
+        const imageResponsePromise = fetch(`/assets/${testImageFilename}`);
+        const imageArrayBufferPromise = imageResponsePromise.then((imageResponse) => imageResponse.arrayBuffer());
+
+        // Can't .blob() and .arrayBuffer() on the same Response object, so just request the same image again.
+        const imageResponsePromise2 = fetch(`/assets/${testImageFilename}`);
+        const imageBlobPromise = imageResponsePromise2.then((imageResponse) => imageResponse.blob());
+
+        const htmlImageElement = new Image();
+        htmlImageElementLoadPromise = new Promise((resolve) => htmlImageElement.addEventListener('load', resolve));
+        // Create a data url of the image so that load and decode time can be measured
+        // while hopefully ignoring the time of getting the image from disk / the network.
+        imageDataURLPromise = htmlImageElementLoadPromise.then(() => htmlImageElementToDataURL(htmlImageElement));
+        htmlImageElement.src = `/assets/${testImageFilename}`;
+
+        fit('can decode an image using HTMLImageElement and Canvas2D', async () => {
+            const imageDataURL = await imageDataURLPromise;
+
+            async function test(ctx) {
+                const image = new Image();
+                const promise = new Promise((resolve) => image.addEventListener('load', resolve));
+                image.src = imageDataURL;
+
+                await promise;
+
+                const img = await CanvasKit.MakeImageFromHTMLImageElement(image);
+                img.delete();
+            }
+
+            await asyncBenchmarkAndReport(`canvas_${testImageFilename}_HTMLImageElementLoadDecoding`, NO_OP, test, NO_OP);
+        });
+
+        fit('can decode an image using HTMLImageElement and Canvas2D', async () => {
+            const imageDataURL = await imageDataURLPromise;
+
+            async function test(ctx) {
+                const image = new Image();
+                image.src = imageDataURL;
+
+                await htmlImageElement.decode();
+
+                const img = await CanvasKit.MakeImageFromHTMLImageElement(image);
+                img.delete();
+            }
+
+            await asyncBenchmarkAndReport(`canvas_${testImageFilename}_HTMLImageElementDecodeAPIDecoding`, NO_OP, test, NO_OP);
+        });
+
+        fit('can decode an image using Blob, HTMLImageElement and Canvas2D', async () => {
+            const encodedBlob = await imageBlobPromise;
+
+            async function test(ctx) {
+                const img = await CanvasKit.MakeImageFromBlobExperimental1(encodedBlob);
+                img.delete();
+            }
+
+            await asyncBenchmarkAndReport(`canvas_${testImageFilename}_ImageBitmapDecoding`, NO_OP, test, NO_OP);
+        });
+
+        fit('can decode an image using Blob, HTMLImageElement and Canvas2D', async () => {
+            const encodedBlob = await imageBlobPromise;
+
+            async function test(ctx) {
+                const img = await CanvasKit.MakeImageFromBlobExperimental2(encodedBlob);
+                img.delete();
+            }
+
+            await asyncBenchmarkAndReport(`canvas_${testImageFilename}_ImageBitmapContextDecoding`, NO_OP, test, NO_OP);
+        });
+
+        fit('can decode an image using Blob, HTMLImageElement and Canvas2D', async () => {
+            const encodedArrayBuffer = await imageArrayBufferPromise;
+
+            async function test(ctx) {
+                const img = await CanvasKit.ExperimentalCanvas2DMakeImageFromEncoded(encodedArrayBuffer);
+                img.delete();
+            }
+
+            benchmarkAndReport(`canvas_${testImageFilename}_wasmImageDecoding`, NO_OP, test, NO_OP);
+        });
+    }
 });
