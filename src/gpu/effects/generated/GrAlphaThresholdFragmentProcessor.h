@@ -54,8 +54,7 @@ private:
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         this->setTextureSamplerCnt(1);
         this->addCoordTransform(&maskCoordTransform);
