@@ -167,19 +167,15 @@ void GrDrawingManager::RenderTaskDAG::cleanup(GrDrawingManager* drawingMgr, cons
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
-                                   const GrTextContext::Options& optionsForTextContext,
                                    bool sortRenderTasks,
                                    bool reduceOpsTaskSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
-        , fOptionsForTextContext(optionsForTextContext)
         , fDAG(sortRenderTasks)
-        , fTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushing(false)
-        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
-}
+        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
 
 void GrDrawingManager::cleanup() {
     fDAG.cleanup(this, fContext->priv().caps());
@@ -927,14 +923,6 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
     SkASSERT(!fActiveOpsTask);
     SkDEBUGCODE(this->validate());
     return true;
-}
-
-GrTextContext* GrDrawingManager::getTextContext() {
-    if (!fTextContext) {
-        fTextContext = GrTextContext::Make(fOptionsForTextContext);
-    }
-
-    return fTextContext.get();
 }
 
 /*

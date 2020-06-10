@@ -14,6 +14,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureResolveManager.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrOpFlushState;
 class GrOpsTask;

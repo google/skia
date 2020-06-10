@@ -21,6 +21,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/text/GrTextContext.h"
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,

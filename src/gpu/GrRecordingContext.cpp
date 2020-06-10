@@ -87,13 +87,8 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
-    GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
-
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
-                                               textContextOptions,
                                                sortOpsTasks,
                                                reduceOpsTaskSplitting));
 }
