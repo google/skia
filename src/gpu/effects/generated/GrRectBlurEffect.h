@@ -76,7 +76,8 @@ public:
         return view;
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrRecordingContext* context,
                                                      const GrShaderCaps& caps,
                                                      const SkRect& rect,
                                                      float sigma) {
@@ -114,29 +115,37 @@ public:
         // normalized texture coords from frag coord distances.
         float invSixSigma = 1.f / sixSigma;
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrRectBlurEffect(insetRect, std::move(integral), invSixSigma, isFast,
-                                     GrSamplerState::Filter::kBilerp));
+                new GrRectBlurEffect(std::move(inputFP), insetRect, std::move(integral),
+                                     invSixSigma, isFast, GrSamplerState::Filter::kBilerp));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
+    int inputFP_index = -1;
     SkRect rect;
     TextureSampler integral;
     float invSixSigma;
     bool isFast;
 
 private:
-    GrRectBlurEffect(SkRect rect,
+    GrRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                     SkRect rect,
                      GrSurfaceProxyView integral,
                      float invSixSigma,
                      bool isFast,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
             , integral(std::move(integral), samplerParams)
             , invSixSigma(invSixSigma)
             , isFast(isFast) {
+        if (inputFP) {
+            inputFP_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(inputFP));
+        }
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
