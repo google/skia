@@ -23,6 +23,7 @@
 #include "modules/skparagraph/include/TextShadow.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
+#include "modules/skshaper/include/SkUnicode.h"
 #include "src/core/SkSpan.h"
 
 #include <unicode/ubrk.h>
@@ -248,7 +249,7 @@ private:
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     SkTArray<size_t> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
-    SkTArray<BidiRegion> fBidiRegions;
+    std::vector<SkBidiIterator::Region> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<CodepointRepresentation, true> fCodepoints;
     size_t fUnresolvedGlyphs;
