@@ -50,11 +50,11 @@ public:
     // All barriers should reference subresources of managedResource
     void resourceBarrier(sk_sp<GrManagedResource> managedResource,
                          int numBarriers,
-                         D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
+                         const D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
     // Helper method that calls copyTextureRegion multiple times, once for each subresource
-    void copyBufferToTexture(GrD3DBuffer* srcBuffer,
-                             GrD3DTextureResource* dstTexture,
+    void copyBufferToTexture(const GrD3DBuffer* srcBuffer,
+                             const GrD3DTextureResource* dstTexture,
                              uint32_t subresourceCount,
                              D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
                              int left, int top);
@@ -70,6 +70,17 @@ public:
                             ID3D12Resource* srcBuffer, uint64_t srcOffset,
                             uint64_t numBytes);
 
+    void releaseResources();
+
+    bool hasWork() const { return fHasWork; }
+
+private:
+    static const int kInitialTrackedResourcesCount = 32;
+
+protected:
+    GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
+                     gr_cp<ID3D12GraphicsCommandList> commandList);
+
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
     void addResource(sk_sp<GrManagedResource> resource) {
@@ -84,17 +95,6 @@ public:
         resource->notifyQueuedForWorkOnGpu();
         fTrackedRecycledResources.push_back(std::move(resource));
     }
-
-    void releaseResources();
-
-    bool hasWork() const { return fHasWork; }
-
-private:
-    static const int kInitialTrackedResourcesCount = 32;
-
-protected:
-    GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                     gr_cp<ID3D12GraphicsCommandList> commandList);
 
     void addingWork();
     virtual void onReset() {}
@@ -142,9 +142,9 @@ public:
                               unsigned int startIndex, unsigned int baseVertex,
                               unsigned int startInstance);
 
-    void clearRenderTargetView(GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
+    void clearRenderTargetView(const GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
                                const GrScissorState& scissor);
-    void setRenderTarget(GrD3DRenderTarget* renderTarget);
+    void setRenderTarget(const GrD3DRenderTarget* renderTarget);
 
     void setGraphicsRootConstantBufferView(unsigned int rootParameterIndex,
                                            D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
@@ -171,8 +171,8 @@ private:
     GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
     GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
 
-    ID3D12DescriptorHeap* fCurrentSRVCRVDescriptorHeap;
-    ID3D12DescriptorHeap* fCurrentSamplerDescriptorHeap;
+    const ID3D12DescriptorHeap* fCurrentSRVCRVDescriptorHeap;
+    const ID3D12DescriptorHeap* fCurrentSamplerDescriptorHeap;
 };
 
 class GrD3DCopyCommandList : public GrD3DCommandList {
