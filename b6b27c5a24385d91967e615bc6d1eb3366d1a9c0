@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bae01c2_0a206568",
+        "filename": "tools/gpu/vk/VkTestHelper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-10T20:02:09Z",
+      "side": 1,
+      "message": "fix indentation",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 50,
+        "endChar": 42
+      },
+      "revId": "b6b27c5a24385d91967e615bc6d1eb3366d1a9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
