@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98e215c8_3f463e86",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "It looks like all we need in this method is a Context_Base but I would go with a recording context.",
+      "range": {
+        "startLine": 551,
+        "startChar": 0,
+        "endLine": 554,
+        "endChar": 5
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bcce158_42241c1a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "So, these look like just copies off of the real GrContextOptions. It is fine to have an object to hold them but it should probably go on GrContext_Base.",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 27
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "861e24a1_10482f76",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "Can we delete this now?",
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5789b1d2_f1ff46f1",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "unused ?",
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc3e6b6_67dc7383",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "and this?",
+      "range": {
+        "startLine": 597,
+        "startChar": 8,
+        "endLine": 597,
+        "endChar": 19
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f444a3_1495a47e",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-10T20:15:46Z",
+      "side": 1,
+      "message": "add \u0027 \u0027 here ?",
+      "range": {
+        "startLine": 628,
+        "startChar": 36,
+        "endLine": 628,
+        "endChar": 37
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
