@@ -10,9 +10,9 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkATrace.h"
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkReadBuffer.h"
+#include "src/core/SkReader32.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkWriter32.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCoordTransform.h"
@@ -166,19 +166,17 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         GrGLsizei length = 0;
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
-            SkBinaryWriteBuffer writer;
-            writer.writeInt(GrPersistentCacheUtils::kCurrentVersion);
-            writer.writeUInt(kGLPB_Tag);
+            SkWriter32 writer;
+            writer.write32(GrPersistentCacheUtils::kCurrentVersion);
+            writer.write32(kGLPB_Tag);
 
-            writer.writePad32(&inputs, sizeof(inputs));
+            writer.writePad(&inputs, sizeof(inputs));
+            writer.write32(length);
 
-            SkAutoSMalloc<2048> binary(length);
+            void* binary = writer.reservePad(length);
             GrGLenum binaryFormat;
-            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
-
-            writer.writeUInt(binaryFormat);
-            writer.writeInt(length);
-            writer.writePad32(binary.get(), length);
+            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary));
+            writer.write32(binaryFormat);
 
             auto data = writer.snapshotAsData();
             this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
@@ -257,7 +255,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         usedProgramBinaries = true;
     } else if (cached) {
         ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_hit");
-        SkReadBuffer reader(fCached->data(), fCached->size());
+        SkReader32 reader(fCached->data(), fCached->size());
         SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
 
         switch (shaderType) {
@@ -268,13 +266,10 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     cached = false;
                     break;
                 }
-                reader.readPad32(&inputs, sizeof(inputs));
-                GrGLenum binaryFormat = reader.readUInt();
-                GrGLsizei length      = reader.readInt();
+                reader.read(&inputs, sizeof(inputs));
+                GrGLsizei length = reader.readInt();
                 const void* binary = reader.skip(length);
-                if (!reader.isValid()) {
-                    break;
-                }
+                GrGLenum binaryFormat = reader.readU32();
                 GrGLClearErr(this->gpu()->glInterface());
                 GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
                                       ProgramBinary(programID, binaryFormat,
@@ -301,20 +296,16 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
             case kSKSL_Tag:
                 // SkSL cache hit, this should only happen in tools overriding the generated SkSL
-                if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, &inputs, 1)) {
-                    for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                        sksl[i] = &cached_sksl[i];
-                    }
+                GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, &inputs, 1);
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    sksl[i] = &cached_sksl[i];
                 }
                 break;
 
             default:
                 // We got something invalid, so pretend it wasn't there
-                reader.validate(false);
+                cached = false;
                 break;
-        }
-        if (!reader.isValid()) {
-            cached = false;
         }
     }
     if (!usedProgramBinaries) {
@@ -569,7 +560,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
 bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,
                                            GrGLGpu* gpu,
                                            const SkData& cachedData) {
-    SkReadBuffer reader(cachedData.data(), cachedData.size());
+    SkReader32 reader(cachedData.data(), cachedData.size());
     SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
     if (shaderType != kSKSL_Tag) {
         // TODO: Support GLSL, and maybe even program binaries, too?
@@ -578,6 +569,13 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
 
     const GrGLInterface* gl = gpu->glInterface();
     auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
+    GrGLuint programID;
+    GR_GL_CALL_RET(gl, programID, CreateProgram());
+    if (0 == programID) {
+        return false;
+    }
+
+    SkTDArray<GrGLuint> shadersToDelete;
 
     SkSL::Program::Settings settings;
     const GrGLCaps& caps = gpu->glCaps();
@@ -588,17 +586,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
 
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs;
-    if (!GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &inputs, 1, &meta)) {
-        return false;
-    }
-
-    GrGLuint programID;
-    GR_GL_CALL_RET(gl, programID, CreateProgram());
-    if (0 == programID) {
-        return false;
-    }
-
-    SkTDArray<GrGLuint> shadersToDelete;
+    GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &inputs, 1, &meta);
 
     auto compileShader = [&](SkSL::Program::Kind kind, const SkSL::String& sksl, GrGLenum type) {
         SkSL::String glsl;

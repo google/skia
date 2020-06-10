@@ -100,49 +100,39 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
 static constexpr SkFourByteTag kSPIRV_Tag = SkSetFourByteTag('S', 'P', 'R', 'V');
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
-int GrVkPipelineStateBuilder::loadShadersFromCache(SkReadBuffer* cached,
+int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
                                                    VkShaderModule outShaderModules[],
                                                    VkPipelineShaderStageCreateInfo* outStageInfo) {
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    if (!GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount)) {
-        return 0;
-    }
+    GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount);
 
-    bool success = this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
+    SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
                                                &outShaderModules[kVertex_GrShaderType],
                                                &outStageInfo[0],
                                                shaders[kVertex_GrShaderType],
-                                               inputs[kVertex_GrShaderType]);
+                                               inputs[kVertex_GrShaderType]));
 
-    success = success && this->installVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
-                                                     fFS,
-                                                     &outShaderModules[kFragment_GrShaderType],
-                                                     &outStageInfo[1],
-                                                     shaders[kFragment_GrShaderType],
-                                                     inputs[kFragment_GrShaderType]);
+    SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
+                                               fFS,
+                                               &outShaderModules[kFragment_GrShaderType],
+                                               &outStageInfo[1],
+                                               shaders[kFragment_GrShaderType],
+                                               inputs[kFragment_GrShaderType]));
 
     if (!shaders[kGeometry_GrShaderType].empty()) {
-        success = success && this->installVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
-                                                         fGS,
-                                                         &outShaderModules[kGeometry_GrShaderType],
-                                                         &outStageInfo[2],
-                                                         shaders[kGeometry_GrShaderType],
-                                                         inputs[kGeometry_GrShaderType]);
+        SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
+                                                   fGS,
+                                                   &outShaderModules[kGeometry_GrShaderType],
+                                                   &outStageInfo[2],
+                                                   shaders[kGeometry_GrShaderType],
+                                                   inputs[kGeometry_GrShaderType]));
+        return 3;
+    } else {
+        return 2;
     }
-
-    if (!success) {
-        for (int i = 0; i < kGrShaderTypeCount; ++i) {
-            if (outShaderModules[i]) {
-                GR_VK_CALL(fGpu->vkInterface(),
-                           DestroyShaderModule(fGpu->device(), outShaderModules[i], nullptr));
-            }
-        }
-        return 0;
-    }
-    return shaders[kGeometry_GrShaderType].empty() ? 2 : 3;
 }
 
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
@@ -221,7 +211,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
-    SkReadBuffer reader;
+    SkReader32 reader;
     SkFourByteTag shaderType = 0;
     auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
@@ -241,10 +231,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     int numShaderStages = 0;
     if (kSPIRV_Tag == shaderType) {
         numShaderStages = this->loadShadersFromCache(&reader, shaderModules, shaderStageInfo);
-    }
-
-    // Proceed from sources if we didn't get a SPIRV cache (or the cache was invalid)
-    if (!numShaderStages) {
+    } else {
         numShaderStages = 2; // We always have at least vertex and fragment stages.
         SkSL::String shaders[kGrShaderTypeCount];
         SkSL::Program::Inputs inputs[kGrShaderTypeCount];
@@ -256,11 +243,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         };
         SkSL::String cached_sksl[kGrShaderTypeCount];
         if (kSKSL_Tag == shaderType) {
-            if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
-                                                            kGrShaderTypeCount)) {
-                for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    sksl[i] = &cached_sksl[i];
-                }
+            GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
+                                                        kGrShaderTypeCount);
+            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                sksl[i] = &cached_sksl[i];
             }
         }
 
