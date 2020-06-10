@@ -1013,8 +1013,7 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
 }
 
 void GrD3DGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) {
+        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
 

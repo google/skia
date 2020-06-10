@@ -195,8 +195,7 @@ private:
     bool flush(GrSurfaceProxy* proxies[],
                int numProxies,
                SkSurface::BackendSurfaceAccess access,
-               const GrFlushInfo&,
-               const GrPrepareForExternalIORequests&);
+               const GrFlushInfo&);
 
     bool submitToGpu(bool syncToCpu);
 
