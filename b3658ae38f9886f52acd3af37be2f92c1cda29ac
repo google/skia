@@ -46,6 +46,30 @@
       "revId": "b3658ae38f9886f52acd3af37be2f92c1cda29ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "976c83bc_15dd8402",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-10T15:30:18Z",
+      "side": 1,
+      "message": "Isn\u0027t this fontmgr/fontmgr-factory system kind of perfectly designed for injecting a file into the build?\n\nTo move files we can always leave a stub that #includes the new path while we clean up.",
+      "parentUuid": "d405d1a9_59694cc4",
+      "range": {
+        "startLine": 317,
+        "startChar": 6,
+        "endLine": 317,
+        "endChar": 26
+      },
+      "revId": "b3658ae38f9886f52acd3af37be2f92c1cda29ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
