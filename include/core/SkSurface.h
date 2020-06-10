@@ -28,6 +28,7 @@ class SkPaint;
 class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
+class GrBackendSurfaceMutableState;
 class GrBackendTexture;
 class GrContext;
 class GrRecordingContext;
@@ -969,6 +970,8 @@ public:
         @param info    flush options
     */
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
+
+    GrSemaphoresSubmitted flush(const GrFlushInfo& info, const GrBackendSurfaceMutableState&);
 
     /** Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
         executing any more commands on the GPU for this surface. Skia will take ownership of the
