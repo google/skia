@@ -22,6 +22,30 @@
       "revId": "ab0b628df89524a219532ae22e6b324b7a97bee8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a6002be_41c51e90",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-10T16:52:42Z",
+      "side": 1,
+      "message": "Doh, thanks for catching that, obviously `lrtb` was just a mixup on my part :) \n\nAlso, great tip on .LT and .RB! Thanks--that\u0027s SO cool! I switched over to those, and immediately the name `ltrb` felt silly and `rect` felt more appropriate anyway. So I\u0027m now using `rect.LT` and `rect.RB` everywhere and it looks much nicer.",
+      "parentUuid": "ac135249_e168e4c6",
+      "range": {
+        "startLine": 185,
+        "startChar": 8,
+        "endLine": 185,
+        "endChar": 18
+      },
+      "revId": "ab0b628df89524a219532ae22e6b324b7a97bee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
