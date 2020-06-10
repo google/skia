@@ -516,13 +516,15 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = std::min(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
 
-    // See skbug.com/10346
-#if 0
-    if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1) &&
-        properties.limits.standardSampleLocations) {
+    // GrCaps::fSampleLocationsSupport refers to the ability to *query* the sample locations (not
+    // program them). For now we just set this to true if the device uses standard locations, and
+    // return the standard locations back when queried.
+    if (properties.limits.standardSampleLocations) {
         fSampleLocationsSupport = true;
     }
 
+    // See skbug.com/10346
+#if 0
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
