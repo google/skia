@@ -55,14 +55,24 @@ GrGLSLFragmentProcessor* SampleMatrixConstantEffect::onCreateGLSLInstance() cons
     return new GLSLSampleMatrixConstantEffect();
 }
 
-DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
-    auto draw = [rtCtx](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
-        auto fp = std::unique_ptr<GrFragmentProcessor>(
-                new SampleMatrixConstantEffect(std::move(baseFP)));
+DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 1024, 256) {
+    auto wrap = [](std::unique_ptr<GrFragmentProcessor> baseFP) {
+      return std::unique_ptr<GrFragmentProcessor>(
+              new SampleMatrixConstantEffect(std::move(baseFP)));
+    };
+    auto draw = [rtCtx, &wrap](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
+        auto fp = wrap(std::move(baseFP));
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
                         SkRect::MakeIWH(256, 256));
+    };
+    auto draw2 = [rtCtx, &wrap](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
+      auto fp = wrap(wrap(std::move(baseFP)));
+      GrPaint paint;
+      paint.addColorFragmentProcessor(std::move(fp));
+      rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
+                      SkRect::MakeIWH(256, 256));
     };
 
     {
@@ -73,6 +83,10 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
         std::unique_ptr<GrFragmentProcessor> imgFP =
                 GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
         draw(std::move(imgFP), 0, 0);
+        view = maker.view(GrMipMapped::kNo);
+        imgFP =
+                GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
+        draw2(std::move(imgFP), 256, 0);
     }
 
     {
@@ -87,6 +101,8 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 512, 256) {
         GrColorInfo colorInfo;
         GrFPArgs args(ctx, matrixProvider, kHigh_SkFilterQuality, &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
-        draw(std::move(gradientFP), 256, 0);
+        draw(std::move(gradientFP), 512, 0);
+        gradientFP = as_SB(shader)->asFragmentProcessor(args);
+        draw2(std::move(gradientFP), 768, 0);
     }
 }

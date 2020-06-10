@@ -90,7 +90,12 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
     if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
         if (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
             // need to base this transform on the one that happened in our parent
-            fMatrix.fBase = newMatrix.fOwner;
+            // If we're already based on something, then we have to assume that parent is now
+            // based on yet another transform, so don't update our base pointer (or we'll skip
+            // the intermediate transform).
+            if (!fMatrix.fBase) {
+                fMatrix.fBase = newMatrix.fOwner;
+            }
         } else {
             SkASSERT(newMatrix.fKind == SkSL::SampleMatrix::Kind::kVariable);
             fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,

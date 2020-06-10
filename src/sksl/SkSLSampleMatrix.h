@@ -54,7 +54,7 @@ struct SampleMatrix {
     SampleMatrix merge(const SampleMatrix& other);
 
     bool operator==(const SampleMatrix& other) const {
-        return fKind == other.fKind && fExpression == other.fExpression;
+        return fKind == other.fKind && fExpression == other.fExpression && fOwner == other.fOwner;
     }
 
 #ifdef SK_DEBUG
