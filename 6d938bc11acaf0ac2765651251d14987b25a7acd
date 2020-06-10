@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ba274ff_46d6ef76",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-10T15:04:45Z",
+      "side": 1,
+      "message": "Question about bulk apis for these methods that \"categorize\u0027 something about a unichar...\n\n1. Could a client take advantage of a bulk version?\n\ne.g. unicharsToScriptIDs(const SkUnichar uni[], int count, ScriptID scripts[])\n\n2. Could a client take advantage of getting several/all categories at once?\n\ne.g.\nstruct Categories {\n    ScriptID ...\n    CombiningClass ...\n    General ...\n    (others) ...\n};\nvoid unicharToCategories(SkUnichar, Categories* result)\n\nMight be somewhat useful for C apis, where there is some overhead (esp. going through a sharedlib)\n\nMight be more useful for a JS api, where the JS\u003c--\u003eC overhead is much larger",
+      "range": {
+        "startLine": 40,
+        "startChar": 21,
+        "endLine": 42,
+        "endChar": 52
+      },
+      "revId": "6d938bc11acaf0ac2765651251d14987b25a7acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
