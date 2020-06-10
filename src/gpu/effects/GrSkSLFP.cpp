@@ -54,7 +54,12 @@ public:
                             case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
                                 SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
                                                                              fmtArg, coordsName);
-                                result += this->invokeChild(arg.fIndex, args, coords).c_str();
+                                bool isExplicit = args.fFp.childProcessor(arg.fIndex)
+                                                          .isSampledWithExplicitCoords();
+
+                                result += this->invokeChild(arg.fIndex, args,
+                                                            isExplicit ? coords : "")
+                                                  .c_str();
                                 break;
                             }
                             case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
@@ -208,12 +213,25 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
+    using SampleMatrix = SkSL::SampleMatrix;
+
     int newIndex = this->numChildProcessors();
-    if ((int) fArgs.fSampleMatrices.size() > newIndex &&
-        fArgs.fSampleMatrices[newIndex].fKind != SkSL::SampleMatrix::Kind::kNone) {
-        child->setSampleMatrix(fArgs.fSampleMatrices[newIndex]);
-    } else {
-        child->setSampledWithExplicitCoords();
+    SampleMatrix matrix = (int)fArgs.fSampleMatrices.size() > newIndex
+                                  ? fArgs.fSampleMatrices[newIndex]
+                                  : SampleMatrix();
+    switch (matrix.fKind) {
+        case SampleMatrix::Kind::kNone:
+            child->setSampledWithExplicitCoords();
+            break;
+
+        case SampleMatrix::Kind::kConstantOrUniform:
+        case SampleMatrix::Kind::kMixed:
+            child->setSampleMatrix(SampleMatrix(matrix.fKind, child.get(), matrix.fExpression));
+            break;
+
+        case SampleMatrix::Kind::kVariable:
+            child->setSampleMatrix(SampleMatrix::Kind::kVariable);
+            break;
     }
     this->registerChildProcessor(std::move(child));
 }

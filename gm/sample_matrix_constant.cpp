@@ -11,6 +11,7 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
@@ -105,4 +106,25 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 1024, 256) {
         gradientFP = as_SB(shader)->asFragmentProcessor(args);
         draw2(std::move(gradientFP), 768, 0);
     }
+}
+
+DEF_SIMPLE_GPU_GM(simple_mtx, ctx, rtCtx, canvas, 256, 256) {
+    auto wrap = [](std::unique_ptr<GrFragmentProcessor> baseFP) {
+        return GrMatrixEffect::Make(SkMatrix::Scale(2.0, 2.0), std::move(baseFP));
+    };
+    auto draw = [rtCtx, &wrap](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
+        auto fp = wrap(std::move(baseFP));
+        GrPaint paint;
+        paint.addColorFragmentProcessor(std::move(fp));
+        rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
+                        SkRect::MakeIWH(256, 256));
+    };
+
+    SkBitmap bmp;
+    GetResourceAsBitmap("images/mandrill_256.png", &bmp);
+    GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
+    auto view = maker.view(GrMipMapped::kNo);
+    std::unique_ptr<GrFragmentProcessor> imgFP =
+            GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
+    draw(std::move(imgFP), 0, 0);
 }

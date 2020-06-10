@@ -331,3 +331,46 @@ class ColorCubeRT : public skiagm::GM {
     }
 };
 DEF_GM(return new ColorCubeRT;)
+
+class SimpleRT : public skiagm::GM {
+    sk_sp<SkShader> fChild;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    void onOnceBeforeDraw() override {
+        fChild = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkTileMode::kRepeat,
+                                                                           SkTileMode::kRepeat);
+
+        const char code[] = R"(
+            in shader child;
+            void main(float2 xy, inout half4 color) {
+                color = sample(child, float3x3(2, 0, 0, 0, 2, 0, 0, 0, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    SkString onShortName() override { return SkString("simple_rt"); }
+
+    SkISize onISize() override { return {256, 256}; }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (canvas->getGrContext() == nullptr) {
+            // until SkSL can handle child processors on the raster backend
+            return DrawResult::kSkip;
+        }
+
+        SkRuntimeShaderBuilder builder(fEffect);
+        builder.child("child") = fChild;
+
+        SkPaint paint;
+        paint.setShader(builder.makeShader(nullptr, true));
+        canvas->drawRect({0, 0, 256, 256}, paint);
+
+        return DrawResult::kOk;
+    }
+};
+DEF_GM(return new SimpleRT;)

@@ -60,6 +60,8 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
         SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
+        const Variable& child = ((const VariableReference&) *c.fArguments[0]).fVariable;
+
         int index = 0;
         bool found = false;
         for (const auto& p : fProgram) {
@@ -67,7 +69,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 const VarDeclarations& decls = (const VarDeclarations&) p;
                 for (const auto& raw : decls.fVars) {
                     VarDeclaration& decl = (VarDeclaration&) *raw;
-                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
+                    if (decl.fVar == &child) {
                         found = true;
                     } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
                         ++index;
@@ -83,15 +85,18 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         size_t childCallIndex = fArgs->fFormatArgs.size();
         bool matrixCall = c.fArguments.size() == 2 &&
                           c.fArguments[1]->fType.kind() == Type::kMatrix_Kind;
-        fArgs->fFormatArgs.push_back(
-               Compiler::FormatArg(matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
-                                              : Compiler::FormatArg::Kind::kChildProcessor,
-                                   index));
-        while ((int) fArgs->fSampleMatrices.size() <= index) {
+        SampleMatrix matrix = SampleMatrix::Make(fProgram, child);
+        bool useInvokeWithMatrix = matrixCall && (matrix.fKind == SampleMatrix::Kind::kMixed ||
+                                                  matrix.fKind == SampleMatrix::Kind::kVariable);
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(
+                useInvokeWithMatrix ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
+                                    : Compiler::FormatArg::Kind::kChildProcessor,
+                index));
+        while ((int)fArgs->fSampleMatrices.size() <= index) {
             fArgs->fSampleMatrices.push_back(SampleMatrix(SampleMatrix::Kind::kNone));
         }
         if (matrixCall) {
-            fArgs->fSampleMatrices[index] = SampleMatrix(SampleMatrix::Kind::kVariable);
+            fArgs->fSampleMatrices[index] = matrix;
         }
         OutputStream* oldOut = fOut;
         StringStream buffer;
