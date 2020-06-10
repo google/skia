@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1e3f6fd_1b71ba0d",
+        "filename": "src/gpu/GrRingBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-10T20:25:00Z",
+      "side": 1,
+      "message": "getAllocationOffset also uses the mutex, so this would deadlock here.",
+      "range": {
+        "startLine": 70,
+        "startChar": 19,
+        "endLine": 70,
+        "endChar": 38
+      },
+      "revId": "e0e2730aff76aca382a19179f58ef6a356ac6687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5f555a3_2d57083b",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-10T20:25:00Z",
+      "side": 1,
+      "message": "Whoops.",
+      "range": {
+        "startLine": 389,
+        "startChar": 8,
+        "endLine": 390,
+        "endChar": 61
+      },
+      "revId": "e0e2730aff76aca382a19179f58ef6a356ac6687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
