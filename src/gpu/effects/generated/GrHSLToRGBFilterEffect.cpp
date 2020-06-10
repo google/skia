@@ -54,14 +54,13 @@ bool GrHSLToRGBFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrHSLToRGBFilterEffect::GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src)
-        : INHERITED(kGrHSLToRGBFilterEffect_ClassID, src.optimizationFlags())
-        , inputFP_index(src.inputFP_index) {
-    if (inputFP_index >= 0) {
-        auto clone = src.childProcessor(inputFP_index).clone();
-        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        : INHERITED(kGrHSLToRGBFilterEffect_ClassID, src.optimizationFlags()) {
+    if (src.inputFP_index >= 0) {
+        auto inputFP_clone = src.childProcessor(src.inputFP_index).clone();
+        if (src.childProcessor(src.inputFP_index).isSampledWithExplicitCoords()) {
+            inputFP_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        inputFP_index = this->registerChildProcessor(std::move(inputFP_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrHSLToRGBFilterEffect::clone() const {
