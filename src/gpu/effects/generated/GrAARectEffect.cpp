@@ -102,15 +102,14 @@ bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
-        , inputFP_index(src.inputFP_index)
         , edgeType(src.edgeType)
         , rect(src.rect) {
-    if (inputFP_index >= 0) {
-        auto clone = src.childProcessor(inputFP_index).clone();
-        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+    if (src.inputFP_index >= 0) {
+        auto inputFP_clone = src.childProcessor(src.inputFP_index).clone();
+        if (src.childProcessor(src.inputFP_index).isSampledWithExplicitCoords()) {
+            inputFP_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        inputFP_index = this->registerChildProcessor(std::move(inputFP_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
