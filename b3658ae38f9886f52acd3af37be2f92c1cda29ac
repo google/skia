@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9fff4dd_861dbf09",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-10T14:57:10Z",
+      "side": 1,
+      "message": "Do you want to maybe just make skia_fontmgr_factory the path to the source file, and skip the indirection?",
+      "range": {
+        "startLine": 317,
+        "startChar": 6,
+        "endLine": 317,
+        "endChar": 26
+      },
+      "revId": "b3658ae38f9886f52acd3af37be2f92c1cda29ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
