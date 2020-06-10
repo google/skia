@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30c239a9_d579d5ce",
+        "filename": "tools/skpbench/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-10T19:31:02Z",
+      "side": 1,
+      "message": "\"The to\"",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 6
+      },
+      "revId": "cd0653047dd74dc5cbfa538c3de682dc157a3bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
