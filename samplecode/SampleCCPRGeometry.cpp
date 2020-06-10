@@ -353,7 +353,11 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
     } else {
         proc = std::make_unique<GrVSCoverageProcessor>();
     }
-    SkDEBUGCODE(proc->enableDebugBloat(kDebugBloat));
+#ifdef SK_DEBUG
+    if (!fView->fDoStroke) {
+        proc->enableDebugBloat(kDebugBloat);
+    }
+#endif
 
     GrOpsRenderPass* renderPass = state->opsRenderPass();
 

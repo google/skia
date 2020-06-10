@@ -11,7 +11,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkNx.h"
 #include "src/gpu/GrTAllocator.h"
-#include "src/gpu/ccpr/GrCCStrokeGeometry.h"
+#include "src/gpu/tessellate/GrStrokeGeometry.h"
 
 class GrGpuBuffer;
 class GrCCCoverageProcessor;
@@ -61,8 +61,8 @@ public:
 private:
     static constexpr int kNumScissorModes = 2;
     static constexpr BatchID kEmptyBatchID = -1;
-    using Verb = GrCCStrokeGeometry::Verb;
-    using InstanceTallies = GrCCStrokeGeometry::InstanceTallies;
+    using Verb = GrStrokeGeometry::Verb;
+    using InstanceTallies = GrStrokeGeometry::InstanceTallies;
     using InstanceTalliesAllocator = GrTAllocator<InstanceTallies, 128>;
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
@@ -100,13 +100,13 @@ private:
                          const GrPipeline&, const Batch&, const InstanceTallies* startIndices[2],
                          int startScissorSubBatch, const SkIRect& drawBounds) const;
 
-    template<int GrCCStrokeGeometry::InstanceTallies::* InstanceType>
+    template<int GrStrokeGeometry::InstanceTallies::* InstanceType>
     void drawConnectingGeometry(GrOpFlushState*, const GrPipeline&,
                                 const GrCCCoverageProcessor&, const Batch&,
                                 const InstanceTallies* startIndices[2], int startScissorSubBatch,
                                 const SkIRect& drawBounds) const;
 
-    GrCCStrokeGeometry fGeometry;
+    GrStrokeGeometry fGeometry;
     SkSTArray<32, PathInfo> fPathInfos;
     SkSTArray<32, Batch> fBatches;
     SkSTArray<32, ScissorSubBatch> fScissorSubBatches;

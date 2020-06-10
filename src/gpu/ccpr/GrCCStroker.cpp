@@ -17,7 +17,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-static constexpr int kMaxNumLinearSegmentsLog2 = GrCCStrokeGeometry::kMaxNumLinearSegmentsLog2;
+static constexpr int kMaxNumLinearSegmentsLog2 = GrStrokeGeometry::kMaxNumLinearSegmentsLog2;
 using TriangleInstance = GrCCCoverageProcessor::TriPointInstance;
 using ConicInstance = GrCCCoverageProcessor::QuadPointInstance;
 
@@ -221,7 +221,7 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     v->codeAppend ("float2 tan = bcd - abc;");
 
     // Find actual tangents for the corner cases when De Casteljau's yields tan=0. (We shouldn't
-    // encounter other numerically unstable cases where tan ~= 0, because GrCCStrokeGeometry snaps
+    // encounter other numerically unstable cases where tan ~= 0, because GrStrokeGeometry snaps
     // control points to endpoints in curves where they are almost equal.)
     v->codeAppend ("if (0 == T && P[0] == P[1]) {");
     v->codeAppend (    "tan = P[2] - P[0];");
@@ -363,7 +363,7 @@ void GrCCStroker::parseDeviceSpaceStroke(const SkPath& path, const SkPoint* devi
     }
 }
 
-// This class encapsulates the process of expanding ready-to-draw geometry from GrCCStrokeGeometry
+// This class encapsulates the process of expanding ready-to-draw geometry from GrStrokeGeometry
 // directly into GPU instance buffers.
 class GrCCStroker::InstanceBufferBuilder {
 public:
@@ -440,7 +440,7 @@ public:
             n1 = -tmp;
         }
 
-        if (!GrCCStrokeGeometry::IsInternalJoinVerb(joinVerb)) {
+        if (!GrStrokeGeometry::IsInternalJoinVerb(joinVerb)) {
             // Normal joins are a triangle that connects the outer corners of two adjoining strokes.
             this->appendTriangleInstance().set(
                     n1 * fCurrStrokeRadius, Sk2f(0, 0), n0 * fCurrStrokeRadius, offset,
@@ -611,13 +611,13 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
         return false;  // Buffer allocation failed.
     }
 
-    // Now parse the GrCCStrokeGeometry and expand it into the instance buffer.
+    // Now parse the GrStrokeGeometry and expand it into the instance buffer.
     int pathIdx = 0;
     int ptsIdx = 0;
     int paramsIdx = 0;
     int normalsIdx = 0;
 
-    const SkTArray<GrCCStrokeGeometry::Parameter, true>& params = fGeometry.params();
+    const SkTArray<GrStrokeGeometry::Parameter, true>& params = fGeometry.params();
     const SkTArray<SkPoint, true>& pts = fGeometry.points();
     const SkTArray<SkVector, true>& normals = fGeometry.normals();
 
@@ -771,7 +771,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
     }
 }
 
-template<int GrCCStrokeGeometry::InstanceTallies::* InstanceType>
+template<int GrStrokeGeometry::InstanceTallies::* InstanceType>
 void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPipeline& pipeline,
                                          const GrCCCoverageProcessor& processor,
                                          const Batch& batch, const InstanceTallies* startIndices[2],

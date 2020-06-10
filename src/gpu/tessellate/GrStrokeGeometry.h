@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrCCStrokeGeometry_DEFINED
-#define GrGrCCStrokeGeometry_DEFINED
+#ifndef GrGrStrokeGeometry_DEFINED
+#define GrGrStrokeGeometry_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -15,15 +15,14 @@
 class SkStrokeRec;
 
 /**
- * This class converts device-space stroked paths into a set of independent strokes, joins, and caps
- * that map directly to coverage-counted GPU instances. Non-hairline strokes can only be drawn with
- * rigid body transforms; we don't yet support skewing the stroke lines themselves.
+ * This class converts post-transform stroked paths into a set of independent strokes, joins, and
+ * caps that map directly to GPU instances.
  */
-class GrCCStrokeGeometry {
+class GrStrokeGeometry {
 public:
     static constexpr int kMaxNumLinearSegmentsLog2 = 15;
 
-    GrCCStrokeGeometry(int numSkPoints = 0, int numSkVerbs = 0)
+    GrStrokeGeometry(int numSkPoints = 0, int numSkVerbs = 0)
             : fVerbs(numSkVerbs * 5/2)  // Reserve for a 2.5x expansion in verbs. (Joins get their
                                         // own separate verb in our representation.)
             , fParams(numSkVerbs * 3)  // Somewhere around 1-2 params per verb.
@@ -31,8 +30,7 @@ public:
             , fNormals(numSkPoints * 5/4) {}
 
     // A string of verbs and their corresponding, params, points, and normals are a compact
-    // representation of what will eventually be independent instances in GPU buffers. When added
-    // up, the combined coverage of all these instances will make complete stroked paths.
+    // representation of what will eventually be independent instances in GPU buffers.
     enum class Verb : uint8_t {
         kBeginPath,  // Instructs the iterator to advance its stroke width, atlas offset, etc.
 
@@ -146,7 +144,7 @@ private:
     SkSTArray<128, SkVector, true> fNormals;
 };
 
-inline GrCCStrokeGeometry::InstanceTallies GrCCStrokeGeometry::InstanceTallies::operator+(
+inline GrStrokeGeometry::InstanceTallies GrStrokeGeometry::InstanceTallies::operator+(
         const InstanceTallies& t) const {
     InstanceTallies ret;
     for (int i = 0; i <= kMaxNumLinearSegmentsLog2; ++i) {
@@ -157,7 +155,7 @@ inline GrCCStrokeGeometry::InstanceTallies GrCCStrokeGeometry::InstanceTallies::
     return ret;
 }
 
-inline bool GrCCStrokeGeometry::IsInternalJoinVerb(Verb verb) {
+inline bool GrStrokeGeometry::IsInternalJoinVerb(Verb verb) {
     switch (verb) {
         case Verb::kInternalBevelJoin:
         case Verb::kInternalRoundJoin:
@@ -174,6 +172,6 @@ inline bool GrCCStrokeGeometry::IsInternalJoinVerb(Verb verb) {
         case Verb::kEndContour:
             return false;
     }
-    SK_ABORT("Invalid GrCCStrokeGeometry::Verb.");
+    SK_ABORT("Invalid GrStrokeGeometry::Verb.");
 }
 #endif

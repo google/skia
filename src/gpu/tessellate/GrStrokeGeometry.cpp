@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ccpr/GrCCStrokeGeometry.h"
+#include "src/gpu/tessellate/GrStrokeGeometry.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkNx.h"
@@ -49,8 +49,8 @@ static inline float calc_curvature_costheta(const Sk2f& leftTan, const Sk2f& rig
     return (dotprod[0] + dotprod[1]) * invlength[0] * invlength[1];
 }
 
-static GrCCStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
-    using Verb = GrCCStrokeGeometry::Verb;
+static GrStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
+    using Verb = GrStrokeGeometry::Verb;
     switch (join) {
         case SkPaint::kBevel_Join:
             return Verb::kBevelJoin;
@@ -62,7 +62,7 @@ static GrCCStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
     SK_ABORT("Invalid SkPaint::Join.");
 }
 
-void GrCCStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth,
+void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth,
                                    InstanceTallies* tallies) {
     SkASSERT(!fInsideContour);
     // Client should have already converted the stroke to device space (i.e. width=1 for hairline).
@@ -91,7 +91,7 @@ void GrCCStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWid
     fVerbs.push_back(Verb::kBeginPath);
 }
 
-void GrCCStrokeGeometry::moveTo(SkPoint pt) {
+void GrStrokeGeometry::moveTo(SkPoint pt) {
     SkASSERT(!fInsideContour);
     fCurrContourFirstPtIdx = fPoints.count();
     fCurrContourFirstNormalIdx = fNormals.count();
@@ -99,12 +99,12 @@ void GrCCStrokeGeometry::moveTo(SkPoint pt) {
     SkDEBUGCODE(fInsideContour = true);
 }
 
-void GrCCStrokeGeometry::lineTo(SkPoint pt) {
+void GrStrokeGeometry::lineTo(SkPoint pt) {
     SkASSERT(fInsideContour);
     this->lineTo(fCurrStrokeJoinVerb, pt);
 }
 
-void GrCCStrokeGeometry::lineTo(Verb leftJoinVerb, SkPoint pt) {
+void GrStrokeGeometry::lineTo(Verb leftJoinVerb, SkPoint pt) {
     Sk2f tan = Sk2f::Load(&pt) - Sk2f::Load(&fPoints.back());
     if ((tan == 0).allTrue()) {
         return;
@@ -120,7 +120,7 @@ void GrCCStrokeGeometry::lineTo(Verb leftJoinVerb, SkPoint pt) {
     fPoints.push_back(pt);
 }
 
-void GrCCStrokeGeometry::quadraticTo(const SkPoint P[3]) {
+void GrStrokeGeometry::quadraticTo(const SkPoint P[3]) {
     SkASSERT(fInsideContour);
     this->quadraticTo(fCurrStrokeJoinVerb, P, SkFindQuadMaxCurvature(P));
 }
@@ -134,7 +134,7 @@ static inline float wangs_formula_quadratic(const Sk2f& p0, const Sk2f& p1, cons
     return SkScalarCeilToInt(f);
 }
 
-void GrCCStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float maxCurvatureT) {
+void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float maxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -228,7 +228,7 @@ void GrCCStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], floa
     p2.store(&fPoints.push_back());
 }
 
-void GrCCStrokeGeometry::cubicTo(const SkPoint P[4]) {
+void GrStrokeGeometry::cubicTo(const SkPoint P[4]) {
     SkASSERT(fInsideContour);
     float roots[3];
     int numRoots = SkFindCubicMaxCurvature(P, roots);
@@ -249,7 +249,7 @@ static inline float wangs_formula_cubic(const Sk2f& p0, const Sk2f& p1, const Sk
     return SkScalarCeilToInt(f);
 }
 
-void GrCCStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxCurvatureT,
+void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxCurvatureT,
                                  float leftMaxCurvatureT, float rightMaxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
@@ -384,7 +384,7 @@ void GrCCStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float ma
     p3.store(&fPoints.push_back());
 }
 
-void GrCCStrokeGeometry::recordStroke(Verb verb, int numSegmentsLog2) {
+void GrStrokeGeometry::recordStroke(Verb verb, int numSegmentsLog2) {
     SkASSERT(Verb::kLinearStroke != verb || 0 == numSegmentsLog2);
     SkASSERT(numSegmentsLog2 <= kMaxNumLinearSegmentsLog2);
     fVerbs.push_back(verb);
@@ -395,12 +395,12 @@ void GrCCStrokeGeometry::recordStroke(Verb verb, int numSegmentsLog2) {
     ++fCurrStrokeTallies->fStrokes[numSegmentsLog2];
 }
 
-void GrCCStrokeGeometry::rotateTo(Verb leftJoinVerb, SkVector normal) {
+void GrStrokeGeometry::rotateTo(Verb leftJoinVerb, SkVector normal) {
     this->recordLeftJoinIfNotEmpty(leftJoinVerb, normal);
     fNormals.push_back(normal);
 }
 
-void GrCCStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNormal) {
+void GrStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNormal) {
     if (fNormals.count() <= fCurrContourFirstNormalIdx) {
         // The contour is empty. Nothing to join with.
         SkASSERT(fNormals.count() == fCurrContourFirstNormalIdx);
@@ -476,7 +476,7 @@ void GrCCStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNo
     this->recordRoundJoin(joinVerb, miterCapHeightOverWidth, w);
 }
 
-void GrCCStrokeGeometry::recordBevelJoin(Verb originalJoinVerb) {
+void GrStrokeGeometry::recordBevelJoin(Verb originalJoinVerb) {
     if (!IsInternalJoinVerb(originalJoinVerb)) {
         fVerbs.push_back(Verb::kBevelJoin);
         ++fCurrStrokeTallies->fTriangles;
@@ -486,13 +486,13 @@ void GrCCStrokeGeometry::recordBevelJoin(Verb originalJoinVerb) {
     }
 }
 
-void GrCCStrokeGeometry::recordMiterJoin(float miterCapHeightOverWidth) {
+void GrStrokeGeometry::recordMiterJoin(float miterCapHeightOverWidth) {
     fVerbs.push_back(Verb::kMiterJoin);
     fParams.push_back().fMiterCapHeightOverWidth = miterCapHeightOverWidth;
     fCurrStrokeTallies->fTriangles += 2;
 }
 
-void GrCCStrokeGeometry::recordRoundJoin(Verb joinVerb, float miterCapHeightOverWidth,
+void GrStrokeGeometry::recordRoundJoin(Verb joinVerb, float miterCapHeightOverWidth,
                                          float conicWeight) {
     fVerbs.push_back(joinVerb);
     fParams.push_back().fConicWeight = conicWeight;
@@ -507,7 +507,7 @@ void GrCCStrokeGeometry::recordRoundJoin(Verb joinVerb, float miterCapHeightOver
     }
 }
 
-void GrCCStrokeGeometry::closeContour() {
+void GrStrokeGeometry::closeContour() {
     SkASSERT(fInsideContour);
     SkASSERT(fPoints.count() > fCurrContourFirstPtIdx);
     if (fPoints.back() != fPoints[fCurrContourFirstPtIdx]) {
@@ -526,7 +526,7 @@ void GrCCStrokeGeometry::closeContour() {
     SkDEBUGCODE(fInsideContour = false);
 }
 
-void GrCCStrokeGeometry::capContourAndExit() {
+void GrStrokeGeometry::capContourAndExit() {
     SkASSERT(fInsideContour);
     if (fCurrContourFirstNormalIdx >= fNormals.count()) {
         // This contour is empty. Add a normal in the direction that caps orient on empty geometry.
@@ -540,7 +540,7 @@ void GrCCStrokeGeometry::capContourAndExit() {
     SkDEBUGCODE(fInsideContour = false);
 }
 
-void GrCCStrokeGeometry::recordCapsIfAny() {
+void GrStrokeGeometry::recordCapsIfAny() {
     SkASSERT(fInsideContour);
     SkASSERT(fCurrContourFirstNormalIdx < fNormals.count());
 
