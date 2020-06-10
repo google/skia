@@ -73,8 +73,9 @@ private:
 
         if (this->backend() == GrBackendApi::kVulkan ||
             this->backend() == GrBackendApi::kMetal ||
+            this->backend() == GrBackendApi::kDirect3D ||
             this->backend() == GrBackendApi::kDawn) {
-            // Currently, Vulkan, Metal and Dawn require a live renderTarget to
+            // Currently Vulkan, Metal, Direct3D, and Dawn require a live renderTarget to
             // compute the key
             return;
         }

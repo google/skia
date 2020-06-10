@@ -61,10 +61,12 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
     fTotalSize *= 2;
     fBuffer = this->createBuffer(fTotalSize);
     SkASSERT(fBuffer);
-    SkAutoSpinlock lock(fMutex);
-    fHead = 0;
-    fTail = 0;
-    fGenID++;
+    {
+        SkAutoSpinlock lock(fMutex);
+        fHead = 0;
+        fTail = 0;
+        fGenID++;
+    }
     offset = this->getAllocationOffset(size);
     SkASSERT(offset < fTotalSize);
     return { fBuffer, offset };
