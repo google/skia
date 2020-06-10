@@ -146,7 +146,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodeUnitProperties.reset();
         this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
         this->fWords.clear();
-        this->fBidiRegions.reset();
+        this->fBidiRegions.clear();
         this->fGraphemes16.reset();
         this->fCodepoints.reset();
         this->fRuns.reset();
@@ -978,7 +978,7 @@ void ParagraphImpl::setState(InternalState state) {
             fCodeUnitProperties.reset();
             fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
             fWords.clear();
-            fBidiRegions.reset();
+            fBidiRegions.clear();
             fGraphemes16.reset();
             fCodepoints.reset();
         case kShaped:
@@ -1083,64 +1083,12 @@ bool ParagraphImpl::getBidiRegions() {
     if (!fBidiRegions.empty()) {
         return true;
     }
+    fBidiRegions.clear();
 
-    fBidiRegions.reset();
-
-    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
-    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
-    size_t utf8Bytes = fText.size();
-    const char* utf8 = fText.c_str();
     SkBidiIterator::Direction dir = fParagraphStyle.getTextDirection() == TextDirection::kLtr
                                     ? SkBidiIterator::kLTR
                                     : SkBidiIterator::kRTL;
-    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
-        SkDEBUGF("Bidi error: text too long");
-        return false;
-    }
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Bytes);
-    if (utf16Units < 0) {
-        SkDEBUGF("Invalid utf8 input");
-        return false;
-    }
-    std::unique_ptr<uint16_t[]> utf16(new uint16_t[utf16Units]);
-    SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Bytes);
-    SkASSERT(dstLen == utf16Units);
-
-    auto bidi = fICU->makeBidiIterator(utf16.get(), utf16Units, dir);
-    if (!bidi) {
-        SkDEBUGF("Bidi failure\n");
-        return false;
-    }
-
-    SkTArray<BidiRegion> bidiRegions;
-    const char* start8 = utf8;
-    const char* end8 = utf8 + utf8Bytes;
-    TextRange textRange(0, 0);
-    SkBidiIterator::Level currentLevel = 0;
-
-    int32_t pos16 = 0;
-    int32_t end16 = bidi->getLength();
-    while (pos16 < end16) {
-        auto level = bidi->getLevelAt(pos16);
-        if (pos16 == 0) {
-            currentLevel = level;
-        } else if (level != currentLevel) {
-            textRange.end = start8 - utf8;
-            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-            currentLevel = level;
-            textRange = TextRange(textRange.end, textRange.end);
-        }
-        SkUnichar u = utf8_next(&start8, end8);
-        pos16 += SkUTF::ToUTF16(u);
-    }
-
-    textRange.end = start8 - utf8;
-    if (!textRange.empty()) {
-        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-    }
-
+    fBidiRegions = fICU->getBidiRegions(fText.c_str(), fText.size(), dir);
     return true;
 }
 

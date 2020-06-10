@@ -8,11 +8,19 @@
 #ifndef SkUnicode_DEFINED
 #define SkUnicode_DEFINED
 #include "include/core/SkTypes.h"
+#include <vector>
 
 class SkBidiIterator {
 public:
-    typedef int Position;
+    typedef int32_t Position;
     typedef uint8_t Level;
+    struct Region {
+        Region(Position start, Position end, Level level)
+            : start(start), end(end), level(level) { }
+        Position start;
+        Position end;
+        Level level;
+    };
     enum Direction {
         kLTR,
         kRTL,
@@ -25,11 +33,26 @@ public:
 
 class SkUBreakIterator {
 public:
+    enum UBreakType {
+        kGrapheme,
+        kWord,
+        kLine
+    };
+    // SkParagraph iterates text by lines and graphemes as utf8 (SkShaper requires it)
+    // Flutter requires results for words iterator to be in utf16
+    // It's possible that other clients will have different needs
+    enum Encoding {
+        kUtf8,
+        kUtf16
+    };
+    typedef int32_t Position;
+    typedef int32_t Status;
     virtual ~SkUBreakIterator() {}
-    virtual size_t first() = 0;
-    virtual size_t next() = 0;
-    virtual size_t preceding(size_t offset) = 0;
-    virtual size_t following(size_t offset) = 0;
+    virtual Position first() = 0;
+    virtual Position next() = 0;
+    virtual Position preceding(Position offset) = 0;
+    virtual Position following(Position offset) = 0;
+    virtual Status status() = 0;
 };
 
 class SkUnicode {
@@ -44,9 +67,14 @@ public:
     virtual SkUnichar mirrorUnichar(SkUnichar) = 0;
     virtual bool composeUnichars(SkUnichar a, SkUnichar b, SkUnichar* ab) = 0;
     virtual bool decomposeUnichar(SkUnichar ab, SkUnichar* a, SkUnichar* b) = 0;
-    virtual std::unique_ptr<SkBidiIterator>
-        makeBidiIterator(const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
-    virtual std::unique_ptr<SkUBreakIterator> makeUBreakIterator() = 0;
+    virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
+        (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
+    virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
+        (const char text[], int count, SkBidiIterator::Direction) = 0;
+    virtual std::vector<SkBidiIterator::Region> getBidiRegions
+        (const char utf8[], int utf8Units, SkBidiIterator::Direction dir) = 0;
+    virtual std::unique_ptr<SkUBreakIterator> makeUBreakIterator
+        (const char text[], int count, SkUBreakIterator::UBreakType type, SkUBreakIterator::Encoding encoding) = 0;
 };
 std::unique_ptr<SkUnicode> SkUnicode_Make();
 #endif
