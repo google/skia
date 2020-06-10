@@ -99,7 +99,7 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
     SkAutoSTMalloc<8, D3D12_CPU_DESCRIPTOR_HANDLE> shaderResourceViews(fNumSamplers);
     SkAutoSTMalloc<8, D3D12_CPU_DESCRIPTOR_HANDLE> samplers(fNumSamplers);
     SkAutoSTMalloc<8, unsigned int> rangeSizes(fNumSamplers);
-    int currTextureBinding = 0;
+    unsigned int currTextureBinding = 0;
 
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());
