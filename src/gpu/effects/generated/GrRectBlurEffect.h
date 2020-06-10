@@ -10,8 +10,9 @@
  **************************************************************************************************/
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include <cmath>
 #include "include/core/SkRect.h"
@@ -27,6 +28,7 @@
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, float sixSigma) {
@@ -143,8 +145,7 @@ private:
             , invSixSigma(invSixSigma)
             , isFast(isFast) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         this->setTextureSamplerCnt(1);
     }

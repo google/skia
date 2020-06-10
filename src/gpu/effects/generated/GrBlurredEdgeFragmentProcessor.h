@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrBlurredEdgeFragmentProcessor_DEFINED
 #define GrBlurredEdgeFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
@@ -34,8 +36,7 @@ private:
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , mode(mode) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

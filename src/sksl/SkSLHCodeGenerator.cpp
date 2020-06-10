@@ -272,7 +272,7 @@ void HCodeGenerator::writeConstructor() {
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
     int samplerCount = 0;
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
         if (param->fType.kind() == Type::kSampler_Kind) {
             ++samplerCount;
         } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
@@ -281,8 +281,6 @@ void HCodeGenerator::writeConstructor() {
             } else {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
-            this->writef("            %s_index = this->numChildProcessors();",
-                         FieldName(String(param->fName).c_str()).c_str());
             if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
                 this->writef("            %s->setSampledWithExplicitCoords();",
                              String(param->fName).c_str());
@@ -309,7 +307,8 @@ void HCodeGenerator::writeConstructor() {
                 case SampleMatrix::Kind::kNone:
                     break;
             }
-            this->writef("            this->registerChildProcessor(std::move(%s));",
+            this->writef("            %s_index = this->registerChildProcessor(std::move(%s));",
+                         FieldName(String(param->fName).c_str()).c_str(),
                          String(param->fName).c_str());
             if (param->fType.kind() == Type::kNullable_Kind) {
                 this->writef("       }");
@@ -367,15 +366,18 @@ bool HCodeGenerator::generateCode() {
     this->writef("%s\n", GetHeader(fProgram, fErrors).c_str());
     this->writef(kFragmentProcessorHeader, fFullName.c_str());
     this->writef("#ifndef %s_DEFINED\n"
-                 "#define %s_DEFINED\n",
+                 "#define %s_DEFINED\n"
+                 "\n",
                  fFullName.c_str(),
                  fFullName.c_str());
-    this->writef("#include \"include/core/SkTypes.h\"\n");
-    this->writef("#include \"include/core/SkM44.h\"\n");
+    this->writef("#include \"include/core/SkM44.h\"\n"
+                 "#include \"include/core/SkTypes.h\"\n"
+                 "\n");
     this->writeSection(HEADER_SECTION);
     this->writef("\n"
                  "#include \"src/gpu/GrCoordTransform.h\"\n"
-                 "#include \"src/gpu/GrFragmentProcessor.h\"\n");
+                 "#include \"src/gpu/GrFragmentProcessor.h\"\n"
+                 "\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());

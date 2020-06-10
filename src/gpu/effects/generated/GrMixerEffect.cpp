@@ -64,23 +64,20 @@ bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
-        : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags())
-        , fp0_index(src.fp0_index)
-        , fp1_index(src.fp1_index)
-        , weight(src.weight) {
+        : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     {
-        auto clone = src.childProcessor(fp0_index).clone();
-        if (src.childProcessor(fp0_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        auto fp0_clone = src.childProcessor(src.fp0_index).clone();
+        if (src.childProcessor(src.fp0_index).isSampledWithExplicitCoords()) {
+            fp0_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        fp0_index = this->registerChildProcessor(std::move(fp0_clone));
     }
-    if (fp1_index >= 0) {
-        auto clone = src.childProcessor(fp1_index).clone();
-        if (src.childProcessor(fp1_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+    if (src.fp1_index >= 0) {
+        auto fp1_clone = src.childProcessor(src.fp1_index).clone();
+        if (src.childProcessor(src.fp1_index).isSampledWithExplicitCoords()) {
+            fp1_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        fp1_index = this->registerChildProcessor(std::move(fp1_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrMixerEffect::clone() const {

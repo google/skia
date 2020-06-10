@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrRGBToHSLFilterEffect_DEFINED
 #define GrRGBToHSLFilterEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrRGBToHSLFilterEffect : public GrFragmentProcessor {
 public:
 #include "include/private/SkColorData.h"
@@ -51,8 +53,7 @@ private:
                                 (kConstantOutputForConstantInput_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag)) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

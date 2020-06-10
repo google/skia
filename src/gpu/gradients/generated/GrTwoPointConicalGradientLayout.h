@@ -10,14 +10,16 @@
  **************************************************************************************************/
 #ifndef GrTwoPointConicalGradientLayout_DEFINED
 #define GrTwoPointConicalGradientLayout_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrTwoPointConicalGradientLayout : public GrFragmentProcessor {
 public:
     enum class Type { kFocal = 2, kRadial = 0, kStrip = 1 };

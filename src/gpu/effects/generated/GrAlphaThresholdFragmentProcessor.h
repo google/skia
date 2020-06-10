@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrAlphaThresholdFragmentProcessor_DEFINED
 #define GrAlphaThresholdFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -54,8 +56,7 @@ private:
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         this->setTextureSamplerCnt(1);
         this->addCoordTransform(&maskCoordTransform);

@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrClampFragmentProcessor_DEFINED
 #define GrClampFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrClampFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
@@ -46,8 +48,7 @@ private:
                                  kPreservesOpaqueInput_OptimizationFlag))
             , clampToPremul(clampToPremul) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

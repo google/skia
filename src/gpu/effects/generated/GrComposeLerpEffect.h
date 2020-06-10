@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrComposeLerpEffect_DEFINED
 #define GrComposeLerpEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrComposeLerpEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child1,
@@ -36,12 +38,10 @@ private:
                         float weight)
             : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags), weight(weight) {
         if (child1) {
-            child1_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(child1));
+            child1_index = this->registerChildProcessor(std::move(child1));
         }
         if (child2) {
-            child2_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(child2));
+            child2_index = this->registerChildProcessor(std::move(child2));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
