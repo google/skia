@@ -657,8 +657,7 @@ void GrGpu::validateStagingBuffers() const {
 void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
                              int numProxies,
                              SkSurface::BackendSurfaceAccess access,
-                             const GrFlushInfo& info,
-                             const GrPrepareForExternalIORequests& externalRequests) {
+                             const GrFlushInfo& info) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
@@ -691,8 +690,7 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
         fSubmittedProcs.emplace_back(info.fSubmittedProc, info.fSubmittedContext);
     }
 
-    this->prepareSurfacesForBackendAccessAndExternalIO(proxies, numProxies, access,
-                                                       externalRequests);
+    this->prepareSurfacesForBackendAccessAndExternalIO(proxies, numProxies, access);
 }
 
 bool GrGpu::submitToGpu(bool syncCpu) {
