@@ -22,6 +22,30 @@
       "revId": "f07534e77d323a04b3ca3e758804d918c22fbf06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb677fe_4c74f680",
+        "filename": "gn/rm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-10T23:42:50Z",
+      "side": 1,
+      "message": "I dunno, every byte from this file is a byte from cp.py. In fact if I thought I could get away with it I would just call cp.py with a non-existing src so it could delete the file and then not copy anything into its place, but that seemed a bit obtuse.",
+      "parentUuid": "1625bd37_a2d5b0e4",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "f07534e77d323a04b3ca3e758804d918c22fbf06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
