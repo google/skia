@@ -42,9 +42,12 @@ declare_args() {
   dlsymutil_pool_depth = exec_script("num_cpus.py", [], "value")
 }
 
+# For 'shell' see https://ninja-build.org/manual.html#ref_rule_command
 if (host_os == "win") {
-  stamp = "cmd.exe /c echo >"
+  shell = "cmd.exe /c "
+  stamp = "$shell echo >"
 } else {
+  shell = ""
   stamp = "touch"
 }
 
@@ -64,10 +67,10 @@ toolchain("msvc") {
   if (target_cpu == "x86") {
     # Toolchain asset includes a script that configures for x86 building.
     # We don't support x86 builds with local MSVC installations.
-    env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
+    env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
   } else if (target_cpu == "arm64") {
     # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-    env_setup = "cmd /C set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
+    env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
   }
 
   cl_m32_flag = ""
@@ -266,7 +269,8 @@ template("gcc_like_toolchain") {
       } else {
         rspfile = "{{output}}.rsp"
         rspfile_content = "{{inputs}}"
-        command = "$ar rcs {{output}} @$rspfile"
+        rm_py = rebase_path("../rm.py")
+        command = "$shell python \"$rm_py\" \"{{output}}\" && $ar rcs {{output}} @$rspfile"
       }
 
       outputs =
