@@ -259,59 +259,6 @@ auto SkGlyphRunListPainter::ensureBuffers(const SkGlyphRunList& glyphRunList) ->
     return ScopedBuffers(this, size);
 }
 
-#if SK_SUPPORT_GPU
-// -- GrTextContext --------------------------------------------------------------------------------
-#if GR_TEST_UTILS
-
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
-
-std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext* context,
-                                                              GrTextContext* textContext,
-                                                              GrRenderTargetContext* rtc,
-                                                              const SkPaint& skPaint,
-                                                              const SkFont& font,
-                                                              const SkMatrixProvider& mtxProvider,
-                                                              const char* text,
-                                                              int x,
-                                                              int y) {
-    auto direct = context->priv().asDirectContext();
-    if (!direct) {
-        return nullptr;
-    }
-
-    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-
-    size_t textLen = (int)strlen(text);
-
-    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
-
-    auto drawOrigin = SkPoint::Make(x, y);
-    SkGlyphRunBuilder builder;
-    builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
-
-    auto glyphRunList = builder.useGlyphRunList();
-    sk_sp<GrTextBlob> blob;
-    if (!glyphRunList.empty()) {
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-        SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
-        painter->processGlyphRunList(
-                glyphRunList, drawMatrix, surfaceProps,
-                context->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
-                textContext->fOptions, blob.get());
-    }
-
-    return blob->firstSubRun()->makeOp(mtxProvider,
-                                       drawOrigin,
-                                       SkIRect::MakeEmpty(),
-                                       skPaint,
-                                       surfaceProps,
-                                       rtc->textTarget());
-}
-
-#endif  // GR_TEST_UTILS
-#endif  // SK_SUPPORT_GPU
-
 SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* painter, size_t size)
         : fPainter{painter} {
     fPainter->fDrawable.ensureSize(size);
