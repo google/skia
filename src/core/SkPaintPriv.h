@@ -74,6 +74,10 @@ public:
     // typically the color space of the device we're drawing into.
     static void RemoveColorFilter(SkPaint*, SkColorSpace* dstCS);
 
+    // The shader might modify the actual quality setting. This returns that, or the original
+    // setting in the paint.
+    static SkFilterQuality ResolveFilterQuality(const SkPaint& paint);
+
 private:
     static SkReadPaintResult Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont*);
 };
