@@ -243,6 +243,52 @@
     },
     {
       "key": {
+        "uuid": "988e04bd_6a5ebfba",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-10T19:49:34Z",
+      "side": 1,
+      "message": "does specifying png here stop createImageBitmap from decoding jpeg, webp, or other formats?",
+      "range": {
+        "startLine": 1413,
+        "startChar": 48,
+        "endLine": 1413,
+        "endChar": 51
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e80cef4c_707a2a8e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-10T19:49:34Z",
+      "side": 1,
+      "message": "if you want a blob anyways, you could specify that callers do\nfetch().then(resp.blob()) and give you that, or even have these fuctions take a Response object and do what you want with it.\n\nhttps://developer.mozilla.org/en-US/docs/Web/API/Body/blob\n\nkevin, is the interface for these nailed down?",
+      "range": {
+        "startLine": 1444,
+        "startChar": 39,
+        "endLine": 1444,
+        "endChar": 81
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0e955a_671a9ed0",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
