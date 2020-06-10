@@ -90,6 +90,7 @@ static void fuzz_sksl2glsl(sk_sp<SkData>);
 static void fuzz_sksl2metal(sk_sp<SkData>);
 static void fuzz_sksl2pipeline(sk_sp<SkData>);
 static void fuzz_sksl2spirv(sk_sp<SkData>);
+static void fuzz_svg_dom(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
@@ -97,6 +98,7 @@ static void print_api_names();
 #if defined(SK_ENABLE_SKOTTIE)
 static void fuzz_skottie_json(sk_sp<SkData>);
 #endif
+
 
 int main(int argc, char** argv) {
     CommandLineFlags::SetUsage(
@@ -211,6 +213,10 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
 #endif
+    if (type.equals("svg_dom")) {
+        fuzz_svg_dom(bytes);
+        return 0;
+    }
     if (type.equals("skp")) {
         fuzz_skp(bytes);
         return 0;
@@ -326,6 +332,12 @@ static void fuzz_skottie_json(sk_sp<SkData> bytes){
     SkDebugf("[terminated] Done animating!\n");
 }
 #endif
+
+void FuzzSVG(sk_sp<SkData> bytes);
+static void fuzz_svg_dom(sk_sp<SkData> bytes){
+    FuzzSVG(bytes);
+    SkDebugf("[terminated] Done DOM!\n");
+}
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
 // deterministically excercise different paths, or *options* (such as different scaling sizes or
