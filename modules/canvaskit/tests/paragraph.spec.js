@@ -73,7 +73,7 @@ describe('Paragraph Behavior', function() {
             decorationThickness: 1.5, // multiplier based on font size
             fontSize: 24,
         });
-        builder.pushStyle(blueText)
+        builder.pushStyle(blueText);
         builder.addText(`Gosh I hope this wraps at some point, it is such a long line.`)
         builder.pop();
         builder.addText(` I'm done with the blue now. `)
@@ -108,7 +108,7 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
-        // loosely based on SkParagraph_GetRectsForRangeParagraph test in c++ code.
+    // loosely based on SkParagraph_GetRectsForRangeParagraph test in c++ code.
     gm('paragraph_rects', (canvas) => {
         const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
 
@@ -116,9 +116,12 @@ describe('Paragraph Behavior', function() {
         const hStyle = CanvasKit.RectHeightStyle.Max;
         const wStyle = CanvasKit.RectWidthStyle.Tight;
 
+        const mallocedColor = CanvasKit.Malloc(Float32Array, 4);
+        mallocedColor.toTypedArray().set([0.9, 0.1, 0.1, 1.0]);
+
         const paraStyle = new CanvasKit.ParagraphStyle({
             textStyle: {
-                color: CanvasKit.BLACK,
+                color: mallocedColor,
                 fontFamilies: ['Noto Serif'],
                 fontSize: 50,
             },
@@ -128,6 +131,7 @@ describe('Paragraph Behavior', function() {
         const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
         builder.addText('12345,  \"67890\" 12345 67890 12345 67890 12345 67890 12345 67890 12345 67890 12345');
         const paragraph = builder.build();
+        CanvasKit.Free(mallocedColor);
 
         paragraph.layout(wrapTo);
 
@@ -385,7 +389,7 @@ describe('Paragraph Behavior', function() {
                 slant: CanvasKit.FontSlant.Italic,
             }
         });
-        builder.pushStyle(boldItalic)
+        builder.pushStyle(boldItalic);
         builder.addText(`Bold, Italic\n`); // doesn't show up, but we don't crash
         builder.pop();
         builder.addText(`back to normal`);
@@ -407,7 +411,7 @@ describe('Paragraph Behavior', function() {
 
     it('should not crash if we omit font family on paragraph style', () => {
         const surface = CanvasKit.MakeCanvasSurface('test');
-        expect(surface).toBeTruthy('Could not make surface')
+        expect(surface).toBeTruthy('Could not make surface');
 
         const canvas = surface.getCanvas();
         const paint = new CanvasKit.SkPaint();
@@ -436,7 +440,7 @@ describe('Paragraph Behavior', function() {
                 slant: CanvasKit.FontSlant.Italic,
             }
         });
-        builder.pushStyle(boldItalic)
+        builder.pushStyle(boldItalic);
         builder.addText(`Bold, Italic\n`);
         builder.pop();
         builder.addText(`back to normal`);

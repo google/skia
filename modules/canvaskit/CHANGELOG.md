@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - `TextStyle.color` can correctly be a Malloc'd Float32Array.
+
 ## [0.16.2] - 2020-06-05
 
 ### Fixed

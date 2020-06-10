@@ -62,7 +62,7 @@
 
     CanvasKit.TextStyle = function(s) {
        // Use [''] to tell closure not to minify the names
-      if (!isCanvasKitColor(s['color'])) {
+      if (!s['color']) {
         s['color'] = CanvasKit.BLACK;
       }
 
