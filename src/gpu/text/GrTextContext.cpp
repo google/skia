@@ -84,7 +84,7 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
         SkScalar maxScale = viewMatrix.getMaxScale();
         SkScalar scaledTextSize = maxScale * font.getSize();
         // Hinted text looks far better at small resolutions
-        // Scaling up beyond 2x yields undesireable artifacts
+        // Scaling up beyond 2x yields undesirable artifacts
         if (scaledTextSize < options.fMinDistanceFieldFontSize ||
             scaledTextSize > options.fMaxDistanceFieldFontSize) {
             return false;
@@ -201,51 +201,3 @@ SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
     return dfPaint;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if GR_TEST_UTILS
-
-#include "src/gpu/GrRenderTargetContext.h"
-
-GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
-    static uint32_t gContextID = SK_InvalidGenID;
-    static std::unique_ptr<GrTextContext> gTextContext;
-    static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-
-    if (context->priv().contextID() != gContextID) {
-        gContextID = context->priv().contextID();
-        gTextContext = GrTextContext::Make(GrTextContext::Options());
-    }
-
-    // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
-    auto rtc = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
-
-    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
-
-    SkPaint skPaint;
-    skPaint.setColor(random->nextU());
-
-    SkFont font;
-    if (random->nextBool()) {
-        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-    } else {
-        font.setEdging(random->nextBool() ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
-    }
-    font.setSubpixel(random->nextBool());
-
-    const char* text = "The quick brown fox jumps over the lazy dog.";
-
-    // create some random x/y offsets, including negative offsets
-    static const int kMaxTrans = 1024;
-    int xPos = (random->nextU() % 2) * 2 - 1;
-    int yPos = (random->nextU() % 2) * 2 - 1;
-    int xInt = (random->nextU() % kMaxTrans) * xPos;
-    int yInt = (random->nextU() % kMaxTrans) * yPos;
-
-    return gTextContext->createOp_TestingOnly(context, gTextContext.get(), rtc.get(), skPaint, font,
-                                              matrixProvider, text, xInt, yInt);
-}
-
-#endif

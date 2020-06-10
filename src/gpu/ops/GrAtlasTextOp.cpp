@@ -16,6 +16,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
@@ -538,4 +539,82 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #endif
     }
 }
+
+#if GR_TEST_UTILS
+std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
+                                                             const SkPaint& skPaint,
+                                                             const SkFont& font,
+                                                             const SkMatrixProvider& mtxProvider,
+                                                             const char* text,
+                                                             int x,
+                                                             int y) {
+    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+
+    size_t textLen = (int)strlen(text);
+
+    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
+
+    auto drawOrigin = SkPoint::Make(x, y);
+    SkGlyphRunBuilder builder;
+    builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
+
+    auto glyphRunList = builder.useGlyphRunList();
+
+    const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
+    GrTextContext::Options SDFOptions = {
+            contextPriv.options().fGlyphsAsPathsFontSize,
+            contextPriv.options().fMinDistanceFieldFontSize
+    };
+
+    if (glyphRunList.empty()) {
+        return nullptr;
+    }
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+    SkGlyphRunListPainter* painter = &rtc->fGlyphPainter;
+    painter->processGlyphRunList(
+            glyphRunList, drawMatrix, surfaceProps,
+            contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
+            SDFOptions, blob.get());
+
+    return blob->firstSubRun()->makeOp(mtxProvider,
+                                       drawOrigin,
+                                       SkIRect::MakeEmpty(),
+                                       skPaint,
+                                       surfaceProps,
+                                       rtc->textTarget());
+}
+
+GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
+    // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
+    auto rtc = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
+
+    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
+
+    SkPaint skPaint;
+    skPaint.setColor(random->nextU());
+
+    SkFont font;
+    if (random->nextBool()) {
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    } else {
+        font.setEdging(random->nextBool() ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
+    }
+    font.setSubpixel(random->nextBool());
+
+    const char* text = "The quick brown fox jumps over the lazy dog.";
+
+    // create some random x/y offsets, including negative offsets
+    static const int kMaxTrans = 1024;
+    int xPos = (random->nextU() % 2) * 2 - 1;
+    int yPos = (random->nextU() % 2) * 2 - 1;
+    int xInt = (random->nextU() % kMaxTrans) * xPos;
+    int yInt = (random->nextU() % kMaxTrans) * yPos;
+
+    return GrAtlasTextOp::CreateOpTestingOnly(
+            rtc.get(), skPaint, font, matrixProvider, text, xInt, yInt);
+}
+
+#endif
+
 
