@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac135249_e168e4c6",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-10T16:01:07Z",
+      "side": 1,
+      "message": "I\u0027d rename this to ltrb to avoid confusion about which values are stored in each channel. (Aside: SkSL actually supports using LTRB as swizzles, too - so you could name this something like rect, and then use rect.LT \u003d half2(...); rect.RB \u003d ...;",
+      "range": {
+        "startLine": 185,
+        "startChar": 8,
+        "endLine": 185,
+        "endChar": 18
+      },
+      "revId": "ab0b628df89524a219532ae22e6b324b7a97bee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
