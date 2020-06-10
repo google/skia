@@ -10,6 +10,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrPipeline.h"
@@ -92,7 +93,6 @@ static wgpu::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode)
     }
     SkASSERT(!"unsupported address mode");
     return wgpu::AddressMode::ClampToEdge;
-
 }
 
 sk_sp<GrGpu> GrDawnGpu::Make(const wgpu::Device& device,
@@ -123,7 +123,6 @@ GrDawnGpu::~GrDawnGpu() {
         fDevice.Tick();
     }
 }
-
 
 void GrDawnGpu::disconnect(DisconnectType type) {
     if (DisconnectType::kCleanup == type) {
@@ -359,7 +358,13 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         pixels = data->pixmap(0).addr();
     } else {
         pixels = defaultStorage.get();
-        memset(defaultStorage.get(), 0, baseLayerSize);
+        GrColorType colorType;
+        if (!GrDawnFormatToGrColorType(info.fFormat, &colorType)) {
+            return false;
+        }
+        SkISize size{backendTexture.width(), backendTexture.height()};
+        GrImageInfo imageInfo(colorType, kUnpremul_SkAlphaType, nullptr, size);
+        GrClearImage(imageInfo, defaultStorage.get(), bpp * backendTexture.width(), data->color());
     }
     wgpu::Device device = this->device();
     wgpu::CommandEncoder copyEncoder = this->getCopyEncoder();
@@ -643,7 +648,6 @@ std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTex
 sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         GrRenderTarget* rt,
         const GrProgramInfo& programInfo) {
-
     GrProgramDesc desc = this->caps()->makeDesc(rt, programInfo);
     if (!desc.isValid()) {
         return nullptr;
