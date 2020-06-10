@@ -45,7 +45,7 @@ func main() {
 
 		// Flags that may be required for certain configs
 		canvaskitBinPath = flag.String("canvaskit_bin_path", "", "The location of a canvaskit.js and canvaskit.wasm")
-		lottiesPath      = flag.String("lotties_path", "", "Path to location of lottie files.")
+		skpsPath         = flag.String("skps_path", "", "Path to location of skps.")
 
 		// Debugging flags.
 		local       = flag.Bool("local", false, "True if running locally (as opposed to on the bots)")
@@ -71,21 +71,21 @@ func main() {
 	nodeBinAbsPath := getAbsoluteOfRequiredFlag(ctx, *nodeBinPath, "node_bin_path")
 	benchmarkAbsPath := getAbsoluteOfRequiredFlag(ctx, *benchmarkPath, "benchmark_path")
 	canvaskitBinAbsPath := getAbsoluteOfRequiredFlag(ctx, *canvaskitBinPath, "canvaskit_bin_path")
-	lottiesAbsPath := getAbsoluteOfRequiredFlag(ctx, *lottiesPath, "lotties_path")
+	skpsAbsPath := getAbsoluteOfRequiredFlag(ctx, *skpsPath, "skps_path")
 	outputAbsPath := getAbsoluteOfRequiredFlag(ctx, *outputPath, "output_path")
 
 	if err := setup(ctx, benchmarkAbsPath, nodeBinAbsPath); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
-	if err := benchSkottieFrames(ctx, outputWithoutResults, benchmarkAbsPath, canvaskitBinAbsPath, lottiesAbsPath, nodeBinAbsPath); err != nil {
+	if err := benchSKPs(ctx, outputWithoutResults, benchmarkAbsPath, canvaskitBinAbsPath, skpsAbsPath, nodeBinAbsPath); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
 	// outputFile name should be unique between tasks, so as to avoid having duplicate name files
 	// uploaded to GCS.
 	outputFile := filepath.Join(outputAbsPath, fmt.Sprintf("perf-%s.json", *taskID))
-	if err := processSkottieFramesData(ctx, outputWithoutResults, benchmarkAbsPath, outputFile); err != nil {
+	if err := processSKPData(ctx, outputWithoutResults, benchmarkAbsPath, outputFile); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 }
@@ -118,7 +118,7 @@ func makePerfObj(gitHash, taskID, machineID string, keys map[string]string) (per
 	rv.Key["arch"] = "wasm"
 	rv.Key["browser"] = "Chromium"
 	rv.Key["configuration"] = "Release"
-	rv.Key["extra_config"] = "SkottieFrames"
+	rv.Key["extra_config"] = "RenderSKP"
 	rv.Key["binary"] = "CanvasKit"
 	rv.Results = map[string]map[string]perfResult{}
 	return rv, nil
@@ -132,38 +132,39 @@ func setup(ctx context.Context, benchmarkPath, nodeBinPath string) error {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
+	// This is very important to make sure chrome is not running because we want to run chrome
+	// with an unlocked framerate (see --disable-frame-rate-limit and --disable-gpu-vsync in
+	// perf-canvaskit-with-puppeteer.js) and that won't happen if there is already an existing
+	// chrome instance running when we try to run puppeteer. killall will return an error (e.g.
+	// a non-zero error code) if there isn't already a chrome instance running. We can safely
+	// ignore that error as we never expect there to be chrome running.
+	_, _ = exec.RunSimple(ctx, "killall chrome")
+
 	if err := os.MkdirAll(filepath.Join(benchmarkPath, "out"), 0777); err != nil {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 	return nil
 }
 
-// benchSkottieFrames serves lotties and assets from a folder and runs the skottie-frames-load
-// benchmark on each of them individually. The output for each will be a JSON file in
-// $benchmarkPath/out/ corresponding to the animation name.
-func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaskitBinPath, lottiesPath, nodeBinPath string) error {
-	ctx = td.StartStep(ctx, td.Props("perf lotties in "+lottiesPath))
+// benchSKPs serves skps from a folder and runs the RenderSKPs benchmark on each of them
+// individually. The benchmark is run N times to reduce the noise of the resulting data.
+// The output for each will be a JSON file in $benchmarkPath/out/ corresponding to the skp name
+// and the iteration it was.
+func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaskitBinPath, skpsPath, nodeBinPath string) error {
+	ctx = td.StartStep(ctx, td.Props("perf skps in "+skpsPath))
 	defer td.EndStep(ctx)
 
-	// We expect the lottiesPath to be a series of folders, each with a data.json and a subfolder of
-	// images. For example:
-	// lottiesPath
-	//    /first-animation/
-	//       data.json
-	//       /images/
-	//          img001.png
-	//          img002.png
-	//          my-font.ttf
-	var lottieFolders []string
-	err := td.Do(ctx, td.Props("locate lottie folders"), func(ctx context.Context) error {
-		return filepath.Walk(lottiesPath, func(path string, info os.FileInfo, _ error) error {
-			if path == lottiesPath {
+	// We expect the skpsPath to a directory with skp files in it.
+	var skpFiles []string
+	err := td.Do(ctx, td.Props("locate skpfiles"), func(ctx context.Context) error {
+		return filepath.Walk(skpsPath, func(path string, info os.FileInfo, _ error) error {
+			if path == skpsPath {
 				return nil
 			}
 			if info.IsDir() {
-				lottieFolders = append(lottieFolders, path)
 				return filepath.SkipDir
 			}
+			skpFiles = append(skpFiles, path)
 			return nil
 		})
 	})
@@ -171,19 +172,18 @@ func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath,
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
-	sklog.Infof("Identified %d lottie folders to benchmark", len(lottieFolders))
+	sklog.Infof("Identified %d skp files to benchmark", len(skpFiles))
 
-	for _, lottie := range lottieFolders {
-		name := filepath.Base(lottie)
-		err = td.Do(ctx, td.Props("Benchmark "+name), func(ctx context.Context) error {
+	for _, skp := range skpFiles {
+		name := filepath.Base(skp)
+		err = td.Do(ctx, td.Props(fmt.Sprintf("Benchmark %s", name)), func(ctx context.Context) error {
 			// See comment in setup about why we specify the absolute path for node.
 			args := []string{filepath.Join(nodeBinPath, "node"),
 				"perf-canvaskit-with-puppeteer",
-				"--bench_html", "skottie-frames.html",
+				"--bench_html", "render-skp.html",
 				"--canvaskit_js", filepath.Join(canvaskitBinPath, "canvaskit.js"),
 				"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
-				"--input_lottie", filepath.Join(lottie, "data.json"),
-				"--assets", filepath.Join(lottie, "images"),
+				"--input_skp", skp,
 				"--output", filepath.Join(benchmarkPath, "out", name+".json"),
 			}
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
@@ -202,6 +202,7 @@ func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath,
 	return nil
 }
 
+// TODO(kjlubick,jcgregorio) Could this code directly refer to the struct in Perf?
 type perfJSONFormat struct {
 	GitHash           string            `json:"gitHash"`
 	SwarmingTaskID    string            `json:"swarming_task_id"`
@@ -213,10 +214,10 @@ type perfJSONFormat struct {
 
 type perfResult map[string]float32
 
-// processSkottieFramesData looks at the result of benchSkottieFrames, computes summary data on
+// processSKPData looks at the result of benchSKPs, computes summary data on
 // those files and adds them as Results into the provided perf object. The perf object is then
 // written in JSON format to outputPath.
-func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmarkPath, outputFilePath string) error {
+func processSKPData(ctx context.Context, perf perfJSONFormat, benchmarkPath, outputFilePath string) error {
 	perfJSONPath := filepath.Join(benchmarkPath, "out")
 	ctx = td.StartStep(ctx, td.Props("process perf output "+perfJSONPath))
 	defer td.EndStep(ctx)
@@ -237,21 +238,23 @@ func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmar
 
 	sklog.Infof("Identified %d JSON inputs to process", len(jsonInputs))
 
-	for _, lottie := range jsonInputs {
-		err = td.Do(ctx, td.Props("Process "+lottie), func(ctx context.Context) error {
-			name := strings.TrimSuffix(filepath.Base(lottie), ".json")
+	for _, skp := range jsonInputs {
+		err = td.Do(ctx, td.Props("Process "+skp), func(ctx context.Context) error {
+			name := strings.TrimSuffix(filepath.Base(skp), ".json")
 			config := "software"
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
 				config = "webgl2"
 			}
-			b, err := os_steps.ReadFile(ctx, lottie)
+
+			b, err := os_steps.ReadFile(ctx, skp)
 			if err != nil {
 				return skerr.Wrap(err)
 			}
-			metrics, err := parseSkottieFramesMetrics(b)
+			metrics, err := parseSKPData(b)
 			if err != nil {
 				return skerr.Wrap(err)
 			}
+
 			perf.Results[name] = map[string]perfResult{
 				config: metrics,
 			}
@@ -282,57 +285,41 @@ func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmar
 	return nil
 }
 
-type skottieFramesJSONFormat struct {
-	FramesMS   []float32 `json:"frames_ms"`
-	SeeksMS    []float32 `json:"seeks_ms"`
-	JSONLoadMS float32   `json:"json_load_ms"`
+type skpPerfData struct {
+	WithoutFlushMS []float32 `json:"without_flush_ms"`
+	WithFlushMS    []float32 `json:"with_flush_ms"`
+	TotalFrameMS   []float32 `json:"total_frame_ms"`
+	SKPLoadMS      float32   `json:"skp_load_ms"`
 }
 
-func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
-	var metrics skottieFramesJSONFormat
-	if err := json.Unmarshal(b, &metrics); err != nil {
+func parseSKPData(b []byte) (perfResult, error) {
+	var data skpPerfData
+	if err := json.Unmarshal(b, &data); err != nil {
 		return nil, skerr.Wrap(err)
 	}
 
-	getNthFrame := func(n int) float32 {
-		if n >= len(metrics.FramesMS) {
-			return 0
-		}
-		return metrics.FramesMS[n]
-	}
+	avgWithoutFlushMS, medianWithoutFlushMS, stddevWithoutFlushMS := summarize(data.WithoutFlushMS)
+	avgWithFlushMS, medianWithFlushMS, stddevWithFlushMS := summarize(data.WithFlushMS)
+	avgTotalFrameMS, medianTotalFrameMS, stddevTotalFrameMS := summarize(data.TotalFrameMS)
 
-	avgFirstFive := float32(0)
-	if len(metrics.FramesMS) >= 5 {
-		avgFirstFive = computeAverage(metrics.FramesMS[:5])
-	}
+	return map[string]float32{
+		"avg_render_without_flush_ms":    avgWithoutFlushMS,
+		"median_render_without_flush_ms": medianWithoutFlushMS,
+		"stddev_render_without_flush_ms": stddevWithoutFlushMS,
 
-	avgFrame, medFrame, stdFrame, p90Frame, p95Frame, p99Frame := summarize(metrics.FramesMS)
-	avgSeek, medSeek, stdSeek, _, _, _ := summarize(metrics.SeeksMS)
+		"avg_render_with_flush_ms":    avgWithFlushMS,
+		"median_render_with_flush_ms": medianWithFlushMS,
+		"stddev_render_with_flush_ms": stddevWithFlushMS,
 
-	rv := map[string]float32{
-		"json_load_ms":             metrics.JSONLoadMS,
-		"1st_frame_to_flush_ms":    getNthFrame(0),
-		"2nd_frame_to_flush_ms":    getNthFrame(1),
-		"3rd_frame_to_flush_ms":    getNthFrame(2),
-		"4th_frame_to_flush_ms":    getNthFrame(3),
-		"5th_frame_to_flush_ms":    getNthFrame(4),
-		"avg_first_five_frames_ms": avgFirstFive,
+		"avg_render_frame_ms":    avgTotalFrameMS,
+		"median_render_frame_ms": medianTotalFrameMS,
+		"stddev_render_frame_ms": stddevTotalFrameMS,
 
-		"avg_frame_to_flush_ms":             avgFrame,
-		"median_frame_to_flush_ms":          medFrame,
-		"stddev_frame_to_flush_ms":          stdFrame,
-		"90th_percentile_frame_to_flush_ms": p90Frame,
-		"95th_percentile_frame_to_flush_ms": p95Frame,
-		"99th_percentile_frame_to_flush_ms": p99Frame,
-
-		"avg_seek_ms":    avgSeek,
-		"median_seek_ms": medSeek,
-		"stddev_seek_ms": stdSeek,
-	}
-	return rv, nil
+		"skp_load_ms": data.SKPLoadMS,
+	}, nil
 }
 
-func summarize(input []float32) (float32, float32, float32, float32, float32, float32) {
+func summarize(input []float32) (float32, float32, float32) {
 	// Make a copy of the data so we don't mutate the order of the original
 	sorted := make([]float32, len(input))
 	copy(sorted, input)
@@ -348,11 +335,8 @@ func summarize(input []float32) (float32, float32, float32, float32, float32, fl
 	stddev := float32(math.Sqrt(float64(variance / float32(len(sorted)))))
 
 	medIdx := (len(sorted) * 50) / 100
-	p90Idx := (len(sorted) * 90) / 100
-	p95Idx := (len(sorted) * 95) / 100
-	p99Idx := (len(sorted) * 99) / 100
 
-	return avg, sorted[medIdx], stddev, sorted[p90Idx], sorted[p95Idx], sorted[p99Idx]
+	return avg, sorted[medIdx], stddev
 }
 
 func computeAverage(d []float32) float32 {
