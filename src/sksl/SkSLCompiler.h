@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLSampleMatrix.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -79,6 +80,7 @@ public:
             kCoords,
             kUniform,
             kChildProcessor,
+            kChildProcessorWithMatrix,
             kFunctionName
         };
 
@@ -245,6 +247,7 @@ struct PipelineStageArgs {
     String fCode;
     std::vector<Compiler::FormatArg>    fFormatArgs;
     std::vector<Compiler::GLSLFunction> fFunctions;
+    std::vector<SkSL::SampleMatrix>     fSampleMatrices;
 };
 #endif
 

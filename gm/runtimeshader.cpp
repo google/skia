@@ -115,8 +115,8 @@ class ThresholdRT : public skiagm::GM {
             }
 
             void main(float2 xy, inout half4 color) {
+                half4 after = sample(after_map, float3x3(1));
                 half4 before = sample(before_map, xy);
-                half4 after = sample(after_map, xy);
 
                 float m = smooth_cutoff(sample(threshold_map, xy).r);
                 color = mix(before, after, half(m));

@@ -81,6 +81,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
 SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
                                                         EmitArgs& args,
                                                         SkSL::String skslMatrix) {
+    SkASSERT(!args.fFp.isSampledWithExplicitCoords());
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
