@@ -45,8 +45,18 @@ var CanvasKit = {
   MakeAnimatedImageFromEncoded: function() {},
   /** @return {CanvasKit.SkImage} */
   MakeImage: function() {},
+  /** @return {Promise} */
+  ExperimentalCanvas2DMakeImageFromEncoded: function() {},
+  ExperimentalCanvas2DMakeImageFromEncoded2: function() {},
+  ExperimentalCanvas2DMakeImageFromEncoded3: function() {},
+  ExperimentalCanvas2DMakeImageFromEncoded4: function() {},
+  MakeImageFromBlobExperimental1: function() {},
+  MakeImageFromBlobExperimental2: function() {},
   /** @return {CanvasKit.SkImage} */
   MakeImageFromEncoded: function() {},
+  MakeImageFromHTMLImageElement: function() {},
+  MakeImageFromImageBitmapExperimental1: function() {},
+  MakeImageFromImageBitmapExperimental2: function() {},
   MakeOnScreenGLSurface: function() {},
   MakePathFromCmds: function() {},
   MakePathFromOp: function() {},
@@ -951,6 +961,9 @@ HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.loadFont = function() {};
 HTMLCanvas.prototype.makePath2D = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
+
+var ImageBitmapRenderingContext = {};
+ImageBitmapRenderingContext.prototype.transferFromImageBitmap = function() {};
 
 var CanvasRenderingContext2D = {};
 CanvasRenderingContext2D.prototype.addHitRegion = function() {};
