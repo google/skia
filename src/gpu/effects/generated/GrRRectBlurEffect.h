@@ -130,8 +130,7 @@ private:
             , cornerRadius(cornerRadius)
             , ninePatchSampler(std::move(ninePatchSampler)) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         this->setTextureSamplerCnt(1);
     }

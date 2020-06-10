@@ -44,8 +44,7 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 kConstantOutputForConstantInput_OptimizationFlag) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

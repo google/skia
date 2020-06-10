@@ -31,9 +31,8 @@ private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp, SkMatrix matrix)
             : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
         SkASSERT(fp);
-        fp_index = this->numChildProcessors();
         fp->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(fp));
+        fp_index = this->registerChildProcessor(std::move(fp));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

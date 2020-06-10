@@ -61,14 +61,13 @@ bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
         : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
-        , inputFP_index(src.inputFP_index)
         , mode(src.mode) {
-    if (inputFP_index >= 0) {
-        auto clone = src.childProcessor(inputFP_index).clone();
-        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+    if (src.inputFP_index >= 0) {
+        auto inputFP_clone = src.childProcessor(src.inputFP_index).clone();
+        if (src.childProcessor(src.inputFP_index).isSampledWithExplicitCoords()) {
+            inputFP_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        inputFP_index = this->registerChildProcessor(std::move(inputFP_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
