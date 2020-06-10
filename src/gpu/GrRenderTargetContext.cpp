@@ -485,7 +485,12 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    auto options = this->drawingManager()->getTextContext()->options();
+    GrTextContext::Options options = {
+            fContext->priv().options().fMinDistanceFieldFontSize,
+            fContext->priv().options().fGlyphsAsPathsFontSize
+    };
+    GrTextContext::SanitizeOptions(&options);
+
     GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
 
     // Get the first paint to use as the key paint.
