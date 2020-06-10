@@ -19,6 +19,7 @@
 #include "src/gpu/GrShaderCaps.h"
 }
 
+in fragmentProcessor? inputFP;
 in float4 rect;
 
 layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
@@ -38,6 +39,11 @@ in uniform half invSixSigma;
 // wider blurs relative to rect sizes that does 4.
 layout(key) in bool isFast;
 
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+            kCompatibleWithCoverageAsAlpha_OptimizationFlag
+}
+
 @constructorParams {
     GrSamplerState samplerParams
 }
@@ -45,6 +51,7 @@ layout(key) in bool isFast;
 @samplerParams(integral) {
     samplerParams
 }
+
 @class {
 static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, float sixSigma) {
     // The texture we're producing represents the integral of a normal distribution over a six-sigma
@@ -95,7 +102,8 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
 }
 
 @make {
-     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                      GrRecordingContext* context,
                                                       const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
          SkASSERT(rect.isSorted());
@@ -133,68 +141,63 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
          // 1 / (6 * sigma) is the domain of the integral texture. We use the inverse to produce
          // normalized texture coords from frag coord distances.
          float invSixSigma = 1.f / sixSigma;
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(insetRect,
-                 std::move(integral), invSixSigma, isFast, GrSamplerState::Filter::kBilerp));
+         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
+                    std::move(inputFP), insetRect, std::move(integral), invSixSigma,
+                    isFast, GrSamplerState::Filter::kBilerp));
      }
 }
 
 void main() {
-        half xCoverage, yCoverage;
-        @if (isFast) {
-            // Get the smaller of the signed distance from the frag coord to the left and right
-            // edges and similar for y.
-            // The integral texture goes "backwards" (from 3*sigma to -3*sigma), So, the below
-            // computations align the left edge of the integral texture with the inset rect's edge
-            // extending outward 6 * sigma from the inset rect.
-            half x, y;
-            @if (highp) {
-                x = max(half(rectF.x - sk_FragCoord.x), half(sk_FragCoord.x - rectF.z));
-                y = max(half(rectF.y - sk_FragCoord.y), half(sk_FragCoord.y - rectF.w));
-           } else {
-                x = max(half(rectH.x - sk_FragCoord.x), half(sk_FragCoord.x - rectH.z));
-                y = max(half(rectH.y - sk_FragCoord.y), half(sk_FragCoord.y - rectH.w));
-            }
-            xCoverage = sample(integral, half2(x * invSixSigma, 0.5)).a;
-            yCoverage = sample(integral, half2(y * invSixSigma, 0.5)).a;
-            sk_OutColor = sk_InColor * xCoverage * yCoverage;
-        } else {
-            // We just consider just the x direction here. In practice we compute x and y separately
-            // and multiply them together.
-            // We define our coord system so that the point at which we're evaluating a kernel
-            // defined by the normal distribution (K) as  0. In this coord system let L be left
-            // edge and R be the right edge of the rectangle.
-            // We can calculate C by integrating K with the half infinite ranges outside the L to R
-            // range and subtracting from 1:
-            //   C = 1 - <integral of K from from -inf to  L> - <integral of K from R to inf>
-            // K is symmetric about x=0 so:
-            //   C = 1 - <integral of K from from -inf to  L> - <integral of K from -inf to -R>
-
-            // The integral texture goes "backwards" (from 3*sigma to -3*sigma) which is factored
-            // in to the below calculations.
-            // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being blurred,
-            // also factored in.
-            half l, r, t, b;
-            @if (highp) {
-                l = half(sk_FragCoord.x - rectF.x);
-                r = half(rectF.z - sk_FragCoord.x);
-                t = half(sk_FragCoord.y - rectF.y);
-                b = half(rectF.w - sk_FragCoord.y);
-            } else {
-                l = half(sk_FragCoord.x - rectH.x);
-                r = half(rectH.z - sk_FragCoord.x);
-                t = half(sk_FragCoord.y - rectH.y);
-                b = half(rectH.w - sk_FragCoord.y);
-            }
-            half il = 1 + l * invSixSigma;
-            half ir = 1 + r * invSixSigma;
-            half it = 1 + t * invSixSigma;
-            half ib = 1 + b * invSixSigma;
-            xCoverage = 1 - sample(integral, half2(il, 0.5)).a
-                          - sample(integral, half2(ir, 0.5)).a;
-            yCoverage = 1 - sample(integral, half2(it, 0.5)).a
-                          - sample(integral, half2(ib, 0.5)).a;
+    half xCoverage, yCoverage;
+    @if (isFast) {
+        // Get the smaller of the signed distance from the frag coord to the left and right
+        // edges and similar for y.
+        // The integral texture goes "backwards" (from 3*sigma to -3*sigma), So, the below
+        // computations align the left edge of the integral texture with the inset rect's edge
+        // extending outward 6 * sigma from the inset rect.
+        half2 xy;
+        @if (highp) {
+            xy = max(half2(rectF.LT - sk_FragCoord.xy),
+                     half2(sk_FragCoord.xy - rectF.RB));
+       } else {
+            xy = max(half2(rectH.LT - sk_FragCoord.xy),
+                     half2(sk_FragCoord.xy - rectH.RB));
         }
-        sk_OutColor = sk_InColor * xCoverage * yCoverage;
+        xy *= invSixSigma;
+        xCoverage = sample(integral, half2(xy.x, 0.5)).a;
+        yCoverage = sample(integral, half2(xy.y, 0.5)).a;
+    } else {
+        // We just consider just the x direction here. In practice we compute x and y separately
+        // and multiply them together.
+        // We define our coord system so that the point at which we're evaluating a kernel
+        // defined by the normal distribution (K) as  0. In this coord system let L be left
+        // edge and R be the right edge of the rectangle.
+        // We can calculate C by integrating K with the half infinite ranges outside the L to R
+        // range and subtracting from 1:
+        //   C = 1 - <integral of K from from -inf to  L> - <integral of K from R to inf>
+        // K is symmetric about x=0 so:
+        //   C = 1 - <integral of K from from -inf to  L> - <integral of K from -inf to -R>
+
+        // The integral texture goes "backwards" (from 3*sigma to -3*sigma) which is factored
+        // in to the below calculations.
+        // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being blurred,
+        // also factored in.
+        half4 rect;
+        @if (highp) {
+            rect.LT = half2(sk_FragCoord.xy - rectF.LT);
+            rect.RB = half2(rectF.RB - sk_FragCoord.xy);
+        } else {
+            rect.LT = half2(sk_FragCoord.xy - rectH.LT);
+            rect.RB = half2(rectH.RB - sk_FragCoord.xy);
+        }
+        half4 irect = rect * invSixSigma + half4(1);
+        xCoverage = 1 - sample(integral, half2(irect.L, 0.5)).a
+                      - sample(integral, half2(irect.R, 0.5)).a;
+        yCoverage = 1 - sample(integral, half2(irect.T, 0.5)).a
+                      - sample(integral, half2(irect.B, 0.5)).a;
+    }
+    half4 inputColor = sample(inputFP, sk_InColor);
+    sk_OutColor = inputColor * xCoverage * yCoverage;
 }
 
 @setData(pdman) {
@@ -202,12 +205,10 @@ void main() {
     pdman.set4fv(highp ? rectF : rectH, 1, r);
 }
 
-@optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
-
 @test(data) {
     float sigma = data->fRandom->nextRangeF(3,8);
     float width = data->fRandom->nextRangeF(200,300);
     float height = data->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(data->context(), *data->caps()->shaderCaps(),
+    return GrRectBlurEffect::Make(/*inputFP=*/nullptr, data->context(), *data->caps()->shaderCaps(),
                                   SkRect::MakeWH(width, height), sigma);
 }
