@@ -18,6 +18,12 @@ See [install fuchsia packages](https://fuchsia.dev/fuchsia-src/development/sdk/d
 # Fuchsia CIPD Package Creation and Upload Procedure
 These steps assume the creation of the arm64 CIPD package as an example.  Because the package requires a path from the output directory of the build, the `gn gen` arguments must match the prescribed path declared in `cipd_arm64.yaml` in order for this CIPD package creation and upload to succeed.
 
+## Copy the .far archive to the local directory
+cipd_arm64.yaml uses "." as the root directory so the package contents must be copied to ".".
+```
+cp ../../../out/fuchsia-arm64/far/skqp_pkg.far .
+```
+
 ## Create CIPD Package
 ```
 cipd create -pkg-def=cipd_arm64.yaml
@@ -31,5 +37,5 @@ cipd set-ref skia/fuchsia/skqp/arch/arm64 -ref latest -version mdhS7sryb2zxQuXT8
 
 ## Set the git-commit Tag
 ```
-cipd set-tag skia/fuchsia/skqp/arch/arm64 -tag=git-commit:9c2b7cfe9080c6c4692234667a671db216a2e229 -version mdhS7sryb2zxQuXT803Dv_XZ0r7B5j8jSbZmIi0JvOcC
+cipd set-tag skia/fuchsia/skqp/arch/arm64 -tag=git_revision:9c2b7cfe9080c6c4692234667a671db216a2e229 -version mdhS7sryb2zxQuXT803Dv_XZ0r7B5j8jSbZmIi0JvOcC
 ```
