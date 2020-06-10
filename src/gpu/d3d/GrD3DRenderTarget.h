@@ -44,7 +44,7 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE colorRenderTargetView() {
+    D3D12_CPU_DESCRIPTOR_HANDLE colorRenderTargetView() const {
         return fColorRenderTargetView;
     }
 

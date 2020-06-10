@@ -83,7 +83,7 @@ void GrD3DCommandList::releaseResources() {
 
 void GrD3DCommandList::resourceBarrier(sk_sp<GrManagedResource> resource,
                                        int numBarriers,
-                                       D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
+                                       const D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
     SkASSERT(fIsActive);
     SkASSERT(barriers);
     for (int i = 0; i < numBarriers; ++i) {
@@ -110,8 +110,8 @@ void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(!fResourceBarriers.count());
 }
 
-void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
-                                           GrD3DTextureResource* dstTexture,
+void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
+                                           const GrD3DTextureResource* dstTexture,
                                            uint32_t subresourceCount,
                                            D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
                                            int left, int top) {
@@ -151,9 +151,9 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
 }
 
 void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
-                                          ID3D12Resource * dstBuffer, uint64_t dstOffset,
+                                          ID3D12Resource* dstBuffer, uint64_t dstOffset,
                                           sk_sp<GrManagedResource> src,
-                                          ID3D12Resource * srcBuffer, uint64_t srcOffset,
+                                          ID3D12Resource* srcBuffer, uint64_t srcOffset,
                                           uint64_t numBytes) {
     SkASSERT(fIsActive);
 
@@ -333,7 +333,7 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
                                        startInstance);
 }
 
-void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
+void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
                                                    const GrScissorState& scissor) {
     SkASSERT(!scissor.enabled()); // no cliprects for now
@@ -344,7 +344,7 @@ void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarg
                                         0, NULL);
 }
 
-void GrD3DDirectCommandList::setRenderTarget(GrD3DRenderTarget * renderTarget) {
+void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
     this->addingWork();
     this->addResource(renderTarget->resource());
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
