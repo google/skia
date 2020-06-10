@@ -25,7 +25,9 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <utility>
 
@@ -161,3 +163,56 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
         canvas->translate(0, 150);
     }
 }
+
+class ImageFilterMatrixWLocalMatrix : public skiagm::GM {
+public:
+    ImageFilterMatrixWLocalMatrix() : fDegrees(132.f) {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("imagefilter_matrix_localmatrix");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(512, 512);
+    }
+
+    bool onAnimate(double nanos) override {
+        // Start at 80 degrees, since that resulted in a skipped draw before the fix to
+        // SkLocalMatrixImageFilter's computeFastBounds() function.
+        fDegrees = TimeUtils::Scaled(1e-9f * nanos, 360.f);
+        return true;
+    }
+
+    void onOnceBeforeDraw() override {
+        fImage = GetResourceAsImage("images/mandrill_256.png");
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_256.png");
+
+        SkMatrix matrixE;
+        matrixE.preTranslate(128, 128);
+        matrixE.preScale(2.0f, 2.0f);
+
+        // This matrix applies a rotate around the center of the image
+        SkMatrix matrixF;
+        matrixF.preTranslate(64, 64);
+        matrixF.preRotate(fDegrees);
+        matrixF.preTranslate(-64, -64);
+
+        SkFilterQuality quality = kLow_SkFilterQuality;
+        sk_sp<SkImageFilter> filter = SkImageFilter::MakeMatrixFilter(matrixF, quality, nullptr);
+        filter = filter->makeWithLocalMatrix(matrixE);
+
+        SkPaint p;
+        p.setImageFilter(filter);
+        canvas->drawImage(image.get(), 128, 128, &p);
+    }
+
+private:
+    SkScalar fDegrees;
+    sk_sp<SkImage> fImage;
+};
+
+DEF_GM(return new ImageFilterMatrixWLocalMatrix();)
