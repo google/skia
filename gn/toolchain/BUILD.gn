@@ -266,7 +266,7 @@ template("gcc_like_toolchain") {
       } else {
         rspfile = "{{output}}.rsp"
         rspfile_content = "{{inputs}}"
-        command = "$ar rcs {{output}} @$rspfile"
+        command = "rm -f {{output}} && $ar rcs {{output}} @$rspfile"
       }
 
       outputs =
