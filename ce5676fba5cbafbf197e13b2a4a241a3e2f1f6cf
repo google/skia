@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb3c81f2_f37458a5",
+        "filename": "src/gpu/d3d/GrD3DCommandList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-10T15:51:11Z",
+      "side": 1,
+      "message": "This can\u0027t be const because we use it to call finishSubmit().",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 27
+      },
+      "revId": "ce5676fba5cbafbf197e13b2a4a241a3e2f1f6cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
