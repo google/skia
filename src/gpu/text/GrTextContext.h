@@ -43,18 +43,6 @@ public:
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
-#if GR_TEST_UTILS
-    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
-                                                   GrTextContext*,
-                                                   GrRenderTargetContext*,
-                                                   const SkPaint&,
-                                                   const SkFont&,
-                                                   const SkMatrixProvider&,
-                                                   const char* text,
-                                                   int x,
-                                                   int y);
-#endif
-
     static void SanitizeOptions(Options* options);
     static bool CanDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,
                                         const SkSurfaceProps& props,
@@ -77,12 +65,6 @@ private:
     GrTextContext(const Options& options);
 
     Options fOptions;
-
-#if GR_TEST_UTILS
-    static const SkScalerContextFlags kTextBlobOpScalerContextFlags =
-            SkScalerContextFlags::kFakeGammaAndBoostContrast;
-    GR_DRAW_OP_TEST_FRIEND(GrAtlasTextOp);
-#endif
 };
 
 #endif  // GrTextContext_DEFINED
