@@ -18,6 +18,7 @@
 class GrProgramDesc;
 class GrD3DGpu;
 class GrVkRenderPass;
+class SkReader32;
 
 class GrD3DPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:

@@ -10,8 +10,8 @@
 
 #include "include/core/SkData.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriter32.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -28,7 +28,7 @@ struct ShaderMetadata {
 };
 
 // Increment this whenever the serialization format of cached shaders changes
-static constexpr int kCurrentVersion = 2;
+static constexpr int kCurrentVersion = 1;
 
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
@@ -39,12 +39,12 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     // kGrShaderTypeCount inputs. If the backend gives us fewer, we just replicate the last one.
     SkASSERT(numInputs >= 1 && numInputs <= kGrShaderTypeCount);
 
-    SkBinaryWriteBuffer writer;
-    writer.writeInt(kCurrentVersion);
-    writer.writeUInt(shaderType);
+    SkWriter32 writer;
+    writer.write32(kCurrentVersion);
+    writer.write32(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
-        writer.writeByteArray(shaders[i].c_str(), shaders[i].size());
-        writer.writePad32(&inputs[std::min(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
+        writer.writeString(shaders[i].c_str(), shaders[i].size());
+        writer.writePad(&inputs[std::min(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
     }
     writer.writeBool(SkToBool(meta));
     if (meta) {
@@ -57,7 +57,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
 
         writer.writeInt(meta->fAttributeNames.count());
         for (const auto& attr : meta->fAttributeNames) {
-            writer.writeByteArray(attr.c_str(), attr.size());
+            writer.writeString(attr.c_str(), attr.size());
         }
 
         writer.writeBool(meta->fHasCustomColorOutput);
@@ -66,26 +66,30 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     return writer.snapshotAsData();
 }
 
-static SkFourByteTag GetType(SkReadBuffer* reader) {
+static SkFourByteTag GetType(SkReader32* reader) {
     constexpr SkFourByteTag kInvalidTag = ~0;
-    int version           = reader->readInt();
-    SkFourByteTag typeTag = reader->readUInt();
-    return reader->validate(version == kCurrentVersion) ? typeTag : kInvalidTag;
+    if (!reader->isAvailable(2 * sizeof(int))) {
+        return kInvalidTag;
+    }
+    if (reader->readInt() != kCurrentVersion) {
+        return kInvalidTag;
+    }
+    return reader->readU32();
 }
 
-static inline bool UnpackCachedShaders(SkReadBuffer* reader,
+static inline void UnpackCachedShaders(SkReader32* reader,
                                        SkSL::String shaders[],
                                        SkSL::Program::Inputs inputs[],
                                        int numInputs,
                                        ShaderMetadata* meta = nullptr) {
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
-        uint32_t shaderLen = reader->getArrayCount();
-        shaders[i].resize(shaderLen);
-        reader->readByteArray(shaders[i].data(), shaderLen);
+        size_t stringLen = 0;
+        const char* string = reader->readString(&stringLen);
+        shaders[i] = SkSL::String(string, stringLen);
 
         // GL, for example, only wants one set of Inputs
         if (i < numInputs) {
-            reader->readPad32(&inputs[i], sizeof(inputs[i]));
+            reader->read(&inputs[i], sizeof(inputs[i]));
         } else {
             reader->skip(sizeof(SkSL::Program::Inputs));
         }
@@ -100,22 +104,15 @@ static inline bool UnpackCachedShaders(SkReadBuffer* reader,
         }
 
         meta->fAttributeNames.resize(reader->readInt());
-        for (auto& attr : meta->fAttributeNames) {
-            uint32_t attrLen = reader->getArrayCount();
-            attr.resize(attrLen);
-            reader->readByteArray(attr.data(), attrLen);
+        for (int i = 0; i < meta->fAttributeNames.count(); ++i) {
+            size_t stringLen = 0;
+            const char* string = reader->readString(&stringLen);
+            meta->fAttributeNames[i] = SkSL::String(string, stringLen);
         }
 
         meta->fHasCustomColorOutput    = reader->readBool();
         meta->fHasSecondaryColorOutput = reader->readBool();
     }
-
-    if (!reader->isValid()) {
-        for (int i = 0; i < kGrShaderTypeCount; ++i) {
-            shaders[i].clear();
-        }
-    }
-    return reader->isValid();
 }
 
 }
