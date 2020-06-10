@@ -13,7 +13,10 @@
 #include "include/private/SkSpinlock.h"
 
 /**
- * A wrapper for a GPU buffer that allocates slices in a continuous ring
+ * A wrapper for a GPU buffer that allocates slices in a continuous ring.
+ *
+ * It's assumed that suballocate and startSubmit are always called in the same thread,
+ * and that finishSubmit could be called in a separate thread.
  */
 class GrRingBuffer : public SkRefCnt {
 public:
