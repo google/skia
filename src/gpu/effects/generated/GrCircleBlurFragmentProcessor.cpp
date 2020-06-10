@@ -255,7 +255,10 @@ static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context,
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
-        GrRecordingContext* context, const SkRect& circle, float sigma) {
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        GrRecordingContext* context,
+        const SkRect& circle,
+        float sigma) {
     float solidRadius;
     float textureRadius;
     GrSurfaceProxyView profile =
@@ -264,7 +267,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
         return nullptr;
     }
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
-            circle, textureRadius, solidRadius, std::move(profile)));
+            std::move(inputFP), circle, textureRadius, solidRadius, std::move(profile)));
 }
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -289,16 +292,23 @@ public:
         circleDataVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                          kHalf4_GrSLType, "circleData");
         fragBuilder->codeAppendf(
-                "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
-                "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "
-                "(0.5 - %s.z) * %s.w;\n%s = %s * sample(%s, float2(half2(dist, 0.5))).%s.w;\n",
+                "half2 vec = half2((sk_FragCoord.xy - float2(%s.xy)) * float(%s.w));\nhalf dist = "
+                "length(vec) + (0.5 - %s.z) * %s.w;",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
-                args.fUniformHandler->getUniformCStr(circleDataVar),
-                args.fUniformHandler->getUniformCStr(circleDataVar),
-                args.fUniformHandler->getUniformCStr(circleDataVar), args.fOutputColor,
-                args.fInputColor,
+                args.fUniformHandler->getUniformCStr(circleDataVar));
+        SkString _input13170 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample13170;
+        if (_outer.inputFP_index >= 0) {
+            _sample13170 = this->invokeChild(_outer.inputFP_index, _input13170.c_str(), args);
+        } else {
+            _sample13170 = _input13170;
+        }
+        fragBuilder->codeAppendf(
+                "\nhalf4 inputColor = %s;\n%s = inputColor * sample(%s, float2(half2(dist, "
+                "0.5))).%s.w;\n",
+                _sample13170.c_str(), args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
@@ -344,10 +354,18 @@ bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) 
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         const GrCircleBlurFragmentProcessor& src)
         : INHERITED(kGrCircleBlurFragmentProcessor_ClassID, src.optimizationFlags())
+        , inputFP_index(src.inputFP_index)
         , circleRect(src.circleRect)
         , textureRadius(src.textureRadius)
         , solidRadius(src.solidRadius)
         , blurProfileSampler(src.blurProfileSampler) {
+    if (inputFP_index >= 0) {
+        auto clone = src.childProcessor(inputFP_index).clone();
+        if (src.childProcessor(inputFP_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
+        this->registerChildProcessor(std::move(clone));
+    }
     this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
@@ -364,6 +382,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Make(testData->context(), circle, sigma);
+    return GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, testData->context(), circle,
+                                               sigma);
 }
 #endif
