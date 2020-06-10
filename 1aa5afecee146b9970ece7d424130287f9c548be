@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d651e99_4a853a17",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-10T14:33:03Z",
+      "side": 1,
+      "message": "I think it might be worth a comment here about reading the next int as the size of the array to skip.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 44
+      },
+      "revId": "1aa5afecee146b9970ece7d424130287f9c548be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
