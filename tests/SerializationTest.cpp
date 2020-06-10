@@ -17,6 +17,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkOSFile.h"
@@ -543,6 +544,53 @@ DEF_TEST(Serialization, reporter) {
         TestArraySerialization(data, reporter);
     }
 
+    // Test skipByteArray
+    {
+        // Valid case with non-empty array:
+        {
+            unsigned char data[kArraySize] = { 1, 2, 3 };
+            SkBinaryWriteBuffer writer;
+            writer.writeByteArray(data, kArraySize);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, arr);
+            REPORTER_ASSERT(reporter, len == kArraySize);
+            REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
+        }
+
+        // Writing a zero length array (can be detected as valid by non-nullptr return):
+        {
+            SkBinaryWriteBuffer writer;
+            writer.writeByteArray(nullptr, 0);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, arr);
+            REPORTER_ASSERT(reporter, len == 0);
+        }
+
+        // If the array can't be safely read, should return nullptr:
+        {
+            SkBinaryWriteBuffer writer;
+            writer.writeUInt(kArraySize);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, !arr);
+            REPORTER_ASSERT(reporter, len == 0);
+        }
+    }
+
     // Test invalid deserializations
     {
         SkImageInfo info = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
@@ -739,8 +787,6 @@ DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
     storage.realloc(storage_size);
     REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) != 0u);
 }
-
-#include "src/core/SkAutoMalloc.h"
 
 DEF_TEST(ReadBuffer_empty, reporter) {
     SkBinaryWriteBuffer writer;

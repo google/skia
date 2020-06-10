@@ -259,6 +259,15 @@ bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
     return this->readArray(values, size, sizeof(SkScalar));
 }
 
+const void* SkReadBuffer::skipByteArray(size_t* size) {
+    const uint32_t count = this->readUInt();
+    const void* buf = this->skip(count);
+    if (size) {
+        *size = this->isValid() ? count : 0;
+    }
+    return buf;
+}
+
 sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
     size_t numBytes = this->getArrayCount();
     if (!this->validate(fReader.isAvailable(numBytes))) {
