@@ -1420,8 +1420,12 @@ if (skia_enable_tools) {
     }
 
     if (skia_use_vulkan) {
+      sources += [ "tools/gpu/vk/VkTestContext.h" ]
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
+      sources += [ "tools/gpu/vk/VkTestUtils.h" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
+      sources += [ "tools/gpu/vk/VkYcbcrSamplerHelper.h" ]
+      sources += [ "tools/gpu/vk/VkYcbcrSamplerHelper.cpp" ]
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
