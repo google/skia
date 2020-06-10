@@ -289,6 +289,30 @@
     },
     {
       "key": {
+        "uuid": "ad7d4fcd_fb169259",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-10T19:54:01Z",
+      "side": 1,
+      "message": "Good idea, I forgot fetch can give us a .blob().\n\nYeah, I believe fetch() returning Blob is pretty well established.",
+      "parentUuid": "e80cef4c_707a2a8e",
+      "range": {
+        "startLine": 1444,
+        "startChar": 39,
+        "endLine": 1444,
+        "endChar": 81
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0e955a_671a9ed0",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
