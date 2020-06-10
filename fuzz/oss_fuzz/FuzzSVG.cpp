@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "experimental/svg/model/SkSVGDOM.h"
 void FuzzSVG(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);
     auto dom = SkSVGDOM::MakeFromStream(stream);
