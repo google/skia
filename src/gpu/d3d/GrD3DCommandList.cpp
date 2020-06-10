@@ -279,7 +279,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
                                               size_t instanceStride) {
     if (fCurrentVertexBuffer != vertexBuffer || fCurrentVertexStride != vertexStride ||
         fCurrentInstanceBuffer != instanceBuffer || fCurrentInstanceStride != instanceStride) {
-        this->addingWork();
         this->addResource(vertexBuffer->resource());
 
         D3D12_VERTEX_BUFFER_VIEW views[2];
@@ -304,7 +303,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
 
 void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
     if (fCurrentIndexBuffer != indexBuffer) {
-        this->addingWork();
         this->addResource(indexBuffer->resource());
 
         D3D12_INDEX_BUFFER_VIEW view = {};
@@ -336,17 +334,30 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
                                                    const GrScissorState& scissor) {
-    SkASSERT(!scissor.enabled()); // no cliprects for now
     this->addingWork();
     this->addResource(renderTarget->resource());
+    if (renderTarget->numSamples() > 1) {
+        this->addResource(renderTarget->msaaTextureResource()->resource());
+    }
+    unsigned int numRects = 0;
+    D3D12_RECT scissorRect;
+    D3D12_RECT* scissorRectPtr = nullptr;
+    if (scissor.enabled()) {
+        scissorRect = { scissor.rect().left(), scissor.rect().top(),
+                        scissor.rect().right(), scissor.rect().bottom() };
+        scissorRectPtr = &scissorRect;
+    }
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
                                         color.vec(),
-                                        0, NULL);
+                                        numRects, scissorRectPtr);
 }
 
 void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
     this->addingWork();
     this->addResource(renderTarget->resource());
+    if (renderTarget->numSamples() > 1) {
+        this->addResource(renderTarget->msaaTextureResource()->resource());
+    }
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
     fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, nullptr);
 }
@@ -375,9 +386,10 @@ void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrv
         fCommandList->SetDescriptorHeaps(2, heaps);
         this->addRecycledResource(std::move(srvCrvHeapResource));
         this->addRecycledResource(std::move(samplerHeapResource));
+        fCurrentSRVCRVDescriptorHeap = srvCrvDescriptorHeap;
+        fCurrentSamplerDescriptorHeap = samplerDescriptorHeap;
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -36,7 +36,7 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
-    GrD3DTextureResource* msaaTextureResource() { return fMSAATextureResource.get(); }
+    GrD3DTextureResource* msaaTextureResource() const { return fMSAATextureResource.get(); }
 
     bool canAttemptStencilAttachment() const override {
         return true;
