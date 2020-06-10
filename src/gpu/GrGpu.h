@@ -367,8 +367,7 @@ public:
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
     void executeFlushInfo(GrSurfaceProxy*[], int numProxies,
-                          SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
-                          const GrPrepareForExternalIORequests&);
+                          SkSurface::BackendSurfaceAccess access, const GrFlushInfo&);
 
     bool submitToGpu(bool syncCpu);
 
@@ -834,8 +833,7 @@ private:
                                  GrGpuFinishedContext finishedContext) = 0;
 
     virtual void prepareSurfacesForBackendAccessAndExternalIO(
-            GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-            const GrPrepareForExternalIORequests& externalRequests) {}
+            GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access) {}
 
     virtual bool onSubmitToGpu(bool syncCpu) = 0;
 

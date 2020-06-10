@@ -213,8 +213,7 @@ void GrDrawingManager::freeGpuResources() {
 
 // MDB TODO: make use of the 'proxy' parameter.
 bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
-        SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
-        const GrPrepareForExternalIORequests& externalRequests) {
+        SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
@@ -232,8 +231,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     SkDEBUGCODE(this->validate());
 
     if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
-            access == SkSurface::BackendSurfaceAccess::kNoAccess &&
-            !externalRequests.hasRequests()) {
+            access == SkSurface::BackendSurfaceAccess::kNoAccess) {
         bool canSkip = numProxies > 0;
         for (int i = 0; i < numProxies && canSkip; ++i) {
             canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
@@ -392,7 +390,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     opMemoryPool->isEmpty();
 #endif
 
-    gpu->executeFlushInfo(proxies, numProxies, access, info, externalRequests);
+    gpu->executeFlushInfo(proxies, numProxies, access, info);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
@@ -589,8 +587,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     // TODO: It is important to upgrade the drawingmanager to just flushing the
     // portion of the DAG required by 'proxies' in order to restore some of the
     // semantics of this method.
-    bool didFlush = this->flush(proxies, numProxies, access, info,
-                                GrPrepareForExternalIORequests());
+    bool didFlush = this->flush(proxies, numProxies, access, info);
     for (int i = 0; i < numProxies; ++i) {
         resolve_and_mipmap(gpu, proxies[i]);
     }
@@ -996,8 +993,7 @@ void GrDrawingManager::flushIfNecessary() {
 
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
-        if (this->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
-                        GrPrepareForExternalIORequests())) {
+        if (this->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo())) {
             this->submitToGpu(false);
         }
         resourceCache->purgeAsNeeded();

@@ -192,8 +192,7 @@ private:
     }
 
     void prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) override;
+        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 

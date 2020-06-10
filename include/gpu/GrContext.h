@@ -312,7 +312,7 @@ public:
      * GrContext::submit.
      */
     void flushAndSubmit() {
-        this->flush(GrFlushInfo(), GrPrepareForExternalIORequests());
+        this->flush(GrFlushInfo());
         this->submit();
     }
 
@@ -340,43 +340,7 @@ public:
      * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
      * take this as a failure if they passed in semaphores to be submitted.
      */
-    GrSemaphoresSubmitted flush(const GrFlushInfo& info) {
-        return this->flush(info, GrPrepareForExternalIORequests());
-    }
-
-    /**
-     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
-     * objects. A call to GrContext::submit is always required to ensure work is actually sent to
-     * the gpu. Some specific API details:
-     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
-     *         sync objects from the flush will not be valid until submit is called.
-     *
-     *     Vulkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
-     *         buffer or encoder objects. However, these objects are not sent to the gpu until
-     *         submit is called.
-     *
-     * Note: The default values for GrFlushInfo will submit the work the gpu.
-     *
-     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
-     * submitted to the gpu during the next submit call (it is possible Skia failed to create a
-     * subset of the semaphores). The client should not wait on these semaphores until after submit
-     * has been called, and must keep them alive until then. If this call returns
-     * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
-     * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
-     * the GrFlushInfo. The client is always responsible for deleting any initialized semaphores.
-     * Regardleess of semaphore submission the context will still be flushed. It should be
-     * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
-     * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
-     * take this as a failure if they passed in semaphores to be submitted.
-     *
-     * If the GrPrepareForExternalIORequests contains valid gpu backed SkSurfaces or SkImages, Skia
-     * will put the underlying backend objects into a state that is ready for external uses. See
-     * declaration of GrPreopareForExternalIORequests for more details. Note that the backend
-     * objects will not be moved to this state until submit has been called. If subsequent flushes
-     * are called between this and submit, those objects are no longer guaranteed to be in a state
-     * that is ready for external use.
-     */
-    GrSemaphoresSubmitted flush(const GrFlushInfo&, const GrPrepareForExternalIORequests&);
+    GrSemaphoresSubmitted flush(const GrFlushInfo& info);
 
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return

@@ -1991,8 +1991,7 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
 void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
         GrSurfaceProxy* proxies[],
         int numProxies,
-        SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) {
+        SkSurface::BackendSurfaceAccess access) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
@@ -2009,56 +2008,6 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
                 image = static_cast<GrVkRenderTarget*>(rt);
             }
             image->prepareForPresent(this);
-        }
-    }
-
-    // Handle requests for preparing for external IO
-    for (int i = 0; i < externalRequests.fNumImages; ++i) {
-        SkImage* image = externalRequests.fImages[i];
-        if (!image->isTextureBacked()) {
-            continue;
-        }
-        SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
-        const GrSurfaceProxyView* view = gpuImage->view(this->getContext());
-        SkASSERT(view && *view);
-
-        if (!view->proxy()->isInstantiated()) {
-            auto resourceProvider = this->getContext()->priv().resourceProvider();
-            if (!view->proxy()->instantiate(resourceProvider)) {
-                continue;
-            }
-        }
-
-        GrTexture* tex = view->proxy()->peekTexture();
-        if (!tex) {
-            continue;
-        }
-        GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
-        vkTex->prepareForExternal(this);
-    }
-    for (int i = 0; i < externalRequests.fNumSurfaces; ++i) {
-        SkSurface* surface = externalRequests.fSurfaces[i];
-        if (!surface->getCanvas()->getGrContext()) {
-            continue;
-        }
-        SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(surface);
-        auto* rtc = gpuSurface->getDevice()->accessRenderTargetContext();
-        sk_sp<GrRenderTargetProxy> proxy = rtc->asRenderTargetProxyRef();
-        if (!proxy->isInstantiated()) {
-            auto resourceProvider = this->getContext()->priv().resourceProvider();
-            if (!proxy->instantiate(resourceProvider)) {
-                continue;
-            }
-        }
-
-        GrRenderTarget* rt = proxy->peekRenderTarget();
-        SkASSERT(rt);
-        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
-        if (externalRequests.fPrepareSurfaceForPresent &&
-            externalRequests.fPrepareSurfaceForPresent[i]) {
-            vkRT->prepareForPresent(this);
-        } else {
-            vkRT->prepareForExternal(this);
         }
     }
 }
