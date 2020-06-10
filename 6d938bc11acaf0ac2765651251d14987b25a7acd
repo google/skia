@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "c53f2bf1_4c634862",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-10T15:26:30Z",
+      "side": 1,
+      "message": "I did, SkUnicode. It sounds a but generic, but the goal here seems to be generic... abstract out all unicode algorithms and properties needed by Skia (or at least Skia modules).",
+      "parentUuid": "322b8dab_f4eb0423",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 20
+      },
+      "revId": "6d938bc11acaf0ac2765651251d14987b25a7acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ba274ff_46d6ef76",
         "filename": "modules/skshaper/include/SkICUInterface.h",
         "patchSetId": 4
