@@ -1125,11 +1125,7 @@ void CPPCodeGenerator::writeClone() {
         }
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-            if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-                this->writef("\n, %s_index(src.%s_index)",
-                             fieldName.c_str(),
-                             fieldName.c_str());
-            } else {
+            if (param->fType.nonnullable() != *fContext.fFragmentProcessor_Type) {
                 this->writef("\n, %s(src.%s)",
                              fieldName.c_str(),
                              fieldName.c_str());
@@ -1143,18 +1139,19 @@ void CPPCodeGenerator::writeClone() {
             } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
                 String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
                 if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    if (%s_index >= 0) {\n", fieldName.c_str());
+                    this->writef("    if (src.%s_index >= 0) {\n", fieldName.c_str());
                 } else {
                     this->write("    {\n");
                 }
                 this->writef(
-                       "        auto clone = src.childProcessor(%s_index).clone();\n"
-                       "        if (src.childProcessor(%s_index).isSampledWithExplicitCoords()) {\n"
-                       "            clone->setSampledWithExplicitCoords();\n"
-                       "        }"
-                       "        this->registerChildProcessor(std::move(clone));\n"
+                       "        auto %s_clone = src.childProcessor(src.%s_index).clone();\n"
+                       "        if (src.childProcessor(src.%s_index).isSampledWithExplicitCoords()) {\n"
+                       "            %s_clone->setSampledWithExplicitCoords();\n"
+                       "        }\n"
+                       "        %s_index = this->registerChildProcessor(std::move(%s_clone));\n"
                        "    }\n",
-                       fieldName.c_str(), fieldName.c_str());
+                       fieldName.c_str(), fieldName.c_str(), fieldName.c_str(),
+                       fieldName.c_str(), fieldName.c_str(), fieldName.c_str());
             }
         }
         if (samplerCount) {
