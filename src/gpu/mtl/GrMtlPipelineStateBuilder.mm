@@ -8,7 +8,7 @@
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 
 #include "include/gpu/GrContext.h"
-#include "src/core/SkReader32.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
@@ -66,12 +66,14 @@ static constexpr SkFourByteTag kMSL_Tag = SkSetFourByteTag('M', 'S', 'L', ' ');
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
 
-void GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
+bool GrMtlPipelineStateBuilder::loadShadersFromCache(SkReadBuffer* cached,
                                                      __strong id<MTLLibrary> outLibraries[]) {
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount);
+    if (!GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount)) {
+        return false;
+    }
 
     outLibraries[kVertex_GrShaderType] = this->compileMtlShaderLibrary(
                                               shaders[kVertex_GrShaderType],
@@ -80,11 +82,9 @@ void GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
                                                 shaders[kFragment_GrShaderType],
                                                 inputs[kFragment_GrShaderType]);
 
-    // Geometry shaders are not supported
-    SkASSERT(shaders[kGeometry_GrShaderType].empty());
-
-    SkASSERT(outLibraries[kVertex_GrShaderType]);
-    SkASSERT(outLibraries[kFragment_GrShaderType]);
+    return outLibraries[kVertex_GrShaderType] &&
+           outLibraries[kFragment_GrShaderType] &&
+           shaders[kGeometry_GrShaderType].empty();  // Geometry shaders are not supported
 }
 
 void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
@@ -399,7 +399,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
-    SkReader32 reader;
+    SkReadBuffer reader;
     SkFourByteTag shaderType = 0;
     auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
@@ -414,10 +414,10 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
         }
     }
 
-    SkSL::String shaders[kGrShaderTypeCount];
-    if (kMSL_Tag == shaderType) {
-        this->loadShadersFromCache(&reader, shaderLibraries);
+    if (kMSL_Tag == shaderType && this->loadShadersFromCache(&reader, shaderLibraries)) {
+        // We successfully loaded and compiled MSL
     } else {
+        SkSL::String shaders[kGrShaderTypeCount];
         SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
         SkSL::String* sksl[kGrShaderTypeCount] = {
@@ -427,10 +427,11 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
         };
         SkSL::String cached_sksl[kGrShaderTypeCount];
         if (kSKSL_Tag == shaderType) {
-            GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
-                                                        kGrShaderTypeCount);
-            for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                sksl[i] = &cached_sksl[i];
+            if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
+                                                            kGrShaderTypeCount)) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    sksl[i] = &cached_sksl[i];
+                }
             }
         }
 
