@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1625bd37_a2d5b0e4",
+        "filename": "gn/rm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-10T22:12:49Z",
+      "side": 1,
+      "message": "go on, give yourself the credit.  :)",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "f07534e77d323a04b3ca3e758804d918c22fbf06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
