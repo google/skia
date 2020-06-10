@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "50ef1c15_32881cb4",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-10T12:56:44Z",
+      "side": 1,
+      "message": "May take some rolls to be able to remove this entirely (in some other CL). Perhaps we land this one as is, and can just delete line 656 after that.",
+      "parentUuid": "5c53ad67_fb4a382d",
+      "revId": "a6ef9aed190a80f9398e2271435a1e02ae3c7568",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "168a9dec_f1eff158",
         "filename": "src/shaders/SkImageShader.h",
         "patchSetId": 7
