@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrLumaColorFilterEffect_DEFINED
 #define GrLumaColorFilterEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrLumaColorFilterEffect : public GrFragmentProcessor {
 public:
 #include "include/private/SkColorData.h"
@@ -44,8 +46,7 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 kConstantOutputForConstantInput_OptimizationFlag) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

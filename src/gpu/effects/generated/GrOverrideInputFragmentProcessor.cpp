@@ -87,16 +87,15 @@ bool GrOverrideInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& othe
 GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         const GrOverrideInputFragmentProcessor& src)
         : INHERITED(kGrOverrideInputFragmentProcessor_ClassID, src.optimizationFlags())
-        , fp_index(src.fp_index)
         , useUniform(src.useUniform)
         , uniformColor(src.uniformColor)
         , literalColor(src.literalColor) {
     {
-        auto clone = src.childProcessor(fp_index).clone();
-        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        auto fp_clone = src.childProcessor(src.fp_index).clone();
+        if (src.childProcessor(src.fp_index).isSampledWithExplicitCoords()) {
+            fp_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        fp_index = this->registerChildProcessor(std::move(fp_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {

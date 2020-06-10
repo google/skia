@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrColorMatrixFragmentProcessor_DEFINED
 #define GrColorMatrixFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrColorMatrixFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
@@ -84,8 +86,7 @@ private:
             , clampRGBOutput(clampRGBOutput)
             , premulOutput(premulOutput) {
         if (inputFP) {
-            inputFP_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

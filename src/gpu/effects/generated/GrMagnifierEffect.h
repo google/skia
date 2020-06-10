@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrMagnifierEffect_DEFINED
 #define GrMagnifierEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView src,

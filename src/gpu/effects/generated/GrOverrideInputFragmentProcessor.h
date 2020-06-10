@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrOverrideInputFragmentProcessor_DEFINED
 #define GrOverrideInputFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrOverrideInputFragmentProcessor : public GrFragmentProcessor {
 public:
     static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp,
@@ -59,8 +61,7 @@ private:
             , uniformColor(uniformColor)
             , literalColor(literalColor) {
         SkASSERT(fp);
-        fp_index = this->numChildProcessors();
-        this->registerChildProcessor(std::move(fp));
+        fp_index = this->registerChildProcessor(std::move(fp));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

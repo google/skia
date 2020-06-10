@@ -72,24 +72,22 @@ bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags())
-        , colorizer_index(src.colorizer_index)
-        , gradLayout_index(src.gradLayout_index)
         , mirror(src.mirror)
         , makePremul(src.makePremul)
         , colorsAreOpaque(src.colorsAreOpaque) {
     {
-        auto clone = src.childProcessor(colorizer_index).clone();
-        if (src.childProcessor(colorizer_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        auto colorizer_clone = src.childProcessor(src.colorizer_index).clone();
+        if (src.childProcessor(src.colorizer_index).isSampledWithExplicitCoords()) {
+            colorizer_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        colorizer_index = this->registerChildProcessor(std::move(colorizer_clone));
     }
     {
-        auto clone = src.childProcessor(gradLayout_index).clone();
-        if (src.childProcessor(gradLayout_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
+        auto gradLayout_clone = src.childProcessor(src.gradLayout_index).clone();
+        if (src.childProcessor(src.gradLayout_index).isSampledWithExplicitCoords()) {
+            gradLayout_clone->setSampledWithExplicitCoords();
         }
-        this->registerChildProcessor(std::move(clone));
+        gradLayout_index = this->registerChildProcessor(std::move(gradLayout_clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {

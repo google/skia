@@ -10,11 +10,13 @@
  **************************************************************************************************/
 #ifndef GrUnrolledBinaryGradientColorizer_DEFINED
 #define GrUnrolledBinaryGradientColorizer_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrUnrolledBinaryGradientColorizer : public GrFragmentProcessor {
 public:
     static const int kMaxColorCount = 16;
