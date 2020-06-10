@@ -16,7 +16,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "tests/Test.h"
-#include "tools/gpu/vk/VkTestUtils.h"
+#include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
 const size_t kImageWidth = 8;
 const size_t kImageHeight = 8;
