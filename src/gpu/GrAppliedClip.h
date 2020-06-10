@@ -67,6 +67,19 @@ public:
         fStencilStackID = stencilStackID;
     }
 
+    void finish(const SkISize& logicalRTDimensions, bool drawUsesStencil) {
+        if (drawUsesStencil || this->hasStencilClip()) {
+            // Stencil-modifying draws cannot touch pixels outside the logical dimensions of the
+            // render target in order to preserve the guarantee that the GrRTC leaves the stencil
+            // bits set to 0 when it's done.
+            SkAssertResult(fScissorState.intersect(SkIRect::MakeSize(logicalRTDimensions)));
+        } else {
+            // Color-only draws have no such restriction, so if the only scissor test is to match
+            // the logical dimensions of the render target we can drop the test.
+            fScissorState.relaxTest(logicalRTDimensions);
+        }
+    }
+
     bool doesClip() const {
         return fScissorState.enabled() || this->hasStencilClip() || fWindowRectsState.enabled();
     }
