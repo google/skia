@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e377980_a01d500a",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T14:11:09Z",
+      "side": 1,
+      "message": "Can we have this just call makeBilerpWithInset(.., {0.5, 0.5})?",
+      "range": {
+        "startLine": 252,
+        "startChar": 4,
+        "endLine": 260,
+        "endChar": 100
+      },
+      "revId": "e9ef410515d6f5fa1598b95bf587d3523dba09f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39e6b6fd_deb02000",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T14:11:09Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be src-\u003echildProcessor(i).clone()?",
+      "range": {
+        "startLine": 306,
+        "startChar": 37,
+        "endLine": 306,
+        "endChar": 41
+      },
+      "revId": "e9ef410515d6f5fa1598b95bf587d3523dba09f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
