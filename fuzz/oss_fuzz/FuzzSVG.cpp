@@ -33,7 +33,6 @@ void FuzzSVG(sk_sp<SkData> bytes) {
     if (!s) {
         return;
     }
-    
     SkSize winSize = SkSize::Make(w, h);
     dom->setContainerSize(winSize);
     dom->render(s->getCanvas());
