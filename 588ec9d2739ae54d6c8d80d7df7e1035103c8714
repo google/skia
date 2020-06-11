@@ -123,6 +123,24 @@
       "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f17c7b_cf253397",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-11T20:47:45Z",
+      "side": 1,
+      "message": "Yeah, this and the CTM are a little unusual in that they\u0027re made available to the shader only, but not used by the rest of the blitter, so they become part of the shader key and don\u0027t need further inclusion in the overall blitter key.  You can see this looking at the difference between the Params and Key structs at the top of SkVMBlitter.cpp,\n\n        // Params::quality and Params::ctm are only passed to {shader,clip}-\u003eprogram(),\n        // not used here by the blitter itself.  No need to include them in the key;\n        // they\u0027ll be folded into the shader key if used.",
+      "parentUuid": "dd1e2b4d_7a541a0f",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
