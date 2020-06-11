@@ -1070,6 +1070,21 @@ static bool contains_unconditional_break(Statement& s) {
     }
 }
 
+static void copy_all_but_break(std::unique_ptr<Statement>& stmt,
+                          std::vector<std::unique_ptr<Statement>*>* target) {
+    switch (stmt->fKind) {
+        case Statement::kBlock_Kind:
+            for (auto& s : ((Block&) *stmt).fStatements) {
+                copy_all_but_break(s, target);
+            }
+            break;
+        case Statement::kBreak_Kind:
+            return;
+        default:
+            target->push_back(&stmt);
+    }
+}
+
 // Returns a block containing all of the statements that will be run if the given case matches
 // (which, owing to the statements being owned by unique_ptrs, means the switch itself will be
 // broken by this call and must then be discarded).
@@ -1089,6 +1104,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
                 }
                 if (contains_unconditional_break(*stmt)) {
                     capturing = false;
+                    copy_all_but_break(stmt, &statementPtrs);
                     break;
                 }
                 statementPtrs.push_back(&stmt);
