@@ -1956,7 +1956,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
 }
 
 void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -2215,11 +2215,12 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
-                                                   const GrFlushInfo& info) {
+                                                   const GrFlushInfo& info,
+                                                   const GrBackendSurfaceMutableState* newState) {
     ASSERT_SINGLE_OWNER
     if (fContext->priv().abandoned()) {
         if (info.fSubmittedProc) {
@@ -2233,7 +2234,7 @@ GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAcce
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
 
-    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), access, info);
+    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), access, info, newState);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,

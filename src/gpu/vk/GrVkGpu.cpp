@@ -1778,6 +1778,18 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
     return beTex;
 }
 
+void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
+                                             const GrVkSharedImageInfo& newInfo) {
+    // Even though internally we use this helper for getting src access flags and stages they
+    // can also be used for general dst flags since we don't know exactly what the client
+    // plans on using the image for.
+    VkImageLayout newLayout = newInfo.getImageLayout();
+    VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
+    VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
+    image->setImageLayoutAndQueueIndex(gpu, newLayout, dstAccess, dstStage, false,
+                                         newInfo.getQueueFamilyIndex());
+}
+
 bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
                                      SkISize dimensions,
@@ -1789,14 +1801,7 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
     if (!texture) {
         return false;
     }
-    // Even though internally we use this helper for getting src access flags and stages they
-    // can also be used for general dst flags since we don't know exactly what the client
-    // plans on using the image for.
-    VkImageLayout newLayout = newInfo.getImageLayout();
-    VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
-    VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
-    texture->setImageLayoutAndQueueIndex(this, newLayout, dstAccess, dstStage, false,
-                                         newInfo.getQueueFamilyIndex());
+    set_layout_and_queue_from_mutable_state(this, texture.get(), newInfo);
     return true;
 }
 
@@ -1988,15 +1993,16 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
                                                   barrier);
 }
 
-void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
+void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         GrSurfaceProxy* proxies[],
         int numProxies,
-        SkSurface::BackendSurfaceAccess access) {
+        SkSurface::BackendSurfaceAccess access,
+        const GrBackendSurfaceMutableState* newState) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
-    if (numProxies && access == SkSurface::BackendSurfaceAccess::kPresent) {
+    if (numProxies && (access == SkSurface::BackendSurfaceAccess::kPresent || newState)) {
         GrVkImage* image;
         for (int i = 0; i < numProxies; ++i) {
             SkASSERT(proxies[i]->isInstantiated());
@@ -2006,6 +2012,10 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
                 GrRenderTarget* rt = proxies[i]->peekRenderTarget();
                 SkASSERT(rt);
                 image = static_cast<GrVkRenderTarget*>(rt);
+            }
+            if (newState) {
+                const GrVkSharedImageInfo& newInfo = newState->fVkState;
+                set_layout_and_queue_from_mutable_state(this, image, newInfo);
             }
             image->prepareForPresent(this);
         }

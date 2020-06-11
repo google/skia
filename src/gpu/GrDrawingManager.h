@@ -100,11 +100,13 @@ public:
     GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
                                         int cnt,
                                         SkSurface::BackendSurfaceAccess access,
-                                        const GrFlushInfo& info);
+                                        const GrFlushInfo& info,
+                                        const GrBackendSurfaceMutableState* newState);
     GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy,
                                        SkSurface::BackendSurfaceAccess access,
-                                       const GrFlushInfo& info) {
-        return this->flushSurfaces(&proxy, 1, access, info);
+                                       const GrFlushInfo& info,
+                                       const GrBackendSurfaceMutableState* newState) {
+        return this->flushSurfaces(&proxy, 1, access, info, newState);
     }
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
@@ -196,7 +198,8 @@ private:
     bool flush(GrSurfaceProxy* proxies[],
                int numProxies,
                SkSurface::BackendSurfaceAccess access,
-               const GrFlushInfo&);
+               const GrFlushInfo&,
+               const GrBackendSurfaceMutableState* newState);
 
     bool submitToGpu(bool syncToCpu);
 
