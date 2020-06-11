@@ -22,7 +22,11 @@
 //   - static uint32_t Hash(K)
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
-template <typename T, typename K, typename Traits = T>
+
+// AUTO_SHRINK controls the behavior when entries are removed from the table:
+//   - true: When the load factor drops below 0.25, the capacity will drop by 50%.
+//   - false: The table will never drop capacity until an explicit reset() call.
+template <typename T, typename K, typename Traits = T, bool AUTO_SHRINK = true>
 class SkTHashTable {
 public:
     SkTHashTable() : fCount(0), fCapacity(0) {}
@@ -39,7 +43,8 @@ public:
         return *this;
     }
 
-    // Clear the table.
+    // Clear the table and release allocated memory.
+    // Reallocation occurs even if AUTO_SHRINK is false.
     void reset() { *this = SkTHashTable(); }
 
     // How many entries are in the table?
@@ -105,7 +110,7 @@ public:
             SkASSERT(!s.empty());
             if (hash == s.hash && key == Traits::GetKey(s.val)) {
                this->removeSlot(index);
-               if (4 * fCount <= fCapacity && fCapacity > 4) {
+               if (AUTO_SHRINK && 4 * fCount <= fCapacity && fCapacity > 4) {
                    this->resize(fCapacity / 2);
                }
                return;
@@ -247,7 +252,7 @@ private:
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
-template <typename K, typename V, typename HashK = SkGoodHash>
+template <typename K, typename V, typename HashK = SkGoodHash, bool AUTO_SHRINK = true>
 class SkTHashMap {
 public:
     SkTHashMap() {}
@@ -314,14 +319,14 @@ private:
         static auto Hash(const K& key) { return HashK()(key); }
     };
 
-    SkTHashTable<Pair, K> fTable;
+    SkTHashTable<Pair, K, Pair, AUTO_SHRINK> fTable;
 
     SkTHashMap(const SkTHashMap&) = delete;
     SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
-template <typename T, typename HashT = SkGoodHash>
+template <typename T, typename HashT = SkGoodHash, bool AUTO_SHRINK = true>
 class SkTHashSet {
 public:
     SkTHashSet() {}
@@ -367,7 +372,7 @@ private:
         static const T& GetKey(const T& item) { return item; }
         static auto Hash(const T& item) { return HashT()(item); }
     };
-    SkTHashTable<T, T, Traits> fTable;
+    SkTHashTable<T, T, Traits, AUTO_SHRINK> fTable;
 
     SkTHashSet(const SkTHashSet&) = delete;
     SkTHashSet& operator=(const SkTHashSet&) = delete;
