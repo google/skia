@@ -1622,11 +1622,23 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     return compare_bitmaps(reference, *dst);
 }
 
+// Just run the work right away.
+class SkTrivialExecutor1 final : public SkExecutor {
+    void add(std::function<void(void)> work) override {
+        work();
+    }
+};
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
-        : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1, false)) {
+        : INHERITED(config, grCtxOptions) {
+    if (true) {
+        fRecordingExecutor = SkExecutor::MakeLIFOThreadPool(1);
+        fGPUExecutor = SkExecutor::MakeFIFOThreadPool(1, false);
+    } else {
+        fRecordingExecutor.reset(new SkTrivialExecutor1);
+        fGPUExecutor.reset(new SkTrivialExecutor1);
+    }
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
@@ -1685,9 +1697,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
     // Reinflate the compressed picture individually for each thread.
-    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+    sk_sp<SkPicture> pic = promiseImageHelper.reinflateSKP2(gpuThreadCtx,
+                                                            compressedPictureData.get());
 
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx, pic.get());
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread
@@ -1721,9 +1734,9 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
-    promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
+    promiseImageHelper.deleteAllFromGPU(nullptr, gpuThreadCtx);
 
-    tiles.deleteBackendTextures(gpuTaskGroup, gpuThreadCtx);
+    tiles.deleteBackendTextures(nullptr, gpuThreadCtx);
 
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
     // textures so it is safe to schedule making 'gpuTestCtx' not current on the gpuThread.
@@ -1767,8 +1780,8 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     SkASSERT(otherCtx->priv().getGpu());
 #endif
 
-    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
-    SkTaskGroup gpuTaskGroup(*fGPUThread);
+    SkTaskGroup recordingTaskGroup(*fRecordingExecutor);
+    SkTaskGroup gpuTaskGroup(*fGPUExecutor);
 
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
