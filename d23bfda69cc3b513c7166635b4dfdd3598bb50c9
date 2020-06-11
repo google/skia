@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "dcd7f0b5_c8198452",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-11T22:06:24Z",
+      "side": 1,
+      "message": "\u003e\u003e We may disable the scissor test intentionally for full screen clears, in which case we\u0027d overwrite the clear color in the padded area still.\n\nDid this change recently?\n\nWe *definitely* have to clear the whole thing on tilers. Otherwise they will do an expensive load operation to pull the old render target data into tile memory. If we clear the whole thing, it allows the tiler to skip this load step (because it can just initialize the tile memory with the clear color instead).",
+      "parentUuid": "9574b218_ebc37961",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00005fa1_5c3f76dd",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 6
