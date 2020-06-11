@@ -468,13 +468,13 @@ public:
 private:
     Result ddlDraw(const Src&,
                    sk_sp<SkSurface> dstSurface,
-                   SkTaskGroup* recordingTaskGroup,
-                   SkTaskGroup* gpuTaskGroup,
+//                   SkTaskGroup* recordingTaskGroup,
+//                   SkTaskGroup* gpuTaskGroup,
                    sk_gpu_test::TestContext* gpuTestCtx,
                    GrContext* gpuThreadCtx) const;
 
-    std::unique_ptr<SkExecutor> fRecordingThreadPool;
-    std::unique_ptr<SkExecutor> fGPUThread;
+//    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+//    std::unique_ptr<SkExecutor> fGPUThread;
 
     typedef GPUSink INHERITED;
 };
