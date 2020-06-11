@@ -17,21 +17,22 @@
     fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, fBackendContext.fInstance,\
                                                        VK_NULL_HANDLE));                     \
     if (fVk##name == nullptr) {                                                              \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);                    \
+        ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);            \
         return false;                                                                        \
     }
 
 #define ACQUIRE_DEVICE_VK_PROC(name)                                                          \
     fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, VK_NULL_HANDLE, fDevice)); \
     if (fVk##name == nullptr) {                                                               \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);                     \
+        ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);             \
         return false;                                                                         \
     }
 
-bool VkTestHelper::init() {
+bool VkTestHelper::init(skiatest::Reporter* reporter) {
     PFN_vkGetInstanceProcAddr instProc;
     PFN_vkGetDeviceProcAddr devProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
+        ERRORF(reporter, "Failed to load Vulkan");
         return false;
     }
     auto getProc = [&instProc, &devProc](const char* proc_name,
