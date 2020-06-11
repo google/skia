@@ -265,12 +265,12 @@ describe('Core canvas behavior', () => {
             0.5, 0, 300, 300,
         ];
 
-        const colors = [
+        const colors = Uint32Array.of(
             CanvasKit.ColorAsInt( 85, 170,  10, 128), // light green
             CanvasKit.ColorAsInt( 51,  51, 191, 128), // light blue
             CanvasKit.ColorAsInt(  0,   0,   0, 128),
             CanvasKit.ColorAsInt(256, 256, 256, 128),
-        ];
+        );
 
         canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
 
@@ -322,7 +322,10 @@ describe('Core canvas behavior', () => {
 
         const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 0], [150, 100], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            Uint32Array.of(
+                CanvasKit.ColorAsInt(0, 255, 255, 0),
+                CanvasKit.ColorAsInt(0, 0, 255, 255),
+                CanvasKit.ColorAsInt(255, 0, 0, 255)),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -335,7 +338,7 @@ describe('Core canvas behavior', () => {
 
         const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
             [0, 100], [50, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            Float32Array.of(...transparentGreen, ...CanvasKit.BLUE, ...CanvasKit.RED),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
@@ -345,14 +348,21 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
+        // malloc'd color array
+        const colors = CanvasKit.Malloc(Float32Array, 12);
+        const typedColorsArray = colors.toTypedArray();
+        typedColorsArray.set(transparentGreen, 0);
+        typedColorsArray.set(CanvasKit.BLUE, 4);
+        typedColorsArray.set(CanvasKit.RED, 8);
         const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 100], [150, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            typedColorsArray,
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
             1 // interpolate colors in premul
         );
+        CanvasKit.Free(colors);
         paint.setShader(lgs45Premul);
         r = CanvasKit.LTRBRect(100, 100, 200, 200);
         canvas.drawRect(r, paint);

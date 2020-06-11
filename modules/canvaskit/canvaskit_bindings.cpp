@@ -772,19 +772,33 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
+
+    // Here and in other gradient functions, cPtr is a pointer to an array of data
+    // representing colors. whether this is an array of SkColor or SkColor4f is indicated
+    // by the colorType argument. Only RGBA_8888 and RGBA_F32 are accepted.
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
-                                uintptr_t /* SkColor4f*  */ cPtr,
+                                uintptr_t cPtr, SkColorType colorType,
                                 uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags,
                                 uintptr_t /* SkScalar*  */ mPtr,
                                 sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
         OptionalMatrix localMatrix(mPtr);
-        return SkGradientShader::MakeLinear(points, colors, colorSpace, positions, count,
+
+        if (colorType == SkColorType::kRGBA_F32_SkColorType) {
+            const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+            return SkGradientShader::MakeLinear(points, colors, colorSpace, positions, count,
                                                 mode, flags, &localMatrix);
+        } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
+            const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
+            return SkGradientShader::MakeLinear(points, colors, positions, count,
+                                                mode, flags, &localMatrix);
+        } else {
+            SkDebugf("%d is not an accepted colorType\n", colorType);
+            return nullptr;
+        }
     }), allow_raw_pointers());
 #ifdef SK_SERIALIZE_SKP
     function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
@@ -797,20 +811,29 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 #endif
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
-                                uintptr_t /* SkColor4f*  */ cPtr,
+                                uintptr_t cPtr, SkColorType colorType,
                                 uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags,
                                 uintptr_t /* SkScalar*  */ mPtr,
                                 sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
         OptionalMatrix localMatrix(mPtr);
-        return SkGradientShader::MakeRadial(center, radius, colors, colorSpace, positions, count,
-                                            mode, flags, &localMatrix);
+        if (colorType == SkColorType::kRGBA_F32_SkColorType) {
+            const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+            return SkGradientShader::MakeRadial(center, radius, colors, colorSpace, positions, count,
+                                                mode, flags, &localMatrix);
+        } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
+            const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
+            return SkGradientShader::MakeRadial(center, radius, colors, positions, count,
+                                                mode, flags, &localMatrix);
+        } else {
+            SkDebugf("%d is not an accepted colorType\n", colorType);
+            return nullptr;
+        }
     }), allow_raw_pointers());
     function("_MakeSweepGradientShader", optional_override([](SkScalar cx, SkScalar cy,
-                                uintptr_t /* SkColor4f*  */ cPtr,
+                                uintptr_t cPtr, SkColorType colorType,
                                 uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode,
                                 SkScalar startAngle, SkScalar endAngle,
@@ -818,28 +841,49 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                 uintptr_t /* SkScalar*  */ mPtr,
                                 sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
         OptionalMatrix localMatrix(mPtr);
-        return SkGradientShader::MakeSweep(cx, cy, colors, colorSpace, positions, count,
-                                           mode, startAngle, endAngle, flags,
-                                           &localMatrix);
+        if (colorType == SkColorType::kRGBA_F32_SkColorType) {
+            const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+            return SkGradientShader::MakeSweep(cx, cy, colors, colorSpace, positions, count,
+                                               mode, startAngle, endAngle, flags,
+                                               &localMatrix);
+        } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
+            const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
+            return SkGradientShader::MakeSweep(cx, cy, colors, positions, count,
+                                               mode, startAngle, endAngle, flags,
+                                               &localMatrix);
+        } else {
+            SkDebugf("%d is not an accepted colorType\n", colorType);
+            return nullptr;
+        }
     }), allow_raw_pointers());
     function("_MakeTwoPointConicalGradientShader", optional_override([](
                                 SkPoint start, SkScalar startRadius,
                                 SkPoint end, SkScalar endRadius,
-                                uintptr_t /* SkColor4f*  */ cPtr,
+                                uintptr_t cPtr, SkColorType colorType,
                                 uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags,
                                 uintptr_t /* SkScalar*  */ mPtr,
                                 sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
         OptionalMatrix localMatrix(mPtr);
-        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
-                                                     colors, colorSpace, positions, count, mode,
-                                                     flags, &localMatrix);
+
+        if (colorType == SkColorType::kRGBA_F32_SkColorType) {
+            const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+            return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                         colors, colorSpace, positions, count, mode,
+                                                         flags, &localMatrix);
+        } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
+            const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
+            return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                         colors, positions, count, mode,
+                                                         flags, &localMatrix);
+        } else {
+            SkDebugf("%d is not an accepted colorType\n", colorType);
+            return nullptr;
+        }
     }), allow_raw_pointers());
 
 #ifdef SK_GL
@@ -898,9 +942,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.concat(m);
         }))
         .function("drawArc", &SkCanvas::drawArc)
-        // _drawAtlas takes an SkColor, unlike most private functions handling color.
-        // This is because it takes an array of colors. Converting it on the Javascript side allows
-        // an allocation to be avoided here.
+        // _drawAtlas takes an array of SkColor. There is no SkColor4f override.
         .function("_drawAtlas", optional_override([](SkCanvas& self,
                 const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
                 uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
