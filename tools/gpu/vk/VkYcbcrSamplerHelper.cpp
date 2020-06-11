@@ -10,7 +10,9 @@
 #ifdef SK_VULKAN
 
 #include "include/gpu/GrContext.h"
-#include "tools/gpu/vk/VkTestUtils.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 int VkYcbcrSamplerHelper::GetExpectedY(int x, int y, int width, int height) {
     return 16 + (x + y) * 219 / (width + height - 2);
@@ -20,128 +22,43 @@ std::pair<int, int> VkYcbcrSamplerHelper::GetExpectedUV(int x, int y, int width,
     return { 16 + x * 224 / (width - 1), 16 + y * 224 / (height - 1) };
 }
 
-#define ACQUIRE_INST_VK_PROC(name)                                                           \
-    fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, fBackendContext.fInstance,\
-                                                       VK_NULL_HANDLE));                     \
-    if (fVk##name == nullptr) {                                                              \
-        return false;                                                                        \
-    }
+GrVkGpu* VkYcbcrSamplerHelper::vkGpu() {
+    return (GrVkGpu*) fContext->priv().getGpu();
+}
 
-#define ACQUIRE_DEVICE_VK_PROC(name)                                                          \
-    fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, VK_NULL_HANDLE, fDevice)); \
-    if (fVk##name == nullptr) {                                                               \
-        return false;                                                                         \
-    }
-
-VkYcbcrSamplerHelper::VkYcbcrSamplerHelper() {}
+VkYcbcrSamplerHelper::VkYcbcrSamplerHelper(GrContext* context) : fContext(context) {
+    SkASSERT_RELEASE(context->backend() == GrBackendApi::kVulkan);
+}
 
 VkYcbcrSamplerHelper::~VkYcbcrSamplerHelper() {
-    fGrContext.reset();
+    GrVkGpu* vkGpu = this->vkGpu();
 
     if (fImage != VK_NULL_HANDLE) {
-        fVkDestroyImage(fDevice, fImage, nullptr);
+        GR_VK_CALL(vkGpu->vkInterface(), DestroyImage(vkGpu->device(), fImage, nullptr));
         fImage = VK_NULL_HANDLE;
     }
     if (fImageMemory != VK_NULL_HANDLE) {
-        fVkFreeMemory(fDevice, fImageMemory, nullptr);
+        GR_VK_CALL(vkGpu->vkInterface(), FreeMemory(vkGpu->device(), fImageMemory, nullptr));
         fImageMemory = VK_NULL_HANDLE;
     }
-
-    fBackendContext.fMemoryAllocator.reset();
-    if (fDevice != VK_NULL_HANDLE) {
-        fVkDeviceWaitIdle(fDevice);
-        fVkDestroyDevice(fDevice, nullptr);
-        fDevice = VK_NULL_HANDLE;
-    }
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback(fBackendContext.fInstance, fDebugCallback, nullptr);
-    }
-    if (fBackendContext.fInstance != VK_NULL_HANDLE) {
-        fVkDestroyInstance(fBackendContext.fInstance, nullptr);
-        fBackendContext.fInstance = VK_NULL_HANDLE;
-    }
-
-    sk_gpu_test::FreeVulkanFeaturesStructs(&fFeatures);
 }
 
-bool VkYcbcrSamplerHelper::init() {
-    PFN_vkGetInstanceProcAddr instProc;
-    PFN_vkGetDeviceProcAddr devProc;
-    if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-        return false;
-    }
-    auto getProc = [&instProc, &devProc](const char* proc_name,
-                                         VkInstance instance, VkDevice device) {
-        if (device != VK_NULL_HANDLE) {
-            return devProc(device, proc_name);
-        }
-        return instProc(instance, proc_name);
-    };
+bool VkYcbcrSamplerHelper::isYCbCrSupported() {
+    GrVkGpu* vkGpu = this->vkGpu();
 
-    fFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    fFeatures.pNext = nullptr;
-
-    fBackendContext.fInstance = VK_NULL_HANDLE;
-    fBackendContext.fDevice = VK_NULL_HANDLE;
-
-    if (!sk_gpu_test::CreateVkBackendContext(getProc, &fBackendContext, &fExtensions, &fFeatures,
-                                             &fDebugCallback, nullptr, sk_gpu_test::CanPresentFn(),
-                                             false)) {
-        return false;
-    }
-    fDevice = fBackendContext.fDevice;
-
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(
-                instProc(fBackendContext.fInstance, "vkDestroyDebugReportCallbackEXT"));
-    }
-    ACQUIRE_INST_VK_PROC(DestroyInstance)
-    ACQUIRE_INST_VK_PROC(DeviceWaitIdle)
-    ACQUIRE_INST_VK_PROC(DestroyDevice)
-
-    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceFormatProperties)
-    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceMemoryProperties)
-
-    ACQUIRE_DEVICE_VK_PROC(CreateImage)
-    ACQUIRE_DEVICE_VK_PROC(DestroyImage)
-    ACQUIRE_DEVICE_VK_PROC(GetImageMemoryRequirements)
-    ACQUIRE_DEVICE_VK_PROC(AllocateMemory)
-    ACQUIRE_DEVICE_VK_PROC(FreeMemory)
-    ACQUIRE_DEVICE_VK_PROC(BindImageMemory)
-    ACQUIRE_DEVICE_VK_PROC(MapMemory)
-    ACQUIRE_DEVICE_VK_PROC(UnmapMemory)
-    ACQUIRE_DEVICE_VK_PROC(FlushMappedMemoryRanges)
-    ACQUIRE_DEVICE_VK_PROC(GetImageSubresourceLayout)
-
-    fGrContext = GrContext::MakeVulkan(fBackendContext);
-    if (!fGrContext) {
-        return false;
-    }
-
-    return true;
-}
-
-bool VkYcbcrSamplerHelper::isYCbCrSupported() const {
-    bool ycbcrSupported = false;
-
-    VkBaseOutStructure* feature = reinterpret_cast<VkBaseOutStructure*>(fFeatures.pNext);
-    while (feature) {
-        if (feature->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES) {
-            VkPhysicalDeviceSamplerYcbcrConversionFeatures* ycbcrFeatures =
-                    reinterpret_cast<VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(feature);
-            ycbcrSupported = ycbcrFeatures->samplerYcbcrConversion;
-            break;
-        }
-        feature = feature->pNext;
-    }
-    return ycbcrSupported;
+    return vkGpu->vkCaps().supportsYcbcrConversion();
 }
 
 sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t height) {
+    GrVkGpu* vkGpu = this->vkGpu();
+    VkResult result;
+
     // Verify that the image format is supported.
     VkFormatProperties formatProperties;
-    fVkGetPhysicalDeviceFormatProperties(fBackendContext.fPhysicalDevice,
-                                         VK_FORMAT_G8_B8R8_2PLANE_420_UNORM, &formatProperties);
+    GR_VK_CALL(vkGpu->vkInterface(),
+               GetPhysicalDeviceFormatProperties(vkGpu->physicalDevice(),
+                                                 VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
+                                                 &formatProperties));
     if (!(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) {
         // VK_FORMAT_G8_B8R8_2PLANE_420_UNORM is not supported
         return nullptr;
@@ -162,17 +79,21 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
     vkImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
     SkASSERT(fImage == VK_NULL_HANDLE);
-    if (fVkCreateImage(fDevice, &vkImageInfo, nullptr, &fImage) != VK_SUCCESS) {
+    GR_VK_CALL_RESULT(vkGpu, result, CreateImage(vkGpu->device(), &vkImageInfo, nullptr, &fImage));
+    if (result != VK_SUCCESS) {
         return nullptr;
     }
 
     VkMemoryRequirements requirements;
-    fVkGetImageMemoryRequirements(fDevice, fImage, &requirements);
+    GR_VK_CALL(vkGpu->vkInterface(), GetImageMemoryRequirements(vkGpu->device(),
+                                                                fImage,
+                                                                &requirements));
 
     uint32_t memoryTypeIndex = 0;
     bool foundHeap = false;
     VkPhysicalDeviceMemoryProperties phyDevMemProps;
-    fVkGetPhysicalDeviceMemoryProperties(fBackendContext.fPhysicalDevice, &phyDevMemProps);
+    GR_VK_CALL(vkGpu->vkInterface(), GetPhysicalDeviceMemoryProperties(vkGpu->physicalDevice(),
+                                                                       &phyDevMemProps));
     for (uint32_t i = 0; i < phyDevMemProps.memoryTypeCount && !foundHeap; ++i) {
         if (requirements.memoryTypeBits & (1 << i)) {
             // Map host-visible memory.
@@ -192,13 +113,16 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
     allocInfo.memoryTypeIndex = memoryTypeIndex;
 
     SkASSERT(fImageMemory == VK_NULL_HANDLE);
-    if (fVkAllocateMemory(fDevice, &allocInfo, nullptr, &fImageMemory) != VK_SUCCESS) {
+    GR_VK_CALL_RESULT(vkGpu, result, AllocateMemory(vkGpu->device(), &allocInfo,
+                                                    nullptr, &fImageMemory));
+    if (result != VK_SUCCESS) {
         return nullptr;
     }
 
     void* mappedBuffer;
-    if (fVkMapMemory(fDevice, fImageMemory, 0u, requirements.size, 0u, &mappedBuffer) !=
-        VK_SUCCESS) {
+    GR_VK_CALL_RESULT(vkGpu, result, MapMemory(vkGpu->device(), fImageMemory, 0u,
+                                               requirements.size, 0u, &mappedBuffer));
+    if (result != VK_SUCCESS) {
         return nullptr;
     }
 
@@ -209,7 +133,8 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
     subresource.arrayLayer = 0;
 
     VkSubresourceLayout yLayout;
-    fVkGetImageSubresourceLayout(fDevice, fImage, &subresource, &yLayout);
+    GR_VK_CALL(vkGpu->vkInterface(), GetImageSubresourceLayout(vkGpu->device(), fImage,
+                                                               &subresource, &yLayout));
     uint8_t* bufferData = reinterpret_cast<uint8_t*>(mappedBuffer) + yLayout.offset;
     for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
@@ -220,7 +145,8 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
     // Write UV channels.
     subresource.aspectMask = VK_IMAGE_ASPECT_PLANE_1_BIT;
     VkSubresourceLayout uvLayout;
-    fVkGetImageSubresourceLayout(fDevice, fImage, &subresource, &uvLayout);
+    GR_VK_CALL(vkGpu->vkInterface(), GetImageSubresourceLayout(vkGpu->device(), fImage,
+                                                               &subresource, &uvLayout));
     bufferData = reinterpret_cast<uint8_t*>(mappedBuffer) + uvLayout.offset;
     for (size_t y = 0; y < height / 2; ++y) {
         for (size_t x = 0; x < width / 2; ++x) {
@@ -236,13 +162,15 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
     flushRange.memory = fImageMemory;
     flushRange.offset = 0;
     flushRange.size = VK_WHOLE_SIZE;
-    if (fVkFlushMappedMemoryRanges(fDevice, 1, &flushRange) != VK_SUCCESS) {
+    GR_VK_CALL_RESULT(vkGpu, result, FlushMappedMemoryRanges(vkGpu->device(), 1, &flushRange));
+    if (result != VK_SUCCESS) {
         return nullptr;
     }
-    fVkUnmapMemory(fDevice, fImageMemory);
+    GR_VK_CALL(vkGpu->vkInterface(), UnmapMemory(vkGpu->device(), fImageMemory));
 
     // Bind image memory.
-    if (fVkBindImageMemory(fDevice, fImage, fImageMemory, 0u) != VK_SUCCESS) {
+    GR_VK_CALL_RESULT(vkGpu, result, BindImageMemory(vkGpu->device(), fImage, fImageMemory, 0u));
+    if (result != VK_SUCCESS) {
         return nullptr;
     }
 
@@ -262,18 +190,8 @@ sk_sp<SkImage> VkYcbcrSamplerHelper::createI420Image(uint32_t width, uint32_t he
                             GrProtected::kNo, ycbcrInfo);
 
     fTexture = GrBackendTexture(width, height, imageInfo);
-    sk_sp<SkImage> image = SkImage::MakeFromTexture(fGrContext.get(),
-                                                    fTexture,
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    kRGB_888x_SkColorType,
-                                                    kPremul_SkAlphaType,
-                                                    nullptr);
-
-    if (!image) {
-        return nullptr;
-    }
-
-    return image;
+    return SkImage::MakeFromTexture(fContext, fTexture, kTopLeft_GrSurfaceOrigin,
+                                    kRGB_888x_SkColorType, kPremul_SkAlphaType, nullptr);
 }
 
 #endif // SK_VULKAN
