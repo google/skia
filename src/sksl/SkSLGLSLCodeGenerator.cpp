@@ -522,7 +522,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     this->write("-dFdy");
                     nameWritten = true;
                 }
-                // fallthru
+                [[fallthrough]];
             case FunctionClass::kDFdx:
             case FunctionClass::kFwidth:
                 if (!fFoundDerivatives &&

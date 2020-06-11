@@ -649,10 +649,10 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
             case Verb::kRoundJoin:
             case Verb::kInternalRoundJoin:
                 conicWeight = params[paramsIdx++].fConicWeight;
-                // fallthru
+                [[fallthrough]];
             case Verb::kMiterJoin:
                 miterCapHeightOverWidth = params[paramsIdx++].fMiterCapHeightOverWidth;
-                // fallthru
+                [[fallthrough]];
             case Verb::kBevelJoin:
             case Verb::kInternalBevelJoin:
                 builder.appendJoin(verb, pts[ptsIdx], normals[normalsIdx], normals[normalsIdx + 1],

@@ -1429,7 +1429,7 @@ static bool determine_binary_type(const Context& context,
                 *outResultType = &left;
                 return right.canCoerceTo(left);
             }
-            // fall through
+            [[fallthrough]];
         case Token::Kind::TK_STAR:
             if (is_matrix_multiply(left, right)) {
                 // determine final component type
@@ -1482,7 +1482,7 @@ static bool determine_binary_type(const Context& context,
                 *outResultType = &left;
                 return right.canCoerceTo(left);
             }
-            // fall through
+            [[fallthrough]];
         case Token::Kind::TK_PLUS:    // fall through
         case Token::Kind::TK_MINUS:   // fall through
         case Token::Kind::TK_SLASH:   // fall through
@@ -2726,7 +2726,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(1);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             case 'z':
             case 'b':
             case 'p':
@@ -2735,7 +2735,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(2);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             case 'w':
             case 'a':
             case 'q':
@@ -2744,7 +2744,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(3);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             default:
                 fErrors.error(base->fOffset, String::printf("invalid swizzle component '%c'",
                                                             fields[i]));

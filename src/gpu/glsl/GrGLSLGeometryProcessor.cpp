@@ -44,11 +44,14 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
         vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
         switch (gpArgs.fPositionVar.getType()) {
             case kFloat_GrSLType:
-                vBuilder->codeAppend(", 0"); // fallthru.
+                vBuilder->codeAppend(", 0");
+                [[fallthrough]];
             case kFloat2_GrSLType:
-                vBuilder->codeAppend(", 0"); // fallthru.
+                vBuilder->codeAppend(", 0");
+                [[fallthrough]];
             case kFloat3_GrSLType:
-                vBuilder->codeAppend(", 1"); // fallthru.
+                vBuilder->codeAppend(", 1");
+                [[fallthrough]];
             case kFloat4_GrSLType:
                 vBuilder->codeAppend(");");
                 break;
@@ -171,6 +174,7 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                 }
                 vb->codeAppend(";\n");
                 vb->codeAppend("}\n");
+                break;
             }
             default:
                 break;

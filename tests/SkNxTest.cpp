@@ -84,15 +84,24 @@ void test_Ni(skiatest::Reporter* r) {
         v.store(vals);
 
         switch (N) {
-          case 8: REPORTER_ASSERT(r, vals[4] == e && vals[5] == f && vals[6] == g && vals[7] == h);
-          case 4: REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
-          case 2: REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
+            case 8:
+                REPORTER_ASSERT(r, vals[4] == e && vals[5] == f && vals[6] == g && vals[7] == h);
+                [[fallthrough]];
+            case 4:
+                REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
+                [[fallthrough]];
+            case 2:
+                REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
         }
         switch (N) {
-          case 8: REPORTER_ASSERT(r, v[4] == e && v[5] == f &&
-                                     v[6] == g && v[7] == h);
-          case 4: REPORTER_ASSERT(r, v[2] == c && v[3] == d);
-          case 2: REPORTER_ASSERT(r, v[0] == a && v[1] == b);
+            case 8:
+                REPORTER_ASSERT(r, v[4] == e && v[5] == f && v[6] == g && v[7] == h);
+                [[fallthrough]];
+            case 4:
+                REPORTER_ASSERT(r, v[2] == c && v[3] == d);
+                [[fallthrough]];
+            case 2:
+                REPORTER_ASSERT(r, v[0] == a && v[1] == b);
         }
     };
 

@@ -556,6 +556,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             // once finished, meaning the stencil values will always remain cleared after the
             // initial clear. Just fall through to reloading the existing (cleared) stencil values
             // from memory.
+            [[fallthrough]];
         case StencilContent::kPreserved:
             SkASSERT(stencil);
             stencilLoadOp = GrLoadOp::kLoad;

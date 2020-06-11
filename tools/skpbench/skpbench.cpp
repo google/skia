@@ -410,8 +410,10 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer, GrContext* c
                 using QueryStatus = sk_gpu_test::GpuTimer::QueryStatus;
                 case QueryStatus::kInvalid:
                     exitf(ExitErr::kUnavailable, "GPU timer failed");
+                    break;
                 case QueryStatus::kPending:
                     exitf(ExitErr::kUnavailable, "timer query still not ready after fence sync");
+                    break;
                 case QueryStatus::kDisjoint:
                     if (FLAGS_verbosity >= 4) {
                         fprintf(stderr, "discarding timer query due to disjoint operations.\n");

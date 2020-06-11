@@ -270,7 +270,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                                  if (context->priv().caps()->shaderCaps()->vertexIDSupport()) {
                                      break;
                                  }
-                                 // Fallthru.
+                                 [[fallthrough]];
                              case 1:
                                  vertexBuffer = helper->fVertBuffer.get();
                                  break;

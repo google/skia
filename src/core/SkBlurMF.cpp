@@ -436,7 +436,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
         case SkRRect::kRect_Type:
             // We should have caught this earlier.
             SkASSERT(false);
-            // Fall through.
+            [[fallthrough]];
         case SkRRect::kOval_Type:
             // The nine patch special case does not handle ovals, and we
             // already have code for rectangles.

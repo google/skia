@@ -358,9 +358,11 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorT
             // offset alignment is a multiple of 2 but not 4.
             case 2:
                 read.fOffsetAlignmentForTransferBuffer *= 2;
+                break;
             // offset alignment is not a multiple of 2.
             default:
                 read.fOffsetAlignmentForTransferBuffer *= 4;
+                break;
         }
     }
     return read;

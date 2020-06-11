@@ -136,7 +136,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
                 // defined relative to device space.
                 return CanDrawPath::kNo;
             }
-            // fallthru
+            [[fallthrough]];
         case SkStrokeRec::kHairline_Style: {
             if (CoverageType::kFP16_CoverageCount != fCoverageType) {
                 // Stroking is not yet supported in MSAA atlas mode.

@@ -211,7 +211,7 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
         case SerializationType::kRRect:
             return this->readAsRRect(storage, length);
         case SerializationType::kGeneral:
-            break;  // fall through
+            break;  // fall out
         default:
             return 0;
     }

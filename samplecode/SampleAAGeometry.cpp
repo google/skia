@@ -278,6 +278,7 @@ static void set_path_verb(int index, SkPath::Verb v, SkPath* path, SkScalar w) {
                     switch (v) {
                         case SkPath::kConic_Verb:
                             weight = w;
+                            [[fallthrough]];
                         case SkPath::kQuad_Verb:
                             pts[2] = pts[1];
                             pts[1].fX = (pts[0].fX + pts[2].fX) / 2;
@@ -303,6 +304,7 @@ static void set_path_verb(int index, SkPath::Verb v, SkPath* path, SkScalar w) {
                             break;
                         case SkPath::kConic_Verb:
                             weight = w;
+                            [[fallthrough]];
                         case SkPath::kQuad_Verb:
                             break;
                         case SkPath::kCubic_Verb: {
@@ -325,6 +327,7 @@ static void set_path_verb(int index, SkPath::Verb v, SkPath* path, SkScalar w) {
                             break;
                         case SkPath::kConic_Verb:
                             weight = w;
+                            [[fallthrough]];
                         case SkPath::kQuad_Verb: {
                             SkDCubic dCubic;
                             dCubic.set(pts);

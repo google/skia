@@ -44,6 +44,7 @@ uint32_t SkModeColorFilter::getFlags() const {
         case SkBlendMode::kDst:      //!< [Da, Dc]
         case SkBlendMode::kSrcATop:  //!< [Da, Sc * Da + (1 - Sa) * Dc]
             flags |= kAlphaUnchanged_Flag;
+            break;
         default:
             break;
     }

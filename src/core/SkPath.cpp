@@ -1815,7 +1815,7 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
             break;
         case kConic_Verb:
             fConicWeights += 1;
-            // fall-through
+            [[fallthrough]];
         case kQuad_Verb:
             pts[0] = this->cons_moveTo();
             memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
@@ -2351,7 +2351,7 @@ void ContourIter::next() {
                 break;
             case SkPath::kConic_Verb:
                 fCurrConicWeight += 1;
-                // fall-through
+                [[fallthrough]];
             case SkPath::kQuad_Verb:
                 ptCount += 2;
                 break;
@@ -3348,6 +3348,7 @@ bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currV
                 savePts = pts;
                 autoClose = true;
                 insertClose = false;
+                [[fallthrough]];
             case SkPath::kLine_Verb: {
                 if (SkPath::kClose_Verb != verb) {
                     lastPt = pts;

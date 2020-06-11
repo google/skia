@@ -1234,32 +1234,35 @@ namespace skvm {
         };
 
         switch (mode) {
-            default: SkASSERT(false); /*but also, for safety, fallthrough*/
+            default:
+                SkASSERT(false);
+                [[fallthrough]]; /*but also, for safety, fallthrough*/
 
             case SkBlendMode::kClear: return { splat(0.0f), splat(0.0f), splat(0.0f), splat(0.0f) };
 
             case SkBlendMode::kSrc: return src;
             case SkBlendMode::kDst: return dst;
 
-            case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstOver: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcOver:
                 return apply_rgba([&](auto s, auto d) {
                     return mad(d,1-src.a, s);
                 });
 
-            case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstIn: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcIn:
                 return apply_rgba([&](auto s, auto d) {
                     return s * dst.a;
                 });
 
-            case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstOut: std::swap(src, dst); [[fallthrough]];
+
             case SkBlendMode::kSrcOut:
                 return apply_rgba([&](auto s, auto d) {
                     return s * (1-dst.a);
                 });
 
-            case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstATop: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcATop:
                 return apply_rgba([&](auto s, auto d) {
                     return mma(s, dst.a,  d, 1-src.a);
