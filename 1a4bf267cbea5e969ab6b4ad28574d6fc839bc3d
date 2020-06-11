@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a25f28ca_6b3594a7",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T17:05:13Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 768,
+        "startChar": 48,
+        "endLine": 768,
+        "endChar": 49
+      },
+      "revId": "1a4bf267cbea5e969ab6b4ad28574d6fc839bc3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
