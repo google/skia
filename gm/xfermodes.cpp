@@ -154,7 +154,7 @@ class XfermodesGM : public skiagm::GM {
                 canvas->saveLayer(&bounds, &p);
                 restoreNeeded = true;
                 p.setBlendMode(SkBlendMode::kSrcOver);
-                // Fall through.
+                [[fallthrough]];
             }
             case kQuarterClear_SrcType: {
                 SkScalar halfW = SkIntToScalar(W) / 2;
@@ -175,7 +175,7 @@ class XfermodesGM : public skiagm::GM {
                 SkScalar h = SkIntToScalar(H);
                 SkRect r = SkRect::MakeXYWH(x, y + h / 4, w, h * 23 / 60);
                 canvas->clipRect(r);
-                // Fall through.
+                [[fallthrough]];
             }
             case kRectangle_SrcType: {
                 SkScalar w = SkIntToScalar(W);
@@ -188,10 +188,10 @@ class XfermodesGM : public skiagm::GM {
             }
             case kSmallRectangleImageWithAlpha_SrcType:
                 m.postScale(SK_ScalarHalf, SK_ScalarHalf, x, y);
-                // Fall through.
+                [[fallthrough]];
             case kRectangleImageWithAlpha_SrcType:
                 p.setAlpha(0x88);
-                // Fall through.
+                [[fallthrough]];
             case kRectangleImage_SrcType: {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(m);

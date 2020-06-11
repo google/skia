@@ -1018,8 +1018,7 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
             if (this->getEncodedInfo().bitsPerComponent() != 16) {
                 break;
             }
-
-            // Fall through
+            [[fallthrough]];
         case SkEncodedInfo::kRGBA_Color:
         case SkEncodedInfo::kGray_Color:
             skipFormatConversion = this->colorXform();

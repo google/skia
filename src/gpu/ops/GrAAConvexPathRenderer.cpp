@@ -213,6 +213,7 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
             if (SkScalarAbs(data->fLineNormal.dot(pt) + data->fLineC) > kClose) {
                 data->fStage = DegenerateTestData::kNonDegenerate;
             }
+            break;
         case DegenerateTestData::kNonDegenerate:
             break;
         default:

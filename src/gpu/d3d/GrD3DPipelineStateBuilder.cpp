@@ -424,15 +424,15 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
 static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType primitiveType) {
     switch (primitiveType) {
         case GrPrimitiveType::kTriangles:
-        case GrPrimitiveType::kTriangleStrip: //fall through
+        case GrPrimitiveType::kTriangleStrip:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         case GrPrimitiveType::kPoints:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-        case GrPrimitiveType::kLines: // fall through
+        case GrPrimitiveType::kLines: [[fallthrough]];
         case GrPrimitiveType::kLineStrip:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-        case GrPrimitiveType::kPatches: // fall through, unsupported
-        case GrPrimitiveType::kPath: // fall through, unsupported
+        case GrPrimitiveType::kPatches: // unsupported
+        case GrPrimitiveType::kPath: // unsupported
         default:
             SkUNREACHABLE;
     }
