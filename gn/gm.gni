@@ -391,6 +391,7 @@ gm_sources = [
   "$_gm/xfermodes.cpp",
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
+  "$_gm/ycbcrimage.cpp",
   "$_gm/yuv420_odd_dim.cpp",
   "$_gm/yuvtorgbeffect.cpp",
 ]
