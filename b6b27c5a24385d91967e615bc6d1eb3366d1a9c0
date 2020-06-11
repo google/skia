@@ -22,6 +22,30 @@
       "revId": "b6b27c5a24385d91967e615bc6d1eb3366d1a9c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50dab05b_39022543",
+        "filename": "tools/gpu/vk/VkTestHelper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T12:52:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bae01c2_0a206568",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 50,
+        "endChar": 42
+      },
+      "revId": "b6b27c5a24385d91967e615bc6d1eb3366d1a9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
