@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "27100927_546c235b",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98e215c8_3f463e86",
+      "range": {
+        "startLine": 551,
+        "startChar": 0,
+        "endLine": 554,
+        "endChar": 5
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8bcce158_42241c1a",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "80d00d95_55f0662d",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "The options are going to transform from GrTextContext to GrSDFControl.",
+      "parentUuid": "8bcce158_42241c1a",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 27
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "861e24a1_10482f76",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 2
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "e68a10cf_4c701833",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "861e24a1_10482f76",
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5789b1d2_f1ff46f1",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 2
@@ -79,6 +145,24 @@
       "revId": "12654648b29e6b833efe4accce769130272b41e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5035ec9b_4dd859da",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5789b1d2_f1ff46f1",
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "6a76fc7e_be34d7ae",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fc3e6b6_67dc7383",
+      "range": {
+        "startLine": 597,
+        "startChar": 8,
+        "endLine": 597,
+        "endChar": 19
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74f444a3_1495a47e",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 2
@@ -125,6 +233,30 @@
       "revId": "12654648b29e6b833efe4accce769130272b41e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f727c79f_f3398c8a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-11T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74f444a3_1495a47e",
+      "range": {
+        "startLine": 628,
+        "startChar": 36,
+        "endLine": 628,
+        "endChar": 37
+      },
+      "revId": "12654648b29e6b833efe4accce769130272b41e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
