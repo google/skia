@@ -200,12 +200,15 @@ DEF_TEST(HashFindOrNull, r) {
     REPORTER_ASSERT(r, &seven == table.findOrNull(7));
 }
 
-DEF_TEST(HashTableGrowsAndShrinks, r) {
-    SkTHashSet<int> s;
+template <bool AUTO_SHRINK>
+static void test_hash_grow_and_shrink(skiatest::Reporter* r) {
+    SkTHashSet<int, SkGoodHash, AUTO_SHRINK> s;
     auto check_count_cap = [&](int count, int cap) {
         REPORTER_ASSERT(r, s.count() == count);
         REPORTER_ASSERT(r, s.approxBytesUsed() == (sizeof(int) + sizeof(uint32_t)) * cap);
     };
+
+    const int    kCapAfterRemoves = AUTO_SHRINK ? 4 : 8;
 
     // Add and remove some elements to test basic growth and shrink patterns.
                  check_count_cap(0,0);
@@ -215,13 +218,13 @@ DEF_TEST(HashTableGrowsAndShrinks, r) {
     s.add(4);    check_count_cap(4,8);
 
     s.remove(4); check_count_cap(3,8);
-    s.remove(3); check_count_cap(2,4);
-    s.remove(2); check_count_cap(1,4);
-    s.remove(1); check_count_cap(0,4);
+    s.remove(3); check_count_cap(2,kCapAfterRemoves);
+    s.remove(2); check_count_cap(1,kCapAfterRemoves);
+    s.remove(1); check_count_cap(0,kCapAfterRemoves);
 
-    s.add(1);    check_count_cap(1,4);
-    s.add(2);    check_count_cap(2,4);
-    s.add(3);    check_count_cap(3,4);
+    s.add(1);    check_count_cap(1,kCapAfterRemoves);
+    s.add(2);    check_count_cap(2,kCapAfterRemoves);
+    s.add(3);    check_count_cap(3,kCapAfterRemoves);
     s.add(4);    check_count_cap(4,8);
 
     // Add and remove single elements repeatedly to test hysteresis
@@ -237,15 +240,22 @@ DEF_TEST(HashTableGrowsAndShrinks, r) {
         s.remove(4); check_count_cap(3,8);
     }
 
-    s.remove(3);     check_count_cap(2,4);
+    s.remove(3);     check_count_cap(2,kCapAfterRemoves);
     for (int i = 0; i < 10; i++) {
-        s.   add(4); check_count_cap(3,4);
-        s.remove(4); check_count_cap(2,4);
+        s.   add(4); check_count_cap(3,kCapAfterRemoves);
+        s.remove(4); check_count_cap(2,kCapAfterRemoves);
     }
 
-    s.remove(2);     check_count_cap(1,4);
+    s.remove(2);     check_count_cap(1,kCapAfterRemoves);
     for (int i = 0; i < 10; i++) {
-        s.   add(2); check_count_cap(2,4);
-        s.remove(2); check_count_cap(1,4);
+        s.   add(2); check_count_cap(2,kCapAfterRemoves);
+        s.remove(2); check_count_cap(1,kCapAfterRemoves);
     }
+
+    s.reset();       check_count_cap(0,0);
+}
+
+DEF_TEST(HashTableGrowsAndShrinks, r) {
+    test_hash_grow_and_shrink<false>(r);
+    test_hash_grow_and_shrink<true>(r);
 }
