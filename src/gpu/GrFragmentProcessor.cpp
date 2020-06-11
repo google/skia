@@ -134,6 +134,9 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
     }
     fRequestedFeatures |= child->fRequestedFeatures;
 
+    SkASSERT(child->fParent == nullptr);
+    child->fParent = this;
+
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));
     SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
