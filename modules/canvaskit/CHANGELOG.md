@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    MakeSkVertices is the flat Uint32Array.
  - Color arrays may also be objects created with CanvasKit.Malloc
 
+### Fixed
+ - `TextStyle.color` can correctly be a Malloc'd Float32Array.
+
 ## [0.16.2] - 2020-06-05
 
 ### Fixed
