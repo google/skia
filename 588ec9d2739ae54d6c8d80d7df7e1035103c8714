@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "eb9c6951_74f44032",
+        "filename": "gm/downsamplebitmap.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-11T20:40:19Z",
+      "side": 1,
+      "message": "Kinda wonder if we\u0027d be better off just updating a GM that already uses different filter qualities with image shaders just to avoid redundant tests/more triaging.",
+      "parentUuid": "7c2db595_acabcbab",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e171d291_0f6ae9bb",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 13
