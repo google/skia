@@ -50,7 +50,7 @@ static CGContextRef make_cg_ctx(const SkPixmap& pm) {
 
     switch (pm.colorType()) {
         case kRGBA_8888_SkColorType:
-            info = kCGBitmapByteOrder32Host | kCGImageAlphaNoneSkipFirst;
+            info = kCGBitmapByteOrder32Host | (CGBitmapInfo)kCGImageAlphaNoneSkipFirst;
             cs = CGColorSpaceCreateDeviceRGB();
             break;
         case kGray_8_SkColorType:
