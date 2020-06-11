@@ -105,6 +105,30 @@
       "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b64c86_b0919368",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-11T18:52:24Z",
+      "side": 1,
+      "message": "we figured out that this enum is already private.",
+      "parentUuid": "2dd34e37_fc8bd6ad",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 64
+      },
+      "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
