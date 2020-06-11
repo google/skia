@@ -67,7 +67,7 @@ public:
                                      bool usesLocalCoords,
                                      uint8_t coverage = 0xff) {
         switch (edgeType) {
-            case GrClipEdgeType::kFillAA:       // fall through
+            case GrClipEdgeType::kFillAA:       [[fallthrough]];
             case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
@@ -146,7 +146,7 @@ public:
                                      bool usesLocalCoords,
                                      uint8_t coverage = 0xff) {
         switch (edgeType) {
-            case GrClipEdgeType::kFillAA:       // fall through
+            case GrClipEdgeType::kFillAA:       [[fallthrough]];
             case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;

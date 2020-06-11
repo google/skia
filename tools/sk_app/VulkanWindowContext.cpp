@@ -247,11 +247,11 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
 
     SkColorType colorType;
     switch (surfaceFormat) {
-        case VK_FORMAT_R8G8B8A8_UNORM: // fall through
+        case VK_FORMAT_R8G8B8A8_UNORM: [[fallthrough]];
         case VK_FORMAT_R8G8B8A8_SRGB:
             colorType = kRGBA_8888_SkColorType;
             break;
-        case VK_FORMAT_B8G8R8A8_UNORM: // fall through
+        case VK_FORMAT_B8G8R8A8_UNORM:
             colorType = kBGRA_8888_SkColorType;
             break;
         default:

@@ -51,7 +51,7 @@ bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
     switch (colorType) {
-        case GrColorType::kAlpha_8: // fall through
+        case GrColorType::kAlpha_8: [[fallthrough]];
         case GrColorType::kAlpha_F16:
             if (forOutput) {
                 return GrSwizzle::AAAA();

@@ -394,10 +394,12 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
             break;
         case SkPath::kDone_Verb:
             SkDEBUGFAIL("growForRepeatedVerb called for kDone");
-            // fall through
+            pCnt = 0;
+            break;
         default:
             SkDEBUGFAIL("default should not be reached");
             pCnt = 0;
+            break;
     }
 
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
@@ -444,10 +446,12 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
             break;
         case SkPath::kDone_Verb:
             SkDEBUGFAIL("growForVerb called for kDone");
-            // fall through
+            pCnt = 0;
+            break;
         default:
             SkDEBUGFAIL("default is not reached");
             pCnt = 0;
+            break;
     }
 
     fSegmentMask |= mask;
@@ -596,7 +600,7 @@ uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {
             break;
         case SkPath::kConic_Verb:
             fConicWeights += 1;
-            // fall-through
+            [[fallthrough]];
         case SkPath::kQuad_Verb:
             pts[0] = srcPts[-1];
             pts[1] = srcPts[0];
