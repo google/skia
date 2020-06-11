@@ -17,7 +17,10 @@ namespace internal {
 extern sk_sp<Artboard> parse_artboard(StreamReader*);
 
 void parse_artboards(const sk_sp<SkRive>& skrive, StreamReader* sr) {
-    for (;;) {
+    const size_t artboard_count = sr->readLength16();
+    skrive->artboards().reserve(artboard_count);
+
+    for (size_t i = 0; i < artboard_count; ++i) {
         StreamReader::AutoBlock block(sr);
         if (block.type() == StreamReader::BlockType::kEoB) {
             break;
@@ -35,6 +38,9 @@ static sk_sp<SkRive> parse_skrive(std::unique_ptr<StreamReader> sr) {
     if (!sr) {
         return nullptr;
     }
+
+    const auto version = sr->readUInt32("version");
+    SkDebugf(".. loading version %d\n", version);
 
     auto skrive = sk_make_sp<SkRive>();
 
@@ -60,7 +66,10 @@ static sk_sp<SkRive> parse_skrive(std::unique_ptr<StreamReader> sr) {
 } // namespace internal
 
 sk_sp<SkRive> SkRive::Builder::make(std::unique_ptr<SkStreamAsset> stream) {
-    return parse_skrive(internal::StreamReader::Make(std::move(stream)));
+    auto   reader = internal::StreamReader::Make(std::move(stream));
+
+    return reader ? parse_skrive(std::move(reader))
+                  : nullptr;
 }
 
 } // namespace skrive

@@ -27,12 +27,14 @@ DEF_TEST(SkRive_JsonReader, reporter) {
                                          ]
                                      })";
 
-    auto sr = StreamReader::Make(json, strlen(json));
+    auto sr = StreamReader::Make(SkData::MakeWithoutCopy(json, strlen(json)));
 
     REPORTER_ASSERT(reporter, sr);
+    REPORTER_ASSERT(reporter, sr->readUInt32("version") == 24);
     {
         StreamReader::AutoBlock ab(sr);
         REPORTER_ASSERT(reporter, ab.type() == StreamReader::BlockType::kArtboards);
+        REPORTER_ASSERT(reporter, sr->readLength16() == 1);
 
         {
             StreamReader::AutoBlock ab(sr);

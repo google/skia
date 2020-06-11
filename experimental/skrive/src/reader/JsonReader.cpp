@@ -73,6 +73,16 @@ private:
         return jnum ? static_cast<float>(**jnum) : 0.0f;
     }
 
+    uint16_t readUInt16(const char label[]) override {
+        return static_cast<uint16_t>(this->readUInt32(label));
+    }
+
+    uint32_t readUInt32(const char label[]) override {
+        const auto* jnum = this->readProp<skjson::NumberValue>(label);
+
+        return jnum ? static_cast<uint32_t>(**jnum) : 0;
+    }
+
     SkString readString(const char label[]) override {
         const auto* jstr = this->readProp<skjson::StringValue>(label);
 
@@ -94,6 +104,17 @@ private:
         }
 
         return count;
+    }
+
+    uint16_t readLength16() override {
+        return SkToU16(this->currentLength());
+    }
+
+    size_t currentLength() const {
+        const auto& ctx = fContextStack.back();
+        return ctx.fContainer->is<skjson::ObjectValue>()
+            ? ctx.fContainer->as<skjson::ObjectValue>().size()
+            : ctx.fContainer->as<skjson:: ArrayValue>().size();
     }
 
     // "Blocks" map to either objects or arrays.  For object containers, the block type is encoded
