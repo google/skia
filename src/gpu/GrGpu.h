@@ -605,8 +605,7 @@ public:
                                           GrProtected);
 
     bool updateBackendTexture(const GrBackendTexture&,
-                              GrGpuFinishedProc finishedProc,
-                              GrGpuFinishedContext finishedContext,
+                              sk_sp<GrRefCntedCallback> finishedCallback,
                               const BackendTextureData*);
 
     /**
@@ -617,8 +616,7 @@ public:
                                                     const GrBackendFormat&,
                                                     GrMipMapped,
                                                     GrProtected,
-                                                    GrGpuFinishedProc finishedProc,
-                                                    GrGpuFinishedContext finishedContext,
+                                                    sk_sp<GrRefCntedCallback> finishedCallback,
                                                     const BackendTextureData*);
 
     virtual bool setBackendTextureState(const GrBackendTexture&,
