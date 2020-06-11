@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6d66df0_446d4bec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-11T20:12:06Z",
+      "side": 1,
+      "message": "nit: Its strange to see commit messages hard wrapped past 72 characters like this (this line is 88). Just wondering if that was intentional or not.",
+      "revId": "f8e830f4626ca5877135e6bd494f9c87e7d5e852",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
