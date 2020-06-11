@@ -660,14 +660,6 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
-#if defined(SK_LEGACY_BLITTER_CHOICE)
-    if (matrix.hasPerspective() ||
-        paint.getColorFilter()  ||
-        paint.getFilterQuality() == kHigh_SkFilterQuality) {
-        return true;
-    }
-#endif
-
     // All the real legacy fast paths are for shaders and SrcOver.
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
     if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
