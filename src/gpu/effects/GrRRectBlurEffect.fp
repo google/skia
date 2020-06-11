@@ -173,26 +173,21 @@ uniform half blurRadius;
 }
 
 void main() {
-    // warp the fragment position to the appropriate part of the 9patch blur texture
+    // Warp the fragment position to the appropriate part of the 9patch blur texture by snipping out
+    // the center of the proxy rect.
+    half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.LT);
+    half2 proxyCenter = half2((proxyRect.RB - proxyRect.LT) * 0.5);
+    half edgeSize = 2.0 * blurRadius + cornerRadius + 0.5;
 
-    half2 rectCenter = half2((proxyRect.xy + proxyRect.zw) / 2.0);
-    half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.xy);
-    half threshold = cornerRadius + 2.0 * blurRadius;
-    half2 middle = half2(proxyRect.zw - proxyRect.xy - 2.0 * threshold);
+    translatedFragPos -= proxyCenter;
+    half2 fragDirection = sign(translatedFragPos);
+    translatedFragPos = abs(translatedFragPos);
+    translatedFragPos -= proxyCenter - edgeSize;
+    translatedFragPos = max(translatedFragPos, 0);
+    translatedFragPos *= fragDirection;
+    translatedFragPos += half2(edgeSize);
 
-    if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x + threshold)) {
-        translatedFragPos.x = threshold;
-    } else if (translatedFragPos.x >= (middle.x + threshold)) {
-        translatedFragPos.x -= middle.x - 1.0;
-    }
-
-    if (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y + threshold)) {
-        translatedFragPos.y = threshold;
-    } else if (translatedFragPos.y >= (middle.y + threshold)) {
-        translatedFragPos.y -= middle.y - 1.0;
-    }
-
-    half2 proxyDims = half2(2.0 * threshold + 1.0);
+    half2 proxyDims = half2(2.0 * edgeSize);
     half2 texCoord = translatedFragPos / proxyDims;
 
     half4 inputColor = sample(inputFP, sk_InColor);
