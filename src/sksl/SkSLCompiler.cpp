@@ -426,6 +426,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                                       (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                       definitions);
                     }
+                    break;
                 }
                 default:
                     break;
@@ -1021,8 +1022,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     return;
                 }
                 SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
-                break;
             }
+            break;
         }
         default:
             break;

@@ -255,7 +255,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
             case kUnimplemented_FilterReturn:
                 SkASSERT(nullptr == patch.fMask.fImage);
-                // fall through
+                // fall out
                 break;
         }
     }

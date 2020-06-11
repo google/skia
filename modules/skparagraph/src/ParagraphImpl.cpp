@@ -1055,8 +1055,12 @@ void ParagraphImpl::setState(InternalState state) {
             fBidiRegions.reset();
             fGraphemes16.reset();
             fCodepoints.reset();
+            [[fallthrough]];
+
         case kShaped:
             fClusters.reset();
+            [[fallthrough]];
+
         case kClusterized:
         case kMarked:
         case kLineBroken:
@@ -1065,12 +1069,15 @@ void ParagraphImpl::setState(InternalState state) {
             this->computeEmptyMetrics();
             this->resetShifts();
             fLines.reset();
+            [[fallthrough]];
+
         case kFormatted:
             fPicture = nullptr;
+            [[fallthrough]];
+
         case kDrawn:
+        default:
             break;
-    default:
-        break;
     }
 }
 
