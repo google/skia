@@ -252,8 +252,22 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
+    // For the fLastRenderTasks table, this is faster than SkGoodHash.
+    struct CheapHash {
+        uint32_t operator()(uint32_t val) {
+            return SkChecksum::CheapMix(val);
+        }
+    };
+
     // Keys are UniqueID of GrSurfaceProxys.
-    SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
+    SkTHashMap<uint32_t, GrRenderTask*, CheapHash> fLastRenderTasks;
+
+    // A cached reference to the most-recently-accessed entry in fLastRenderTasks.
+    // Mutable because this cache is updated when accessing the table.
+    mutable struct {
+        uint32_t        surfaceID   = GrSurfaceProxy::UniqueID::InvalidID().asUInt();
+        GrRenderTask**  taskPtr     = nullptr;
+    } fCachedLastRenderTask;
 };
 
 #endif
