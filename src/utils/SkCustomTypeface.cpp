@@ -310,6 +310,7 @@ static_assert(sizeof(gHeaderString) == 1 + kHeaderSize, "need header to be 16 by
 std::unique_ptr<SkStreamAsset> SkUserTypeface::onOpenStream(int* ttcIndex) const {
     SkDynamicMemoryWStream wstream;
 
+    SkDebugf("ISLE: SkUserTypeface::onOpenStream @ %d", __LINE__);
     wstream.write(gHeaderString, kHeaderSize);
 
     wstream.write(&fMetrics, sizeof(fMetrics));
@@ -363,19 +364,23 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
     AutoRestorePosition arp(stream);
 
     char header[kHeaderSize];
+    SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
     if (stream->read(header, kHeaderSize) != kHeaderSize ||
         memcmp(header, gHeaderString, kHeaderSize) != 0)
     {
+        SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
         return nullptr;
     }
 
     SkFontMetrics metrics;
     if (stream->read(&metrics, sizeof(metrics)) != sizeof(metrics)) {
+        SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
         return nullptr;
     }
 
     int glyphCount;
     if (!stream->readS32(&glyphCount) || glyphCount < 0 || glyphCount > kMaxGlyphCount) {
+        SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
         return nullptr;
     }
 
@@ -385,6 +390,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
     std::vector<float> advances(glyphCount);
     if (stream->read(advances.data(), glyphCount * sizeof(float)) != glyphCount * sizeof(float)) {
+        SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
         return nullptr;
     }
 
@@ -395,6 +401,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
     char* buffer = (char*)ram.get();
 
     if (stream->read(buffer, length) != length) {
+        SkDebugf("ISLE: SkCustomTypefaceBuilder::Deserialize @ %d", __LINE__);
         return nullptr;
     }
 

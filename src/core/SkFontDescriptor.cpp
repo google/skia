@@ -119,6 +119,7 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
     uint32_t styleBits = (fStyle.weight() << 16) | (fStyle.width() << 8) | (fStyle.slant());
     stream->writePackedUInt(styleBits);
 
+    SkDebugf("ISLE: SkFontDescriptor::serialize for %s", fFamilyName.c_str());
     write_string(stream, fFamilyName, kFontFamilyName);
     write_string(stream, fFullName, kFullName);
     write_string(stream, fPostscriptName, kPostscriptName);
@@ -137,11 +138,13 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
     stream->writePackedUInt(kSentinel);
 
     if (fFontData.get() && fFontData->hasStream()) {
+        SkDebugf("ISLE: SkFontDescriptor::serialize for %s - serializing data", fFamilyName.c_str());
         std::unique_ptr<SkStreamAsset> fontStream = fFontData->detachStream();
         size_t length = fontStream->getLength();
         stream->writePackedUInt(length);
         stream->writeStream(fontStream.get(), length);
     } else {
+        SkDebugf("ISLE: SkFontDescriptor::serialize for %s - no data", fFamilyName.c_str());
         stream->writePackedUInt(0);
     }
 }
