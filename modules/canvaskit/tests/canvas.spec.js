@@ -583,8 +583,31 @@ describe('Canvas Behavior', () => {
         paint.setAntiAlias(true);
 
         const points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+        // 2d float color array
         const colors = [CanvasKit.RED, CanvasKit.BLUE,
-                      CanvasKit.YELLOW, CanvasKit.CYAN];
+                        CanvasKit.YELLOW, CanvasKit.CYAN];
+        const vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+            points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
+
+        const bounds = vertices.bounds();
+        expect(bounds.fLeft).toEqual(0);
+        expect(bounds.fTop).toEqual(0);
+        expect(bounds.fRight).toEqual(250);
+        expect(bounds.fBottom).toEqual(250);
+
+        canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+        vertices.delete();
+        paint.delete();
+    });
+
+    gm('drawvertices_canvas_flat_floats', (canvas) => {
+        const paint = new CanvasKit.SkPaint();
+        paint.setAntiAlias(true);
+
+        const points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+        // 1d float color array
+        const colors = Float32Array.of(...CanvasKit.RED, ...CanvasKit.BLUE,
+                                       ...CanvasKit.YELLOW, ...CanvasKit.CYAN);
         const vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
             points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
 
