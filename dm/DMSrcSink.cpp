@@ -512,7 +512,7 @@ Result CodecSrc::draw(SkCanvas* canvas) const {
                             return Result::Skip(
                                 "Cannot decode frame %i to 565 (%s).", i, fPath.c_str());
                         }
-                        // Fall through.
+                        [[fallthrough]];
                     default:
                         return Result::Fatal(
                             "Couldn't getPixels for frame %i in %s.", i, fPath.c_str());

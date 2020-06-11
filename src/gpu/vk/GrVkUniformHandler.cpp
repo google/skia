@@ -23,41 +23,41 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/vkspec.html#interfaces-resources-layout
 static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
-        case kByte_GrSLType: // fall through
+        case kByte_GrSLType: [[fallthrough]];
         case kUByte_GrSLType:
             return 0x0;
-        case kByte2_GrSLType: // fall through
+        case kByte2_GrSLType: [[fallthrough]];
         case kUByte2_GrSLType:
             return 0x1;
-        case kByte3_GrSLType: // fall through
+        case kByte3_GrSLType: [[fallthrough]];
         case kByte4_GrSLType:
         case kUByte3_GrSLType:
         case kUByte4_GrSLType:
             return 0x3;
-        case kShort_GrSLType: // fall through
+        case kShort_GrSLType: [[fallthrough]];
         case kUShort_GrSLType:
             return 0x1;
-        case kShort2_GrSLType: // fall through
+        case kShort2_GrSLType: [[fallthrough]];
         case kUShort2_GrSLType:
             return 0x3;
-        case kShort3_GrSLType: // fall through
-        case kShort4_GrSLType:
-        case kUShort3_GrSLType:
+        case kShort3_GrSLType:  [[fallthrough]];
+        case kShort4_GrSLType:  [[fallthrough]];
+        case kUShort3_GrSLType: [[fallthrough]];
         case kUShort4_GrSLType:
             return 0x7;
-        case kInt_GrSLType:
+        case kInt_GrSLType: [[fallthrough]];
         case kUint_GrSLType:
             return 0x3;
-        case kHalf_GrSLType: // fall through
+        case kHalf_GrSLType: [[fallthrough]];
         case kFloat_GrSLType:
             return 0x3;
-        case kHalf2_GrSLType: // fall through
+        case kHalf2_GrSLType: [[fallthrough]];
         case kFloat2_GrSLType:
             return 0x7;
-        case kHalf3_GrSLType: // fall through
+        case kHalf3_GrSLType: [[fallthrough]];
         case kFloat3_GrSLType:
             return 0xF;
-        case kHalf4_GrSLType: // fall through
+        case kHalf4_GrSLType: [[fallthrough]];
         case kFloat4_GrSLType:
             return 0xF;
         case kUint2_GrSLType:
@@ -68,23 +68,23 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
             return 0xF;
         case kInt4_GrSLType:
             return 0xF;
-        case kHalf2x2_GrSLType: // fall through
+        case kHalf2x2_GrSLType: [[fallthrough]];
         case kFloat2x2_GrSLType:
             return 0x7;
-        case kHalf3x3_GrSLType: // fall through
+        case kHalf3x3_GrSLType: [[fallthrough]];
         case kFloat3x3_GrSLType:
             return 0xF;
-        case kHalf4x4_GrSLType: // fall through
+        case kHalf4x4_GrSLType: [[fallthrough]];
         case kFloat4x4_GrSLType:
             return 0xF;
 
         // This query is only valid for certain types.
-        case kVoid_GrSLType:
-        case kBool_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kSampler_GrSLType:
+        case kVoid_GrSLType:                    [[fallthrough]];
+        case kBool_GrSLType:                    [[fallthrough]];
+        case kTexture2DSampler_GrSLType:        [[fallthrough]];
+        case kTextureExternalSampler_GrSLType:  [[fallthrough]];
+        case kTexture2DRectSampler_GrSLType:    [[fallthrough]];
+        case kSampler_GrSLType:                 [[fallthrough]];
         case kTexture2D_GrSLType:
             break;
     }
@@ -130,16 +130,16 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return sizeof(int32_t);
         case kUint_GrSLType:
             return sizeof(int32_t);
-        case kHalf_GrSLType: // fall through
+        case kHalf_GrSLType: [[fallthrough]];
         case kFloat_GrSLType:
             return sizeof(float);
-        case kHalf2_GrSLType: // fall through
+        case kHalf2_GrSLType: [[fallthrough]];
         case kFloat2_GrSLType:
             return 2 * sizeof(float);
-        case kHalf3_GrSLType: // fall through
+        case kHalf3_GrSLType: [[fallthrough]];
         case kFloat3_GrSLType:
             return 3 * sizeof(float);
-        case kHalf4_GrSLType: // fall through
+        case kHalf4_GrSLType: [[fallthrough]];
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
         case kUint2_GrSLType:
@@ -150,24 +150,24 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return 3 * sizeof(int32_t);
         case kInt4_GrSLType:
             return 4 * sizeof(int32_t);
-        case kHalf2x2_GrSLType: // fall through
+        case kHalf2x2_GrSLType: [[fallthrough]];
         case kFloat2x2_GrSLType:
             //TODO: this will be 4 * szof(float) on std430.
             return 8 * sizeof(float);
-        case kHalf3x3_GrSLType: // fall through
+        case kHalf3x3_GrSLType: [[fallthrough]];
         case kFloat3x3_GrSLType:
             return 12 * sizeof(float);
-        case kHalf4x4_GrSLType: // fall through
+        case kHalf4x4_GrSLType: [[fallthrough]];
         case kFloat4x4_GrSLType:
             return 16 * sizeof(float);
 
         // This query is only valid for certain types.
-        case kVoid_GrSLType:
-        case kBool_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kSampler_GrSLType:
+        case kVoid_GrSLType:                    [[fallthrough]];
+        case kBool_GrSLType:                    [[fallthrough]];
+        case kTexture2DSampler_GrSLType:        [[fallthrough]];
+        case kTextureExternalSampler_GrSLType:  [[fallthrough]];
+        case kTexture2DRectSampler_GrSLType:    [[fallthrough]];
+        case kSampler_GrSLType:                 [[fallthrough]];
         case kTexture2D_GrSLType:
             break;
     }

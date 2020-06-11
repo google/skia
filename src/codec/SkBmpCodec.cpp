@@ -394,7 +394,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 inputFormat = kRLE_BmpInputFormat;
                 break;
             }
-            // Fall through
+            [[fallthrough]];
         case kPng_BmpCompressionMethod:
             // TODO: Decide if we intend to support this.
             //       It is unsupported in the previous version and

@@ -90,7 +90,7 @@ const SkRect& SkClipStack::Element::getBounds() const {
     static const SkRect kEmpty = {0, 0, 0, 0};
     static const SkRect kInfinite = SkRectPriv::MakeLargeS32();
     switch (fDeviceSpaceType) {
-        case DeviceSpaceType::kRect:  // fallthrough
+        case DeviceSpaceType::kRect:  [[fallthrough]];
         case DeviceSpaceType::kRRect:
             return fDeviceSpaceRRect.getBounds();
         case DeviceSpaceType::kPath:
@@ -380,7 +380,7 @@ void SkClipStack::Element::combineBoundsDiff(FillCombo combination, const SkRect
 void SkClipStack::Element::combineBoundsXOR(int combination, const SkRect& prevFinite) {
 
     switch (combination) {
-        case kInvPrev_Cur_FillCombo:       // fall through
+        case kInvPrev_Cur_FillCombo:       [[fallthrough]];
         case kPrev_InvCur_FillCombo:
             // With only one of the clips inverted the result will always
             // extend to infinity. The only pixels that may be un-writeable
@@ -392,7 +392,7 @@ void SkClipStack::Element::combineBoundsXOR(int combination, const SkRect& prevF
             // The only pixels that can survive are within the
             // union of the two bounding boxes since the extensions
             // to infinity of both clips cancel out
-            // fall through!
+            [[fallthrough]];
         case kPrev_Cur_FillCombo:
             // The most conservative bound for xor is the
             // union of the two bounds. If the two clips exactly overlapped
@@ -830,7 +830,7 @@ void SkClipStack::pushElement(const Element& element) {
                         }
                         break;
                     }
-                    // fallthrough
+                    [[fallthrough]];
                 default:
                     if (!SkRect::Intersects(prior->getBounds(), element.getBounds())) {
                         prior->setEmpty();

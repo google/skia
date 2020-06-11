@@ -13,49 +13,49 @@ static inline int grsltype_to_location_size(GrSLType type) {
     switch(type) {
         case kVoid_GrSLType:
             return 0;
-        case kFloat_GrSLType: // fall through
+        case kFloat_GrSLType: [[fallthrough]];
         case kHalf_GrSLType:
             return 1;
-        case kFloat2_GrSLType: // fall through
+        case kFloat2_GrSLType: [[fallthrough]];
         case kHalf2_GrSLType:
             return 1;
-        case kFloat3_GrSLType:
+        case kFloat3_GrSLType: [[fallthrough]];
         case kHalf3_GrSLType:
             return 1;
-        case kFloat4_GrSLType:
+        case kFloat4_GrSLType: [[fallthrough]];
         case kHalf4_GrSLType:
             return 1;
         case kUint2_GrSLType:
             return 1;
-        case kInt2_GrSLType:
-        case kShort2_GrSLType:
-        case kUShort2_GrSLType:
-        case kByte2_GrSLType:
+        case kInt2_GrSLType:    [[fallthrough]];
+        case kShort2_GrSLType:  [[fallthrough]];
+        case kUShort2_GrSLType: [[fallthrough]];
+        case kByte2_GrSLType:   [[fallthrough]];
         case kUByte2_GrSLType:
             return 1;
-        case kInt3_GrSLType:
-        case kShort3_GrSLType:
-        case kUShort3_GrSLType:
-        case kByte3_GrSLType:
+        case kInt3_GrSLType:    [[fallthrough]];
+        case kShort3_GrSLType:  [[fallthrough]];
+        case kUShort3_GrSLType: [[fallthrough]];
+        case kByte3_GrSLType:   [[fallthrough]];
         case kUByte3_GrSLType:
             return 1;
-        case kInt4_GrSLType:
-        case kShort4_GrSLType:
-        case kUShort4_GrSLType:
-        case kByte4_GrSLType:
+        case kInt4_GrSLType:    [[fallthrough]];
+        case kShort4_GrSLType:  [[fallthrough]];
+        case kUShort4_GrSLType: [[fallthrough]];
+        case kByte4_GrSLType:   [[fallthrough]];
         case kUByte4_GrSLType:
             return 1;
-        case kFloat2x2_GrSLType:
+        case kFloat2x2_GrSLType: [[fallthrough]];
         case kHalf2x2_GrSLType:
             return 2;
-        case kFloat3x3_GrSLType:
+        case kFloat3x3_GrSLType: [[fallthrough]];
         case kHalf3x3_GrSLType:
             return 3;
-        case kFloat4x4_GrSLType:
+        case kFloat4x4_GrSLType: [[fallthrough]];
         case kHalf4x4_GrSLType:
             return 4;
-        case kTexture2DSampler_GrSLType:
-        case kSampler_GrSLType:
+        case kTexture2DSampler_GrSLType:    [[fallthrough]];
+        case kSampler_GrSLType:             [[fallthrough]];
         case kTexture2D_GrSLType:
             return 0;
         case kTextureExternalSampler_GrSLType:
@@ -64,12 +64,12 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kBool_GrSLType:
              return 1;
-        case kInt_GrSLType: // fall through
-        case kShort_GrSLType:
+        case kInt_GrSLType:   [[fallthrough]];
+        case kShort_GrSLType: [[fallthrough]];
         case kByte_GrSLType:
              return 1;
-        case kUint_GrSLType: // fall through
-        case kUShort_GrSLType:
+        case kUint_GrSLType:   [[fallthrough]];
+        case kUShort_GrSLType: [[fallthrough]];
         case kUByte_GrSLType:
              return 1;
     }

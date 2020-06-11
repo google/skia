@@ -1069,7 +1069,7 @@ ASTNode::ID Parser::statement() {
             if (this->isType(this->text(start))) {
                 return this->varDeclarations();
             }
-            // fall through
+            [[fallthrough]];
         default:
             return this->expressionStatement();
     }
@@ -1370,7 +1370,8 @@ ASTNode::ID Parser::forStatement() {
                 getNode(result).addChild(initializer);
                 break;
             }
-        } // fall through
+            [[fallthrough]];
+        }
         default:
             initializer = this->expressionStatement();
             if (!initializer) {
@@ -1960,7 +1961,7 @@ ASTNode::ID Parser::postfixExpression() {
                 if (this->text(t)[0] != '.') {
                     return result;
                 }
-                // fall through
+                [[fallthrough]];
             case Token::Kind::TK_LBRACKET:
             case Token::Kind::TK_DOT:
             case Token::Kind::TK_LPAREN:
@@ -2016,6 +2017,7 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
                 getNode(result).addChild(base);
                 return result;
             }
+            [[fallthrough]]; // FIXME(ethannicholas)
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
@@ -2082,6 +2084,7 @@ ASTNode::ID Parser::term() {
             if (this->identifier(&text)) {
                 RETURN_NODE(t.fOffset, ASTNode::Kind::kIdentifier, std::move(text));
             }
+            break;
         }
         case Token::Kind::TK_INT_LITERAL: {
             SKSL_INT i;

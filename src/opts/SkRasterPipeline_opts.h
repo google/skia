@@ -625,13 +625,13 @@ namespace SK_OPTS_NS {
         F _04, _15, _26, _37;
         _04 = _15 = _26 = _37 = 0;
         switch (tail) {
-            case 0: _37 = _mm256_insertf128_ps(_37, _mm_loadu_ps(ptr+28), 1);
-            case 7: _26 = _mm256_insertf128_ps(_26, _mm_loadu_ps(ptr+24), 1);
-            case 6: _15 = _mm256_insertf128_ps(_15, _mm_loadu_ps(ptr+20), 1);
-            case 5: _04 = _mm256_insertf128_ps(_04, _mm_loadu_ps(ptr+16), 1);
-            case 4: _37 = _mm256_insertf128_ps(_37, _mm_loadu_ps(ptr+12), 0);
-            case 3: _26 = _mm256_insertf128_ps(_26, _mm_loadu_ps(ptr+ 8), 0);
-            case 2: _15 = _mm256_insertf128_ps(_15, _mm_loadu_ps(ptr+ 4), 0);
+            case 0: _37 = _mm256_insertf128_ps(_37, _mm_loadu_ps(ptr+28), 1); [[fallthrough]];
+            case 7: _26 = _mm256_insertf128_ps(_26, _mm_loadu_ps(ptr+24), 1); [[fallthrough]];
+            case 6: _15 = _mm256_insertf128_ps(_15, _mm_loadu_ps(ptr+20), 1); [[fallthrough]];
+            case 5: _04 = _mm256_insertf128_ps(_04, _mm_loadu_ps(ptr+16), 1); [[fallthrough]];
+            case 4: _37 = _mm256_insertf128_ps(_37, _mm_loadu_ps(ptr+12), 0); [[fallthrough]];
+            case 3: _26 = _mm256_insertf128_ps(_26, _mm_loadu_ps(ptr+ 8), 0); [[fallthrough]];
+            case 2: _15 = _mm256_insertf128_ps(_15, _mm_loadu_ps(ptr+ 4), 0); [[fallthrough]];
             case 1: _04 = _mm256_insertf128_ps(_04, _mm_loadu_ps(ptr+ 0), 0);
         }
 
@@ -1148,11 +1148,11 @@ SI V load(const T* src, size_t tail) {
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail) {
-            case 7: v[6] = src[6];
-            case 6: v[5] = src[5];
-            case 5: v[4] = src[4];
+            case 7: v[6] = src[6]; [[fallthrough]];
+            case 6: v[5] = src[5]; [[fallthrough]];
+            case 5: v[4] = src[4]; [[fallthrough]];
             case 4: memcpy(&v, src, 4*sizeof(T)); break;
-            case 3: v[2] = src[2];
+            case 3: v[2] = src[2]; [[fallthrough]];
             case 2: memcpy(&v, src, 2*sizeof(T)); break;
             case 1: memcpy(&v, src, 1*sizeof(T)); break;
         }
@@ -1168,11 +1168,11 @@ SI void store(T* dst, V v, size_t tail) {
     __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
-            case 7: dst[6] = v[6];
-            case 6: dst[5] = v[5];
-            case 5: dst[4] = v[4];
+            case 7: dst[6] = v[6]; [[fallthrough]];
+            case 6: dst[5] = v[5]; [[fallthrough]];
+            case 5: dst[4] = v[4]; [[fallthrough]];
             case 4: memcpy(dst, &v, 4*sizeof(T)); break;
-            case 3: dst[2] = v[2];
+            case 3: dst[2] = v[2]; [[fallthrough]];
             case 2: memcpy(dst, &v, 2*sizeof(T)); break;
             case 1: memcpy(dst, &v, 1*sizeof(T)); break;
         }
@@ -3403,20 +3403,20 @@ SI V load(const T* ptr, size_t tail) {
     switch (tail & (N-1)) {
         case  0: memcpy(&v, ptr, sizeof(v)); break;
     #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-        case 15: v[14] = ptr[14];
-        case 14: v[13] = ptr[13];
-        case 13: v[12] = ptr[12];
+        case 15: v[14] = ptr[14]; [[fallthrough]];
+        case 14: v[13] = ptr[13]; [[fallthrough]];
+        case 13: v[12] = ptr[12]; [[fallthrough]];
         case 12: memcpy(&v, ptr, 12*sizeof(T)); break;
-        case 11: v[10] = ptr[10];
-        case 10: v[ 9] = ptr[ 9];
-        case  9: v[ 8] = ptr[ 8];
+        case 11: v[10] = ptr[10]; [[fallthrough]];
+        case 10: v[ 9] = ptr[ 9]; [[fallthrough]];
+        case  9: v[ 8] = ptr[ 8]; [[fallthrough]];
         case  8: memcpy(&v, ptr,  8*sizeof(T)); break;
     #endif
-        case  7: v[ 6] = ptr[ 6];
-        case  6: v[ 5] = ptr[ 5];
-        case  5: v[ 4] = ptr[ 4];
+        case  7: v[ 6] = ptr[ 6]; [[fallthrough]];
+        case  6: v[ 5] = ptr[ 5]; [[fallthrough]];
+        case  5: v[ 4] = ptr[ 4]; [[fallthrough]];
         case  4: memcpy(&v, ptr,  4*sizeof(T)); break;
-        case  3: v[ 2] = ptr[ 2];
+        case  3: v[ 2] = ptr[ 2]; [[fallthrough]];
         case  2: memcpy(&v, ptr,  2*sizeof(T)); break;
         case  1: v[ 0] = ptr[ 0];
     }
@@ -3427,20 +3427,20 @@ SI void store(T* ptr, size_t tail, V v) {
     switch (tail & (N-1)) {
         case  0: memcpy(ptr, &v, sizeof(v)); break;
     #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-        case 15: ptr[14] = v[14];
-        case 14: ptr[13] = v[13];
-        case 13: ptr[12] = v[12];
+        case 15: ptr[14] = v[14]; [[fallthrough]];
+        case 14: ptr[13] = v[13]; [[fallthrough]];
+        case 13: ptr[12] = v[12]; [[fallthrough]];
         case 12: memcpy(ptr, &v, 12*sizeof(T)); break;
-        case 11: ptr[10] = v[10];
-        case 10: ptr[ 9] = v[ 9];
-        case  9: ptr[ 8] = v[ 8];
+        case 11: ptr[10] = v[10]; [[fallthrough]];
+        case 10: ptr[ 9] = v[ 9]; [[fallthrough]];
+        case  9: ptr[ 8] = v[ 8]; [[fallthrough]];
         case  8: memcpy(ptr, &v,  8*sizeof(T)); break;
     #endif
-        case  7: ptr[ 6] = v[ 6];
-        case  6: ptr[ 5] = v[ 5];
-        case  5: ptr[ 4] = v[ 4];
+        case  7: ptr[ 6] = v[ 6]; [[fallthrough]];
+        case  6: ptr[ 5] = v[ 5]; [[fallthrough]];
+        case  5: ptr[ 4] = v[ 4]; [[fallthrough]];
         case  4: memcpy(ptr, &v,  4*sizeof(T)); break;
-        case  3: ptr[ 2] = v[ 2];
+        case  3: ptr[ 2] = v[ 2]; [[fallthrough]];
         case  2: memcpy(ptr, &v,  2*sizeof(T)); break;
         case  1: ptr[ 0] = v[ 0];
     }
@@ -3513,12 +3513,12 @@ SI void load_8888_(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
     uint8x8x4_t rgba;
     switch (tail & (N-1)) {
         case 0: rgba = vld4_u8     ((const uint8_t*)(ptr+0)         ); break;
-        case 7: rgba = vld4_lane_u8((const uint8_t*)(ptr+6), rgba, 6);
-        case 6: rgba = vld4_lane_u8((const uint8_t*)(ptr+5), rgba, 5);
-        case 5: rgba = vld4_lane_u8((const uint8_t*)(ptr+4), rgba, 4);
-        case 4: rgba = vld4_lane_u8((const uint8_t*)(ptr+3), rgba, 3);
-        case 3: rgba = vld4_lane_u8((const uint8_t*)(ptr+2), rgba, 2);
-        case 2: rgba = vld4_lane_u8((const uint8_t*)(ptr+1), rgba, 1);
+        case 7: rgba = vld4_lane_u8((const uint8_t*)(ptr+6), rgba, 6); [[fallthrough]];
+        case 6: rgba = vld4_lane_u8((const uint8_t*)(ptr+5), rgba, 5); [[fallthrough]];
+        case 5: rgba = vld4_lane_u8((const uint8_t*)(ptr+4), rgba, 4); [[fallthrough]];
+        case 4: rgba = vld4_lane_u8((const uint8_t*)(ptr+3), rgba, 3); [[fallthrough]];
+        case 3: rgba = vld4_lane_u8((const uint8_t*)(ptr+2), rgba, 2); [[fallthrough]];
+        case 2: rgba = vld4_lane_u8((const uint8_t*)(ptr+1), rgba, 1); [[fallthrough]];
         case 1: rgba = vld4_lane_u8((const uint8_t*)(ptr+0), rgba, 0);
     }
     *r = cast<U16>(rgba.val[0]);
@@ -3539,12 +3539,12 @@ SI void store_8888_(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
     }};
     switch (tail & (N-1)) {
         case 0: vst4_u8     ((uint8_t*)(ptr+0), rgba   ); break;
-        case 7: vst4_lane_u8((uint8_t*)(ptr+6), rgba, 6);
-        case 6: vst4_lane_u8((uint8_t*)(ptr+5), rgba, 5);
-        case 5: vst4_lane_u8((uint8_t*)(ptr+4), rgba, 4);
-        case 4: vst4_lane_u8((uint8_t*)(ptr+3), rgba, 3);
-        case 3: vst4_lane_u8((uint8_t*)(ptr+2), rgba, 2);
-        case 2: vst4_lane_u8((uint8_t*)(ptr+1), rgba, 1);
+        case 7: vst4_lane_u8((uint8_t*)(ptr+6), rgba, 6); [[fallthrough]];
+        case 6: vst4_lane_u8((uint8_t*)(ptr+5), rgba, 5); [[fallthrough]];
+        case 5: vst4_lane_u8((uint8_t*)(ptr+4), rgba, 4); [[fallthrough]];
+        case 4: vst4_lane_u8((uint8_t*)(ptr+3), rgba, 3); [[fallthrough]];
+        case 3: vst4_lane_u8((uint8_t*)(ptr+2), rgba, 2); [[fallthrough]];
+        case 2: vst4_lane_u8((uint8_t*)(ptr+1), rgba, 1); [[fallthrough]];
         case 1: vst4_lane_u8((uint8_t*)(ptr+0), rgba, 0);
     }
 #else
@@ -3669,12 +3669,12 @@ SI void load_88_(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
     uint8x8x2_t rg;
     switch (tail & (N-1)) {
         case 0: rg = vld2_u8     ((const uint8_t*)(ptr+0)         ); break;
-        case 7: rg = vld2_lane_u8((const uint8_t*)(ptr+6), rg, 6);
-        case 6: rg = vld2_lane_u8((const uint8_t*)(ptr+5), rg, 5);
-        case 5: rg = vld2_lane_u8((const uint8_t*)(ptr+4), rg, 4);
-        case 4: rg = vld2_lane_u8((const uint8_t*)(ptr+3), rg, 3);
-        case 3: rg = vld2_lane_u8((const uint8_t*)(ptr+2), rg, 2);
-        case 2: rg = vld2_lane_u8((const uint8_t*)(ptr+1), rg, 1);
+        case 7: rg = vld2_lane_u8((const uint8_t*)(ptr+6), rg, 6); [[fallthrough]];
+        case 6: rg = vld2_lane_u8((const uint8_t*)(ptr+5), rg, 5); [[fallthrough]];
+        case 5: rg = vld2_lane_u8((const uint8_t*)(ptr+4), rg, 4); [[fallthrough]];
+        case 4: rg = vld2_lane_u8((const uint8_t*)(ptr+3), rg, 3); [[fallthrough]];
+        case 3: rg = vld2_lane_u8((const uint8_t*)(ptr+2), rg, 2); [[fallthrough]];
+        case 2: rg = vld2_lane_u8((const uint8_t*)(ptr+1), rg, 1); [[fallthrough]];
         case 1: rg = vld2_lane_u8((const uint8_t*)(ptr+0), rg, 0);
     }
     *r = cast<U16>(rg.val[0]);
@@ -3692,12 +3692,12 @@ SI void store_88_(uint16_t* ptr, size_t tail, U16 r, U16 g) {
     }};
     switch (tail & (N-1)) {
         case 0: vst2_u8     ((uint8_t*)(ptr+0), rg   ); break;
-        case 7: vst2_lane_u8((uint8_t*)(ptr+6), rg, 6);
-        case 6: vst2_lane_u8((uint8_t*)(ptr+5), rg, 5);
-        case 5: vst2_lane_u8((uint8_t*)(ptr+4), rg, 4);
-        case 4: vst2_lane_u8((uint8_t*)(ptr+3), rg, 3);
-        case 3: vst2_lane_u8((uint8_t*)(ptr+2), rg, 2);
-        case 2: vst2_lane_u8((uint8_t*)(ptr+1), rg, 1);
+        case 7: vst2_lane_u8((uint8_t*)(ptr+6), rg, 6); [[fallthrough]];
+        case 6: vst2_lane_u8((uint8_t*)(ptr+5), rg, 5); [[fallthrough]];
+        case 5: vst2_lane_u8((uint8_t*)(ptr+4), rg, 4); [[fallthrough]];
+        case 4: vst2_lane_u8((uint8_t*)(ptr+3), rg, 3); [[fallthrough]];
+        case 3: vst2_lane_u8((uint8_t*)(ptr+2), rg, 2); [[fallthrough]];
+        case 2: vst2_lane_u8((uint8_t*)(ptr+1), rg, 1); [[fallthrough]];
         case 1: vst2_lane_u8((uint8_t*)(ptr+0), rg, 0);
     }
 #else
