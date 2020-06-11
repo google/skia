@@ -283,6 +283,7 @@ static std::map<std::string, std::string> cf_map = {
 #if defined(SK_ENABLE_SKOTTIE)
     {"skottie_json", "skottie_json"},
 #endif
+    {"svg_dom", "svg_dom"},
     {"textblob_deserialize", "textblob"}
 };
 
