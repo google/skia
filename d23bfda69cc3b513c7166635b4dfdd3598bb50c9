@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3b3eabe6_88304cba",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-11T21:58:32Z",
+      "side": 1,
+      "message": "\u003e\u003e the next CL gets rid of quickContains\n\nAck\n\n\u003e\u003e now that everything is always scissored to the logical device bounds (at the very least)\n\nDoes this mean a scissor is always enabled? (Just curious)\n\nSo if everything has an implicit or explicit scissor at the logical bounds, then batching should be able to work the same as always. I just want to keep this in mind going forward so we don\u0027t accidentally break combining that used to (and still should be able to) happen.",
+      "parentUuid": "aea1ef30_d7076d99",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00005fa1_5c3f76dd",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 6
@@ -51,6 +69,24 @@
       "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6256470b_98862f1c",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-11T21:58:32Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "00005fa1_5c3f76dd",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -86,6 +122,24 @@
       "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1c0959f_7f3817e1",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-11T21:58:32Z",
+      "side": 1,
+      "message": "Oh, no, I was only thinking about quickContains. Wrong spot.",
+      "parentUuid": "977791a5_b1fbfcc3",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
