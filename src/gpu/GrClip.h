@@ -21,6 +21,8 @@ class GrContext;
  */
 class GrClip {
 public:
+    virtual ~GrClip() {}
+
     virtual bool quickContains(const SkRect&) const = 0;
     virtual bool quickContains(const SkRRect& rrect) const {
         return this->quickContains(rrect.getBounds());
@@ -30,9 +32,7 @@ public:
      * The returned bounds represent the limits of pixels that can be drawn; anything outside of the
      * bounds will be entirely clipped out.
      */
-    virtual SkIRect getConservativeBounds(int width, int height) const {
-        return SkIRect::MakeWH(width, height);
-    }
+    virtual SkIRect getConservativeBounds() const = 0;
 
     /**
      * This computes a GrAppliedClip from the clip which in turn can be used to build a GrPipeline.
@@ -45,22 +45,18 @@ public:
     virtual bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
                        bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
 
-    virtual ~GrClip() {}
-
     /**
      * This method quickly and conservatively determines whether the entire clip is equivalent to
-     * intersection with a rrect. This will only return true if the rrect does not fully contain
-     * the render target bounds. Moreover, the returned rrect need not be contained by the render
+     * intersection with a rrect. Moreover, the returned rrect need not be contained by the render
      * target bounds. We assume all draws will be implicitly clipped by the render target bounds.
      *
-     * @param rtBounds The bounds of the render target that the clip will be applied to.
      * @param rrect    If return is true rrect will contain the rrect equivalent to the clip within
      *                 rtBounds.
      * @param aa       If return is true aa will indicate whether the rrect clip is antialiased.
      * @return true if the clip is equivalent to a single rrect, false otherwise.
      *
      */
-    virtual bool isRRect(const SkRect& rtBounds, SkRRect* rrect, GrAA* aa) const = 0;
+    virtual bool isRRect(SkRRect* rrect, GrAA* aa) const = 0;
 
     /**
      * This is the maximum distance that a draw may extend beyond a clip's boundary and still count
@@ -151,12 +147,12 @@ public:
      * return 'bounds' has been intersected with a conservative bounds of the clip. A return value
      * of false indicates that the draw can be skipped as it is fully clipped out.
      */
-    virtual bool apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const = 0;
+    virtual bool apply(GrAppliedHardClip* out, SkRect* bounds) const = 0;
 
 private:
     bool apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
-        return this->apply(rtc->width(), rtc->height(), &out->hardClip(), bounds);
+        return this->apply(&out->hardClip(), bounds);
     }
 };
 

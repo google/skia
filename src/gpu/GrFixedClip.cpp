@@ -14,47 +14,33 @@ bool GrFixedClip::quickContains(const SkRect& rect) const {
     if (fWindowRectsState.enabled()) {
         return false;
     }
+
     return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
 }
 
-SkIRect GrFixedClip::getConservativeBounds(int w, int h) const {
-    SkIRect devResult = this->GrClip::getConservativeBounds(w, h);
-    if (fScissorState.enabled()) {
-        if (!devResult.intersect(fScissorState.rect())) {
-            devResult.setEmpty();
-        }
-    }
-    return devResult;
+SkIRect GrFixedClip::getConservativeBounds() const {
+    return fScissorState.rect();
 }
 
-bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
+bool GrFixedClip::isRRect(SkRRect* rr, GrAA* aa) const {
     if (fWindowRectsState.enabled()) {
         return false;
     }
-    if (fScissorState.enabled()) {
-        SkRect rect = SkRect::Make(fScissorState.rect());
-        if (!rect.intersects(rtBounds)) {
-            return false;
-        }
-        rr->setRect(rect);
-        *aa = GrAA::kNo;
-        return true;
-    }
-    return false;
+    // Whether or not the scissor test is enabled, the remaining clip is a rectangle described
+    // by scissorState.rect() (either the scissor or the rt bounds).
+    rr->setRect(SkRect::Make(fScissorState.rect()));
+    *aa = GrAA::kNo;
+    return true;
 };
 
-bool GrFixedClip::apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const {
-    if (fScissorState.enabled()) {
-        SkIRect tightScissor = SkIRect::MakeWH(rtWidth, rtHeight);
-        if (!tightScissor.intersect(fScissorState.rect())) {
-            return false;
-        }
-        if (IsOutsideClip(tightScissor, *bounds)) {
-            return false;
-        }
-        if (!IsInsideClip(fScissorState.rect(), *bounds)) {
-            out->addScissor(tightScissor, bounds);
-        }
+bool GrFixedClip::apply(GrAppliedHardClip* out, SkRect* bounds) const {
+    if (IsOutsideClip(fScissorState.rect(), *bounds)) {
+        return false;
+    }
+    if (!IsInsideClip(fScissorState.rect(), *bounds)) {
+        SkIRect tightScissor = bounds->roundOut();
+        SkAssertResult(tightScissor.intersect(fScissorState.rect()));
+        out->addScissor(tightScissor, bounds);
     }
 
     if (fWindowRectsState.enabled()) {
