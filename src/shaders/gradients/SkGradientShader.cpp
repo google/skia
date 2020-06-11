@@ -299,7 +299,8 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
             // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
             p->append(SkRasterPipeline::decal_x, decal_ctx);
-            // fall-through to clamp
+            [[fallthrough]];
+
         case SkTileMode::kClamp:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.

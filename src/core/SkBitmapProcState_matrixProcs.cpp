@@ -64,7 +64,7 @@ static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int cou
 
     SkASSERT(count <= 2);
     switch (count) {
-        case 2: ((uint16_t*)dst)[1] = SkToU16((fx + dx) >> 16);
+        case 2: ((uint16_t*)dst)[1] = SkToU16((fx + dx) >> 16); [[fallthrough]];
         case 1: ((uint16_t*)dst)[0] = SkToU16((fx +  0) >> 16);
     }
 }
@@ -475,7 +475,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
         // Check for our special case translate methods when there is no scale/affine/perspective.
         if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
             switch (fTileModeX) {
-                default: SkASSERT(false);
+                default: SkASSERT(false); [[fallthrough]];
                 case SkTileMode::kClamp:  return  clampx_nofilter_trans<int_clamp>;
                 case SkTileMode::kRepeat: return repeatx_nofilter_trans<int_repeat>;
                 case SkTileMode::kMirror: return mirrorx_nofilter_trans<int_mirror>;
