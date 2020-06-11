@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "aea1ef30_d7076d99",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T14:23:49Z",
+      "side": 1,
+      "message": "I will update these quickContains to report true for wide open clips, but I don\u0027t think it would have really inhibited batching now that everything is always scissored to the logical device bounds (at the very least).\n\nI also wouldn\u0027t worry too too much about what happens in these functions, since the next CL gets rid of quickContains and isRRect for a more powerful single \"preApply\" function.",
+      "parentUuid": "3311bcae_7ac4996c",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00005fa1_5c3f76dd",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 6
@@ -47,6 +65,24 @@
       "writtenOn": "2020-06-10T19:27:47Z",
       "side": 1,
       "message": "This new behavior might cause quickContains to start returning false in scenarios when it used to return true. Will this inhibit optimizations? (I\u0027m thinking of batching things together that used to be considered fully inside their clips, when now they aren\u0027t)",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "977791a5_b1fbfcc3",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T14:23:49Z",
+      "side": 1,
+      "message": "Was this comment meant to be on GrFixedClip::quickContains? Or is it also wondering about the effects of having isRRect report the device rect if there\u0027s nothing else in the clip?",
+      "parentUuid": "fdeff353_51ed3a16",
       "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
