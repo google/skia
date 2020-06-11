@@ -22,6 +22,30 @@
       "revId": "310060230b08d559210f604d839ceca6b919a773",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fb9a9bf_930aac1c",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T17:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3ac3643_9145552f",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 24
+      },
+      "revId": "310060230b08d559210f604d839ceca6b919a773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
