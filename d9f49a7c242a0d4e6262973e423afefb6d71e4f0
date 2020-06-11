@@ -46,6 +46,30 @@
       "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e38edfdf_9ae83ccf",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-11T16:22:54Z",
+      "side": 1,
+      "message": "Yeah, I missed it on the first read and LGTMed as-is, then saw it on a second look.\nAnything stopping us from enabling the fallthrough warning?",
+      "parentUuid": "ccdade0d_623286ef",
+      "range": {
+        "startLine": 1079,
+        "startChar": 12,
+        "endLine": 1079,
+        "endChar": 13
+      },
+      "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
