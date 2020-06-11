@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02cc9eda_6eef6900",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T14:44:11Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 181,
+        "startChar": 11,
+        "endLine": 181,
+        "endChar": 30
+      },
+      "revId": "a6160737d8275f498ecfc6bab8f3977c92211c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99de59ae_10be52db",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T14:44:11Z",
+      "side": 1,
+      "message": "Actually use this ?",
+      "revId": "a6160737d8275f498ecfc6bab8f3977c92211c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1800043_7a033897",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T14:44:11Z",
+      "side": 1,
+      "message": "localMatrix ?",
+      "range": {
+        "startLine": 194,
+        "startChar": 17,
+        "endLine": 194,
+        "endChar": 24
+      },
+      "revId": "a6160737d8275f498ecfc6bab8f3977c92211c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "555d5ca3_8380fe9d",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T14:44:11Z",
+      "side": 1,
+      "message": "filterMatrix ?",
+      "range": {
+        "startLine": 199,
+        "startChar": 17,
+        "endLine": 199,
+        "endChar": 24
+      },
+      "revId": "a6160737d8275f498ecfc6bab8f3977c92211c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8e92756_9f44717f",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T14:44:11Z",
+      "side": 1,
+      "message": "Maybe use the setRotate about a pivot point ?",
+      "revId": "a6160737d8275f498ecfc6bab8f3977c92211c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
