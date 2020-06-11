@@ -42,29 +42,40 @@ bool VkTestHelper::init() {
         return instProc(instance, proc_name);
     };
 
-    fExtensions = new GrVkExtensions();
-    fFeatures = new VkPhysicalDeviceFeatures2;
-    memset(fFeatures, 0, sizeof(VkPhysicalDeviceFeatures2));
-    fFeatures->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    fFeatures->pNext = nullptr;
+    fFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    fFeatures.pNext = nullptr;
 
     fBackendContext.fInstance = VK_NULL_HANDLE;
     fBackendContext.fDevice = VK_NULL_HANDLE;
 
-    if (!sk_gpu_test::CreateVkBackendContext(getProc, &fBackendContext, fExtensions,
-                                             fFeatures, &fDebugCallback, nullptr,
+    if (!sk_gpu_test::CreateVkBackendContext(getProc, &fBackendContext, &fExtensions,
+                                             &fFeatures, &fDebugCallback, nullptr,
                                              sk_gpu_test::CanPresentFn(), fIsProtected)) {
         return false;
     }
     fDevice = fBackendContext.fDevice;
 
     if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback = (PFN_vkDestroyDebugReportCallbackEXT) instProc(
-                fBackendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
+        fDestroyDebugCallback = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(
+                instProc(fBackendContext.fInstance, "vkDestroyDebugReportCallbackEXT"));
     }
     ACQUIRE_INST_VK_PROC(DestroyInstance)
     ACQUIRE_INST_VK_PROC(DeviceWaitIdle)
     ACQUIRE_INST_VK_PROC(DestroyDevice)
+
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceFormatProperties)
+    ACQUIRE_INST_VK_PROC(GetPhysicalDeviceMemoryProperties)
+
+    ACQUIRE_DEVICE_VK_PROC(CreateImage)
+    ACQUIRE_DEVICE_VK_PROC(DestroyImage)
+    ACQUIRE_DEVICE_VK_PROC(GetImageMemoryRequirements)
+    ACQUIRE_DEVICE_VK_PROC(AllocateMemory)
+    ACQUIRE_DEVICE_VK_PROC(FreeMemory)
+    ACQUIRE_DEVICE_VK_PROC(BindImageMemory)
+    ACQUIRE_DEVICE_VK_PROC(MapMemory)
+    ACQUIRE_DEVICE_VK_PROC(UnmapMemory)
+    ACQUIRE_DEVICE_VK_PROC(FlushMappedMemoryRanges)
+    ACQUIRE_DEVICE_VK_PROC(GetImageSubresourceLayout)
 
     fGrContext = GrContext::MakeVulkan(fBackendContext);
     if (!fGrContext) {
@@ -92,10 +103,7 @@ void VkTestHelper::cleanup() {
         fBackendContext.fInstance = VK_NULL_HANDLE;
     }
 
-    delete fExtensions;
-
-    sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
-    delete fFeatures;
+    sk_gpu_test::FreeVulkanFeaturesStructs(&fFeatures);
 }
 
 #endif // SK_VULKAN
