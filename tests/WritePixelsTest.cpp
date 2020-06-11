@@ -143,8 +143,8 @@ static SkPMColor convert_to_PMColor(SkColorType ct, SkAlphaType at, uint32_t col
         color = premul(color);
     }
     switch (ct) {
-        case kRGBA_8888_SkColorType:
-        case kRGB_888x_SkColorType:  // fallthrough
+        case kRGBA_8888_SkColorType: // fallthrough
+        case kRGB_888x_SkColorType:
             color = SkSwizzle_RGBA_to_PMColor(color);
             break;
         case kBGRA_8888_SkColorType:

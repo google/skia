@@ -253,10 +253,10 @@ void SPIRVCodeGenerator::writeString(const char* string, size_t length, OutputSt
     switch (length % 4) {
         case 1:
             out.write8(0);
-            // fall through
+            [[fallthrough]];
         case 2:
             out.write8(0);
-            // fall through
+            [[fallthrough]];
         case 3:
             out.write8(0);
             break;

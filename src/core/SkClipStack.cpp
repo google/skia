@@ -392,7 +392,7 @@ void SkClipStack::Element::combineBoundsXOR(int combination, const SkRect& prevF
             // The only pixels that can survive are within the
             // union of the two bounding boxes since the extensions
             // to infinity of both clips cancel out
-            // fall through!
+            [[fallthrough]];
         case kPrev_Cur_FillCombo:
             // The most conservative bound for xor is the
             // union of the two bounds. If the two clips exactly overlapped
@@ -830,7 +830,7 @@ void SkClipStack::pushElement(const Element& element) {
                         }
                         break;
                     }
-                    // fallthrough
+                    [[fallthrough]];
                 default:
                     if (!SkRect::Intersects(prior->getBounds(), element.getBounds())) {
                         prior->setEmpty();
