@@ -29,7 +29,7 @@ static int round_and_clamp(float x) {
 
 DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
     VkTestHelper testHelper(false);
-    if (!testHelper.init()) {
+    if (!testHelper.init(reporter)) {
         ERRORF(reporter, "VkTestHelper initialization failed.");
         return;
     }
@@ -108,7 +108,7 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
 // Verifies that it's not possible to allocate Ycbcr texture directly.
 DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
     VkTestHelper testHelper(false);
-    if (!testHelper.init()) {
+    if (!testHelper.init(reporter)) {
         ERRORF(reporter, "VkTestHelper initialization failed.");
         return;
     }

@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "tests/Test.h"
 
 class GrContext;
 class SkSurface;
@@ -29,7 +30,7 @@ public:
         this->cleanup();
     }
 
-    bool init();
+    bool init(skiatest::Reporter*);
 
     GrContext* grContext() { return fGrContext.get(); }
 
