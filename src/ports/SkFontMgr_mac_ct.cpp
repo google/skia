@@ -79,10 +79,14 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
     static const uint32_t kSkiaLocalCTVersionNumber10_15 = 0x000C0000;
 
     // CTFontTraits (symbolic)
+if true // ISLE:
+    {
+#else
     // macOS 14 and iOS 12 seem to behave badly when kCTFontSymbolicTrait is set.
     // macOS 15 yields LastResort font instead of a good default font when
     // kCTFontSymbolicTrait is set.
     if (!(&CTGetCoreTextVersion && CTGetCoreTextVersion() >= kSkiaLocalCTVersionNumber10_14)) {
+#endif
         CTFontSymbolicTraits ctFontTraits = 0;
         if (style.weight() >= SkFontStyle::kBold_Weight) {
             ctFontTraits |= kCTFontBoldTrait;
@@ -112,8 +116,12 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
         CFDictionaryAddValue(cfTraits.get(), kCTFontWidthTrait, cfFontWidth.get());
     }
     // CTFontTraits (slant)
+#if true // ISLE:
+    {
+#else
     // macOS 15 behaves badly when kCTFontSlantTrait is set.
     if (!(&CTGetCoreTextVersion && CTGetCoreTextVersion() == kSkiaLocalCTVersionNumber10_15)) {
+#endif
         CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : 1;
         SkUniqueCFRef<CFNumberRef> cfFontSlant(
                 CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctSlant));
@@ -125,7 +133,10 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
     CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());
 
     // CTFontFamilyName
+    SkDebugf("ISLE: create_descriptor %d", __LINE__);
     if (familyName) {
+        SkDebugf("ISLE: create_descriptor %d familyName %s style: weight %d width %d slant %d", __LINE__, familyName,
+            style.weight(), style.width(), style.slant());
         SkUniqueCFRef<CFStringRef> cfFontName = make_CFString(familyName);
         if (cfFontName) {
             CFDictionaryAddValue(cfAttributes.get(), kCTFontFamilyNameAttribute, cfFontName.get());
@@ -169,6 +180,7 @@ static sk_sp<SkTypeface> create_from_desc_and_style(CTFontDescriptorRef desc,
 
 /** Creates a typeface from a name, searching the cache. */
 static sk_sp<SkTypeface> create_from_name(const char familyName[], const SkFontStyle& style) {
+    SkDebugf("ISLE: create_from_name %d", __LINE__);
     SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
     if (!desc) {
         return nullptr;
@@ -480,6 +492,7 @@ protected:
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& style) const override {
+        SkDebugf("ISLE: onMatchFamilyStyle %d", __LINE__);
         SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
         return create_from_desc(desc.get()).release();
     }
@@ -488,6 +501,7 @@ protected:
                                             const SkFontStyle& style,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override {
+        SkDebugf("ISLE: onMatchFamilyStyleCharacter %d", __LINE__);
         SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
         SkUniqueCFRef<CTFontRef> familyFont(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
 
@@ -592,16 +606,20 @@ protected:
 
     sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> fontData) const override {
         // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
+        SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
         if (fontData->getIndex() != 0) {
+            SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
             return nullptr;
         }
 
         sk_sp<SkData> data = skdata_from_skstreamasset(fontData->getStream()->duplicate());
         if (!data) {
+            SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
             return nullptr;
         }
         SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), fontData->getIndex());
         if (!ct) {
+            SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
             return nullptr;
         }
 
@@ -622,9 +640,11 @@ protected:
             ctVariant.reset(ct.release());
         }
         if (!ctVariant) {
+            SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
             return nullptr;
         }
 
+        SkDebugf("ISLE: onMakeFromFontData mac %d", __LINE__);
         return SkTypeface_Mac::Make(std::move(ctVariant), ctVariation.opsz,
                                     fontData->detachStream());
     }
