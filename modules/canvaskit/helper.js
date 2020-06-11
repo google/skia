@@ -215,7 +215,6 @@ function almostEqual(floata, floatb) {
   return Math.abs(floata - floatb) < 0.00001;
 }
 
-
 var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 
 // arr can be a normal JS array or a TypedArray
@@ -770,7 +769,7 @@ CanvasKit.Malloc = function(typedArray, len) {
       return this.typedArray;
     },
   };
-}
+};
 
 /**
  * Free frees the memory returned by Malloc.
@@ -782,7 +781,7 @@ CanvasKit.Free = function(mallocObj) {
   // Set these to null to make sure the TypedArrays can be garbage collected.
   mallocObj['toTypedArray'] = null;
   mallocObj.typedArray = null;
-}
+};
 
 // This helper will free the given pointer unless the provided array is one
 // that was returned by CanvasKit.Malloc.
