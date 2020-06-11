@@ -492,6 +492,7 @@ if (skia_lex) {
     args = [
       rebase_path(sksllex_path),
       rebase_path("bin/clang-format"),
+      rebase_path("bin/fetch-clang-format"),
       rebase_path("src"),
     ]
   }
@@ -558,6 +559,7 @@ if (skia_compile_processors) {
     args = [
       rebase_path(skslc_path),
       rebase_path("bin/clang-format"),
+      rebase_path("bin/fetch-clang-format"),
     ]
     args += rebase_path(skia_gpu_processor_sources)
   }
