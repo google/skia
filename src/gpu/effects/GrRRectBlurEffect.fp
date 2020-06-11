@@ -173,26 +173,38 @@ uniform half blurRadius;
 }
 
 void main() {
-    // warp the fragment position to the appropriate part of the 9patch blur texture
+    // Warp the fragment position to the appropriate part of the 9-patch blur texture by snipping
+    // out the middle section of the proxy rect.
+    half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.LT);
+    half2 proxyCenter = half2((proxyRect.RB - proxyRect.LT) * 0.5);
+    half edgeSize = 2.0 * blurRadius + cornerRadius + 0.5;
 
-    half2 rectCenter = half2((proxyRect.xy + proxyRect.zw) / 2.0);
-    half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.xy);
-    half threshold = cornerRadius + 2.0 * blurRadius;
-    half2 middle = half2(proxyRect.zw - proxyRect.xy - 2.0 * threshold);
+    // Position the fragment so that (0, 0) marks the center of the proxy rectangle.
+    // Negative coordinates are on the left/top side and positive numbers are on the right/bottom.
+    translatedFragPos -= proxyCenter;
 
-    if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x + threshold)) {
-        translatedFragPos.x = threshold;
-    } else if (translatedFragPos.x >= (middle.x + threshold)) {
-        translatedFragPos.x -= middle.x - 1.0;
-    }
+    // Temporarily strip off the fragment's sign. x/y are now strictly increasing as we move away
+    // from the center.
+    half2 fragDirection = sign(translatedFragPos);
+    translatedFragPos = abs(translatedFragPos);
 
-    if (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y + threshold)) {
-        translatedFragPos.y = threshold;
-    } else if (translatedFragPos.y >= (middle.y + threshold)) {
-        translatedFragPos.y -= middle.y - 1.0;
-    }
+    // Our goal is to snip out the "middle section" of the proxy rect (everything but the edge).
+    // We've repositioned our fragment position so that (0, 0) is the centerpoint and x/y are always
+    // positive, so we can subtract here and interpret negative results as being within the middle
+    // section.
+    translatedFragPos -= proxyCenter - edgeSize;
 
-    half2 proxyDims = half2(2.0 * threshold + 1.0);
+    // Remove the middle section by clamping to zero.
+    translatedFragPos = max(translatedFragPos, 0);
+
+    // Reapply the fragment's sign, so that negative coordinates once again mean left/top side and
+    // positive means bottom/right side.
+    translatedFragPos *= fragDirection;
+
+    // Offset the fragment so that (0, 0) marks the upper-left again, instead of the center point.
+    translatedFragPos += half2(edgeSize);
+
+    half2 proxyDims = half2(2.0 * edgeSize);
     half2 texCoord = translatedFragPos / proxyDims;
 
     half4 inputColor = sample(inputFP, sk_InColor);

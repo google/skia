@@ -77,32 +77,30 @@ public:
         blurRadiusVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                          kHalf_GrSLType, "blurRadius");
         fragBuilder->codeAppendf(
-                "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
-                "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
-                "(translatedFragPos.x >= threshold && translatedFragPos.x < middle.x + threshold) "
-                "{\n    translatedFragPos.x = threshold;\n} else if (translatedFragPos.x >= "
-                "middle.x + threshold) {\n    translatedFragPos.x -= middle.x - 1.0;\n}\nif "
-                "(translatedFragPos.y > threshold && translatedFragPos.y < middle.y + threshold) "
-                "{\n    translatedFragPos.y = threshold;",
+                "half2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf2 proxyCenter = "
+                "half2((%s.zw - %s.xy) * 0.5);\nhalf edgeSize = (2.0 * %s + %s) + "
+                "0.5;\ntranslatedFragPos -= proxyCenter;\nhalf2 fragDirection = "
+                "sign(translatedFragPos);\ntranslatedFragPos = "
+                "abs(translatedFragPos);\ntranslatedFragPos -= proxyCenter - "
+                "edgeSize;\ntranslatedFragPos = max(translatedFragPos, 0.0);\ntranslatedFragPos *= "
+                "fragDirection;\ntranslatedFragPos += half2(edgeSize);\nhalf2 proxyDims = "
+                "half2(2.0 * edgeSize);\nhalf2 texCoord = tra",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
-                args.fUniformHandler->getUniformCStr(cornerRadiusVar),
+                args.fUniformHandler->getUniformCStr(proxyRectVar),
+                args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
-                args.fUniformHandler->getUniformCStr(proxyRectVar),
-                args.fUniformHandler->getUniformCStr(proxyRectVar));
-        fragBuilder->codeAppendf(
-                "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
-                "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
-                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;");
-        SkString _input8208 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample8208;
+                args.fUniformHandler->getUniformCStr(cornerRadiusVar));
+        fragBuilder->codeAppendf("nslatedFragPos / proxyDims;");
+        SkString _input8931 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample8931;
         if (_outer.inputFP_index >= 0) {
-            _sample8208 = this->invokeChild(_outer.inputFP_index, _input8208.c_str(), args);
+            _sample8931 = this->invokeChild(_outer.inputFP_index, _input8931.c_str(), args);
         } else {
-            _sample8208 = _input8208;
+            _sample8931 = _input8931;
         }
         fragBuilder->codeAppendf(
                 "\nhalf4 inputColor = %s;\n%s = inputColor * sample(%s, float2(texCoord)).%s;\n",
-                _sample8208.c_str(), args.fOutputColor,
+                _sample8931.c_str(), args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
