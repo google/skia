@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "51caa756_7974ee42",
+        "filename": "gm/downsamplebitmap.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-11T20:41:35Z",
+      "side": 1,
+      "message": "e.g. one of the GMs in tilemodes.cpp",
+      "parentUuid": "eb9c6951_74f44032",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e171d291_0f6ae9bb",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 13
