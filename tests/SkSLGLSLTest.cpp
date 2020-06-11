@@ -1635,6 +1635,75 @@ DEF_TEST(SkSLSwitch, r) {
          "    }\n"
          "    sk_FragColor = vec4(x);\n"
          "}\n");
+    // static test w/ break in a block
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0: {"
+         "            x = 0.0;"
+         "            sk_FragColor = half4(half(x));"
+         "            break;"
+         "        }"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    {\n"
+         "        sk_FragColor = vec4(0.0);\n"
+         "    }\n"
+         "}\n");
+    // static test w/ static conditional break in a block
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            if (x < 1) { sk_FragColor = half4(half(x)); break; }"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    {\n"
+         "        sk_FragColor = vec4(0.0);\n"
+         "    }\n"
+         "}\n");
+    // static test w/ non-static conditional break in a block
+    test(r,
+         "void main() {"
+         "    float x = 0.0;"
+         "    switch (0) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            if (x < sqrt(1)) { sk_FragColor = half4(half(x)); break; }"
+         "        case 1:"
+         "            x = 1.0;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    switch (0) {\n"
+         "        case 0:\n"
+         "            ;\n"
+         "            if (0.0 < sqrt(1.0)) {\n"
+         "                sk_FragColor = vec4(0.0);\n"
+         "                break;\n"
+         "            }\n"
+         "        case 1:\n"
+         "            ;\n"
+         "    }\n"
+         "}\n");
 }
 
 DEF_TEST(SkSLRectangleTexture, r) {
