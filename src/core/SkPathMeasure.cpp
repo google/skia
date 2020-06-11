@@ -27,6 +27,10 @@ SkScalar SkPathMeasure::getLength() {
     return fContour ? fContour->length() : 0;
 }
 
+SkScalar SkPathMeasure::getVerbLength(SkScalar distance) {
+    return fContour ? fContour->getVerbLength(distance) : 0;
+}
+
 bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* position, SkVector* tangent) {
     return fContour && fContour->getPosTan(distance, position, tangent);
 }
