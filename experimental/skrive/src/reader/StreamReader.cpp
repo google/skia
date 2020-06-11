@@ -13,33 +13,44 @@
 
 namespace skrive::internal {
 
-static constexpr char kBinaryPrefix[] = "FLARE";
+static constexpr char   kBinaryPrefix[]   = "FLARE";
+static constexpr size_t kBinaryPrefixSize = sizeof(kBinaryPrefix) - 1;
 
 extern std::unique_ptr<StreamReader> MakeJsonStreamReader(const char[], size_t);
 extern std::unique_ptr<StreamReader> MakeBinaryStreamReader(std::unique_ptr<SkStreamAsset>);
 
-std::unique_ptr<StreamReader> StreamReader::Make(const char data[], size_t len) {
-    if (len >= sizeof(kBinaryPrefix) &&
-        strncmp(data, kBinaryPrefix, strlen(kBinaryPrefix)) == 0) {
-        return MakeBinaryStreamReader(SkMemoryStream::MakeDirect(data, len));
+std::unique_ptr<StreamReader> StreamReader::Make(const sk_sp<SkData>& data) {
+    if (data->size() >= kBinaryPrefixSize &&
+        !memcmp(data->data(), kBinaryPrefix, kBinaryPrefixSize)) {
+        auto reader = SkMemoryStream::Make(data);
+        reader->skip(kBinaryPrefixSize);
+
+        return MakeBinaryStreamReader(std::move(reader));
     }
 
-    return MakeJsonStreamReader(data, len);
+    return MakeJsonStreamReader(static_cast<const char*>(data->data()), data->size());
 }
 
 std::unique_ptr<StreamReader> StreamReader::Make(std::unique_ptr<SkStreamAsset> stream) {
-    constexpr auto peek_size = sizeof(kBinaryPrefix) - 1;
-    char buf[peek_size];
+    char buf[kBinaryPrefixSize];
 
-    if (stream->peek(buf, peek_size) == peek_size && strncmp(buf, kBinaryPrefix, peek_size) == 0) {
-        // we can stay in streaming mode
-        return MakeBinaryStreamReader(std::move(stream));
+    if (stream->read(buf, kBinaryPrefixSize) == kBinaryPrefixSize) {
+        if (!strncmp(buf, kBinaryPrefix, kBinaryPrefixSize)) {
+            // binary stream - we can stay in streaming mode
+            return MakeBinaryStreamReader(std::move(stream));
+        }
+    } else {
+        // stream too short to hold anything useful
+        return nullptr;
+    }
+
+    if (!stream->rewind()) {
+        SkDebugf("!! failed to rewind stream.\n");
+        return nullptr;
     }
 
     // read to memory to figure what we're dealing with
-    const auto data = SkData::MakeFromStream(stream.get(), stream->getLength());
-
-    return StreamReader::Make(static_cast<const char*>(data->data()), data->size());
+    return StreamReader::Make(SkData::MakeFromStream(stream.get(), stream->getLength()));
 }
 
 SkV2 StreamReader::readV2(const char label[]) {
