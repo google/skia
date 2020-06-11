@@ -767,6 +767,9 @@ public:
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
         transforming SkImage before SkCanvas matrix is applied.
 
+        Note: since no filter-quality is specified, it will be determined at draw time using
+              the paint.
+
         @param tmx          tiling in the x direction
         @param tmy          tiling in the y direction
         @param localMatrix  SkImage transformation, or nullptr
@@ -777,6 +780,9 @@ public:
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix& localMatrix) const {
         return this->makeShader(tmx, tmy, &localMatrix);
     }
+
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
+                               SkFilterQuality) const;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
