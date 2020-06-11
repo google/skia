@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9574b218_ebc37961",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T22:01:48Z",
+      "side": 1,
+      "message": "I agree, definitely good to keep in mind going forward. Now draws to approx-fit render targets should always be scissored. Any draw content that bled into the padding before is now being skipped. This was done in one of the earlier CLs in this series. I haven\u0027t seen any perf changes one way or the other.\n\nWe may disable the scissor test intentionally for full screen clears, in which case we\u0027d overwrite the clear color in the padded area still.\n\nWhen the render target is exact size, and the only clip effect would be a scissor to the RT\u0027s dimensions, we will turn the scissor test off.",
+      "parentUuid": "3b3eabe6_88304cba",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00005fa1_5c3f76dd",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 6
