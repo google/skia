@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e2c80e6_7a05980c",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T15:06:49Z",
+      "side": 1,
+      "message": "It seems like we should just return nullptr if the glyphRunList is empty.",
+      "revId": "241ce1e0164baf6d594975cef51462d5e917cfdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8862cb01_7f230dd4",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T15:06:49Z",
+      "side": 1,
+      "message": "Not a change for this CL, but this isn\u0027t really pushing the boundaries of GrTextBlob functionality here.",
+      "revId": "241ce1e0164baf6d594975cef51462d5e917cfdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37c43a0a_4cd92103",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-11T15:06:49Z",
+      "side": 1,
+      "message": "Do we really need this new #include ?",
+      "revId": "241ce1e0164baf6d594975cef51462d5e917cfdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
