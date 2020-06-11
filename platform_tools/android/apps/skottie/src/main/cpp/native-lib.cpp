@@ -29,7 +29,6 @@
 
 #include <GLES3/gl3.h>
 #include <android/trace.h>
-#include "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.h"
 
 #define STENCIL_BUFFER_SIZE 8
 
@@ -58,6 +57,17 @@ namespace {
 struct SkottieRunner {
     sk_sp<GrContext> mGrContext;
 };
+
+static JavaVM* sJVM = nullptr;
+
+static void release_global_jni_ref(const void* /*data*/, void* context) {
+    JNIEnv* env;
+    if (sJVM->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
+        SK_ABORT("Attempting to release a JNI ref on a thread without a JVM attached.");
+    }
+    jobject obj = reinterpret_cast<jobject>(context);
+    env->DeleteGlobalRef(obj);
+}
 
 extern "C" JNIEXPORT jlong
 JNICALL
@@ -104,15 +114,31 @@ struct SkottieAnimation {
 
 extern "C" JNIEXPORT jlong
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nCreateProxy(JNIEnv *env, jobject clazz,
-                                                                       jlong runner, jobject is,
-                                                                       jbyteArray storage) {
+Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nCreateProxy(JNIEnv *env,
+                                                                           jobject clazz,
+                                                                           jlong runner,
+                                                                           jobject bufferObj) {
 
     if (!runner) {
         return 0;
     }
     SkottieRunner *skottieRunner = reinterpret_cast<SkottieRunner*>(runner);
-    std::unique_ptr<SkStream> stream(CopyJavaInputStream(env, is, storage));
+
+    const void* buffer = env->GetDirectBufferAddress(bufferObj);
+    jlong bufferSize = env->GetDirectBufferCapacity(bufferObj);
+    if (buffer == nullptr || bufferSize <= 0) {
+        return 0;
+    }
+
+    env->GetJavaVM(&sJVM);
+    jobject bufferRef = env->NewGlobalRef(bufferObj);
+    if (bufferRef == nullptr) {
+        return 0;
+    }
+
+    sk_sp<SkData> data(SkData::MakeWithProc(buffer, bufferSize, release_global_jni_ref,
+                                            reinterpret_cast<void*>(bufferRef)));
+    std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
     if (!stream.get()) {
         // Cannot create a stream
         return 0;

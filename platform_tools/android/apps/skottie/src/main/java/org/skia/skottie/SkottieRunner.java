@@ -16,7 +16,13 @@ import android.util.Log;
 import android.view.Choreographer;
 import android.view.TextureView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -262,8 +268,6 @@ public class SkottieRunner {
         private int mSurfaceWidth = 0;
         private int mSurfaceHeight = 0;
         private long mNativeProxy;
-        private InputStream mInputStream;
-        private byte[]  mTempStorage;
         private long mDuration;  // duration in ms of the animation
         private float mProgress; // animation progress in the range of 0.0f to 1.0f
         private long mAnimationStartTime; // time in System.nanoTime units, when started
@@ -277,11 +281,41 @@ public class SkottieRunner {
             view.setSurfaceTextureListener(this);
         }
 
+        private ByteBuffer convertToByteBuffer(InputStream is) throws IOException {
+            if (is instanceof FileInputStream) {
+                FileChannel fileChannel = ((FileInputStream)is).getChannel();
+                return fileChannel.map(FileChannel.MapMode.READ_ONLY,
+                                       fileChannel.position(), fileChannel.size());
+            }
+
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            byte[] tmpStorage = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(tmpStorage, 0, tmpStorage.length)) != -1) {
+                byteStream.write(tmpStorage, 0, bytesRead);
+            }
+
+            byteStream.flush();
+            tmpStorage = byteStream.toByteArray();
+
+            ByteBuffer buffer = ByteBuffer.allocateDirect(tmpStorage.length);
+            buffer.order(ByteOrder.nativeOrder());
+            buffer.put(tmpStorage, 0, tmpStorage.length);
+            return buffer.asReadOnlyBuffer();
+        }
+
         private void init(SurfaceTexture surfaceTexture, InputStream is) {
-            mTempStorage = new byte[16 * 1024];
-            mInputStream = is;
+
+            ByteBuffer byteBuffer;
+            try {
+                byteBuffer = convertToByteBuffer(is);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "failed to read input stream", e);
+                return;
+            }
+
             long proxy = SkottieRunner.getInstance().getNativeProxy();
-            mNativeProxy = nCreateProxy(proxy, mInputStream, mTempStorage);
+            mNativeProxy = nCreateProxy(proxy, byteBuffer);
             mSurfaceTexture = surfaceTexture;
             mDuration = nGetDuration(mNativeProxy);
             mProgress = 0f;
@@ -499,7 +533,7 @@ public class SkottieRunner {
 
         }
 
-        private native long nCreateProxy(long runner, InputStream is, byte[] storage);
+        private native long nCreateProxy(long runner, ByteBuffer data);
         private native void nDeleteProxy(long nativeProxy);
         private native void nDrawFrame(long nativeProxy, int width, int height,
                                        boolean wideColorGamut, float progress);
