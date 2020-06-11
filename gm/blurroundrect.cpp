@@ -58,6 +58,8 @@ class SimpleBlurRoundRectGM : public skiagm::GM {
 
     SkISize onISize() override { return {1000, 500}; }
 
+    bool runAsBench() const override { return true; }
+
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);
         canvas->translate(50,50);
