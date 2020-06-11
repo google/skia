@@ -126,6 +126,7 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
     int count = rec.count();
 
     write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
+    SkDebugf("ISLE: SkPictureData::WirteTypefaces start");
 
     SkAutoSTMalloc<16, SkTypeface*> storage(count);
     SkTypeface** array = (SkTypeface**)storage.get();
@@ -133,15 +134,24 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
 
     for (int i = 0; i < count; i++) {
         SkTypeface* tf = array[i];
+        SkString name;
+        tf->getFamilyName(&name);
+        SkDebugf("ISLE: SkPictureData::WriteTypefaces id %d %s", tf->uniqueID(), name.c_str());
         if (procs.fTypefaceProc) {
+#if false// ISLE:
+            SkDebugf("ISLE: skipping procs.fTypefaceProc usage and using array[i]->serialize instead");
+#else
+            SkDebugf("ISLE: using procs.fTypefaceProc");
             auto data = procs.fTypefaceProc(tf, procs.fTypefaceCtx);
             if (data) {
                 stream->write(data->data(), data->size());
                 continue;
             }
+#endif
         }
         array[i]->serialize(stream);
     }
+    SkDebugf("ISLE: SkPictureData::WirteTypefaces end");
 }
 
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) const {
@@ -313,6 +323,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_TYPEFACE_TAG: {
+            SkDebugf("ISLE: SkPictureData::parseStreamTag start");
             fTFPlayback.setCount(size);
             for (uint32_t i = 0; i < size; ++i) {
                 sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
@@ -321,8 +332,12 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                     // the default here.
                     tf = SkTypeface::MakeDefault();
                 }
+#if false// ISLE:
+                if (!fTFPlayback[i])
+#endif
                 fTFPlayback[i] = std::move(tf);
             }
+            SkDebugf("ISLE: SkPictureData::parseStreamTag done");
         } break;
         case SK_PICT_PICTURE_TAG: {
             SkASSERT(fPictures.empty());
