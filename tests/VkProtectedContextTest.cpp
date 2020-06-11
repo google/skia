@@ -36,6 +36,7 @@ static sk_sp<SkSurface> create_protected_sksurface(GrContext* context,
         context, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
+    SkDebugf("Made a protected surface\n");
     return surface;
 }
 
