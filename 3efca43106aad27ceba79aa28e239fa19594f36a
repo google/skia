@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e83d9f33_1e52b280",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-11T16:39:14Z",
+      "side": 1,
+      "message": "Why don\u0027t we start from the version that doesn\u0027t have ResolveFilterQuality / resolveFilterQuality now?  This block\u0027ll probably be gone today.",
+      "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70c32499_1f933101",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-11T16:39:14Z",
+      "side": 1,
+      "message": "I think I\u0027d still prefer this new enum private, and instead just expose two Make() methods?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 64
+      },
+      "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
