@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "828e980f_2a386645",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T18:05:29Z",
+      "side": 1,
+      "message": "You should update the help message to include svg_dom",
+      "revId": "cd2498b4907fc3f69f8d287f2e78efa4b1d8a3ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1e7dadf_b3d7b424",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T18:05:29Z",
+      "side": 1,
+      "message": "nit: remove extra space",
+      "revId": "cd2498b4907fc3f69f8d287f2e78efa4b1d8a3ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9edc318_7ee90aaf",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T18:05:29Z",
+      "side": 1,
+      "message": "move this down above textblob, so the list is in alphabetical order.",
+      "range": {
+        "startLine": 216,
+        "startChar": 21,
+        "endLine": 216,
+        "endChar": 28
+      },
+      "revId": "cd2498b4907fc3f69f8d287f2e78efa4b1d8a3ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "912541f8_2878f1c8",
+        "filename": "fuzz/oss_fuzz/FuzzSVG.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T18:05:29Z",
+      "side": 1,
+      "message": "I would avoid doing this for two reasons (unless absolutely necessary).\n1) Easy to make a mistake (e.g. you use the first 2 bytes to choose the size and then use the entire bytes to make a stream on line 26. This means that the width and height bytes will have to be part of a valid SVG, which is not ideal).\n2) Even if you fix 1), it means you can\u0027t just hand a valid svg to this fuzzer; you would have to preprend 2 bytes to a valid svg to make it work. This is not easy. \n\nWhat I would recommend is that you pick two arbitrary constant numbers (say 100 and 200) for the width and height and use the entire bytes to make the svg.\n\nWhen you make an API fuzzer, you will be able to more thoroughly test setting containerSize to strange and unexpected values.",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 13
+      },
+      "revId": "cd2498b4907fc3f69f8d287f2e78efa4b1d8a3ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
