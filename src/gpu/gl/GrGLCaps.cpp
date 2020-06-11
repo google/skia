@@ -4400,7 +4400,23 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
 }
 
 GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    const auto& info = this->getFormatInfo(format.asGLFormat());
+    GrGLFormat glFormat = format.asGLFormat();
+
+    SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        if (colorType == GrColorType::kRGB_888x) {
+            SkASSERT(SkCompressionTypeIsOpaque(compression));
+            return GrSwizzle::RGB1();
+        } else if(colorType == GrColorType::kRGBA_8888) {
+            SkASSERT(!SkCompressionTypeIsOpaque(compression));
+            return GrSwizzle::RGBA();
+        }
+        SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.", colorType,
+                     glFormat);
+        return {};
+    }
+
+    const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
@@ -4408,7 +4424,7 @@ GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         }
     }
     SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType,
-                 format.asGLFormat());
+                 glFormat);
     return {};
 }
 

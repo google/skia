@@ -1595,6 +1595,21 @@ GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         // onAreColorTypeAndFormatCompatible.
         return GrSwizzle{"rgba"};
     }
+
+    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        if (colorType == GrColorType::kRGB_888x) {
+            SkASSERT(SkCompressionTypeIsOpaque(compression));
+            return GrSwizzle::RGB1();
+        } else if (colorType == GrColorType::kRGBA_8888) {
+            SkASSERT(!SkCompressionTypeIsOpaque(compression));
+            return GrSwizzle::RGBA();
+        }
+        SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.", colorType,
+                     vkFormat);
+        return {};
+    }
+
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];

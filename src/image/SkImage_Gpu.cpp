@@ -522,6 +522,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
+    if (!context->priv().caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
+        return nullptr;
+    }
+
     callDone.clear();
     auto proxy = MakePromiseImageLazyProxy(context, width, height, backendFormat,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
