@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c2637b8_81eae547",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "nit: move these declarations just above their first use.",
+      "range": {
+        "startLine": 1368,
+        "startChar": 4,
+        "endLine": 1368,
+        "endChar": 27
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e766bfb0_50ef8a35",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "In the future, when making a lot of APIs that are similar, especially when the implementation details *are* important, try using names like \nExperimentalMakeImageUsingLoadAndCanvas2DBuffer\nExperimentalMakeImageUsingDecodeAndCanvas2DBuffer\nExperimentalMakeImageUsingCanvas2DFromCanvasImageSource\nExperimentalMakeImageUsingCanvas2DFromCanvasImageSourceBlob\nExperimentalMakeImageUsingCanvas2DFromCanvasImageSourceBuffer\nExperimentalMakeImageBitmapRendererFromCanvasImageSource\nExperimentalMakeImageBitmapRendererFromCanvasImageSourceBlob\nExperimentalMakeImageBitmapRendererFromCanvasImageSourceBuffer\n\nThese very verbose names aren\u0027t necessarily what we are going to ship, but it makes it a lot easier to reason about during review and conversation.",
+      "range": {
+        "startLine": 1375,
+        "startChar": 10,
+        "endLine": 1375,
+        "endChar": 50
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1deb051_4ce8e467",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "The event listener seems a bit antiquated and clunky when mixed in with the promises. From a code maintenance, I think I prefer the decode() method, especially because decode() is widely supported.",
+      "range": {
+        "startLine": 1384,
+        "startChar": 27,
+        "endLine": 1384,
+        "endChar": 33
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cce43d1_e6119216",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "Are these images already checked in?",
+      "range": {
+        "startLine": 190,
+        "startChar": 35,
+        "endLine": 190,
+        "endChar": 45
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "777193df_fa7edea8",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "Add a comment explaining that this for loop will generate perf cases for each of the file names.",
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64d6bff2_ff02ae3c",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "ImageBitmapRenderingContext ?",
+      "range": {
+        "startLine": 250,
+        "startChar": 66,
+        "endLine": 250,
+        "endChar": 74
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e5bad0c_e755129e",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "This name seems incorrect. I also don\u0027t see the wasmImageDecoding baseline",
+      "range": {
+        "startLine": 269,
+        "startChar": 59,
+        "endLine": 269,
+        "endChar": 77
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

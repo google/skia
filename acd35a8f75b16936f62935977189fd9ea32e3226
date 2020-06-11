@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "00c8bd1d_5608b08b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "Of note, I don\u0027t see the edits to the commit message",
+      "parentUuid": "af4a5cba_a9ed836b",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 34
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e895c725_d4e1a50d",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -601,6 +625,30 @@
       "side": 1,
       "message": "I\u0027ve exposed a few other functions now which allow for some flexibility when creating a SkImage from an image the user wants to download/fetch. There is now:\n\n- MakeImageFromBlobExperimental1, MakeImageFromBlobExperimental2\n- MakeImageFromImageBitmapExperimental1, MakeImageFromImageBitmapExperimental2\n- MakeImageFromHTMLImageElement.\n\nMakeImageFromBlobExperimental1 and MakeImageFromBlobExperimental2 just wrap MakeImageFromImageBitmapExperimental1 and MakeImageFromImageBitmapExperimental2 respectively. @Nathaniel and @Kevin let me know which of these functions you think would be valuable to expose.",
       "parentUuid": "ad7d4fcd_fb169259",
+      "range": {
+        "startLine": 1444,
+        "startChar": 39,
+        "endLine": 1444,
+        "endChar": 81
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17392e14_03fa7e00",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-11T12:20:41Z",
+      "side": 1,
+      "message": "Of all of these, I think I prefer exposing the one that that takes in a https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource with maybe an additional helper that takes in a Blob.\n\nSafari appears to not support https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext, so maybe not that one unless there\u0027s a huge performance difference.",
+      "parentUuid": "88c80fdb_15f80818",
       "range": {
         "startLine": 1444,
         "startChar": 39,
