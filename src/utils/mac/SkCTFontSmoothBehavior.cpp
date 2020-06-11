@@ -23,7 +23,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#define BITMAP_INFO_RGB (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
+#define BITMAP_INFO_RGB ((CGBitmapInfo)kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 
 /** Drawn in FontForge, reduced with fonttools ttx, converted by xxd -i,
  *  this TrueType font contains a glyph of the spider.
