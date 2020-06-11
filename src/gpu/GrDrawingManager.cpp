@@ -580,6 +580,14 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     // We have a non abandoned and direct GrContext. It must have a GrGpu.
     SkASSERT(gpu);
 
+    std::vector<GrRenderTargetProxy*> ddlTargets;
+    for (int i = 0; i < numProxies; ++i) {
+        GrRenderTargetProxy* target = this->getDDLTarget(proxies[i]);
+        if (target) {
+            ddlTargets.push_back(target);
+        }
+    }
+
     // TODO: It is important to upgrade the drawingmanager to just flushing the
     // portion of the DAG required by 'proxies' in order to restore some of the
     // semantics of this method.
