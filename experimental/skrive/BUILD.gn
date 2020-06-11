@@ -30,7 +30,10 @@ if (skia_enable_skrive) {
           "../..:skia_private",
           "../..:tests_config",
         ]
-        sources = [ "tests/JsonReader.cpp" ]
+        sources = [
+          "tests/BinaryReader.cpp",
+          "tests/JsonReader.cpp",
+        ]
 
         deps = [
           ":skrive",
