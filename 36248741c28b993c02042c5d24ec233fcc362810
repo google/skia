@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b8e8786_405db897",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-11T19:50:14Z",
+      "side": 0,
+      "message": "Why are we removing skar_java in this CL? Is it related to the JavaInputStreamAdapter in someway?",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "36248741c28b993c02042c5d24ec233fcc362810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
