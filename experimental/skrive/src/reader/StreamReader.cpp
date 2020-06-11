@@ -13,26 +13,29 @@
 
 namespace skrive::internal {
 
-static constexpr char kBinaryPrefix[] = "FLARE";
+static constexpr char   kBinaryPrefix[]   = "FLARE";
+static constexpr size_t kBinaryPrefixSize = sizeof(kBinaryPrefix) - 1;
 
 extern std::unique_ptr<StreamReader> MakeJsonStreamReader(const char[], size_t);
 extern std::unique_ptr<StreamReader> MakeBinaryStreamReader(std::unique_ptr<SkStreamAsset>);
 
 std::unique_ptr<StreamReader> StreamReader::Make(const char data[], size_t len) {
-    if (len >= sizeof(kBinaryPrefix) &&
-        strncmp(data, kBinaryPrefix, strlen(kBinaryPrefix)) == 0) {
-        return MakeBinaryStreamReader(SkMemoryStream::MakeDirect(data, len));
+    if (len >= kBinaryPrefixSize &&
+        strncmp(data, kBinaryPrefix, kBinaryPrefixSize) == 0) {
+        return MakeBinaryStreamReader(SkMemoryStream::MakeDirect(data + kBinaryPrefixSize,
+                                                                 len  - kBinaryPrefixSize));
     }
 
     return MakeJsonStreamReader(data, len);
 }
 
 std::unique_ptr<StreamReader> StreamReader::Make(std::unique_ptr<SkStreamAsset> stream) {
-    constexpr auto peek_size = sizeof(kBinaryPrefix) - 1;
-    char buf[peek_size];
+    char buf[kBinaryPrefixSize];
 
-    if (stream->peek(buf, peek_size) == peek_size && strncmp(buf, kBinaryPrefix, peek_size) == 0) {
+    if (stream->peek(buf, kBinaryPrefixSize) == kBinaryPrefixSize &&
+        strncmp(buf, kBinaryPrefix, kBinaryPrefixSize) == 0) {
         // we can stay in streaming mode
+        stream->skip(kBinaryPrefixSize);
         return MakeBinaryStreamReader(std::move(stream));
     }
 

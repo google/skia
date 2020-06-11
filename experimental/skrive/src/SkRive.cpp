@@ -17,6 +17,9 @@ namespace internal {
 extern sk_sp<Artboard> parse_artboard(StreamReader*);
 
 void parse_artboards(const sk_sp<SkRive>& skrive, StreamReader* sr) {
+    const auto artboard_count = sr->readLength16();
+    skrive->artboards().reserve(artboard_count);
+
     for (;;) {
         StreamReader::AutoBlock block(sr);
         if (block.type() == StreamReader::BlockType::kEoB) {
@@ -35,6 +38,9 @@ static sk_sp<SkRive> parse_skrive(std::unique_ptr<StreamReader> sr) {
     if (!sr) {
         return nullptr;
     }
+
+    const auto version = sr->readUInt32("version");
+    SkDebugf(".. loading version %d\n", version);
 
     auto skrive = sk_make_sp<SkRive>();
 

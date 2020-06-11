@@ -43,7 +43,11 @@ public:
 
     virtual bool     readBool  (const char label[]) = 0;
     virtual float    readFloat (const char label[]) = 0;
+    virtual uint16_t readUInt16(const char label[]) = 0;
+    virtual uint32_t readUInt32(const char label[]) = 0;
     virtual SkString readString(const char label[]) = 0;
+
+    virtual uint16_t readLength16() = 0;
 
     SkColor4f readColor(const char label[]);
     SkV2      readV2(const char label[]);
