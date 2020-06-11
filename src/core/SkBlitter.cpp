@@ -663,7 +663,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
 #if defined(SK_LEGACY_BLITTER_CHOICE)
     if (matrix.hasPerspective() ||
         paint.getColorFilter()  ||
-        paint.getFilterQuality() == kHigh_SkFilterQuality) {
+        SkPaintPriv::ResolveFilterQuality(paint) == kHigh_SkFilterQuality) {
         return true;
     }
 #endif
