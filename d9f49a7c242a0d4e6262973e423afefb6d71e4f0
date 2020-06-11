@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61095b2e_451edcbe",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-11T16:11:50Z",
+      "side": 1,
+      "message": "I\u0027d recommend a break here. Falling through to the return works but it\u0027s super easy to imagine this leading to a bug one day if someone adds code here and doesn\u0027t notice the lack of a break.",
+      "range": {
+        "startLine": 1079,
+        "startChar": 12,
+        "endLine": 1079,
+        "endChar": 13
+      },
+      "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
