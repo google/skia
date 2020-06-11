@@ -40,11 +40,25 @@ private:
     DECLARE_VK_PROC(DeviceWaitIdle);
     DECLARE_VK_PROC(DestroyDevice);
 
+    DECLARE_VK_PROC(GetPhysicalDeviceFormatProperties);
+    DECLARE_VK_PROC(GetPhysicalDeviceMemoryProperties);
+
+    DECLARE_VK_PROC(CreateImage);
+    DECLARE_VK_PROC(DestroyImage);
+    DECLARE_VK_PROC(GetImageMemoryRequirements);
+    DECLARE_VK_PROC(AllocateMemory);
+    DECLARE_VK_PROC(FreeMemory);
+    DECLARE_VK_PROC(BindImageMemory);
+    DECLARE_VK_PROC(MapMemory);
+    DECLARE_VK_PROC(UnmapMemory);
+    DECLARE_VK_PROC(FlushMappedMemoryRanges);
+    DECLARE_VK_PROC(GetImageSubresourceLayout);
+
     bool fIsProtected = false;
     VkDevice fDevice = VK_NULL_HANDLE;
 
-    GrVkExtensions* fExtensions = nullptr;
-    VkPhysicalDeviceFeatures2* fFeatures = nullptr;
+    GrVkExtensions fExtensions;
+    VkPhysicalDeviceFeatures2 fFeatures = {};
     VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
     GrVkBackendContext fBackendContext;

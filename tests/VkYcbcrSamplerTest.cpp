@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
 #include "tests/Test.h"
+#include "tools/gpu/vk/VkTestHelper.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
 const size_t kImageWidth = 8;
@@ -27,24 +28,25 @@ static int round_and_clamp(float x) {
 }
 
 DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
-    VkYcbcrSamplerHelper helper;
-    if (!helper.init()) {
-        ERRORF(reporter, "VkYcbcrSamplerHelper initialization failed.");
+    VkTestHelper testHelper(false);
+    if (!testHelper.init()) {
+        ERRORF(reporter, "VkTestHelper initialization failed.");
         return;
     }
 
-    if (!helper.isYCbCrSupported()) {
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
+    if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
 
-    sk_sp<SkImage> srcImage = helper.createI420Image(kImageWidth, kImageHeight);
+    sk_sp<SkImage> srcImage = ycbcrHelper.createI420Image(kImageWidth, kImageHeight);
     if (!srcImage) {
         ERRORF(reporter, "Failed to create I420 image");
         return;
     }
 
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
-            helper.getGrContext(), SkBudgeted::kNo,
+            testHelper.grContext(), SkBudgeted::kNo,
             SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType, kPremul_SkAlphaType));
     if (!surface) {
         ERRORF(reporter, "Failed to create target SkSurface");
@@ -105,17 +107,18 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
 
 // Verifies that it's not possible to allocate Ycbcr texture directly.
 DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
-    VkYcbcrSamplerHelper helper;
-    if (!helper.init()) {
-        ERRORF(reporter, "VkYcbcrSamplerHelper initialization failed.");
+    VkTestHelper testHelper(false);
+    if (!testHelper.init()) {
+        ERRORF(reporter, "VkTestHelper initialization failed.");
         return;
     }
 
-    if (!helper.isYCbCrSupported()) {
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
+    if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
 
-    GrBackendTexture texture = helper.getGrContext()->createBackendTexture(
+    GrBackendTexture texture = testHelper.grContext()->createBackendTexture(
             kImageWidth, kImageHeight, GrBackendFormat::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),
             GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (texture.isValid()) {
