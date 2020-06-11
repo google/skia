@@ -469,6 +469,8 @@ private:
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
 
+    const GrFragmentProcessor* fParent = nullptr;
+
     SkSL::SampleMatrix fMatrix;
 
     typedef GrProcessor INHERITED;
