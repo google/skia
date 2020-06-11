@@ -17,10 +17,20 @@ class SkImageStageUpdater;
 
 class SkImageShader : public SkShaderBase {
 public:
+    enum FilterEnum {   // first 4 entries match SkFilterQuality
+        kNone,
+        kLow,
+        kMedium,
+        kHigh,
+        // this is the special value for backward compatibility
+        kInheritFromPaint,
+    };
+
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
                                 const SkMatrix* localMatrix,
+                                FilterEnum,
                                 bool clampAsIfUnpremul = false);
 
     bool isOpaque() const override;
@@ -36,6 +46,7 @@ private:
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkMatrix* localMatrix,
+                  FilterEnum,
                   bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
@@ -54,9 +65,14 @@ private:
 
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 
+    SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
+        return fFiltering == kInheritFromPaint ? paintQuality : (SkFilterQuality)fFiltering;
+    }
+
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
+    const FilterEnum fFiltering;
     const bool       fClampAsIfUnpremul;
 
     friend class SkShaderBase;

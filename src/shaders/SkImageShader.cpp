@@ -37,11 +37,13 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              SkTileMode tmx, SkTileMode tmy,
                              const SkMatrix* localMatrix,
+                             FilterEnum filtering,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
     , fImage(std::move(img))
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
+    , fFiltering(filtering)
     , fClampAsIfUnpremul(clampAsIfUnpremul)
 {}
 
@@ -51,18 +53,26 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+
+    FilterEnum filtering = kInheritFromPaint;
+    if (!buffer.isVersionLT(SkPicturePriv::kFilteringInImageShader_Version)) {
+        filtering = buffer.read32LE<FilterEnum>(kInheritFromPaint);
+    }
+
     SkMatrix localMatrix;
     buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix);
+
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, filtering);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((unsigned)fTileModeX);
     buffer.writeUInt((unsigned)fTileModeY);
+    buffer.writeUInt((unsigned)fFiltering);
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
@@ -100,7 +110,9 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    if (rec.fPaint->getFilterQuality() == kHigh_SkFilterQuality) {
+    SkFilterQuality quality = this->resolveFiltering(rec.fPaint->getFilterQuality());
+
+    if (quality == kHigh_SkFilterQuality) {
         return nullptr;
     }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
@@ -141,8 +153,16 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    // Send in a modified paint with different filter-quality if we don't agree with the paint
+    SkPaint modifiedPaint;
+    ContextRec modifiedRec = rec;
+    if (quality != rec.fPaint->getFilterQuality()) {
+        modifiedPaint = *rec.fPaint;
+        modifiedPaint.setFilterQuality(quality);
+        modifiedRec.fPaint = &modifiedPaint;
+    }
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 as_IB(fImage.get()), rec, alloc);
+                                                 as_IB(fImage.get()), modifiedRec, alloc);
 }
 #endif
 
@@ -160,11 +180,14 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix,
+                                    FilterEnum filtering,
                                     bool clampAsIfUnpremul) {
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{ new SkImageShader(image, tmx, tmy, localMatrix, clampAsIfUnpremul) };
+    return sk_sp<SkShader>{
+        new SkImageShader(image, tmx, tmy, localMatrix, filtering, clampAsIfUnpremul)
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,7 +219,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            fImage->width(), fImage->height(), args.fFilterQuality,
+            fImage->width(), fImage->height(), this->resolveFiltering(args.fFilterQuality),
             args.fMatrixProvider.localToDevice(), *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrMipMapped mipMapped = GrMipMapped::kNo;
@@ -241,7 +264,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
-                               tmx, tmy, localMatrix);
+                               tmx, tmy, localMatrix, SkImageShader::kInheritFromPaint);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
@@ -337,14 +360,15 @@ static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* mat
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
-    if (updater && rec.fPaint.getFilterQuality() == kMedium_SkFilterQuality) {
+    auto quality = this->resolveFiltering(rec.fPaint.getFilterQuality());
+
+    if (updater && quality == kMedium_SkFilterQuality) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly
         return false;
     }
 
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
-    auto quality = rec.fPaint.getFilterQuality();
 
     SkMatrix matrix;
     if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
@@ -619,6 +643,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                      const SkMatrix& ctm, const SkMatrix* localM,
                                      SkFilterQuality quality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    quality = this->resolveFiltering(quality);
+
     SkMatrix inv;
     if (!this->computeTotalInverse(ctm, localM, &inv)) {
         return {};

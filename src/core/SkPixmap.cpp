@@ -243,6 +243,7 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
                                                  SkTileMode::kClamp,
                                                  SkTileMode::kClamp,
                                                  &scale,
+                                                 (SkImageShader::FilterEnum)quality,
                                                  clampAsIfUnpremul);
 
     sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(dst.info(),
