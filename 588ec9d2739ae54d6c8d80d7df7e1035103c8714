@@ -51,6 +51,24 @@
       "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd1e2b4d_7a541a0f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-11T20:40:02Z",
+      "side": 1,
+      "message": "That comment may be a misunderstanding on my part. I was thinking some other piece of code computed a \"key\" for the jitted code, and that key might contain the paint\u0027s quality (not our resolved value).\n\nHowever, now I (think I) remember that the \"key\" is just the program itself? If so, than I should definitely remove the comment.",
+      "parentUuid": "e171d291_0f6ae9bb",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
