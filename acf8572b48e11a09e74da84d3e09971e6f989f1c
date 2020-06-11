@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5605684_ccf9b306",
+        "filename": "gn/rm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-11T01:03:52Z",
+      "side": 1,
+      "message": "https://ninja-build.org/manual.html#ref_rule_command\n\nwill fix tomorrow.",
+      "revId": "acf8572b48e11a09e74da84d3e09971e6f989f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
