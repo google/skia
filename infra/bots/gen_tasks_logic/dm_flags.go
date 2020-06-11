@@ -385,6 +385,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				}
 			}
 		}
+		if b.extraConfig("Direct3D") {
+		        configs = []string{"d3d"}
+		}
 
 		// Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
 		// on the GL bots.
@@ -912,6 +915,33 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
+	}
+
+        if b.extraConfig("Direct3D") {
+	        match = append(match, "~^TextureProxyTest$")
+		match = append(match, "~^SurfacePartialDraw_Gpu$")
+		match = append(match, "~^ReplaceSurfaceBackendTexture$")
+		match = append(match, "~^ColorTypeBackendAllocationTest$")
+		match = append(match, "~^CompressedBackendAllocationTest$")
+		match = append(match, "~^ExtendedSkColorTypeTests_gpu$")
+		match = append(match, "~^GrBackendTextureImageMipMappedTest$")
+		match = append(match, "~^GrMeshTest$")
+		match = append(match, "~^ClearOp$")
+		match = append(match, "~^BlurMaskBiggerThanDest$")
+		match = append(match, "~^GrPipelineDynamicStateTest$")
+		match = append(match, "~^GrSurfaceRenderability$")
+		match = append(match, "~^ReadOnlyTexture$")
+		match = append(match, "~^TextureIdleStateTest$")
+		match = append(match, "~^GrTestingBackendTextureUploadTest$")
+		match = append(match, "~^GrTextureMipMapInvalidationTest$")
+		match = append(match, "~^ImageFilterZeroBlurSigma_Gpu$")
+		match = append(match, "~^ComposedImageFilterBounds_Gpu$")
+		match = append(match, "~^SkRuntimeEffectSimple_GPU$")
+		match = append(match, "~^SkImage_makeTextureImage$")
+		match = append(match, "~^XfermodeImageFilterCroppedInput_Gpu$")
+		match = append(match, "~^DDLSkSurfaceFlush$")
+		match = append(match, "~^GrDefaultPathRendererTest$")
+		match = append(match, "~^FullScreenClearWithLayers$")
 	}
 
 	if b.extraConfig("ANGLE") {
