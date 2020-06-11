@@ -1012,8 +1012,11 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
     fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
 }
 
-void GrD3DGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access) {
+void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
+        GrSurfaceProxy* proxies[],
+        int numProxies,
+        SkSurface::BackendSurfaceAccess access,
+        const GrBackendSurfaceMutableState* newState) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
 

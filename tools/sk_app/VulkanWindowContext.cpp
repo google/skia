@@ -528,7 +528,8 @@ void VulkanWindowContext::swapBuffers() {
     GrFlushInfo info;
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &beSemaphore;
-    surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
+    GrBackendSurfaceMutableState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
+    surface->flush(info, &presentState);
     surface->getContext()->submit();
 
     // Submit present operation to present queue

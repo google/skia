@@ -106,7 +106,7 @@ private:
             canvas->drawPath(star7_evenOdd, paint);
             canvas->drawPath(star5_winding, paint);
             canvas->drawPath(star5_evenOdd, paint);
-            rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+            rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
 
             // Ensure the path cache is behaving in such a way that we are actually testing what we
             // think we are.

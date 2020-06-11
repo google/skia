@@ -9,6 +9,10 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * Add option on SkSurface::flush to pass in a GrBackendSurfaceMutableState which
+    we will set the gpu backend surface to be at the end of the flush.
+    https://review.skia.org/295567
+
   * Add GrContext function to set mutable state on a backend surface. Currently this
     is only used for setting vulkan VkImage layout and queue family.
     https://review.skia.org/293844

@@ -657,7 +657,8 @@ void GrGpu::validateStagingBuffers() const {
 void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
                              int numProxies,
                              SkSurface::BackendSurfaceAccess access,
-                             const GrFlushInfo& info) {
+                             const GrFlushInfo& info,
+                             const GrBackendSurfaceMutableState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
@@ -690,7 +691,12 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
         fSubmittedProcs.emplace_back(info.fSubmittedProc, info.fSubmittedContext);
     }
 
-    this->prepareSurfacesForBackendAccessAndExternalIO(proxies, numProxies, access);
+    // We currently don't support passing in new surface state for multiple proxies here. The only
+    // time we have multiple proxies is if we are flushing a yuv SkImage which won't have state
+    // updates anyways.
+    SkASSERT(!newState || numProxies == 1);
+    SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
+    this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, numProxies, access, newState);
 }
 
 bool GrGpu::submitToGpu(bool syncCpu) {

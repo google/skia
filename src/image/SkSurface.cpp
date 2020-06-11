@@ -445,7 +445,12 @@ bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
 }
 
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlushInfo& flushInfo) {
-    return asSB(this)->onFlush(access, flushInfo);
+    return asSB(this)->onFlush(access, flushInfo, nullptr);
+}
+
+GrSemaphoresSubmitted SkSurface::flush(const GrFlushInfo& info,
+                                       const GrBackendSurfaceMutableState* newState) {
+    return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, info, newState);
 }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
