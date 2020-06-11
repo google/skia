@@ -22,6 +22,30 @@
       "revId": "50a05b151852e35a5e5b48db0a1f7ea6bf5bb669",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "796dea7c_fdef56a6",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-11T21:55:37Z",
+      "side": 1,
+      "message": "You\u0027re right, they no longer add value. Done.",
+      "parentUuid": "a8f5b35e_2a9e6671",
+      "range": {
+        "startLine": 606,
+        "startChar": 53,
+        "endLine": 606,
+        "endChar": 54
+      },
+      "revId": "50a05b151852e35a5e5b48db0a1f7ea6bf5bb669",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
