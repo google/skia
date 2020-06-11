@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "92fc1c55_7e627730",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-11T22:17:06Z",
+      "side": 1,
+      "message": "It was in this CL: https://skia-review.googlesource.com/c/skia/+/290654 (around line 515, GrRenderTargetContext).\n\nI miswrote; if they explicitly asked for a fullscreen clear, it will be a fullscreen clear. If they called clearAtleast and we\u0027re on a tiler, or they passed a rectangle in that matched the logical RT dimensions (and not the actual device dimensions), it\u0027ll be a full fullscreen clear. We don\u0027t do this if we\u0027ve disabled native clears and have to do a rect draw, since then we may as well draw the smallest rect we can.",
+      "parentUuid": "dcd7f0b5_c8198452",
+      "revId": "d23bfda69cc3b513c7166635b4dfdd3598bb50c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00005fa1_5c3f76dd",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 6
