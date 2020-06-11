@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbd3dcbb_f57bac2d",
+        "filename": "gm/downsamplebitmap.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-11T20:30:27Z",
+      "side": 1,
+      "message": "What does this row test that the draw with kNone doesn\u0027t?",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e171d291_0f6ae9bb",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-11T20:30:27Z",
+      "side": 1,
+      "message": "Can you describe what you mean here?  Doesn\u0027t only SkImageShader know its own fQuality?",
+      "revId": "588ec9d2739ae54d6c8d80d7df7e1035103c8714",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
