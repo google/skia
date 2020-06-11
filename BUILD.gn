@@ -1266,10 +1266,21 @@ if (skia_enable_tools) {
     include_dirs = [ "include/third_party/vulkan" ]
   }
 
+  config("cpp14") {
+    if (is_win) {
+      cflags_cc = [ "/std:c++14" ]
+    } else {
+      cflags_cc = [ "-std=c++14" ]
+    }
+  }
+
   source_set("public_headers_warnings_check") {
     sources = [ "tools/public_headers_warnings_check.cpp" ]
     configs -= [ "//gn:warnings_except_public_headers" ]
-    configs += [ ":our_vulkan_headers" ]
+    configs += [
+      ":our_vulkan_headers",
+      ":cpp14",
+    ]
     deps = [
       ":skia",
       ":skia.h",
