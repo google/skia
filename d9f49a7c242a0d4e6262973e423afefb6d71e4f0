@@ -22,6 +22,30 @@
       "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccdade0d_623286ef",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-11T16:16:55Z",
+      "side": 1,
+      "message": "Shit, that was unintended! I would never have written that on purpose; I accidentally omitted the break and got lucky that the next thing happened to be a return. Good catch! (And god I hate automatic fallthrough in switch statements.)",
+      "parentUuid": "61095b2e_451edcbe",
+      "range": {
+        "startLine": 1079,
+        "startChar": 12,
+        "endLine": 1079,
+        "endChar": 13
+      },
+      "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
