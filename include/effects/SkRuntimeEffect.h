@@ -27,7 +27,6 @@ namespace SkSL {
 class ByteCode;
 struct PipelineStageArgs;
 struct Program;
-struct SampleMatrix;
 class SharedCompiler;
 }
 

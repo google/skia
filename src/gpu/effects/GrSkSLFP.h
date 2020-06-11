@@ -94,10 +94,9 @@ private:
     sk_sp<const GrShaderCaps> fShaderCaps;
     ShaderErrorHandler*       fShaderErrorHandler;
 
-    sk_sp<SkRuntimeEffect>  fEffect;
-    const char*             fName;
-    sk_sp<SkData>           fInputs;
-    SkSL::PipelineStageArgs fArgs;
+    sk_sp<SkRuntimeEffect> fEffect;
+    const char*            fName;
+    sk_sp<SkData>          fInputs;
 
     GrCoordTransform fCoordTransform;
 
