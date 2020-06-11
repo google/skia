@@ -39,6 +39,30 @@
       "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa19e295_649fb1d0",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-11T17:07:16Z",
+      "side": 1,
+      "message": "Not sure what you\u0027re saying.\n- You like this local edit?\n- You\u0027d like me to make kInheritFromPaint be public?\n- other?\n\nI hope that the inheriting behavior is shortish lived, so I did not want to add more (publicly) to an enum I plan to remove.",
+      "parentUuid": "70c32499_1f933101",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 64
+      },
+      "revId": "3efca43106aad27ceba79aa28e239fa19594f36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
