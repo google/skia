@@ -154,7 +154,13 @@ static bool isBGRA8(const GrBackendFormat& format) {
             return false;
 #endif
         case GrBackendApi::kDawn:
+#ifdef SK_DAWN
+            wgpu::TextureFormat dawnFormat;
+            format.asDawnFormat(&dawnFormat);
+            return dawnFormat == wgpu::TextureFormat::BGRA8Unorm;
+#else
             return false;
+#endif
         case GrBackendApi::kMock: {
             SkImage::CompressionType compression = format.asMockCompressionType();
             if (compression != SkImage::CompressionType::kNone) {

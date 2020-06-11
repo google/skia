@@ -54,7 +54,7 @@ bool GrDawnFormatToGrColorType(wgpu::TextureFormat format, GrColorType* colorTyp
             *colorType = GrColorType::kBGRA_8888;
             return true;
         case wgpu::TextureFormat::R8Unorm:
-            *colorType = GrColorType::kAlpha_8;
+            *colorType = GrColorType::kR_8;
             return true;
         default:
             return false;
