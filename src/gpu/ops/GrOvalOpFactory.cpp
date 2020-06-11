@@ -3283,7 +3283,8 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeCircleOp(GrRecordingContext* cont
         return nullptr;
     } else if (style.isDashed()) {
         if (style.strokeRec().getCap() != SkPaint::kButt_Cap ||
-            style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width) {
+            style.dashIntervalCnt() != 2 || style.strokeRec().getWidth() >= width ||
+            style.dashAlignment() != SkPathEffect::kNone_DashAlignment) {
             return nullptr;
         }
         auto onInterval = style.dashIntervals()[0];

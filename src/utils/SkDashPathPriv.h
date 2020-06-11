@@ -44,6 +44,7 @@ namespace SkDashPath {
                         const SkRect* cullRect, const SkScalar aIntervals[],
                         int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
                         SkScalar intervalLength,
+                        SkPathEffect::DashAlignment alignment,
                         StrokeRecApplication = StrokeRecApplication::kAllow);
 
     bool ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count);

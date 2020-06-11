@@ -20,6 +20,9 @@ public:
      */
     SkScalar length() const { return fLength; }
 
+    /** Return the length of the path verb containing the given distance. */
+    SkScalar getVerbLength(SkScalar distance);
+
     /** Pins distance to 0 <= distance <= length(), and then computes the corresponding
      *  position and tangent.
      */
