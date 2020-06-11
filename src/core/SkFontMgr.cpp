@@ -150,7 +150,22 @@ sk_sp<SkTypeface> SkFontMgr::makeFromFontData(std::unique_ptr<SkFontData> data) 
     if (nullptr == data) {
         return nullptr;
     }
+#if true // ISLE:
+    sk_sp<SkTypeface> tf = this->onMakeFromFontData(std::move(data));
+    SkString name;
+    tf->getFamilyName(&name);
+    SkFontStyle style = tf->fontStyle();
+    SkDebugf("ISLE: SkFontMgr::makeFromFontData yielded id %d %s style: weight %d width %d slant %d",
+        tf->uniqueID(),
+        name.writable_str(),
+        style.weight(), style.width(), style.slant());
+    if (!strcmp(name.c_str(), ".SF NS")) {
+        //SkASSERT(false);
+    }
+    return tf;
+#else
     return this->onMakeFromFontData(std::move(data));
+#endif
 }
 
 sk_sp<SkTypeface> SkFontMgr::makeFromFile(const char path[], int ttcIndex) const {
