@@ -385,6 +385,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				}
 			}
 		}
+		if b.extraConfig("Direct3D") {
+		        configs = []string{"d3d"}
+		}
 
 		// Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
 		// on the GL bots.
@@ -912,6 +915,43 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
+	}
+
+        if b.extraConfig("Direct3D") {
+		// skia:9935
+		match = append(match, "~^BlurMaskBiggerThanDest$")
+		match = append(match, "~^ClearOp$")
+		match = append(match, "~^ColorTypeBackendAllocationTest$")
+		match = append(match, "~^ComposedImageFilterBounds_Gpu$")
+		match = append(match, "~^CompressedBackendAllocationTest$")
+		match = append(match, "~^DDLSkSurfaceFlush$")
+		match = append(match, "~^ExtendedSkColorTypeTests_gpu$")
+		match = append(match, "~^FullScreenClearWithLayers$")
+		match = append(match, "~^GrBackendTextureImageMipMappedTest$")
+		match = append(match, "~^GrDefaultPathRendererTest$")
+		match = append(match, "~^GrMeshTest$")
+		match = append(match, "~^GrPipelineDynamicStateTest$")
+		match = append(match, "~^GrSurfaceRenderability$")
+		match = append(match, "~^GrTestingBackendTextureUploadTest$")
+		match = append(match, "~^GrTextureMipMapInvalidationTest$")
+		match = append(match, "~^ImageFilterZeroBlurSigma_Gpu$")
+		match = append(match, "~^PremulAlphaRoundTrip_Gpu$")
+		match = append(match, "~^ReadOnlyTexture$")
+		match = append(match, "~^ReplaceSurfaceBackendTexture$")
+		match = append(match, "~^SkImage_makeTextureImage$")
+		match = append(match, "~^SkRuntimeEffectSimple_GPU$")
+		match = append(match, "~^SurfacePartialDraw_Gpu$")
+		match = append(match, "~^TextureIdleStateTest$")
+		match = append(match, "~^TextureProxyTest$")
+		match = append(match, "~^XfermodeImageFilterCroppedInput_Gpu$")
+	}
+
+        if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
+		// skia:9935
+		match = append(match, "~^AsyncReadPixels$")
+		match = append(match, "~^PromiseImageTextureShutdown$")
+		match = append(match, "~^ReadPixels_Gpu$")
+		match = append(match, "~^ReadPixels_Texture$")
 	}
 
 	if b.extraConfig("ANGLE") {
