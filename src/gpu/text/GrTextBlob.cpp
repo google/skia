@@ -447,7 +447,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
         // and we have an axis-aligned rectangular non-AA clip
         if (!this->drawAsDistanceFields() &&
             !this->needsTransform() &&
-            (!clip || (clip->isRRect(rtBounds, &clipRRect, &aa) &&
+            (!clip || (clip->isRRect(&clipRRect, &aa) &&
                        clipRRect.isRect() && GrAA::kNo == aa))) {
             // We only need to do clipping work if the subrun isn't contained by the clip
             SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);

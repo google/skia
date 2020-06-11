@@ -75,8 +75,7 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
                                                    SkIRect* clippedDevShapeBounds,
                                                    SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    *devClipBounds = clip ? clip->getConservativeBounds(renderTargetContext->width(),
-                                                        renderTargetContext->height())
+    *devClipBounds = clip ? clip->getConservativeBounds()
                           : SkIRect::MakeWH(renderTargetContext->width(),
                                             renderTargetContext->height());
 

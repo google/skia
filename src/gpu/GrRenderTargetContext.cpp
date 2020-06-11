@@ -701,8 +701,7 @@ static bool make_vertex_finite(float* value) {
 }
 
 static SkIRect get_clip_bounds(const GrRenderTargetContext* rtc, const GrClip* clip) {
-    return clip ? clip->getConservativeBounds(rtc->width(), rtc->height())
-                : SkIRect::MakeWH(rtc->width(), rtc->height());
+    return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(rtc->width(), rtc->height());
 }
 
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
@@ -761,7 +760,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     GrAA clipAA = stencilSettings ? *aa : GrAA::kNo;
     bool axisAlignedClip = true;
     if (clip && !clip->quickContains(rtRect)) {
-        if (!clip->isRRect(rtRect, &clipRRect, &clipAA)) {
+        if (!clip->isRRect(&clipRRect, &clipAA)) {
             axisAlignedClip = false;
         }
     }
@@ -1079,8 +1078,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     GrAppliedHardClip appliedClip(fRenderTargetContext->dimensions(),
                                   fRenderTargetContext->asSurfaceProxy()->backingStoreDimensions());
 
-    if (clip && !clip->apply(fRenderTargetContext->width(), fRenderTargetContext->height(),
-                             &appliedClip, &bounds)) {
+    if (clip && !clip->apply(&appliedClip, &bounds)) {
         return;
     }
     // else see FIXME above; we'd normally want to check path bounds with render target bounds,

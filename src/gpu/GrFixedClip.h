@@ -47,9 +47,9 @@ public:
     }
 
     bool quickContains(const SkRect&) const override;
-    SkIRect getConservativeBounds(int w, int h) const override;
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override;
-    bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const override;
+    SkIRect getConservativeBounds() const override;
+    bool isRRect(SkRRect* rr, GrAA*) const override;
+    bool apply(GrAppliedHardClip*, SkRect*) const override;
 
 private:
     GrScissorState       fScissorState;

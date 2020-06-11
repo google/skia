@@ -177,6 +177,10 @@ public:
                 , fAtlas(atlas) {}
 
     private:
+        SkIRect getConservativeBounds() const final {
+            return SkIRect::MakeSize(fAtlas->dimensions());
+        }
+
         bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
                    bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -184,7 +188,7 @@ public:
             return true;
         }
         bool quickContains(const SkRect&) const final { return false; }
-        bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
+        bool isRRect(SkRRect* rr, GrAA*) const final { return false; }
 
         LazyProxyTest* const fTest;
         GrTextureProxy* fAtlas;

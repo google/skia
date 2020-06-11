@@ -1563,6 +1563,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     path.addCircle(15, 15, 8);
     path.setFillType(SkPathFillType::kEvenOdd);
 
+    SkIRect stackBounds = path.getBounds().roundOut();
+
     static const char* kTag = GrClipStackClip::kMaskTestTag;
     GrResourceCache* cache = context->priv().getResourceCache();
 
@@ -1573,7 +1575,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         m.setTranslate(0.5, 0.5);
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
-        sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
+        sk_sp<GrTextureProxy> mask =
+                GrClipStackClip(stackBounds.size(), &stack).testingOnly_createClipMask(context);
         mask->instantiate(context->priv().resourceProvider());
         GrTexture* tex = mask->peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
