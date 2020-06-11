@@ -266,19 +266,25 @@ bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,
 }
 
 void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
-    b->add32(fAttachmentFlags);
-    if (fAttachmentFlags & kColor_AttachmentFlag) {
-        b->add32(fAttachmentsDescriptor.fColor.fFormat);
-        b->add32(fAttachmentsDescriptor.fColor.fSamples);
+    GenKey(b, fAttachmentFlags, fAttachmentsDescriptor, (uint64_t)fRenderPass);
+}
+
+void GrVkRenderPass::GenKey(GrProcessorKeyBuilder* b,
+                            AttachmentFlags attachmentFlags,
+                            const AttachmentsDescriptor& attachmentsDescriptor,
+                            uint64_t externalRenderPass) {
+    b->add32(attachmentFlags);
+    if (attachmentFlags & kColor_AttachmentFlag) {
+        b->add32(attachmentsDescriptor.fColor.fFormat);
+        b->add32(attachmentsDescriptor.fColor.fSamples);
     }
-    if (fAttachmentFlags & kStencil_AttachmentFlag) {
-        b->add32(fAttachmentsDescriptor.fStencil.fFormat);
-        b->add32(fAttachmentsDescriptor.fStencil.fSamples);
+    if (attachmentFlags & kStencil_AttachmentFlag) {
+        b->add32(attachmentsDescriptor.fStencil.fFormat);
+        b->add32(attachmentsDescriptor.fStencil.fSamples);
     }
-    if (fAttachmentFlags & kExternal_AttachmentFlag) {
-        SkASSERT(!(fAttachmentFlags & ~kExternal_AttachmentFlag));
-        uint64_t handle = (uint64_t)fRenderPass;
-        b->add32((uint32_t)(handle & 0xFFFFFFFF));
-        b->add32((uint32_t)(handle>>32));
+    if (attachmentFlags & kExternal_AttachmentFlag) {
+        SkASSERT(!(attachmentFlags & ~kExternal_AttachmentFlag));
+        b->add32((uint32_t)(externalRenderPass & 0xFFFFFFFF));
+        b->add32((uint32_t)(externalRenderPass>>32));
     }
 }

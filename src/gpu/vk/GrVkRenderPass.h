@@ -108,6 +108,8 @@ public:
 
     bool isCompatibleExternalRP(VkRenderPass) const;
 
+    SkDEBUGCODE(bool isExternal() const { return fAttachmentFlags & kExternal_AttachmentFlag; })
+
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
                            const LoadStoreOps& stencilOps) const;
 
@@ -120,7 +122,12 @@ public:
     uint32_t clearValueCount() const { return fClearValueCount; }
 
 
-    void genKey(GrProcessorKeyBuilder* b) const;
+    void genKey(GrProcessorKeyBuilder*) const;
+
+    static void GenKey(GrProcessorKeyBuilder*,
+                       AttachmentFlags,
+                       const AttachmentsDescriptor&,
+                       uint64_t externalRenderPass);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {

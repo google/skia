@@ -343,6 +343,36 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
     desc->fAttachmentCount = attachmentCount;
 }
 
+void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
+                                                        const GrProgramInfo& programInfo,
+                                                        GrVkRenderPass::AttachmentsDescriptor* desc,
+                                                        GrVkRenderPass::AttachmentFlags* flags) {
+    VkFormat format;
+    SkAssertResult(programInfo.backendFormat().asVkFormat(&format));
+
+    desc->fColor.fFormat = format;
+    desc->fColor.fSamples = programInfo.numSamples();
+    *flags = GrVkRenderPass::kColor_AttachmentFlag;
+    uint32_t attachmentCount = 1;
+
+    SkASSERT(!programInfo.isStencilEnabled() || programInfo.numStencilSamples());
+    if (programInfo.numStencilSamples()) {
+        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        desc->fStencil.fSamples = programInfo.numStencilSamples();
+#ifdef SK_DEBUG
+        if (vkCaps.mixedSamplesSupport()) {
+            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
+        } else {
+            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
+        }
+#endif
+        *flags |= GrVkRenderPass::kStencil_AttachmentFlag;
+        ++attachmentCount;
+    }
+    desc->fAttachmentCount = attachmentCount;
+}
+
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
     SkASSERT(!fMSAAImage);

@@ -100,6 +100,14 @@ public:
                                   GrVkRenderPass::AttachmentFlags* flags,
                                   bool withStencil) const;
 
+    // Reconstruct the render target attachment information from the programInfo. This includes
+    // which attachments the render target will have (color, stencil) and the attachments' formats
+    // and sample counts - cf. getAttachmentsDescriptor.
+    static void ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
+                                                 const GrProgramInfo& programInfo,
+                                                 GrVkRenderPass::AttachmentsDescriptor* desc,
+                                                 GrVkRenderPass::AttachmentFlags* flags);
+
     void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil);
 
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
