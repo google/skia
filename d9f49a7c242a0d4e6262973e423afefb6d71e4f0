@@ -70,6 +70,30 @@
       "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6bba01f_72bb6db8",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-11T16:26:51Z",
+      "side": 1,
+      "message": "I don\u0027t know who\u0027s in charge of which warnings are enabled or why it isn\u0027t.",
+      "parentUuid": "e38edfdf_9ae83ccf",
+      "range": {
+        "startLine": 1079,
+        "startChar": 12,
+        "endLine": 1079,
+        "endChar": 13
+      },
+      "revId": "d9f49a7c242a0d4e6262973e423afefb6d71e4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
