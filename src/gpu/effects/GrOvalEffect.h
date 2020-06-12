@@ -20,9 +20,12 @@ namespace GrOvalEffect {
 
 /**
  * Creates an effect that performs clipping against an oval.
+ *
+ * The input fragment processor is passed as a pointer because it is only absorbed if creation
+ * of the effect is successful. If Make returns nullptr, the inputFP is left as-is.
  */
-std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType,
-                                          const SkRect&, const GrShaderCaps&);
+std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>* inputFP,
+                                          GrClipEdgeType, const SkRect&, const GrShaderCaps&);
 };
 
 #endif
