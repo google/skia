@@ -1071,18 +1071,74 @@ static bool contains_unconditional_break(Statement& s) {
     }
 }
 
-static void copy_all_but_break(std::unique_ptr<Statement>& stmt,
-                          std::vector<std::unique_ptr<Statement>*>* target) {
+struct StatementPtr {
+    StatementPtr(Statement* stmt)
+        : fPtr(stmt)
+        , fPtrKind(Kind::kPtr) {}
+
+    StatementPtr(std::unique_ptr<Statement>* stmt)
+        : fPtr(stmt)
+        , fPtrKind(Kind::kUniquePtrPtr) {}
+
+    StatementPtr(StatementPtr&& other)
+        : fPtr(other.fPtr)
+        , fPtrKind(other.fPtrKind) {
+        other.fPtr = nullptr;
+    }
+
+    StatementPtr(const StatementPtr&) = delete;
+
+    void* fPtr;
+    enum class Kind {
+        kPtr,
+        kUniquePtrPtr
+    } fPtrKind;
+
+    std::unique_ptr<Statement> release() {
+        std::unique_ptr<Statement> result((Statement*) fPtr);
+        fPtr = nullptr;
+        return result;
+    }
+
+    ~StatementPtr() {
+        if (fPtrKind == Kind::kPtr) {
+            delete (Statement*) fPtr;
+        }
+    }
+};
+
+std::vector<std::unique_ptr<Statement>> to_statements(std::vector<StatementPtr>& src) {
+    std::vector<std::unique_ptr<Statement>> result;
+    for (auto& s : src) {
+        switch (s.fPtrKind) {
+            case StatementPtr::Kind::kPtr:
+                result.emplace_back(s.release());
+                break;
+            case StatementPtr::Kind::kUniquePtrPtr:
+                result.push_back(std::move(*(std::unique_ptr<Statement>*) s.fPtr));
+                break;
+        }
+    }
+    return result;
+}
+
+static void move_all_but_break(std::unique_ptr<Statement>& stmt,
+                               std::vector<StatementPtr>* target) {
     switch (stmt->fKind) {
-        case Statement::kBlock_Kind:
-            for (auto& s : ((Block&) *stmt).fStatements) {
-                copy_all_but_break(s, target);
+        case Statement::kBlock_Kind: {
+            Block& b = (Block&) *stmt;
+            std::vector<StatementPtr> statementPtrs;
+            for (auto& s : b.fStatements) {
+                move_all_but_break(s, &statementPtrs);
             }
+            target->emplace_back(new Block(b.fOffset, to_statements(statementPtrs), b.fSymbols,
+                                           b.fIsScope));
             break;
+        }
         case Statement::kBreak_Kind:
             return;
         default:
-            target->push_back(&stmt);
+            target->emplace_back(&stmt);
     }
 }
 
@@ -1093,7 +1149,10 @@ static void copy_all_but_break(std::unique_ptr<Statement>& stmt,
 // when break statements appear inside conditionals.
 static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase* c) {
     bool capturing = false;
-    std::vector<std::unique_ptr<Statement>*> statementPtrs;
+    // we have to be careful to not move any of the pointers until after we're sure we're going to
+    // succeed, so we first handle things as either a pointer to a unique_ptr<statement> (for
+    // the future move) or a raw Statement* (for statements we have created as part of this call).
+    std::vector<StatementPtr> statementPtrs;
     for (const auto& current : s->fCases) {
         if (current.get() == c) {
             capturing = true;
@@ -1105,21 +1164,17 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
                 }
                 if (contains_unconditional_break(*stmt)) {
                     capturing = false;
-                    copy_all_but_break(stmt, &statementPtrs);
+                    move_all_but_break(stmt, &statementPtrs);
                     break;
                 }
-                statementPtrs.push_back(&stmt);
+                statementPtrs.emplace_back(&stmt);
             }
             if (!capturing) {
                 break;
             }
         }
     }
-    std::vector<std::unique_ptr<Statement>> statements;
-    for (const auto& s : statementPtrs) {
-        statements.push_back(std::move(*s));
-    }
-    return std::unique_ptr<Statement>(new Block(-1, std::move(statements), s->fSymbols));
+    return std::unique_ptr<Statement>(new Block(-1, to_statements(statementPtrs), s->fSymbols));
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
