@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b9aa04ee_b9ae2f93",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9a591b6_a5a4e2ca",
+      "range": {
+        "startLine": 39,
+        "startChar": 63,
+        "endLine": 39,
+        "endChar": 74
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a6a37cf_3c41719f",
         "filename": "src/utils/SkJSON.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2020-06-12T12:45:00Z",
       "side": 1,
       "message": "Are you saying 7-\u003e6 cost 5%, or turning off short strings entirely only cost 5%?",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5627bc8b_d146bd50",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "The whole patch cost is ~5% - maybe some of that has to do with the extra ptr arithmetic too, but...\n\nI tried tweaking initFastShortString and cannot get it to be both correct and faster than initShortString (I had a broken version that reduced the patch overhead to ~2%, so part of the diff is definitely related).  I think the prev 8 byte load/mask happened to work really well, and anything shorter/odd is slow.  Maybe we can play with it later.",
+      "parentUuid": "8a6a37cf_3c41719f",
       "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -56,6 +98,24 @@
       "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85e27af8_fc2df7bf",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42d3bb02_95959247",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "5116ed66_73b39444",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8276df1b_9bc0234b",
+      "range": {
+        "startLine": 178,
+        "startChar": 35,
+        "endLine": 178,
+        "endChar": 40
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f82ed5c_e544d836",
         "filename": "src/utils/SkJSON.h",
         "patchSetId": 2
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "b575e506_3ffb0b2c",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "Can\u0027t quite mask away if we\u0027re returning a pointer to the value, not the value itself, right?",
+      "parentUuid": "7f82ed5c_e544d836",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21b03c93_f5d624c8",
         "filename": "src/utils/SkJSON.h",
         "patchSetId": 2
@@ -110,6 +212,30 @@
       "writtenOn": "2020-06-12T12:45:00Z",
       "side": 1,
       "message": "I guess this hasn\u0027t changed, but cast\u003cT\u003e returning T* reads a bit confusing, doesn\u0027t it?\n\nI\u0027d have thought that this cast to const T*, and thus evaluated to const T\u0026 or T... but it cast()s to const T** and evaluates to const T* eh?",
+      "range": {
+        "startLine": 194,
+        "startChar": 14,
+        "endLine": 194,
+        "endChar": 37
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b36515e5_00d4bbef",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "So cast\u003cT\u003e should just return T and let callers spell out cast\u003cconst Foo*\u003e instead?  Yeah, I tend to agree that\u0027d read cleaner.\n\nI can update if you thing it\u0027s worth the cleanup, but maybe in a separate CL?",
+      "parentUuid": "21b03c93_f5d624c8",
       "range": {
         "startLine": 194,
         "startChar": 14,
@@ -142,6 +268,30 @@
       "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cef60761_6508a979",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-12T13:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b060eb73_d642b381",
+      "range": {
+        "startLine": 205,
+        "startChar": 3,
+        "endLine": 207,
+        "endChar": 0
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
