@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e256daae_9799a69e",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-12T19:47:10Z",
+      "side": 1,
+      "message": "Do we really need this var? Can\u0027t clone do this:\n   if (this-\u003enumChildProcessors()) {\n       // copy the child\n   }\n?",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "39c9da23f0e3f3952b6a298f7c5d68a69003156a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
