@@ -23,6 +23,7 @@
 #include "modules/skparagraph/include/TextShadow.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
+#include "modules/skshaper/include/SkUnicode.h"
 #include "src/core/SkSpan.h"
 
 #include <unicode/ubrk.h>
@@ -83,14 +84,14 @@ struct ResolvedFontDescriptor {
     SkFont fFont;
     TextIndex fTextStart;
 };
-
+/*
 struct BidiRegion {
     BidiRegion(size_t start, size_t end, uint8_t dir)
         : text(start, end), direction(dir) { }
     TextRange text;
     uint8_t direction;
 };
-
+*/
 class ParagraphImpl final : public Paragraph {
 
 public:
@@ -182,8 +183,6 @@ public:
     void resolveStrut();
 
     bool computeCodeUnitProperties();
-    bool computeWords();
-    bool getBidiRegions();
 
     void buildClusterTable();
     void spaceGlyphs();
@@ -248,7 +247,7 @@ private:
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     SkTArray<size_t> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
-    SkTArray<BidiRegion> fBidiRegions;
+    std::vector<BidiRegion> fBidiRegions;
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<CodepointRepresentation, true> fCodepoints;
     size_t fUnresolvedGlyphs;
@@ -265,6 +264,8 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
+
+    std::unique_ptr<SkUnicode> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia
