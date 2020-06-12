@@ -207,31 +207,14 @@ private:
 };
 
 struct CodepointRepresentation {
-
-  CodepointRepresentation(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
-
-  GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
-  size_t fIndex;
-};
-
-struct Grapheme {
-    Grapheme(CodepointRange codepoints, TextRange textRange)
-        : fCodepointRange(codepoints), fTextRange(textRange) { }
-    CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
+    CodepointRepresentation(GraphemeIndex graphemeStart, TextIndex codepointStart)
+      : fGraphemeStart(graphemeStart), CodepointStart(codepointStart) { }
+    TextIndex fGraphemeStart;             // Used in getRectsForRange
+    TextIndex CodepointStart;             // Used in getGlyphPositionAtCoordinate
 };
 
 class Cluster {
 public:
-    enum BreakType {
-        None,
-        GraphemeBreak,  // calculated for all clusters (UBRK_CHARACTER)
-        SoftLineBreak,  // calculated for all clusters (UBRK_LINE & UBRK_CHARACTER)
-        HardLineBreak,  // calculated for all clusters (UBRK_LINE)
-    };
-
     Cluster()
             : fMaster(nullptr)
             , fRunIndex(EMPTY_RUN)
