@@ -8,12 +8,12 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include <set>
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrHashMapWithCache.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrResourceCache.h"
@@ -252,8 +252,13 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
-    // Keys are UniqueID of GrSurfaceProxys.
-    SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
+    struct SurfaceIDKeyTraits {
+        static uint32_t GetInvalidKey() {
+            return GrSurfaceProxy::UniqueID::InvalidID().asUInt();
+        }
+    };
+
+    GrHashMapWithCache<uint32_t, GrRenderTask*, SurfaceIDKeyTraits, GrCheapHash> fLastRenderTasks;
 };
 
 #endif
