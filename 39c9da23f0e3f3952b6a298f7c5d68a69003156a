@@ -22,6 +22,30 @@
       "revId": "39c9da23f0e3f3952b6a298f7c5d68a69003156a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee721a3b_be3aa3fe",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-12T19:53:19Z",
+      "side": 1,
+      "message": "We don\u0027t *need* it as long as this is the only child, but if we ever ended up extending this effect to have a second child, we would need to keep track of the FP index for each child. Explicitly holding on to the FP indices feels safer and more general-case to me. This is also how generated FP code looks, and there\u0027s an advantage IMO to keeping the hand-written FP code looking and feeling like the gencode. But if you think I\u0027m being overly paranoid, I can remove it and just rely on the child count.",
+      "parentUuid": "e256daae_9799a69e",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "39c9da23f0e3f3952b6a298f7c5d68a69003156a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
