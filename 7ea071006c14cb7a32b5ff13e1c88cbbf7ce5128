@@ -248,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "1c86e1cb_35e97107",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T15:06:27Z",
+      "side": 1,
+      "message": "Yeah, that sounds good as a separate CL.",
+      "parentUuid": "b36515e5_00d4bbef",
+      "range": {
+        "startLine": 194,
+        "startChar": 14,
+        "endLine": 194,
+        "endChar": 37
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b060eb73_d642b381",
         "filename": "src/utils/SkJSON.h",
         "patchSetId": 2
