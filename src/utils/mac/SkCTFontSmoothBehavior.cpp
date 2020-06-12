@@ -23,7 +23,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#define BITMAP_INFO_RGB (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
+static constexpr CGBitmapInfo kBitmapInfoRGB = ((CGBitmapInfo)kCGImageAlphaNoneSkipFirst |
+                                                kCGBitmapByteOrder32Host);
 
 /** Drawn in FontForge, reduced with fonttools ttx, converted by xxd -i,
  *  this TrueType font contains a glyph of the spider.
@@ -215,10 +216,10 @@ SkCTFontSmoothBehavior SkCTFontGetSmoothBehavior() {
         SkUniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
         SkUniqueCFRef<CGContextRef> noSmoothContext(
                 CGBitmapContextCreate(&noSmoothBitmap, 16, 16, 8, 16*4,
-                                      colorspace.get(), BITMAP_INFO_RGB));
+                                      colorspace.get(), kBitmapInfoRGB));
         SkUniqueCFRef<CGContextRef> smoothContext(
                 CGBitmapContextCreate(&smoothBitmap, 16, 16, 8, 16*4,
-                                      colorspace.get(), BITMAP_INFO_RGB));
+                                      colorspace.get(), kBitmapInfoRGB));
 
         SkUniqueCFRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(
                 kCFAllocatorDefault, kSpiderSymbol_ttf, SK_ARRAY_COUNT(kSpiderSymbol_ttf),

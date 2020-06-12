@@ -200,7 +200,7 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
         const CGImageAlphaInfo alpha = (glyph.isColor())
                                      ? kCGImageAlphaPremultipliedFirst
                                      : kCGImageAlphaNoneSkipFirst;
-        const CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | alpha;
+        const CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | (CGBitmapInfo)alpha;
         fCG.reset(CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
                                         rowBytes, fRGBSpace.get(), bitmapInfo));
 
