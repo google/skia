@@ -60,6 +60,8 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
+    class KernelWrapper;
+    using Kernel = std::tuple<KernelWrapper, GrSurfaceProxyView>;
     /**
      * Small kernels are represented as float-arrays and uploaded as uniforms.
      * Large kernels go over the uniform limit and are uploaded as textures and sampled.
@@ -68,23 +70,14 @@ private:
     class KernelWrapper {
     public:
         struct ScalableSampler {
-            TextureSampler fSampler;
             // Only used in A8 mode. Applied before any other math.
             float fBias = 0.0f;
             // Only used in A8 mode. Premultiplied in with user gain to save time.
             float fGain = 1.0f;
             bool operator==(const ScalableSampler&) const;
         };
-        static KernelWrapper Make(GrRecordingContext*, SkISize,
-                                  const GrCaps&, const float* values);
+        static Kernel Make(GrRecordingContext*, SkISize, const GrCaps&, const float* values);
 
-        KernelWrapper(KernelWrapper&& that) : fSize(that.fSize) {
-            if (that.isSampled()) {
-                new (&fScalableSampler) ScalableSampler(std::move(that.fScalableSampler));
-            } else {
-                new (&fArray) std::array<float, kMaxUniformSize>(std::move(that.fArray));
-            }
-        }
         KernelWrapper(const KernelWrapper& that) : fSize(that.fSize) {
             if (that.isSampled()) {
                 new (&fScalableSampler) ScalableSampler(that.fScalableSampler);
@@ -127,7 +120,7 @@ private:
     };
 
     GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor> child,
-                              KernelWrapper kernel,
+                              Kernel&& kernel,
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
@@ -140,8 +133,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    const GrFragmentProcessor::TextureSampler& onTextureSampler(int index) const override;
 
     // We really just want the unaltered local coords, but the only way to get that right now is
     // an identity coord transform.
