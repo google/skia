@@ -142,7 +142,7 @@ public:
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
+                                  SkData* compressedPictureData,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
@@ -162,6 +162,7 @@ private:
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
         bool isYUV() const { return SkToBool(fYUVData.get()); }
 
+        SkISize overallDim() const { return fImageInfo.dimensions(); }
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
         SkColorType overallColorType() const { return fImageInfo.colorType(); }

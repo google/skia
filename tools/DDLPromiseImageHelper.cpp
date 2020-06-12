@@ -254,6 +254,7 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
     }
 }
 
+/*$$*/
 void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
@@ -328,12 +329,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
+        int textureCount;       // TODO: store this value somewhere?
+        SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
+
         GrBackendFormat backendFormats[SkYUVASizeInfo::kMaxCount];
         void* contexts[SkYUVASizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
         SkISize sizes[SkYUVASizeInfo::kMaxCount];
-        // TODO: store this value somewhere?
-        int textureCount;
-        SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
+
         for (int i = 0; i < textureCount; ++i) {
             backendFormats[i] = curImage.backendFormat(i);
             SkASSERT(backendFormats[i].isValid());
@@ -372,11 +374,11 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
         }
 #endif
     } else {
+        // Each DDL recorder gets its own ref on the promise callback context for the
+        // promise images it creates.
         GrBackendFormat backendFormat = curImage.backendFormat(0);
         SkASSERT(backendFormat.isValid());
 
-        // Each DDL recorder gets its own ref on the promise callback context for the
-        // promise images it creates.
         image = recorder->makePromiseTexture(
                 backendFormat,
                 curImage.overallWidth(),
@@ -393,7 +395,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         curImage.callbackContext(0)->wasAddedToImage();
     }
-    perRecorderContext->fPromiseImages->push_back(image);
+    if (perRecorderContext->fPromiseImages) {
+        perRecorderContext->fPromiseImages->push_back(image);
+    }
     SkASSERT(image);
     return image;
 }

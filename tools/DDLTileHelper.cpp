@@ -58,6 +58,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 }
 
 void DDLTileHelper::TileData::createDDL() {
+    SkASSERT(0);
     SkASSERT(!fDisplayList && fReconstitutedPicture);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
@@ -88,6 +89,26 @@ void DDLTileHelper::TileData::createDDL() {
     fDisplayList = recorder.detach();
 }
 
+
+void DDLTileHelper::TileData::createDDL(SkPicture* picture) {
+    SkASSERT(!fDisplayList && picture);
+
+    SkDeferredDisplayListRecorder recorder(fCharacterization);
+
+    // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
+    // Maybe set it up in the ctor?
+    SkCanvas* recordingCanvas = recorder.getCanvas();
+
+    recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+    recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
+
+    // Note: in this use case we only render a picture to the deferred canvas
+    // but, more generally, clients will use arbitrary draw calls.
+    recordingCanvas->drawPicture(picture);
+
+    fDisplayList = recorder.detach();
+}
+
 void DDLTileHelper::createComposeDDL() {
     SkASSERT(!fComposeDDL);
 
@@ -109,6 +130,7 @@ void DDLTileHelper::createComposeDDL() {
     }
 
     fComposeDDL = recorder.detach();
+    SkASSERT(fComposeDDL);
 }
 
 void DDLTileHelper::TileData::precompile(GrContext* context) {
@@ -298,7 +320,7 @@ static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
 void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
                                         GrContext* gpuThreadContext) {
-    SkASSERT(recordingTaskGroup && gpuTaskGroup && gpuThreadContext);
+    SkASSERT(gpuThreadContext);
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
@@ -356,6 +378,7 @@ void DDLTileHelper::resetAllTiles() {
     fComposeDDL.reset();
 }
 
+/*$$*/
 void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 

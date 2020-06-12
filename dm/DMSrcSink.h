@@ -451,6 +451,21 @@ private:
     typedef GPUSink INHERITED;
 };
 
+// This sink attempts to emulate Chrome's OOP-R behavior. It:
+//    doesn't use promise images
+//    uses only a single thread for both DDL creation & drawing
+class GPUOOPRSink : public GPUSink {
+public:
+    GPUOOPRSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    Result ooprDraw(const Src&, sk_sp<SkSurface> dstSurface, GrContext*) const;
+
+    typedef GPUSink INHERITED;
+};
+
 // This sink attempts to better simulate the Chrome DDL use-case. It:
 //    creates the DDLs on separate recording threads
 //    performs all the GPU work on a separate GPU thread
@@ -473,8 +488,8 @@ private:
                    sk_gpu_test::TestContext* gpuTestCtx,
                    GrContext* gpuThreadCtx) const;
 
-    std::unique_ptr<SkExecutor> fRecordingThreadPool;
-    std::unique_ptr<SkExecutor> fGPUThread;
+    std::unique_ptr<SkExecutor> fRecordingExecutor;
+    std::unique_ptr<SkExecutor> fGPUExecutor;
 
     typedef GPUSink INHERITED;
 };
