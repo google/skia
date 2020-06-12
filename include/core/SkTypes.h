@@ -279,22 +279,20 @@
 #  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
-#ifdef SK_BUILD_FOR_WIN
-    // Lets visual studio follow error back to source
-    #define SK_DUMP_LINE_FORMAT(message) \
-        SkDebugf("%s(%d): fatal error: \"%s\"\n", __FILE__, __LINE__, message)
-#else
-    #define SK_DUMP_LINE_FORMAT(message) \
-        SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message)
-#endif
-
 #ifndef SK_ABORT
-#  define SK_ABORT(message) \
+#  ifdef SK_BUILD_FOR_WIN
+     // This style lets Visual Studio follow errors back to the source file.
+#    define SK_DUMP_LINE_FORMAT "%s(%d)"
+#  else
+#    define SK_DUMP_LINE_FORMAT "%s:%d"
+#  endif
+#  define SK_ABORT(message, ...) \
     do { \
-       SK_DUMP_LINE_FORMAT(message); \
-       SK_DUMP_GOOGLE3_STACK(); \
-       sk_abort_no_print(); \
-       SkUNREACHABLE; \
+        SkDebugf(SK_DUMP_LINE_FORMAT ": fatal error: \"" message "\"\n", \
+                 __FILE__, __LINE__, ##__VA_ARGS__); \
+        SK_DUMP_GOOGLE3_STACK(); \
+        sk_abort_no_print(); \
+        SkUNREACHABLE; \
     } while (false)
 #endif
 
@@ -450,16 +448,16 @@ SK_API extern void sk_abort_no_print(void);
 //               x - 4;
 //    }
 #define SkASSERT_RELEASE(cond) \
-        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(" #cond ")"); }() )
+        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(%s)", #cond); }() )
 
 #ifdef SK_DEBUG
     #define SkASSERT(cond) SkASSERT_RELEASE(cond)
     #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
                                           SkDebugf(fmt"\n", __VA_ARGS__);        \
-                                          SK_ABORT("assert(" #cond ")");         \
+                                          SK_ABORT("assert(%s)", #cond);         \
                                       }() )
-    #define SkDEBUGFAIL(message)        SK_ABORT(message)
-    #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
+    #define SkDEBUGFAIL(message)        SK_ABORT("%s", message)
+    #define SkDEBUGFAILF(fmt, ...)      SK_ABORT(fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(...)            __VA_ARGS__
     #define SkDEBUGF(...)               SkDebugf(__VA_ARGS__)
     #define SkAssertResult(cond)        SkASSERT(cond)
