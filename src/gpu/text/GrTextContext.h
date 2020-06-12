@@ -28,22 +28,23 @@ class GrTextBlob;
  */
 class GrTextContext {
 public:
-    struct Options {
-        /**
-         * Below this size (in device space) distance field text will not be used. Negative means
-         * use a default value.
-         */
-        SkScalar fMinDistanceFieldFontSize = -1.f;
-        /**
-         * Above this size (in device space) distance field text will not be used and glyphs will
-         * be rendered from outline as individual paths. Negative means use a default value.
-         */
-        SkScalar fMaxDistanceFieldFontSize = -1.f;
+    class Options {
+    public:
+        Options(SkScalar min, SkScalar max)
+                : fMinDistanceFieldFontSize{min}
+                , fMaxDistanceFieldFontSize{max} {
+            SkASSERT_RELEASE(min > 0 && max >= min);
+        }
+        // Below this size (in device space) distance field text will not be used.
+        const SkScalar fMinDistanceFieldFontSize;
+
+        // Above this size (in device space) distance field text will not be used and glyphs will
+        // be rendered from outline as individual paths.
+        const SkScalar fMaxDistanceFieldFontSize;
     };
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
-    static void SanitizeOptions(Options* options);
     static bool CanDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,
                                         const SkSurfaceProps& props,
                                         bool contextSupportsDistanceFieldText,
