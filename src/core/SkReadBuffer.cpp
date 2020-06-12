@@ -38,6 +38,9 @@ namespace {
 
 SkReadBuffer::SkReadBuffer() {
     fVersion = 0;
+    fCurr = nullptr;
+    fStop = nullptr;
+    fBase = nullptr;
 
     fTFArray = nullptr;
     fTFCount = 0;
@@ -48,6 +51,10 @@ SkReadBuffer::SkReadBuffer() {
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
     fVersion = 0;
+    fCurr = nullptr;
+    fStop = nullptr;
+    fBase = nullptr;
+
     this->setMemory(data, size);
 
     fTFArray = nullptr;
