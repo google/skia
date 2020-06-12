@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0cacaf8_85797af3",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T14:59:25Z",
+      "side": 1,
+      "message": "We should probably set all these in the header, eh?",
+      "revId": "cf07a7f6307ee077487f753d3ea26d7ed066c7c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
