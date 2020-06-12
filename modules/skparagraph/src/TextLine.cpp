@@ -1135,7 +1135,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     auto codepoint = std::lower_bound(
                         codepoints.begin(), codepoints.end(),
                         clusterIndex8,
-                        [](const CodepointRepresentation& lhs, size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+                        [](const CodepointRepresentation& lhs, size_t rhs) -> bool { return lhs.CodepointStart < rhs; });
 
                     return codepoint - codepoints.begin();
                 };
@@ -1182,7 +1182,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     for (codepoints.end = codepointIndex;
                          codepoints.end < masterCodepoints.size(); ++codepoints.end) {
                         auto& cp = masterCodepoints[codepoints.end];
-                        if (cp.fTextIndex >= clusterEnd8) {
+                        if (cp.CodepointStart >= clusterEnd8) {
                             break;
                         }
                     }
@@ -1190,7 +1190,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     for (codepoints.end = codepointIndex;
                          codepoints.end > 0; --codepoints.end) {
                         auto& cp = masterCodepoints[codepoints.end];
-                        if (cp.fTextIndex <= clusterEnd8) {
+                        if (cp.CodepointStart <= clusterEnd8) {
                             break;
                         }
                     }
