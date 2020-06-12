@@ -16,6 +16,24 @@
       "revId": "cf07a7f6307ee077487f753d3ea26d7ed066c7c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92799be7_0cfbd109",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-12T15:08:14Z",
+      "side": 1,
+      "message": "Yup.",
+      "parentUuid": "e0cacaf8_85797af3",
+      "revId": "cf07a7f6307ee077487f753d3ea26d7ed066c7c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
