@@ -25,7 +25,7 @@
 #endif
 
 #include <math.h>
-#include <unicode/ubidi.h>
+//#include <unicode/ubidi.h>
 #include <unicode/uloc.h>
 #include <unicode/umachine.h>
 #include <unicode/ustring.h>
@@ -41,7 +41,7 @@ namespace textlayout {
 namespace {
 
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
-using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
+//using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
@@ -99,6 +99,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
+    fICU = SkUnicode_Make();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -145,7 +146,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodeUnitProperties.reset();
         this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
         this->fWords.clear();
-        this->fBidiRegions.reset();
+        this->fBidiRegions.clear();
         this->fGraphemes16.reset();
         this->fCodepoints.reset();
         this->fRuns.reset();
@@ -433,73 +434,10 @@ bool ParagraphImpl::getBidiRegions() {
         return true;
     }
 
-    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
-    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
-    size_t utf8Bytes = fText.size();
-    const char* utf8 = fText.c_str();
-    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                            ? UBIDI_LTR
-                            : UBIDI_RTL;
-    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
-        SkDEBUGF("Bidi error: text too long");
-        return false;
-    }
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    UErrorCode status = U_ZERO_ERROR;
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
-        return false;
-    }
-
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-    SkASSERT(bidi);
-
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return false;
-    }
-
-    SkTArray<BidiRegion> bidiRegions;
-    const char* start8 = utf8;
-    const char* end8 = utf8 + utf8Bytes;
-    TextRange textRange(0, 0);
-    UBiDiLevel currentLevel = 0;
-
-    int32_t pos16 = 0;
-    int32_t end16 = ubidi_getLength(bidi.get());
-    while (pos16 < end16) {
-        auto level = ubidi_getLevelAt(bidi.get(), pos16);
-        if (pos16 == 0) {
-            currentLevel = level;
-        } else if (level != currentLevel) {
-            textRange.end = start8 - utf8;
-            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-            currentLevel = level;
-            textRange = TextRange(textRange.end, textRange.end);
-        }
-        SkUnichar u = utf8_next(&start8, end8);
-        pos16 += SkUTF::ToUTF16(u);
-    }
-
-    textRange.end = start8 - utf8;
-    if (!textRange.empty()) {
-        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
-    }
-
-    return true;
+    Direction textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                              ? Direction::kLTR
+                              : Direction::kRTL;
+    return fICU->getBidiRegions(fText.c_str(), fText.size(), textDirection, fBidiRegions);
 }
 
 // Clusters in the order of the input text
@@ -1052,7 +990,7 @@ void ParagraphImpl::setState(InternalState state) {
             fCodeUnitProperties.reset();
             fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
             fWords.clear();
-            fBidiRegions.reset();
+            fBidiRegions.clear();
             fGraphemes16.reset();
             fCodepoints.reset();
             [[fallthrough]];
