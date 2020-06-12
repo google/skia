@@ -146,6 +146,10 @@ bool SkDeferredDisplayListRecorder::init() {
                fCharacterization.isTextureable()) {
         surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }
+    if (fCharacterization.sampleCount() > 1 && !caps->msaaResolvesAutomatically()) {
+        surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+
     // FIXME: Why do we use GrMipMapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,
                                                                GrTextureType::k2D};

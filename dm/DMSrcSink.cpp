@@ -1475,9 +1475,9 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     surface->flushAndSubmit();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->priv().dumpCacheStats(log);
-        canvas->getGrContext()->priv().dumpGpuStats(log);
-        canvas->getGrContext()->priv().dumpContextStats(log);
+        context->priv().dumpCacheStats(log);
+        context->priv().dumpGpuStats(log);
+        context->priv().dumpContextStats(log);
     }
 
     this->readBack(surface.get(), dst);
@@ -1622,11 +1622,105 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     return compare_bitmaps(reference, *dst);
 }
 
+// Just run the work right away.
+class SkTrivialExecutor1 final : public SkExecutor {
+    void add(std::function<void(void)> work) override {
+        work();
+    }
+};
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
-        : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1, false)) {
+GPUOOPRSink::GPUOOPRSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
+        : INHERITED(config, ctxOptions) {
+}
+
+Result GPUOOPRSink::ooprDraw(const Src& src,
+                             sk_sp<SkSurface> dstSurface,
+                             GrContext* context) const {
+    SkSurfaceCharacterization dstCharacterization;
+    SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+    SkDeferredDisplayListRecorder recorder(dstCharacterization);
+
+    SkCanvas* recordingCanvas = recorder.getCanvas();
+
+    Result result = src.draw(recorder.getCanvas());
+    if (!result.isOk()) {
+        return result;
+    }
+
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+
+    SkDeferredDisplayList::ProgramIterator iter(context, ddl.get());
+    for (; !iter.done(); iter.next()) {
+        iter.compile();
+    }
+
+    dstSurface->draw(ddl.get());
+
+    // TODO: remove this flush once DDLs are reffed by the drawing manager
+    context->flushAndSubmit();
+
+    ddl.reset();
+
+    return Result::Ok();
+}
+
+Result GPUOOPRSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
+    GrContextOptions contextOptions = this->baseContextOptions();
+    src.modifyGrContextOptions(&contextOptions);
+    contextOptions.fPersistentCache = nullptr;
+    contextOptions.fExecutor = nullptr;
+
+    GrContextFactory factory(contextOptions);
+
+    ContextInfo ctxInfo = factory.getContextInfo(this->contextType(), this->contextOverrides());
+    GrContext* context = ctxInfo.grContext();
+    if (!context) {
+        return Result::Fatal("Could not create context.");
+    }
+
+    SkASSERT(context->priv().getGpu());
+
+    GrBackendTexture backendTexture;
+    GrBackendRenderTarget backendRT;
+    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size(),
+                                                      &backendTexture, &backendRT);
+    if (!surface) {
+        return Result::Fatal("Could not create a surface.");
+    }
+
+    Result result = this->ooprDraw(src, surface, context);
+    if (!result.isOk()) {
+        return result;
+    }
+
+    if (FLAGS_gpuStats) {
+        context->priv().dumpCacheStats(log);
+        context->priv().dumpGpuStats(log);
+        context->priv().dumpContextStats(log);
+    }
+
+    if (!this->readBack(surface.get(), dst)) {
+        return Result::Fatal("Could not readback from surface.");
+    }
+
+    surface.reset();
+    if (backendTexture.isValid()) {
+        context->deleteBackendTexture(backendTexture);
+    }
+    if (backendRT.isValid()) {
+        context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+    }
+
+    return Result::Ok();
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
+        : INHERITED(config, ctxOptions) {
+    fRecordingExecutor = SkExecutor::MakeLIFOThreadPool(1);
+    fGPUExecutor = SkExecutor::MakeFIFOThreadPool(1, false);
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
@@ -1652,7 +1746,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     auto size = src.size();
     SkPictureRecorder recorder;
     Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
-                                                     SkIntToScalar(size.height())));
+                                                        SkIntToScalar(size.height())));
     if (!result.isOk()) {
         gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
         gpuTaskGroup->wait();
@@ -1679,15 +1773,15 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // Care must be taken when using 'gpuThreadCtx' bc it moves between the gpu-thread and this
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
-    constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions);
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, 3);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
     // Reinflate the compressed picture individually for each thread.
-    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+    sk_sp<SkPicture> pic = promiseImageHelper.reinflateSKP2(gpuThreadCtx,
+                                                            compressedPictureData.get());
 
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx, pic.get());
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread
@@ -1701,29 +1795,29 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // the tiles' rendering. Additionally, bc we're aliasing the tiles' backend textures,
     // there is nothing in the DAG to automatically force the required order.
     gpuTaskGroup->add([dstSurface, ddl = tiles.composeDDL()]() {
-                          dstSurface->draw(ddl);
-                      });
+                            dstSurface->draw(ddl);
+                        });
 
     // This should be the only explicit flush for the entire DDL draw.
     // TODO: remove the flushes in do_gpu_stuff
     gpuTaskGroup->add([gpuThreadCtx]() {
-                                           // We need to ensure all the GPU work is finished so
-                                           // the following 'deleteAllFromGPU' call will work
-                                           // on Vulkan.
-                                           // TODO: switch over to using the promiseImage callbacks
-                                           // to free the backendTextures. This is complicated a
-                                           // bit by which thread possesses the direct context.
-                                           GrFlushInfo flushInfoSyncCpu;
-                                           flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-                                           gpuThreadCtx->flush(flushInfoSyncCpu);
-                                           gpuThreadCtx->submit(true);
-                                       });
+                                            // We need to ensure all the GPU work is finished so
+                                            // the following 'deleteAllFromGPU' call will work
+                                            // on Vulkan.
+                                            // TODO: switch over to using the promiseImage callbacks
+                                            // to free the backendTextures. This is complicated a
+                                            // bit by which thread possesses the direct context.
+                                            GrFlushInfo flushInfoSyncCpu;
+                                            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+                                            gpuThreadCtx->flush(flushInfoSyncCpu);
+                                            gpuThreadCtx->submit(true);
+                                        });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
-    promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
+    promiseImageHelper.deleteAllFromGPU(nullptr, gpuThreadCtx);
 
-    tiles.deleteBackendTextures(gpuTaskGroup, gpuThreadCtx);
+    tiles.deleteBackendTextures(nullptr, gpuThreadCtx);
 
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
     // textures so it is safe to schedule making 'gpuTestCtx' not current on the gpuThread.
@@ -1735,7 +1829,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     return Result::Ok();
 }
 
-Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* log) const {
+Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions contextOptions = this->baseContextOptions();
     src.modifyGrContextOptions(&contextOptions);
     contextOptions.fPersistentCache = nullptr;
@@ -1767,8 +1861,8 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     SkASSERT(otherCtx->priv().getGpu());
 #endif
 
-    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
-    SkTaskGroup gpuTaskGroup(*fGPUThread);
+    SkTaskGroup recordingTaskGroup(*fRecordingExecutor);
+    SkTaskGroup gpuTaskGroup(*fGPUExecutor);
 
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
