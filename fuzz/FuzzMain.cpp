@@ -58,6 +58,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "skdescriptor_deserialize\n"
                                          "skp\n"
                                          "sksl2glsl\n"
+                                         "svg_dom\n"
                                          "sksl2metal\n"
                                          "sksl2pipeline\n"
                                          "sksl2spirv\n"
@@ -98,7 +99,6 @@ static void print_api_names();
 #if defined(SK_ENABLE_SKOTTIE)
 static void fuzz_skottie_json(sk_sp<SkData>);
 #endif
-
 
 int main(int argc, char** argv) {
     CommandLineFlags::SetUsage(
@@ -213,10 +213,6 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
 #endif
-    if (type.equals("svg_dom")) {
-        fuzz_svg_dom(bytes);
-        return 0;
-    }
     if (type.equals("skp")) {
         fuzz_skp(bytes);
         return 0;
@@ -235,6 +231,10 @@ static int fuzz_file(SkString path, SkString type) {
     }
     if (type.equals("sksl2pipeline")) {
         fuzz_sksl2pipeline(bytes);
+        return 0;
+    }
+    if (type.equals("svg_dom")) {
+        fuzz_svg_dom(bytes);
         return 0;
     }
     if (type.equals("textblob")) {
