@@ -21,6 +21,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/text/GrTextContext.h"
 
@@ -689,8 +690,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     // A scale transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::Scale(16, 16);
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
-    GrTextContext::Options options;
-    GrTextContext::SanitizeOptions(&options);
+    GrTextContext::Options options =
+            ctxInfo.grContext()->priv().asRecordingContext()->priv().SDFTOptions();
     REPORTER_ASSERT(reporter, GrTextContext::CanDrawAsDistanceFields(
                                       paint, font, matrix, surfaceProps, true, options));
 

@@ -36,30 +36,10 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontSize = 256;
 #endif
 
-static const int kDefaultMinDistanceFieldFontSize = 18;
-#if defined(SK_BUILD_FOR_ANDROID)
-static const int kDefaultMaxDistanceFieldFontSize = 384;
-#elif defined(SK_BUILD_FOR_MAC)
-static const int kDefaultMaxDistanceFieldFontSize = kExtraLargeDFFontSize;
-#else
-static const int kDefaultMaxDistanceFieldFontSize = 2 * kLargeDFFontSize;
-#endif
-
-GrTextContext::GrTextContext(const Options& options) : fOptions(options) {
-    SanitizeOptions(&fOptions);
-}
+GrTextContext::GrTextContext(const Options& options) : fOptions(options) { }
 
 std::unique_ptr<GrTextContext> GrTextContext::Make(const Options& options) {
     return std::unique_ptr<GrTextContext>(new GrTextContext(options));
-}
-
-void GrTextContext::SanitizeOptions(Options* options) {
-    if (options->fMaxDistanceFieldFontSize < 0.f) {
-        options->fMaxDistanceFieldFontSize = kDefaultMaxDistanceFieldFontSize;
-    }
-    if (options->fMinDistanceFieldFontSize < 0.f) {
-        options->fMinDistanceFieldFontSize = kDefaultMinDistanceFieldFontSize;
-    }
 }
 
 bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
