@@ -392,8 +392,9 @@ public:
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
         #if SK_SUPPORT_GPU
-        GrTextContext::Options options;
-        GrTextContext::SanitizeOptions(&options);
+        GrContextOptions ctxOptions;
+        GrTextContext::Options options =
+                {ctxOptions.fMinDistanceFieldFontSize, ctxOptions.fGlyphsAsPathsFontSize};
 
     #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
         if (SkTextBlobTrace::Capture* capture = fStrikeServer->fCapture.get()) {
