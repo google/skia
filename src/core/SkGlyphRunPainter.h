@@ -16,7 +16,7 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 class GrColorInfo;
 class GrRenderTargetContext;
 #endif
@@ -87,7 +87,7 @@ public:
                              const SkMatrix& drawMatrix,
                              const SkSurfaceProps& props,
                              bool contextSupportsDistanceFieldText,
-                             const GrTextContext::Options& options,
+                             const GrSDFTOptions& options,
                              SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU
 
