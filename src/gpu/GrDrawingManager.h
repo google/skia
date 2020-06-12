@@ -8,8 +8,8 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include <set>
 #include "include/core/SkSurface.h"
+#include "include/private/SkChecksum.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrBufferAllocPool.h"
@@ -252,8 +252,14 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
+    struct CheapHash {
+        uint32_t operator()(uint32_t val) {
+            return SkChecksum::CheapMix(val);
+        }
+    };
+
     // Keys are UniqueID of GrSurfaceProxys.
-    SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
+    SkTHashMap<uint32_t, GrRenderTask*, CheapHash> fLastRenderTasks;
 };
 
 #endif
