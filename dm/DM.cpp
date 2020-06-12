@@ -1208,20 +1208,17 @@ struct Task {
                                   h = (int)CGRectGetHeight(bounds);
 
                         SkBitmap rasterized;
-                        rasterized.allocPixels(
-                                SkImageInfo::Make(w,h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+                        rasterized.allocPixels(SkImageInfo::Make(
+                            w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
                         rasterized.eraseColor(SK_ColorWHITE);
 
-                        SkUniqueCFRef<CGColorSpaceRef> cs{
-                            CGColorSpaceCreateDeviceRGB()};
-                        CGBitmapInfo info = kCGBitmapByteOrder32Big
-                                          | kCGImageAlphaPremultipliedLast;
+                        SkUniqueCFRef<CGColorSpaceRef> cs{CGColorSpaceCreateDeviceRGB()};
+                        CGBitmapInfo info = kCGBitmapByteOrder32Big |
+                                            (CGBitmapInfo)kCGImageAlphaPremultipliedLast;
 
-                        SkUniqueCFRef<CGContextRef> ctx{
-                            CGBitmapContextCreate(rasterized.getPixels(),
-                                                  w,h,8,rasterized.rowBytes(), cs.get(),info)};
+                        SkUniqueCFRef<CGContextRef> ctx{CGBitmapContextCreate(
+                            rasterized.getPixels(), w,h,8, rasterized.rowBytes(), cs.get(), info)};
                         CGContextDrawPDFPage(ctx.get(), page);
-
 
                         // Skip calling hashAndEncode->write(SkMD5*)... we want the .pdf's hash.
                         hashAndEncode.reset(new HashAndEncode(rasterized));
