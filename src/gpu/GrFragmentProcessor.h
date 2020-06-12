@@ -411,6 +411,13 @@ protected:
      */
     int registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child);
 
+    /**
+     * This method takes an existing fragment processor, clones it, registers it as a child of this
+     * fragment processor, and returns its child index. It also takes care of any boilerplate in the
+     * cloning process.
+     */
+    int cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp);
+
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
         fTextureSamplerCnt = cnt;
