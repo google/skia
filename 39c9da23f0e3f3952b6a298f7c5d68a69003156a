@@ -46,6 +46,30 @@
       "revId": "39c9da23f0e3f3952b6a298f7c5d68a69003156a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dda912c3_b59f818d",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-12T20:26:42Z",
+      "side": 1,
+      "message": "I disagree that as a general rule we should make our handwritten code look like the generated code. The generated code looks like it does because it is easy to generate it the way it looks, not because we think it\u0027s nice code. It\u0027s often not.\n\nIf someone adds another child here they may or may not need to explicitly store the child indices. Often it can be deduced from other data in the effect has to store anyway. Or the second effect may be non optional and the child count would still implicitly communicate the indices. Most (or perhaps all) of the effects that have multiple children don\u0027t store explicit indices.\n\nIf you really want some added safety maybe assert that there is at most one child in clone() to alert a future editor that they have to update that method.\n\nLonger term it might be a good idea to have a base class helper that just clones all the children, sets explicit if necessary, and installs them rather than doing this work in each class. It seems pretty mechanical and I bet some effect impls don\u0027t correctly migrate the\nexplicit bit on their children. (Though even longer term that bit should go away as we want to support mixed implicit and explicit sampling of a child).",
+      "parentUuid": "ee721a3b_be3aa3fe",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "39c9da23f0e3f3952b6a298f7c5d68a69003156a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
