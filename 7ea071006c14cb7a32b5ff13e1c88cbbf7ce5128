@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9a591b6_a5a4e2ca",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "Now we\u0027re relying on them specifically to be zero.  They\u0027re not _technically_ unused...",
+      "range": {
+        "startLine": 39,
+        "startChar": 63,
+        "endLine": 39,
+        "endChar": 74
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a6a37cf_3c41719f",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "Are you saying 7-\u003e6 cost 5%, or turning off short strings entirely only cost 5%?",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42d3bb02_95959247",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "maybe \n   // tag up front, \\0 at end\n?",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8276df1b_9bc0234b",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "maybe clearer as sizeof(*this)?",
+      "range": {
+        "startLine": 178,
+        "startChar": 35,
+        "endLine": 178,
+        "endChar": 40
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f82ed5c_e544d836",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "Feels weird to not mask away the tag here, given that we mention tag on the other side of the conditional?",
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21b03c93_f5d624c8",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "I guess this hasn\u0027t changed, but cast\u003cT\u003e returning T* reads a bit confusing, doesn\u0027t it?\n\nI\u0027d have thought that this cast to const T*, and thus evaluated to const T\u0026 or T... but it cast()s to const T** and evaluates to const T* eh?",
+      "range": {
+        "startLine": 194,
+        "startChar": 14,
+        "endLine": 194,
+        "endChar": 37
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b060eb73_d642b381",
+        "filename": "src/utils/SkJSON.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T12:45:00Z",
+      "side": 1,
+      "message": "Think these have become simple enough now to un-name them?",
+      "range": {
+        "startLine": 205,
+        "startChar": 3,
+        "endLine": 207,
+        "endChar": 0
+      },
+      "revId": "7ea071006c14cb7a32b5ff13e1c88cbbf7ce5128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
