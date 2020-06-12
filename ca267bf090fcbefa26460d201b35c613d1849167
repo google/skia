@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42dce0a8_acba390b",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-12T19:05:42Z",
+      "side": 1,
+      "message": "ah ha",
+      "range": {
+        "startLine": 169,
+        "startChar": 70,
+        "endLine": 170,
+        "endChar": 57
+      },
+      "revId": "ca267bf090fcbefa26460d201b35c613d1849167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
