@@ -373,6 +373,8 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
         SkASSERT(!fDAG.renderTask(i) || fDAG.renderTask(i)->unique());
     }
 #endif
+    fCachedLastRenderTask.taskPtr = nullptr;
+    fCachedLastRenderTask.surfaceID = GrSurfaceProxy::UniqueID::InvalidID().asUInt();
     fLastRenderTasks.reset();
     fDAG.reset();
     this->clearDDLTargets();
@@ -616,15 +618,33 @@ void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTa
     }
 #endif
     uint32_t key = proxy->uniqueID().asUInt();
-    if (task) {
-        fLastRenderTasks.set(key, task);
-    } else if (fLastRenderTasks.find(key)) {
+    bool isCachedSurface = (key == fCachedLastRenderTask.surfaceID);
+    GrRenderTask** cachedTaskPtr = fCachedLastRenderTask.taskPtr;
+    if (isCachedSurface && task && cachedTaskPtr) {
+        // Cached update.
+        *cachedTaskPtr = task;
+    } else if (isCachedSurface && !task && !cachedTaskPtr) {
+        // Cached null to null: no-op.
+    } else if (task) {
+        // Uncached update.
+        fCachedLastRenderTask.taskPtr = fLastRenderTasks.set(key, task);
+        fCachedLastRenderTask.surfaceID = key;
+    } else if ((isCachedSurface && cachedTaskPtr) || fLastRenderTasks.find(key)) {
+        // Cached or uncached removal.
+        fCachedLastRenderTask.taskPtr = nullptr;
+        fCachedLastRenderTask.surfaceID = key;
         fLastRenderTasks.remove(key);
     }
 }
 
 GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) const {
-    auto entry = fLastRenderTasks.find(proxy->uniqueID().asUInt());
+    uint32_t key = proxy->uniqueID().asUInt();
+    if (key == fCachedLastRenderTask.surfaceID) {
+        return fCachedLastRenderTask.taskPtr ? *fCachedLastRenderTask.taskPtr : nullptr;
+    }
+    auto entry = fLastRenderTasks.find(key);
+    fCachedLastRenderTask.surfaceID = key;
+    fCachedLastRenderTask.taskPtr = entry;
     return entry ? *entry : nullptr;
 }
 

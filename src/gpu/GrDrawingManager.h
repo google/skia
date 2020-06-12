@@ -254,6 +254,13 @@ private:
 
     // Keys are UniqueID of GrSurfaceProxys.
     SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
+
+    // A cached reference to the most-recently-accessed entry in fLastRenderTasks.
+    // Mutable because this cache is updated when accessing the table.
+    mutable struct {
+        uint32_t        surfaceID   = GrSurfaceProxy::UniqueID::InvalidID().asUInt();
+        GrRenderTask**  taskPtr     = nullptr;
+    } fCachedLastRenderTask;
 };
 
 #endif
