@@ -16,6 +16,24 @@
       "revId": "f8e830f4626ca5877135e6bd494f9c87e7d5e852",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a6a429a_d1b7d314",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-12T16:06:34Z",
+      "side": 1,
+      "message": "thanks for updating this.",
+      "parentUuid": "e6d66df0_446d4bec",
+      "revId": "f8e830f4626ca5877135e6bd494f9c87e7d5e852",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
