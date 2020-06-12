@@ -561,11 +561,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
     auto glyphRunList = builder.useGlyphRunList();
 
     const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
-    GrTextContext::Options SDFOptions = {
-            contextPriv.options().fMinDistanceFieldFontSize,
-            contextPriv.options().fGlyphsAsPathsFontSize
-    };
-    GrTextContext::SanitizeOptions(&SDFOptions);
+    GrTextContext::Options SDFOptions = rtc->fContext->priv().SDFTOptions();
 
     if (glyphRunList.empty()) {
         return nullptr;
