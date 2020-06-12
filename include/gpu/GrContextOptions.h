@@ -134,16 +134,20 @@ struct SK_API GrContextOptions {
 
     /**
      * Below this threshold size in device space distance field fonts won't be used. Distance field
-     * fonts don't support hinting which is more important at smaller sizes. A negative value means
-     * use the default threshold.
+     * fonts don't support hinting which is more important at smaller sizes.
      */
-    float fMinDistanceFieldFontSize = -1.f;
+    float fMinDistanceFieldFontSize = 18;
 
     /**
-     * Above this threshold size in device space glyphs are drawn as individual paths. A negative
-     * value means use the default threshold.
+     * Above this threshold size in device space glyphs are drawn as individual paths.
      */
-    float fGlyphsAsPathsFontSize = -1.f;
+#if defined(SK_BUILD_FOR_ANDROID)
+    float fGlyphsAsPathsFontSize = 384;
+#elif defined(SK_BUILD_FOR_MAC)
+    float fGlyphsAsPathsFontSize = 256;
+#else
+    float fGlyphsAsPathsFontSize = 324;
+#endif
 
     /**
      * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
