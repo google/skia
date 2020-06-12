@@ -21,23 +21,19 @@ void GrCCClipPath::init(
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
             [this](GrResourceProvider* resourceProvider, const GrCCAtlas::LazyAtlasDesc& desc) {
                 SkASSERT(fHasAtlas);
-                SkASSERT(!fHasAtlasTransform);
+                SkASSERT(!fHasAtlasTranslate);
 
                 GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
 
                 if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
-                    fAtlasScale = fAtlasTranslate = {0, 0};
-                    SkDEBUGCODE(fHasAtlasTransform = true);
+                    SkDEBUGCODE(fHasAtlasTranslate = true);
                     return GrSurfaceProxy::LazyCallbackResult();
                 }
 
                 sk_sp<GrTexture> texture = sk_ref_sp(textureProxy->peekTexture());
                 SkASSERT(texture);
 
-                fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
-                fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
-                                    fDevToAtlasOffset.fY * fAtlasScale.y());
-                SkDEBUGCODE(fHasAtlasTransform = true);
+                SkDEBUGCODE(fHasAtlasTranslate = true);
 
                 // We use LazyInstantiationKeyMode::kUnsynced here because CCPR clip masks are never
                 // cached, and the clip FP proxies need to ignore any unique keys that atlas

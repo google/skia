@@ -24,7 +24,6 @@ public:
         kYes = true
     };
 
-    GrCCClipProcessor(GrSurfaceProxyView, const GrCCClipPath*, IsCoverageCount, MustCheckBounds);
     GrCCClipProcessor(const GrCaps&, const GrCCClipPath*, IsCoverageCount, MustCheckBounds);
 
     const char* name() const override { return "GrCCClipProcessor"; }
@@ -32,13 +31,13 @@ public:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
 private:
+    explicit GrCCClipProcessor(const GrCCClipProcessor&);
+
     const GrCCClipPath* const fClipPath;
     const bool fIsCoverageCount;
     const bool fMustCheckBounds;
-    const TextureSampler fAtlasAccess;
 
     class Impl;
 
