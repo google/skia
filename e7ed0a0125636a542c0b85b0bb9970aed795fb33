@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83954354_4cd6c0fe",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-12T12:34:08Z",
+      "side": 1,
+      "message": "Indentation changes on 1211 and 1220 aren\u0027t necessary – the pre-existing \"paren then single giant argument on next line\" pattern is pretty common in the codebase. Fixing the missing spaces is good though.",
+      "revId": "e7ed0a0125636a542c0b85b0bb9970aed795fb33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91379094_8b1aa401",
+        "filename": "src/utils/mac/SkCTFontSmoothBehavior.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-12T12:34:08Z",
+      "side": 1,
+      "message": "static?",
+      "revId": "e7ed0a0125636a542c0b85b0bb9970aed795fb33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
