@@ -116,6 +116,30 @@
       "revId": "8e32e68c2efc14d35da6e3f350f9ee373c07bd4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73625616_d98b0ecc",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-12T16:30:47Z",
+      "side": 1,
+      "message": "Yes. The version directly on grContext() is protected.",
+      "parentUuid": "8e7bde2e_c299f9cf",
+      "range": {
+        "startLine": 694,
+        "startChar": 31,
+        "endLine": 694,
+        "endChar": 39
+      },
+      "revId": "8e32e68c2efc14d35da6e3f350f9ee373c07bd4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
