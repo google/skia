@@ -24,6 +24,10 @@
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrDistanceFieldAdjustTable.h"
 
+#if GR_TEST_UTILS
+#include "src/gpu/GrDrawOpTest.h"
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
@@ -487,7 +491,6 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
 static const int kDistanceAdjustLumShift = 5;
 
 // TODO trying to figure out why lcd is so whack
-// (see comments in GrTextContext::ComputeCanonicalColor)
 GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                      const GrShaderCaps& caps,
                                                      const GrSurfaceProxyView* views,
@@ -561,7 +564,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
     auto glyphRunList = builder.useGlyphRunList();
 
     const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
-    GrTextContext::Options SDFOptions = rtc->fContext->priv().SDFTOptions();
+    GrSDFTOptions SDFOptions = rtc->fContext->priv().SDFTOptions();
 
     if (glyphRunList.empty()) {
         return nullptr;
