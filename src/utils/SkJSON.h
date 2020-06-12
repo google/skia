@@ -117,58 +117,67 @@ protected:
              char[8] (short string storage)
              external payload (tagged) pointer
 
-         -- highest 3 bits reserved for type storage
+         -- lowest 3 bits reserved for tag storage
 
      */
     enum class Tag : uint8_t {
-        // We picked kShortString == 0 so that tag 0x00 and stored max_size-size (7-7=0)
-        // conveniently overlap the '\0' terminator, allowing us to store a 7 character
-        // C string inline.
-        kShortString                  = 0b00000000,  // inline payload
-        kNull                         = 0b00100000,  // no payload
-        kBool                         = 0b01000000,  // inline payload
-        kInt                          = 0b01100000,  // inline payload
-        kFloat                        = 0b10000000,  // inline payload
-        kString                       = 0b10100000,  // ptr to external storage
-        kArray                        = 0b11000000,  // ptr to external storage
-        kObject                       = 0b11100000,  // ptr to external storage
+        kNull                         = 0b00000000,  // no payload
+        kBool                         = 0b00000001,  // inline payload
+        kInt                          = 0b00000010,  // inline payload
+        kFloat                        = 0b00000011,  // inline payload
+        kShortString                  = 0b00000100,  // inline payload
+        kString                       = 0b00000101,  // ptr to external storage
+        kArray                        = 0b00000110,  // ptr to external storage
+        kObject                       = 0b00000111,  // ptr to external storage
     };
-    static constexpr uint8_t kTagMask = 0b11100000;
+    static constexpr uint8_t kTagMask = 0b00000111;
 
     void init_tagged(Tag);
     void init_tagged_pointer(Tag, void*);
 
     Tag getTag() const {
-        return static_cast<Tag>(fData8[kTagOffset] & kTagMask);
+        return static_cast<Tag>(fData8[0] & kTagMask);
     }
 
-    // Access the record data as T.
+    // Access the record payload as T.
     //
-    // This is also used to access the payload for inline records.  Since the record type lives in
-    // the high bits, sizeof(T) must be less than sizeof(Value) when accessing inline payloads.
+    // Since the tag is stored in the lower bits, we skip the first word whenever feasible.
     //
-    // E.g.
+    // E.g. (U == unused)
     //
     //   uint8_t
     //    -----------------------------------------------------------------------
-    //   |  val8  |  val8  |  val8  |  val8  |  val8  |  val8  |  val8  |    TYPE|
+    //   |TAG| U  |  val8  |   U    |   U    |   U    |   U    |   U    |   U    |
+    //    -----------------------------------------------------------------------
+    //
+    //   uint16_t
+    //    -----------------------------------------------------------------------
+    //   |TAG|      U      |      val16      |        U        |        U        |
     //    -----------------------------------------------------------------------
     //
     //   uint32_t
     //    -----------------------------------------------------------------------
-    //   |               val32               |          unused          |    TYPE|
+    //   |TAG|             U                 |                val32              |
+    //    -----------------------------------------------------------------------
+    //
+    //   T* (32b)
+    //    -----------------------------------------------------------------------
+    //   |TAG|             U                 |             T* (32bits)           |
     //    -----------------------------------------------------------------------
     //
     //   T* (64b)
     //    -----------------------------------------------------------------------
-    //   |                        T* (kTypeShift bits)                      |TYPE|
+    //   |TAG|                        T* (61bits)                                |
     //    -----------------------------------------------------------------------
     //
     template <typename T>
     const T* cast() const {
         static_assert(sizeof (T) <=  sizeof(Value), "");
         static_assert(alignof(T) <= alignof(Value), "");
-        return reinterpret_cast<const T*>(this);
+
+        return (sizeof(T) > sizeof(*this) / 2)
+                ? reinterpret_cast<const T*>(this) + 0  // need all the bits
+                : reinterpret_cast<const T*>(this) + 1; // skip the first word (where the tag lives)
     }
 
     template <typename T>
@@ -183,8 +192,8 @@ protected:
         return (sizeof(uintptr_t) < sizeof(Value))
             // For 32-bit, pointers are stored unmodified.
             ? *this->cast<const T*>()
-            // For 64-bit, we use the high bits of the pointer as tag storage.
-            : reinterpret_cast<T*>(*this->cast<uintptr_t>() & kTagPointerMask);
+            // For 64-bit, we use the lower bits of the pointer as tag storage.
+            : reinterpret_cast<T*>(*this->cast<uintptr_t>() & ~static_cast<uintptr_t>(kTagMask));
     }
 
 private:
@@ -192,12 +201,7 @@ private:
 
     uint8_t fData8[kValueSize];
 
-#if defined(SK_CPU_LENDIAN)
-    static constexpr size_t kTagOffset = kValueSize - 1;
-
-    static constexpr uintptr_t kTagPointerMask =
-            ~(static_cast<uintptr_t>(kTagMask) << ((sizeof(uintptr_t) - 1) * 8));
-#else
+#if !defined(SK_CPU_LENDIAN)
     // The current value layout assumes LE and will take some tweaking for BE.
     static_assert(false, "Big-endian builds are not supported at this time.");
 #endif
