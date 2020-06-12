@@ -82,8 +82,6 @@ private:
     sk_sp<SharedGenerator> fSharedGenerator;
     const SkIPoint         fOrigin;
 
-    uint32_t fUniqueID;
-
     // Repeated calls to onMakeColorTypeAndColorSpace will result in a proliferation of unique IDs
     // and SkImage_Lazy instances. Cache the result of the last successful call.
     mutable SkMutex             fOnMakeColorTypeAndSpaceMutex;

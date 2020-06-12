@@ -128,7 +128,6 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
         , fSharedGenerator(std::move(validator->fSharedGenerator))
         , fOrigin(validator->fOrigin) {
     SkASSERT(fSharedGenerator);
-    fUniqueID = validator->fUniqueID;
 }
 
 
