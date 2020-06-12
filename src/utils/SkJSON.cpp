@@ -28,23 +28,22 @@ static constexpr size_t kRecAlign = alignof(Value);
 
 void Value::init_tagged(Tag t) {
     memset(fData8, 0, sizeof(fData8));
-    fData8[Value::kTagOffset] = SkTo<uint8_t>(t);
+    fData8[0] = SkTo<uint8_t>(t);
     SkASSERT(this->getTag() == t);
 }
 
-// Pointer values store a type (in the upper kTagBits bits) and a pointer.
+// Pointer values store a type (in the lower kTagBits bits) and a pointer.
 void Value::init_tagged_pointer(Tag t, void* p) {
-    *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
-
     if (sizeof(Value) == sizeof(uintptr_t)) {
-        // For 64-bit, we rely on the pointer upper bits being unused/zero.
-        SkASSERT(!(fData8[kTagOffset] & kTagMask));
-        fData8[kTagOffset] |= SkTo<uint8_t>(t);
+        *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
+        // For 64-bit, we rely on the pointer lower bits being zero.
+        SkASSERT(!(fData8[0] & kTagMask));
+        fData8[0] |= SkTo<uint8_t>(t);
     } else {
-        // For 32-bit, we need to zero-initialize the upper 32 bits
+        // For 32-bit, we store the pointer in the upper word
         SkASSERT(sizeof(Value) == sizeof(uintptr_t) * 2);
-        this->cast<uintptr_t>()[kTagOffset >> 2] = 0;
-        fData8[kTagOffset] = SkTo<uint8_t>(t);
+        this->init_tagged(t);
+        *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
     }
 
     SkASSERT(this->getTag()    == t);
@@ -126,11 +125,8 @@ public:
             return;
         }
 
-        static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
-        static_assert(sizeof(Value) == 8, "");
-
-        // TODO: LIKELY
-        if (src && src + 7 <= eos) {
+        // TODO: is initFastShortString still worth it?
+        if (false && src && src + 7 <= eos) {
             this->initFastShortString(src, size);
         } else {
             this->initShortString(src, size);
@@ -140,7 +136,8 @@ public:
     }
 
 private:
-    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
+    // first byte reserved for tagging, \0 terminator => 6 usable chars
+    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 2;
 
     void initLongString(const char* src, size_t size, SkArenaAlloc& alloc) {
         SkASSERT(size > kMaxInlineStringSize);
