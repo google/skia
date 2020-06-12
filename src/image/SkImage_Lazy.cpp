@@ -218,8 +218,12 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
 }
 
 sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
-    ScopedGenerator generator(fSharedGenerator);
-    return generator->refEncodedData();
+    // check that we aren't a subset or colortype/etc modification of the original
+    if (fSharedGenerator->fGenerator->uniqueID() == this->uniqueID()) {
+        ScopedGenerator generator(fSharedGenerator);
+        return generator->refEncodedData();
+    }
+    return nullptr;
 }
 
 bool SkImage_Lazy::onIsValid(GrContext* context) const {
