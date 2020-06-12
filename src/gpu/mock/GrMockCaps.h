@@ -50,10 +50,6 @@ public:
         return GrGetColorTypeDesc(ct).encoding() == GrColorTypeEncoding::kSRGBUnorm;
     }
 
-    SkImage::CompressionType compressionType(const GrBackendFormat& format) const override {
-        return format.asMockCompressionType();
-    }
-
     bool isFormatTexturable(const GrBackendFormat& format) const override {
         SkImage::CompressionType compression = format.asMockCompressionType();
         if (compression != SkImage::CompressionType::kNone) {
@@ -155,10 +151,6 @@ public:
         return {};
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
-        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
-    }
     GrSwizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
         return GrSwizzle("rgba");
@@ -203,6 +195,11 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
                                                  GrColorType) const override {
         return SupportedRead{srcColorType, 1};
+    }
+
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
+        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
+        return GrSwizzle("rgba");
     }
 
     static const int kMaxSampleCnt = 16;

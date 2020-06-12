@@ -8,6 +8,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -390,3 +391,37 @@ GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType colorType,
     }
     return format;
 }
+
+bool GrCaps::areColorTypeAndFormatCompatible(GrColorType grCT,
+                                             const GrBackendFormat& format) const {
+    if (GrColorType::kUnknown == grCT) {
+        return false;
+    }
+
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+    if (compression != SkImage::CompressionType::kNone) {
+        return grCT == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                               : GrColorType::kRGBA_8888);
+    }
+
+    return this->onAreColorTypeAndFormatCompatible(grCT, format);
+}
+
+GrSwizzle GrCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+    if (compression != SkImage::CompressionType::kNone) {
+        if (colorType == GrColorType::kRGB_888x || colorType == GrColorType::kRGBA_8888) {
+            return GrSwizzle::RGBA();
+        }
+        SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.", colorType,
+                     compression);
+        return {};
+    }
+
+    return this->onGetReadSwizzle(format, colorType);
+}
+
+bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
+    return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
+}
+

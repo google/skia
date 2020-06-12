@@ -10,6 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -84,7 +85,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     auto createTexture = [](SkISize dimensions, GrColorType colorType,
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        SkImage::CompressionType compression = rp->caps()->compressionType(format);
+        SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
         if (compression != SkImage::CompressionType::kNone) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;

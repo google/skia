@@ -33,7 +33,6 @@ public:
              const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isVkFormatTexturable(VkFormat) const;
@@ -189,7 +188,6 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
@@ -242,6 +240,9 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
+
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
+
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {

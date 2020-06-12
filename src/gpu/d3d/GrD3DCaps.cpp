@@ -10,6 +10,7 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -773,20 +774,6 @@ bool GrD3DCaps::isFormatSRGB(const GrBackendFormat& format) const {
     }
 }
 
-SkImage::CompressionType GrD3DCaps::compressionType(const GrBackendFormat& format) const {
-    DXGI_FORMAT dxgiFormat;
-    if (!format.asDxgiFormat(&dxgiFormat)) {
-        return SkImage::CompressionType::kNone;
-    }
-
-    switch (dxgiFormat) {
-        case DXGI_FORMAT_BC1_UNORM:    return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:                       return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 bool GrD3DCaps::isFormatTexturable(const GrBackendFormat& format) const {
     DXGI_FORMAT dxgiFormat;
     if (!format.asDxgiFormat(&dxgiFormat)) {
@@ -944,12 +931,6 @@ bool GrD3DCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
         return false;
     }
 
-    SkImage::CompressionType compression = GrDxgiFormatToCompressionType(dxgiFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                      : GrColorType::kRGBA_8888);
-    }
-
     const auto& info = this->getFormatInfo(dxgiFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -982,7 +963,7 @@ GrBackendFormat GrD3DCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrD3DCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrD3DCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     DXGI_FORMAT dxgiFormat;
     SkAssertResult(format.asDxgiFormat(&dxgiFormat));
     const auto& info = this->getFormatInfo(dxgiFormat);
@@ -1025,7 +1006,7 @@ GrCaps::SupportedRead GrD3DCaps::onSupportedReadPixelsColorType(
         return { GrColorType::kUnknown, 0 };
     }
 
-    SkImage::CompressionType compression = GrDxgiFormatToCompressionType(dxgiFormat);
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888, 0 };

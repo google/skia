@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrBlend.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -191,12 +192,7 @@ public:
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
-    // This will return SkImage::CompressionType::kNone if the backend format is not compressed.
-    virtual SkImage::CompressionType compressionType(const GrBackendFormat&) const = 0;
-
-    bool isFormatCompressed(const GrBackendFormat& format) const {
-        return this->compressionType(format) != SkImage::CompressionType::kNone;
-    }
+    bool isFormatCompressed(const GrBackendFormat& format) const;
 
     // Can a texture be made with the GrBackendFormat, and then be bound and sampled in a shader.
     virtual bool isFormatTexturable(const GrBackendFormat&) const = 0;
@@ -396,14 +392,7 @@ public:
     bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
                                int renderTargetSampleCnt, GrMipMapped) const;
 
-    bool areColorTypeAndFormatCompatible(GrColorType grCT,
-                                         const GrBackendFormat& format) const {
-        if (GrColorType::kUnknown == grCT) {
-            return false;
-        }
-
-        return this->onAreColorTypeAndFormatCompatible(grCT, format);
-    }
+    bool areColorTypeAndFormatCompatible(GrColorType grCT, const GrBackendFormat& format) const;
 
     /** These are used when creating a new texture internally. */
     GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;
@@ -420,7 +409,7 @@ public:
      * Returns the GrSwizzle to use when sampling or reading back from a texture with the passed in
      * GrBackendFormat and GrColorType.
      */
-    virtual GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+    GrSwizzle getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const;
 
     /**
      * Returns the GrSwizzle to use when writing colors to a surface with the passed in
@@ -556,6 +545,9 @@ private:
     virtual SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
                                                          const GrBackendFormat& srcFormat,
                                                          GrColorType dstColorType) const = 0;
+
+    virtual GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;

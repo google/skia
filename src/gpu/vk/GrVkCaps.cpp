@@ -9,6 +9,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -1324,22 +1325,6 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(vkFormat);
 }
 
-SkImage::CompressionType GrVkCaps::compressionType(const GrBackendFormat& format) const {
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return SkImage::CompressionType::kNone;
-    }
-
-    switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:     return SkImage::CompressionType::kBC1_RGB8_UNORM;
-        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:    return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:                                return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
@@ -1537,12 +1522,6 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
         return false;
     }
 
-    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                             : GrColorType::kRGBA_8888);
-    }
-
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -1585,7 +1564,7 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrVkCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     VkFormat vkFormat;
     SkAssertResult(format.asVkFormat(&vkFormat));
     const auto* ycbcrInfo = format.getVkYcbcrConversionInfo();
@@ -1595,6 +1574,7 @@ GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         // onAreColorTypeAndFormatCompatible.
         return GrSwizzle{"rgba"};
     }
+
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1647,7 +1627,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         return {GrColorType::kUnknown, 0};
     }
 
-    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888, 0 };

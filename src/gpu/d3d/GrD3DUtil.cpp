@@ -21,11 +21,3 @@ bool GrDxgiFormatIsCompressed(DXGI_FORMAT format) {
     }
     SkUNREACHABLE;
 }
-
-SkImage::CompressionType GrDxgiFormatToCompressionType(DXGI_FORMAT format) {
-    switch (format) {
-        case DXGI_FORMAT_BC1_UNORM:    return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:                       return SkImage::CompressionType::kNone;
-    }
-    SkUNREACHABLE;
-}

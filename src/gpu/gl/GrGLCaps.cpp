@@ -11,6 +11,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -4114,7 +4115,7 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
 
-    SkImage::CompressionType compression = this->compressionType(srcBackendFormat);
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888,
@@ -4192,24 +4193,6 @@ bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& b
 
 bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format.asGLFormat() == GrGLFormat::kSRGB8_ALPHA8;
-}
-
-SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format) const {
-    auto fmt = format.asGLFormat();
-
-    switch (fmt) {
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as ETC2_RGB8_UNORM
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-            return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
-            return SkImage::CompressionType::kBC1_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
-            return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:
-            return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
 }
 
 bool GrGLCaps::isFormatTexturable(const GrBackendFormat& format) const {
@@ -4344,13 +4327,6 @@ void GrGLCaps::didQueryImplementationReadSupport(GrGLFormat format,
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
     GrGLFormat glFormat = format.asGLFormat();
-
-    SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                             : GrColorType::kRGBA_8888);
-    }
-
     const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -4399,8 +4375,9 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    const auto& info = this->getFormatInfo(format.asGLFormat());
+GrSwizzle GrGLCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    GrGLFormat glFormat = format.asGLFormat();
+    const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
@@ -4408,7 +4385,7 @@ GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         }
     }
     SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType,
-                 format.asGLFormat());
+                 glFormat);
     return {};
 }
 

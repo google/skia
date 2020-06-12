@@ -18,7 +18,6 @@ public:
     GrDawnCaps(const GrContextOptions& contextOptions);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
 
     bool isFormatRenderable(const GrBackendFormat& format,
                             int sampleCount = 1) const override;
@@ -47,8 +46,6 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
-
     GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
@@ -74,6 +71,8 @@ private:
                                                  GrColorType dstColorType) const override {
         return { srcColorType, GrColorTypeBytesPerPixel(srcColorType) };
     }
+
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     typedef GrCaps INHERITED;
 };

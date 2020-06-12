@@ -38,10 +38,6 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
-SkImage::CompressionType GrDawnCaps::compressionType(const GrBackendFormat& format) const {
-    return SkImage::CompressionType::kNone;
-}
-
 bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
     // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
     wgpu::TextureFormat dawnFormat;
@@ -134,7 +130,7 @@ GrBackendFormat GrDawnCaps::getBackendFormatFromCompressionType(SkImage::Compres
     return GrBackendFormat();
 }
 
-GrSwizzle GrDawnCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const
+GrSwizzle GrDawnCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const
 {
     return get_swizzle(format, colorType, false);
 }

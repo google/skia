@@ -8,13 +8,18 @@
 #ifndef GrMtlCppUtil_DEFINED
 #define GrMtlCppUtil_DEFINED
 
+#include "include/core/SkImage.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
+
+class GrBackendFormat;
 
 // Utilities that can be used from cpp files (rather than .mm).
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
 
 uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
+
+SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);
 
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);

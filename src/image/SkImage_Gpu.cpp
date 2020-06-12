@@ -22,6 +22,7 @@
 #include "src/gpu/GrAHardwareBufferImageGenerator.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrBackendTextureImageGenerator.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
@@ -172,7 +173,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
         return nullptr;
     }
 
-    CompressionType type = caps->compressionType(tex.getBackendFormat());
+    CompressionType type = GrBackendFormatToCompressionType(tex.getBackendFormat());
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
@@ -519,6 +520,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                                 colorType,
                                                                 backendFormat);
     if (GrColorType::kUnknown == grColorType) {
+        return nullptr;
+    }
+
+    if (!context->priv().caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
         return nullptr;
     }
 

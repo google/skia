@@ -18,11 +18,6 @@
  */
 bool GrDxgiFormatIsCompressed(DXGI_FORMAT);
 
-/**
- * Maps a dxgi format into the CompressionType enum if applicable.
- */
-SkImage::CompressionType GrDxgiFormatToCompressionType(DXGI_FORMAT dxgiFormat);
-
 static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
     switch (vkFormat) {
         case DXGI_FORMAT_R8G8B8A8_UNORM:           return kRGBA_SkColorChannelFlags;

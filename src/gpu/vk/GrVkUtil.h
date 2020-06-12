@@ -101,11 +101,6 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
  */
 bool GrVkFormatIsCompressed(VkFormat);
 
-/**
- * Maps a vk format into the CompressionType enum if applicable.
- */
-SkImage::CompressionType GrVkFormatToCompressionType(VkFormat vkFormat);
-
 #if GR_TEST_UTILS
 static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {
     switch (vkFormat) {

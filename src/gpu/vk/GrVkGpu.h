@@ -298,8 +298,9 @@ private:
                              GrColorType colorType, const void* data, size_t rowBytes);
     bool uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
                               GrColorType colorType, const GrMipLevel texels[], int mipLevelCount);
-    bool uploadTexDataCompressed(GrVkTexture* tex, VkFormat vkFormat, SkISize dimensions,
-                                 GrMipMapped mipMapped, const void* data, size_t dataSize);
+    bool uploadTexDataCompressed(GrVkTexture* tex, SkImage::CompressionType compression,
+                                 VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped,
+                                 const void* data, size_t dataSize);
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 

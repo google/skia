@@ -10,6 +10,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
@@ -35,9 +36,8 @@ static void check_solid_pixmap(skiatest::Reporter* reporter,
 
 // Create an SkImage to wrap 'backendTex'
 sk_sp<SkImage> create_image(GrContext* context, const GrBackendTexture& backendTex) {
-    const GrCaps* caps = context->priv().caps();
-
-    SkImage::CompressionType compression = caps->compressionType(backendTex.getBackendFormat());
+    SkImage::CompressionType compression =
+            GrBackendFormatToCompressionType(backendTex.getBackendFormat());
 
     SkAlphaType at = SkCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;

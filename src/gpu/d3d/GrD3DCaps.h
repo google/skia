@@ -29,7 +29,6 @@ public:
     GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1*, ID3D12Device*);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isFormatTexturable(DXGI_FORMAT) const;
@@ -93,7 +92,6 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
@@ -138,6 +136,8 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
+
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
