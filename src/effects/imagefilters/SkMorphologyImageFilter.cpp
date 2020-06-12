@@ -228,13 +228,6 @@ public:
                 new GrMorphologyEffect(std::move(view), srcAlphaType, dir, radius, type, bounds));
     }
 
-    MorphType type() const { return fType; }
-    bool useRange() const { return fUseRange; }
-    const float* range() const { return fRange; }
-    MorphDirection direction() const { return fDirection; }
-    int radius() const { return fRadius; }
-    int width() const { return 2 * fRadius + 1; }
-
     const char* name() const override { return "Morphology"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
@@ -242,8 +235,9 @@ public:
     }
 
 private:
-    GrCoordTransform fCoordTransform;
-    TextureSampler fTextureSampler;
+    // We really just want the unaltered local coords, but the only way to get that right now is
+    // an identity coord transform.
+    GrCoordTransform fCoordTransform = {};
     MorphDirection fDirection;
     int fRadius;
     MorphType fType;
@@ -255,9 +249,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
-
     GrMorphologyEffect(GrSurfaceProxyView, SkAlphaType srcAlphaType, MorphDirection, int radius,
                        MorphType, const float range[2]);
     explicit GrMorphologyEffect(const GrMorphologyEffect&);
@@ -267,137 +258,80 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-///////////////////////////////////////////////////////////////////////////////
+GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
+    class Impl : public GrGLSLFragmentProcessor {
+    public:
+        void emitCode(EmitArgs& args) override {
+            const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
 
-class GrGLMorphologyEffect : public GrGLSLFragmentProcessor {
-public:
-    void emitCode(EmitArgs&) override;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+            fRangeUni = uniformHandler->addUniform(&me, kFragment_GrShaderFlag, kFloat2_GrSLType,
+                                                   "Range");
+            const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
-    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            SkString coords2D = fragBuilder->ensureCoords2D(
+                    args.fTransformedCoords[0].fVaryingPoint, args.fFp.sampleMatrix());
 
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+            const char* func = me.fType == MorphType::kErode ? "min" : "max";
 
-private:
-    GrGLSLProgramDataManager::UniformHandle fPixelSizeUni;
-    GrGLSLProgramDataManager::UniformHandle fRangeUni;
+            char initialValue = me.fType == MorphType::kErode ? '1' : '0';
+            fragBuilder->codeAppendf("%s = half4(%c);", args.fOutputColor, initialValue);
 
-    typedef GrGLSLFragmentProcessor INHERITED;
-};
+            char dir = me.fDirection == MorphDirection::kX ? 'x' : 'y';
 
-void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
-    const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
+            int width = 2 * me.fRadius + 1;
 
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fPixelSizeUni = uniformHandler->addUniform(&me, kFragment_GrShaderFlag, kHalf_GrSLType,
-                                               "PixelSize");
-    const char* pixelSizeInc = uniformHandler->getUniformCStr(fPixelSizeUni);
-    fRangeUni = uniformHandler->addUniform(&me, kFragment_GrShaderFlag, kFloat2_GrSLType, "Range");
-    const char* range = uniformHandler->getUniformCStr(fRangeUni);
+            // float2 coord = coord2D;
+            fragBuilder->codeAppendf("float2 coord = %s;", coords2D.c_str());
+            // coord.x -= radius;
+            fragBuilder->codeAppendf("coord.%c -= %d;", dir, me.fRadius);
+            if (me.fUseRange) {
+                // highBound = min(highBound, coord.x + (width-1));
+                fragBuilder->codeAppendf("float highBound = min(%s.y, coord.%c + %f);", range, dir,
+                                         float(width - 1));
+                // coord.x = max(lowBound, coord.x);
+                fragBuilder->codeAppendf("coord.%c = max(%s.x, coord.%c);", dir, range, dir);
+            }
+            fragBuilder->codeAppendf("for (int i = 0; i < %d; i++) {", width);
+            SkString sample = this->invokeChild(0, args, "coord");
+            fragBuilder->codeAppendf("    %s = %s(%s, %s);", args.fOutputColor, func,
+                                     args.fOutputColor, sample.c_str());
+            // coord.x += 1;
+            fragBuilder->codeAppendf("    coord.%c += 1;", dir);
+            if (me.fUseRange) {
+                // coord.x = min(highBound, coord.x);
+                fragBuilder->codeAppendf("    coord.%c = min(highBound, coord.%c);", dir, dir);
+            }
+            fragBuilder->codeAppend("}");
+            fragBuilder->codeAppendf("%s *= %s;", args.fOutputColor, args.fInputColor);
+        }
 
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    args.fFp.sampleMatrix());
-    const char* func;
-    switch (me.type()) {
-        case MorphType::kErode:
-            fragBuilder->codeAppendf("\t\t%s = half4(1, 1, 1, 1);\n", args.fOutputColor);
-            func = "min";
-            break;
-        case MorphType::kDilate:
-            fragBuilder->codeAppendf("\t\t%s = half4(0, 0, 0, 0);\n", args.fOutputColor);
-            func = "max";
-            break;
-        default:
-            SK_ABORT("Unexpected type");
-            func = ""; // suppress warning
-            break;
-    }
+    protected:
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrFragmentProcessor& proc) override {
+            const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
+            if (m.fUseRange) {
+                pdman.set2f(fRangeUni, m.fRange[0], m.fRange[1]);
+            }
+        }
 
-    const char* dir;
-    switch (me.direction()) {
-        case MorphDirection::kX:
-            dir = "x";
-            break;
-        case MorphDirection::kY:
-            dir = "y";
-            break;
-        default:
-            SK_ABORT("Unknown filter direction.");
-            dir = ""; // suppress warning
-    }
-
-    int width = me.width();
-
-    // float2 coord = coord2D;
-    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
-    // coord.x -= radius * pixelSize;
-    fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, me.radius(), pixelSizeInc);
-    if (me.useRange()) {
-        // highBound = min(highBound, coord.x + (width-1) * pixelSize);
-        fragBuilder->codeAppendf("\t\tfloat highBound = min(%s.y, coord.%s + %f * %s);",
-                                 range, dir, float(width - 1), pixelSizeInc);
-        // coord.x = max(lowBound, coord.x);
-        fragBuilder->codeAppendf("\t\tcoord.%s = max(%s.x, coord.%s);", dir, range, dir);
-    }
-    fragBuilder->codeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", width);
-    fragBuilder->codeAppendf("\t\t\t%s = %s(%s, ", args.fOutputColor, func, args.fOutputColor);
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
-    fragBuilder->codeAppend(");\n");
-    // coord.x += pixelSize;
-    fragBuilder->codeAppendf("\t\t\tcoord.%s += %s;\n", dir, pixelSizeInc);
-    if (me.useRange()) {
-        // coord.x = min(highBound, coord.x);
-        fragBuilder->codeAppendf("\t\t\tcoord.%s = min(highBound, coord.%s);", dir, dir);
-    }
-    fragBuilder->codeAppend("\t\t}\n");
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
+    private:
+        GrGLSLProgramDataManager::UniformHandle fRangeUni;
+    };
+    return new Impl;
 }
 
-void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
-                                  const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
-    uint32_t key = static_cast<uint32_t>(m.radius());
-    key |= (static_cast<uint32_t>(m.type()) << 8);
-    key |= (static_cast<uint32_t>(m.direction()) << 9);
-    if (m.useRange()) {
+void GrMorphologyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                               GrProcessorKeyBuilder* b) const {
+    uint32_t key = static_cast<uint32_t>(fRadius);
+    key |= (static_cast<uint32_t>(fType) << 8);
+    key |= (static_cast<uint32_t>(fDirection) << 9);
+    if (fUseRange) {
         key |= 1 << 10;
     }
     b->add32(key);
 }
-
-void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                     const GrFragmentProcessor& proc) {
-    const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
-    const auto& view = m.textureSampler(0).view();
-    GrSurfaceProxy* proxy = view.proxy();
-    GrTexture& texture = *proxy->peekTexture();
-
-    float pixelSize = 0.0f;
-    switch (m.direction()) {
-        case MorphDirection::kX:
-            pixelSize = 1.0f / texture.width();
-            break;
-        case MorphDirection::kY:
-            pixelSize = 1.0f / texture.height();
-            break;
-        default:
-            SK_ABORT("Unknown filter direction.");
-    }
-    pdman.set1f(fPixelSizeUni, pixelSize);
-
-    if (m.useRange()) {
-        const float* range = m.range();
-        if (MorphDirection::kY == m.direction() &&
-            view.origin() == kBottomLeft_GrSurfaceOrigin) {
-            pdman.set2f(fRangeUni, 1.0f - (range[1]*pixelSize), 1.0f - (range[0]*pixelSize));
-        } else {
-            pdman.set2f(fRangeUni, range[0] * pixelSize, range[1] * pixelSize);
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
                                        SkAlphaType srcAlphaType,
@@ -406,17 +340,14 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
                                        MorphType type,
                                        const float range[2])
         : INHERITED(kGrMorphologyEffect_ClassID, ModulateForClampedSamplerOptFlags(srcAlphaType))
-        , fCoordTransform(view.proxy(), view.origin())
-        , fTextureSampler(std::move(view))
         , fDirection(direction)
         , fRadius(radius)
         , fType(type)
         , fUseRange(SkToBool(range)) {
-    // Make sure the sampler's ctor uses the clamp wrap mode
-    SkASSERT(fTextureSampler.samplerState().wrapModeX() == GrSamplerState::WrapMode::kClamp &&
-             fTextureSampler.samplerState().wrapModeY() == GrSamplerState::WrapMode::kClamp);
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
+    auto te = GrTextureEffect::Make(std::move(view), srcAlphaType);
+    te->setSampledWithExplicitCoords();
+    this->registerChildProcessor(std::move(te));
     if (fUseRange) {
         fRange[0] = range[0];
         fRange[1] = range[1];
@@ -425,34 +356,26 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
 
 GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
         : INHERITED(kGrMorphologyEffect_ClassID, that.optimizationFlags())
-        , fCoordTransform(that.fCoordTransform)
-        , fTextureSampler(that.fTextureSampler)
         , fDirection(that.fDirection)
         , fRadius(that.fRadius)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
+    auto child = that.childProcessor(0).clone();
+    child->setSampledWithExplicitCoords();
+    this->registerChildProcessor(std::move(child));
     if (that.fUseRange) {
         fRange[0] = that.fRange[0];
         fRange[1] = that.fRange[1];
     }
 }
 
-void GrMorphologyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
-    GrGLMorphologyEffect::GenKey(*this, caps, b);
-}
-
-GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
-    return new GrGLMorphologyEffect;
-}
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
-    return (this->radius() == s.radius() &&
-            this->direction() == s.direction() &&
-            this->useRange() == s.useRange() &&
-            this->type() == s.type());
+    return this->fRadius    == s.fRadius    &&
+           this->fDirection == s.fDirection &&
+           this->fUseRange  == s.fUseRange  &&
+           this->fType      == s.fType;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
