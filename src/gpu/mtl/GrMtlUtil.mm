@@ -283,19 +283,6 @@ bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
     }
 }
 
-SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) {
-    switch (mtlFormat) {
-#ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC2_RGB8_UNORM;
-#else
-        case MTLPixelFormatBC1_RGBA:  return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-#endif
-        default:                      return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 #if GR_TEST_UTILS
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;

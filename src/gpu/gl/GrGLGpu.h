@@ -262,6 +262,7 @@ private:
                              int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
+                                       SkImage::CompressionType compression,
                                        GrGLFormat,
                                        GrMipMapped,
                                        GrGLTextureParameters::SamplerOverriddenState*,
@@ -445,7 +446,8 @@ private:
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
     // to populate a new texture. Returns false if we failed to create and upload the texture.
-    bool uploadCompressedTexData(GrGLFormat,
+    bool uploadCompressedTexData(SkImage::CompressionType compressionType,
+                                 GrGLFormat,
                                  SkISize dimensions,
                                  GrMipMapped,
                                  GrGLenum target,
