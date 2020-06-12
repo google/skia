@@ -29,8 +29,10 @@ class SkImage;
 
 class SkReadBuffer {
 public:
-    SkReadBuffer();
-    SkReadBuffer(const void* data, size_t size);
+    SkReadBuffer() = default;
+    SkReadBuffer(const void* data, size_t size) {
+        this->setMemory(data, size);
+    }
 
     void setMemory(const void*, size_t);
 
@@ -201,20 +203,20 @@ private:
     bool isAvailable(size_t size) const { return size <= this->available(); }
 
     // These are always 4-byte aligned
-    const char* fCurr;  // current position within buffer
-    const char* fStop;  // end of buffer
-    const char* fBase;  // beginning of buffer
+    const char* fCurr = nullptr;  // current position within buffer
+    const char* fStop = nullptr;  // end of buffer
+    const char* fBase = nullptr;  // beginning of buffer
 
     // Only used if we do not have an fFactoryArray.
     SkTHashMap<uint32_t, SkFlattenable::Factory> fFlattenableDict;
 
-    int fVersion;
+    int fVersion = 0;
 
-    sk_sp<SkTypeface>* fTFArray;
-    int                fTFCount;
+    sk_sp<SkTypeface>* fTFArray = nullptr;
+    int                fTFCount = 0;
 
-    SkFlattenable::Factory* fFactoryArray;
-    int                     fFactoryCount;
+    SkFlattenable::Factory* fFactoryArray = nullptr;
+    int                     fFactoryCount = 0;
 
     SkDeserialProcs fProcs;
 

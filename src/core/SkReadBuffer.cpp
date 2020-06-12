@@ -35,35 +35,6 @@ namespace {
 
 } // anonymous namespace
 
-
-SkReadBuffer::SkReadBuffer() {
-    fVersion = 0;
-    fCurr = nullptr;
-    fStop = nullptr;
-    fBase = nullptr;
-
-    fTFArray = nullptr;
-    fTFCount = 0;
-
-    fFactoryArray = nullptr;
-    fFactoryCount = 0;
-}
-
-SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
-    fVersion = 0;
-    fCurr = nullptr;
-    fStop = nullptr;
-    fBase = nullptr;
-
-    this->setMemory(data, size);
-
-    fTFArray = nullptr;
-    fTFCount = 0;
-
-    fFactoryArray = nullptr;
-    fFactoryCount = 0;
-}
-
 void SkReadBuffer::setMemory(const void* data, size_t size) {
     this->validate(IsPtrAlign4(data) && (SkAlign4(size) == size));
     if (!fError) {
