@@ -36,7 +36,6 @@ class GrResourceProvider;
 class GrStrikeCache;
 class GrSurfaceProxy;
 class GrSwizzle;
-class GrTextContext;
 class GrTextureProxy;
 struct GrVkBackendContext;
 

@@ -465,14 +465,14 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrDistanceFieldAdjustTable.h",
   "$_src/gpu/text/GrSDFMaskFilter.cpp",
   "$_src/gpu/text/GrSDFMaskFilter.h",
+  "$_src/gpu/text/GrSDFTOptions.cpp",
+  "$_src/gpu/text/GrSDFTOptions.h",
   "$_src/gpu/text/GrStrikeCache.cpp",
   "$_src/gpu/text/GrStrikeCache.h",
   "$_src/gpu/text/GrTextBlob.cpp",
   "$_src/gpu/text/GrTextBlob.h",
   "$_src/gpu/text/GrTextBlobCache.cpp",
   "$_src/gpu/text/GrTextBlobCache.h",
-  "$_src/gpu/text/GrTextContext.cpp",
-  "$_src/gpu/text/GrTextContext.h",
   "$_src/gpu/text/GrTextTarget.h",
 
   # GLSL

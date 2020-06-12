@@ -1,27 +1,19 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2020 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 
-#include "include/core/SkGraphics.h"
-#include "include/gpu/GrContext.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkDrawProcs.h"
-#include "src/core/SkGlyphRun.h"
-#include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkPaintPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/text/GrSDFMaskFilter.h"
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurfaceProps.h"
+
+#include <tuple>
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
 // kSmallDFFontLimit we will use the medium size. The large size is used up until the size at
@@ -36,16 +28,16 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontSize = 256;
 #endif
 
-GrTextContext::GrTextContext(const Options& options) : fOptions(options) { }
-
-std::unique_ptr<GrTextContext> GrTextContext::Make(const Options& options) {
-    return std::unique_ptr<GrTextContext>(new GrTextContext(options));
+GrSDFTOptions::GrSDFTOptions(SkScalar min, SkScalar max)
+        : fMinDistanceFieldFontSize{min}
+        , fMaxDistanceFieldFontSize{max} {
+    SkASSERT_RELEASE(min > 0 && max >= min);
 }
 
-bool GrTextContext::Options::canDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
-                                                     const SkMatrix& viewMatrix,
-                                                     const SkSurfaceProps& props,
-                                                     bool contextSupportsDistanceFieldText) const {
+bool GrSDFTOptions::canDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
+                                            const SkMatrix& viewMatrix,
+                                            const SkSurfaceProps& props,
+                                            bool contextSupportsDistanceFieldText) const {
     // mask filters modify alpha, which doesn't translate well to distance
     if (paint.getMaskFilter() || !contextSupportsDistanceFieldText) {
         return false;
@@ -102,9 +94,9 @@ SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
     return scaledTextSize;
 }
 
-SkFont GrTextContext::Options::getSDFFont(const SkFont& font,
-                                          const SkMatrix& viewMatrix,
-                                          SkScalar* textRatio) const {
+SkFont GrSDFTOptions::getSDFFont(const SkFont& font,
+                                 const SkMatrix& viewMatrix,
+                                 SkScalar* textRatio) const {
     SkScalar textSize = font.getSize();
     SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
 
@@ -140,7 +132,7 @@ SkFont GrTextContext::Options::getSDFFont(const SkFont& font,
     return dfFont;
 }
 
-std::pair<SkScalar, SkScalar> GrTextContext::Options::computeSDFMinMaxScale(
+std::pair<SkScalar, SkScalar> GrSDFTOptions::computeSDFMinMaxScale(
         SkScalar textSize, const SkMatrix& viewMatrix) const {
 
     SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
@@ -172,8 +164,4 @@ std::pair<SkScalar, SkScalar> GrTextContext::Options::computeSDFMinMaxScale(
     return std::make_pair(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
 }
 
-SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
-    SkPaint dfPaint{paint};
-    dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
-    return dfPaint;
-}
+
