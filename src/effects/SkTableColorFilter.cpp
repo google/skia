@@ -270,10 +270,9 @@ void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
@@ -285,7 +284,7 @@ public:
     const char* name() const override { return "ColorTableEffect"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(fTextureSampler.view()));
+        return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(*this));
     }
 
 private:
@@ -296,18 +295,21 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
     ColorTableEffect(GrSurfaceProxyView view)
-            : INHERITED(
-                      kColorTableEffect_ClassID,
-                      kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
-            , fTextureSampler(std::move(view)) {
-        this->setTextureSamplerCnt(1);
+            // Not bothering with table-specific optimizations.
+            : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
+        auto te = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
+        te->setSampledWithExplicitCoords();
+        this->registerChildProcessor(std::move(te));
     }
 
-    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+    explicit ColorTableEffect(const ColorTableEffect& that)
+            : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
+        auto child = this->childProcessor(0).clone();
+        child->setSampledWithExplicitCoords();
+        this->registerChildProcessor(std::move(child));
+    }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    TextureSampler fTextureSampler;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -323,42 +325,20 @@ private:
 };
 
 void GLColorTableEffect::emitCode(EmitArgs& args) {
-    static const float kColorScaleFactor = 255.0f / 256.0f;
-    static const float kColorOffsetFactor = 1.0f / 512.0f;
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     if (nullptr == args.fInputColor) {
         // the input color is solid white (all ones).
-        static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
-        fragBuilder->codeAppendf("\t\thalf4 coord = half4(%f);\n", kMaxValue);
+        fragBuilder->codeAppend("\t\thalf4 coord = 255.5;\n");
     } else {
-        fragBuilder->codeAppendf("\t\thalf4 coord = unpremul(%s);\n", args.fInputColor);
-        fragBuilder->codeAppendf("\t\tcoord = coord * %f + %f;\n",
-                                 kColorScaleFactor, kColorOffsetFactor);
+        fragBuilder->codeAppendf("\t\thalf4 coord = 255*unpremul(%s) + 0.5;\n",
+                                 args.fInputColor);
     }
-
-    SkString coord;
-
-    fragBuilder->codeAppendf("\t\t%s.a = ", args.fOutputColor);
-    coord.printf("half2(coord.a, 0.125)");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
-    fragBuilder->codeAppend(".a;\n");
-
-    fragBuilder->codeAppendf("\t\t%s.r = ", args.fOutputColor);
-    coord.printf("half2(coord.r, 0.375)");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
-    fragBuilder->codeAppend(".a;\n");
-
-    fragBuilder->codeAppendf("\t\t%s.g = ", args.fOutputColor);
-    coord.printf("half2(coord.g, 0.625)");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
-    fragBuilder->codeAppend(".a;\n");
-
-    fragBuilder->codeAppendf("\t\t%s.b = ", args.fOutputColor);
-    coord.printf("half2(coord.b, 0.875)");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
-    fragBuilder->codeAppend(".a;\n");
-
-    fragBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
+    auto a = this->invokeChild(0, args, "half2(coord.a, 0.5)");
+    auto r = this->invokeChild(0, args, "half2(coord.r, 1.5)");
+    auto g = this->invokeChild(0, args, "half2(coord.g, 2.5)");
+    auto b = this->invokeChild(0, args, "half2(coord.b, 3.5)");
+    fragBuilder->codeAppendf("%s = half4(half3(%s.a, %s.a, %s.a) * %s.a, %s.a);", args.fOutputColor,
+                             r.c_str(), g.c_str(), b.c_str(), a.c_str(), a.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
