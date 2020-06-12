@@ -692,8 +692,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
     GrTextContext::Options options =
             ctxInfo.grContext()->priv().asRecordingContext()->priv().SDFTOptions();
-    REPORTER_ASSERT(reporter, GrTextContext::CanDrawAsDistanceFields(
-                                      paint, font, matrix, surfaceProps, true, options));
+    REPORTER_ASSERT(reporter,
+            options.canDrawAsDistanceFields(paint, font, matrix, surfaceProps, true));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());

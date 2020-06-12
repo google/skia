@@ -35,6 +35,16 @@ public:
                 , fMaxDistanceFieldFontSize{max} {
             SkASSERT_RELEASE(min > 0 && max >= min);
         }
+
+        bool canDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,
+                                     const SkSurfaceProps& props,
+                                     bool contextSupportsDistanceFieldText) const;
+        SkFont getSDFFont(const SkFont& font,
+                          const SkMatrix& viewMatrix,
+                          SkScalar* textRatio) const;
+        std::pair<SkScalar, SkScalar> computeSDFMinMaxScale(
+                SkScalar textSize, const SkMatrix& viewMatrix) const;
+    private:
         // Below this size (in device space) distance field text will not be used.
         const SkScalar fMinDistanceFieldFontSize;
 
@@ -45,22 +55,7 @@ public:
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
-    static bool CanDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,
-                                        const SkSurfaceProps& props,
-                                        bool contextSupportsDistanceFieldText,
-                                        const Options& options);
-
-    static SkFont InitDistanceFieldFont(const SkFont& font,
-                                        const SkMatrix& viewMatrix,
-                                        const Options& options,
-                                        SkScalar* textRatio);
-
     static SkPaint InitDistanceFieldPaint(const SkPaint& paint);
-
-    static std::pair<SkScalar, SkScalar> InitDistanceFieldMinMaxScale(SkScalar textSize,
-                                                                      const SkMatrix& viewMatrix,
-                                                                      const Options& options);
-    Options options() const { return fOptions; }
 
 private:
     GrTextContext(const Options& options);
