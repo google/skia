@@ -68,23 +68,16 @@ private:
     class KernelWrapper {
     public:
         struct ScalableSampler {
-            TextureSampler fSampler;
             // Only used in A8 mode. Applied before any other math.
             float fBias = 0.0f;
             // Only used in A8 mode. Premultiplied in with user gain to save time.
             float fGain = 1.0f;
             bool operator==(const ScalableSampler&) const;
         };
-        static KernelWrapper Make(GrRecordingContext*, SkISize,
-                                  const GrCaps&, const float* values);
+        using MakeResult = std::tuple<KernelWrapper, std::unique_ptr<GrFragmentProcessor>>;
+        static MakeResult Make(GrRecordingContext*, SkISize, const GrCaps&, const float* values);
 
-        KernelWrapper(KernelWrapper&& that) : fSize(that.fSize) {
-            if (that.isSampled()) {
-                new (&fScalableSampler) ScalableSampler(std::move(that.fScalableSampler));
-            } else {
-                new (&fArray) std::array<float, kMaxUniformSize>(std::move(that.fArray));
-            }
-        }
+        KernelWrapper() {}
         KernelWrapper(const KernelWrapper& that) : fSize(that.fSize) {
             if (that.isSampled()) {
                 new (&fScalableSampler) ScalableSampler(that.fScalableSampler);
@@ -112,14 +105,13 @@ private:
         bool operator==(const KernelWrapper&) const;
 
     private:
-        KernelWrapper() : fSize({}) {}
         KernelWrapper(SkISize size) : fSize(size) {
             if (this->isSampled()) {
                 new (&fScalableSampler) ScalableSampler;
             }
         }
 
-        SkISize fSize;
+        SkISize fSize = {};
         union {
             std::array<float, kMaxUniformSize> fArray;
             ScalableSampler fScalableSampler;
@@ -127,7 +119,8 @@ private:
     };
 
     GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor> child,
-                              KernelWrapper kernel,
+                              const KernelWrapper& kernel,
+                              std::unique_ptr<GrFragmentProcessor> kernelFP,
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
@@ -140,8 +133,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    const GrFragmentProcessor::TextureSampler& onTextureSampler(int index) const override;
 
     // We really just want the unaltered local coords, but the only way to get that right now is
     // an identity coord transform.
