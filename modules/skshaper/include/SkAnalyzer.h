@@ -5,10 +5,76 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkUnicode_DEFINED
-#define SkUnicode_DEFINED
+#ifndef SkAnalyzer_DEFINED
+#define SkAnalyzer_DEFINED
 #include "include/core/SkTypes.h"
 #include <vector>
+
+namespace skia {
+namespace unicode {
+
+enum class UtfFormat {
+    kUTF8,
+    kUTF16
+};
+
+// Bidi
+typedef size_t Position;
+typedef uint8_t BidiLevel;
+enum class Direction {
+    kLTR,
+    kRTL,
+};
+struct BidiRegion {
+    Position start;
+    Position end;
+    BidiLevel level;
+};
+
+// LineBreaks
+enum class BreakType {
+    kSoftLineBreak,
+    kHardLineBreak
+};
+struct LineBreak {
+    Position pos;
+    BreakType breakType;
+};
+
+struct Range {
+    Position start;
+    Position end;
+};
+
+class SkUnicodeInput {
+  public:
+      SkSpan<const char> getText() = 0;
+      // ICU iterator running on text in this format (converted if required UTF8 -> UTF16)
+      // Bidi iterator only runs on UTF16
+      UtfFormat getUtfFormat() = 0;
+};
+
+class SkUnicodeOutput {
+    public:
+    // Positions value are given (converted if necessary) into this format
+    UtfFormat getUtfFormat() = 0;
+    Direction getTextDirection() = 0;
+
+    void setBidiRegions(Position start, Position end, BidiLevel level) = 0;
+    void setLineBreaks(Position pos, BreakType breakType) = 0;
+    void setWords(Position start, Position end) = 0;
+    void setGraphemes(Position start, Position end) = 0;
+};
+
+class SkUnicodeAnalyzer {
+    public:
+        bool analyzeBidi(const SkUnicodeInput& input, SkUnicodeOutput& output);
+        bool analyzeLineBreaks(const SkUnicodeInput& input, SkUnicodeOutput& output);
+        bool analyzeWords(const SkUnicodeInput& input, SkUnicodeOutput& output);
+        bool analyzeGraphemes(const SkUnicodeInput& input, SkUnicodeOutput& output);
+};
+}
+}
 
 class SkBidiIterator {
 public:
@@ -81,4 +147,4 @@ public:
             std::vector<size_t> & results) = 0;
 };
 std::unique_ptr<SkUnicode> SkUnicode_Make();
-#endif
+#endif // SkAnalyzer_DEFINED

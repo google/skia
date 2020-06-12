@@ -12,8 +12,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
-#include "modules/skshaper/include/SkUnicode.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "modules/skshaper/include/SkUnicode.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 

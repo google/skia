@@ -881,8 +881,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
-    if (!computeWords()) {
-        return {0, 0 };
+    if (fWords.empty()) {
+        auto result = fICU->getBreaks(fText.c_str(),fText.size(),
+            SkUBreakIterator::kWord,
+            SkUBreakIterator::kUtf16, fWords);
+        if (!result) {
+            return {0, 0};
+        }
     }
 
     int32_t start = 0;
@@ -1083,13 +1088,11 @@ bool ParagraphImpl::getBidiRegions() {
     if (!fBidiRegions.empty()) {
         return true;
     }
-    fBidiRegions.clear();
 
     SkBidiIterator::Direction dir = fParagraphStyle.getTextDirection() == TextDirection::kLtr
                                     ? SkBidiIterator::kLTR
                                     : SkBidiIterator::kRTL;
-    fBidiRegions = fICU->getBidiRegions(fText.c_str(), fText.size(), dir);
-    return true;
+    return fICU->getBidiRegions(fText.c_str(), fText.size(), dir, fBidiRegions);
 }
 
 }  // namespace textlayout
