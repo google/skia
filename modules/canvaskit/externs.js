@@ -47,6 +47,7 @@ var CanvasKit = {
   MakeImage: function() {},
   /** @return {CanvasKit.SkImage} */
   MakeImageFromEncoded: function() {},
+  MakeImageFromCanvasImageSource: function() {},
   MakeOnScreenGLSurface: function() {},
   MakePathFromCmds: function() {},
   MakePathFromOp: function() {},
@@ -951,6 +952,9 @@ HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.loadFont = function() {};
 HTMLCanvas.prototype.makePath2D = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
+
+var ImageBitmapRenderingContext = {};
+ImageBitmapRenderingContext.prototype.transferFromImageBitmap = function() {};
 
 var CanvasRenderingContext2D = {};
 CanvasRenderingContext2D.prototype.addHitRegion = function() {};
