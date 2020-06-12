@@ -19,6 +19,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrDataUtils.h"
@@ -1046,7 +1047,8 @@ void GrGLGpu::uploadTexData(SkISize texDims,
     }
 }
 
-bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
+bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
+                                      GrGLFormat format,
                                       SkISize dimensions,
                                       GrMipMapped mipMapped,
                                       GrGLenum target,
@@ -1060,7 +1062,6 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         return false;
     }
 
-    SkImage::CompressionType compressionType = GrGLFormatToCompressionType(format);
     SkASSERT(compressionType != SkImage::CompressionType::kNone);
 
     bool useTexStorage = caps.formatSupportsTexStorage(format);
@@ -1364,13 +1365,15 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     if (isProtected == GrProtected::kYes) {
         return nullptr;
     }
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
     desc.fSize = dimensions;
     desc.fTarget = GR_GL_TEXTURE_2D;
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
-    desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat,
+    desc.fID = this->createCompressedTexture2D(desc.fSize, compression, desc.fFormat,
                                                mipMapped, &initialState,
                                                data, dataSize);
     if (!desc.fID) {
@@ -1407,16 +1410,16 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
         return {};
     }
 
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
     const char* rawData = nullptr;
     size_t rawDataSize = 0;
     SkAutoMalloc am;
-
     SkASSERT(!data || data->type() != BackendTextureData::Type::kPixmaps);
     if (data && data->type() == BackendTextureData::Type::kCompressed) {
         rawData = (const char*) data->compressedData();
         rawDataSize = data->compressedSize();
     } else if (data && data->type() == BackendTextureData::Type::kColor) {
-        SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
         SkASSERT(compression != SkImage::CompressionType::kNone);
 
         rawDataSize = SkCompressedDataSize(compression, dimensions, nullptr,
@@ -1434,7 +1437,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
-    info.fID = this->createCompressedTexture2D(dimensions, glFormat,
+    info.fID = this->createCompressedTexture2D(dimensions, compression, glFormat,
                                                mipMapped, &initialState,
                                                rawData, rawDataSize);
     if (!info.fID) {
@@ -1557,6 +1560,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
 
 GrGLuint GrGLGpu::createCompressedTexture2D(
         SkISize dimensions,
+        SkImage::CompressionType compression,
         GrGLFormat format,
         GrMipMapped mipMapped,
         GrGLTextureParameters::SamplerOverriddenState* initialState,
@@ -1575,7 +1579,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
     if (data) {
-        if (!this->uploadCompressedTexData(format, dimensions, mipMapped,
+        if (!this->uploadCompressedTexData(compression, format, dimensions, mipMapped,
                                            GR_GL_TEXTURE_2D, data, dataSize)) {
             GL_CALL(DeleteTextures(1, &id));
             return 0;

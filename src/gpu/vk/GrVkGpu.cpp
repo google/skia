@@ -14,6 +14,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -707,10 +708,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
 // 'individualMipOffsets' is filled in as a side-effect.
 static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* regions,
                               SkTArray<size_t>* individualMipOffsets,
+                              SkImage::CompressionType compression,
                               VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped,
                               VkDeviceSize bufferOffset) {
-    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
-
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
@@ -938,7 +938,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
 // It's probably possible to roll this into uploadTexDataOptimal,
 // but for now it's easier to maintain as a separate entity.
-bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture, VkFormat vkFormat,
+bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
+                                      SkImage::CompressionType compression, VkFormat vkFormat,
                                       SkISize dimensions, GrMipMapped mipMapped,
                                       const void* data, size_t dataSize) {
     SkASSERT(data);
@@ -975,9 +976,9 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture, VkFormat vkFor
     SkTArray<VkBufferImageCopy> regions;
     SkTArray<size_t> individualMipOffsets;
     SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(fVkCaps.get(), &regions,
-                                                             &individualMipOffsets,
-                                                             vkFormat, dimensions,
-                                                             mipMapped, bufferOffset);
+                                                             &individualMipOffsets, compression,
+                                                             vkFormat, dimensions, mipMapped,
+                                                             bufferOffset);
     SkASSERT(dataSize == combinedBufferSize);
 
     // Change layout of our target so it can be copied to
@@ -1131,7 +1132,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
         return nullptr;
     }
 
-    if (!this->uploadTexDataCompressed(tex.get(), pixelFormat, dimensions, mipMapped,
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+    if (!this->uploadTexDataCompressed(tex.get(), compression, pixelFormat, dimensions, mipMapped,
                                        data, dataSize)) {
         return nullptr;
     }
@@ -1652,10 +1654,14 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         range.levelCount = info.fLevelCount;
         cmdBuffer->clearColorImage(this, texture.get(), &vkColor, 1, &range);
     } else {
+        SkImage::CompressionType compression = GrBackendFormatToCompressionType(
+                backendTexture.getBackendFormat());
+
         SkTArray<VkBufferImageCopy> regions;
         SkTArray<size_t> individualMipOffsets;
         size_t combinedBufferSize = fill_in_regions(fVkCaps.get(), &regions, &individualMipOffsets,
-                                                    info.fFormat, backendTexture.dimensions(),
+                                                    compression, info.fFormat,
+                                                    backendTexture.dimensions(),
                                                     backendTexture.fMipMapped, 0);
 
         sk_sp<GrVkTransferBuffer> transferBuffer =
@@ -1673,8 +1679,6 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                           data->compressedData(), data->compressedSize());
         } else {
             SkASSERT(data->type() == BackendTextureData::Type::kColor);
-            SkImage::CompressionType compression = GrVkFormatToCompressionType(info.fFormat);
-
             result = generate_compressed_data(this, (char*)transferBuffer->map(), compression,
                                               backendTexture.dimensions(),
                                               backendTexture.fMipMapped, data->color());
