@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a28cde2_886dba83",
+        "filename": "src/gpu/GrBackendUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-12T13:11:03Z",
+      "side": 1,
+      "message": "So I went back and forth a bunch on whether to get the Gr[API]FormatToCompressionType helpers and then having this just call them. But in the end I went with this so that all the compression stuff is all in one place for all backends. It did mean a little plumbing of compressionType down in some of the gpu calls, but I slightly lean towards liking this better.\n\nYour thoughts?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 13
+      },
+      "revId": "a44292262934951078118f94a8b61e25cb1d6a0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
