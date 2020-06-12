@@ -1475,9 +1475,9 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     surface->flushAndSubmit();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->priv().dumpCacheStats(log);
-        canvas->getGrContext()->priv().dumpGpuStats(log);
-        canvas->getGrContext()->priv().dumpContextStats(log);
+        context->priv().dumpCacheStats(log);
+        context->priv().dumpGpuStats(log);
+        context->priv().dumpContextStats(log);
     }
 
     this->readBack(surface.get(), dst);
@@ -1623,10 +1623,97 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
-        : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
-    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1, false)) {
+GPUOOPRSink::GPUOOPRSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
+        : INHERITED(config, ctxOptions) {
+}
+
+Result GPUOOPRSink::ooprDraw(const Src& src,
+                             sk_sp<SkSurface> dstSurface,
+                             GrContext* context) const {
+    SkSurfaceCharacterization dstCharacterization;
+    SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+    SkDeferredDisplayListRecorder recorder(dstCharacterization);
+
+    SkCanvas* recordingCanvas = recorder.getCanvas();
+
+    Result result = src.draw(recorder.getCanvas());
+    if (!result.isOk()) {
+        return result;
+    }
+
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+
+    SkDeferredDisplayList::ProgramIterator iter(context, ddl.get());
+    for (; !iter.done(); iter.next()) {
+        iter.compile();
+    }
+
+    dstSurface->draw(ddl.get());
+
+    // TODO: remove this flush once DDLs are reffed by the drawing manager
+    context->flushAndSubmit();
+
+    ddl.reset();
+
+    return Result::Ok();
+}
+
+Result GPUOOPRSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
+    GrContextOptions contextOptions = this->baseContextOptions();
+    src.modifyGrContextOptions(&contextOptions);
+    contextOptions.fPersistentCache = nullptr;
+    contextOptions.fExecutor = nullptr;
+
+    GrContextFactory factory(contextOptions);
+
+    ContextInfo ctxInfo = factory.getContextInfo(this->contextType(), this->contextOverrides());
+    GrContext* context = ctxInfo.grContext();
+    if (!context) {
+        return Result::Fatal("Could not create context.");
+    }
+
+    SkASSERT(context->priv().getGpu());
+
+    GrBackendTexture backendTexture;
+    GrBackendRenderTarget backendRT;
+    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size(),
+                                                      &backendTexture, &backendRT);
+    if (!surface) {
+        return Result::Fatal("Could not create a surface.");
+    }
+
+    Result result = this->ooprDraw(src, surface, context);
+    if (!result.isOk()) {
+        return result;
+    }
+
+    if (FLAGS_gpuStats) {
+        context->priv().dumpCacheStats(log);
+        context->priv().dumpGpuStats(log);
+        context->priv().dumpContextStats(log);
+    }
+
+    if (!this->readBack(surface.get(), dst)) {
+        return Result::Fatal("Could not readback from surface.");
+    }
+
+    surface.reset();
+    if (backendTexture.isValid()) {
+        context->deleteBackendTexture(backendTexture);
+    }
+    if (backendRT.isValid()) {
+        context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+    }
+
+    return Result::Ok();
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
+        : INHERITED(config, ctxOptions)
+        , fRecordingExecutor(SkExecutor::MakeLIFOThreadPool(1))
+        , fGPUExecutor(SkExecutor::MakeFIFOThreadPool(1, false)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
@@ -1735,7 +1822,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     return Result::Ok();
 }
 
-Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* log) const {
+Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions contextOptions = this->baseContextOptions();
     src.modifyGrContextOptions(&contextOptions);
     contextOptions.fPersistentCache = nullptr;
@@ -1767,8 +1854,8 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
     SkASSERT(otherCtx->priv().getGpu());
 #endif
 
-    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
-    SkTaskGroup gpuTaskGroup(*fGPUThread);
+    SkTaskGroup recordingTaskGroup(*fRecordingExecutor);
+    SkTaskGroup gpuTaskGroup(*fGPUExecutor);
 
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
