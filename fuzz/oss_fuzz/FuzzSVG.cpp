@@ -11,17 +11,8 @@
 #include "include/core/SkSurface.h"
 
 void FuzzSVG(sk_sp<SkData> bytes) {
-    const uint8_t* data = bytes->bytes();
-    const size_t size = bytes->size();
-    if (size < 2) {
-        return;
-    }
-    uint8_t w;
-    uint8_t h;
-    std::memcpy(&w, data, sizeof(w));
-    std::memcpy(&h, data, sizeof(w));
-    w %= 128;
-    h %= 128;
+    uint8_t w = 100;
+    uint8_t h = 200;
 
     SkMemoryStream stream(bytes);
     sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream);
@@ -35,6 +26,7 @@ void FuzzSVG(sk_sp<SkData> bytes) {
     }
     SkSize winSize = SkSize::Make(w, h);
     dom->setContainerSize(winSize);
+    dom->containerSize();
     dom->render(s->getCanvas());
 
 }
