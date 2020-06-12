@@ -25552,8 +25552,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -25576,7 +25576,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25624,8 +25624,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -25648,7 +25648,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -50794,8 +50794,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -50818,7 +50818,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -50866,8 +50866,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -50890,7 +50890,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -50938,8 +50938,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -50962,7 +50962,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -51010,8 +51010,8 @@
           "version": "git_revision:ae0579c73e57a0e6730a28509eb1b5ea71b35df5"
         },
         {
-          "name": "skia/bots/ios-dev-image-13.3",
-          "path": "ios-dev-image-13.3",
+          "name": "skia/bots/ios-dev-image-13.4",
+          "path": "ios-dev-image-13.4",
           "version": "version:0"
         }
       ],
@@ -51034,7 +51034,7 @@
       "dimensions": [
         "device_type:iPhone12,1",
         "libimobiledevice:1582155448",
-        "os:iOS-13.3.1",
+        "os:iOS-13.4.1",
         "pool:Skia"
       ],
       "env_prefixes": {
