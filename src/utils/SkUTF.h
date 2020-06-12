@@ -64,6 +64,12 @@ SK_SPI size_t ToUTF8(SkUnichar uni, char utf8[kMaxBytesInUTF8Sequence] = nullptr
 */
 SK_SPI size_t ToUTF16(SkUnichar uni, uint16_t utf16[2] = nullptr);
 
+/** Returns the number of resulting UTF16 values needed to convert the src utf8 sequence.
+ *  If dst is not null, it is filled with the corresponding values up to its capacity.
+ *  If there is an error, -1 is returned and the dst[] buffer is undefined.
+ */
+SK_SPI int UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength);
+
 }  // namespace SkUTF
 
 #endif  // SkUTF_DEFINED
