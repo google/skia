@@ -473,8 +473,9 @@ private:
                    sk_gpu_test::TestContext* gpuTestCtx,
                    GrContext* gpuThreadCtx) const;
 
-    std::unique_ptr<SkExecutor> fRecordingThreadPool;
-    std::unique_ptr<SkExecutor> fGPUThread;
+    std::unique_ptr<SkExecutor> fRecordingExecutor;
+    std::unique_ptr<SkExecutor> fGPUExecutor;
+    int                         fNumDivisions = 3;
 
     typedef GPUSink INHERITED;
 };
