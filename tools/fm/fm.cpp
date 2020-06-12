@@ -573,7 +573,7 @@ int main(int argc, char** argv) {
                 case Result::Ok:   break;
                 case Result::Skip: return false;
                 case Result::Fail:
-                    SK_ABORT(result.failure.c_str());
+                    SK_ABORT("%s", result.failure.c_str());
             }
             return true;
         };
