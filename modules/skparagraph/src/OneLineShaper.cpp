@@ -472,10 +472,6 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
 bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
-    if (!fParagraph->getBidiRegions()) {
-        return false;
-    }
-
     size_t bidiIndex = 0;
 
     SkScalar advanceX = 0;
@@ -485,8 +481,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             // Shape the text by bidi regions
             while (bidiIndex < fParagraph->fBidiRegions.size()) {
                 BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
-                auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
-                auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
+                auto start = std::max(bidiRegion.start, placeholder.fTextBefore.start);
+                auto end = std::min(bidiRegion.end, placeholder.fTextBefore.end);
 
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);
@@ -494,11 +490,11 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                 SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
 
                 // Shape the text between placeholders
-                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.direction)) {
+                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
                     return false;
                 }
 
-                if (end == bidiRegion.text.end) {
+                if (end == bidiRegion.end) {
                     ++bidiIndex;
                 } else /*if (end == placeholder.fTextBefore.end)*/ {
                     break;
