@@ -16,8 +16,8 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #include "src/gpu/text/GrTextBlobCache.h"
-#include "src/gpu/text/GrTextContext.h"
 #endif
 
 #include "include/core/SkColorFilter.h"
@@ -48,7 +48,7 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
         ,  fColorType{colorType}, fScalerContextFlags{flags}
         ,  fStrikeCache{strikeCache} {}
 
-// TODO: unify with code in GrTextContext.cpp
+// TODO: unify with code in GrSDFTOptions.cpp
 static SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
     // If we're doing linear blending, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
@@ -141,7 +141,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                                                 const SkMatrix& drawMatrix,
                                                 const SkSurfaceProps& props,
                                                 bool contextSupportsDistanceFieldText,
-                                                const GrTextContext::Options& options,
+                                                const GrSDFTOptions& options,
                                                 SkGlyphRunPainterInterface* process) {
 
     SkPoint origin = glyphRunList.origin();

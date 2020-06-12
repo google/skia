@@ -70,8 +70,8 @@
 #include "src/gpu/ops/GrStencilPathOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #include "src/gpu/text/GrTextBlobCache.h"
-#include "src/gpu/text/GrTextContext.h"
 #include "src/gpu/text/GrTextTarget.h"
 
 class GrRenderTargetContext::TextTarget : public GrTextTarget {
@@ -485,7 +485,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrTextContext::Options options = fContext->priv().SDFTOptions();
+    GrSDFTOptions options = fContext->priv().SDFTOptions();
     GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
 
     // Get the first paint to use as the key paint.

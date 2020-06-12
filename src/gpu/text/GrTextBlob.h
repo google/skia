@@ -27,7 +27,7 @@ class GrAtlasTextOp;
 class GrDeferredUploadTarget;
 class GrGlyph;
 class GrStrikeCache;
-class GrTextContext;
+class GrTextTarget;
 
 class SkMatrixProvider;
 class SkSurfaceProps;

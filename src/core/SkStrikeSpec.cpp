@@ -14,8 +14,9 @@
 #include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/text/GrSDFMaskFilter.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #include "src/gpu/text/GrStrikeCache.h"
-#include "src/gpu/text/GrTextContext.h"
 #endif
 
 SkStrikeSpec SkStrikeSpec::MakeMask(const SkFont& font, const SkPaint& paint,
@@ -186,10 +187,11 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 std::tuple<SkStrikeSpec, SkScalar, SkScalar>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                       const GrTextContext::Options& options) {
+                       const GrSDFTOptions& options) {
     SkStrikeSpec storage;
 
-    SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(paint);
+    SkPaint dfPaint{paint};
+    dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
     SkFont dfFont = options.getSDFFont(font, deviceMatrix, &storage.fStrikeToSourceRatio);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the

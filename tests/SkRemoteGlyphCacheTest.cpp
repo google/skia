@@ -23,7 +23,7 @@
 
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
                            public SkStrikeClient::DiscardableHandleManager {
@@ -690,7 +690,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     // A scale transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::Scale(16, 16);
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
-    GrTextContext::Options options =
+    GrSDFTOptions options =
             ctxInfo.grContext()->priv().asRecordingContext()->priv().SDFTOptions();
     REPORTER_ASSERT(reporter,
             options.canDrawAsDistanceFields(paint, font, matrix, surfaceProps, true));

@@ -9,7 +9,7 @@
 #define GrRecordingContextPriv_DEFINED
 
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 
 /** Class that exposes methods to GrRecordingContext that are only intended for use internal to
     Skia. This class is purely a privileged window into GrRecordingContext. It should never have
@@ -103,7 +103,7 @@ public:
         return &fContext->fStats;
     }
 
-    GrTextContext::Options SDFTOptions() const {
+    GrSDFTOptions SDFTOptions() const {
         return {this->options().fMinDistanceFieldFontSize, this->options().fGlyphsAsPathsFontSize};
     }
 

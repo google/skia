@@ -37,7 +37,7 @@
 #include "src/gpu/GrTransferFromRenderTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #include "src/image/SkSurface_Gpu.h"
 
 GrDrawingManager::RenderTaskDAG::RenderTaskDAG(bool sortRenderTasks)
