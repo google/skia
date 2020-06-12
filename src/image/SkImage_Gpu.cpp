@@ -172,7 +172,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
         return nullptr;
     }
 
-    CompressionType type = caps->compressionType(tex.getBackendFormat());
+    CompressionType type = GrBackendFormatToCompressionType(tex.getBackendFormat());
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
@@ -519,6 +519,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                                 colorType,
                                                                 backendFormat);
     if (GrColorType::kUnknown == grColorType) {
+        return nullptr;
+    }
+
+    if (!context->priv().caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
         return nullptr;
     }
 

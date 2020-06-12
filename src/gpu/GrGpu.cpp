@@ -262,7 +262,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
     }
 
     // TODO: expand CompressedDataIsCorrect to work here too
-    SkImage::CompressionType compressionType = this->caps()->compressionType(format);
+    SkImage::CompressionType compressionType = GrBackendFormatToCompressionType(format);
 
     if (dataSize < SkCompressedDataSize(compressionType, dimensions, nullptr,
                                         mipMapped == GrMipMapped::kYes)) {
@@ -935,7 +935,7 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
         return {};
     }
 
-    SkImage::CompressionType compressionType = caps->compressionType(format);
+    SkImage::CompressionType compressionType = GrBackendFormatToCompressionType(format);
     if (compressionType == SkImage::CompressionType::kNone) {
         // Uncompressed formats must go through the createBackendTexture API
         return {};
