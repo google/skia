@@ -22,6 +22,30 @@
       "revId": "1df38bc606e28253f89ca5fce6bae349db9dbffa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc4064e9_ed1dcee8",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-06-12T23:27:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "308018fc_1320734e",
+      "range": {
+        "startLine": 1018,
+        "startChar": 0,
+        "endLine": 1018,
+        "endChar": 127
+      },
+      "revId": "1df38bc606e28253f89ca5fce6bae349db9dbffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
