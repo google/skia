@@ -190,16 +190,14 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
     SkStrikeSpec storage;
 
     SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(paint);
-    SkFont dfFont = GrTextContext::InitDistanceFieldFont(
-            font, deviceMatrix, options, &storage.fStrikeToSourceRatio);
+    SkFont dfFont = options.getSDFFont(font, deviceMatrix, &storage.fStrikeToSourceRatio);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
     SkScalerContextFlags flags = SkScalerContextFlags::kNone;
 
     SkScalar minScale, maxScale;
-    std::tie(minScale, maxScale) = GrTextContext::InitDistanceFieldMinMaxScale(
-            font.getSize(), deviceMatrix, options);
+    std::tie(minScale, maxScale) = options.computeSDFMinMaxScale(font.getSize(), deviceMatrix);
 
     storage.commonSetup(dfFont, dfPaint, surfaceProps, flags, SkMatrix::I());
 
