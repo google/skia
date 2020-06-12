@@ -252,8 +252,14 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
+    struct CheapHash {
+        uint32_t operator()(uint32_t val) {
+            return SkChecksum::CheapMix(val);
+        }
+    };
+
     // Keys are UniqueID of GrSurfaceProxys.
-    SkTHashMap<uint32_t, GrRenderTask*> fLastRenderTasks;
+    SkTHashMap<uint32_t, GrRenderTask*, CheapHash> fLastRenderTasks;
 };
 
 #endif
