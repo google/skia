@@ -69,6 +69,24 @@
       "revId": "e7ed0a0125636a542c0b85b0bb9970aed795fb33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "984eb9ff_73c403fd",
+        "filename": "src/utils/mac/SkCTFontSmoothBehavior.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-12T16:01:04Z",
+      "side": 1,
+      "message": "Sure, but literally the next variable on 37 is \"static constexpr\". The codebase has both uses, but I\u0027d make them consistent at least inside this file.",
+      "parentUuid": "2668f530_6aa9d4e1",
+      "revId": "e7ed0a0125636a542c0b85b0bb9970aed795fb33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
