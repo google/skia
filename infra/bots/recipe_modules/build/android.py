@@ -44,6 +44,8 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Vulkan' in extra_tokens:
     args['ndk_api'] = 24
     args['skia_enable_vulkan_debug_layers'] = 'false'
+  if 'HWASAN' in extra_tokens:
+    args['sanitize'] = '"hwaddress"'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
   if 'Wuffs' in extra_tokens:
