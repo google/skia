@@ -125,8 +125,8 @@ public:
             return;
         }
 
-        // TODO: is initFastShortString still worth it?
-        if (false && src && src + 7 <= eos) {
+        // initFastShortString is faster (doh), but requires access to 6 chars past src.
+        if (src && src + 6 <= eos) {
             this->initFastShortString(src, size);
         } else {
             this->initShortString(src, size);
@@ -159,12 +159,23 @@ private:
     void initFastShortString(const char* src, size_t size) {
         SkASSERT(size <= kMaxInlineStringSize);
 
-        // Load 8 chars and mask out the tag and \0 terminator.
         uint64_t* s64 = this->cast<uint64_t>();
-        memcpy(s64, src, 8);
+
+        // Load 8 chars and mask out the tag and \0 terminator.
+        // Note: we picked kShortString == 0 to avoid setting explicitly below.
+        static_assert(SkToU8(Tag::kShortString) == 0, "please don't break this");
+
+        // Since the first byte is occupied by the tag, we want the string chars [0..5] to land
+        // on bytes [1..6] => the fastest way is to read8 @(src - 1) (always safe, because the
+        // string requires a " prefix at the very least).
+        memcpy(s64, src - 1, 8);
 
 #if defined(SK_CPU_LENDIAN)
-        *s64 &= 0x00ffffffffffffffULL >> ((kMaxInlineStringSize - size) * 8);
+        // The mask for a max-length string (6), with a leading tag and trailing \0 is
+        // 0x00ffffffffffff00.  Accounting for the final left-shift, this becomes
+        // 0x0000ffffffffffff.
+        *s64 &= (0x0000ffffffffffffULL >> ((kMaxInlineStringSize - size) * 8)) // trailing \0s
+                    << 8;                                                      // tag byte
 #else
         static_assert(false, "Big-endian builds are not supported at this time.");
 #endif

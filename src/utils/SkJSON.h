@@ -121,11 +121,13 @@ protected:
 
      */
     enum class Tag : uint8_t {
-        kNull                         = 0b00000000,  // no payload
-        kBool                         = 0b00000001,  // inline payload
-        kInt                          = 0b00000010,  // inline payload
-        kFloat                        = 0b00000011,  // inline payload
-        kShortString                  = 0b00000100,  // inline payload
+        // n.b.: we picked kShortString == 0 on purpose,
+        // to enable certain short-string optimizations.
+        kShortString                  = 0b00000000,  // inline payload
+        kNull                         = 0b00000001,  // no payload
+        kBool                         = 0b00000010,  // inline payload
+        kInt                          = 0b00000011,  // inline payload
+        kFloat                        = 0b00000100,  // inline payload
         kString                       = 0b00000101,  // ptr to external storage
         kArray                        = 0b00000110,  // ptr to external storage
         kObject                       = 0b00000111,  // ptr to external storage
