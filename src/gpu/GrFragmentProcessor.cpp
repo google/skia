@@ -141,6 +141,14 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
     return index;
 }
 
+int GrFragmentProcessor::cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp) {
+    std::unique_ptr<GrFragmentProcessor> clone = fp.clone();
+    if (fp.isSampledWithExplicitCoords()) {
+        clone->setSampledWithExplicitCoords();
+    }
+    return this->registerChildProcessor(std::move(clone));
+}
+
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
     if (this->numCoordTransforms() != that.numCoordTransforms()) {
         return false;

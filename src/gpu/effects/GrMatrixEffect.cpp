@@ -51,11 +51,7 @@ bool GrMatrixEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GrMatrixEffect::GrMatrixEffect(const GrMatrixEffect& src)
         : INHERITED(kGrMatrixEffect_ClassID, src.optimizationFlags())
         , fMatrix(src.fMatrix) {
-    auto child = src.childProcessor(0).clone();
-    if (src.childProcessor(0).isSampledWithExplicitCoords()) {
-        child->setSampledWithExplicitCoords();
-    }
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterChildProcessor(src.childProcessor(0));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::clone() const {
