@@ -78,19 +78,10 @@ template <> void Draw::draw(const NoOp&) {}
 DRAW(Flush, flush());
 DRAW(Restore, restore());
 DRAW(Save, save());
-#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
-DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
-                                                 r.paint,
-                                                 r.backdrop.get(),
-                                                 r.clipMask.get(),
-                                                 r.clipMatrix,
-                                                 r.saveLayerFlags)));
-#else
 DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.paint,
                                                  r.backdrop.get(),
                                                  r.saveLayerFlags)));
-#endif
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);

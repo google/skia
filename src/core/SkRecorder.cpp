@@ -316,12 +316,6 @@ SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec&
     this->append<SkRecords::SaveLayer>(this->copy(rec.fBounds)
                     , this->copy(rec.fPaint)
                     , sk_ref_sp(rec.fBackdrop)
-#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
-                    , sk_ref_sp(rec.fClipMask)
-                    , this->copy(rec.fClipMatrix)
-#else
-                    , nullptr, nullptr
-#endif
                     , rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }

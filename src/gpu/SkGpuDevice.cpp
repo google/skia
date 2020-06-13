@@ -628,8 +628,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
                                          paint, this->asMatrixProvider(), shape);
 }
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter());
 
     ASSERT_SINGLE_OWNER
@@ -685,59 +684,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     const SkIRect& subset = result->subset();
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
     SkRect srcRect = SkRect::Make(subset);
-    if (clipImage) {
-        // Add the image as a simple texture effect applied to coverage. Accessing content outside
-        // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
-        // limit pixels touched and hardware checks, we draw the clip image geometry to get the
-        // decal effect.
-        auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
-                              ? GrSamplerState::Filter::kBilerp
-                              : GrSamplerState::Filter::kNearest;
-        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), GrMipMapped::kNo);
-        // Fold clip matrix into ctm
-        ctm.preConcat(clipMatrix);
-        SkMatrix inverseClipMatrix;
 
-        std::unique_ptr<GrFragmentProcessor> cfp;
-        if (clipView && ctm.invert(&inverseClipMatrix)) {
-            GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
-
-            cfp = GrTextureEffect::Make(std::move(clipView), clipImage->alphaType(),
-                                        inverseClipMatrix, filter);
-            if (srcColorType != GrColorType::kAlpha_8) {
-                cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
-            }
-        }
-
-        if (cfp) {
-            // If the grPaint already has coverage, this adds an additional stage that multiples
-            // the image's alpha channel with the prior coverage.
-            grPaint.addCoverageFragmentProcessor(std::move(cfp));
-
-            // Undo the offset that was needed for shader coord transforms to get the transform for
-            // the actual drawn geometry.
-            ctm.postTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            inverseClipMatrix.preTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
-            SkRect clipGeometry = SkRect::MakeWH(clipImage->width(), clipImage->height());
-            if (!clipGeometry.contains(inverseClipMatrix.mapRect(dstRect))) {
-                // Draw the clip geometry since it is smaller, using dstRect as an extra scissor
-                SkClipStack dstRectClip(this->cs());
-                dstRectClip.clipDevRect(
-                        SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
-                        SkClipOp::kIntersect);
-                GrClipStackClip clip(fRenderTargetContext->dimensions(), &dstRectClip,
-                                     &this->asMatrixProvider());
-                SkMatrix local = SkMatrix::Concat(SkMatrix::MakeRectToRect(
-                        dstRect, srcRect, SkMatrix::kFill_ScaleToFit), ctm);
-                fRenderTargetContext->fillRectWithLocalMatrix(&clip, std::move(grPaint),
-                                                              GrAA(paint.isAntiAlias()), ctm,
-                                                              clipGeometry, local);
-                return;
-            }
-            // Else fall through and draw the subset since that is contained in the clip geometry
-        }
-        // Else some issue configuring the coverage FP, so just draw without the clip mask image
-    }
     // Draw directly in screen space, possibly with an extra coverage processor
     fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint),
             GrAA(paint.isAntiAlias()), SkMatrix::I(), dstRect, srcRect);
@@ -846,7 +793,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
+    this->drawSpecial(srcImg.get(), left, top, paint);
 }
 
 void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,

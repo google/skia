@@ -1722,8 +1722,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 #include "include/core/SkImageFilter.h"
 #include "src/core/SkSpecialImage.h"
 
-void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint) {
     if (this->hasEmptyClip()) {
         return;
     }
