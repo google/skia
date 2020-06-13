@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b64a3e0b_e7a6090e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-13T18:30:33Z",
+      "side": 1,
+      "message": "Not requesting any change here, just an observation.\n\nGoogle3 bans implicit conversion because it is so easy to accidentally cause unintended effects: go/cstyle#Implicit_Conversions\n\nI know we don\u0027t follow the style guide to the letter at all, but I am surprised Skia doesn\u0027t adhere to this rule. It is very easy to shoot yourself in the foot with implicit conversions.",
+      "range": {
+        "startLine": 1075,
+        "startChar": 0,
+        "endLine": 1087,
+        "endChar": 5
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6228d22a_72e65cdc",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-13T18:30:33Z",
+      "side": 1,
+      "message": "Consider `std::variant\u003cStatement*, std::unique_ptr\u003cStatement\u003e*\u003e` as this class seems to basically be a spin on `variant`.\n\nIf variant doesn\u0027t work for you, consider replacing the `void*` with a `union { Statement*, std::unique_ptr\u003cStatement\u003e* }` to ease casting.\n\nIn my past project, we had a class called \"OptionallyOwned\" which might actually be interesting to you (although I don\u0027t think it could be plugged in here as-is, it might be close). If you set the deleter function on a std::shared_ptr appropriately, you can model different ownership semantics on a single shared_ptr type. It\u0027s really handy. PTAL if you are curious:\n\nhttp://google3/analytics/collection/server/golfe_injection.h?l\u003d93\u0026rcl\u003d201376600",
+      "range": {
+        "startLine": 1091,
+        "startChar": 0,
+        "endLine": 1096,
+        "endChar": 0
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e5985f2_a87ce159",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-13T18:30:33Z",
+      "side": 1,
+      "message": "nit: If `push_back` can be used, it should generally be preferred because its behavior is simpler to reason about. go/totw/112",
+      "range": {
+        "startLine": 1134,
+        "startChar": 20,
+        "endLine": 1134,
+        "endChar": 32
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
