@@ -1032,7 +1032,7 @@ config("SkiaSharp_public") {
   defines = [ "SKIA_C_DLL" ]
 }
 
-shared_library("SkiaSharp") {
+skiasharp_build("SkiaSharp") {
   public_configs = [ ":skia_public", ":SkiaSharp_public" ]
   configs += skia_library_configs + [ ":SkiaSharp_public" ]
 

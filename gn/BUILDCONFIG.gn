@@ -10,6 +10,7 @@ is_skia_standalone = true
 declare_args() {
   is_official_build = false
   is_component_build = false
+  is_static_skiasharp = false
   ndk = ""
 
   # Android 5.0, Lollipop
@@ -199,6 +200,18 @@ template("component") {
   }
 }
 
+# SkiaSharp differs depending on the platform
+template("skiasharp_build") {
+  _skiasharp_mode = "shared_library"
+  if (is_static_skiasharp) {
+    _skiasharp_mode = "static_library"
+  }
+
+  target(_skiasharp_mode, target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
 # Default configs
 default_configs = [
   "//gn:default",
@@ -241,6 +254,13 @@ set_defaults("shared_library") {
 set_defaults("component") {
   configs = default_configs
   if (!is_component_build) {
+    complete_static_lib = true
+  }
+}
+
+set_defaults("skiasharp_build") {
+  configs = default_configs
+  if (is_static_skiasharp) {
     complete_static_lib = true
   }
 }
