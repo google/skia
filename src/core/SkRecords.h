@@ -166,8 +166,6 @@ RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
        sk_sp<const SkImageFilter> backdrop;
-       sk_sp<const SkImage> clipMask;
-       Optional<SkMatrix> clipMatrix;
        SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SaveBehind, 0,

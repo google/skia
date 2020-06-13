@@ -101,8 +101,7 @@ public:
 
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
-    void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
-                     SkImage*, const SkMatrix&) override;
+    void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint&) override;
 
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
                         const SkColor4f& color, SkBlendMode mode) override;

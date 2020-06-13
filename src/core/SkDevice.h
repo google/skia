@@ -295,8 +295,7 @@ protected:
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                             SkImage* clipImage, const SkMatrix& clipMatrix);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     // Get a view of the entire device's current contents as an image.

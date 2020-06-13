@@ -101,8 +101,7 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
