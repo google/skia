@@ -1,7 +1,7 @@
 package org.skia.skottie;
 
 import android.graphics.drawable.Animatable;
-import android.support.annotation.FloatRange;
+import androidx.annotation.FloatRange;
 
 public interface SkottieAnimation extends Animatable {
     /**

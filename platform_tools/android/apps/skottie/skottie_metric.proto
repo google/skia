@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+package perfetto.protos;
+
+import "protos/perfetto/metrics/metrics.proto";
+import "protos/perfetto/metrics/android/hwui_metric.proto";
+
+// Android HWUI graphics performance and graphics memory usage metrics augmented with
+// perf data which is specific to the Skottie player. Skottie app has an additional
+// render thread named "SkottieAnimator" in the traces. Perf metrics are filtered for
+// 'org.skia.skottie' process only.
+message ProcessRenderInfoEx {
+  //  original HWUI metric as defined by built-in perfetto proto.
+  optional ProcessRenderInfo hwui_process_info = 1;
+
+  // Number of times the Skottie GL thread rendered a frame and max/min/avg time for Skottie GL renderer to finish rendering in
+  // in nanoseconds. These values have 0 value for lottie player, because it does it renders only in RenderThread.
+  optional uint32 skottie_animator_count = 2;
+  optional int64 skottie_animator_max = 3;
+  optional int64 skottie_animator_min = 4;
+  optional double skottie_animator_avg = 5;
+
+  optional uint32 dequeue_buffer_count = 6;
+  optional int64 dequeue_buffer_max = 7;
+  optional int64 dequeue_buffer_min = 8;
+  optional double dequeue_buffer_avg = 9;
+
+  // The following 3 fields are useful for direct comparison between Lottie and Skottie players.
+  // Skottie metric is a sum of the time on RenderThread and SkottieAnimator threads, while Lottie is only the time on RenderThread.
+  optional int64 render_time_max = 10;   // draw_frame_max + skottie_animator_max
+  optional int64 render_time_min = 11;   // draw_frame_min + skottie_animator_min
+  optional double render_time_avg = 12;  // draw_frame_avg + skottie_animator_avg
+  // when SF gets into tripple buffer mode (sometimes quite randomly), the dequeue buffer time explode.
+  // "render_time_avg_no_dequeue" tries to compensate the time spent to wait for a new buffer.
+  optional double render_time_avg_no_dequeue = 13;  // draw_frame_avg + skottie_animator_avg - dequeue_buffer_avg
+}
+
+message SkottieMetric {
+  repeated ProcessRenderInfoEx process_info = 1;
+}
+
+extend TraceMetrics {
+  optional SkottieMetric skottie_metric = 450;
+}
