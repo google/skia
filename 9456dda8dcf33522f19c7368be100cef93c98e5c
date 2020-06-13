@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb5ba90c_be17600b",
+        "filename": "gm/widebuttcaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-13T19:46:56Z",
+      "side": 1,
+      "message": "all fine. just know that you can now type...\n\np.moveTo(..).lineTo(..).lineTo(..)... and so on",
+      "range": {
+        "startLine": 52,
+        "startChar": 10,
+        "endLine": 52,
+        "endChar": 16
+      },
+      "revId": "9456dda8dcf33522f19c7368be100cef93c98e5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
