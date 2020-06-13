@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d2fa78e_8c8fcce4",
+        "filename": "bench/ClipMaskBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-13T20:32:44Z",
+      "side": 0,
+      "message": "Rename the file to RasterTileBench?",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 22
+      },
+      "revId": "01f278c834f1043dcc5dccf3ee9aa52ad2e49bea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

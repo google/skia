@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "245ca2c3_8c3636cd",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-13T20:32:44Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter strongly to me, but we could read these fields and call clipShader before the saveLayer?",
+      "range": {
+        "startLine": 622,
+        "startChar": 28,
+        "endLine": 622,
+        "endChar": 62
+      },
+      "revId": "03a3b0acca6c5c8529d7475ef0020bb905a18dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1251c8c_8f22058b",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-13T20:32:44Z",
+      "side": 1,
+      "message": "not needed anymore.",
+      "range": {
+        "startLine": 688,
+        "startChar": 36,
+        "endLine": 688,
+        "endChar": 79
+      },
+      "revId": "03a3b0acca6c5c8529d7475ef0020bb905a18dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26fea698_b0ce28f9",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-13T20:32:44Z",
+      "side": 1,
+      "message": "Not a TODO anymore :)",
+      "range": {
+        "startLine": 1732,
+        "startChar": 4,
+        "endLine": 1732,
+        "endChar": 29
+      },
+      "revId": "03a3b0acca6c5c8529d7475ef0020bb905a18dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
