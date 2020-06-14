@@ -1071,18 +1071,39 @@ static bool contains_unconditional_break(Statement& s) {
     }
 }
 
-static void copy_all_but_break(std::unique_ptr<Statement>& stmt,
-                          std::vector<std::unique_ptr<Statement>*>* target) {
+std::vector<std::unique_ptr<Statement>> to_statements(
+        std::vector<std::unique_ptr<Statement>*>* src) {
+    std::vector<std::unique_ptr<Statement>> result;
+    result.reserve(src->size());
+    for (std::unique_ptr<Statement>* stmt : *src) {
+        result.push_back(std::move(*stmt));
+    }
+    src->clear();
+    return result;
+}
+
+static void move_all_but_break(std::unique_ptr<Statement>& stmt,
+                               std::vector<std::unique_ptr<Statement>>* target) {
     switch (stmt->fKind) {
-        case Statement::kBlock_Kind:
-            for (auto& s : ((Block&) *stmt).fStatements) {
-                copy_all_but_break(s, target);
+        case Statement::kBlock_Kind: {
+            Block& block = static_cast<Block&>(*stmt);
+
+            std::vector<std::unique_ptr<Statement>> statementPtrs;
+            statementPtrs.reserve(block.fStatements.size());
+            for (std::unique_ptr<Statement>& statementInBlock : block.fStatements) {
+                move_all_but_break(statementInBlock, &statementPtrs);
             }
+
+            target->push_back(std::make_unique<Block>(block.fOffset, std::move(statementPtrs),
+                                                      block.fSymbols, block.fIsScope));
             break;
+        }
         case Statement::kBreak_Kind:
             return;
+
         default:
-            target->push_back(&stmt);
+            target->push_back(std::move(stmt));
+            break;
     }
 }
 
@@ -1091,35 +1112,45 @@ static void copy_all_but_break(std::unique_ptr<Statement>& stmt,
 // broken by this call and must then be discarded).
 // Returns null (and leaves the switch unmodified) if no such simple reduction is possible, such as
 // when break statements appear inside conditionals.
-static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase* c) {
+static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatement,
+                                                 SwitchCase* caseToCapture) {
+    const bool inConditional = (switchStatement->fKind == Statement::kIf_Kind);
+
+    // We have to be careful to not move any of the pointers until after we're sure we're going to
+    // succeed, so we handle everything as pointers to unique_ptr<Statement> and only move them out
+    // once we encounter an unconditional break.
+    std::vector<std::unique_ptr<Statement>*> foundStmts;
     bool capturing = false;
-    std::vector<std::unique_ptr<Statement>*> statementPtrs;
-    for (const auto& current : s->fCases) {
-        if (current.get() == c) {
+    for (const std::unique_ptr<SwitchCase>& currentCase : switchStatement->fCases) {
+        if (currentCase.get() == caseToCapture) {
             capturing = true;
         }
         if (capturing) {
-            for (auto& stmt : current->fStatements) {
-                if (contains_conditional_break(*stmt, s->fKind == Statement::kIf_Kind)) {
+            for (std::unique_ptr<Statement>& stmt : currentCase->fStatements) {
+                if (contains_conditional_break(*stmt, inConditional)) {
+                    // We can't reduce switch-cases to a block when they have conditional breaks.
                     return nullptr;
                 }
+
                 if (contains_unconditional_break(*stmt)) {
-                    capturing = false;
-                    copy_all_but_break(stmt, &statementPtrs);
-                    break;
+                    // We found an unconditional break. We can use this block, but we need to strip
+                    // out the break statement.
+                    std::vector<std::unique_ptr<Statement>> caseBlock = to_statements(&foundStmts);
+                    move_all_but_break(stmt, &caseBlock);
+                    return std::make_unique<Block>(/*offset=*/-1, std::move(caseBlock),
+                                                   switchStatement->fSymbols);
                 }
-                statementPtrs.push_back(&stmt);
-            }
-            if (!capturing) {
-                break;
+
+                // Remember the statement we found as-is and move on.
+                foundStmts.push_back(&stmt);
             }
         }
     }
-    std::vector<std::unique_ptr<Statement>> statements;
-    for (const auto& s : statementPtrs) {
-        statements.push_back(std::move(*s));
-    }
-    return std::unique_ptr<Statement>(new Block(-1, std::move(statements), s->fSymbols));
+
+    // We fell off the bottom of the switch without encountering a break. Everything we found is
+    // usable as-is, without modification.
+    std::vector<std::unique_ptr<Statement>> caseBlock = to_statements(&foundStmts);
+    return std::make_unique<Block>(/*offset=*/-1, std::move(caseBlock), switchStatement->fSymbols);
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
