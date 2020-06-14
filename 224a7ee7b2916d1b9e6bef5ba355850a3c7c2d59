@@ -138,6 +138,30 @@
       "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea62c6b0_4722a481",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-14T04:21:41Z",
+      "side": 1,
+      "message": "I see that falling off the bottom of the loop is possible if you switch on something that doesn\u0027t exist.\n\n  switch (int(sqrt(3.0)) { case 0: case 1: }",
+      "parentUuid": "3fb3f7f7_4fd4c8ef",
+      "range": {
+        "startLine": 1177,
+        "startChar": 48,
+        "endLine": 1177,
+        "endChar": 50
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
