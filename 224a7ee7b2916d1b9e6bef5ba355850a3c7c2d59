@@ -71,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "7f1467d9_f3031851",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-14T03:38:52Z",
+      "side": 1,
+      "message": "Optional: do we have unit tests that exercise both paths through this code (conditional break found, unconditional break found)?",
+      "range": {
+        "startLine": 1162,
+        "startChar": 0,
+        "endLine": 1170,
+        "endChar": 0
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "27c6ac68_9efe306b",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -82,6 +105,30 @@
       "writtenOn": "2020-06-14T03:26:50Z",
       "side": 1,
       "message": "nit: Consider annotating ambiguous arguments: \n\n   /*offset\u003d*/-1",
+      "range": {
+        "startLine": 1177,
+        "startChar": 48,
+        "endLine": 1177,
+        "endChar": 50
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fb3f7f7_4fd4c8ef",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-14T03:38:52Z",
+      "side": 1,
+      "message": "Is it possible to reach the bottom of the loop naturally (no break), that is, without ever hitting the \"capturing \u003d\u003d true\" case?\n\nIf that\u0027s not supposed to be possible, I wonder if the return should be on line 1168, and this should be \n   SkDEBUGFAIL(\"expected to find case in switch\");\n   return nullptr;",
+      "parentUuid": "27c6ac68_9efe306b",
       "range": {
         "startLine": 1177,
         "startChar": 48,
