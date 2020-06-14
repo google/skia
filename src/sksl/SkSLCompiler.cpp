@@ -1035,7 +1035,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
 static bool contains_conditional_break(Statement& s, bool inConditional) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
-            for (const auto& sub : ((Block&) s).fStatements) {
+            for (const auto& sub : static_cast<Block&>(s).fStatements) {
                 if (contains_conditional_break(*sub, inConditional)) {
                     return true;
                 }
@@ -1045,8 +1045,8 @@ static bool contains_conditional_break(Statement& s, bool inConditional) {
             return inConditional;
         case Statement::kIf_Kind: {
             const IfStatement& i = (IfStatement&) s;
-            return contains_conditional_break(*i.fIfTrue, true) ||
-                   (i.fIfFalse && contains_conditional_break(*i.fIfFalse, true));
+            return contains_conditional_break(*i.fIfTrue, /*inConditional=*/true) ||
+                   (i.fIfFalse && contains_conditional_break(*i.fIfFalse, /*inConditional=*/true));
         }
         default:
             return false;
@@ -1058,7 +1058,7 @@ static bool contains_conditional_break(Statement& s, bool inConditional) {
 static bool contains_unconditional_break(Statement& s) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
-            for (const auto& sub : ((Block&) s).fStatements) {
+            for (const auto& sub : static_cast<Block&>(s).fStatements) {
                 if (contains_unconditional_break(*sub)) {
                     return true;
                 }
@@ -1071,37 +1071,30 @@ static bool contains_unconditional_break(Statement& s) {
     }
 }
 
-std::vector<std::unique_ptr<Statement>> to_statements(
-        std::vector<std::unique_ptr<Statement>*>* src) {
-    std::vector<std::unique_ptr<Statement>> result;
-    result.reserve(src->size());
-    for (std::unique_ptr<Statement>* stmt : *src) {
-        result.push_back(std::move(*stmt));
-    }
-    src->clear();
-    return result;
-}
-
 static void move_all_but_break(std::unique_ptr<Statement>& stmt,
                                std::vector<std::unique_ptr<Statement>>* target) {
     switch (stmt->fKind) {
         case Statement::kBlock_Kind: {
+            // Recurse into the block.
             Block& block = static_cast<Block&>(*stmt);
 
-            std::vector<std::unique_ptr<Statement>> statementPtrs;
-            statementPtrs.reserve(block.fStatements.size());
+            std::vector<std::unique_ptr<Statement>> blockStmts;
+            blockStmts.reserve(block.fStatements.size());
             for (std::unique_ptr<Statement>& statementInBlock : block.fStatements) {
-                move_all_but_break(statementInBlock, &statementPtrs);
+                move_all_but_break(statementInBlock, &blockStmts);
             }
 
-            target->push_back(std::make_unique<Block>(block.fOffset, std::move(statementPtrs),
+            target->push_back(std::make_unique<Block>(block.fOffset, std::move(blockStmts),
                                                       block.fSymbols, block.fIsScope));
             break;
         }
+
         case Statement::kBreak_Kind:
-            return;
+            // Do not append a break to the target.
+            break;
 
         default:
+            // Append normal statements to the target.
             target->push_back(std::move(stmt));
             break;
     }
@@ -1117,40 +1110,71 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     const bool inConditional = (switchStatement->fKind == Statement::kIf_Kind);
 
     // We have to be careful to not move any of the pointers until after we're sure we're going to
-    // succeed, so we handle everything as pointers to unique_ptr<Statement> and only move them out
-    // once we encounter an unconditional break.
-    std::vector<std::unique_ptr<Statement>*> foundStmts;
-    bool capturing = false;
-    for (const std::unique_ptr<SwitchCase>& currentCase : switchStatement->fCases) {
-        if (currentCase.get() == caseToCapture) {
-            capturing = true;
-        }
-        if (capturing) {
-            for (std::unique_ptr<Statement>& stmt : currentCase->fStatements) {
-                if (contains_conditional_break(*stmt, inConditional)) {
-                    // We can't reduce switch-cases to a block when they have conditional breaks.
-                    return nullptr;
-                }
-
-                if (contains_unconditional_break(*stmt)) {
-                    // We found an unconditional break. We can use this block, but we need to strip
-                    // out the break statement.
-                    std::vector<std::unique_ptr<Statement>> caseBlock = to_statements(&foundStmts);
-                    move_all_but_break(stmt, &caseBlock);
-                    return std::make_unique<Block>(/*offset=*/-1, std::move(caseBlock),
-                                                   switchStatement->fSymbols);
-                }
-
-                // Remember the statement we found as-is and move on.
-                foundStmts.push_back(&stmt);
-            }
+    // succeed, so before we make any changes at all, we check the switch-cases to decide on a plan
+    // of action. First, find the switch-case we are interested in.
+    auto iter = switchStatement->fCases.begin();
+    for (; iter != switchStatement->fCases.end(); ++iter) {
+        if (iter->get() == caseToCapture) {
+            break;
         }
     }
 
-    // We fell off the bottom of the switch without encountering a break. Everything we found is
-    // usable as-is, without modification.
-    std::vector<std::unique_ptr<Statement>> caseBlock = to_statements(&foundStmts);
-    return std::make_unique<Block>(/*offset=*/-1, std::move(caseBlock), switchStatement->fSymbols);
+    // Next, walk forward through the rest of the switch. If we find a conditional break, we're
+    // stuck and can't simplify at all. If we find an unconditional break, we have a range of
+    // statements that we can use for simplification.
+    auto startIter = iter;
+    Statement* unconditionalBreakStmt = nullptr;
+    int statementsToMove = 0;
+    for (; iter != switchStatement->fCases.end(); ++iter) {
+        for (std::unique_ptr<Statement>& stmt : (*iter)->fStatements) {
+            if (contains_conditional_break(*stmt, inConditional)) {
+                // We can't reduce switch-cases to a block when they have conditional breaks.
+                return nullptr;
+            }
+
+            if (contains_unconditional_break(*stmt)) {
+                // We found an unconditional break. We can use this block, but we need to strip
+                // out the break statement.
+                unconditionalBreakStmt = stmt.get();
+                break;
+            }
+        }
+
+        if (unconditionalBreakStmt != nullptr) {
+            break;
+        }
+    }
+
+    // We fell off the bottom of the switch or encountered a break. We know the range of statements
+    // that we need to move over, and we know it's safe to do so.
+    std::vector<std::unique_ptr<Statement>> caseStmts;
+
+    // We can move over most of the statements as-is.
+    while (startIter != iter) {
+        for (std::unique_ptr<Statement>& stmt : (*startIter)->fStatements) {
+            caseStmts.push_back(std::move(stmt));
+        }
+        ++startIter;
+    }
+
+    // If we found an unconditional break at the end, we need to move what we can while avoiding
+    // that break.
+    if (unconditionalBreakStmt != nullptr) {
+        for (std::unique_ptr<Statement>& stmt : (*startIter)->fStatements) {
+            if (stmt.get() == unconditionalBreakStmt) {
+                move_all_but_break(stmt, &caseStmts);
+                unconditionalBreakStmt = nullptr;
+                break;
+            }
+
+            caseStmts.push_back(std::move(stmt));
+        }
+    }
+
+    SkASSERT(unconditionalBreakStmt == nullptr);  // Verify that we fixed the unconditional break.
+
+    // Return our newly-synthesized block.
+    return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->fSymbols);
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
