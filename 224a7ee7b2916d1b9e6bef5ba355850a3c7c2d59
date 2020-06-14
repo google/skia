@@ -68,6 +68,29 @@
       "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27c6ac68_9efe306b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-14T03:26:50Z",
+      "side": 1,
+      "message": "nit: Consider annotating ambiguous arguments: \n\n   /*offset\u003d*/-1",
+      "range": {
+        "startLine": 1177,
+        "startChar": 48,
+        "endLine": 1177,
+        "endChar": 50
+      },
+      "revId": "224a7ee7b2916d1b9e6bef5ba355850a3c7c2d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
