@@ -1124,7 +1124,6 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // statements that we can use for simplification.
     auto startIter = iter;
     Statement* unconditionalBreakStmt = nullptr;
-    int statementsToMove = 0;
     for (; iter != switchStatement->fCases.end(); ++iter) {
         for (std::unique_ptr<Statement>& stmt : (*iter)->fStatements) {
             if (contains_conditional_break(*stmt, inConditional)) {
