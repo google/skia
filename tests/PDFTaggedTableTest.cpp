@@ -81,6 +81,15 @@ DEF_TEST(SkPDF_tagged_table, r) {
                 cell->fTypeString = "TH";
             } else {
                 cell->fTypeString = "TD";
+                std::vector<SkString> headers;
+                SkString rowHeaderIdString;
+                rowHeaderIdString.printf("node%08d", 10 + rowIndex * kColCount);
+                headers.push_back(rowHeaderIdString);
+                SkString colHeaderIdString;
+                colHeaderIdString.printf("node%08d", 10 + colIndex);
+                headers.push_back(colHeaderIdString);
+                cell->fAttributes.appendStringArray(
+                    "Table", "Headers", headers);
             }
             cell->fChildCount = 0;
 
@@ -89,7 +98,7 @@ DEF_TEST(SkPDF_tagged_table, r) {
             } else if (cellIndex == 14 || cellIndex == 18) {
                 cell->fAttributes.appendInt("Table", "ColSpan", 2);
             } else if (rowIndex == 0 || colIndex == 0) {
-                cell->fAttributes.appendString(
+                cell->fAttributes.appendName(
                     "Table", "Scope", rowIndex == 0 ? "Column" : "Row");
             }
             cells.push_back(std::move(cell));
