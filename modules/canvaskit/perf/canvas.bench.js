@@ -175,4 +175,63 @@ describe('Basic Canvas ops', () => {
 
         benchmarkAndReport('canvas_drawHugeGradient', setup, test, teardown);
     });
+
+    function NO_OP() {}
+
+    function htmlImageElementToDataURL(htmlImageElement) {
+        const canvas = document.createElement('canvas');
+        canvas.height = htmlImageElement.height;
+        canvas.width = htmlImageElement.width;
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(htmlImageElement, 0, 0);
+        return canvas.toDataURL();
+    }
+
+    const TEST_IMAGE_FILENAMES = [ 'test_64x64.png', 'test_512x512.png', 'test_1500x959.jpg'];
+    // This for loop generates two perf cases for each test image. One uses browser APIs
+    // to decode an image, and the other uses codecs included in the CanvasKit wasm to decode an
+    // image. wasm codec Image decoding is faster (50 microseconds vs 20000 microseconds), but
+    // including codecs in wasm increases the size of the CanvasKit wasm binary.
+    for (const testImageFilename of TEST_IMAGE_FILENAMES) {
+        const imageResponsePromise = fetch(`/assets/${testImageFilename}`);
+        const imageArrayBufferPromise = imageResponsePromise.then((imageResponse) => imageResponse.arrayBuffer());
+
+        const htmlImageElement = new Image();
+        htmlImageElementLoadPromise = new Promise((resolve) => htmlImageElement.addEventListener('load', resolve));
+        // Create a data url of the image so that load and decode time can be measured
+        // while hopefully ignoring the time of getting the image from disk / the network.
+        imageDataURLPromise = htmlImageElementLoadPromise.then(() => htmlImageElementToDataURL(htmlImageElement));
+        htmlImageElement.src = `/assets/${testImageFilename}`;
+
+        it('can decode an image using HTMLImageElement and Canvas2D', async () => {
+            const imageDataURL = await imageDataURLPromise;
+
+            async function test(ctx) {
+                const image = new Image();
+                // Testing showed that waiting for the load event is faster than waiting for
+                // image.decode().
+                // HTMLImageElement.decode() reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode
+                const promise = new Promise((resolve) => image.addEventListener('load', resolve));
+                image.src = imageDataURL;
+
+                await promise;
+
+                const img = await CanvasKit.MakeImageFromCanvasImageSource(image);
+                img.delete();
+            }
+
+            await asyncBenchmarkAndReport(`canvas_${testImageFilename}_HTMLImageElementDecoding`, NO_OP, test, NO_OP);
+        });
+
+        it('can decode an image using codecs in wasm', async () => {
+            const encodedArrayBuffer = await imageArrayBufferPromise;
+
+            function test(ctx) {
+                const img = CanvasKit.MakeImageFromEncoded(encodedArrayBuffer);
+                img.delete();
+            }
+
+            benchmarkAndReport(`canvas_${testImageFilename}_wasmImageDecoding`, NO_OP, test, NO_OP);
+        });
+    }
 });

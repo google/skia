@@ -27,13 +27,16 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
         // resolve right away and just call the callback.
         Promise.all(fetchPromises).then((values) => {
             try {
-                callback(surface.getCanvas(), values);
+                // If callback returns a promise, the chained .then
+                // will wait for it.
+                return callback(surface.getCanvas(), values);
             } catch (e) {
                 console.log(`gm ${name} failed with error`, e);
                 expect(e).toBeFalsy();
                 debugger;
                 done();
             }
+        }).then(() => {
             surface.flush();
             if (pause) {
                 reportSurface(surface, name, null);

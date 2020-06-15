@@ -51,6 +51,55 @@ function benchmarkAndReport(benchName, setupFn, testFn, teardownFn) {
     }
 }
 
+// The same as benchmarkAndReport, except expects the third parameter, testFn, to return a promise
+async function asyncBenchmarkAndReport(benchName, setupFn, testFn, teardownFn) {
+    try {
+        let ctx = {};
+        // warmup 3 times (arbitrary choice)
+        setupFn(ctx);
+        await testFn(ctx);
+        await testFn(ctx);
+        await testFn(ctx);
+        teardownFn(ctx);
+
+        ctx = {};
+        setupFn(ctx);
+        let start = Date.now();
+        let now = start;
+        times = 0;
+        // See how many times we can do it in 100ms (arbitrary choice)
+        while (now - start < 100) {
+            await testFn(ctx);
+            now = Date.now();
+            times++;
+        }
+
+        teardownFn(ctx);
+
+        // Try to make it go for 2 seconds (arbitrarily chosen)
+        // Since the pre-try took 100ms, multiply by 20 to get
+        // approximate tries in 2s (unless now - start >> 100 ms)
+        let goalTimes = times * 20;
+        ctx = {};
+        setupFn(ctx);
+        times = 0;
+        start = Date.now();
+        while (times < goalTimes) {
+            await testFn(ctx);
+            times++;
+        }
+        const end = Date.now();
+        teardownFn(ctx);
+
+        const us = (end - start) * 1000 / times;
+        console.log(benchName, `${us} microseconds`)
+        return _report(us, benchName);
+    } catch(e) {
+        console.error('caught error', e);
+        return Promise.reject(e);
+    }
+}
+
 
 function _report(microseconds, benchName) {
     return fetch(REPORT_URL, {
