@@ -72,6 +72,11 @@ GM::GM(SkColor bgColor) {
 
 GM::~GM() {}
 
+DrawResult GM::hailMary(GrContext* context, SkString* errorMsg) {
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    return this->onHailMary(context, errorMsg);
+}
+
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
@@ -123,7 +128,7 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+DrawResult SimpleGpuGM::onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                                SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
@@ -168,7 +173,11 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-DrawResult GpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+DrawResult GpuGM::onHailMary(GrContext* context) {
+    return DrawResult::kOk;
+}
+
+DrawResult GpuGM::onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                           SkString* errorMsg) {
     this->onDraw(ctx, rtc, canvas);
     return DrawResult::kOk;
@@ -188,7 +197,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }
-    return this->onDraw(ctx, rtc, canvas, errorMsg);
+    return this->onDraw1(ctx, rtc, canvas, errorMsg);
 }
 
 template <typename Fn>

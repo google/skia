@@ -49,7 +49,7 @@ constexpr static int kHeight = (int)kRect.fBottom + 21;
 class TessellationGM : public GpuGM {
     SkString onShortName() override { return SkString("tessellation"); }
     SkISize onISize() override { return {kWidth, kHeight}; }
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString*) override;
+    DrawResult onDraw1(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString*) override;
 };
 
 
@@ -366,7 +366,7 @@ static SkPath build_outset_triangle(const std::array<float, 3>* tri) {
     return outset;
 }
 
-DrawResult TessellationGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+DrawResult TessellationGM::onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                                   SkString* errorMsg) {
     if (!ctx->priv().caps()->shaderCaps()->tessellationSupport()) {
         *errorMsg = "Requires GPU tessellation support.";

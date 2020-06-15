@@ -110,6 +110,8 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
+        DrawResult hailMary(GrContext*, SkString* errorMsg);
+
         DrawResult draw(SkCanvas* canvas) {
             SkString errorMsg;
             return this->draw(canvas, &errorMsg);
@@ -189,7 +191,9 @@ namespace skiagm {
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
 
-        virtual DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+        virtual DrawResult onHailMary(GrContext*);
+
+        virtual DrawResult onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                                   SkString* errorMsg);
         virtual void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*);
     };
@@ -221,7 +225,7 @@ namespace skiagm {
     private:
         SkISize onISize() override;
         SkString onShortName() override;
-        DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+        DrawResult onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                           SkString* errorMsg) override;
 
         const SkString fName;

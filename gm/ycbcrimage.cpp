@@ -16,8 +16,47 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrContext.h"
+#include "tools/gpu/vk/VkTestHelper.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
+class YCbCrStuff {
+public:
+    static void Release(void* releaseContext) {
+        YCbCrStuff* foo = reinterpret_cast<YCbCrStuff*>(releaseContext);
+
+        foo->fYCbCrHelper.destroyBackendTexture(foo->fTestHelper.grContext());
+        delete foo;
+    }
+
+    YCbCrStuff() : fTestHelper(false) { }
+    ~YCbCrStuff() {
+    }
+
+    skiagm::DrawResult init(int width, int height, SkString* errorMsg) {
+        if (!fTestHelper.init()) {
+            *errorMsg = "VkTestHelper initialization failed.";
+            return skiagm::DrawResult::kSkip;
+        }
+
+        if (!VkYcbcrSamplerHelper::IsYCbCrSupported(fTestHelper.grContext())) {
+            *errorMsg = "YCbCr sampling not supported.";
+            return skiagm::DrawResult::kSkip;
+        }
+
+        if (!fYCbCrHelper.createBackendTexture(fTestHelper.grContext(), width, height)) {
+            *errorMsg = "Failed to create I420 backend texture.";
+            return skiagm::DrawResult::kFail;
+        }
+
+        return skiagm::DrawResult::kOk;
+    }
+
+    const GrBackendTexture& backendTexture() { return fYCbCrHelper.backendTexture(); }
+
+private:
+    VkTestHelper         fTestHelper;
+    VkYcbcrSamplerHelper fYCbCrHelper;
+};
 
 namespace skiagm {
 
@@ -26,6 +65,10 @@ class YCbCrImageGM : public GpuGM {
 public:
     YCbCrImageGM() {
         this->setBGColor(0xFFCCCCCC);
+    }
+
+    ~YCbCrImageGM() {
+
     }
 
 protected:
@@ -38,43 +81,57 @@ protected:
         return SkISize::Make(2*kPad+kImageSize, 2*kPad+kImageSize);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult init(GrContext* context, SkString* errorMsg) {
+        std::unique_ptr<YCbCrStuff> foo(new YCbCrStuff);
+
+        DrawResult result = foo->init(kImageSize, kImageSize, errorMsg);
+        if (result != DrawResult::kOk) {
+            return result;
+        }
+
+        fYCbCrImage = SkImage::MakeFromTexture(context, foo->backendTexture(),
+                                               kTopLeft_GrSurfaceOrigin, kRGB_888x_SkColorType,
+                                               kPremul_SkAlphaType, nullptr,
+                                               YCbCrStuff::Release, foo.get());
+        if (!fYCbCrImage) {
+            *errorMsg = "Failed to create I420 image.";
+            return DrawResult::kFail;
+        }
+
+        foo.release();
+        return DrawResult::kOk;
+    }
+
+    DrawResult onHailMary(GrContext* context) override {
+        return DrawResult::kOk;
+    }
+
+    DrawResult onDraw1(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         if (context->backend() != GrBackendApi::kVulkan) {
             *errorMsg = "This GM requires a Vulkan context.";
             return DrawResult::kSkip;
         }
 
-        VkYcbcrSamplerHelper ycbcrHelper(context);
-        if (!ycbcrHelper.isYCbCrSupported()) {
-            *errorMsg = "YCbCr sampling not supported.";
-            return DrawResult::kSkip;
-        }
-
-        sk_sp<SkImage> ycbcrImage = ycbcrHelper.createI420Image(kImageSize, kImageSize);
-        if (!ycbcrImage) {
-            *errorMsg = "Failed to create I420 image.";
-            return DrawResult::kFail;
+        if (!fYCbCrImage) {
+            DrawResult result = this->init(context, errorMsg);
+            if (result != DrawResult::kOk) {
+                return result;
+            }
         }
 
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
 
-        canvas->drawImage(ycbcrImage, kPad, kPad, &paint);
-
-        // The VkYcbcrSamplerHelper holds the actual memory for 'ycbcrImage' so nothing can
-        // be allowed to exist beyond this method.
-        GrFlushInfo flushInfo;
-        flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-        context->flush(flushInfo);
-        context->submit(true);
-
+        canvas->drawImage(fYCbCrImage, kPad, kPad, &paint);
         return DrawResult::kOk;
     }
 
 private:
     static const int kImageSize = 112;
     static const int kPad = 8;
+
+    sk_sp<SkImage> fYCbCrImage;
 
     typedef GpuGM INHERITED;
 };

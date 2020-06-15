@@ -58,7 +58,7 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+    DrawResult onDraw1(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
         using CoverageType = GrCCAtlas::CoverageType;
 

@@ -43,7 +43,7 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw1(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         SkISize size = this->getISize();
         size.fWidth /= 10;
