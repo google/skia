@@ -99,8 +99,6 @@ public:
         return nullptr;
     }
 
-    void clear(const GrScissorState& scissor, const SkPMColor4f& color, GrRenderTarget*);
-
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override {}
