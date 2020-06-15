@@ -34,6 +34,24 @@
       "revId": "3b1b04a531617f6e870f9b64b7d181c05565a632",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9897de3a_d1e2ce1c",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T14:51:39Z",
+      "side": 1,
+      "message": "PTAL https://skia-review.googlesource.com/c/skia/+/296439 !",
+      "parentUuid": "9b99b076_19d13580",
+      "revId": "3b1b04a531617f6e870f9b64b7d181c05565a632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
