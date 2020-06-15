@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad15e06_8c00ef50",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-15T15:24:28Z",
+      "side": 1,
+      "message": "I realize this is replicating logic that existed before ... but how is this possible? Isn\u0027t the switch statement\u0027s fKind *always* (by definition) kSwitch_Kind?",
+      "range": {
+        "startLine": 1110,
+        "startChar": 4,
+        "endLine": 1110,
+        "endChar": 78
+      },
+      "revId": "506ddeced7252756f43caecd6ff0c2a92807d913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
