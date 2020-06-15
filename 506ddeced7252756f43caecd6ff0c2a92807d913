@@ -70,6 +70,30 @@
       "revId": "506ddeced7252756f43caecd6ff0c2a92807d913",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91d7ac9c_5a15fa0d",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T15:50:07Z",
+      "side": 1,
+      "message": "Interestingly, based on the structure of `contains_unconditional_break`, the result of this check never mattered. `contains_unconditional_break` already looks for an kIf_Kind statement, and sets isConditional to true. So this was working regardless.",
+      "parentUuid": "3816b6b6_bc08cb05",
+      "range": {
+        "startLine": 1110,
+        "startChar": 4,
+        "endLine": 1110,
+        "endChar": 78
+      },
+      "revId": "506ddeced7252756f43caecd6ff0c2a92807d913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
