@@ -59,35 +59,38 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
 }
 
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createRenderTargetView(
+GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createRenderTargetView(
         ID3D12Resource* textureResource) {
     return fCpuDescriptorManager.createRenderTargetView(fGpu, textureResource);
 }
 
-void GrD3DResourceProvider::recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
+void GrD3DResourceProvider::recycleRenderTargetView(
+        const GrD3DDescriptorHeap::CPUHandle& rtvDescriptor) {
     fCpuDescriptorManager.recycleRenderTargetView(rtvDescriptor);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createDepthStencilView(
+GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createDepthStencilView(
         ID3D12Resource* textureResource) {
     return fCpuDescriptorManager.createDepthStencilView(fGpu, textureResource);
 }
 
-void GrD3DResourceProvider::recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE* dsvDescriptor) {
+void GrD3DResourceProvider::recycleDepthStencilView(
+        const GrD3DDescriptorHeap::CPUHandle& dsvDescriptor) {
     fCpuDescriptorManager.recycleDepthStencilView(dsvDescriptor);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createConstantBufferView(
+GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createConstantBufferView(
         ID3D12Resource* bufferResource, size_t offset, size_t size) {
     return fCpuDescriptorManager.createConstantBufferView(fGpu, bufferResource, offset, size);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::createShaderResourceView(
+GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createShaderResourceView(
         ID3D12Resource* resource) {
     return fCpuDescriptorManager.createShaderResourceView(fGpu, resource);
 }
 
-void GrD3DResourceProvider::recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE* view) {
+void GrD3DResourceProvider::recycleConstantOrShaderView(
+        const GrD3DDescriptorHeap::CPUHandle& view) {
     fCpuDescriptorManager.recycleConstantOrShaderView(view);
 }
 
@@ -127,8 +130,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     D3D12_TEXTURE_ADDRESS_MODE addressModeU = wrap_mode_to_d3d_address_mode(params.wrapModeX());
     D3D12_TEXTURE_ADDRESS_MODE addressModeV = wrap_mode_to_d3d_address_mode(params.wrapModeY());
 
-    D3D12_CPU_DESCRIPTOR_HANDLE sampler = fCpuDescriptorManager.createSampler(
-            fGpu, filter, addressModeU, addressModeV);
+    D3D12_CPU_DESCRIPTOR_HANDLE sampler =
+            fCpuDescriptorManager.createSampler(
+            fGpu, filter, addressModeU, addressModeV).fHandle;
     fSamplers.set(key, sampler);
     return sampler;
 }
