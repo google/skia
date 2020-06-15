@@ -835,6 +835,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~WritePixels")                       // skia:4711
 		match = append(match, "~PremulAlphaRoundTrip_Gpu")          // skia:7501
 		match = append(match, "~ReimportImageTextureWithMipLevels") // skia:8090
+		match = append(match, "~MorphologyFilterRadiusWithMirrorCTM_Gpu") // skia:10383
 	}
 
 	if b.model("GalaxyS6") {
