@@ -52,6 +52,9 @@ bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 10240) {
+        return 0;
+    }
     auto bytes = SkData::MakeWithoutCopy(data, size);
     Fuzz fuzz(bytes);
     uint8_t sampleSize;

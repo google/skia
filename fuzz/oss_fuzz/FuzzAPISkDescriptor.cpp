@@ -11,6 +11,9 @@ void fuzz_SkDescriptor(Fuzz* f);
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 4000) {
+        return 0;
+    }
     auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
     fuzz_SkDescriptor(&fuzz);
     return 0;
