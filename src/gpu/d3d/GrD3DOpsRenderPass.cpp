@@ -49,8 +49,9 @@ void GrD3DOpsRenderPass::onBegin() {
     fGpu->currentCommandList()->setRenderTarget(d3dRT);
 
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fGpu->currentCommandList()->clearRenderTargetView(
-                d3dRT, fClearColor, GrScissorState(fRenderTarget->dimensions()));
+        // Passing in nullptr for the rect clears the entire d3d RT. Is this correct? Does the load
+        // op respect the logical bounds of a RT?
+        fGpu->currentCommandList()->clearRenderTargetView(d3dRT, fClearColor, nullptr);
     }
 
     if (auto stencil = d3dRT->renderTargetPriv().getStencilAttachment()) {
@@ -245,8 +246,32 @@ void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, i
     fGpu->stats()->incNumDraws();
 }
 
+static D3D12_RECT scissor_to_d3d_clear_rect(const GrScissorState& scissor,
+                                            const GrSurface* surface,
+                                            GrSurfaceOrigin origin) {
+    D3D12_RECT clearRect;
+    // Flip rect if necessary
+    SkIRect d3dRect;
+    if (!scissor.enabled()) {
+        d3dRect.setXYWH(0, 0, surface->width(), surface->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != origin) {
+        d3dRect = scissor.rect();
+    } else {
+        d3dRect.setLTRB(scissor.rect().fLeft, surface->height() - scissor.rect().fBottom,
+                        scissor.rect().fRight, surface->height() - scissor.rect().fTop);
+    }
+    clearRect.left = d3dRect.fLeft;
+    clearRect.right = d3dRect.fRight;
+    clearRect.top = d3dRect.fTop;
+    clearRect.bottom = d3dRect.fBottom;
+    return clearRect;
+}
+
 void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
-    fGpu->clear(scissor, color, fRenderTarget);
+    D3D12_RECT clearRect = scissor_to_d3d_clear_rect(scissor, fRenderTarget, fOrigin);
+    auto d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
+    SkASSERT(d3dRT->grD3DResourceState()->getResourceState() == D3D12_RESOURCE_STATE_RENDER_TARGET);
+    fGpu->currentCommandList()->clearRenderTargetView(d3dRT, color, &clearRect);
 }
 
 void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
@@ -264,22 +289,7 @@ void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
         stencilColor = (1 << (stencilBitCount - 1));
     }
 
-    D3D12_RECT clearRect;
-    // Flip rect if necessary
-    SkIRect d3dRect;
-    if (!scissor.enabled()) {
-        d3dRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
-    } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
-        d3dRect = scissor.rect();
-    } else {
-        d3dRect.setLTRB(scissor.rect().fLeft, fRenderTarget->height() - scissor.rect().fBottom,
-                        scissor.rect().fRight, fRenderTarget->height() - scissor.rect().fTop);
-    }
-
-    clearRect.left = d3dRect.fLeft;
-    clearRect.right = d3dRect.fRight;
-    clearRect.top = d3dRect.fTop;
-    clearRect.bottom = d3dRect.fBottom;
+    D3D12_RECT clearRect = scissor_to_d3d_clear_rect(scissor, fRenderTarget, fOrigin);
 
     auto d3dStencil = static_cast<GrD3DStencilAttachment*>(sb);
     fGpu->currentCommandList()->clearDepthStencilView(d3dStencil, stencilColor, &clearRect);

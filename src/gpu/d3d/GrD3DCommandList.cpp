@@ -334,23 +334,15 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
 
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
-                                                   const GrScissorState& scissor) {
+                                                   const D3D12_RECT* rect) {
     this->addingWork();
     this->addResource(renderTarget->resource());
     if (renderTarget->numSamples() > 1) {
         this->addResource(renderTarget->msaaTextureResource()->resource());
     }
-    unsigned int numRects = 0;
-    D3D12_RECT scissorRect;
-    D3D12_RECT* scissorRectPtr = nullptr;
-    if (scissor.enabled()) {
-        scissorRect = { scissor.rect().left(), scissor.rect().top(),
-                        scissor.rect().right(), scissor.rect().bottom() };
-        scissorRectPtr = &scissorRect;
-    }
+    unsigned int numRects = rect ? 1 : 0;
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
-                                        color.vec(),
-                                        numRects, scissorRectPtr);
+                                        color.vec(), numRects, rect);
 }
 
 void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DStencilAttachment* stencil,
@@ -358,9 +350,9 @@ void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DStencilAttachment*
                                                    const D3D12_RECT* rect) {
     this->addingWork();
     this->addResource(stencil->resource());
-
+    unsigned int numRects = rect ? 1 : 0;
     fCommandList->ClearDepthStencilView(stencil->view(), D3D12_CLEAR_FLAG_STENCIL, 0,
-                                        stencilClearValue, 1, rect);
+                                        stencilClearValue, numRects, rect);
 }
 
 void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
