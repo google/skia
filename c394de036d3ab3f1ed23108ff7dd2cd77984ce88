@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "63f5580a_e1c96fe6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-15T17:36:57Z",
+      "side": 1,
+      "message": "Please update these notes to reflect the final product (and or rephrase to make it clear these were things that were tried)",
+      "revId": "c394de036d3ab3f1ed23108ff7dd2cd77984ce88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eefb9b51_24eb6cab",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 8
