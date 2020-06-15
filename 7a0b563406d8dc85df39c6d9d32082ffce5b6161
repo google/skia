@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6b0759a_d1d246b4",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-15T18:55:54Z",
+      "side": 1,
+      "message": "from bots. \"error: precision used with \u0027c\u0027 conversion specifier\"",
+      "range": {
+        "startLine": 731,
+        "startChar": 25,
+        "endLine": 731,
+        "endChar": 28
+      },
+      "revId": "7a0b563406d8dc85df39c6d9d32082ffce5b6161",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
