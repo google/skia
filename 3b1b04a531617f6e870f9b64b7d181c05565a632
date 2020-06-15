@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29d2d0bd_e8769d65",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T13:25:17Z",
+      "side": 1,
+      "message": "WDYT about taking this farther and have it take the original FP and clone all it\u0027s children into \"this\"? Something like:\n\n void GrFragmentProcessor::registerChildrenClones(const GrFragmentProcessor\u0026 src) {\n     for (int i \u003d 0; i \u003c src.numChildProcessors(); ++i) {\n         auto clone \u003d src.childProcessor(i).clone();\n         if (src.childProcessor(i).isSampledWithExplicitCoords()) {\n              clone-\u003esetSampledWithExplicitCoords();\n         }\n         this-\u003eregisterChildProcessor(std::move(clone));\n     }\n }",
+      "revId": "3b1b04a531617f6e870f9b64b7d181c05565a632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
