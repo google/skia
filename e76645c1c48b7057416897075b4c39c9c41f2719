@@ -46,6 +46,30 @@
       "revId": "e76645c1c48b7057416897075b4c39c9c41f2719",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "581df6b0_6a70cd40",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T15:33:16Z",
+      "side": 1,
+      "message": "Got it. Thanks for the clarification. Yeah, hasInput() actually seems good given their are two uses.\n\nThis is just pure FYI, not asking for any change here: We have at least two common patterns for how the GrFP and GrGLSLFP classes relate. One is two unrelated classes where the GrFP has a bunch of public getters that the GrGLSLFP uses to set data, emit code, ...\n\nThe other is the GrGLSLFP is an inner class of the GrFP (and therefore automatically a friend) often called \"Impl\". Personally I prefer since the GrGLSLFP is really an implementation detail of the GrFP. Specific subclasses of GrGLSLFP are only known to one GrFP class and are only made by that one class. Once they escape onCreateGLSLInstance() they are only used as the base class. There is a more extreme variant of this pattern that is used for particularly simple GrGLSLFP classes where its a function-local class defined in the GrFP::onCreateGLSLInstance() definition.",
+      "parentUuid": "a1db5051_5ed1228d",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "e76645c1c48b7057416897075b4c39c9c41f2719",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
