@@ -36,30 +36,36 @@ public:
      * have to modify the effect/shaderbuilder interface to make it possible (e.g. give access
      * to the view matrix or untransformed positions in the fragment shader).
      *
-     * The input fragment processor is passed as a pointer because it is only absorbed if creation
-     * of the convex-poly effect is successful. If Make returns nullptr, the inputFP is left as-is.
+     * If the convex-poly effect cannot be created, `success` is set to false and the input FP is
+     * returned unchanged. If it can be created, `success` is set to true.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>* inputFP,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     bool* success,
                                                      GrClipEdgeType edgeType,
                                                      int n, const SkScalar edges[]) {
         if (n <= 0 || n > kMaxEdges || GrClipEdgeType::kHairlineAA == edgeType) {
-            return nullptr;
+            *success = false;
+            return inputFP;
         }
-        return std::unique_ptr<GrFragmentProcessor>(
-            new GrConvexPolyEffect(inputFP ? std::move(*inputFP) : nullptr, edgeType, n, edges));
+
+        *success = true;
+        return std::unique_ptr<GrFragmentProcessor>(new GrConvexPolyEffect(std::move(inputFP),
+                                                                           edgeType, n, edges));
     }
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
      * inverse filled, or has too many edges, this will return nullptr.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>*,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
+                                                     bool* success,
                                                      GrClipEdgeType, const SkPath&);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>*,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
+                                                     bool* success,
                                                      GrClipEdgeType, const SkRect&);
 
     ~GrConvexPolyEffect() override;

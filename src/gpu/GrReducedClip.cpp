@@ -689,18 +689,19 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
 
     if (fAnalyticFPs.empty()) {
         // Create our first analytic effect in the stack.
-        auto fp = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, GetClipEdgeType(invert, aa),
-                                           deviceSpacePath);
-        if (fp != nullptr) {
+        bool success;
+        auto fp = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, &success,
+                                           GetClipEdgeType(invert, aa), deviceSpacePath);
+        if (success) {
             fAnalyticFPs.push_back(std::move(fp));
             return ClipResult::kClipped;
         }
     } else {
         // Combine this analytic effect with the previous effect in the stack.
-        auto fp = GrConvexPolyEffect::Make(&fAnalyticFPs.back(), GetClipEdgeType(invert, aa),
-                                           deviceSpacePath);
-        if (fp != nullptr) {
-            fAnalyticFPs.back() = std::move(fp);
+        bool success;
+        fAnalyticFPs.back() = GrConvexPolyEffect::Make(
+            std::move(fAnalyticFPs.back()), &success, GetClipEdgeType(invert, aa), deviceSpacePath);
+        if (success) {
             return ClipResult::kClipped;
         }
     }
