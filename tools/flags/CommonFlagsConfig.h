@@ -64,6 +64,7 @@ public:
                            int                       testPersistentCache,
                            bool                      testPrecompile,
                            bool                      useDDLSink,
+                           bool                      OOPRish,
                            SurfType);
 
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
@@ -78,6 +79,7 @@ public:
     int           getTestPersistentCache() const { return fTestPersistentCache; }
     bool          getTestPrecompile() const { return fTestPrecompile; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
+    bool          getOOPRish() const { return fOOPRish; }
     SurfType      getSurfType() const { return fSurfType; }
 
 private:
@@ -92,6 +94,7 @@ private:
     int                 fTestPersistentCache;
     bool                fTestPrecompile;
     bool                fUseDDLSink;
+    bool                fOOPRish;
     SurfType            fSurfType;
 };
 

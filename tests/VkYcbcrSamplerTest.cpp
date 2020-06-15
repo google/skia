@@ -34,12 +34,17 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
-    if (!ycbcrHelper.isYCbCrSupported()) {
+    if (!VkYcbcrSamplerHelper::IsYCbCrSupported(testHelper.grContext())) {
         return;
     }
 
-    sk_sp<SkImage> srcImage = ycbcrHelper.createI420Image(kImageWidth, kImageHeight);
+    VkYcbcrSamplerHelper ycbcrHelper;
+    if (!ycbcrHelper.createBackendTexture(testHelper.grContext(), kImageWidth, kImageHeight)) {
+        ERRORF(reporter, "Failed to create I420 backend texture");
+        return;
+    }
+
+    sk_sp<SkImage> srcImage;
     if (!srcImage) {
         ERRORF(reporter, "Failed to create I420 image");
         return;
@@ -113,8 +118,7 @@ DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
-    if (!ycbcrHelper.isYCbCrSupported()) {
+    if (!VkYcbcrSamplerHelper::IsYCbCrSupported(testHelper.grContext())) {
         return;
     }
 
