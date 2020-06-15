@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Added `CanvasKit.MakeImageFromCanvasImageSource` which takes either an HTMLImageElement,
+   SVGImageElement, HTMLVideoElement, HTMLCanvasElement, ImageBitmap, or OffscreenCanvas and returns
+   an SkImage. This function is an alternative to `CanvasKit.MakeImageFromEncoded` for creating
+   SkImages when loading and decoding images. In the future, codesize of CanvasKit may be able to be
+   reduced by removing image codecs in wasm, if browser APIs for decoding images are used along with
+   `CanvasKit.MakeImageFromCanvasImageSource` instead of `CanvasKit.MakeImageFromEncoded`.
+-  Three usage examples of `CanvasKit.MakeImageFromCanvasImageSource` in core.spec.ts.
+-  Added support for asynchronous callbacks in perfs and tests.
+
 ## [0.16.2] - 2020-06-05
 
 ### Fixed
