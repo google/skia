@@ -39,7 +39,17 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
         return;
     }
 
-    sk_sp<SkImage> srcImage = ycbcrHelper.createI420Image(kImageWidth, kImageHeight);
+    if (!ycbcrHelper.createBackendTexture(kImageWidth, kImageHeight)) {
+        ERRORF(reporter, "Failed to create I420 backend texture");
+        return;
+    }
+
+    sk_sp<SkImage> srcImage = SkImage::MakeFromTexture(testHelper.grContext(),
+                                                       ycbcrHelper.backendTexture(),
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       kRGB_888x_SkColorType,
+                                                       kPremul_SkAlphaType,
+                                                       nullptr);
     if (!srcImage) {
         ERRORF(reporter, "Failed to create I420 image");
         return;
