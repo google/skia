@@ -16,24 +16,27 @@ class GrD3DCpuDescriptorManager {
 public:
     GrD3DCpuDescriptorManager(GrD3DGpu*);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createRenderTargetView(GrD3DGpu*, ID3D12Resource* textureResource);
-    void recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createRenderTargetView(GrD3DGpu*,
+                                                          ID3D12Resource* textureResource);
+    void recycleRenderTargetView(const GrD3DDescriptorHeap::CPUHandle&);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createDepthStencilView(GrD3DGpu*, ID3D12Resource* textureResource);
-    void recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createDepthStencilView(GrD3DGpu*,
+                                                          ID3D12Resource* textureResource);
+    void recycleDepthStencilView(const GrD3DDescriptorHeap::CPUHandle&);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createConstantBufferView(GrD3DGpu*,
-                                                         ID3D12Resource* bufferResource,
-                                                         size_t offset,
-                                                         size_t size);
-    D3D12_CPU_DESCRIPTOR_HANDLE createShaderResourceView(GrD3DGpu*,
-                                                         ID3D12Resource* resource);
-    void recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createConstantBufferView(GrD3DGpu*,
+                                                            ID3D12Resource* bufferResource,
+                                                            size_t offset,
+                                                            size_t size);
+    GrD3DDescriptorHeap::CPUHandle createShaderResourceView(GrD3DGpu*,
+                                                            ID3D12Resource* resource);
+    void recycleConstantOrShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createSampler(GrD3DGpu*, D3D12_FILTER filter,
-                                              D3D12_TEXTURE_ADDRESS_MODE addressModeU,
-                                              D3D12_TEXTURE_ADDRESS_MODE addressModeV);
-    void recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createSampler(GrD3DGpu*,
+                                                 D3D12_FILTER filter,
+                                                 D3D12_TEXTURE_ADDRESS_MODE addressModeU,
+                                                 D3D12_TEXTURE_ADDRESS_MODE addressModeV);
+    void recycleSampler(const GrD3DDescriptorHeap::CPUHandle&);
 
 private:
     class Heap {
@@ -41,8 +44,11 @@ private:
         static std::unique_ptr<Heap> Make(GrD3DGpu* gpu, D3D12_DESCRIPTOR_HEAP_TYPE type,
                                           unsigned int numDescriptors);
 
-        D3D12_CPU_DESCRIPTOR_HANDLE allocateCPUHandle();
-        bool freeCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE*);
+        GrD3DDescriptorHeap::CPUHandle allocateCPUHandle();
+        void freeCPUHandle(const GrD3DDescriptorHeap::CPUHandle&);
+        bool ownsHandle(const GrD3DDescriptorHeap::CPUHandle& handle) {
+            return handle.fHeapID == fHeap->uniqueID();
+        }
 
         bool canAllocate() { return fFreeCount > 0; }
 
@@ -65,8 +71,8 @@ private:
     public:
         HeapPool(GrD3DGpu*, D3D12_DESCRIPTOR_HEAP_TYPE);
 
-        D3D12_CPU_DESCRIPTOR_HANDLE allocateHandle(GrD3DGpu*);
-        void releaseHandle(D3D12_CPU_DESCRIPTOR_HANDLE*);
+        GrD3DDescriptorHeap::CPUHandle allocateHandle(GrD3DGpu*);
+        void releaseHandle(const GrD3DDescriptorHeap::CPUHandle&);
 
     private:
         std::vector<std::unique_ptr<Heap>> fDescriptorHeaps;

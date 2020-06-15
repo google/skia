@@ -80,8 +80,8 @@ std::unique_ptr<GrD3DDescriptorTable> GrD3DDescriptorTableManager::Heap::allocat
     unsigned int startIndex = fNextAvailable;
     fNextAvailable += count;
     return std::unique_ptr<GrD3DDescriptorTable>(
-            new GrD3DDescriptorTable(fHeap->getCPUHandle(startIndex),
-                                     fHeap->getGPUHandle(startIndex), fType));
+            new GrD3DDescriptorTable(fHeap->getCPUHandle(startIndex).fHandle,
+                                     fHeap->getGPUHandle(startIndex).fHandle, fType));
 }
 
 void GrD3DDescriptorTableManager::Heap::onRecycle() const {

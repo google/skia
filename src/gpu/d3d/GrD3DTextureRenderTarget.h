@@ -59,11 +59,11 @@ private:
                              int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
+                             const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& resolveRenderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
                              GrMipMapsStatus);
 
     // non-MSAA, not-wrapped
@@ -72,8 +72,8 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
+                             const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
                              GrMipMapsStatus);
 
     // MSAA, wrapped
@@ -82,11 +82,11 @@ private:
                              int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
+                             const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& colorRenderTargetView,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& resolveRenderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
                              GrMipMapsStatus,
                              GrWrapCacheable);
 
@@ -95,8 +95,8 @@ private:
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& shaderResourceView,
-                             const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView,
+                             const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
+                             const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
                              GrMipMapsStatus,
                              GrWrapCacheable);
 

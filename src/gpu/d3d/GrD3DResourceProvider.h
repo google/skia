@@ -37,17 +37,17 @@ public:
 
     sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createRenderTargetView(ID3D12Resource* textureResource);
-    void recycleRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createRenderTargetView(ID3D12Resource* textureResource);
+    void recycleRenderTargetView(const GrD3DDescriptorHeap::CPUHandle&);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createDepthStencilView(ID3D12Resource* textureResource);
-    void recycleDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createDepthStencilView(ID3D12Resource* textureResource);
+    void recycleDepthStencilView(const GrD3DDescriptorHeap::CPUHandle&);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE createConstantBufferView(ID3D12Resource* bufferResource,
-                                                         size_t offset,
-                                                         size_t size);
-    D3D12_CPU_DESCRIPTOR_HANDLE createShaderResourceView(ID3D12Resource* resource);
-    void recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE*);
+    GrD3DDescriptorHeap::CPUHandle createConstantBufferView(ID3D12Resource* bufferResource,
+                                                            size_t offset,
+                                                            size_t size);
+    GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource);
+    void recycleConstantOrShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
 

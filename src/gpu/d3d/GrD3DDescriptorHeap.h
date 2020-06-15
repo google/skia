@@ -22,44 +22,56 @@ public:
 
     ~GrD3DDescriptorHeap() = default;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE getCPUHandle(unsigned int index); // write-only if shader-visible
-    D3D12_GPU_DESCRIPTOR_HANDLE getGPUHandle(unsigned int index);
+    uint32_t uniqueID() const { return fUniqueID; }
+
+    struct CPUHandle {
+        D3D12_CPU_DESCRIPTOR_HANDLE fHandle;
+        uint32_t fHeapID;
+    };
+
+    struct GPUHandle {
+        D3D12_GPU_DESCRIPTOR_HANDLE fHandle;
+        uint32_t fHeapID;
+    };
+
+    CPUHandle getCPUHandle(unsigned int index); // write-only if shader-visible
+    GPUHandle getGPUHandle(unsigned int index);
     ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.get(); }
     size_t handleIncrementSize() { return fHandleIncrementSize; }
 
-    bool getIndex(D3D12_CPU_DESCRIPTOR_HANDLE handle, size_t* indexPtr) {
-        if (handle.ptr < fCPUHeapStart.ptr) {
-            return false;
-        }
-        size_t index = (handle.ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
-        if (index >= fHeap->GetDesc().NumDescriptors) {
-            return false;
-        }
-        SkASSERT(handle.ptr == fCPUHeapStart.ptr + index * fHandleIncrementSize);
-        *indexPtr = index;
-        return true;
+    size_t getIndex(const CPUHandle& handle) {
+        SkASSERT(handle.fHeapID == fUniqueID);
+        size_t index = (handle.fHandle.ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
+        SkASSERT(index < fHeap->GetDesc().NumDescriptors);
+        SkASSERT(handle.fHandle.ptr == fCPUHeapStart.ptr + index * fHandleIncrementSize);
+        return index;
     }
 
-    bool getIndex(D3D12_GPU_DESCRIPTOR_HANDLE handle, size_t* indexPtr) {
-        if (handle.ptr < fGPUHeapStart.ptr) {
-            return false;
-        }
-        size_t index = (handle.ptr - fGPUHeapStart.ptr) / fHandleIncrementSize;
-        if (index >= fHeap->GetDesc().NumDescriptors) {
-            return false;
-        }
-        SkASSERT(handle.ptr == fGPUHeapStart.ptr + index * fHandleIncrementSize);
-        *indexPtr = index;
-        return true;
+    size_t getIndex(const GPUHandle& handle) {
+        SkASSERT(handle.fHeapID == fUniqueID);
+        size_t index = (handle.fHandle.ptr - fCPUHeapStart.ptr) / fHandleIncrementSize;
+        SkASSERT(index < fHeap->GetDesc().NumDescriptors);
+        SkASSERT(handle.fHandle.ptr == fCPUHeapStart.ptr + index * fHandleIncrementSize);
+        return index;
     }
 
 protected:
     GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>&, unsigned int handleIncrementSize);
 
+    static uint32_t GenID() {
+        static std::atomic<uint32_t> nextID{1};
+        uint32_t id;
+        do {
+            id = nextID++;
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
     gr_cp<ID3D12DescriptorHeap> fHeap;
     size_t fHandleIncrementSize;
     D3D12_CPU_DESCRIPTOR_HANDLE fCPUHeapStart;
     D3D12_GPU_DESCRIPTOR_HANDLE fGPUHeapStart;
+    uint32_t fUniqueID;
 };
 
 #endif
