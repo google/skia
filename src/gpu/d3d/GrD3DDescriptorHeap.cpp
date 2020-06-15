@@ -28,23 +28,24 @@ std::unique_ptr<GrD3DDescriptorHeap> GrD3DDescriptorHeap::Make(GrD3DGpu* gpu,
 GrD3DDescriptorHeap::GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>& heap,
                                          unsigned int handleIncrementSize)
     : fHeap(heap)
-    , fHandleIncrementSize(handleIncrementSize) {
+    , fHandleIncrementSize(handleIncrementSize)
+    , fUniqueID(GenID()) {
     fCPUHeapStart = fHeap->GetCPUDescriptorHandleForHeapStart();
     fGPUHeapStart = fHeap->GetGPUDescriptorHandleForHeapStart();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::getCPUHandle(unsigned int index) {
+GrD3DDescriptorHeap::CPUHandle GrD3DDescriptorHeap::getCPUHandle(unsigned int index) {
     SkASSERT(index < fHeap->GetDesc().NumDescriptors);
     D3D12_CPU_DESCRIPTOR_HANDLE handle = fCPUHeapStart;
     handle.ptr += index * fHandleIncrementSize;
-    return handle;
+    return {handle, fUniqueID};
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE GrD3DDescriptorHeap::getGPUHandle(unsigned int index) {
+GrD3DDescriptorHeap::GPUHandle GrD3DDescriptorHeap::getGPUHandle(unsigned int index) {
     SkASSERT(index < fHeap->GetDesc().NumDescriptors);
     D3D12_GPU_DESCRIPTOR_HANDLE handle = fGPUHeapStart;
     handle.ptr += index * fHandleIncrementSize;
-    return handle;
+    return {handle, fUniqueID};
 }
 
 
