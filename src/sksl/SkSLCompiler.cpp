@@ -1146,6 +1146,8 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
                 unconditionalBreakStmt = stmt.get();
                 break;
             }
+
+            caseStmts.push_back(std::move(stmt));
         }
 
         if (unconditionalBreakStmt != nullptr) {
