@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc504130_7881a171",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-15T16:30:02Z",
+      "side": 1,
+      "message": "Agree with your later analysis - at this point I\u0027d just remove this assert (we have to trust the type system at this point, I think).",
+      "revId": "bd5614fd3e8655119db0b2e4d4cbec6fdc70d709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
