@@ -353,7 +353,7 @@ bool Cluster::isSoftBreak() const {
 }
 
 bool Cluster::isGraphemeBreak() const {
-    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kGraphemeBreakBefore);
+    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kGraphemeStart);
 }
 
 Cluster::Cluster(ParagraphImpl* master,

@@ -40,9 +40,6 @@ const SkRange<size_t> EMPTY_CLUSTERS = EMPTY_RANGE;
 typedef size_t GraphemeIndex;
 typedef SkRange<GraphemeIndex> GraphemeRange;
 
-typedef size_t CodepointIndex;
-typedef SkRange<CodepointIndex> CodepointRange;
-
 typedef size_t GlyphIndex;
 typedef SkRange<GlyphIndex> GlyphRange;
 
@@ -204,23 +201,6 @@ private:
     bool fSpaced;
     bool fEllipsis;
     uint8_t fBidiLevel;
-};
-
-struct CodepointRepresentation {
-
-  CodepointRepresentation(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
-
-  GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
-  size_t fIndex;
-};
-
-struct Grapheme {
-    Grapheme(CodepointRange codepoints, TextRange textRange)
-        : fCodepointRange(codepoints), fTextRange(textRange) { }
-    CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
 };
 
 class Cluster {

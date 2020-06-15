@@ -38,7 +38,7 @@ namespace textlayout {
 enum CodeUnitFlags {
     kNoCodeUnitFlag = 0x0,
     kPartOfWhiteSpace = 0x1,
-    kGraphemeBreakBefore = 0x2,
+    kGraphemeStart = 0x2,
     kSoftLineBreakBefore = 0x4,
     kHardLineBreakBefore = 0x8,
 };
@@ -138,8 +138,12 @@ public:
     const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
-    SkSpan<CodepointRepresentation> codepoints(){ return SkSpan<CodepointRepresentation>(fCodepoints.begin(), fCodepoints.size()); }
     void formatLines(SkScalar maxWidth);
+    void ensureUTF16Mapping();
+    TextIndex findGraphemeStart(TextIndex index);
+    size_t getUTF16Index(TextIndex index) {
+        return fUTF16IndexForUTF8Index[index];
+    }
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
     bool strutForceHeight() const {
@@ -226,8 +230,6 @@ private:
 
     void calculateBoundaries();
 
-    void markGraphemes16();
-
     void computeEmptyMetrics();
 
     // Input
@@ -249,8 +251,10 @@ private:
     SkTArray<size_t> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
     SkTArray<BidiRegion> fBidiRegions;
-    SkTArray<Grapheme, true> fGraphemes16;
-    SkTArray<CodepointRepresentation, true> fCodepoints;
+    // These two arrays are used in measuring methods (getRectsForRange, getGlyphPositionAtCoordinate)
+    // They are filled lazily whenever they need and cached
+    SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
+    SkTArray<size_t, true> fUTF16IndexForUTF8Index;
     size_t fUnresolvedGlyphs;
 
     SkTArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)
