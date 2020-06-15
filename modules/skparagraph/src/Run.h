@@ -206,23 +206,6 @@ private:
     uint8_t fBidiLevel;
 };
 
-struct CodepointRepresentation {
-
-  CodepointRepresentation(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
-
-  GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
-  size_t fIndex;
-};
-
-struct Grapheme {
-    Grapheme(CodepointRange codepoints, TextRange textRange)
-        : fCodepointRange(codepoints), fTextRange(textRange) { }
-    CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
-};
-
 class Cluster {
 public:
     enum BreakType {

@@ -39,8 +39,8 @@ public:
         , fCodeUnitProperties(paragraph->fCodeUnitProperties)
         , fWords(paragraph->fWords)
         , fBidiRegions(paragraph->fBidiRegions)
-        , fGraphemes16(paragraph->fGraphemes16)
-        , fCodepoints(paragraph->fCodepoints) { }
+        , fTextIndexByCodepoint(paragraph->fTextIndexByCodepoint)
+        , fCodepointIndexByText(paragraph->fCodepointIndexByText) { }
 
     // Input == key
     ParagraphCacheKey fKey;
@@ -51,8 +51,8 @@ public:
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     std::vector<size_t> fWords;
     SkTArray<BidiRegion> fBidiRegions;
-    SkTArray<Grapheme, true> fGraphemes16;
-    SkTArray<CodepointRepresentation, true> fCodepoints;
+    SkTArray<TextIndex, true> fTextIndexByCodepoint;
+    SkTArray<size_t, true> fCodepointIndexByText;
 };
 
 uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
@@ -207,8 +207,8 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fCodeUnitProperties = entry->fValue->fCodeUnitProperties;
     paragraph->fWords = entry->fValue->fWords;
     paragraph->fBidiRegions = entry->fValue->fBidiRegions;
-    paragraph->fGraphemes16 = entry->fValue->fGraphemes16;
-    paragraph->fCodepoints = entry->fValue->fCodepoints;
+    paragraph->fTextIndexByCodepoint = entry->fValue->fTextIndexByCodepoint;
+    paragraph->fCodepointIndexByText = entry->fValue->fCodepointIndexByText;
     for (auto& run : paragraph->fRuns) {
         run.setMaster(paragraph);
     }
