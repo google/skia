@@ -106,7 +106,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw1(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses ToolUtils::makeSurface which doesn't work well with vias.

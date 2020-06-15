@@ -159,7 +159,7 @@ private:
         return nullptr;
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw1(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         if (!GetGLContextIfSupported(context)) {
             *errorMsg = "This GM requires an OpenGL context that supports texture rectangles.";
