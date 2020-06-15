@@ -149,6 +149,12 @@ int GrFragmentProcessor::cloneAndRegisterChildProcessor(const GrFragmentProcesso
     return this->registerChildProcessor(std::move(clone));
 }
 
+void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {
+    for (int i = 0; i < src.numChildProcessors(); ++i) {
+        this->cloneAndRegisterChildProcessor(src.childProcessor(i));
+    }
+}
+
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
     if (this->numCoordTransforms() != that.numCoordTransforms()) {
         return false;

@@ -418,6 +418,12 @@ protected:
      */
     int cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp);
 
+    /**
+     * This method takes an existing fragment processor, clones all of its children, and registers
+     * the clones as children of this fragment processor.
+     */
+    void cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src);
+
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
         fTextureSamplerCnt = cnt;
