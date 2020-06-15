@@ -58,7 +58,7 @@ private:
 
     void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
 
-    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override {}
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
     GrD3DGpu* fGpu;
 
@@ -69,6 +69,7 @@ private:
 
     GrLoadOp fColorLoadOp;
     SkPMColor4f fClearColor;
+    GrLoadOp fStencilLoadOp;
 
     typedef GrOpsRenderPass INHERITED;
 };
