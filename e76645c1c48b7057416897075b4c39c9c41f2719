@@ -22,6 +22,30 @@
       "revId": "e76645c1c48b7057416897075b4c39c9c41f2719",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1db5051_5ed1228d",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T14:16:58Z",
+      "side": 1,
+      "message": "This function can\u0027t be private. It\u0027s used by the helper class GLCircularRRectEffect in emitCode:\n\n```\n    SkString inputSample \u003d (crre.getInputFPIndex() \u003e\u003d 0)\n                ? this-\u003einvokeChild(crre.getInputFPIndex(), args.fInputColor, args)\n                : SkString(args.fInputColor);\n```\n\nI can change it to `bool hasInputFP()` and change emitCode to do:\n\n```\n    SkString inputSample \u003d crre.hasInputFP()\n                ? this-\u003einvokeChild(/*childIndex\u003d*/0, args.fInputColor, args)\n                : SkString(args.fInputColor);\n```\n\nTo me this is just 6 of one and half dozen of the other. :) If you prefer the second form, SGTM.\n\n(Technically I could make these two classes friends and then avoid a getter, but the normal pattern I\u0027ve seen for these sets of paired classes has been getter functions, not friendship. Usually friend is a last-resort kind of option.)",
+      "parentUuid": "bb7447e2_39b0c639",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "e76645c1c48b7057416897075b4c39c9c41f2719",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
