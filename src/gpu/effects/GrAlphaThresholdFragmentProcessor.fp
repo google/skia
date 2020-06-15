@@ -6,7 +6,7 @@
  */
 
 in fragmentProcessor? inputFP;
-in uniform sampler2D mask;
+in fragmentProcessor  maskFP;
 in uniform half innerThreshold;
 in uniform half outerThreshold;
 
@@ -16,17 +16,13 @@ in uniform half outerThreshold;
 
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrSurfaceProxyView mask,
+                                                     std::unique_ptr<GrFragmentProcessor> maskFP,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                std::move(inputFP), std::move(mask), innerThreshold, outerThreshold, bounds));
+                std::move(inputFP), std::move(maskFP), innerThreshold, outerThreshold, bounds));
     }
-}
-
-@coordTransform(mask) {
-    SkMatrix::Translate(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
 }
 
 @optimizationFlags {
@@ -37,7 +33,7 @@ in uniform half outerThreshold;
 
 void main() {
     half4 color = sample(inputFP, sk_InColor);
-    half4 mask_color = sample(mask, sk_TransformedCoords2D[0]);
+    half4 mask_color = sample(maskFP);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
             half scale = outerThreshold / color.a;
@@ -64,7 +60,12 @@ void main() {
     uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
+    std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
+    if (testData->fRandom->nextBool()) {
+        inputChild = GrProcessorUnitTest::MakeChildFP(testData);
+    }
+    maskChild = GrProcessorUnitTest::MakeChildFP(testData);
 
-    return GrAlphaThresholdFragmentProcessor::Make(/*inputFP=*/nullptr, std::move(maskView),
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(inputChild), std::move(maskChild),
                                                    innerThresh, outerThresh, bounds);
 }
