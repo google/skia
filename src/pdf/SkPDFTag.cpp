@@ -90,13 +90,23 @@ void SkPDF::AttributeList::appendFloat(
     fAttrs->appendObject(std::move(attrDict));
 }
 
-void SkPDF::AttributeList::appendString(
+void SkPDF::AttributeList::appendName(
         const char* owner, const char* name, const char* value) {
     if (!fAttrs)
         fAttrs = SkPDFMakeArray();
     std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
     attrDict->insertName("O", owner);
     attrDict->insertName(name, value);
+    fAttrs->appendObject(std::move(attrDict));
+}
+
+void SkPDF::AttributeList::appendString(
+        const char* owner, const char* name, const char* value) {
+    if (!fAttrs)
+        fAttrs = SkPDFMakeArray();
+    std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
+    attrDict->insertName("O", owner);
+    attrDict->insertString(name, value);
     fAttrs->appendObject(std::move(attrDict));
 }
 
@@ -114,7 +124,7 @@ void SkPDF::AttributeList::appendFloatArray(
     fAttrs->appendObject(std::move(attrDict));
 }
 
-void SkPDF::AttributeList::appendStringArray(
+void SkPDF::AttributeList::appendNameArray(
         const char* owner,
         const char* name,
         const std::vector<SkString>& value) {
@@ -125,6 +135,22 @@ void SkPDF::AttributeList::appendStringArray(
     std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
     for (SkString element : value) {
         pdfArray->appendName(element);
+    }
+    attrDict->insertObject(name, std::move(pdfArray));
+    fAttrs->appendObject(std::move(attrDict));
+}
+
+void SkPDF::AttributeList::appendStringArray(
+        const char* owner,
+        const char* name,
+        const std::vector<SkString>& value) {
+    if (!fAttrs)
+        fAttrs = SkPDFMakeArray();
+    std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
+    attrDict->insertName("O", owner);
+    std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
+    for (SkString element : value) {
+        pdfArray->appendString(element);
     }
     attrDict->insertObject(name, std::move(pdfArray));
     fAttrs->appendObject(std::move(attrDict));
