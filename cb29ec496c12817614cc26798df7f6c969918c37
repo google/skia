@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "877c27a7_f44ed91f",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T22:44:40Z",
+      "side": 1,
+      "message": "nit: stylistically, we tend to put the mutable parameters at the end.\n\nThis is somewhat weird case because \u0027inputFP\u0027 is semi-mutable for ownership reasons, and \u0027success\u0027 makes some sense to be grouped with it, but having it at the end makes it more like other code that uses this pattern in skia. I\u0027ll defer to Brian.",
+      "range": {
+        "startLine": 43,
+        "startChar": 53,
+        "endLine": 43,
+        "endChar": 67
+      },
+      "revId": "cb29ec496c12817614cc26798df7f6c969918c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7de5d4e_5fa76e3d",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T22:44:40Z",
+      "side": 1,
+      "message": "I don\u0027t think we should have \u0027success\u0027 here. This variant only fails if the edge type is hairline, but from what I saw, old code and new code just ignore success.\n\nTBH, it\u0027s kind of weird that this factory even exists since it doesn\u0027t create an instance of the convex poly effect, but immediately calls the GrAARectEffect::Make function. I\u0027d just remove this Make while we\u0027re here.\n\nWhether removing this to call AARectEffect directly, or just removing success arg, we should instead just assert that the clip type isn\u0027t hairline given that success state / null-check wasn\u0027t being used by callers.",
+      "range": {
+        "startLine": 68,
+        "startChar": 53,
+        "endLine": 68,
+        "endChar": 67
+      },
+      "revId": "cb29ec496c12817614cc26798df7f6c969918c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
