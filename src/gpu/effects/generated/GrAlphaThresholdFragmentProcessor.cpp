@@ -89,13 +89,7 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
     if (src.inputFP_index >= 0) {
         inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
     }
-    {
-        auto maskFP_clone = src.childProcessor(src.maskFP_index).clone();
-        if (src.childProcessor(src.maskFP_index).isSampledWithExplicitCoords()) {
-            maskFP_clone->setSampledWithExplicitCoords();
-        }
-        maskFP_index = this->registerChildProcessor(std::move(maskFP_clone));
-    }
+    { maskFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.maskFP_index)); }
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
