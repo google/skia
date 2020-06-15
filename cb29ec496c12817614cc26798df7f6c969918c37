@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "32a33728_71d8f5ca",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T23:49:51Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly about how the parameters are grouped. If you both prefer grouping inputFP with success that\u0027s ok by me.\n\nHowever, I do wonder if this is oh so close to:\n using MakeResult \u003d std::tuple\u003cstd::u_p\u003cGrFP\u003e, bool\u003e\n MakeResult Make(std::u_p\u003cGrFP\u003e, ...);\n\nI have a slight personal pref. for tuple returns over out params. It still feel like the caller has enough \"pressure\" to check success/failure.",
+      "parentUuid": "815cf991_013c67a4",
+      "range": {
+        "startLine": 43,
+        "startChar": 53,
+        "endLine": 43,
+        "endChar": 67
+      },
+      "revId": "cb29ec496c12817614cc26798df7f6c969918c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b7de5d4e_5fa76e3d",
         "filename": "src/gpu/effects/GrConvexPolyEffect.h",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "For the purposes of this CL, let\u0027s assume/pretend that it\u0027s a valid useful API that we want to preserve, and focus on whether it\u0027s convenient for callers to use it properly (even if in practice, they are not).\n\nI\u0027m totally open to removing it in a followup CL if it\u0027s not actually useful, but that feels like it might add too many variables to the discussion.",
       "parentUuid": "b7de5d4e_5fa76e3d",
+      "range": {
+        "startLine": 68,
+        "startChar": 53,
+        "endLine": 68,
+        "endChar": 67
+      },
+      "revId": "cb29ec496c12817614cc26798df7f6c969918c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e008287a_70341283",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T23:49:51Z",
+      "side": 1,
+      "message": "Putting aside this CL and looking to future CLs: I bet with a minor amount of refactoring and deleting unused code we could get rid of kHairlineAA. We don\u0027t ever really clip to hairlines. Also, fine with getting rid of this factory and just using GrAARectEffect::Make directly.",
+      "parentUuid": "64f4d293_b719c4be",
       "range": {
         "startLine": 68,
         "startChar": 53,
