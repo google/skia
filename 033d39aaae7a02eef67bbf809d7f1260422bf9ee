@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3b88e07_3685e26b",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T16:30:31Z",
+      "side": 1,
+      "message": "We want to move the view into the child effect but GrMatrixConvolutionEffect has a member KernelWrapper. So I lifted it out into this tuple. Open to other patterns for doing this.",
+      "range": {
+        "startLine": 64,
+        "startChar": 45,
+        "endLine": 64,
+        "endChar": 63
+      },
+      "revId": "033d39aaae7a02eef67bbf809d7f1260422bf9ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

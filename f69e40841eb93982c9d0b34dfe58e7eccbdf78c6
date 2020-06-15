@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db7d9d99_5a2d7612",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T16:30:31Z",
+      "side": 0,
+      "message": "I deleted this because there is no advantage over copying here. It\u0027d only be faster if the elements of the array were faster to move than to copy, but that\u0027s not so with floats.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 9
+      },
+      "revId": "f69e40841eb93982c9d0b34dfe58e7eccbdf78c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
