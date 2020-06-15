@@ -64,16 +64,20 @@ class CCPRGeometryView : public Sample {
 
     void updateGpuData();
 
-    PrimitiveType fPrimitiveType = PrimitiveType::kTriangles;
+    PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
     SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
     SkPoint fPoints[4] = {
-            {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
+        {328.049988f, 342.049988f},
+        {378.750000f, 371.049988f},
+        {347.750000f, 426.950012f},
+        {296.049988f, 327.950012f}
+    };
 
     float fConicWeight = .5;
     float fStrokeWidth = 40;
-    bool fDoStroke = false;
+    bool fDoStroke = true;
 
     SkTArray<TriPointInstance> fTriPointInstances;
     SkTArray<QuadPointInstance> fQuadPointInstances;
@@ -161,11 +165,11 @@ static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3]
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
-    if (!fDoStroke) {
+    if (1||!fDoStroke) {
         SkPaint outlinePaint;
-        outlinePaint.setColor(0x80ffffff);
+        outlinePaint.setColor(0xffffffff);
         outlinePaint.setStyle(SkPaint::kStroke_Style);
-        outlinePaint.setStrokeWidth(0);
+        outlinePaint.setStrokeWidth(fStrokeWidth);
         outlinePaint.setAntiAlias(true);
         canvas->drawPath(fPath, outlinePaint);
     }
@@ -185,45 +189,45 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 #endif
 
     SkString caption;
-    if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
-        // Render coverage count.
-        GrContext* ctx = canvas->getGrContext();
-        SkASSERT(ctx);
-
-        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-
-        int width = this->width();
-        int height = this->height();
-        auto ccbuff = GrRenderTargetContext::Make(
-                ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
-        SkASSERT(ccbuff);
-        ccbuff->clear(SK_PMColor4fTRANSPARENT);
-        ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
-
-        // Visualize coverage count in main canvas.
-        GrPaint paint;
-        paint.addColorFragmentProcessor(
-                GrTextureEffect::Make(ccbuff->readSurfaceView(), ccbuff->colorInfo().alphaType()));
-        paint.addColorFragmentProcessor(
-                std::make_unique<VisualizeCoverageCountFP>());
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-        rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                      SkRect::MakeIWH(this->width(), this->height()));
-
-        // Add label.
-        caption.appendf("PrimitiveType_%s",
-                        GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
-        if (PrimitiveType::kCubics == fPrimitiveType) {
-            caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
-        } else if (PrimitiveType::kConics == fPrimitiveType) {
-            caption.appendf(" (w=%f)", fConicWeight);
-        }
-        if (fDoStroke) {
-            caption.appendf(" (stroke_width=%f)", fStrokeWidth);
-        }
-    } else {
-        caption = "Use GPU backend to visualize geometry.";
-    }
+    // if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
+    //     // Render coverage count.
+    //     GrContext* ctx = canvas->getGrContext();
+    //     SkASSERT(ctx);
+    //
+    //     GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
+    //
+    //     int width = this->width();
+    //     int height = this->height();
+    //     auto ccbuff = GrRenderTargetContext::Make(
+    //             ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
+    //     SkASSERT(ccbuff);
+    //     ccbuff->clear(SK_PMColor4fTRANSPARENT);
+    //     ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
+    //
+    //     // Visualize coverage count in main canvas.
+    //     GrPaint paint;
+    //     paint.addColorFragmentProcessor(
+    //             GrTextureEffect::Make(ccbuff->readSurfaceView(), ccbuff->colorInfo().alphaType()));
+    //     paint.addColorFragmentProcessor(
+    //             std::make_unique<VisualizeCoverageCountFP>());
+    //     paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+    //     rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+    //                   SkRect::MakeIWH(this->width(), this->height()));
+    //
+    //     // Add label.
+    //     caption.appendf("PrimitiveType_%s",
+    //                     GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
+    //     if (PrimitiveType::kCubics == fPrimitiveType) {
+    //         caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
+    //     } else if (PrimitiveType::kConics == fPrimitiveType) {
+    //         caption.appendf(" (w=%f)", fConicWeight);
+    //     }
+    //     if (fDoStroke) {
+    //         caption.appendf(" (stroke_width=%f)", fStrokeWidth);
+    //     }
+    // } else {
+    //     caption = "Use GPU backend to visualize geometry.";
+    // }
 
     SkPaint pointsPaint;
     pointsPaint.setColor(SK_ColorBLUE);
