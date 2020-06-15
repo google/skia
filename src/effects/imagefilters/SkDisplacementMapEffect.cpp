@@ -519,15 +519,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
-    auto displacement = that.childProcessor(0).clone();
-    if (that.childProcessor(0).isSampledWithExplicitCoords()) {
-        displacement->setSampledWithExplicitCoords();
-    }
-    this->registerChildProcessor(std::move(displacement));
-
-    auto color = that.childProcessor(1).clone();
-    color->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(color));
+    this->cloneAndRegisterChildProcessor(that.childProcessor(0));  // Displacement
+    this->cloneAndRegisterChildProcessor(that.childProcessor(1));  // Color
     this->addCoordTransform(&fCoordTransform);
 }
 

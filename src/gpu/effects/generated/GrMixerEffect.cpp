@@ -65,19 +65,9 @@ bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
-    {
-        auto fp0_clone = src.childProcessor(src.fp0_index).clone();
-        if (src.childProcessor(src.fp0_index).isSampledWithExplicitCoords()) {
-            fp0_clone->setSampledWithExplicitCoords();
-        }
-        fp0_index = this->registerChildProcessor(std::move(fp0_clone));
-    }
+    { fp0_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp0_index)); }
     if (src.fp1_index >= 0) {
-        auto fp1_clone = src.childProcessor(src.fp1_index).clone();
-        if (src.childProcessor(src.fp1_index).isSampledWithExplicitCoords()) {
-            fp1_clone->setSampledWithExplicitCoords();
-        }
-        fp1_index = this->registerChildProcessor(std::move(fp1_clone));
+        fp1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp1_index));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrMixerEffect::clone() const {

@@ -68,18 +68,10 @@ bool GrComposeLerpEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     if (src.child1_index >= 0) {
-        auto child1_clone = src.childProcessor(src.child1_index).clone();
-        if (src.childProcessor(src.child1_index).isSampledWithExplicitCoords()) {
-            child1_clone->setSampledWithExplicitCoords();
-        }
-        child1_index = this->registerChildProcessor(std::move(child1_clone));
+        child1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child1_index));
     }
     if (src.child2_index >= 0) {
-        auto child2_clone = src.childProcessor(src.child2_index).clone();
-        if (src.childProcessor(src.child2_index).isSampledWithExplicitCoords()) {
-            child2_clone->setSampledWithExplicitCoords();
-        }
-        child2_index = this->registerChildProcessor(std::move(child2_clone));
+        child2_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child2_index));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrComposeLerpEffect::clone() const {

@@ -1143,15 +1143,10 @@ void CPPCodeGenerator::writeClone() {
                 } else {
                     this->write("    {\n");
                 }
-                this->writef(
-                       "        auto %s_clone = src.childProcessor(src.%s_index).clone();\n"
-                       "        if (src.childProcessor(src.%s_index).isSampledWithExplicitCoords()) {\n"
-                       "            %s_clone->setSampledWithExplicitCoords();\n"
-                       "        }\n"
-                       "        %s_index = this->registerChildProcessor(std::move(%s_clone));\n"
-                       "    }\n",
-                       fieldName.c_str(), fieldName.c_str(), fieldName.c_str(),
-                       fieldName.c_str(), fieldName.c_str(), fieldName.c_str());
+                this->writef("        %s_index = this->cloneAndRegisterChildProcessor("
+                                                     "src.childProcessor(src.%s_index));\n"
+                             "    }\n",
+                             fieldName.c_str(), fieldName.c_str());
             }
         }
         if (samplerCount) {
