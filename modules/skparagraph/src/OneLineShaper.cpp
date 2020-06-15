@@ -648,7 +648,7 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
         if (dir == Dir::right) {
             while (index < fCurrentRun->fTextRange.end) {
                 if (this->fParagraph->codeUnitHasProperty(index,
-                                                          CodeUnitFlags::kGraphemeBreakBefore)) {
+                                                          CodeUnitFlags::kGraphemeStart)) {
                     return index;
                 }
                 ++index;
@@ -657,7 +657,7 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
         } else {
             while (index > fCurrentRun->fTextRange.start) {
                 if (this->fParagraph->codeUnitHasProperty(index,
-                                                          CodeUnitFlags::kGraphemeBreakBefore)) {
+                                                          CodeUnitFlags::kGraphemeStart)) {
                     return index;
                 }
                 --index;
