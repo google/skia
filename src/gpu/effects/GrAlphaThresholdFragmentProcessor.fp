@@ -6,28 +6,9 @@
  */
 
 in fragmentProcessor? inputFP;
-in uniform sampler2D mask;
+in fragmentProcessor  maskFP;
 in uniform half innerThreshold;
 in uniform half outerThreshold;
-
-@constructorParams {
-    const SkIRect& bounds
-}
-
-@make {
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrSurfaceProxyView mask,
-                                                     float innerThreshold,
-                                                     float outerThreshold,
-                                                     const SkIRect& bounds) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                std::move(inputFP), std::move(mask), innerThreshold, outerThreshold, bounds));
-    }
-}
-
-@coordTransform(mask) {
-    SkMatrix::Translate(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
-}
 
 @optimizationFlags {
     (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
@@ -37,7 +18,7 @@ in uniform half outerThreshold;
 
 void main() {
     half4 color = sample(inputFP, sk_InColor);
-    half4 mask_color = sample(mask, sk_TransformedCoords2D[0]);
+    half4 mask_color = sample(maskFP);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
             half scale = outerThreshold / color.a;
@@ -57,14 +38,12 @@ void main() {
     // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
     float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
     float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    const int kMaxWidth = 1000;
-    const int kMaxHeight = 1000;
-    uint32_t width = testData->fRandom->nextULessThan(kMaxWidth);
-    uint32_t height = testData->fRandom->nextULessThan(kMaxHeight);
-    uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
-    uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
-    SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
+    std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
+    if (testData->fRandom->nextBool()) {
+        inputChild = GrProcessorUnitTest::MakeChildFP(testData);
+    }
+    maskChild = GrProcessorUnitTest::MakeChildFP(testData);
 
-    return GrAlphaThresholdFragmentProcessor::Make(/*inputFP=*/nullptr, std::move(maskView),
-                                                   innerThresh, outerThresh, bounds);
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(inputChild), std::move(maskChild),
+                                                   innerThresh, outerThresh);
 }

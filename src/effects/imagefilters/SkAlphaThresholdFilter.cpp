@@ -162,6 +162,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
         if (!maskView) {
             return nullptr;
         }
+        auto maskFP = GrTextureEffect::Make(std::move(maskView), kPremul_SkAlphaType,
+                                            SkMatrix::Translate(-bounds.x(), -bounds.y()));
 
         auto textureFP = GrTextureEffect::Make(
                 std::move(inputView), input->alphaType(),
@@ -172,9 +174,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
             return nullptr;
         }
 
-        auto thresholdFP =
-            GrAlphaThresholdFragmentProcessor::Make(std::move(textureFP), std::move(maskView),
-                                                    fInnerThreshold, fOuterThreshold, bounds);
+        auto thresholdFP = GrAlphaThresholdFragmentProcessor::Make(
+                std::move(textureFP), std::move(maskFP), fInnerThreshold, fOuterThreshold);
         if (!thresholdFP) {
             return nullptr;
         }

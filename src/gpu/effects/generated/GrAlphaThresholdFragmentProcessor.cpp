@@ -32,29 +32,23 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
-        SkString _input1334 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample1334;
+        SkString _input572 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample572;
         if (_outer.inputFP_index >= 0) {
-            _sample1334 = this->invokeChild(_outer.inputFP_index, _input1334.c_str(), args);
+            _sample572 = this->invokeChild(_outer.inputFP_index, _input572.c_str(), args);
         } else {
-            _sample1334 = _input1334;
+            _sample572 = _input572;
         }
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
+        fragBuilder->codeAppendf("half4 color = %s;", _sample572.c_str());
+        SkString _sample624;
+        _sample624 = this->invokeChild(_outer.maskFP_index, args);
         fragBuilder->codeAppendf(
-                "half4 color = %s;\nhalf4 mask_color = sample(%s, %s).%s;\nif (mask_color.w < 0.5) "
-                "{\n    if (color.w > %s) {\n        half scale = %s / color.w;\n        color.xyz "
-                "*= scale;\n        color.w = %s;\n    }\n} else if (color.w < %s) {\n    half "
-                "scale = %s / max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    "
-                "color.w = %s;\n}\n%s = color;\n",
-                _sample1334.c_str(),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                sk_TransformedCoords2D_0.c_str(),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                args.fUniformHandler->getUniformCStr(outerThresholdVar),
+                "\nhalf4 mask_color = %s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n    "
+                "    half scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = "
+                "%s;\n    }\n} else if (color.w < %s) {\n    half scale = %s / "
+                "max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    color.w = "
+                "%s;\n}\n%s = color;\n",
+                _sample624.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(innerThresholdVar),
@@ -83,7 +77,6 @@ void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps
 bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAlphaThresholdFragmentProcessor& that = other.cast<GrAlphaThresholdFragmentProcessor>();
     (void)that;
-    if (mask != that.mask) return false;
     if (innerThreshold != that.innerThreshold) return false;
     if (outerThreshold != that.outerThreshold) return false;
     return true;
@@ -91,22 +84,21 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& oth
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         const GrAlphaThresholdFragmentProcessor& src)
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
-        , maskCoordTransform(src.maskCoordTransform)
-        , mask(src.mask)
         , innerThreshold(src.innerThreshold)
         , outerThreshold(src.outerThreshold) {
     if (src.inputFP_index >= 0) {
         inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
     }
-    this->setTextureSamplerCnt(1);
-    this->addCoordTransform(&maskCoordTransform);
+    {
+        auto maskFP_clone = src.childProcessor(src.maskFP_index).clone();
+        if (src.childProcessor(src.maskFP_index).isSampledWithExplicitCoords()) {
+            maskFP_clone->setSampledWithExplicitCoords();
+        }
+        maskFP_index = this->registerChildProcessor(std::move(maskFP_clone));
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
-}
-const GrFragmentProcessor::TextureSampler& GrAlphaThresholdFragmentProcessor::onTextureSampler(
-        int index) const {
-    return IthTextureSampler(index, mask);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
@@ -116,15 +108,13 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
     float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
     float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    const int kMaxWidth = 1000;
-    const int kMaxHeight = 1000;
-    uint32_t width = testData->fRandom->nextULessThan(kMaxWidth);
-    uint32_t height = testData->fRandom->nextULessThan(kMaxHeight);
-    uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
-    uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
-    SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
+    std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
+    if (testData->fRandom->nextBool()) {
+        inputChild = GrProcessorUnitTest::MakeChildFP(testData);
+    }
+    maskChild = GrProcessorUnitTest::MakeChildFP(testData);
 
-    return GrAlphaThresholdFragmentProcessor::Make(/*inputFP=*/nullptr, std::move(maskView),
-                                                   innerThresh, outerThresh, bounds);
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(inputChild), std::move(maskChild),
+                                                   innerThresh, outerThresh);
 }
 #endif
