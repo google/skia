@@ -725,6 +725,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
 }
 
+static void describe_fp_children(const GrFragmentProcessor& fp,
+                                 std::string indent,
+                                 SkString* text) {
+    for (int index = 0; index < fp.numChildProcessors(); ++index) {
+        const GrFragmentProcessor& childFP = fp.childProcessor(index);
+        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP.name());
+        describe_fp_children(childFP, indent + "\t", text);
+    }
+}
+
+static SkString describe_fp(const GrFragmentProcessor& fp) {
+    SkString text;
+    text.printf("\n%s", fp.name());
+    describe_fp_children(fp, "\t", &text);
+    return text;
+}
+
 // Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
 // progenitors.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
@@ -767,22 +784,30 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
-            auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
-            auto clone = fp->clone();
+            std::unique_ptr<GrFragmentProcessor> fp =
+                GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
             const char* name = fp->name();
-            REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()));
+            REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()),
+                                      "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->compatibleWithCoverageAsAlpha() ==
-                                      clone->compatibleWithCoverageAsAlpha());
-            REPORTER_ASSERT(reporter, fp->isEqual(*clone));
-            REPORTER_ASSERT(reporter, fp->preservesOpaqueInput() == clone->preservesOpaqueInput());
+                                      clone->compatibleWithCoverageAsAlpha(),
+                                      "%s\n", describe_fp(*fp).c_str());
+            REPORTER_ASSERT(reporter, fp->isEqual(*clone),
+                                      "%s\n", describe_fp(*fp).c_str());
+            REPORTER_ASSERT(reporter, fp->preservesOpaqueInput() == clone->preservesOpaqueInput(),
+                                      "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->hasConstantOutputForConstantInput() ==
-                                      clone->hasConstantOutputForConstantInput());
-            REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
-            REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
+                                      clone->hasConstantOutputForConstantInput(),
+                                      "%s\n", describe_fp(*fp).c_str());
+            REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors(),
+                                      "%s\n", describe_fp(*fp).c_str());
+            REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords(),
+                                      "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
             render_fp(context, rtc.get(), fp.get(), inputTexture, kPremul_SkAlphaType,
                       readData1.get());
