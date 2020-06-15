@@ -46,6 +46,30 @@
       "revId": "033d39aaae7a02eef67bbf809d7f1260422bf9ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25bbcedc_31820ed3",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T19:45:32Z",
+      "side": 1,
+      "message": "Not exactly because we want to move the view into the GrTextureEffet which this effect will own. However, I think there is probably a cleaner way to do this.... going to try a different approach.",
+      "parentUuid": "8fa9d4ba_56cce02f",
+      "range": {
+        "startLine": 64,
+        "startChar": 45,
+        "endLine": 64,
+        "endChar": 63
+      },
+      "revId": "033d39aaae7a02eef67bbf809d7f1260422bf9ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
