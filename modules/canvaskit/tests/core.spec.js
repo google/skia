@@ -276,7 +276,78 @@ describe('Core canvas behavior', () => {
 
         atlas.delete();
         paint.delete();
-    }, '/assets/mandrill_512.png')
+    }, '/assets/mandrill_512.png');
+
+    gm('image_decoding_methods', async (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const IMAGE_FILE_PATHS = [
+            '/assets/brickwork-texture.jpg',
+            '/assets/mandrill_512.png',
+            '/assets/color_wheel.gif'
+        ];
+
+        let row = 1;
+        // Test 4 different methods of decoding an image for each of the three images in
+        // IMAGE_FILE_PATHS.
+        // Resulting SkImages are drawn to visually show that all methods decode correctly.
+        for (const imageFilePath of IMAGE_FILE_PATHS) {
+            const response = await fetch(imageFilePath);
+            const arrayBuffer = await response.arrayBuffer();
+            // response.blob() is preferable when you don't need both a Blob *and* an ArrayBuffer.
+            const blob = new Blob([ arrayBuffer ]);
+
+            // Method 1 - decode TypedArray using wasm codecs:
+            const skImage1 = CanvasKit.MakeImageFromEncoded(arrayBuffer);
+
+            // Method 2 (slower and does not work in Safari) decode using ImageBitmap:
+            const imageBitmap = await createImageBitmap(blob);
+            // Testing showed that transferring an ImageBitmap to a canvas using the 'bitmaprenderer'
+            // context and passing that canvas to CanvasKit.MakeImageFromCanvasImageSource() is
+            // marginally faster than passing ImageBitmap to
+            // CanvasKit.MakeImageFromCanvasImageSource() directly.
+            const canvasBitmapElement = document.createElement('canvas');
+            canvasBitmapElement.width = imageBitmap.width;
+            canvasBitmapElement.height = imageBitmap.height;
+            const ctxBitmap = canvasBitmapElement.getContext('bitmaprenderer');
+            ctxBitmap.transferFromImageBitmap(imageBitmap);
+            const skImage2 = CanvasKit.MakeImageFromCanvasImageSource(canvasBitmapElement);
+
+            // Method 3 (slowest) decode using HTMLImageElement directly:
+            const image = new Image();
+            // Testing showed that waiting for a load event is faster than waiting on image.decode()
+            // HTMLImageElement.decode() reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode
+            const promise1 = new Promise((resolve) => image.addEventListener('load', resolve));
+            image.src = imageFilePath;
+            await promise1;
+            const skImage3 = CanvasKit.MakeImageFromCanvasImageSource(image);
+
+            // Method 4 (roundabout, but works if all you have is a Blob) decode from Blob using
+            // HTMLImageElement:
+            const imageObjectUrl = URL.createObjectURL( blob );
+            const image2 = new Image();
+            const promise2 = new Promise((resolve) => image2.addEventListener('load', resolve));
+            image2.src = imageObjectUrl;
+            await promise2;
+            const skImage4 = CanvasKit.MakeImageFromCanvasImageSource(image2);
+
+            // Draw decoded images
+            const sourceRect = CanvasKit.XYWHRect(0,0, 150, 150);
+            canvas.drawImageRect(skImage1, sourceRect, CanvasKit.XYWHRect(0,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage2, sourceRect, CanvasKit.XYWHRect(100,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage3, sourceRect, CanvasKit.XYWHRect(200,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage4, sourceRect, CanvasKit.XYWHRect(300,row * 100, 90, 90), null, false);
+
+            row++;
+        }
+        //Label images with the method used to decode them
+        const paint = new CanvasKit.SkPaint();
+        const textFont = new CanvasKit.SkFont(null, 7);
+        canvas.drawText('WASM Decoding', 0, 90, paint, textFont);
+        canvas.drawText('ImageBitmap Decoding', 100, 90, paint, textFont);
+        canvas.drawText('HTMLImageEl Decoding', 200, 90, paint, textFont);
+        canvas.drawText('Blob Decoding', 300, 90, paint, textFont);
+    });
 
     gm('sweep_gradient', (canvas) => {
         const paint = new CanvasKit.SkPaint();
