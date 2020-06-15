@@ -284,7 +284,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
             auto result = GrSkSLFP::Make(d->context(), effect, "Arithmetic",
                                          SkData::MakeWithCopy(&inputs, sizeof(inputs)));
             result->addChild(GrConstColorProcessor::Make(
-                                     SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
+                /*inputFP=*/nullptr, SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 2: {

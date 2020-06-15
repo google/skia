@@ -362,7 +362,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                              background->alphaType(),
                                              ctx.colorSpace());
     } else {
-        bgFP = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
+        bgFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
     }
 

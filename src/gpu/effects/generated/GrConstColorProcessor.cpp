@@ -30,12 +30,33 @@ public:
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                     kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
-                "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
-                "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
-                "break;\n}\n",
-                (int)_outer.mode, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar),
-                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(colorVar),
-                args.fOutputColor, args.fInputColor,
+                "@switch (%d) {\n    case 0:\n        {\n            %s = %s;\n            "
+                "break;\n        }\n    case 1:\n        {",
+                (int)_outer.mode, args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(colorVar));
+        SkString _input1009 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample1009;
+        if (_outer.inputFP_index >= 0) {
+            _sample1009 = this->invokeChild(_outer.inputFP_index, _input1009.c_str(), args);
+        } else {
+            _sample1009 = _input1009;
+        }
+        fragBuilder->codeAppendf(
+                "\n            half4 inputColor = %s;\n            %s = inputColor * %s;\n         "
+                "   break;\n        }\n    case 2:\n        {",
+                _sample1009.c_str(), args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(colorVar));
+        SkString _input1181 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample1181;
+        if (_outer.inputFP_index >= 0) {
+            _sample1181 = this->invokeChild(_outer.inputFP_index, _input1181.c_str(), args);
+        } else {
+            _sample1181 = _input1181;
+        }
+        fragBuilder->codeAppendf(
+                "\n            half inputAlpha = %s.w;\n            %s = inputAlpha * %s;\n        "
+                "    break;\n        }\n}\n",
+                _sample1181.c_str(), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(colorVar));
     }
 
@@ -71,7 +92,11 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
         : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags())
         , color(src.color)
-        , mode(src.mode) {}
+        , mode(src.mode) {
+    if (src.inputFP_index >= 0) {
+        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(*this));
 }
@@ -98,6 +123,6 @@ std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcess
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
-    return GrConstColorProcessor::Make(color, mode);
+    return GrConstColorProcessor::Make(/*inputFP=*/nullptr, color, mode);
 }
 #endif

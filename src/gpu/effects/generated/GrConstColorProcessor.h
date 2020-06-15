@@ -23,42 +23,60 @@ public:
 
     static const int kInputModeCnt = (int)InputMode::kLast + 1;
 
-    static OptimizationFlags OptFlags(const SkPMColor4f& color, InputMode mode) {
-        OptimizationFlags flags = kConstantOutputForConstantInput_OptimizationFlag;
-        if (mode != InputMode::kIgnore) {
-            flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-        }
-        if (color.isOpaque()) {
-            flags |= kPreservesOpaqueInput_OptimizationFlag;
-        }
-        return flags;
-    }
-
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
         switch (mode) {
-            case InputMode::kIgnore:
+            case InputMode::kIgnore: {
                 return color;
-            case InputMode::kModulateA:
+            }
+            case InputMode::kModulateA: {
+                SkPMColor4f input = this->numChildProcessors()
+                                            ? ConstantOutputForConstantInput(
+                                                      this->childProcessor(inputFP_index), inColor)
+                                            : inColor;
                 return color * input.fA;
-            case InputMode::kModulateRGBA:
+            }
+            case InputMode::kModulateRGBA: {
+                SkPMColor4f input = this->numChildProcessors()
+                                            ? ConstantOutputForConstantInput(
+                                                      this->childProcessor(inputFP_index), inColor)
+                                            : inColor;
                 return color * input;
+            }
         }
-        SK_ABORT("Unexpected mode");
+        SkUNREACHABLE;
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f color, InputMode mode) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     SkPMColor4f color,
+                                                     InputMode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrConstColorProcessor(std::move(inputFP), color, mode));
     }
     GrConstColorProcessor(const GrConstColorProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConstColorProcessor"; }
+    int inputFP_index = -1;
     SkPMColor4f color;
     InputMode mode;
 
 private:
-    GrConstColorProcessor(SkPMColor4f color, InputMode mode)
-            : INHERITED(kGrConstColorProcessor_ClassID, (OptimizationFlags)OptFlags(color, mode))
+    GrConstColorProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                          SkPMColor4f color,
+                          InputMode mode)
+            : INHERITED(kGrConstColorProcessor_ClassID,
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                (kConstantOutputForConstantInput_OptimizationFlag |
+                                 ((mode != InputMode::kIgnore)
+                                          ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                          : kNone_OptimizationFlags) |
+                                 ((color.isOpaque()) ? kPreservesOpaqueInput_OptimizationFlag
+                                                     : kNone_OptimizationFlags)))
             , color(color)
-            , mode(mode) {}
+            , mode(mode) {
+        if (inputFP) {
+            inputFP_index = this->registerChildProcessor(std::move(inputFP));
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

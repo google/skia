@@ -293,19 +293,19 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
                                                                          *primColorMode);
 
-            // The above may return null if compose results in a pass through of the prim color.
-            if (shaderFP) {
-                grPaint->addColorFragmentProcessor(std::move(shaderFP));
-            }
-
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
-                    GrConstColorProcessor::InputMode::kModulateRGBA));
+                shaderFP = GrConstColorProcessor::Make(
+                    std::move(shaderFP), { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
+                    GrConstColorProcessor::InputMode::kModulateRGBA);
+            }
+
+            // The above may return null if compose results in a pass through of the prim color.
+            if (shaderFP) {
+                grPaint->addColorFragmentProcessor(std::move(shaderFP));
             }
         } else {
             // The shader's FP sees the paint *unpremul* color
@@ -318,14 +318,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
-            auto processor = GrConstColorProcessor::Make(opaqueColor,
+            auto processor = GrConstColorProcessor::Make(/*inputFP=*/nullptr, opaqueColor,
                                                          GrConstColorProcessor::InputMode::kIgnore);
             processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
                                                                           *primColorMode);
-            if (processor) {
-                grPaint->addColorFragmentProcessor(std::move(processor));
-            }
-
             grPaint->setColor4f(opaqueColor);
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -333,9 +329,13 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
-                    GrConstColorProcessor::InputMode::kModulateRGBA));
+                processor = GrConstColorProcessor::Make(
+                    std::move(processor), { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
+                    GrConstColorProcessor::InputMode::kModulateRGBA);
+            }
+
+            if (processor) {
+                grPaint->addColorFragmentProcessor(std::move(processor));
             }
         } else {
             // No shader, no primitive color.
