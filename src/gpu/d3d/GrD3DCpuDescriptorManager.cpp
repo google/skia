@@ -15,57 +15,58 @@ GrD3DCpuDescriptorManager::GrD3DCpuDescriptorManager(GrD3DGpu* gpu)
     , fCBVSRVDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
     , fSamplerDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) {}
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createRenderTargetView(
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createRenderTargetView(
         GrD3DGpu* gpu, ID3D12Resource* textureResource) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fRTVDescriptorPool.allocateHandle(gpu);
-    gpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor);
+    const GrD3DDescriptorHeap::CPUHandle& descriptor = fRTVDescriptorPool.allocateHandle(gpu);
+    gpu->device()->CreateRenderTargetView(textureResource, nullptr, descriptor.fHandle);
     return descriptor;
 }
 
 void GrD3DCpuDescriptorManager::recycleRenderTargetView(
-        D3D12_CPU_DESCRIPTOR_HANDLE* rtvDescriptor) {
+        const GrD3DDescriptorHeap::CPUHandle& rtvDescriptor) {
     fRTVDescriptorPool.releaseHandle(rtvDescriptor);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createDepthStencilView(
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createDepthStencilView(
         GrD3DGpu* gpu, ID3D12Resource* textureResource) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fDSVDescriptorPool.allocateHandle(gpu);
-    gpu->device()->CreateDepthStencilView(textureResource, nullptr, descriptor);
+    const GrD3DDescriptorHeap::CPUHandle& descriptor = fDSVDescriptorPool.allocateHandle(gpu);
+    gpu->device()->CreateDepthStencilView(textureResource, nullptr, descriptor.fHandle);
     return descriptor;
 }
 
 void GrD3DCpuDescriptorManager::recycleDepthStencilView(
-        D3D12_CPU_DESCRIPTOR_HANDLE* dsvDescriptor) {
+        const GrD3DDescriptorHeap::CPUHandle& dsvDescriptor) {
     fDSVDescriptorPool.releaseHandle(dsvDescriptor);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createConstantBufferView(
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createConstantBufferView(
         GrD3DGpu* gpu, ID3D12Resource* bufferResource, size_t offset, size_t size) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fCBVSRVDescriptorPool.allocateHandle(gpu);
+    const GrD3DDescriptorHeap::CPUHandle& descriptor = fCBVSRVDescriptorPool.allocateHandle(gpu);
     D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
     desc.BufferLocation = bufferResource->GetGPUVirtualAddress() + offset;
     desc.SizeInBytes = size;
-    gpu->device()->CreateConstantBufferView(&desc, descriptor);
+    gpu->device()->CreateConstantBufferView(&desc, descriptor.fHandle);
     return descriptor;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createShaderResourceView(
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createShaderResourceView(
         GrD3DGpu* gpu, ID3D12Resource* resource) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fCBVSRVDescriptorPool.allocateHandle(gpu);
+    const GrD3DDescriptorHeap::CPUHandle& descriptor = fCBVSRVDescriptorPool.allocateHandle(gpu);
     // TODO: for 4:2:0 YUV formats we'll need to map two different views, one for Y and one for UV.
     // For now map the entire resource.
-    gpu->device()->CreateShaderResourceView(resource, nullptr, descriptor);
+    gpu->device()->CreateShaderResourceView(resource, nullptr, descriptor.fHandle);
     return descriptor;
 }
 
-void GrD3DCpuDescriptorManager::recycleConstantOrShaderView(D3D12_CPU_DESCRIPTOR_HANDLE* view) {
+void GrD3DCpuDescriptorManager::recycleConstantOrShaderView(
+        const GrD3DDescriptorHeap::CPUHandle& view) {
     fCBVSRVDescriptorPool.releaseHandle(view);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createSampler(
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createSampler(
         GrD3DGpu* gpu, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressModeU,
         D3D12_TEXTURE_ADDRESS_MODE addressModeV) {
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor = fSamplerDescriptorPool.allocateHandle(gpu);
+    const GrD3DDescriptorHeap::CPUHandle& descriptor = fSamplerDescriptorPool.allocateHandle(gpu);
     D3D12_SAMPLER_DESC desc = {};
     desc.Filter = filter;
     desc.AddressU = addressModeU;
@@ -78,11 +79,12 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::createSampler(
     desc.MinLOD = 0;
     desc.MaxLOD = SK_ScalarMax;
 
-    gpu->device()->CreateSampler(&desc, descriptor);
+    gpu->device()->CreateSampler(&desc, descriptor.fHandle);
     return descriptor;
 }
 
-void GrD3DCpuDescriptorManager::recycleSampler(D3D12_CPU_DESCRIPTOR_HANDLE* samplerDescriptor) {
+void GrD3DCpuDescriptorManager::recycleSampler(
+        const GrD3DDescriptorHeap::CPUHandle& samplerDescriptor) {
     fSamplerDescriptorPool.releaseHandle(samplerDescriptor);
 }
 
@@ -99,7 +101,7 @@ std::unique_ptr<GrD3DCpuDescriptorManager::Heap> GrD3DCpuDescriptorManager::Heap
     return std::unique_ptr<Heap>(new Heap(heap, numDescriptors));
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::Heap::allocateCPUHandle() {
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::Heap::allocateCPUHandle() {
     SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
     SkASSERT(freeBlock);
     fFreeBlocks.reset(*freeBlock);
@@ -107,15 +109,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::Heap::allocateCPUHandle()
     return fHeap->getCPUHandle(*freeBlock);
 }
 
-bool GrD3DCpuDescriptorManager::Heap::freeCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE* handle) {
-    size_t index;
-    if (!fHeap->getIndex(*handle, &index)) {
-        return false;
-    }
+void GrD3DCpuDescriptorManager::Heap::freeCPUHandle(const GrD3DDescriptorHeap::CPUHandle& handle) {
+    SkASSERT(this->ownsHandle(handle));
+    size_t index = fHeap->getIndex(handle);
     fFreeBlocks.set(index);
     ++fFreeCount;
-    handle->ptr = 0;
-    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,10 +126,11 @@ GrD3DCpuDescriptorManager::HeapPool::HeapPool(GrD3DGpu* gpu, D3D12_DESCRIPTOR_HE
     fDescriptorHeaps.push_back(std::move(heap));
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::HeapPool::allocateHandle(GrD3DGpu* gpu) {
+GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::HeapPool::allocateHandle(
+        GrD3DGpu* gpu) {
     for (unsigned int i = 0; i < fDescriptorHeaps.size(); ++i) {
         if (fDescriptorHeaps[i]->canAllocate()) {
-            D3D12_CPU_DESCRIPTOR_HANDLE handle = fDescriptorHeaps[i]->allocateCPUHandle();
+            GrD3DDescriptorHeap::CPUHandle handle = fDescriptorHeaps[i]->allocateCPUHandle();
             return handle;
         }
     }
@@ -142,15 +141,16 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DCpuDescriptorManager::HeapPool::allocateHandle(
 
     fDescriptorHeaps.push_back(std::move(heap));
     fMaxAvailableDescriptors *= 2;
-    D3D12_CPU_DESCRIPTOR_HANDLE handle =
+    GrD3DDescriptorHeap::CPUHandle handle =
             fDescriptorHeaps[fDescriptorHeaps.size() - 1]->allocateCPUHandle();
     return handle;
 }
 
 void GrD3DCpuDescriptorManager::HeapPool::releaseHandle(
-        D3D12_CPU_DESCRIPTOR_HANDLE* dsvDescriptor) {
+        const GrD3DDescriptorHeap::CPUHandle& dsvDescriptor) {
     for (unsigned int i = 0; i < fDescriptorHeaps.size(); ++i) {
-        if (fDescriptorHeaps[i]->freeCPUHandle(dsvDescriptor)) {
+        if (fDescriptorHeaps[i]->ownsHandle(dsvDescriptor)) {
+            fDescriptorHeaps[i]->freeCPUHandle(dsvDescriptor);
             return;
         }
     }
