@@ -29,6 +29,9 @@ bool FuzzSKSL2Metal(sk_sp<SkData> bytes) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 3000) {
+        return 0;
+    }
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzSKSL2Metal(bytes);
     return 0;
