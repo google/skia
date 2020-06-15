@@ -7,15 +7,17 @@
 
 in fragmentProcessor? inputFP;
 in half4 circleRect;
-in half textureRadius;
 in half solidRadius;
-in uniform sampler2D blurProfileSampler;
+in fragmentProcessor blurProfile;
+
+@header {
+    #include "src/gpu/effects/GrTextureEffect.h"
+};
 
 // The data is formatted as:
 // x, y - the center of the circle
 // z    - inner radius that should map to 0th entry in the texture.
-// w    - the inverse of the distance over which the texture is stretched.
-uniform half4 circleData;
+uniform half3 circleData;
 
 @optimizationFlags {
     (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
@@ -29,8 +31,7 @@ uniform half4 circleData;
 }
 
 @setData(data) {
-    data.set4f(circleData, circleRect.centerX(), circleRect.centerY(), solidRadius,
-               1.f / textureRadius);
+    data.set3f(circleData, circleRect.centerX(), circleRect.centerY(), solidRadius);
 }
 
 @cpp {
@@ -191,13 +192,13 @@ uniform half4 circleData;
         profile[profileWidth - 1] = 0;
     }
 
-    static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context,
+    static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingContext* context,
                                                      const SkRect& circle,
                                                      float sigma,
-                                                     float* solidRadius, float* textureRadius) {
+                                                     float* solidRadius) {
         float circleR = circle.width() / 2.0f;
         if (circleR < SK_ScalarNearlyZero) {
-            return {};
+            return nullptr;
         }
         // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
         // profile texture (binned by powers of 2).
@@ -210,11 +211,12 @@ uniform half4 circleData;
         SkFixed sigmaToCircleRRatioFixed;
         static const SkScalar kHalfPlaneThreshold = 0.1f;
         bool useHalfPlaneApprox = false;
+        float textureRadius;
         if (sigmaToCircleRRatio <= kHalfPlaneThreshold) {
             useHalfPlaneApprox = true;
             sigmaToCircleRRatioFixed = 0;
             *solidRadius = circleR - 3 * sigma;
-            *textureRadius = 6 * sigma;
+            textureRadius = 6 * sigma;
         } else {
             // Convert to fixed point for the key.
             sigmaToCircleRRatioFixed = SkScalarToFixed(sigmaToCircleRRatio);
@@ -224,8 +226,11 @@ uniform half4 circleData;
             sigmaToCircleRRatio = SkFixedToScalar(sigmaToCircleRRatioFixed);
             sigma = circleR * sigmaToCircleRRatio;
             *solidRadius = 0;
-            *textureRadius = circleR + 3 * sigma;
+            textureRadius = circleR + 3 * sigma;
         }
+
+        static constexpr int kProfileTextureWidth = 512;
+        SkMatrix texM = SkMatrix::Scale(kProfileTextureWidth / textureRadius, 1.f);
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -237,21 +242,21 @@ uniform half4 circleData;
         if (sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(blurProfile->backendFormat(),
                                                                        GrColorType::kAlpha_8);
-            return {std::move(blurProfile), kTopLeft_GrSurfaceOrigin, swizzle};
+            GrSurfaceProxyView profileView{std::move(blurProfile), kTopLeft_GrSurfaceOrigin,
+                                           swizzle};
+            return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
         }
-
-        static constexpr int kProfileTextureWidth = 512;
 
         SkBitmap bm;
         if (!bm.tryAllocPixels(SkImageInfo::MakeA8(kProfileTextureWidth, 1))) {
-            return {};
+            return nullptr;
         }
 
         if (useHalfPlaneApprox) {
             create_half_plane_profile(bm.getAddr8(0, 0), kProfileTextureWidth);
         } else {
             // Rescale params to the size of the texture we're creating.
-            SkScalar scale = kProfileTextureWidth / *textureRadius;
+            SkScalar scale = kProfileTextureWidth / textureRadius;
             create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
                     kProfileTextureWidth);
         }
@@ -259,36 +264,35 @@ uniform half4 circleData;
         bm.setImmutable();
 
         GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto blurView = maker.view(GrMipMapped::kNo);
-        if (!blurView) {
-            return {};
+        auto profileView = maker.view(GrMipMapped::kNo);
+        if (!profileView) {
+            return nullptr;
         }
-        proxyProvider->assignUniqueKeyToProxy(key, blurView.asTextureProxy());
-        return blurView;
+        proxyProvider->assignUniqueKeyToProxy(key, profileView.asTextureProxy());
+        return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
     }
 
     std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
             std::unique_ptr<GrFragmentProcessor> inputFP, GrRecordingContext* context,
             const SkRect& circle, float sigma) {
         float solidRadius;
-        float textureRadius;
-        GrSurfaceProxyView profile = create_profile_texture(context, circle, sigma,
-                                                            &solidRadius, &textureRadius);
+        std::unique_ptr<GrFragmentProcessor> profile = create_profile_effect(context, circle, sigma,
+                                                            &solidRadius);
         if (!profile) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
-                std::move(inputFP), circle, textureRadius, solidRadius, std::move(profile)));
+                std::move(inputFP), circle, solidRadius, std::move(profile)));
     }
 }
 
 void main() {
     // We just want to compute "(length(vec) - circleData.z + 0.5) * circleData.w" but need to
     // rearrange for precision.
-    half2 vec = half2((sk_FragCoord.xy - circleData.xy) * circleData.w);
-    half dist = length(vec) + (0.5 - circleData.z) * circleData.w;
+    half2 vec = half2((sk_FragCoord.xy - circleData.xy));
+    half dist = length(vec) + (0.5 - circleData.z);
     half4 inputColor = sample(inputFP, sk_InColor);
-    sk_OutColor = inputColor * sample(blurProfileSampler, half2(dist, 0.5)).a;
+    sk_OutColor = inputColor * sample(blurProfile, half2(dist, 0.5)).a;
 }
 
 @test(testData) {
