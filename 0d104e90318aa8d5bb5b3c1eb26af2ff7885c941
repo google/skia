@@ -117,6 +117,30 @@
       "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7145ad22_d0b49260",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T21:02:11Z",
+      "side": 1,
+      "message": "I think I will submit this for now since I didn\u0027t see any consensus in team chat for any of the other options listed. I will probably still experiment with some of the alternatives in followup CLs and see how they pan out because I am not in love with this approach.",
+      "parentUuid": "41d0539d_b1ae224e",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 99
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
