@@ -22,6 +22,30 @@
       "revId": "506ddeced7252756f43caecd6ff0c2a92807d913",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c771793_e1ad497f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T15:31:07Z",
+      "side": 1,
+      "message": "Yeah, now that you mention it, I was just hoisting a constant check outside of the loop, but on the face of it, this check makes no sense.\n\nI will change to SkASSERT(fKind \u003d\u003d kSwitch_Kind) \n\nIf we\u0027re wrong, we\u0027ll find out :)",
+      "parentUuid": "dad15e06_8c00ef50",
+      "range": {
+        "startLine": 1110,
+        "startChar": 4,
+        "endLine": 1110,
+        "endChar": 78
+      },
+      "revId": "506ddeced7252756f43caecd6ff0c2a92807d913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
