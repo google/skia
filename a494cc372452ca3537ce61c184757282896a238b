@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57dd9523_450c1ae6",
+        "filename": "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-15T13:53:40Z",
+      "side": 1,
+      "message": "return 0",
+      "range": {
+        "startLine": 51,
+        "startChar": 15,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "a494cc372452ca3537ce61c184757282896a238b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
