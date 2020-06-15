@@ -207,20 +207,10 @@ private:
 };
 
 struct CodepointRepresentation {
-
-  CodepointRepresentation(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
-
-  GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
-  size_t fIndex;
-};
-
-struct Grapheme {
-    Grapheme(CodepointRange codepoints, TextRange textRange)
-        : fCodepointRange(codepoints), fTextRange(textRange) { }
-    CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
+    CodepointRepresentation(GraphemeIndex graphemeStart, TextIndex codepointStart)
+      : fGraphemeStart(graphemeStart), CodepointStart(codepointStart) { }
+    TextIndex fGraphemeStart;             // Used in getRectsForRange
+    TextIndex CodepointStart;             // Used in getGlyphPositionAtCoordinate
 };
 
 class Cluster {

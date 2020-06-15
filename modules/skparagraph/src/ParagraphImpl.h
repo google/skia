@@ -226,7 +226,7 @@ private:
 
     void calculateBoundaries();
 
-    void markGraphemes16();
+    void getCodepoints();
 
     void computeEmptyMetrics();
 
@@ -249,7 +249,6 @@ private:
     SkTArray<size_t> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
     SkTArray<BidiRegion> fBidiRegions;
-    SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<CodepointRepresentation, true> fCodepoints;
     size_t fUnresolvedGlyphs;
 

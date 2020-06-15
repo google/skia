@@ -146,7 +146,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
         this->fWords.clear();
         this->fBidiRegions.reset();
-        this->fGraphemes16.reset();
         this->fCodepoints.reset();
         this->fRuns.reset();
         if (!this->shapeTextIntoEndlessLine()) {
@@ -781,9 +780,9 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
-void ParagraphImpl::markGraphemes16() {
+void ParagraphImpl::getCodepoints() {
 
-    if (!fGraphemes16.empty()) {
+    if (!fCodepoints.empty()) {
         return;
     }
 
@@ -796,38 +795,33 @@ void ParagraphImpl::markGraphemes16() {
         SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         uint16_t buffer[2];
         size_t count = SkUTF::ToUTF16(u, buffer);
-        fCodepoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
+        fCodepoints.emplace_back(EMPTY_INDEX, index);
         if (count > 1) {
-            fCodepoints.emplace_back(EMPTY_INDEX, index, 1);
+            fCodepoints.emplace_back(EMPTY_INDEX, index);
         }
     }
 
     CodepointRange codepoints(0ul, 0ul);
 
-  forEachCodeUnitPropertyRange(
-      CodeUnitFlags::kGraphemeBreakBefore,
-      [&](TextRange textRange) {
-        // Collect all the codepoints that belong to the grapheme
-        while (codepoints.end < fCodepoints.size()
-            && fCodepoints[codepoints.end].fTextIndex < textRange.end) {
-          ++codepoints.end;
-        }
+    forEachCodeUnitPropertyRange(
+        CodeUnitFlags::kGraphemeBreakBefore,
+        [&](TextRange textRange) {
+          // Collect all the codepoints that belong to the grapheme
+          while (codepoints.end < fCodepoints.size()
+              && fCodepoints[codepoints.end].CodepointStart < textRange.end) {
+            ++codepoints.end;
+          }
 
-        if (textRange.start == textRange.end) {
+          if (textRange.start == textRange.end) {
+            return true;
+          }
+
+          // Update all the codepoints that belong to this grapheme
+          for (auto i = codepoints.start; i < codepoints.end; ++i) {
+            fCodepoints[i].fGraphemeStart = textRange.start;
+          }
+          codepoints.start = codepoints.end;
           return true;
-        }
-
-        //SkDebugf("Grapheme #%d [%d:%d)\n", fGraphemes16.size(), startPos, endPos);
-
-        // Update all the codepoints that belong to this grapheme
-        for (auto i = codepoints.start; i < codepoints.end; ++i) {
-          //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
-          fCodepoints[i].fGrapheme = fGraphemes16.size();
-        }
-
-        fGraphemes16.emplace_back(codepoints, textRange);
-        codepoints.start = codepoints.end;
-        return true;
       });
 }
 
@@ -847,7 +841,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    markGraphemes16();
+  getCodepoints();
 
     if (start >= end || start > fCodepoints.size() || end == 0) {
         return results;
@@ -863,15 +857,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
     if (start < fCodepoints.size()) {
-        auto codepoint = fCodepoints[start];
-        auto grapheme = fGraphemes16[codepoint.fGrapheme];
-        text.start = grapheme.fTextRange.start;
+        text.start = fCodepoints[start].fGraphemeStart;
     }
-
     if (end < fCodepoints.size()) {
-        auto codepoint = fCodepoints[end];
-        auto grapheme = fGraphemes16[codepoint.fGrapheme];
-        text.end = grapheme.fTextRange.start;
+        text.end =  fCodepoints[end].fGraphemeStart;
     }
 
     for (auto& line : fLines) {
@@ -929,7 +918,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         return {0, Affinity::kDownstream};
     }
 
-    markGraphemes16();
+  getCodepoints();
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
@@ -1053,7 +1042,6 @@ void ParagraphImpl::setState(InternalState state) {
             fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
             fWords.clear();
             fBidiRegions.reset();
-            fGraphemes16.reset();
             fCodepoints.reset();
             [[fallthrough]];
 

@@ -39,7 +39,6 @@ public:
         , fCodeUnitProperties(paragraph->fCodeUnitProperties)
         , fWords(paragraph->fWords)
         , fBidiRegions(paragraph->fBidiRegions)
-        , fGraphemes16(paragraph->fGraphemes16)
         , fCodepoints(paragraph->fCodepoints) { }
 
     // Input == key
@@ -51,7 +50,6 @@ public:
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     std::vector<size_t> fWords;
     SkTArray<BidiRegion> fBidiRegions;
-    SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<CodepointRepresentation, true> fCodepoints;
 };
 
@@ -207,7 +205,6 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fCodeUnitProperties = entry->fValue->fCodeUnitProperties;
     paragraph->fWords = entry->fValue->fWords;
     paragraph->fBidiRegions = entry->fValue->fBidiRegions;
-    paragraph->fGraphemes16 = entry->fValue->fGraphemes16;
     paragraph->fCodepoints = entry->fValue->fCodepoints;
     for (auto& run : paragraph->fRuns) {
         run.setMaster(paragraph);
