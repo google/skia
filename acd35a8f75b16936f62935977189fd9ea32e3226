@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "23f5d0dd_574bee64",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00c8bd1d_5608b08b",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 34
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e895c725_d4e1a50d",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -658,6 +682,30 @@
       "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf826c6_1439ab43",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "I have exposed a single function: CanvasKit.MakeImageFromCanvasImageSource(..). \n\nDocumentation on how to use this function with a Blob and other types of input is in core.spec.ts. I also left a comment explaining that ImageBitmap is not supported in Safari, but still gave an example of how ImageBitmap can be used.",
+      "parentUuid": "17392e14_03fa7e00",
+      "range": {
+        "startLine": 1444,
+        "startChar": 39,
+        "endLine": 1444,
+        "endChar": 81
+      },
+      "revId": "acd35a8f75b16936f62935977189fd9ea32e3226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

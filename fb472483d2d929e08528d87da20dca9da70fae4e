@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c21bab3b_5d256b0e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c2637b8_81eae547",
+      "range": {
+        "startLine": 1368,
+        "startChar": 4,
+        "endLine": 1368,
+        "endChar": 27
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e766bfb0_50ef8a35",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90408347_24e6f757",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Thanks, I like this more descriptive naming and will do it in the future.",
+      "parentUuid": "e766bfb0_50ef8a35",
+      "range": {
+        "startLine": 1375,
+        "startChar": 10,
+        "endLine": 1375,
+        "endChar": 50
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "16a3ed13_590d31fe",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "CanvasKit.MakeImageFromCanvasImageSource(..) is synchronous and doesn\u0027t wait for images to load any more. Image loading must be checked by the user of Canvaskit before passing the image to CanvasKit.MakeImageFromCanvasImageSource(..). \n\nIn core.spec.ts I have a usage example which shows waiting for an image to load. I also included a comment in the example that waiting for the \u0027load\u0027 event is faster than waiting for .decode() in the tests I ran.\n\ntl;dr It is now up to the user of Canvaskit to decide whether they want to use the \u0027load\u0027 event or wait for a .decode() promise.",
+      "parentUuid": "c1deb051_4ce8e467",
+      "range": {
+        "startLine": 1384,
+        "startChar": 27,
+        "endLine": 1384,
+        "endChar": 33
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4cce43d1_e6119216",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "ae03fc1b_36a6c327",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "They are now! Accidentally missed adding them on the previous patchset.",
+      "parentUuid": "4cce43d1_e6119216",
+      "range": {
+        "startLine": 190,
+        "startChar": 35,
+        "endLine": 190,
+        "endChar": 45
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "777193df_fa7edea8",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 3
@@ -108,6 +204,24 @@
       "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49f69bcf_90f28a9b",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "777193df_fa7edea8",
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "c28db0dd_f252759e",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Removed this perf. An example of decoding using an ImageBitmapRenderingContext is now in core.spec.ts.",
+      "parentUuid": "64d6bff2_ff02ae3c",
+      "range": {
+        "startLine": 250,
+        "startChar": 66,
+        "endLine": 250,
+        "endChar": 74
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e5bad0c_e755129e",
         "filename": "modules/canvaskit/perf/canvas.bench.js",
         "patchSetId": 3
@@ -154,6 +292,30 @@
       "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93577108_e67650cc",
+        "filename": "modules/canvaskit/perf/canvas.bench.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-15T17:26:06Z",
+      "side": 1,
+      "message": "Accidentally pasted the wrong test(ctx) function into the body of this perf. Fixed.",
+      "parentUuid": "6e5bad0c_e755129e",
+      "range": {
+        "startLine": 269,
+        "startChar": 59,
+        "endLine": 269,
+        "endChar": 77
+      },
+      "revId": "fb472483d2d929e08528d87da20dca9da70fae4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
