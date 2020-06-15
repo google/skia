@@ -16,6 +16,24 @@
       "revId": "3b1b04a531617f6e870f9b64b7d181c05565a632",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b99b076_19d13580",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T14:22:09Z",
+      "side": 1,
+      "message": "SGTM! I think ideally we should have both. The gencode needs the clone-one-FP version, since it cares about each FP index: it wants to clone each FP individually and get the FP index from the return value. Hand-written FPs that don\u0027t need to track FP indices can use your suggested API.\n\nI\u0027ll put together a quick child CL which implements `registerChildrenClones`.",
+      "parentUuid": "29d2d0bd_e8769d65",
+      "revId": "3b1b04a531617f6e870f9b64b7d181c05565a632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
