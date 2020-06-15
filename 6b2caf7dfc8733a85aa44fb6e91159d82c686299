@@ -46,6 +46,30 @@
       "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4a8d5c0_68fe03f6",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T22:31:31Z",
+      "side": 1,
+      "message": "I agree, it would make more sense if optimization flag merging was automatic. And probably catch a dozen other spots that pass tests by happy coincidence :)",
+      "parentUuid": "f52b3266_16f1656b",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 84
+      },
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
