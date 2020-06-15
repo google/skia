@@ -519,8 +519,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
-    this->cloneAndRegisterChildProcessor(that.childProcessor(0));  // Displacement
-    this->cloneAndRegisterChildProcessor(that.childProcessor(1));  // Color
+    this->cloneAndRegisterAllChildProcessors(that);
     this->addCoordTransform(&fCoordTransform);
 }
 
