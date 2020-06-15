@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d04d6f2_d965dca7",
+        "filename": "gm/ycbcrimage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-15T18:31:08Z",
+      "side": 1,
+      "message": "In a follow up this will become a virtual on GM and be called before \u0027onDraw\u0027 and always with a direct context.",
+      "range": {
+        "startLine": 73,
+        "startChar": 15,
+        "endLine": 73,
+        "endChar": 25
+      },
+      "revId": "fa38a12104b6e6ae50c99ff03d94607998b7bc28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
