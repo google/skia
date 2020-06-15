@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a1deba9_df746ac9",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T20:17:42Z",
+      "side": 1,
+      "message": "Have all the coverage FPs been updated now? The aa rect, rrect, convex poly, circle, etc?\n\nIf that\u0027s true, we can probably update GrReducedClip to only store on pointer to an FP and we always chain it, similar to this function.",
+      "range": {
+        "startLine": 703,
+        "startChar": 12,
+        "endLine": 703,
+        "endChar": 48
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8236979b_900b25b6",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T20:17:42Z",
+      "side": 1,
+      "message": "This is unfortunately awkward, but I don\u0027t have a great alternative except to eventually land in a place where the convex poly effect constructors can\u0027t fail, so you only call it when you know it can be represented in the shader.\n\nI\u0027m okay with this as an intermediate step.",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 99
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
