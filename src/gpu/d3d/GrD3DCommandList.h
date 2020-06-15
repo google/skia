@@ -144,7 +144,7 @@ public:
                               unsigned int startInstance);
 
     void clearRenderTargetView(const GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
-                               const GrScissorState& scissor);
+                               const D3D12_RECT* rect);
     void clearDepthStencilView(const GrD3DStencilAttachment*, uint8_t stencilClearValue,
                                const D3D12_RECT* rect);
     void setRenderTarget(const GrD3DRenderTarget* renderTarget);
