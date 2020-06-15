@@ -93,6 +93,30 @@
       "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41d0539d_b1ae224e",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T20:42:04Z",
+      "side": 1,
+      "message": "I actually like the MakeResult approach for something like this. Then in GrReducedClip, it\u0027s always the right thing to say its analyticFP is the .fp of the make result, but if the result wasn\u0027t successful it continues on in its strategies (add to CCPR or hold on for later mask rendering).\n\nUp to you on if you want to do that now, or we clean it up later.",
+      "parentUuid": "92c931b0_96358c94",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 99
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
