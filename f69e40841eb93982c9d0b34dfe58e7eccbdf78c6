@@ -22,6 +22,30 @@
       "revId": "f69e40841eb93982c9d0b34dfe58e7eccbdf78c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecf2755f_4ef45d2c",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-15T19:27:11Z",
+      "side": 0,
+      "message": "Makes sense, now that there\u0027s no TextureSampler or GrSurfaceProxyView inside the KernelWrapper.",
+      "parentUuid": "db7d9d99_5a2d7612",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 9
+      },
+      "revId": "f69e40841eb93982c9d0b34dfe58e7eccbdf78c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

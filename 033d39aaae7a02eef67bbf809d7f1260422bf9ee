@@ -22,6 +22,30 @@
       "revId": "033d39aaae7a02eef67bbf809d7f1260422bf9ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fa9d4ba_56cce02f",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-15T19:27:11Z",
+      "side": 1,
+      "message": "The GrSurfaceProxyView here is analogous to the TextureSampler from before, correct? So should we put the proxy back inside the struct?",
+      "parentUuid": "e3b88e07_3685e26b",
+      "range": {
+        "startLine": 64,
+        "startChar": 45,
+        "endLine": 64,
+        "endChar": 63
+      },
+      "revId": "033d39aaae7a02eef67bbf809d7f1260422bf9ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
