@@ -1654,7 +1654,9 @@ DEF_TEST(SkSLSwitch, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    {\n"
-         "        sk_FragColor = vec4(0.0);\n"
+         "        {\n"
+         "            sk_FragColor = vec4(0.0);\n"
+         "        }\n"
          "    }\n"
          "}\n");
     // static test w/ static conditional break in a block
@@ -1674,7 +1676,9 @@ DEF_TEST(SkSLSwitch, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    {\n"
-         "        sk_FragColor = vec4(0.0);\n"
+         "        {\n"
+         "            sk_FragColor = vec4(0.0);\n"
+         "        }\n"
          "    }\n"
          "}\n");
     // static test w/ non-static conditional break in a block
