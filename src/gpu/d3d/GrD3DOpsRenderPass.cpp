@@ -47,11 +47,18 @@ void GrD3DOpsRenderPass::onBegin() {
     GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
     d3dRT->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
     fGpu->currentCommandList()->setRenderTarget(d3dRT);
-    // TODO: set stencil too
 
     if (GrLoadOp::kClear == fColorLoadOp) {
         fGpu->currentCommandList()->clearRenderTargetView(
                 d3dRT, fClearColor, GrScissorState(fRenderTarget->dimensions()));
+    }
+
+    if (auto stencil = d3dRT->renderTargetPriv().getStencilAttachment()) {
+        GrD3DStencilAttachment* d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
+        d3dStencil->setResourceState(fGpu, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        if (fStencilLoadOp == GrLoadOp::kClear) {
+            fGpu->currentCommandList()->clearDepthStencilView(d3dStencil, 0, nullptr);
+        }
     }
 }
 
@@ -240,4 +247,40 @@ void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, i
 
 void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
     fGpu->clear(scissor, color, fRenderTarget);
+}
+
+void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
+    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    // this should only be called internally when we know we have a
+    // stencil buffer.
+    SkASSERT(sb);
+    int stencilBitCount = sb->bits();
+
+    // The contract with the callers does not guarantee that we preserve all bits in the stencil
+    // during this clear. Thus we will clear the entire stencil to the desired value.
+
+    uint8_t stencilColor = 0;
+    if (insideStencilMask) {
+        stencilColor = (1 << (stencilBitCount - 1));
+    }
+
+    D3D12_RECT clearRect;
+    // Flip rect if necessary
+    SkIRect d3dRect;
+    if (!scissor.enabled()) {
+        d3dRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
+        d3dRect = scissor.rect();
+    } else {
+        d3dRect.setLTRB(scissor.rect().fLeft, fRenderTarget->height() - scissor.rect().fBottom,
+                        scissor.rect().fRight, fRenderTarget->height() - scissor.rect().fTop);
+    }
+
+    clearRect.left = d3dRect.fLeft;
+    clearRect.right = d3dRect.fRight;
+    clearRect.top = d3dRect.fTop;
+    clearRect.bottom = d3dRect.fBottom;
+
+    auto d3dStencil = static_cast<GrD3DStencilAttachment*>(sb);
+    fGpu->currentCommandList()->clearDepthStencilView(d3dStencil, stencilColor, &clearRect);
 }

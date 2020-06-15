@@ -12,6 +12,7 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
+#include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -352,6 +353,16 @@ void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* rend
                                         numRects, scissorRectPtr);
 }
 
+void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DStencilAttachment* stencil,
+                                                   uint8_t stencilClearValue,
+                                                   const D3D12_RECT* rect) {
+    this->addingWork();
+    this->addResource(stencil->resource());
+
+    fCommandList->ClearDepthStencilView(stencil->view(), D3D12_CLEAR_FLAG_STENCIL, 0,
+                                        stencilClearValue, 1, rect);
+}
+
 void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
     this->addingWork();
     this->addResource(renderTarget->resource());
@@ -359,7 +370,17 @@ void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarg
         this->addResource(renderTarget->msaaTextureResource()->resource());
     }
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
-    fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, nullptr);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE* dsDescriptorPtr = nullptr;
+    if (auto stencil = renderTarget->renderTargetPriv().getStencilAttachment()) {
+        GrD3DStencilAttachment* d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
+        this->addResource(d3dStencil->resource());
+        dsDescriptor = d3dStencil->view();
+        dsDescriptorPtr = &dsDescriptor;
+    }
+
+    fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, dsDescriptorPtr);
 }
 
 void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
