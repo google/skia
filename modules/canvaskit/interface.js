@@ -1364,7 +1364,40 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// pixels must be a Uint8Array with bytes representing the pixel values
+// A variable to hold a canvasElement which can be reused once created the first time.
+var memoizedCanvas2dElement = null;
+
+// Alternative to CanvasKit.MakeImageFromEncoded. Allows for CanvasKit users to take advantage of
+// browser APIs to decode images instead of using codecs included in the CanvasKit wasm binary.
+// Expects that the canvasImageSource has already loaded/decoded.
+// CanvasImageSource reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource
+CanvasKit.MakeImageFromCanvasImageSource = function(canvasImageSource) {
+  var width = canvasImageSource.width;
+  var height = canvasImageSource.height;
+
+  if (!memoizedCanvas2dElement) {
+    memoizedCanvas2dElement = document.createElement('canvas');
+  }
+  memoizedCanvas2dElement.width = width;
+  memoizedCanvas2dElement.height = height;
+
+  var ctx2d = memoizedCanvas2dElement.getContext('2d');
+  ctx2d.drawImage(canvasImageSource, 0, 0);
+
+  var imageData = ctx2d.getImageData(0, 0, width, height);
+
+  return CanvasKit.MakeImage(
+    imageData.data,
+    width,
+    height,
+    CanvasKit.AlphaType.Unpremul,
+    CanvasKit.ColorType.RGBA_8888,
+    CanvasKit.SkColorSpace.SRGB
+  );
+}
+
+// pixels may be any Typed Array, but Uint8Array or Uint8ClampedArray is recommended,
+// with bytes representing the pixel values.
 // (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colorSpace) {
   var bytesPerPixel = pixels.length / (width * height);
