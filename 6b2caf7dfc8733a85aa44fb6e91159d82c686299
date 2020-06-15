@@ -22,6 +22,30 @@
       "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f52b3266_16f1656b",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-15T22:29:58Z",
+      "side": 1,
+      "message": "Probably :/ We should just make an FP provide optimizations specific to its sksl, and then have the constructor automatically update optimization flags as children are registered.\n\nThis would simplify a lot of places and avoid this situation.",
+      "parentUuid": "3943f367_785fac35",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 84
+      },
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
