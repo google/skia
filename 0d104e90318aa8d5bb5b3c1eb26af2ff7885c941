@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b593baf8_af4aaa77",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T20:33:45Z",
+      "side": 1,
+      "message": "No, not yet. I had RRect done but it\u0027s a giant ball of merge-conflict now. I need to untangle that. But it\u0027s getting there.\n\nOnce we\u0027ve done them all, yes, ideally we don\u0027t need a stack at all anymore. We just start with null and chain everything off of the previous step\u0027s FP.",
+      "parentUuid": "1a1deba9_df746ac9",
+      "range": {
+        "startLine": 703,
+        "startChar": 12,
+        "endLine": 703,
+        "endChar": 48
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8236979b_900b25b6",
         "filename": "src/gpu/effects/GrConvexPolyEffect.h",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-15T20:17:42Z",
       "side": 1,
       "message": "This is unfortunately awkward, but I don\u0027t have a great alternative except to eventually land in a place where the convex poly effect constructors can\u0027t fail, so you only call it when you know it can be represented in the shader.\n\nI\u0027m okay with this as an intermediate step.",
+      "range": {
+        "startLine": 39,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 99
+      },
+      "revId": "0d104e90318aa8d5bb5b3c1eb26af2ff7885c941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92c931b0_96358c94",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-15T20:33:45Z",
+      "side": 1,
+      "message": "I agree that this is awkward. I\u0027m not sure what we want the end state to look like here. I can think of several ideas but none that I particularly love.\n\n-- We could split Make into two parts--check make-ability, then actually make it--and make it the caller\u0027s responsibility to check make-ability first. I\u0027m not sure how people would feel about that as it\u0027s a significantly different pattern than most of Ganesh.\n\n-- We could have FPs return the input FP back if they fail. That takes away our \u0027nullptr\u0027 sentinel for success vs failure so you\u0027d want to combine it with the previous approach where checking make-ability is a separate step. That step now becomes optional though. You can be sloppy and not do the check, or correct and do the check. \n\n-- Same as the previous approach, but instead of a preflight CanIMakeIt check, you can have Make return a struct that tells us whether it succeeded or failed:\n\n  struct MakeResult { std::unique_ptr\u003cGrFP\u003e fp; bool success; }\n     returns either\n  {.fp \u003d originalFP, .success \u003d false}\n     or\n  {.fp \u003d newFP, .success \u003d true}\n\n-- Different approach: We could make ALL Make methods take in unique_ptr\u003cGrFragmentProcessor\u003e* for consistency? It\u0027s not great, but at least we\u0027re consistent. It lets us express \"I want to give you ownership of this thing, but only if you want it\", and maybe it\u0027s OK if some places always take ownership and others only take ownership sometimes.",
+      "parentUuid": "8236979b_900b25b6",
       "range": {
         "startLine": 39,
         "startChar": 7,
