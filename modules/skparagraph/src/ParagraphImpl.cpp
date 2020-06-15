@@ -146,8 +146,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
         this->fWords.clear();
         this->fBidiRegions.reset();
-        this->fGraphemes16.reset();
-        this->fCodepoints.reset();
+        this->fUTF8IndexForUTF16Index.reset();
+        this->fUTF16IndexForUTF8Index.reset();
         this->fRuns.reset();
         if (!this->shapeTextIntoEndlessLine()) {
             this->resetContext();
@@ -354,28 +354,10 @@ bool ParagraphImpl::computeCodeUnitProperties() {
 
         while (!breaker.eof()) {
             auto currentPos = breaker.next();
-          fCodeUnitProperties[currentPos] |= CodeUnitFlags::kGraphemeBreakBefore;
+          fCodeUnitProperties[currentPos] |= CodeUnitFlags::kGraphemeStart;
         }
     }
-/*
-    SkString breaks;
-    SkString graphemes;
-    SkString whitespaces;
-    size_t index = 0;
-    for (auto flag : fIcuFlags) {
-        if ((flag & IcuFlagTypes::kHardLineBreak) != 0) {
-            breaks += "H";
-        } else if ((flag & IcuFlagTypes::kSoftLineBreak) != 0) {
-            breaks += "S";
-        } else {
-            breaks += " ";
-        }
-        graphemes += (flag & IcuFlagTypes::kGrapheme) == 0 ? " " : "G";
-        whitespaces += (flag & IcuFlagTypes::kWhiteSpace) == 0 ? " " : "W";
-        ++index;
-    }
-    SkDebugf("%s\n%s\n%s\n", breaks.c_str(), graphemes.c_str(), whitespaces.c_str());
-*/
+
     return true;
 }
 
@@ -781,56 +763,6 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
-void ParagraphImpl::markGraphemes16() {
-
-    if (!fGraphemes16.empty()) {
-        return;
-    }
-
-    // Fill out code points 16
-    auto ptr = fText.c_str();
-    auto end = fText.c_str() + fText.size();
-    while (ptr < end) {
-
-        size_t index = ptr - fText.c_str();
-        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
-        uint16_t buffer[2];
-        size_t count = SkUTF::ToUTF16(u, buffer);
-        fCodepoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
-        if (count > 1) {
-            fCodepoints.emplace_back(EMPTY_INDEX, index, 1);
-        }
-    }
-
-    CodepointRange codepoints(0ul, 0ul);
-
-  forEachCodeUnitPropertyRange(
-      CodeUnitFlags::kGraphemeBreakBefore,
-      [&](TextRange textRange) {
-        // Collect all the codepoints that belong to the grapheme
-        while (codepoints.end < fCodepoints.size()
-            && fCodepoints[codepoints.end].fTextIndex < textRange.end) {
-          ++codepoints.end;
-        }
-
-        if (textRange.start == textRange.end) {
-          return true;
-        }
-
-        //SkDebugf("Grapheme #%d [%d:%d)\n", fGraphemes16.size(), startPos, endPos);
-
-        // Update all the codepoints that belong to this grapheme
-        for (auto i = codepoints.start; i < codepoints.end; ++i) {
-          //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
-          fCodepoints[i].fGrapheme = fGraphemes16.size();
-        }
-
-        fGraphemes16.emplace_back(codepoints, textRange);
-        codepoints.start = codepoints.end;
-        return true;
-      });
-}
-
 // Returns a vector of bounding boxes that enclose all text between
 // start and end glyph indexes, including start and excluding end
 std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
@@ -847,9 +779,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    markGraphemes16();
+  ensureUTF16Mapping();
 
-    if (start >= end || start > fCodepoints.size() || end == 0) {
+    if (start >= end || start > fUTF8IndexForUTF16Index.size() || end == 0) {
         return results;
     }
 
@@ -862,16 +794,11 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // One flutter test fails because of it but the editing experience is correct
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
-    if (start < fCodepoints.size()) {
-        auto codepoint = fCodepoints[start];
-        auto grapheme = fGraphemes16[codepoint.fGrapheme];
-        text.start = grapheme.fTextRange.start;
+    if (start < fUTF8IndexForUTF16Index.size()) {
+        text.start = findGraphemeStart(fUTF8IndexForUTF16Index[start]);
     }
-
-    if (end < fCodepoints.size()) {
-        auto codepoint = fCodepoints[end];
-        auto grapheme = fGraphemes16[codepoint.fGrapheme];
-        text.end = grapheme.fTextRange.start;
+    if (end < fUTF8IndexForUTF16Index.size()) {
+        text.end = findGraphemeStart(fUTF8IndexForUTF16Index[end]);
     }
 
     for (auto& line : fLines) {
@@ -929,7 +856,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         return {0, Affinity::kDownstream};
     }
 
-    markGraphemes16();
+  ensureUTF16Mapping();
+
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
@@ -1053,8 +981,8 @@ void ParagraphImpl::setState(InternalState state) {
             fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
             fWords.clear();
             fBidiRegions.reset();
-            fGraphemes16.reset();
-            fCodepoints.reset();
+            fUTF8IndexForUTF16Index.reset();
+            fUTF16IndexForUTF8Index.reset();
             [[fallthrough]];
 
         case kShaped:
@@ -1157,6 +1085,48 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     for (auto& textStyle : fTextStyles) {
         textStyle.fStyle.setBackgroundColor(paint);
     }
+}
+
+TextIndex ParagraphImpl::findGraphemeStart(TextIndex index) {
+    if (index == fText.size()) {
+        return index;
+    }
+    while (index > 0 &&
+          (fCodeUnitProperties[index] & CodeUnitFlags::kGraphemeStart) == 0) {
+        --index;
+    }
+    return index;
+}
+
+void ParagraphImpl::ensureUTF16Mapping() {
+    if (!fUTF16IndexForUTF8Index.empty()) {
+        return;
+    }
+    // Fill out code points 16
+    auto ptr = fText.c_str();
+    auto end = fText.c_str() + fText.size();
+    while (ptr < end) {
+
+        size_t index = ptr - fText.c_str();
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
+
+        // All utf8 units refer to the same codepoint
+        size_t next = ptr - fText.c_str();
+        for (auto i = index; i < next; ++i) {
+            fUTF16IndexForUTF8Index.emplace_back(fUTF8IndexForUTF16Index.size());
+        }
+        SkASSERT(fUTF16IndexForUTF8Index.size() == next);
+
+        // One or two codepoints refer to the same text index
+        uint16_t buffer[2];
+        size_t count = SkUTF::ToUTF16(u, buffer);
+        fUTF8IndexForUTF16Index.emplace_back(index);
+        if (count > 1) {
+            fUTF8IndexForUTF16Index.emplace_back(index);
+        }
+    }
+    fUTF16IndexForUTF8Index.emplace_back(fUTF8IndexForUTF16Index.size());
+    fUTF8IndexForUTF16Index.emplace_back(fText.size());
 }
 
 }  // namespace textlayout
