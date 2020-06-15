@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb7447e2_39b0c639",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-15T13:20:48Z",
+      "side": 1,
+      "message": "If we\u0027re going to have this function should it be private? IMO it just adds complexity/indirection to have these getters for a concern about an unlikely event (adding more children) that is simple to deal with if it ever does come up. Also, I\u0027m not sure the pattern extends well with an int return. The caller doesn\u0027t get to assign an index when adding the children, they just push them back one by one. So either it will, as today, make assumptions about how the constructor ordered the children or have some unnecessary logic to choose what order to push the children back in. So if we are going to have it maybe it should return a bool?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "e76645c1c48b7057416897075b4c39c9c41f2719",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
