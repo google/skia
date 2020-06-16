@@ -70,6 +70,30 @@
       "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7004d6b2_00d23ebc",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-16T12:35:02Z",
+      "side": 1,
+      "message": "I don\u0027t actually see why this needs to check the mask FP\u0027s opt flags.",
+      "parentUuid": "f4a8d5c0_68fe03f6",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 84
+      },
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
