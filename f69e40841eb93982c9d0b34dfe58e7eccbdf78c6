@@ -22,6 +22,30 @@
       "revId": "f69e40841eb93982c9d0b34dfe58e7eccbdf78c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb1a9115_5d8c2187",
+        "filename": "src/gpu/ccpr/GrCCClipProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-16T09:01:27Z",
+      "side": 0,
+      "message": "sgtm",
+      "parentUuid": "cd0e4138_09cc2e7f",
+      "range": {
+        "startLine": 59,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "f69e40841eb93982c9d0b34dfe58e7eccbdf78c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
