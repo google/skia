@@ -17,16 +17,20 @@ float prevRadius = -1;
 uniform float4 circle;
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrClipEdgeType edgeType, SkPoint center,
-                                                     float radius) {
+    static MakeResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                           GrClipEdgeType edgeType, SkPoint center, float radius) {
+        // Hairline is not supported.
+        if (edgeType == kHairlineAA) {
+            return MakeFailure(std::move(inputFP));
+        }
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(
-            new GrCircleEffect(std::move(inputFP), edgeType, center, radius));
+        return MakeSuccess(
+                    std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(std::move(inputFP),
+                                                         edgeType, center, radius)));
     }
 }
 
@@ -79,8 +83,11 @@ void main() {
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(1.f, 1000.f);
     GrClipEdgeType et;
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp;
     do {
-        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
+        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+        std::tie(success, fp) = GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
+    } while (!success);
+    return fp;
 }
