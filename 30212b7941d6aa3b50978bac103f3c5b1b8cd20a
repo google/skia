@@ -16,6 +16,24 @@
       "revId": "30212b7941d6aa3b50978bac103f3c5b1b8cd20a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a26a7966_7266d775",
+        "filename": "platform_tools/android/apps/gradle/wrapper/gradle-wrapper.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 0,
+      "message": "The command line script \"platform_tools/android/bin/android_build_app -C  out/arm64-v8a skottie\" fails with \"Could not determine java version from \u002711.0.7\u0027.\". I\u0027ve searched a solution and found that upgrading gradle fixes it.\nI\u0027m still able to build from Android Studio, so I\u0027m reverting this change. Before infra consumes this, we likely need to upgrade gradle.",
+      "parentUuid": "ae599a18_c712230d",
+      "revId": "30212b7941d6aa3b50978bac103f3c5b1b8cd20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

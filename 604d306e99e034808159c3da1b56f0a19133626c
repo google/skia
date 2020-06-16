@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0a5ff69d_92553fd5",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 1,
+      "message": "changed minSdkVersion to 19 and did not observe any issues. Skottie player for sure is not affected and lottie uses androidx support libraries, which should backport features.",
+      "parentUuid": "6e9965c7_bd80fd29",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2af4ec64_a4238b97",
         "filename": "platform_tools/android/apps/skottie/collect.sh",
         "patchSetId": 2
@@ -69,6 +93,30 @@
       "revId": "604d306e99e034808159c3da1b56f0a19133626c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a14bfd81_d0da380b",
+        "filename": "platform_tools/android/apps/skottie/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 1,
+      "message": "Good call - removing them dropped the size of traces by a factor of 2.\nThey seemed useful to track CPU and GPU frequency but scripts don\u0027t use them.",
+      "parentUuid": "2af4ec64_a4238b97",
+      "range": {
+        "startLine": 65,
+        "startChar": 3,
+        "endLine": 88,
+        "endChar": 41
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -119,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "80eaf468_bca9cad4",
+        "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 1,
+      "message": "I deleted the \"action android:name\u003d\"android.intent.action.MAIN\" and it works.",
+      "parentUuid": "3efb1486_c3cfa950",
+      "range": {
+        "startLine": 14,
+        "startChar": 38,
+        "endLine": 14,
+        "endChar": 45
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6f2389c_147a40a7",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/LottiePerfActivity.java",
         "patchSetId": 2
@@ -139,6 +211,30 @@
       "revId": "604d306e99e034808159c3da1b56f0a19133626c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "286e2134_c19876a9",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/LottiePerfActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 1,
+      "message": "renamed to PerfActivity.",
+      "parentUuid": "b6f2389c_147a40a7",
+      "range": {
+        "startLine": 14,
+        "startChar": 13,
+        "endLine": 14,
+        "endChar": 31
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -186,6 +282,30 @@
       "revId": "604d306e99e034808159c3da1b56f0a19133626c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a360e4ef_1a2efbd4",
+        "filename": "platform_tools/android/apps/skottie/trace_processor",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-16T18:05:36Z",
+      "side": 1,
+      "message": "I wrote a script (\"wget https://get.perfetto.dev/trace_processor\"), that downloads trace_processor and deleted it from source control.",
+      "parentUuid": "102c1813_5bdcbd31",
+      "range": {
+        "startLine": 4,
+        "startChar": 21,
+        "endLine": 4,
+        "endChar": 27
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
