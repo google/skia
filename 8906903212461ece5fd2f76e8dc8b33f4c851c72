@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8c79fa50_0fdfa74c",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:50:19Z",
+      "side": 1,
+      "message": "Fair enough; I guess that\u0027s the benefit of defining a new struct for MakeResult instead of using a \"using\", we could have it read as return Result::Success(...), but this is fine and the bushes have been beat enough :)",
+      "parentUuid": "90fae922_902d0dda",
+      "range": {
+        "startLine": 221,
+        "startChar": 22,
+        "endLine": 221,
+        "endChar": 33
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d3ec94a_7192f55b",
         "filename": "src/gpu/GrReducedClip.cpp",
         "patchSetId": 7
@@ -93,6 +117,30 @@
       "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12787349_e14363f0",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:50:19Z",
+      "side": 1,
+      "message": "The best alternative that I came up with for the clipping FPs would have them not accept any input FP. Then the failure can report nullptr since there\u0027s no ownership issues. But that doesn\u0027t fit the goal tree model very well. It\u0027ll take more work, but may come about with the new clip stack refactor, where the failure conditions can go be eliminated.",
+      "parentUuid": "0d3ec94a_7192f55b",
+      "range": {
+        "startLine": 700,
+        "startChar": 0,
+        "endLine": 704,
+        "endChar": 40
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
