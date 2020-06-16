@@ -185,33 +185,61 @@ const char* SkParse::FindNamedColor(const char* name, size_t len, SkColor* color
         len -= 6;
         *sixMatchPtr++ = sixMatch;
     } while (last == false && len > 0);
-    const int colorNameSize = sizeof(gColorNames) / sizeof(unsigned int);
-    int lo = 0;
-    int hi = colorNameSize - 3; // back off to beginning of yellowgreen
+
+    auto is_rec_start = [](size_t i) {
+        SkASSERT(i < SK_ARRAY_COUNT(gColorNames));
+
+        // the first record word is tagged in bit 31
+        return static_cast<int>(gColorNames[i]) < 0;
+    };
+
+    auto rec_start = [&](size_t i, int dir) {
+        // find the beginning of a record, searching in the given direction.
+        while (!is_rec_start(i)) {
+            i += dir;
+        }
+
+        return i;
+    };
+
+    size_t lo = 0,
+           hi = SK_ARRAY_COUNT(gColorNames) - 3; // back off to beginning of yellowgreen
+
     while (lo <= hi) {
-        int mid = (hi + lo) >> 1;
-        while ((int) gColorNames[mid] >= 0)
-            --mid;
+        SkASSERT(is_rec_start(lo));
+        SkASSERT(is_rec_start(hi));
+
+        const auto  mid         = rec_start((hi + lo) >> 1, -1);
+        const auto* midMatchPtr = &gColorNames[mid]; // separate cursor, to keep |mid| on rec start
+
         sixMatchPtr = sixMatches;
-        while (gColorNames[mid] == *sixMatchPtr) {
-            ++mid;
+        while (*midMatchPtr == *sixMatchPtr) {
+            ++midMatchPtr;
             if ((*sixMatchPtr & 1) == 0) { // last
-                *color = gColorNames[mid] | 0xFF000000;
+                // jackpot
+                *color = *midMatchPtr | 0xFF000000;
                 return namePtr;
             }
             ++sixMatchPtr;
         }
-        int sixMask = *sixMatchPtr & ~0x80000000;
-        int midMask = gColorNames[mid] & ~0x80000000;
+
+        if (hi == lo) {
+            // not found
+            break;
+        }
+
+        int sixMask = *sixMatchPtr & ~0x80000000,
+            midMask = *midMatchPtr & ~0x80000000;
+
+        SkASSERT(sixMask != midMask);
         if (sixMask > midMask) {
-            lo = mid + 2;   // skip color
-            while ((int) gColorNames[lo] >= 0)
-                ++lo;
-        } else if (hi == mid)
-            return nullptr;
-        else
+            // skip color
+            lo = rec_start(mid + 2,  1);
+        } else {
             hi = mid;
+        }
     }
+
     return nullptr;
 }
 
