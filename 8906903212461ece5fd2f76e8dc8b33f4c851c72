@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f50bf92c_608a5e64",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:35:09Z",
+      "side": 1,
+      "message": "I like these helpers from a readability stand point, but I think dropping the Make from the function name reads better. I like reserving Make for the meaty factories, etc. and while it does make something, reading a line of MakeFailure() feels weird to me. I like the look of return Failure(...) or return Success(...) better.\n\nThat\u0027s just a small detail, and I like this pattern overall for dealing with the corner case factories that can fail and need to return ownership.",
+      "range": {
+        "startLine": 221,
+        "startChar": 22,
+        "endLine": 221,
+        "endChar": 33
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f102ee77_cdbe637b",
         "filename": "src/gpu/effects/GrConvexPolyEffect.h",
         "patchSetId": 7
@@ -46,6 +69,75 @@
       "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed02b087_711d191f",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:35:09Z",
+      "side": 1,
+      "message": "This has the same behavior as the old code, but it\u0027s somewhat subtle. Previously, if GrConvexPolyEffect::Make failed, it returned nullptr and that would get returned. \n\nIn the new code, we don\u0027t check the success result and just return fp. Because we pass in nullptr as the input and that\u0027s what the fp is set to on failure, we don\u0027t deviate.\n\nFuture proofing could look like return success ? std::move(fp) : nullptr. WDYT?",
+      "range": {
+        "startLine": 729,
+        "startChar": 8,
+        "endLine": 731,
+        "endChar": 29
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd87144b_233467fe",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:35:09Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 743,
+        "startChar": 17,
+        "endLine": 745,
+        "endChar": 33
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c3189c3_170d580a",
+        "filename": "src/gpu/effects/GrRRectEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T20:35:09Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 811,
+        "startChar": 20,
+        "endLine": 813,
+        "endChar": 37
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
