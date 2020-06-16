@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae599a18_c712230d",
+        "filename": "platform_tools/android/apps/gradle/wrapper/gradle-wrapper.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 0,
+      "message": "Can we do the gradle upgrade in a separate CL?\n\nDo you need to upgrade in order for this CL to work?",
+      "revId": "30212b7941d6aa3b50978bac103f3c5b1b8cd20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

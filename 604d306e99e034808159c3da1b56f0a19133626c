@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "6e9965c7_bd80fd29",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 1,
+      "message": "If necessary (e.g. the app has features that need a newer API level) we can support different API levels for the Skottie_SDK vs the Skottie_app.",
+      "parentUuid": "27f8a57d_1587a229",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2af4ec64_a4238b97",
+        "filename": "platform_tools/android/apps/skottie/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 1,
+      "message": "do we really need all of these ftrace events?",
+      "range": {
+        "startLine": 65,
+        "startChar": 3,
+        "endLine": 88,
+        "endChar": 41
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d6ee487e_cf95a4d8",
         "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
         "patchSetId": 2
@@ -48,6 +95,53 @@
     },
     {
       "key": {
+        "uuid": "3efb1486_c3cfa950",
+        "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 1,
+      "message": "I think you can just drop the MAIN action.",
+      "parentUuid": "d6ee487e_cf95a4d8",
+      "range": {
+        "startLine": 14,
+        "startChar": 38,
+        "endLine": 14,
+        "endChar": 45
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6f2389c_147a40a7",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/LottiePerfActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 1,
+      "message": "nit: Can we just shorten this to PerfActivity?  It avoids the implication that this renders only with Lottie.",
+      "range": {
+        "startLine": 14,
+        "startChar": 13,
+        "endLine": 14,
+        "endChar": 31
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9678d604_307410cd",
         "filename": "platform_tools/android/apps/skottie/trace_processor",
         "patchSetId": 2
@@ -59,6 +153,30 @@
       "writtenOn": "2020-06-16T14:03:12Z",
       "side": 1,
       "message": "Don\u0027t know too much about licensing, but I do recall work having to be done to remove files with this license from the skia code base. Is this something that we want in here or in /third_party ?",
+      "range": {
+        "startLine": 4,
+        "startChar": 21,
+        "endLine": 4,
+        "endChar": 27
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "102c1813_5bdcbd31",
+        "filename": "platform_tools/android/apps/skottie/trace_processor",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T14:54:29Z",
+      "side": 1,
+      "message": "Correct, we can\u0027t land this here.  Feel free to reach out to me to talk about alternatives.",
+      "parentUuid": "9678d604_307410cd",
       "range": {
         "startLine": 4,
         "startChar": 21,
