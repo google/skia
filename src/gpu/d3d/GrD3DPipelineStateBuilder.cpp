@@ -403,7 +403,7 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
     if (!stencilSettings.isDisabled()) {
         if (stencilSettings.isTwoSided()) {
             const auto& frontFace = stencilSettings.postOriginCCWFace(origin);
-            const auto& backFace = stencilSettings.postOriginCCWFace(origin);
+            const auto& backFace = stencilSettings.postOriginCWFace(origin);
 
             SkASSERT(frontFace.fTestMask == backFace.fTestMask);
             SkASSERT(frontFace.fWriteMask == backFace.fWriteMask);
@@ -414,7 +414,7 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
             setup_stencilop_desc(&dsDesc->BackFace, backFace);
         } else {
             dsDesc->StencilReadMask = stencilSettings.singleSidedFace().fTestMask;
-            dsDesc->StencilWriteMask = stencilSettings.singleSidedFace().fTestMask;
+            dsDesc->StencilWriteMask = stencilSettings.singleSidedFace().fWriteMask;
             setup_stencilop_desc(&dsDesc->FrontFace, stencilSettings.singleSidedFace());
             dsDesc->BackFace = dsDesc->FrontFace;
         }
