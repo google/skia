@@ -19,8 +19,7 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrCoordTransform.h"
-#include "src/gpu/GrTexture.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrMagnifierEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -136,9 +135,9 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
         bounds.offset(input->subset().x(), input->subset().y());
         SkRect srcRect = fSrcRect.makeOffset((1.f - invXZoom) * input->subset().x(),
                                              (1.f - invYZoom) * input->subset().y());
+        auto inputFP = GrTextureEffect::Make(std::move(inputView), kPremul_SkAlphaType);
 
-        // TODO: Update generated fp file Make functions to take views instead of proxies
-        auto fp = GrMagnifierEffect::Make(std::move(inputView),
+        auto fp = GrMagnifierEffect::Make(std::move(inputFP),
                                           bounds,
                                           srcRect,
                                           invXZoom,
