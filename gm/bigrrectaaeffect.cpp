@@ -91,9 +91,11 @@ protected:
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
                 const auto& caps = *renderTargetContext->caps()->shaderCaps();
-                auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
-                SkASSERT(fp);
-                if (fp) {
+                auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, rrect,
+                                                         caps);
+                SkASSERT(success);
+                if (success) {
+                    SkASSERT(fp);
                     GrPaint grPaint;
                     grPaint.setColor4f({ 0, 0, 0, 1.f });
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
