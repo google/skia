@@ -2360,6 +2360,9 @@ if (skia_enable_tools) {
         deps += [ ":experimental_xform" ]
         sources += [ "gm/xform.cpp" ]
       }
+      if (skia_use_vulkan) {
+        deps += [ "//third_party/spirv-tools:spvtools" ]
+      }
     }
   }
 

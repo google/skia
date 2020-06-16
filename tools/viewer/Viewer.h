@@ -193,7 +193,7 @@ private:
     SkFontFields fFontOverrides;
     bool fPixelGeometryOverrides = false;
 
-    struct CachedGLSL {
+    struct CachedShader {
         bool                fHovered = false;
 
         sk_sp<const SkData> fKey;
@@ -205,7 +205,7 @@ private:
     };
 
     sk_gpu_test::MemoryCache fPersistentCache;
-    SkTArray<CachedGLSL>     fCachedGLSL;
+    SkTArray<CachedShader>   fCachedShaders;
 };
 
 #endif
