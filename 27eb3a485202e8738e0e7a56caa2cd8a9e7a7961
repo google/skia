@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d134adb_b6f605fb",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-16T19:01:10Z",
+      "side": 1,
+      "message": "This target doesn\u0027t seem to be used anywhere?",
+      "revId": "27eb3a485202e8738e0e7a56caa2cd8a9e7a7961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
