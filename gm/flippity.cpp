@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright 2017 Google Inc.
  *
@@ -80,7 +81,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 
 
 // Create a fixed size text label like "LL" or "LR".
-static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
+static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -104,9 +105,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
     canvas->concat(mat);
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
-    sk_sp<SkImage> image = surf->makeImageSnapshot();
-
-    return image->makeTextureImage(context);
+    return surf->makeImageSnapshot();
 }
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
@@ -248,7 +247,7 @@ private:
         };
 
         for (int i = 0; i < kNumLabels; ++i) {
-            fLabels.push_back(make_text_image(context, kLabelText[i], kLabelColors[i]));
+            fLabels.push_back(make_text_image(kLabelText[i], kLabelColors[i]));
         }
         SkASSERT(kNumLabels == fLabels.count());
     }
@@ -294,3 +293,5 @@ private:
 };
 
 DEF_GM(return new FlippityGM;)
+
+#endif

@@ -1398,10 +1398,11 @@ protected:
         }
         if (auto context = canvas->getGrContext()) {
             if (!context->abandoned()) {
-                context->flushAndSubmit();
-                GrGpu* gpu = context->priv().getGpu();
-                SkASSERT(gpu);
-                gpu->testingOnly_flushGpuAndSync();
+                GrFlushInfo flushInfoSyncCpu;
+                flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+                context->flush(flushInfoSyncCpu);
+                context->submit(true);
+
                 for (const auto& tex : fBackendTextures) {
                     context->deleteBackendTexture(tex);
                 }
@@ -1547,10 +1548,11 @@ protected:
             }
         }
 
-        context->flushAndSubmit();
-        GrGpu* gpu = context->priv().getGpu();
-        SkASSERT(gpu);
-        gpu->testingOnly_flushGpuAndSync();
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfoSyncCpu);
+        context->submit(true);
+
         for (const auto& tex : fBackendTextures) {
             context->deleteBackendTexture(tex);
         }
