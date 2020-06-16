@@ -906,7 +906,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
 
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
-        Result draw(SkCanvas* c) const override {
+        Result draw(GrContext*, SkCanvas* c) const override {
             c->drawRect(SkRect::MakeWH(1,1), SkPaint());
             return Result::Ok();
         }
@@ -950,6 +950,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return new GPUPrecompileTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getUseDDLSink()) {
                 return new GPUDDLSink(gpuConfig, grCtxOptions);
+            } else if (gpuConfig->getOOPRish()) {
+                return new GPUOOPRSink(gpuConfig, grCtxOptions);
             } else {
                 return new GPUSink(gpuConfig, grCtxOptions);
             }

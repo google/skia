@@ -108,7 +108,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
         SkScalar y = 0;
         static constexpr SkScalar kDX = 12.f;

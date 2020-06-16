@@ -120,14 +120,18 @@ protected:
         return rgbaBmp;
     }
 
-    void createYUVTextures(SkBitmap bmps[4], GrContext* context, GrBackendTexture textures[4]) {
+    void createYUVTextures(SkBitmap bmps[4],
+                           GrRecordingContext* context,
+                           GrBackendTexture textures[4]) {
         for (int i = 0; i < 4; ++i) {
             textures[i] = context->createBackendTexture(bmps[i].pixmap(), GrRenderable::kNo,
                                                         GrProtected::kNo);
         }
     }
 
-    void createResultTexture(GrContext* context, SkISize size, GrBackendTexture* resultTexture) {
+    void createResultTexture(GrRecordingContext* context,
+                             SkISize size,
+                             GrBackendTexture* resultTexture) {
         *resultTexture = context->createBackendTexture(
                 size.width(), size.height(), kRGBA_8888_SkColorType, SkColors::kTransparent,
                 GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
@@ -148,7 +152,7 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         GrBackendTexture yuvaTextures[4];
 
         this->createYUVTextures(fYUVABmps, context, yuvaTextures);
