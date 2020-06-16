@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27f8a57d_1587a229",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-16T14:03:12Z",
+      "side": 1,
+      "message": "would it be possible to change the minSdkVersion to 19 and maintain functionality?",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6ee487e_cf95a4d8",
+        "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-16T14:03:12Z",
+      "side": 1,
+      "message": "intent action MAIN implies that this is the activity to open up when you launch the app, but there are 2 activities listed as such. I don\u0027t know what happens (probably selects the first one listed), but there should be another way to do this",
+      "range": {
+        "startLine": 14,
+        "startChar": 38,
+        "endLine": 14,
+        "endChar": 45
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9678d604_307410cd",
+        "filename": "platform_tools/android/apps/skottie/trace_processor",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-16T14:03:12Z",
+      "side": 1,
+      "message": "Don\u0027t know too much about licensing, but I do recall work having to be done to remove files with this license from the skia code base. Is this something that we want in here or in /third_party ?",
+      "range": {
+        "startLine": 4,
+        "startChar": 21,
+        "endLine": 4,
+        "endChar": 27
+      },
+      "revId": "604d306e99e034808159c3da1b56f0a19133626c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
