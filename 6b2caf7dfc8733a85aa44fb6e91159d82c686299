@@ -94,6 +94,23 @@
       "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b85c021_309b0b8d",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-16T12:40:08Z",
+      "side": 1,
+      "message": "While we\u0027re here, two things:\n- Don\u0027t need maskView any longer\n- This comment indicates that inner and outer thresholds will be sorted correctly, but that doesn\u0027t seem to be guaranteed?",
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
