@@ -72,6 +72,11 @@ GM::GM(SkColor bgColor) {
 
 GM::~GM() {}
 
+DrawResult GM::gpuSetup(GrContext* context, SkString* errorMsg) {
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    return this->onGpuSetup(context, errorMsg);
+}
+
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
@@ -169,7 +174,7 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 template GMRegistry* GMRegistry::gHead;
 
 DrawResult GpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
-                          SkString* errorMsg) {
+                         SkString* errorMsg) {
     this->onDraw(ctx, rtc, canvas);
     return DrawResult::kOk;
 }
