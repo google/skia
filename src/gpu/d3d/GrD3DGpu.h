@@ -64,6 +64,10 @@ public:
 
     void testingOnly_startCapture() override;
     void testingOnly_endCapture() override;
+
+    void resetShaderCacheForTesting() const override {
+        fResourceProvider.resetShaderCacheForTesting();
+    }
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(

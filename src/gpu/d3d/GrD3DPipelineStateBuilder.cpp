@@ -14,6 +14,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrStencilSettings.h"
@@ -23,8 +24,6 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #include <d3dcompiler.h>
-
-typedef size_t shader_size;
 
 sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
@@ -66,27 +65,9 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
-void GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::Program::Kind kind,
-                                                  const SkSL::String& sksl,
-                                                  const SkSL::Program::Settings& settings,
-                                                  ID3DBlob** shader,
-                                                  SkSL::Program::Inputs* outInputs) {
-    auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
-    std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
-            kind, sksl, settings);
-    if (!program) {
-        errorHandler->compileError(sksl.c_str(),
-                                   fGpu->shaderCompiler()->errorText().c_str());
-        return;
-    }
-    *outInputs = program->fInputs;
-    SkSL::String outHLSL;
-    if (!fGpu->shaderCompiler()->toHLSL(*program, &outHLSL)) {
-        errorHandler->compileError(sksl.c_str(),
-                                   fGpu->shaderCompiler()->errorText().c_str());
-        return;
-    }
-
+static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
+                                           const SkSL::String& hlsl,
+                                           SkSL::Program::Kind kind) {
     const char* compileTarget = nullptr;
     switch (kind) {
         case SkSL::Program::kVertex_Kind:
@@ -110,14 +91,59 @@ void GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::Program::Kind kind,
     // SPRIV-cross does matrix multiplication expecting row major matrices
     compileFlags |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 
-    // TODO: D3D Static Function
+    gr_cp<ID3DBlob> shader;
     gr_cp<ID3DBlob> errors;
-    HRESULT hr = D3DCompile(outHLSL.c_str(), outHLSL.length(), nullptr, nullptr, nullptr, "main",
-                            compileTarget, compileFlags, 0, shader, &errors);
+    HRESULT hr = D3DCompile(hlsl.c_str(), hlsl.length(), nullptr, nullptr, nullptr, "main",
+                            compileTarget, compileFlags, 0, &shader, &errors);
     if (!SUCCEEDED(hr)) {
-        errorHandler->compileError(outHLSL.c_str(),
-                                   reinterpret_cast<char*>(errors->GetBufferPointer()));
+        gpu->getContext()->priv().getShaderErrorHandler()->compileError(
+                hlsl.c_str(), reinterpret_cast<char*>(errors->GetBufferPointer()));
     }
+    return shader;
+}
+
+bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]) {
+
+    SkSL::String hlsl[kGrShaderTypeCount];
+    SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+
+    if (!GrPersistentCacheUtils::UnpackCachedShaders(reader, hlsl, inputs, kGrShaderTypeCount)) {
+        return false;
+    }
+
+    auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
+        shaders[shaderType] = GrCompileHLSLShader(fGpu, hlsl[shaderType], kind);
+        return shaders[shaderType].get();
+    };
+
+    return compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) &&
+           compile(SkSL::Program::kFragment_Kind, kFragment_GrShaderType) &&
+           (hlsl[kGeometry_GrShaderType].empty() ||
+            compile(SkSL::Program::kGeometry_Kind, kGeometry_GrShaderType));
+}
+
+gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
+        SkSL::Program::Kind kind,
+        const SkSL::String& sksl,
+        const SkSL::Program::Settings& settings,
+        SkSL::Program::Inputs* outInputs,
+        SkSL::String* outHLSL) {
+    auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
+    std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
+            kind, sksl, settings);
+    if (!program) {
+        errorHandler->compileError(sksl.c_str(),
+                                   fGpu->shaderCompiler()->errorText().c_str());
+        return gr_cp<ID3DBlob>();
+    }
+    *outInputs = program->fInputs;
+    if (!fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
+        errorHandler->compileError(sksl.c_str(),
+                                   fGpu->shaderCompiler()->errorText().c_str());
+        return gr_cp<ID3DBlob>();
+    }
+
+    return GrCompileHLSLShader(fGpu, *outHLSL, kind);
 }
 
 static DXGI_FORMAT attrib_type_to_format(GrVertexAttribType type) {
@@ -501,6 +527,9 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     return pipelineState;
 }
 
+static constexpr SkFourByteTag kHLSL_Tag = SkSetFourByteTag('H', 'L', 'S', 'L');
+static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
+
 sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -522,26 +551,78 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     settings.fRTHeightBinding = 0;
     settings.fRTHeightSet = 0;
 
-    gr_cp<ID3DBlob> vertexShader;
-    gr_cp<ID3DBlob> geometryShader;
-    gr_cp<ID3DBlob> pixelShader;
-    SkSL::Program::Inputs vertInputs, fragInputs, geomInputs;
-
-    this->compileD3DProgram(SkSL::Program::kVertex_Kind, fVS.fCompilerString, settings,
-                            &vertexShader, &vertInputs);
-    this->compileD3DProgram(SkSL::Program::kFragment_Kind, fFS.fCompilerString, settings,
-                            &pixelShader, &fragInputs);
-
-    if (!vertexShader.get() || !pixelShader.get()) {
-        return nullptr;
+    sk_sp<SkData> cached;
+    SkReadBuffer reader;
+    SkFourByteTag shaderType = 0;
+    auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
+    if (persistentCache) {
+        // Shear off the D3D-specific portion of the Desc to get the persistent key. We only cache
+        // shader code, not entire pipelines.
+        sk_sp<SkData> key =
+                SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().initialKeyLength());
+        cached = persistentCache->load(*key);
+        if (cached) {
+            reader.setMemory(cached->data(), cached->size());
+            shaderType = GrPersistentCacheUtils::GetType(&reader);
+        }
     }
 
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
-    if (primProc.willUseGeoShader()) {
-        this->compileD3DProgram(SkSL::Program::kGeometry_Kind, fGS.fCompilerString, settings,
-                                &geometryShader, &geomInputs);
-        if (!geometryShader.get()) {
+    gr_cp<ID3DBlob> shaders[kGrShaderTypeCount];
+
+    if (kHLSL_Tag == shaderType && this->loadHLSLFromCache(&reader, shaders)) {
+        // We successfully loaded and compiled HLSL
+    } else {
+        SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+        SkSL::String* sksl[kGrShaderTypeCount] = {
+            &fVS.fCompilerString,
+            &fGS.fCompilerString,
+            &fFS.fCompilerString,
+        };
+        SkSL::String cached_sksl[kGrShaderTypeCount];
+        SkSL::String hlsl[kGrShaderTypeCount];
+
+        if (kSKSL_Tag == shaderType) {
+            if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
+                                                            kGrShaderTypeCount)) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    sksl[i] = &cached_sksl[i];
+                }
+            }
+        }
+
+        auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
+            shaders[shaderType] = this->compileD3DProgram(kind, *sksl[shaderType], settings,
+                                                          &inputs[shaderType], &hlsl[shaderType]);
+            return shaders[shaderType].get();
+        };
+
+        if (!compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) ||
+            !compile(SkSL::Program::kFragment_Kind, kFragment_GrShaderType)) {
             return nullptr;
+        }
+
+        if (primProc.willUseGeoShader()) {
+            if (!compile(SkSL::Program::kGeometry_Kind, kGeometry_GrShaderType)) {
+                return nullptr;
+            }
+        }
+
+        if (persistentCache && !cached) {
+            const bool cacheSkSL = fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                                   GrContextOptions::ShaderCacheStrategy::kSkSL;
+            if (cacheSkSL) {
+                // Replace the HLSL with formatted SkSL to be cached. This looks odd, but this is
+                // the last time we're going to use these strings, so it's safe.
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    hlsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                }
+            }
+            sk_sp<SkData> key =
+                    SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().initialKeyLength());
+            sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(
+                    cacheSkSL ? kSKSL_Tag : kSKSL_Tag, hlsl, inputs, kGrShaderTypeCount);
+            persistentCache->store(*key, *data);
         }
     }
 
@@ -553,9 +634,9 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
 
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
     gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
-            fGpu, fProgramInfo, rootSig, std::move(vertexShader),
-            std::move(geometryShader), std::move(pixelShader), rt->dxgiFormat(),
-            rt->stencilDxgiFormat(), rt->sampleQualityLevel());
+            fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
+            std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),
+            rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityLevel());
 
     return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
                                                             std::move(rootSig),

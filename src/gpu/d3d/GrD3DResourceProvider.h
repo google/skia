@@ -64,6 +64,10 @@ public:
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
 
+#if GR_TEST_UTILS
+    void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
+#endif
+
 private:
 #ifdef SK_DEBUG
 #define GR_PIPELINE_STATE_CACHE_STATS

@@ -45,11 +45,13 @@ private:
 
     sk_sp<GrD3DPipelineState> finalize();
 
-    void compileD3DProgram(SkSL::Program::Kind kind,
-                           const SkSL::String& sksl,
-                           const SkSL::Program::Settings& settings,
-                           ID3DBlob** shader,
-                           SkSL::Program::Inputs* outInputs);
+    bool loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]);
+
+    gr_cp<ID3DBlob> compileD3DProgram(SkSL::Program::Kind kind,
+                                      const SkSL::String& sksl,
+                                      const SkSL::Program::Settings& settings,
+                                      SkSL::Program::Inputs* outInputs,
+                                      SkSL::String* outHLSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
