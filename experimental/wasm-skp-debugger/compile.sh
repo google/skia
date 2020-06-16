@@ -107,7 +107,9 @@ echo "Compiling bitcode"
   skia_enable_skshaper=false \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
-  skia_enable_fontmgr_empty=false \
+  skia_enable_fontmgr_custom_directory=false \
+  skia_enable_fontmgr_custom_embedded=true \
+  skia_enable_fontmgr_custom_empty=false \
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
