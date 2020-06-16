@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5474222a_7e74c70c",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-16T18:31:47Z",
+      "side": 1,
+      "message": "I don\u0027t think so – originally this change was to keep previous GrOpsTask behavior (do it in endFlush) but I think it\u0027s a smaller change for this CL to move THAT to disown. Done.",
+      "parentUuid": "9b9748f4_77adddbe",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 5
+      },
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f2dd2f3_49ef404f",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "45642008_02a7f282",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-16T18:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f2dd2f3_49ef404f",
+      "range": {
+        "startLine": 71,
+        "startChar": 61,
+        "endLine": 71,
+        "endChar": 65
+      },
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd10984f_4fb97c1b",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 1
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "aaa0b32c_49db870d",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-16T18:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd10984f_4fb97c1b",
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "513c2a39_14b9767d",
         "filename": "src/gpu/GrWaitRenderTask.cpp",
         "patchSetId": 1
@@ -79,6 +145,24 @@
       "revId": "4774b3f33d71353663ee10d42066f26609da842c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b4d0cd_eb71403c",
+        "filename": "src/gpu/GrWaitRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-16T18:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "513c2a39_14b9767d",
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
