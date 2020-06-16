@@ -12,8 +12,7 @@ in uniform half outerThreshold;
 
 @optimizationFlags {
     (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-    (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-     ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
+    ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags)
 }
 
 void main() {
@@ -34,10 +33,9 @@ void main() {
 }
 
 @test(testData) {
-    auto [maskView, ct, at] = testData->randomAlphaOnlyView();
-    // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
-    float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
+    // Make the inner and outer thresholds be in [0, 1].
+    float outerThresh = testData->fRandom->nextUScalar1();
+    float innerThresh = testData->fRandom->nextUScalar1();
     std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
     if (testData->fRandom->nextBool()) {
         inputChild = GrProcessorUnitTest::MakeChildFP(testData);
