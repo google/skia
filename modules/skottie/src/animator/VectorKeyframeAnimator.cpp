@@ -44,16 +44,7 @@ VectorValue::operator SkV3() const {
 }
 
 VectorValue::operator SkColor() const {
-    // best effort to turn this into a color
-    const auto r = this->size() > 0 ? (*this)[0] : 0,
-               g = this->size() > 1 ? (*this)[1] : 0,
-               b = this->size() > 2 ? (*this)[2] : 0,
-               a = this->size() > 3 ? (*this)[3] : 1;
-
-    return SkColorSetARGB(SkScalarRoundToInt(SkTPin(a, 0.0f, 1.0f) * 255),
-                          SkScalarRoundToInt(SkTPin(r, 0.0f, 1.0f) * 255),
-                          SkScalarRoundToInt(SkTPin(g, 0.0f, 1.0f) * 255),
-                          SkScalarRoundToInt(SkTPin(b, 0.0f, 1.0f) * 255));
+    return static_cast<SkColor4f>(*this).toSkColor();
 }
 
 VectorValue::operator SkColor4f() const {
