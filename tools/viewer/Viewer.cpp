@@ -50,6 +50,10 @@
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
 
+#ifdef SK_VULKAN
+#include "spirv-tools/libspirv.hpp"
+#endif
+
 #if defined(SK_ENABLE_SKOTTIE)
     #include "tools/viewer/SkottieSlide.h"
 #endif
@@ -1173,7 +1177,7 @@ SkMatrix Viewer::computeMatrix() {
 
 void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     fPersistentCache.reset();
-    fCachedGLSL.reset();
+    fCachedShaders.reset();
     fBackendType = backendType;
 
     fWindow->detach();
@@ -2191,30 +2195,22 @@ void Viewer::drawImGui() {
                 }
             }
 
-            bool backendIsGL = Window::kNativeGL_BackendType == fBackendType
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
-                            || Window::kANGLE_BackendType == fBackendType
+            if (ImGui::CollapsingHeader("Shaders")) {
+                bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
+                            GrContextOptions::ShaderCacheStrategy::kSkSL;
+#if defined(SK_VULKAN)
+                const bool isVulkan = fBackendType == sk_app::Window::kVulkan_BackendType;
+#else
+                const bool isVulkan = false;
 #endif
-                ;
 
-            // HACK: If we get here when SKSL caching isn't enabled, and we're on a backend other
-            // than GL, we need to force it on. Just do that on the first frame after the backend
-            // switch, then resume normal operation.
-            if (!backendIsGL &&
-                params.fGrContextOptions.fShaderCacheStrategy !=
-                        GrContextOptions::ShaderCacheStrategy::kSkSL) {
-                params.fGrContextOptions.fShaderCacheStrategy =
-                        GrContextOptions::ShaderCacheStrategy::kSkSL;
-                paramsChanged = true;
-                fPersistentCache.reset();
-            } else if (ImGui::CollapsingHeader("Shaders")) {
-                // To re-load shaders from the currently active programs, we flush all caches on one
-                // frame, then set a flag to poll the cache on the next frame.
+                // To re-load shaders from the currently active programs, we flush all
+                // caches on one frame, then set a flag to poll the cache on the next frame.
                 static bool gLoadPending = false;
                 if (gLoadPending) {
                     auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
                                                  int hitCount) {
-                        CachedGLSL& entry(fCachedGLSL.push_back());
+                        CachedShader& entry(fCachedShaders.push_back());
                         entry.fKey = key;
                         SkMD5 hash;
                         hash.write(key->bytes(), key->size());
@@ -2229,31 +2225,41 @@ void Viewer::drawImGui() {
                                                                     entry.fInputs,
                                                                     kGrShaderTypeCount);
                     };
-                    fCachedGLSL.reset();
+                    fCachedShaders.reset();
                     fPersistentCache.foreach(collectShaders);
                     gLoadPending = false;
+
+#if defined(SK_VULKAN)
+                    if (isVulkan && !sksl) {
+                        spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
+                        for (auto& entry : fCachedShaders) {
+                            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                                const SkSL::String& spirv(entry.fShader[i]);
+                                std::string disasm;
+                                tools.Disassemble((const uint32_t*)spirv.c_str(), spirv.size() / 4,
+                                                  &disasm);
+                                entry.fShader[i].assign(disasm);
+                            }
+                        }
+                    }
+#endif
                 }
 
                 // Defer actually doing the load/save logic so that we can trigger a save when we
                 // start or finish hovering on a tree node in the list below:
                 bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
-                bool doSave = ImGui::Button("Save");
-                if (backendIsGL) {
-                    ImGui::SameLine();
-                    bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
-                                GrContextOptions::ShaderCacheStrategy::kSkSL;
-                    if (ImGui::Checkbox("SkSL", &sksl)) {
-                        params.fGrContextOptions.fShaderCacheStrategy = sksl
-                                ? GrContextOptions::ShaderCacheStrategy::kSkSL
-                                : GrContextOptions::ShaderCacheStrategy::kBackendSource;
-                        paramsChanged = true;
-                        doLoad = true;
-                        fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
-                    }
+                bool doSave = ImGui::Button("Save"); ImGui::SameLine();
+                if (ImGui::Checkbox("SkSL", &sksl)) {
+                    params.fGrContextOptions.fShaderCacheStrategy =
+                            sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL
+                                 : GrContextOptions::ShaderCacheStrategy::kBackendSource;
+                    paramsChanged = true;
+                    doLoad = true;
+                    fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
                 }
 
                 ImGui::BeginChild("##ScrollingRegion");
-                for (auto& entry : fCachedGLSL) {
+                for (auto& entry : fCachedShaders) {
                     bool inTreeNode = ImGui::TreeNode(entry.fKeyString.c_str());
                     bool hovered = ImGui::IsItemHovered();
                     if (hovered != entry.fHovered) {
@@ -2278,11 +2284,14 @@ void Viewer::drawImGui() {
                     fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
                     gLoadPending = true;
                 }
+                // We don't support updating SPIRV shaders. We could re-assemble them (with edits),
+                // but I'm not sure anyone wants to do that.
+                if (isVulkan && !sksl) {
+                    doSave = false;
+                }
                 if (doSave) {
                     // The hovered item (if any) gets a special shader to make it identifiable
                     auto shaderCaps = ctx->priv().caps()->shaderCaps();
-                    bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
-                                GrContextOptions::ShaderCacheStrategy::kSkSL;
 
                     SkSL::String highlight;
                     if (!sksl) {
@@ -2298,9 +2307,11 @@ void Viewer::drawImGui() {
 
                     fPersistentCache.reset();
                     fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
-                    for (auto& entry : fCachedGLSL) {
+                    for (auto& entry : fCachedShaders) {
                         SkSL::String backup = entry.fShader[kFragment_GrShaderType];
-                        if (entry.fHovered) {
+                        if (entry.fHovered &&
+                            (entry.fShaderType == SkSetFourByteTag('S', 'K', 'S', 'L') ||
+                             entry.fShaderType == SkSetFourByteTag('G', 'L', 'S', 'L'))) {
                             entry.fShader[kFragment_GrShaderType] = highlight;
                         }
 
