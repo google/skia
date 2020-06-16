@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b9748f4_77adddbe",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-16T18:03:32Z",
+      "side": 1,
+      "message": "We\u0027re not get into any trouble doing this here and not in disown, right?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 5
+      },
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2dd2f3_49ef404f",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-16T18:03:32Z",
+      "side": 1,
+      "message": "line up ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 61,
+        "endLine": 71,
+        "endChar": 65
+      },
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd10984f_4fb97c1b",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-16T18:03:32Z",
+      "side": 1,
+      "message": "It seems like this should be souped up a bit",
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "513c2a39_14b9767d",
+        "filename": "src/gpu/GrWaitRenderTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-16T18:03:32Z",
+      "side": 1,
+      "message": "We should probably reuse the pattern from GrTextureResolveRenderTask:\n\n    auto fakeOp \u003d alloc-\u003ecurOp();",
+      "revId": "4774b3f33d71353663ee10d42066f26609da842c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
