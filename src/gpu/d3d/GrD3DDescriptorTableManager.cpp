@@ -56,7 +56,7 @@ void GrD3DDescriptorTableManager::recycle(Heap* heap) {
             fSamplerDescriptorPool.recycle(std::move(wrappedHeap));
             break;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 

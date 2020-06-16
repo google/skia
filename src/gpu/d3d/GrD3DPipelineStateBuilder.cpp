@@ -80,7 +80,7 @@ static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
             compileTarget = "ps_5_1";
             break;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     uint32_t compileFlags = 0;
@@ -289,7 +289,7 @@ static D3D12_BLEND blend_coeff_to_d3d_blend(GrBlendCoeff coeff) {
     case kIllegal_GrBlendCoeff:
         return D3D12_BLEND_ZERO;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static D3D12_BLEND blend_coeff_to_d3d_blend_for_alpha(GrBlendCoeff coeff) {
@@ -323,7 +323,7 @@ static D3D12_BLEND_OP blend_equation_to_d3d_op(GrBlendEquation equation) {
     case kReverseSubtract_GrBlendEquation:
         return D3D12_BLEND_OP_REV_SUBTRACT;
     default:
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -391,7 +391,7 @@ static D3D12_STENCIL_OP stencil_op_to_d3d_op(GrStencilOp op) {
     case GrStencilOp::kDecClamp:
         return D3D12_STENCIL_OP_DECR_SAT;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static D3D12_COMPARISON_FUNC stencil_test_to_d3d_func(GrStencilTest test) {
@@ -413,7 +413,7 @@ static D3D12_COMPARISON_FUNC stencil_test_to_d3d_func(GrStencilTest test) {
     case GrStencilTest::kNotEqual:
         return D3D12_COMPARISON_FUNC_NOT_EQUAL;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static void setup_stencilop_desc(D3D12_DEPTH_STENCILOP_DESC* desc,
@@ -467,7 +467,7 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
         case GrPrimitiveType::kPatches: // fall through, unsupported
         case GrPrimitiveType::kPath: // fall through, unsupported
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 

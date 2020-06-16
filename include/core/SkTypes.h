@@ -263,11 +263,11 @@
 #  undef SK_DIRECT3D
 #endif
 
-#if !defined(SkUNREACHABLE)
+#if !defined(SkUNDEFINED_BEHAVIOR)
 #  if defined(_MSC_VER) && !defined(__clang__)
-#    define SkUNREACHABLE __assume(false)
+#    define SkUNDEFINED_BEHAVIOR __assume(false)
 #  else
-#    define SkUNREACHABLE __builtin_unreachable()
+#    define SkUNDEFINED_BEHAVIOR __builtin_unreachable()
 #  endif
 #endif
 
@@ -292,7 +292,7 @@
                  __FILE__, __LINE__, ##__VA_ARGS__); \
         SK_DUMP_GOOGLE3_STACK(); \
         sk_abort_no_print(); \
-        SkUNREACHABLE; \
+        SkUNDEFINED_BEHAVIOR; \
     } while (false)
 #endif
 

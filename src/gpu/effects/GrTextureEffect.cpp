@@ -274,12 +274,12 @@ GrTextureEffect::FilterLogic GrTextureEffect::GetFilterLogic(ShaderMode mode,
                 case GrSamplerState::Filter::kMipMap:
                     return FilterLogic::kRepeatMipMap;
             }
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
         case ShaderMode::kClampToBorder:
             return filter > GrSamplerState::Filter::kNearest ? FilterLogic::kClampToBorderFilter
                                                              : FilterLogic::kClampToBorderNearest;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {

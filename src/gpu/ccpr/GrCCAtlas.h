@@ -46,7 +46,7 @@ public:
             case CoverageType::kA8_LiteralCoverage:
                 return GrColorType::kAlpha_8;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     static constexpr InternalMultisample CoverageTypeHasInternalMultisample(
@@ -58,7 +58,7 @@ public:
             case CoverageType::kA8_Multisample:
                 return InternalMultisample::kYes;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     static constexpr GrCCPathProcessor::CoverageMode CoverageTypeToPathCoverageMode(

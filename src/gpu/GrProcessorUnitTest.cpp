@@ -49,7 +49,7 @@ GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
             return {v, ct, at};
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 class GrFragmentProcessor;

@@ -74,7 +74,7 @@ size_t GrTextBlob::SubRun::vertexStride() const {
             SkASSERT(!this->hasW());
             return sizeof(Mask2DVertex);
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 size_t GrTextBlob::SubRun::quadOffset(size_t index) const {

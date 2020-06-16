@@ -237,7 +237,7 @@ bool SkDecompress(sk_sp<SkData> data,
         case Type::kBC1_RGBA8_UNORM: return decompress_bc1(dimensions, bytes, false, dst);
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
     return false;
 }
 

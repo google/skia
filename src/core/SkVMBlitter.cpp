@@ -308,7 +308,7 @@ namespace {
         // Load up the destination color.
         SkDEBUGCODE(dst_loaded = true;)
         switch (params.dst.colorType()) {
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
             case kRGB_565_SkColorType: dst = unpack_565(p->load16(dst_ptr));
                                        break;
 
@@ -374,7 +374,7 @@ namespace {
 
         // Store back to the destination.
         switch (params.dst.colorType()) {
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
 
             case kRGB_565_SkColorType:
                 store16(dst_ptr, pack(pack(to_unorm(5,src.b),
@@ -687,7 +687,7 @@ namespace {
 
             const skvm::Program* program = nullptr;
             switch (mask.fFormat) {
-                default: SkUNREACHABLE;     // ARGB and SDF masks shouldn't make it here.
+                default: SkUNDEFINED_BEHAVIOR;     // ARGB and SDF masks shouldn't make it here.
 
                 case SkMask::k3D_Format:
                     if (fBlitMask3D.empty()) {

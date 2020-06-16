@@ -737,7 +737,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                           trunc(clamped_y) * p->uniform32(uniforms->push(pm.rowBytesAsPixels()));
         skvm::Color c;
         switch (pm.colorType()) {
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
 
             case kGray_8_SkColorType: c.r = c.g = c.b = from_unorm(8, gather8(img, index));
                                       c.a = p->splat(1.0f);

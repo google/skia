@@ -147,7 +147,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         }
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 #endif

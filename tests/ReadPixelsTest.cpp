@@ -601,7 +601,7 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kRGBA_F32_SkColorType:           return 23;  // just counting the mantissa
         case kR16G16B16A16_unorm_SkColorType: return 16;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr int alpha_channel_bits(SkColorType ct) {
@@ -628,7 +628,7 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kRGBA_F32_SkColorType:           return 23;  // just counting the mantissa
         case kR16G16B16A16_unorm_SkColorType: return 16;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 namespace {

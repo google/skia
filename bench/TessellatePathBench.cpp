@@ -233,7 +233,7 @@ DEF_TESS_BENCH(middle_out_triangulation,
             case SkPathVerb::kQuad:
             case SkPathVerb::kConic:
             case SkPathVerb::kCubic:
-                SkUNREACHABLE;
+                SkUNDEFINED_BEHAVIOR;
         }
         middleOut.closeAndMove(pts[0]);
     }

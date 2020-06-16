@@ -1152,7 +1152,7 @@ bool GrGLGpu::renderbufferStorageMSAA(const GrGLContext& ctx, int sampleCount, G
                     GR_GL_RENDERBUFFER, sampleCount, format, width, height));
             break;
         case GrGLCaps::kNone_MSFBOType:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
             break;
     }
     return error == GR_GL_NO_ERROR;

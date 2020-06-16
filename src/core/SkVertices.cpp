@@ -53,7 +53,7 @@ int SkVertices::Attribute::channelCount() const {
         case Type::kFloat4:      return 4;
         case Type::kByte4_unorm: return 4;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 size_t SkVertices::Attribute::bytesPerVertex() const {
@@ -64,7 +64,7 @@ size_t SkVertices::Attribute::bytesPerVertex() const {
         case Type::kFloat4:      return 4 * sizeof(float);
         case Type::kByte4_unorm: return 4 * sizeof(uint8_t);
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 bool SkVertices::Attribute::isValid() const {
@@ -82,7 +82,7 @@ bool SkVertices::Attribute::isValid() const {
         case Usage::kPosition:
             return fType == Type::kFloat2 || fType == Type::kFloat3;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static size_t custom_data_size(const SkVertices::Attribute* attrs, int attrCount) {

@@ -1523,9 +1523,9 @@ namespace skvm {
             case Mod::Indirect:    return 0;
             case Mod::OneByteImm:  return 1;
             case Mod::FourByteImm: return 4;
-            case Mod::Direct: SkUNREACHABLE;
+            case Mod::Direct: SkUNDEFINED_BEHAVIOR;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     // SIB byte encodes a memory address, base + (index * scale).
@@ -1569,7 +1569,7 @@ namespace skvm {
                 case 0x3a0f: return 0b00011;
                 // Several more cases only used by XOP / TBM.
             }
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
         }();
 
         // Pack  mandatory SSE opcode prefix byte to 2-bit VEX encoding.
@@ -2159,7 +2159,7 @@ namespace skvm {
                 case 4: return ((void(*)(int,void*,void*,void*,void*))b)(n,a[0],a[1],a[2],a[3]);
                 case 5: return ((void(*)(int,void*,void*,void*,void*,void*))b)
                                 (n,a[0],a[1],a[2],a[3],a[4]);
-                default: SkUNREACHABLE;  // TODO
+                default: SkUNDEFINED_BEHAVIOR;  // TODO
             }
         }
 

@@ -599,7 +599,7 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
             case SkColorChannel::kG: return 'g';
             case SkColorChannel::kB: return 'b';
             case SkColorChannel::kA: return 'a';
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
         }
     };
     fragBuilder->codeAppendf("float2 %s = %s + %s*(%s.%c%c - half2(0.5));",

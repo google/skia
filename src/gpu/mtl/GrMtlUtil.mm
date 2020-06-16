@@ -300,7 +300,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
         default:                      return SkImage::CompressionType::kNone;
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 #if GR_TEST_UTILS

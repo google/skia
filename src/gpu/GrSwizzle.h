@@ -104,7 +104,7 @@ constexpr float GrSwizzle::ComponentIndexToFloat(const SkRGBA4f<AlphaType>& colo
     if (idx == CToI('0')) {
         return 1.0f;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 constexpr int GrSwizzle::CToI(char c) {
@@ -116,7 +116,7 @@ constexpr int GrSwizzle::CToI(char c) {
         case 'a': return 3;
         case '0': return 4;
         case '1': return 5;
-        default:  SkUNREACHABLE;
+        default:  SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -128,7 +128,7 @@ constexpr char GrSwizzle::IToC(int idx) {
         case CToI('a'): return 'a';
         case CToI('0'): return '0';
         case CToI('1'): return '1';
-        default:        SkUNREACHABLE;
+        default:        SkUNDEFINED_BEHAVIOR;
     }
 }
 

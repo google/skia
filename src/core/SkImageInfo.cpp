@@ -34,7 +34,7 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kR16G16_float_SkColorType:       return 4;
         case kR16G16B16A16_unorm_SkColorType: return 8;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {

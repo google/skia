@@ -33,7 +33,7 @@ GrShape& GrShape::operator=(const GrShape& shape) {
             this->setLine(shape.fLine);
             break;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     fStart = shape.fStart;
@@ -271,7 +271,7 @@ bool GrShape::simplify(unsigned flags) {
             break;
 
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     if (((flags & kIgnoreWinding_Flag) || (fType != Type::kRect && fType != Type::kRRect))) {
@@ -303,7 +303,7 @@ bool GrShape::contains(const SkRect& rect) const {
                 return false;
             }
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -322,7 +322,7 @@ bool GrShape::closed() const {
         case Type::kLine:
             return false;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -342,7 +342,7 @@ bool GrShape::convex(bool simpleFill) const {
         case Type::kLine:
             return false;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -369,7 +369,7 @@ SkRect GrShape::bounds() const {
             b.sort();
             return b; }
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -400,7 +400,7 @@ uint32_t GrShape::segmentMask() const {
         case Type::kRect:
             return SkPath::kLine_SegmentMask;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }
 
@@ -448,6 +448,6 @@ void GrShape::asPath(SkPath* out, bool simpleFill) const {
             out->lineTo(fLine.fP2);
             return;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 }

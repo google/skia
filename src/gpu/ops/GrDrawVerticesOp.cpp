@@ -44,7 +44,7 @@ static GrVertexAttribType SkVerticesAttributeToGrVertexAttribType(const SkVertic
         case SkVertices::Attribute::Type::kFloat4:      return kFloat4_GrVertexAttribType;
         case SkVertices::Attribute::Type::kByte4_unorm: return kUByte4_norm_GrVertexAttribType;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
@@ -55,7 +55,7 @@ static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
         case SkVertices::Attribute::Type::kFloat4:      return kFloat4_GrSLType;
         case SkVertices::Attribute::Type::kByte4_unorm: return kHalf4_GrSLType;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static bool AttributeUsesViewMatrix(const SkVertices::Attribute& attr) {

@@ -158,7 +158,7 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
         case GrPrimitiveType::kPath:
             SK_ABORT("Unsupported primitive type");
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,
@@ -365,7 +365,7 @@ static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
         case kIllegal_GrBlendCoeff:
             return VK_BLEND_FACTOR_ZERO;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {

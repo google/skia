@@ -395,7 +395,7 @@ int QuadLimit(IndexBufferOption option) {
         case IndexBufferOption::kTriStrips:     return SK_MaxS32; // not limited by an indexBuffer
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec& spec,

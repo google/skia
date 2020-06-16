@@ -195,7 +195,7 @@ private:
                 case Storage::kGlobal:  return global;
                 case Storage::kUniform: return uniform;
             }
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
         }
 
         ByteCodeInstruction selectStore(ByteCodeInstruction local,

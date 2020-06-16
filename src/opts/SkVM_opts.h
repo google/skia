@@ -88,7 +88,7 @@ namespace SK_OPTS_NS {
                 // Ops that interact with memory need to know whether we're stride=1 or K,
                 // but all non-memory ops can run the same code no matter the stride.
                 switch (2*(int)inst.op + (stride == K ? 1 : 0)) {
-                    default: SkUNREACHABLE;
+                    default: SkUNDEFINED_BEHAVIOR;
 
                 #define STRIDE_1(op) case 2*(int)op
                 #define STRIDE_K(op) case 2*(int)op + 1

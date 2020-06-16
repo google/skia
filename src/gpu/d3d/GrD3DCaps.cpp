@@ -960,7 +960,7 @@ GrBackendFormat GrD3DCaps::getBackendFormatFromCompressionType(
             return {};
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 GrSwizzle GrD3DCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {

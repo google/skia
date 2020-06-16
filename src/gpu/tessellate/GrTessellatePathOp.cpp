@@ -207,7 +207,7 @@ void GrTessellatePathOp::prepareMiddleOutTrianglesAndCubics(
                 middleOut.close();
                 break;
             case SkPathVerb::kConic:
-                SkUNREACHABLE;
+                SkUNDEFINED_BEHAVIOR;
         }
     }
     int triangleCount = middleOut.close();
@@ -467,7 +467,7 @@ void GrTessellatePathOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* tar
                     lastPoint = pts[3];
                     break;
                 case SkPathVerb::kConic:
-                    SkUNREACHABLE;
+                    SkUNDEFINED_BEHAVIOR;
             }
             vertexData[fCubicVertexCount + 4] = midpoint;
             fCubicVertexCount += 5;

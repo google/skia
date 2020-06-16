@@ -64,7 +64,7 @@ static constexpr uint32_t GrGLFormatChannels(GrGLFormat format) {
         case GrGLFormat::kRG16F:                 return kRG_SkColorChannelFlags;
         case GrGLFormat::kLUMINANCE16F:          return kGray_SkColorChannelFlag;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /**
@@ -374,7 +374,7 @@ static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
         case GrGLFormat::kRG16F:                return GR_GL_RG16F;
         case GrGLFormat::kUnknown:              return 0;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 #if GR_TEST_UTILS

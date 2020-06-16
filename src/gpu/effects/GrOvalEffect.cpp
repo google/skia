@@ -30,5 +30,5 @@ std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(
                                      SkPoint::Make(oval.fLeft + w, oval.fTop + h),
                                      SkPoint::Make(w, h), caps);
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }

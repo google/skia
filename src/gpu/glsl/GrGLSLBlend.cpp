@@ -43,7 +43,7 @@ const char* BlendFuncName(SkBlendMode mode) {
         case SkBlendMode::kColor:      return "blend_color";
         case SkBlendMode::kLuminosity: return "blend_luminosity";
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 void AppendMode(GrGLSLFragmentBuilder* fsBuilder,

@@ -29,7 +29,7 @@ static GrVkBuffer::Type vk_mesh_buffer_type_from_gr_bufer_type(GrGpuBufferType b
         case GrGpuBufferType::kXferGpuToCpu:
             SK_ABORT("Invalid mesh buffer type.");
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 sk_sp<GrVkMeshBuffer> GrVkMeshBuffer::Make(GrVkGpu* gpu, GrGpuBufferType bufferType, size_t size,

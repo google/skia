@@ -75,7 +75,7 @@ static constexpr GrSamplerState::WrapMode SkTileModeToWrapMode(SkTileMode tileMo
         case SkTileMode::kMirror: return GrSamplerState::WrapMode::kMirrorRepeat;
         case SkTileMode::kRepeat: return GrSamplerState::WrapMode::kRepeat;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

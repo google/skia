@@ -126,7 +126,7 @@ private:
             case skjson::Value::Type::kArray:  return this->openArrayBlock();
             default: break;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     BlockType openObjectBlock() {

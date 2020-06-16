@@ -110,7 +110,7 @@ namespace GrQuadPerEdgeAA {
                 case IndexBufferOption::kTriStrips:     return GrPrimitiveType::kTriangleStrip;
             }
 
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
         }
 
     private:

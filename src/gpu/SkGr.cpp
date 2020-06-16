@@ -244,7 +244,7 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
         case GrColorType::kRGBA_F32:
             return 0.f; // no dithering
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 #endif
 
@@ -531,5 +531,5 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int image
             return textureFilterMode;
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }

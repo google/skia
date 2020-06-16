@@ -2729,7 +2729,7 @@ SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
         case SkTileMode::kMirror:
             return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 SI void sample(const SkRasterPipeline_SamplerCtx2* ctx, F x, F y,
@@ -4117,7 +4117,7 @@ SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
         case SkTileMode::kMirror:
             return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 SI void sample(const SkRasterPipeline_SamplerCtx2* ctx, F x, F y,

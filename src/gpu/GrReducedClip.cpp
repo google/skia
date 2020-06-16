@@ -548,7 +548,7 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
                                        Invert(element->isInverseFilled()), GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kShader:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -619,7 +619,7 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
                                        Invert(!element->isInverseFilled()), GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kShader:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");

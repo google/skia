@@ -755,7 +755,7 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
         default:                            return GrColorType::kUnknown;
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& individualMipOffsets,

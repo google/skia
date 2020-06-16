@@ -680,6 +680,6 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
         case GrGLFormat::kUnknown:
             return false;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 

@@ -47,7 +47,7 @@ public:
             case Type::kAffine:
                 return fScaleXSkewY * vector[0] + fSkewXScaleY * vector[1];
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
     Sk4f operator()(const Sk4f& vectors) const {
         switch (fType) {
@@ -58,7 +58,7 @@ public:
             case Type::kAffine:
                 return fScaleXYXY * vectors + fSkewXYXY * SkNx_shuffle<1,0,3,2>(vectors);
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 private:
     enum class Type { kIdentity, kScale, kAffine } fType;

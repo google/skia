@@ -148,6 +148,6 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
         default:
             return false;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 

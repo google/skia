@@ -239,7 +239,7 @@ public:
                 i -= blockCount;
             }
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
     const T& item(int i) const {
         return const_cast<GrTAllocator<T>*>(this)->item(i);

@@ -421,7 +421,7 @@ SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
             // Anchor box is the same as the text box.
             return fText->fBox;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     };
 
     const auto ab = anchor_box();

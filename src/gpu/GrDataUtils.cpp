@@ -165,7 +165,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
             return numBlocksWidth * sizeof(ETC1Block);
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimensions) {
@@ -182,7 +182,7 @@ SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimens
             return { 4 * numBlocksWidth, 4 * numBlocksHeight };
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'

@@ -450,7 +450,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoopContinue:     return 0;
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) {

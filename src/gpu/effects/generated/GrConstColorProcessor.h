@@ -43,7 +43,7 @@ public:
                 return color * input;
             }
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                      SkPMColor4f color,

@@ -312,7 +312,7 @@ static const YUVAPlanarConfig& YUVAFormatPlanarConfig(YUVFormat format) {
             return kConfig;
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static bool is_colorType_texturable(const GrCaps* caps, GrColorType ct) {
@@ -344,7 +344,7 @@ static bool is_format_natively_supported(GrContext* context, YUVFormat yuvFormat
         case kYV12_YUVFormat: return is_colorType_texturable(caps, GrColorType::kGray_8);
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 // All the planes we need to construct the various YUV formats
@@ -1046,7 +1046,7 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
             default:                        return kUnknown_SkColorType;
         }
 
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     VkFormat vkFormat;
@@ -1067,7 +1067,7 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
             default:                                 return kUnknown_SkColorType;
         }
 
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     return kUnknown_SkColorType;

@@ -62,7 +62,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
             case kStream_GrAccessPattern:
                 return GR_GL_STREAM_DRAW;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     };
 
     auto readUsage = [](GrAccessPattern pattern) {
@@ -74,7 +74,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
             case kStream_GrAccessPattern:
                 return GR_GL_STREAM_READ;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     };
 
     auto usageType = [&drawUsage, &readUsage, &caps](GrGpuBufferType type,
@@ -92,7 +92,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
             case GrGpuBufferType::kXferGpuToCpu:
                 return readUsage(pattern);
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     };
 
     return usageType(bufferType, accessPattern);

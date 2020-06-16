@@ -19,5 +19,5 @@ bool GrDxgiFormatIsCompressed(DXGI_FORMAT format) {
         default:
             return false;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }

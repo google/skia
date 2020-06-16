@@ -297,7 +297,7 @@ void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
             case EGL_FALSE:
                 return GR_GL_WAIT_FAILED;
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     };
 
     glInt->fFunctions.fWaitSync =

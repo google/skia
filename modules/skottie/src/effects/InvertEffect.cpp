@@ -83,7 +83,7 @@ private:
                       default: return { { 1, 1, 1, 1}, {  0,0,0,0}, false};
             }
 
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
         }();
 
         const float m[] = {

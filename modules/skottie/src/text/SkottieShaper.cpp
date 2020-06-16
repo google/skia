@@ -459,7 +459,7 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
     }
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 SkRect Shaper::Result::computeVisualBounds() const {

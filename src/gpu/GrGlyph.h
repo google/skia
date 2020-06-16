@@ -30,7 +30,7 @@ public:
                 return kARGB_GrMaskFormat;
         }
 
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     GrGlyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}

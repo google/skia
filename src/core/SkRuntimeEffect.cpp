@@ -275,7 +275,7 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
             case Type::kFloat2x2: return sizeof(float) * 4;
             case Type::kFloat3x3: return sizeof(float) * 9;
             case Type::kFloat4x4: return sizeof(float) * 16;
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
         }
     };
     return element_size(fType) * fCount;

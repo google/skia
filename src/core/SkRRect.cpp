@@ -758,7 +758,7 @@ SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
             case SkRRect::kUpperRight_Corner: return {r.fRight, r.fTop};
             case SkRRect::kLowerLeft_Corner:  return {r.fLeft, r.fBottom};
             case SkRRect::kLowerRight_Corner: return {r.fRight, r.fBottom};
-            default: SkUNREACHABLE;
+            default: SkUNDEFINED_BEHAVIOR;
         }
     };
     // Returns true if shape A's extreme point is contained within shape B's extreme point, relative
@@ -770,7 +770,7 @@ SkRRect SkRRectPriv::ConservativeIntersect(const SkRRect& a, const SkRRect& b) {
             case SkRRect::kUpperRight_Corner: return a.fX <= b.fX && a.fY >= b.fY;
             case SkRRect::kLowerRight_Corner: return a.fX <= b.fX && a.fY <= b.fY;
             case SkRRect::kLowerLeft_Corner:  return a.fX >= b.fX && a.fY <= b.fY;
-            default:  SkUNREACHABLE;
+            default:  SkUNDEFINED_BEHAVIOR;
         }
     };
 

@@ -231,7 +231,7 @@ inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
         case SkPathFillType::kInverseEvenOdd:
             return GrFillRule::kEvenOdd;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /** This enum indicates the type of antialiasing to be performed. */
@@ -256,7 +256,7 @@ static constexpr bool GrAATypeIsHW(GrAAType type) {
         case GrAAType::kMSAA:
             return true;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /**
@@ -437,7 +437,7 @@ static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
         case kSampler_GrSLType:
             return false;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /** If the type represents a single value or vector return the vector length, else -1. */
@@ -496,7 +496,7 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kSampler_GrSLType:
             return -1;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type) {
@@ -577,7 +577,7 @@ static constexpr bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kSampler_GrSLType:
             return false;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -868,7 +868,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kR_F16:            return kUnknown_SkColorType;
         case GrColorType::kGray_F16:         return kUnknown_SkColorType;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
@@ -895,7 +895,7 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kR16G16_float_SkColorType:       return GrColorType::kRG_F16;
         case kR16G16B16A16_unorm_SkColorType: return GrColorType::kRGBA_16161616;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 // This is a temporary means of mapping an SkColorType and format to a
@@ -935,7 +935,7 @@ static constexpr uint32_t GrColorTypeChannelFlags(GrColorType ct) {
         case GrColorType::kR_F16:            return kRed_SkColorChannelFlag;
         case GrColorType::kGray_F16:         return kGray_SkColorChannelFlag;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /**
@@ -1002,7 +1002,7 @@ public:
             case 2: return this->b();
             case 3: return this->a();
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     constexpr int gray() const { return fGrayBits; }
@@ -1086,7 +1086,7 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
         case GrColorType::kGray_F16:
             return GrColorTypeDesc::MakeGray(16, GrColorTypeEncoding::kFloat);
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr GrClampType GrColorTypeClampType(GrColorType colorType) {
@@ -1148,7 +1148,7 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kR_F16:            return 2;
         case GrColorType::kGray_F16:         return 2;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 // In general we try to not mix CompressionType and ColorType, but currently SkImage still requires
@@ -1161,7 +1161,7 @@ static constexpr SkColorType GrCompressionTypeToSkColorType(SkImage::Compression
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: return kRGBA_8888_SkColorType;
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr GrColorType GrMaskFormatToColorType(GrMaskFormat format) {
@@ -1173,7 +1173,7 @@ static constexpr GrColorType GrMaskFormatToColorType(GrMaskFormat format) {
         case kARGB_GrMaskFormat:
             return GrColorType::kRGBA_8888;
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 /**
@@ -1206,7 +1206,7 @@ static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
         case GrBackendApi::kDawn:     return "Dawn";
         case GrBackendApi::kMock:     return "Mock";
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr const char* GrColorTypeToStr(GrColorType ct) {
@@ -1240,7 +1240,7 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kR_F16:            return "kR_F16";
         case GrColorType::kGray_F16:         return "kGray_F16";
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
@@ -1250,7 +1250,7 @@ static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType com
         case SkImage::CompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: return "kBC1_RGBA8_UNORM";
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 #endif
 

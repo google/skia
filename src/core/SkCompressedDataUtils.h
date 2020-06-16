@@ -24,7 +24,7 @@ static constexpr bool SkCompressionTypeIsOpaque(SkImage::CompressionType compres
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: return false;
     }
 
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 size_t SkCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,

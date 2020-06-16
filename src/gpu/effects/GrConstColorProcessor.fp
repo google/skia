@@ -66,7 +66,7 @@ void main() {
                 return color * input;
             }
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 }
 

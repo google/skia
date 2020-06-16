@@ -170,7 +170,7 @@ static bool isBGRA8(const GrBackendFormat& format) {
             return format.asMockColorType() == GrColorType::kBGRA_8888;
         }
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static bool isRGB(const GrBackendFormat& format) {
@@ -199,7 +199,7 @@ static bool isRGB(const GrBackendFormat& format) {
         case GrBackendApi::kMock:
             return false;  // No GrColorType::kRGB_888
     }
-    SkUNREACHABLE;
+    SkUNDEFINED_BEHAVIOR;
 }
 
 static void check_solid_pixmap(skiatest::Reporter* reporter,
@@ -557,7 +557,7 @@ void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
             expected = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             break;
         default:
-            SkUNREACHABLE;
+            SkUNDEFINED_BEHAVIOR;
     }
 
     GrVkImageInfo vkII;

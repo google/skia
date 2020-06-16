@@ -95,7 +95,7 @@ private:
                 return bmp;
             }
         }
-        SkUNREACHABLE;
+        SkUNDEFINED_BEHAVIOR;
     }
 
     static const GrGLContext* GetGLContextIfSupported(GrContext* context) {

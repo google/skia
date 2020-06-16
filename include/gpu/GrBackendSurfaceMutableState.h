@@ -43,7 +43,7 @@ public:
 
             default:
                 (void)that;
-                SkUNREACHABLE;
+                SkUNDEFINED_BEHAVIOR;
         }
         fBackend = that.fBackend;
         return *this;
