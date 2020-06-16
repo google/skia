@@ -8,6 +8,8 @@
 #ifndef GrConvexPolyEffect_DEFINED
 #define GrConvexPolyEffect_DEFINED
 
+#include <tuple>
+
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFragmentProcessor.h"

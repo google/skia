@@ -11,11 +11,11 @@
 #include "src/gpu/effects/generated/GrCircleEffect.h"
 #include "src/gpu/effects/generated/GrEllipseEffect.h"
 
-std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(
-            std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType,
-            const SkRect& oval, const GrShaderCaps& caps) {
+GrFragmentProcessor::MakeResult GrOvalEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                   GrClipEdgeType edgeType, const SkRect& oval,
+                                                   const GrShaderCaps& caps) {
     if (GrClipEdgeType::kHairlineAA == edgeType) {
-        return nullptr;
+        return GrFragmentProcessor::MakeFailure(std::move(inputFP));
     }
     SkScalar w = oval.width();
     SkScalar h = oval.height();
