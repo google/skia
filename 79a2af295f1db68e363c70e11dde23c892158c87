@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a26406c9_2b7d152e",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-16T13:38:32Z",
+      "side": 1,
+      "message": "If I\u0027ve got this right, 0x8c0 is 2240 bytes, 140 16-byte records.  So I think we\u0027re undercounting the size change here... we\u0027re not counting the size of the string names themselves which I guess don\u0027t have symbol names and won\u0027t show up in nm, but should show up if you run `size`:\n\n$ size out/obj/src/utils/libskia.SkParseColor.o\n   text\t   data\t    bss\t    dec\t    hex\tfilename\n   3113\t      0\t      0\t   3113\t    c29\tout/obj/src/utils/libskia.SkParseColor.o\n\n~~~\u003e\n\n   text\t   data\t    bss\t    dec\t    hex\tfilename\n   2970\t   2240\t      0\t   5210\t   145a\tout/obj/src/utils/libskia.SkParseColor.o\n\nSo I think we\u0027re +2K here.  If that\u0027s okay with you, I think we\u0027re good to go.\n\nThere\u0027s some low hanging fruit here, like storing alpha\u003d0xff redundantly, or the 4-byte dead space after fColor.  That\u0027d get you 700 bytes back I think:\n\n    #pragma pack(push,1)\n    struct ColorRec {\n        const char* name;\n        uint8_t bgr[3];\n    };\n    #pragma pack(pop)\n\nIf the size _really_ matters, and this list doesn\u0027t change often (ever), I don\u0027t think the spirit of the old encoding was really a bad idea, but I guess it wasn\u0027t resilient to the fuzzer?  Makes me want to try things like a perfect hash table or some sort of dense trie, where we spend a bunch of effort offline to make it small and fast.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "79a2af295f1db68e363c70e11dde23c892158c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe320771_2fe3193a",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-16T13:38:32Z",
+      "side": 1,
+      "message": "Might be clearer with a `0 !\u003d` or `!\u003d 0`?",
+      "range": {
+        "startLine": 180,
+        "startChar": 41,
+        "endLine": 180,
+        "endChar": 47
+      },
+      "revId": "79a2af295f1db68e363c70e11dde23c892158c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
