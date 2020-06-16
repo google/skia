@@ -112,6 +112,9 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
     }
 
     auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
+        if (inputs[shaderType].fRTHeight) {
+            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+        }
         shaders[shaderType] = GrCompileHLSLShader(fGpu, hlsl[shaderType], kind);
         return shaders[shaderType].get();
     };
@@ -141,6 +144,10 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         errorHandler->compileError(sksl.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
         return gr_cp<ID3DBlob>();
+    }
+
+    if (program->fInputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
 
     return GrCompileHLSLShader(fGpu, *outHLSL, kind);
