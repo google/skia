@@ -16,6 +16,24 @@
       "revId": "27eb3a485202e8738e0e7a56caa2cd8a9e7a7961",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd5fc917_07e92400",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-16T19:07:59Z",
+      "side": 1,
+      "message": "It isn\u0027t used anywhere \"yet\".  It is the reason I needed to update zlib as ANGLE has a dependency on it.  I can wait and add that code when I update the ANGLE BUILD.gn file if that makes it cleaner.",
+      "parentUuid": "0d134adb_b6f605fb",
+      "revId": "27eb3a485202e8738e0e7a56caa2cd8a9e7a7961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
