@@ -16,6 +16,47 @@
       "revId": "fda8cd76773dd9206d1b3b893783ce06eaed2705",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5af47021_19bfa633",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T18:15:39Z",
+      "side": 1,
+      "message": "Done. Went with BiasAndGain. Renamed related function and var.",
+      "parentUuid": "aaad52aa_c5cbdc75",
+      "revId": "fda8cd76773dd9206d1b3b893783ce06eaed2705",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10f533e7_2abe08a1",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T18:15:39Z",
+      "side": 1,
+      "message": "Realized we don\u0027t need this anymore since we don\u0027t need to run ~ScalableSampler anymore.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 9
+      },
+      "revId": "fda8cd76773dd9206d1b3b893783ce06eaed2705",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
