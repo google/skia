@@ -87,6 +87,10 @@ void GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::Program::Kind kind,
         return;
     }
 
+    if (program->fInputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    }
+
     const char* compileTarget = nullptr;
     switch (kind) {
         case SkSL::Program::kVertex_Kind:
