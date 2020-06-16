@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5e42ab8_e2baecef",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-16T15:42:34Z",
+      "side": 1,
+      "message": "There is one entry for each UTF-8 code unit of fText and the value is the offset into a UTF-16 encoding of fText for the UTF-16 code unit which starts the encoding of the equivalent codepoint.\n\nSo this is fUTF16IndexForTextIndex (or more directly fUTF16IndexForUTF8Index). There are no codepoints involved, so we should avoid use of \u0027Codepoint\u0027 here.",
+      "range": {
+        "startLine": 1116,
+        "startChar": 12,
+        "endLine": 1116,
+        "endChar": 33
+      },
+      "revId": "1b690a7b4a7773f82aa186420a17682a1a75f64b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b317da2c_8941463c",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1123,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-16T15:42:34Z",
+      "side": 1,
+      "message": "There is one entry per UTF-16 code unit and the value of each entry is the offset into the fText UTF-8 encoding of the UTF-8 code unit which starts the encoding of the equivalent codepoint.\n\nSo this is fTextIndexForUTF16Index (or more directly fUTF8IndexForUTF16Index). There are no codepoints involved, so we should avoid use of \u0027Codepoint\u0027 here.",
+      "range": {
+        "startLine": 1123,
+        "startChar": 8,
+        "endLine": 1123,
+        "endChar": 29
+      },
+      "revId": "1b690a7b4a7773f82aa186420a17682a1a75f64b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cec7bea2_fe405555",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-16T15:42:34Z",
+      "side": 1,
+      "message": "This doesn\u0027t actually get anything (it returns void), so \u0027get\u0027 seems a bit strange. I suppose it\u0027s now something like \u0027ensureUTF16Mapping\u0027 or something like that (since it\u0027s kind-of a cache).",
+      "range": {
+        "startLine": 142,
+        "startChar": 9,
+        "endLine": 142,
+        "endChar": 22
+      },
+      "revId": "1b690a7b4a7773f82aa186420a17682a1a75f64b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1107f5eb_0b9f2fa9",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-16T15:42:34Z",
+      "side": 1,
+      "message": "So this is actually getUTF16Index.\n\nAnd in debug at least should assert that \u0027getCodepoints\u0027 (or whatever it should be named) has been called first? It\u0027s a somewhat awkward bit of state to keep track of.",
+      "range": {
+        "startLine": 144,
+        "startChar": 14,
+        "endLine": 144,
+        "endChar": 23
+      },
+      "revId": "1b690a7b4a7773f82aa186420a17682a1a75f64b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
