@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b49ac6dd_4304f13e",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-16T16:56:29Z",
+      "side": 0,
+      "message": "FYI this is the root cause for OOB access: when the target string is \"greater\" than the last known color (e.g. \"zzzzz\"), |lo| ends up \u003d\u003d |hi| \u003d\u003d last gColorNames rec, then at this point we run past the array end.\n\nThe fix is to bail at that point -- see added hi \u003d\u003d lo check.",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 21
+      },
+      "revId": "2659f79a28badac9c20442b86ceb025e62698927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

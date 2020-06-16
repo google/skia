@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "9443a0b7_1d746a3a",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-16T16:56:29Z",
+      "side": 1,
+      "message": "OK, I ended up changing more than I intended, because the added asserts exposed some other issues (e.g. hi/lo drifting off record start offsets in some cases).  Hopefully more readable.\n\nPTAL",
+      "parentUuid": "acd5e72e_5c15c49b",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "79a2af295f1db68e363c70e11dde23c892158c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe320771_2fe3193a",
         "filename": "src/utils/SkParseColor.cpp",
         "patchSetId": 5
