@@ -263,8 +263,14 @@ bool AnimationBuilder::resolveNativeTypefaces() {
         //   2) system font (family/style)
         //   3) system default
 
-        finfo->fTypeface =
-            fmgr->makeFromData(fResourceProvider->loadFont(name.c_str(), finfo->fPath.c_str()));
+        finfo->fTypeface = fResourceProvider->loadTypeface(name.c_str(), finfo->fPath.c_str());
+
+        // legacy API fallback
+        // TODO: remove after client migration
+        if (!finfo->fTypeface) {
+            finfo->fTypeface = fmgr->makeFromData(
+                    fResourceProvider->loadFont(name.c_str(), finfo->fPath.c_str()));
+        }
 
         if (!finfo->fTypeface) {
             finfo->fTypeface.reset(fmgr->matchFamilyStyle(finfo->fFamily.c_str(),

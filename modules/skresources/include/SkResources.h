@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
@@ -96,6 +97,8 @@ public:
     }
 
     /**
+     * DEPRECATED: implement loadTypeface() instead.
+     *
      * Load an external font and return as SkData.
      *
      * @param name  font name    ("fName" Lottie property)
@@ -110,6 +113,17 @@ public:
      */
     virtual sk_sp<SkData> loadFont(const char[] /* name */,
                                    const char[] /* url  */) const {
+        return nullptr;
+    }
+
+    /**
+     * Load an external font and return as SkTypeface.
+     *
+     * @param name  font name
+     * @param url   web font URL
+     */
+    virtual sk_sp<SkTypeface> loadTypeface(const char[] /* name */,
+                                           const char[] /* url  */) const {
         return nullptr;
     }
 };
@@ -137,7 +151,7 @@ protected:
 
     sk_sp<SkData> load(const char[], const char[]) const override;
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
-    sk_sp<SkData> loadFont(const char[], const char[]) const override;
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
 
 private:
     const sk_sp<ResourceProvider> fProxy;
