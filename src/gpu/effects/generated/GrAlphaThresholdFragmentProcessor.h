@@ -42,9 +42,8 @@ private:
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID,
                         (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
                                                     : kAll_OptimizationFlags) &
-                                (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-                                 ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag
-                                                          : kNone_OptimizationFlags)))
+                                ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag
+                                                         : kNone_OptimizationFlags))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         if (inputFP) {
