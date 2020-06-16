@@ -22,6 +22,30 @@
       "revId": "a494cc372452ca3537ce61c184757282896a238b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3705b7ff_bab299f7",
+        "filename": "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-16T11:52:41Z",
+      "side": 1,
+      "message": "I have fixed the issue, please take another look.",
+      "parentUuid": "57dd9523_450c1ae6",
+      "range": {
+        "startLine": 51,
+        "startChar": 15,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "a494cc372452ca3537ce61c184757282896a238b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
