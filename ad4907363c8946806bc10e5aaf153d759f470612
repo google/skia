@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7f383c7_c4b717c1",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T15:29:37Z",
+      "side": 1,
+      "message": "I don\u0027t see what value this \"fp\" comment is adding. It seems like it\u0027s just restating the type but abbreviated.",
+      "range": {
+        "startLine": 44,
+        "startChar": 89,
+        "endLine": 44,
+        "endChar": 95
+      },
+      "revId": "ad4907363c8946806bc10e5aaf153d759f470612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7f3cc16_01932fc9",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T15:29:37Z",
+      "side": 1,
+      "message": "We don\u0027t do this sort of labeling on other functions that return tuples. Personally, I\u0027m not a fan but I\u0027m fine with it if others like it. However, I think it\u0027s the sort of thing that warrants a discussion before we start doing it selectively.",
+      "range": {
+        "startLine": 49,
+        "startChar": 20,
+        "endLine": 49,
+        "endChar": 32
+      },
+      "revId": "ad4907363c8946806bc10e5aaf153d759f470612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
