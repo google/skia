@@ -94,15 +94,14 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(
-        std::unique_ptr<GrFragmentProcessor>* inputFP,
+GrFragmentProcessor::MakeResult GrConvexPolyEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
         GrClipEdgeType type, const SkPath& path) {
     if (GrClipEdgeType::kHairlineAA == type) {
-        return nullptr;
+        return MakeFailure(std::move(inputFP));
     }
-    if (path.getSegmentMasks() != SkPath::kLine_SegmentMask ||
-        !path.isConvex()) {
-        return nullptr;
+    if (path.getSegmentMasks() != SkPath::kLine_SegmentMask || !path.isConvex()) {
+        return MakeFailure(std::move(inputFP));
     }
 
     SkPathPriv::FirstDirection dir;
@@ -111,17 +110,17 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(
     // skip the draw or omit the clip element.
     if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
         if (GrProcessorEdgeTypeIsInverseFill(type)) {
-            return GrConstColorProcessor::Make(inputFP ? std::move(*inputFP) : nullptr,
-                                               SK_PMColor4fWHITE,
-                                               GrConstColorProcessor::InputMode::kModulateRGBA);
+            return MakeSuccess(
+                    GrConstColorProcessor::Make(std::move(inputFP), SK_PMColor4fWHITE,
+                                                GrConstColorProcessor::InputMode::kModulateRGBA));
         }
         // This could use kIgnore instead of kModulateRGBA but it would trigger a debug print
         // about a coverage processor not being compatible with the alpha-as-coverage optimization.
         // We don't really care about this unlikely case so we just use kModulateRGBA to suppress
         // the print.
-        return GrConstColorProcessor::Make(inputFP ? std::move(*inputFP) : nullptr,
-                                           SK_PMColor4fTRANSPARENT,
-                                           GrConstColorProcessor::InputMode::kModulateRGBA);
+        return MakeSuccess(
+                GrConstColorProcessor::Make(std::move(inputFP), SK_PMColor4fTRANSPARENT,
+                                            GrConstColorProcessor::InputMode::kModulateRGBA));
     }
 
     SkScalar        edges[3 * kMaxEdges];
@@ -143,7 +142,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(
                 break;
             case SkPath::kLine_Verb: {
                 if (n >= kMaxEdges) {
-                    return nullptr;
+                    return MakeFailure(std::move(inputFP));
                 }
                 if (pts[0] != pts[1]) {
                     SkVector v = pts[1] - pts[0];
@@ -161,23 +160,24 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(
                 break;
             }
             default:
-                return nullptr;
+                return MakeFailure(std::move(inputFP));
         }
     }
 
     if (path.isInverseFillType()) {
         type = GrInvertProcessorEdgeType(type);
     }
-    return Make(inputFP, type, n, edges);
+    return GrConvexPolyEffect::Make(std::move(inputFP), type, n, edges);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(
-        std::unique_ptr<GrFragmentProcessor>* inputFP,
+GrFragmentProcessor::MakeResult GrConvexPolyEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
         GrClipEdgeType edgeType, const SkRect& rect) {
-    if (GrClipEdgeType::kHairlineAA == edgeType){
-        return nullptr;
+    if (GrClipEdgeType::kHairlineAA == edgeType) {
+        return MakeFailure(std::move(inputFP));
     }
-    return GrAARectEffect::Make(inputFP ? std::move(*inputFP) : nullptr, edgeType, rect);
+
+    return MakeSuccess(GrAARectEffect::Make(std::move(inputFP), edgeType, rect));
 }
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
@@ -245,7 +245,11 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorT
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
                 d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        fp = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, count, edges);
+        auto [success, convexPolyFP] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType,
+                                                                count, edges);
+        if (success) {
+            fp = std::move(convexPolyFP);
+        }
     } while (nullptr == fp);
     return fp;
 }
