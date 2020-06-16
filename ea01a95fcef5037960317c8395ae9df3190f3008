@@ -22,6 +22,30 @@
       "revId": "ea01a95fcef5037960317c8395ae9df3190f3008",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1b89759_ed9c0dbd",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-16T18:31:33Z",
+      "side": 1,
+      "message": "This was discussed off-line, for now I\u0027ll keep the current order.\n\nMy reasoning is that the GrContext passed in here is somewhat exceptional. When non-null, it will always be the direct context and won\u0027t necessarily match the GrContext returned by the SkCanvas. Additionally, having the various Src\u0027s pass in a nullptr signifies that they are strictly non-gpu.",
+      "parentUuid": "2643b375_7125d096",
+      "range": {
+        "startLine": 89,
+        "startChar": 46,
+        "endLine": 89,
+        "endChar": 66
+      },
+      "revId": "ea01a95fcef5037960317c8395ae9df3190f3008",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
