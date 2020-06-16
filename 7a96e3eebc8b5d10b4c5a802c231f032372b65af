@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4008a0cc_4725fd77",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2284,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-16T20:25:34Z",
+      "side": 1,
+      "message": "needs to be guarded by ifdef",
+      "range": {
+        "startLine": 2284,
+        "startChar": 53,
+        "endLine": 2284,
+        "endChar": 67
+      },
+      "revId": "7a96e3eebc8b5d10b4c5a802c231f032372b65af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
