@@ -17,6 +17,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 }
 
 in fragmentProcessor? inputFP;
@@ -28,12 +29,10 @@ layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
 layout(when= highp) uniform float4 rectF;
 layout(when=!highp) uniform half4  rectH;
 
-// Texture that is a LUT for integral of normal distribution. The value at x (where x is a texture
-// coord between 0 and 1) is the integral from -inf to (3 * sigma * (-2 * x - 1)). I.e. x is mapped
-// 0 3*sigma to -3 sigma. The flip saves a reversal in the shader.
-in uniform sampler2D integral;
-// Used to produce normalized texture coords for lookups in 'integral'
-in uniform half invSixSigma;
+// Effect that is a LUT for integral of normal distribution. The value at x:[0,6*sigma] is the
+// integral from -inf to (3*sigma - x). I.e. x is mapped from [0, 6*sigma] to [3*sigma to -3*sigma].
+// The flip saves a reversal in the shader.
+in fragmentProcessor integral;
 
 // There is a fast variant of the effect that does 2 texture lookups and a more general one for
 // wider blurs relative to rect sizes that does 4.
@@ -53,7 +52,8 @@ layout(key) in bool isFast;
 }
 
 @class {
-static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, float sixSigma) {
+static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* context,
+                                                           float sixSigma) {
     // The texture we're producing represents the integral of a normal distribution over a six-sigma
     // range centered at zero. We want enough resolution so that the linear interpolation done in
     // texture lookup doesn't introduce noticeable artifacts. We conservatively choose to have 2
@@ -68,11 +68,15 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
     builder[0] = width;
     builder.finish();
 
+    SkMatrix m = SkMatrix::Scale(width/sixSigma, 1.f);
+
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                    GrColorType::kAlpha_8);
-        return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+        GrSurfaceProxyView view{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+        return GrTextureEffect::Make(
+                std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kBilerp);
     }
 
     SkBitmap bitmap;
@@ -97,7 +101,8 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
     }
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
-    return view;
+    return GrTextureEffect::Make(
+            std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kBilerp);
 }
 }
 
@@ -118,7 +123,7 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
          }
 
          const float sixSigma = 6 * sigma;
-         GrSurfaceProxyView integral = CreateIntegralTexture(context, sixSigma);
+         std::unique_ptr<GrFragmentProcessor> integral = MakeIntegralFP(context, sixSigma);
          if (!integral) {
              return nullptr;
          }
@@ -138,11 +143,8 @@ static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, flo
          // less than 6 sigma wide then things aren't so simple and we have to consider both the
          // left and right edge of the rectangle (and similar in y).
          bool isFast = insetRect.isSorted();
-         // 1 / (6 * sigma) is the domain of the integral texture. We use the inverse to produce
-         // normalized texture coords from frag coord distances.
-         float invSixSigma = 1.f / sixSigma;
          return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-                    std::move(inputFP), insetRect, std::move(integral), invSixSigma,
+                    std::move(inputFP), insetRect, std::move(integral),
                     isFast, GrSamplerState::Filter::kBilerp));
      }
 }
@@ -163,14 +165,13 @@ void main() {
             xy = max(half2(rectH.LT - sk_FragCoord.xy),
                      half2(sk_FragCoord.xy - rectH.RB));
         }
-        xy *= invSixSigma;
         xCoverage = sample(integral, half2(xy.x, 0.5)).a;
         yCoverage = sample(integral, half2(xy.y, 0.5)).a;
     } else {
         // We just consider just the x direction here. In practice we compute x and y separately
         // and multiply them together.
         // We define our coord system so that the point at which we're evaluating a kernel
-        // defined by the normal distribution (K) as  0. In this coord system let L be left
+        // defined by the normal distribution (K) at 0. In this coord system let L be left
         // edge and R be the right edge of the rectangle.
         // We can calculate C by integrating K with the half infinite ranges outside the L to R
         // range and subtracting from 1:
@@ -184,17 +185,16 @@ void main() {
         // also factored in.
         half4 rect;
         @if (highp) {
-            rect.LT = half2(sk_FragCoord.xy - rectF.LT);
-            rect.RB = half2(rectF.RB - sk_FragCoord.xy);
+            rect.LT = half2(rectF.LT - sk_FragCoord.xy);
+            rect.RB = half2(sk_FragCoord.xy - rectF.RB);
         } else {
-            rect.LT = half2(sk_FragCoord.xy - rectH.LT);
-            rect.RB = half2(rectH.RB - sk_FragCoord.xy);
+            rect.LT = half2(rectH.LT - sk_FragCoord.xy);
+            rect.RB = half2(sk_FragCoord.xy - rectH.RB);
         }
-        half4 irect = rect * invSixSigma + half4(1);
-        xCoverage = 1 - sample(integral, half2(irect.L, 0.5)).a
-                      - sample(integral, half2(irect.R, 0.5)).a;
-        yCoverage = 1 - sample(integral, half2(irect.T, 0.5)).a
-                      - sample(integral, half2(irect.B, 0.5)).a;
+        xCoverage = 1 - sample(integral, half2(rect.L, 0.5)).a
+                      - sample(integral, half2(rect.R, 0.5)).a;
+        yCoverage = 1 - sample(integral, half2(rect.T, 0.5)).a
+                      - sample(integral, half2(rect.B, 0.5)).a;
     }
     half4 inputColor = sample(inputFP, sk_InColor);
     sk_OutColor = inputColor * xCoverage * yCoverage;

@@ -25,13 +25,15 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
-    static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, float sixSigma) {
+    static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* context,
+                                                               float sixSigma) {
         // The texture we're producing represents the integral of a normal distribution over a
         // six-sigma range centered at zero. We want enough resolution so that the linear
         // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
@@ -46,11 +48,15 @@ public:
         builder[0] = width;
         builder.finish();
 
+        SkMatrix m = SkMatrix::Scale(width / sixSigma, 1.f);
+
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                        GrColorType::kAlpha_8);
-            return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+            GrSurfaceProxyView view{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+            return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m,
+                                         GrSamplerState::Filter::kBilerp);
         }
 
         SkBitmap bitmap;
@@ -75,7 +81,8 @@ public:
         }
         SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
-        return view;
+        return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m,
+                                     GrSamplerState::Filter::kBilerp);
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -95,7 +102,7 @@ public:
         }
 
         const float sixSigma = 6 * sigma;
-        GrSurfaceProxyView integral = CreateIntegralTexture(context, sixSigma);
+        std::unique_ptr<GrFragmentProcessor> integral = MakeIntegralFP(context, sixSigma);
         if (!integral) {
             return nullptr;
         }
@@ -113,27 +120,22 @@ public:
         // less than 6 sigma wide then things aren't so simple and we have to consider both the
         // left and right edge of the rectangle (and similar in y).
         bool isFast = insetRect.isSorted();
-        // 1 / (6 * sigma) is the domain of the integral texture. We use the inverse to produce
-        // normalized texture coords from frag coord distances.
-        float invSixSigma = 1.f / sixSigma;
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrRectBlurEffect(std::move(inputFP), insetRect, std::move(integral),
-                                     invSixSigma, isFast, GrSamplerState::Filter::kBilerp));
+                new GrRectBlurEffect(std::move(inputFP), insetRect, std::move(integral), isFast,
+                                     GrSamplerState::Filter::kBilerp));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
     int inputFP_index = -1;
     SkRect rect;
-    TextureSampler integral;
-    float invSixSigma;
+    int integral_index = -1;
     bool isFast;
 
 private:
     GrRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                      SkRect rect,
-                     GrSurfaceProxyView integral,
-                     float invSixSigma,
+                     std::unique_ptr<GrFragmentProcessor> integral,
                      bool isFast,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
@@ -141,18 +143,17 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
-            , integral(std::move(integral), samplerParams)
-            , invSixSigma(invSixSigma)
             , isFast(isFast) {
         if (inputFP) {
             inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
-        this->setTextureSamplerCnt(1);
+        SkASSERT(integral);
+        integral->setSampledWithExplicitCoords();
+        integral_index = this->registerChildProcessor(std::move(integral));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
 };
