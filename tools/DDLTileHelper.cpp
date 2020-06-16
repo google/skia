@@ -109,6 +109,7 @@ void DDLTileHelper::createComposeDDL() {
     }
 
     fComposeDDL = recorder.detach();
+    SkASSERT(fComposeDDL);
 }
 
 void DDLTileHelper::TileData::precompile(GrContext* context) {

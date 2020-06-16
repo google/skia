@@ -70,7 +70,11 @@ protected:
         return DrawResult::kOk;
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+
         SkASSERT(context->priv().asDirectContext());
 
         if (context->backend() != GrBackendApi::kVulkan) {
@@ -86,18 +90,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
-                      SkString* errorMsg) override {
-        if (context->backend() != GrBackendApi::kVulkan) {
-            *errorMsg = "This GM requires a Vulkan context.";
-            return DrawResult::kSkip;
-        }
-
-        DrawResult result = this->onGpuSetup(context, errorMsg);
-        if (result != DrawResult::kOk) {
-            return result;
-        }
-
+    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,  SkString*) override {
         SkASSERT(fYCbCrImage);
 
         SkPaint paint;
