@@ -6,6 +6,7 @@
  */
 
 #include "include/effects/SkMagnifierImageFilter.h"
+#include <src/gpu/effects/GrTextureEffect.h>
 
 #include "include/core/SkBitmap.h"
 #include "include/private/SkColorData.h"
@@ -136,9 +137,9 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
         bounds.offset(input->subset().x(), input->subset().y());
         SkRect srcRect = fSrcRect.makeOffset((1.f - invXZoom) * input->subset().x(),
                                              (1.f - invYZoom) * input->subset().y());
+        auto inputFP = GrTextureEffect::Make(std::move(inputView), kPremul_SkAlphaType);
 
-        // TODO: Update generated fp file Make functions to take views instead of proxies
-        auto fp = GrMagnifierEffect::Make(std::move(inputView),
+        auto fp = GrMagnifierEffect::Make(std::move(inputFP),
                                           bounds,
                                           srcRect,
                                           invXZoom,
