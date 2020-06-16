@@ -93,11 +93,11 @@ public:
 
     /**
      * Returns true if the paint's output color will be constant after blending. If the result is
-     * true, constantColor will be updated to contain the constant color. Note that we can conflate
-     * coverage and color, so the actual values written to pixels with partial coverage may still
-     * not seem constant, even if this function returns true.
+     * true and constantColor is provided, it will be updated to contain the constant color. Note
+     * that we can conflate coverage and color, so the actual values written to pixels with partial
+     * coverage may still not seem constant, even if this function returns true.
      */
-    bool isConstantBlendedColor(SkPMColor4f* constantColor) const;
+    bool isConstantBlendedColor(SkPMColor4f* constantColor = nullptr) const;
 
     /**
      * A trivial paint is one that uses src-over and has no fragment processors.

@@ -45,6 +45,18 @@ public:
         }
     };
 
+public:
+    // Wang's formula for cubics (1985) gives us the number of evenly spaced (in the
+    // parametric sense) line segments that are guaranteed to be within a distance of
+    // "MAX_LINEARIZATION_ERROR" from the actual curve.
+    constexpr static char kWangsFormulaCubicFn[] = R"(
+            float wangs_formula_cubic(vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
+                float k = (3.0 * 2.0) / (8.0 * MAX_LINEARIZATION_ERROR);
+                float f = sqrt(k * length(max(abs(p2 - p1*2.0 + p0),
+                                              abs(p3 - p2*2.0 + p1))));
+                return max(1.0, ceil(f));
+            })";
+
 private:
     const SkMatrix fViewMatrix;
     const GrPrimitiveType fPrimitiveType;

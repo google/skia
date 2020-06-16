@@ -3998,9 +3998,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
     // we've seen driver crashes in the wild. We don't have data on Gen11 yet.
     // (crbug.com/527565, crbug.com/983926)
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        fMSFBOType = kNone_MSFBOType;
-    }
+    // if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+    //     fMSFBOType = kNone_MSFBOType;
+    // }
 
     // ANGLE doesn't support do-while loops
     if (kANGLE_GrGLDriver == ctxInfo.driver()) {
