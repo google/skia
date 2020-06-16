@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f1f5dd68_fc62a371",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-16T20:49:46Z",
+      "side": 1,
+      "message": "We are in a crappy halfway state where we have this analytic stack, AND we have some effects that can take an input FP so they don\u0027t need to use the stack.\n\nOnce all the relevant effects support an input FP, the analytic stack should hopefully be replaced with a single \"current analytic FP\" which starts as nullptr and gets appended to by each subsequent operation. At that point, we can remove the analytic stack entirely. So I expect all of this code to get much simpler once we have finished porting over all the effects.\n\n(Technically I didn\u0027t have to use input-FP chaining at all yet. I could have left it as a plain vanilla stack with no input-FP chaining until we were ready to port the whole thing over. I was just eager to see some FP chaining at work.)\n\nWe\u0027re close to the point where all the effects will be ready and this complexity will go away. I 100% agree, this current pattern is ugly, and I wouldn\u0027t be satisfied with it if this were the final state of it.",
+      "parentUuid": "0d3ec94a_7192f55b",
+      "range": {
+        "startLine": 700,
+        "startChar": 0,
+        "endLine": 704,
+        "endChar": 40
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f102ee77_cdbe637b",
         "filename": "src/gpu/effects/GrConvexPolyEffect.h",
         "patchSetId": 7
