@@ -212,7 +212,7 @@ static void setup_vertex_input_layout(const GrPrimitiveProcessor& primProc,
         inputElements[currentAttrib] = { "TEXCOORD", currentAttrib,
                                         attrib_type_to_format(attrib.cpuType()),
                                         instanceSlot, instanceAttributeOffset,
-                                        D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+                                        D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 0 };
         instanceAttributeOffset += attrib.sizeAlign4();
         currentAttrib++;
     }
