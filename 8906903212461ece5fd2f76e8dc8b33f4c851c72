@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "0d3ec94a_7192f55b",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-16T20:41:58Z",
+      "side": 1,
+      "message": "I think this is the situation where I bump into the API (it\u0027s also the only (?) place that we\u0027re really leveraging the features)? I have to think hard about what happens, and then - is that actually what we want? I can play it all out in my head, but: If Make fails, then fp just becomes the old back(). Then we put it back where it was (so we haven\u0027t actually done anything to it). *Then* we check to decide if it worked, and if not, we continue as if nothing is wrong... which is correct, I guess, but now I need to step back and realize that ignoring the failure and making no state changes at all was sensible -- after doing a bunch of work that looked like it was dead-set on making state changes.\n\nBut like I said - this may just be the price of admission for how this clipping code needs to work?",
+      "range": {
+        "startLine": 700,
+        "startChar": 0,
+        "endLine": 704,
+        "endChar": 40
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f102ee77_cdbe637b",
         "filename": "src/gpu/effects/GrConvexPolyEffect.h",
         "patchSetId": 7
