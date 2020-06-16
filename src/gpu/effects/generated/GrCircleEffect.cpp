@@ -43,18 +43,18 @@ public:
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _input2569 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample2569;
+        SkString _input2566 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample2566;
         if (_outer.inputFP_index >= 0) {
-            _sample2569 = this->invokeChild(_outer.inputFP_index, _input2569.c_str(), args);
+            _sample2566 = this->invokeChild(_outer.inputFP_index, _input2566.c_str(), args);
         } else {
-            _sample2569 = _input2569;
+            _sample2566 = _input2566;
         }
         fragBuilder->codeAppendf(
                 "\nhalf4 inputColor = %s;\n@if ((%d == 1 || %d == 3) || %d == 4) {\n    %s = "
                 "inputColor * clamp(d, 0.0, 1.0);\n} else {\n    %s = d > 0.5 ? inputColor : "
                 "half4(0.0);\n}\n",
-                _sample2569.c_str(), (int)_outer.edgeType, (int)_outer.edgeType,
+                _sample2566.c_str(), (int)_outer.edgeType, (int)_outer.edgeType,
                 (int)_outer.edgeType, args.fOutputColor, args.fOutputColor);
     }
 
@@ -126,9 +126,12 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(1.f, 1000.f);
     GrClipEdgeType et;
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp;
     do {
         et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
+        std::tie(success, fp) = GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
+    } while (!success);
+    return fp;
 }
 #endif
