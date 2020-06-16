@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f102ee77_cdbe637b",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-16T20:26:15Z",
+      "side": 1,
+      "message": "Comment is out of date...",
+      "range": {
+        "startLine": 51,
+        "startChar": 46,
+        "endLine": 51,
+        "endChar": 71
+      },
+      "revId": "8906903212461ece5fd2f76e8dc8b33f4c851c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
