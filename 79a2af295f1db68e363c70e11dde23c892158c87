@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "acd5e72e_5c15c49b",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-16T14:23:05Z",
+      "side": 1,
+      "message": "That sgtm.",
+      "parentUuid": "492a4bad_b7cf54b7",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "79a2af295f1db68e363c70e11dde23c892158c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe320771_2fe3193a",
         "filename": "src/utils/SkParseColor.cpp",
         "patchSetId": 5
