@@ -950,6 +950,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
         if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
 		// skia:9935
 		match = append(match, "~^AsyncReadPixels$")
+		match = append(match, "~^MorphologyFilterRadiusWithMirrorCTM_Gpu$")
 		match = append(match, "~^PromiseImageTextureShutdown$")
 		match = append(match, "~^ReadPixels_Gpu$")
 		match = append(match, "~^ReadPixels_Texture$")
