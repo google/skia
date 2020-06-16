@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a0abcb4_d296c3f5",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1503,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-16T22:14:08Z",
+      "side": 1,
+      "message": "auto [success, fp]?",
+      "range": {
+        "startLine": 1501,
+        "startChar": 4,
+        "endLine": 1503,
+        "endChar": 25
+      },
+      "revId": "ac34fc338246610e5a030500ffb8c8b0cd293ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
