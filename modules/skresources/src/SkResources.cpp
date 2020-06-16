@@ -196,8 +196,9 @@ sk_sp<ImageAsset> ResourceProviderProxyBase::loadImageAsset(const char rpath[],
                   : nullptr;
 }
 
-sk_sp<SkData> ResourceProviderProxyBase::loadFont(const char name[], const char url[]) const {
-    return fProxy ? fProxy->loadFont(name, url)
+sk_sp<SkTypeface> ResourceProviderProxyBase::loadTypeface(const char name[],
+                                                          const char url[]) const {
+    return fProxy ? fProxy->loadTypeface(name, url)
                   : nullptr;
 }
 
