@@ -14,8 +14,10 @@
 void GrWaitRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
     // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
-    // we manipulate fTargetView's proxy.
-    alloc->addInterval(fTargetView.proxy(), alloc->curOp(), alloc->curOp(),
+    // we manipulate our target's proxy.
+    SkASSERT(0 == this->numTargets());
+    auto fakeOp = alloc->curOp();
+    alloc->addInterval(fWaitedOn.proxy(), fakeOp, fakeOp,
                        GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }

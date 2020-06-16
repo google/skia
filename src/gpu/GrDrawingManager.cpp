@@ -65,8 +65,8 @@ void GrDrawingManager::RenderTaskDAG::removeRenderTasks(int startIndex, int stop
 }
 
 bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
-    for (int i = 0; i < fRenderTasks.count(); ++i) {
-        if (fRenderTasks[i] && fRenderTasks[i]->isUsed(proxy)) {
+    for (const auto& task : fRenderTasks) {
+        if (task && task->isUsed(proxy)) {
             return true;
         }
     }
@@ -123,7 +123,7 @@ void GrDrawingManager::RenderTaskDAG::prepForFlush() {
             GrOpsTask* curOpsTask = fRenderTasks[i]->asOpsTask();
 
             if (prevOpsTask && curOpsTask) {
-                SkASSERT(prevOpsTask->fTargetView != curOpsTask->fTargetView);
+                SkASSERT(prevOpsTask->target(0).proxy() != curOpsTask->target(0).proxy());
             }
 
             prevOpsTask = curOpsTask;
@@ -836,7 +836,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         }
         fDAG.add(waitTask);
     } else {
-        if (fActiveOpsTask && (fActiveOpsTask->fTargetView.proxy() == proxy.get())) {
+        if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
             SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
             fDAG.addBeforeLast(waitTask);
             // In this case we keep the current renderTask open but just insert the new waitTask
