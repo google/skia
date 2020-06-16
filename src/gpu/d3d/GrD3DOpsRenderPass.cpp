@@ -68,6 +68,8 @@ void set_stencil_ref(GrD3DGpu* gpu, const GrProgramInfo& info) {
     if (!stencilSettings.isDisabled()) {
         unsigned int stencilRef = 0;
         if (stencilSettings.isTwoSided()) {
+            SkASSERT(stencilSettings.postOriginCCWFace(info.origin()).fRef ==
+                     stencilSettings.postOriginCWFace(info.origin()).fRef);
             stencilRef = stencilSettings.postOriginCCWFace(info.origin()).fRef;
         } else {
             stencilRef = stencilSettings.singleSidedFace().fRef;
