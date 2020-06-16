@@ -26,10 +26,12 @@ GrRenderTask::GrRenderTask()
         , fFlags(0) {
 }
 
-GrRenderTask::GrRenderTask(GrSurfaceProxyView targetView)
-        : fTargetView(std::move(targetView))
-        , fUniqueID(CreateUniqueID())
-        , fFlags(0) {
+void GrRenderTask::endFlush(GrDrawingManager* drawingMgr) {
+    for (const GrSurfaceProxyView& target : fTargets) {
+        if (drawingMgr->getLastRenderTask(target.proxy())) {
+            drawingMgr->setLastRenderTask(target.proxy(), nullptr);
+        }
+    }
 }
 
 void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
@@ -37,11 +39,6 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
         return;
     }
     this->setFlag(kDisowned_Flag);
-    GrSurfaceProxy* proxy = fTargetView.proxy();
-    if (proxy && this == drawingMgr->getLastRenderTask(proxy)) {
-        // Ensure the drawing manager doesn't hold a dangling pointer.
-        drawingMgr->setLastRenderTask(proxy, nullptr);
-    }
 }
 
 GrRenderTask::~GrRenderTask() {
@@ -67,13 +64,13 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
 
     SkIRect targetUpdateBounds;
     if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps, &targetUpdateBounds)) {
-        GrSurfaceProxy* proxy = fTargetView.proxy();
+        GrSurfaceProxy* proxy = this->target(0).proxy();
         if (proxy->requiresManualMSAAResolve()) {
-            SkASSERT(fTargetView.asRenderTargetProxy());
-            fTargetView.asRenderTargetProxy()->markMSAADirty(targetUpdateBounds,
-                                                             fTargetView.origin());
+            SkASSERT(this->target(0).asRenderTargetProxy());
+            this->target(0).asRenderTargetProxy()->markMSAADirty(targetUpdateBounds,
+                                                             this->target(0).origin());
         }
-        GrTextureProxy* textureProxy = fTargetView.asTextureProxy();
+        GrTextureProxy* textureProxy = this->target(0).asTextureProxy();
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
             textureProxy->markMipMapsDirty();
         }
@@ -259,11 +256,11 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
-    // Some renderTasks (e.g. GrTransferFromRenderTask) don't have a target.
-    GrSurfaceProxy* proxy = fTargetView.proxy();
-    if (!proxy) {
+    // Some renderTasks (e.g. GrTransferFromRenderTask) don't have any targets.
+    if (0 == this->numTargets()) {
         return true;
     }
+    GrSurfaceProxy* proxy = this->target(0).proxy();
 
     if (!proxy->isInstantiated()) {
         return false;
@@ -277,10 +274,15 @@ bool GrRenderTask::isInstantiated() const {
     return true;
 }
 
+void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView view) {
+   drawingMgr->setLastRenderTask(view.proxy(), this);
+   fTargets.push_back(std::move(view));
+}
+
 #ifdef SK_DEBUG
 void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    GrSurfaceProxy* proxy = fTargetView.proxy();
+    GrSurfaceProxy* proxy = this->target(0).proxy();
     SkDebugf("%s - renderTaskID: %d - proxyID: %d - surfaceID: %d\n",
              this->name(), fUniqueID,
              proxy ? proxy->uniqueID().asUInt() : -1,
