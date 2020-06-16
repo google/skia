@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "23532840_c11a5ce8",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T13:51:09Z",
+      "side": 1,
+      "message": "I don\u0027t see why it needs the masks flags at all either.",
+      "parentUuid": "7004d6b2_00d23ebc",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 84
+      },
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b85c021_309b0b8d",
         "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
         "patchSetId": 4
@@ -108,6 +132,24 @@
       "writtenOn": "2020-06-16T12:40:08Z",
       "side": 1,
       "message": "While we\u0027re here, two things:\n- Don\u0027t need maskView any longer\n- This comment indicates that inner and outer thresholds will be sorted correctly, but that doesn\u0027t seem to be guaranteed?",
+      "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc2a9886_451162af",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-16T13:51:09Z",
+      "side": 1,
+      "message": "will do, have a change where I\u0027m removing the cov-as-alpha flag",
+      "parentUuid": "7b85c021_309b0b8d",
       "revId": "6b2caf7dfc8733a85aa44fb6e91159d82c686299",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
