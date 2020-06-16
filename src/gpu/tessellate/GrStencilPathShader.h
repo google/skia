@@ -52,9 +52,13 @@ public:
     const char* name() const override { return "tessellate_GrTessellateCubicShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 };
 
@@ -71,9 +75,13 @@ public:
     const char* name() const override { return "tessellate_GrTessellateWedgeShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 };
 
@@ -83,10 +91,6 @@ private:
 // sort the instance buffer by resolveLevel for efficient batching of indirect draws.
 class GrMiddleOutCubicShader : public GrStencilPathShader {
 public:
-    // Each resolveLevel linearizes the curve into 2^resolveLevel line segments. The finest
-    // supported resolveLevel is therefore 2^12=4096 line segments.
-    constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
-
     // How many vertices do we need to draw in order to triangulate a cubic with 2^resolveLevel
     // line segments?
     constexpr static int NumVerticesAtResolveLevel(int resolveLevel) {
@@ -103,7 +107,7 @@ public:
     static GrDrawIndexedIndirectCommand MakeDrawCubicsIndirectCmd(int resolveLevel,
                                                                   uint32_t instanceCount,
                                                                   uint32_t baseInstance) {
-        SkASSERT(resolveLevel > 0 && resolveLevel <= kMaxResolveLevel);
+        SkASSERT(resolveLevel > 0 && resolveLevel <= GrTessellationPathRenderer::kMaxResolveLevel);
         // Starting at baseIndex=3, the index buffer triangulates a cubic with 2^kMaxResolveLevel
         // line segments. Each index value corresponds to a parametric T value on the curve. Since
         // the triangles are arranged in "middle-out" order, we can conveniently control the

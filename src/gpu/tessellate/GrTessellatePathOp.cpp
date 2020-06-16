@@ -325,6 +325,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
         runningInstanceCount = numTrianglesAtBeginningOfData;
     }
     for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
+        // FIXME! put in if.
         instanceLocations[resolveLevel] = cubicData + runningInstanceCount * 4;
         if (int instanceCountAtCurrLevel = resolveLevelCounter[resolveLevel]) {
             indirectData[indirectIdx++] = GrMiddleOutCubicShader::MakeDrawCubicsIndirectCmd(
