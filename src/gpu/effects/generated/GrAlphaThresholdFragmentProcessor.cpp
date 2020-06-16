@@ -32,23 +32,23 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
-        SkString _input572 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample572;
+        SkString _input515 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample515;
         if (_outer.inputFP_index >= 0) {
-            _sample572 = this->invokeChild(_outer.inputFP_index, _input572.c_str(), args);
+            _sample515 = this->invokeChild(_outer.inputFP_index, _input515.c_str(), args);
         } else {
-            _sample572 = _input572;
+            _sample515 = _input515;
         }
-        fragBuilder->codeAppendf("half4 color = %s;", _sample572.c_str());
-        SkString _sample624;
-        _sample624 = this->invokeChild(_outer.maskFP_index, args);
+        fragBuilder->codeAppendf("half4 color = %s;", _sample515.c_str());
+        SkString _sample567;
+        _sample567 = this->invokeChild(_outer.maskFP_index, args);
         fragBuilder->codeAppendf(
                 "\nhalf4 mask_color = %s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n    "
                 "    half scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = "
                 "%s;\n    }\n} else if (color.w < %s) {\n    half scale = %s / "
                 "max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    color.w = "
                 "%s;\n}\n%s = color;\n",
-                _sample624.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
+                _sample567.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(innerThresholdVar),
@@ -98,10 +98,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
-    auto[maskView, ct, at] = testData->randomAlphaOnlyView();
-    // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
-    float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
+    // Make the inner and outer thresholds be in [0, 1].
+    float outerThresh = testData->fRandom->nextUScalar1();
+    float innerThresh = testData->fRandom->nextUScalar1();
     std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
     if (testData->fRandom->nextBool()) {
         inputChild = GrProcessorUnitTest::MakeChildFP(testData);
