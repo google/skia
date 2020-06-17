@@ -1810,19 +1810,20 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     this->writeInstruction(SpvOpLoad, this->getType(ref.fVariable.fType), result, var, out);
     this->writePrecisionModifier(ref.fVariable.fType, result);
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-        fProgram.fSettings.fFlipY) {
+        (fProgram.fSettings.fFlipY || fProgram.fSettings.fInverseW)) {
         // need to remap to a top-left coordinate system
-        if (fRTHeightStructId == (SpvId) -1) {
+        if (fRTHeightStructId == (SpvId)-1) {
             // height variable hasn't been written yet
             std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
-            SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
+            SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
             std::vector<Type::Field> fields;
             SkASSERT(fProgram.fSettings.fRTHeightOffset >= 0);
-            fields.emplace_back(Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1,
-                                                 -1, -1, -1, -1, Layout::Format::kUnspecified,
-                                                 Layout::kUnspecified_Primitive, -1, -1, "", "",
-                                                 Layout::kNo_Key, Layout::CType::kDefault), 0),
-                                SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
+            fields.emplace_back(
+                    Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1, -1, -1, -1, -1,
+                                     Layout::Format::kUnspecified, Layout::kUnspecified_Primitive,
+                                     -1, -1, "", "", Layout::kNo_Key, Layout::CType::kDefault),
+                              0),
+                    SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
             StringFragment name("sksl_synthetic_uniforms");
             Type intfStruct(-1, name, fields);
 
@@ -1833,18 +1834,18 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", "", Layout::kNo_Key,
                           Layout::CType::kDefault);
-            Variable* intfVar = (Variable*) fSynthetics.takeOwnership(std::unique_ptr<Symbol>(
-                                           new Variable(-1,
-                                                        Modifiers(layout, Modifiers::kUniform_Flag),
-                                                        name,
-                                                        intfStruct,
-                                                        Variable::kGlobal_Storage)));
+            Variable* intfVar = (Variable*)fSynthetics.takeOwnership(std::unique_ptr<Symbol>(
+                    new Variable(-1,
+                                 Modifiers(layout, Modifiers::kUniform_Flag),
+                                 name,
+                                 intfStruct,
+                                 Variable::kGlobal_Storage)));
             InterfaceBlock intf(-1, intfVar, name, String(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
         }
-        SkASSERT(fRTHeightFieldIndex != (SpvId) -1);
+        SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
         // write float4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, gl_FragCoord.w)
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), xId,
@@ -1869,17 +1870,30 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         FloatLiteral zero(fContext, -1, 0.0);
         SpvId zeroId = writeFloatLiteral(zero);
         FloatLiteral one(fContext, -1, 1.0);
-        SpvId wId = this->nextId();
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), wId,
+        SpvId oneId = writeFloatLiteral(one);
+        SpvId rawWId = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), rawWId,
                                result, 3, out);
+        SpvId invWId = this->nextId();
+        this->writeInstruction(SpvOpFDiv, this->getType(*fContext.fFloat_Type), invWId, oneId,
+                               rawWId, out);
         SpvId flipped = this->nextId();
         this->writeOpCode(SpvOpCompositeConstruct, 7, out);
         this->writeWord(this->getType(*fContext.fFloat4_Type), out);
         this->writeWord(flipped, out);
         this->writeWord(xId, out);
-        this->writeWord(flippedYId, out);
+        if (fProgram.fSettings.fFlipY) {
+            this->writeWord(flippedYId, out);
+        } else {
+            this->writeWord(rawYId, out);
+        }
         this->writeWord(zeroId, out);
-        this->writeWord(wId, out);
+        if (fProgram.fSettings.fInverseW) {
+            this->writeWord(invWId, out);
+        } else {
+            this->writeWord(rawWId, out);
+        }
+
         return flipped;
     }
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
