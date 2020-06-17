@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ccc9cc55_5f43f28b",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:48:37Z",
+      "side": 1,
+      "message": "I applied zlib_simd_config to this and I expect that to fix it.",
+      "parentUuid": "2e93a385_3d8aadae",
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6eaf3acf_fcaf6169",
         "filename": "third_party/zlib/BUILD.gn",
         "patchSetId": 6
@@ -30,6 +48,30 @@
       "writtenOn": "2020-06-17T13:34:53Z",
       "side": 1,
       "message": "I don\u0027t think we ever target ARMv8 when the compiler isn\u0027t Clang or MSVC.\n\n(I don\u0027t see where use_thin_lto is defined.)",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 7
+      },
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab9d1542_2ee8259d",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:48:37Z",
+      "side": 1,
+      "message": "This was pulled directly from chromium\u0027s zlib BUILD.gn.  I\u0027m happy to remove the assert and should have done so already.\n\nThis if statement also gets executed for armv7.  Oddly, zlib enables ARMV8 defines for armv7 and then in the .c file checks for __aarch64__ and/or uses runtime cpu feature detection to handle it accordingly.\n\nIf I understand the code correctly without this cflag a linux gcc build targeting armv7 will hit a #error when compiling.  I\u0027m inclined to keep it to match chromium\u0027s BUILD.gn, but given that our bots won\u0027t build it I can see the argument for removing it as well.",
+      "parentUuid": "6eaf3acf_fcaf6169",
       "range": {
         "startLine": 84,
         "startChar": 0,
@@ -56,6 +98,24 @@
       "revId": "6fb36874134306f9df457000791ba446c2cba043",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31a1ba4d_0aa1e8d1",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:48:37Z",
+      "side": 1,
+      "message": "Done.  I\u0027ve restricted it just to ANGLE.",
+      "parentUuid": "d2f6a2bb_f03645c3",
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
