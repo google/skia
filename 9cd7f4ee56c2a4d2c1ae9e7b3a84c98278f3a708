@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a2f2a2a_8e6daf1e",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-17T19:13:42Z",
+      "side": 1,
+      "message": "ignore all this. The clang format decided to randomly have fun here. I can revert it back if we want.",
+      "range": {
+        "startLine": 1815,
+        "startChar": 8,
+        "endLine": 1848,
+        "endChar": 51
+      },
+      "revId": "9cd7f4ee56c2a4d2c1ae9e7b3a84c98278f3a708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
