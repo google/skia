@@ -1498,18 +1498,17 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip* clip,
 
     const auto& caps = *this->caps()->shaderCaps();
     // TODO these need to be a geometry processors
-    auto innerEffect = GrRRectEffect::Make(innerEdgeType, *inner, caps);
-    if (!innerEffect) {
+    auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, innerEdgeType, *inner, caps);
+    if (!success) {
         return false;
     }
 
-    auto outerEffect = GrRRectEffect::Make(outerEdgeType, *outer, caps);
-    if (!outerEffect) {
+    std::tie(success, fp) = GrRRectEffect::Make(std::move(fp), outerEdgeType, *outer, caps);
+    if (!success) {
         return false;
     }
 
-    paint.addCoverageFragmentProcessor(std::move(innerEffect));
-    paint.addCoverageFragmentProcessor(std::move(outerEffect));
+    paint.addCoverageFragmentProcessor(std::move(fp));
 
     SkRect bounds = outer->getBounds();
     if (GrAAType::kCoverage == aaType) {

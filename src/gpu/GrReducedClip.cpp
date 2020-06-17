@@ -669,10 +669,23 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
         return ClipResult::kNotClipped;
     }
 
-    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect,
-                                      *fCaps->shaderCaps())) {
-        fAnalyticFPs.push_back(std::move(fp));
-        return ClipResult::kClipped;
+    if (fAnalyticFPs.empty()) {
+        // Create our first analytic effect in the stack.
+        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, GetClipEdgeType(invert, aa),
+                                                 deviceSpaceRRect, *fCaps->shaderCaps());
+        if (success) {
+            fAnalyticFPs.push_back(std::move(fp));
+            return ClipResult::kClipped;
+        }
+    } else {
+        // Combine this analytic effect with the previous effect in the stack.
+        auto [success, fp] = GrRRectEffect::Make(std::move(fAnalyticFPs.back()),
+                                                 GetClipEdgeType(invert, aa), deviceSpaceRRect,
+                                                 *fCaps->shaderCaps());
+        fAnalyticFPs.back() = std::move(fp);
+        if (success) {
+            return ClipResult::kClipped;
+        }
     }
 
     SkPath deviceSpacePath;

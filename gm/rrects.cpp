@@ -120,8 +120,9 @@ protected:
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
                         const auto& caps = *renderTargetContext->caps()->shaderCaps();
-                        auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
-                        if (fp) {
+                        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr,
+                                                                 edgeType, rrect, caps);
+                        if (success) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                             grPaint.addCoverageFragmentProcessor(std::move(fp));
