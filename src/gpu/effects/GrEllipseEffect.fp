@@ -24,23 +24,22 @@ bool medPrecision = !sk_Caps.floatIs32Bits;
 layout(when=medPrecision) uniform float2 scale;
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrClipEdgeType edgeType, SkPoint center,
-                                                     SkPoint radii, const GrShaderCaps& caps) {
+    static MakeResult Make(std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType,
+                           SkPoint center, SkPoint radii, const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
         // Very narrow ellipses produce bad results on devices without full float
         if (!caps.floatIs32Bits() && (radii.fX > 255*radii.fY || radii.fY > 255*radii.fX)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
         // Very large ellipses produce bad results on devices without full float
         if (!caps.floatIs32Bits() && (radii.fX > 16384 || radii.fY > 16384)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrEllipseEffect(std::move(inputFP), edgeType, center, radii));
+        return MakeSuccess(std::unique_ptr<GrFragmentProcessor>(
+                    new GrEllipseEffect(std::move(inputFP), edgeType, center, radii)));
     }
 }
 
@@ -130,7 +129,13 @@ void main() {
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrClipEdgeType et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    return GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
-                                 *testData->caps()->shaderCaps());
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp;
+    do {
+        GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+        std::tie(success, fp) = GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center,
+                                                      SkPoint::Make(rx, ry),
+                                                      *testData->caps()->shaderCaps());
+    } while (!success);
+    return fp;
 }
