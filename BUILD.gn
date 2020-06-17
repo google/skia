@@ -915,6 +915,12 @@ optional("skvm_jit") {
   public_defines = [ "SKVM_JIT" ]
 }
 
+optional("skvm_subzero") {
+  enabled = skia_use_subzero
+  public_defines = [ "SKVM_SUBZERO" ]
+  public_deps = [ "//third_party/swiftshader:subzero" ]
+}
+
 if (skia_enable_gpu && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -977,6 +983,7 @@ component("skia") {
     ":raw",
     ":sksl_interpreter",
     ":skvm_jit",
+    ":skvm_subzero",
     ":skx",
     ":sse2",
     ":sse41",

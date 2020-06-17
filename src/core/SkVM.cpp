@@ -35,6 +35,14 @@
     #endif
 #endif
 
+#if defined(SKVM_SUBZERO)
+    #include "src/IceCfg.h"
+    #include "src/IceCfgNode.h"
+    #include "src/IceGlobalContext.h"
+    #include "src/IceGlobalInits.h"
+    #include "src/IceTypes.h"
+#endif
+
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
@@ -58,6 +66,8 @@ namespace skvm {
         std::unique_ptr<llvm::LLVMContext>     llvm_ctx;
         std::unique_ptr<llvm::ExecutionEngine> llvm_ee;
         std::future<void>                      llvm_compiling;
+    #elif defined(SKVM_SUBZERO)
+        // TODO: subzero state
     #endif
     };
 
@@ -642,14 +652,16 @@ namespace skvm {
 
     bool fma_supported() {
         static const bool supported =
-     #if defined(SK_CPU_X86)
-         SkCpu::Supports(SkCpu::HSW);
-     #elif defined(SK_CPU_ARM64)
-         true;
-     #else
-         false;
-     #endif
-         return supported;
+    #if defined(SKVM_SUBZERO)   // Tops out at SSE 4.1 even if the CPU supports AVX2/FMA.
+        false;
+    #elif defined(SK_CPU_X86)
+        SkCpu::Supports(SkCpu::HSW);
+    #elif defined(SK_CPU_ARM64)
+        true;
+    #else
+        false;
+    #endif
+        return supported;
     }
 
     // Be careful peepholing float math!  Transformations you might expect to
@@ -2571,6 +2583,12 @@ namespace skvm {
             });
         }
     }
+
+#elif defined(SKVM_SUBZERO)
+    void Program::setupSubzero(const std::vector<OptimizedInstruction>& instructions,
+                               const char* debug_name) {
+
+    }
 #endif
 
     void Program::waitForLLVM() const {
@@ -2594,6 +2612,8 @@ namespace skvm {
         this->waitForLLVM();
         fImpl->llvm_ee .reset(nullptr);
         fImpl->llvm_ctx.reset(nullptr);
+    #elif defined(SKVM_SUBZERO)
+        // TODO: reset subzero state
     #elif defined(SKVM_JIT)
         if (fImpl->dylib) {
             dlclose(fImpl->dylib);
@@ -2631,6 +2651,8 @@ namespace skvm {
         fImpl->strides = strides;
     #if 1 && defined(SKVM_LLVM)
         this->setupLLVM(instructions, debug_name);
+    #elif 1 && defined(SKVM_SUBZERO)
+        this->setupSubzero(instructions, debug_name);
     #elif 1 && defined(SKVM_JIT)
         this->setupJIT(instructions, debug_name);
     #endif

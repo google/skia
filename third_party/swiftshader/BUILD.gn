@@ -1,0 +1,104 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+subzero_dir = "../externals/swiftshader/third_party/subzero"
+subzero_llvm_dir = "../externals/swiftshader/third_party/llvm-subzero"
+
+third_party("subzero") {
+  public_include_dirs = [
+    subzero_dir,
+    "$subzero_llvm_dir/include",
+    "$subzero_llvm_dir/build/MacOS/include",  # TODO: pick right OS, of course
+    "../externals/swiftshader/third_party/subzero/pnacl-llvm/include",
+  ]
+  public_defines = [
+    "ALLOW_DUMP=0",
+    "ALLOW_LLVM_CL=0",
+    "ALLOW_LLVM_IR=0",
+    "ALLOW_LLVM_IR_AS_INPUT=0",
+    "ALLOW_MINIMAL_BUILD=0",
+    "ALLOW_TIMERS=0",
+    "ALLOW_WASM=0",
+  ]
+
+  sources = [
+    "$subzero_dir/src/IceAssembler.cpp",
+    "$subzero_dir/src/IceCfg.cpp",
+    "$subzero_dir/src/IceCfgNode.cpp",
+    "$subzero_dir/src/IceClFlags.cpp",
+    "$subzero_dir/src/IceELFObjectWriter.cpp",
+    "$subzero_dir/src/IceELFSection.cpp",
+    "$subzero_dir/src/IceFixups.cpp",
+    "$subzero_dir/src/IceGlobalContext.cpp",
+    "$subzero_dir/src/IceGlobalInits.cpp",
+    "$subzero_dir/src/IceInst.cpp",
+    "$subzero_dir/src/IceInstrumentation.cpp",
+    "$subzero_dir/src/IceIntrinsics.cpp",
+    "$subzero_dir/src/IceLiveness.cpp",
+    "$subzero_dir/src/IceLoopAnalyzer.cpp",
+    "$subzero_dir/src/IceMangling.cpp",
+    "$subzero_dir/src/IceMemory.cpp",
+    "$subzero_dir/src/IceOperand.cpp",
+    "$subzero_dir/src/IceRNG.cpp",
+    "$subzero_dir/src/IceRangeSpec.cpp",
+    "$subzero_dir/src/IceRegAlloc.cpp",
+    "$subzero_dir/src/IceRevision.cpp",
+    "$subzero_dir/src/IceSwitchLowering.cpp",
+    "$subzero_dir/src/IceTargetLowering.cpp",
+    "$subzero_dir/src/IceTargetLoweringX86.cpp",
+    "$subzero_dir/src/IceThreading.cpp",
+    "$subzero_dir/src/IceTimerTree.cpp",
+    "$subzero_dir/src/IceTypes.cpp",
+    "$subzero_dir/src/IceVariableSplitting.cpp",
+    "$subzero_llvm_dir/lib/Demangle/ItaniumDemangle.cpp",
+    "$subzero_llvm_dir/lib/Support/APInt.cpp",
+    "$subzero_llvm_dir/lib/Support/Atomic.cpp",
+    "$subzero_llvm_dir/lib/Support/CommandLine.cpp",
+    "$subzero_llvm_dir/lib/Support/ConvertUTF.cpp",
+    "$subzero_llvm_dir/lib/Support/ConvertUTFWrapper.cpp",
+    "$subzero_llvm_dir/lib/Support/Debug.cpp",
+    "$subzero_llvm_dir/lib/Support/Errno.cpp",
+    "$subzero_llvm_dir/lib/Support/ErrorHandling.cpp",
+    "$subzero_llvm_dir/lib/Support/FoldingSet.cpp",
+    "$subzero_llvm_dir/lib/Support/Hashing.cpp",
+    "$subzero_llvm_dir/lib/Support/Host.cpp",
+    "$subzero_llvm_dir/lib/Support/ManagedStatic.cpp",
+    "$subzero_llvm_dir/lib/Support/MemoryBuffer.cpp",
+    "$subzero_llvm_dir/lib/Support/Mutex.cpp",
+    "$subzero_llvm_dir/lib/Support/NativeFormatting.cpp",
+    "$subzero_llvm_dir/lib/Support/Path.cpp",
+    "$subzero_llvm_dir/lib/Support/Process.cpp",
+    "$subzero_llvm_dir/lib/Support/Program.cpp",
+    "$subzero_llvm_dir/lib/Support/Regex.cpp",
+    "$subzero_llvm_dir/lib/Support/Signals.cpp",
+    "$subzero_llvm_dir/lib/Support/SmallPtrSet.cpp",
+    "$subzero_llvm_dir/lib/Support/SmallVector.cpp",
+    "$subzero_llvm_dir/lib/Support/StringExtras.cpp",
+    "$subzero_llvm_dir/lib/Support/StringMap.cpp",
+    "$subzero_llvm_dir/lib/Support/StringRef.cpp",
+    "$subzero_llvm_dir/lib/Support/StringSaver.cpp",
+    "$subzero_llvm_dir/lib/Support/TargetParser.cpp",
+    "$subzero_llvm_dir/lib/Support/Threading.cpp",
+    "$subzero_llvm_dir/lib/Support/Timer.cpp",
+    "$subzero_llvm_dir/lib/Support/Triple.cpp",
+    "$subzero_llvm_dir/lib/Support/Twine.cpp",
+    "$subzero_llvm_dir/lib/Support/circular_raw_ostream.cpp",
+    "$subzero_llvm_dir/lib/Support/raw_os_ostream.cpp",
+    "$subzero_llvm_dir/lib/Support/raw_ostream.cpp",
+    "$subzero_llvm_dir/lib/Support/regcomp.c",
+    "$subzero_llvm_dir/lib/Support/regerror.c",
+    "$subzero_llvm_dir/lib/Support/regexec.c",
+    "$subzero_llvm_dir/lib/Support/regfree.c",
+    "$subzero_llvm_dir/lib/Support/regstrlcpy.c",
+  ]
+
+  # TODO: more platforms, of course
+  sources += [
+    "$subzero_dir/src/IceInstX8664.cpp",
+    "$subzero_dir/src/IceTargetLoweringX8664.cpp",
+  ]
+}
