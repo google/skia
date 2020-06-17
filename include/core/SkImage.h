@@ -510,7 +510,9 @@ public:
                                                const SkYUVAIndex yuvaIndices[4],
                                                SkISize imageSize,
                                                GrSurfaceOrigin imageOrigin,
-                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
+                                               TextureReleaseProc textureReleaseProc = nullptr,
+                                               ReleaseContext releaseContext = nullptr);
 
     /** Creates SkImage from pixmap array representing YUVA data.
         SkImage is uploaded to GPU back-end using context.
