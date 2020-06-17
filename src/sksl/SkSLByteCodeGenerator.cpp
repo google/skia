@@ -57,6 +57,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "min",      SpecialIntrinsic::kMin },
         { "mix",      SpecialIntrinsic::kMix },
         { "pow",      ByteCodeInstruction::kPow },
+        { "sample",   SpecialIntrinsic::kSample },
         { "saturate", SpecialIntrinsic::kSaturate },
         { "sin",      ByteCodeInstruction::kSin },
         { "sqrt",     ByteCodeInstruction::kSqrt },
@@ -150,6 +151,9 @@ bool ByteCodeGenerator::generateCode() {
                 VarDeclarations& decl = (VarDeclarations&) e;
                 for (const auto& v : decl.fVars) {
                     const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                    if (declVar->fType == *fContext.fFragmentProcessor_Type) {
+                        fOutput->fChildFPCount++;
+                    }
                     if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
                         continue;
                     }
@@ -420,6 +424,11 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         // Miscellaneous
 
+        // (X, Y) -> (R, G, B, A)
+        case ByteCodeInstruction::kSampleExplicit: return 4 - 2;
+        // (float3x3) -> (R, G, B, A)
+        case ByteCodeInstruction::kSampleMatrix: return 4 - 9;
+
         // kMix does a 3 -> 1 reduction (A, B, M -> A -or- B) for each component
         case ByteCodeInstruction::kMix:  return -2;
         case ByteCodeInstruction::kMix2: return -4;
@@ -485,6 +494,27 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             return Location::MakeInvalid();
         }
         case Variable::kGlobal_Storage: {
+            if (var.fType == *fContext.fFragmentProcessor_Type) {
+                int offset = 0;
+                for (const auto& e : fProgram) {
+                    if (e.fKind == ProgramElement::kVar_Kind) {
+                        VarDeclarations& decl = (VarDeclarations&) e;
+                        for (const auto& v : decl.fVars) {
+                            const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                            if (declVar->fType != *fContext.fFragmentProcessor_Type) {
+                                continue;
+                            }
+                            if (declVar == &var) {
+                                SkASSERT(offset <= 255);
+                                return { offset, Storage::kChildFP };
+                            }
+                            offset++;
+                        }
+                    }
+                }
+                SkASSERT(false);
+                return Location::MakeInvalid();
+            }
             if (is_in(var)) {
                 // If you see this error, it means the program is using raw 'in' variables. You
                 // should either specialize the program (Compiler::specialize) to bake in the final
@@ -1045,6 +1075,29 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             this->write(ByteCodeInstruction::kDup);
         }
     };
+
+    if (intrin.is_special && intrin.special == SpecialIntrinsic::kSample) {
+        // Sample is very special, the first argument is an FP, which can't be pushed to the stack
+        if (c.fArguments.size() != 2 ||
+            c.fArguments[0]->fType != *fContext.fFragmentProcessor_Type ||
+            (c.fArguments[1]->fType != *fContext.fFloat2_Type &&
+             c.fArguments[1]->fType != *fContext.fFloat3x3_Type)) {
+            fErrors.error(c.fOffset, "Unsupported form of sample");
+            return;
+        }
+
+        // Write our coords or matrix
+        this->writeExpression(*c.fArguments[1]);
+
+        this->write(c.fArguments[1]->fType == *fContext.fFloat3x3_Type
+                            ? ByteCodeInstruction::kSampleMatrix
+                            : ByteCodeInstruction::kSampleExplicit);
+
+        Location childLoc = this->getLocation(*c.fArguments[0]);
+        SkASSERT(childLoc.fStorage == Storage::kChildFP);
+        this->write8(childLoc.fSlot);
+        return;
+    }
 
     if (intrin.is_special && (intrin.special == SpecialIntrinsic::kClamp ||
                               intrin.special == SpecialIntrinsic::kSaturate)) {

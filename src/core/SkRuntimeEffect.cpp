@@ -688,7 +688,7 @@ public:
         ctx->shaderConvention = false;
 
         ctx->byteCode = this->byteCode();
-        if (!ctx->byteCode) {
+        if (!ctx->byteCode || !ctx->byteCode->canRun()) {
             return false;
         }
 
@@ -897,7 +897,7 @@ public:
         ctx->shaderConvention = true;
 
         ctx->byteCode = this->byteCode();
-        if (!ctx->byteCode) {
+        if (!ctx->byteCode || !ctx->byteCode->canRun()) {
             return false;
         }
         ctx->fn = ctx->byteCode->getFunction("main");

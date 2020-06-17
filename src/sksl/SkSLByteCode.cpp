@@ -178,6 +178,8 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kRemainderU, "remainderu")
         case ByteCodeInstruction::kReserve: printf("reserve %d", READ8()); break;
         case ByteCodeInstruction::kReturn: printf("return %d", READ8()); break;
+        case ByteCodeInstruction::kSampleExplicit: printf("sample %d", READ8()); break;
+        case ByteCodeInstruction::kSampleMatrix: printf("sampleMtx %d", READ8()); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
             int rows = READ8();
@@ -1009,6 +1011,11 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     continue;
                 }
             }
+
+            case ByteCodeInstruction::kSampleExplicit:
+            case ByteCodeInstruction::kSampleMatrix:
+                // TODO: Support these?
+                return false;
 
             case ByteCodeInstruction::kScalarToMatrix: {
                 int cols = READ8();
