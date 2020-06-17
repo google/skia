@@ -58,15 +58,15 @@ public:
                 "0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), "
                 "0.0, 1.0);\n        break;\n    default:\n        discard;\n}",
                 (int)_outer.edgeType);
-        SkString _input4497 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample4497;
+        SkString _input4481 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample4481;
         if (_outer.inputFP_index >= 0) {
-            _sample4497 = this->invokeChild(_outer.inputFP_index, _input4497.c_str(), args);
+            _sample4481 = this->invokeChild(_outer.inputFP_index, _input4481.c_str(), args);
         } else {
-            _sample4497 = _input4497;
+            _sample4481 = _input4481;
         }
         fragBuilder->codeAppendf("\nhalf4 inputColor = %s;\n%s = inputColor * alpha;\n",
-                                 _sample4497.c_str(), args.fOutputColor);
+                                 _sample4481.c_str(), args.fOutputColor);
     }
 
 private:
@@ -150,8 +150,14 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTest
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    return GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
-                                 *testData->caps()->shaderCaps());
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp;
+    do {
+        GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+        std::tie(success, fp) =
+                GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
+                                      *testData->caps()->shaderCaps());
+    } while (!success);
+    return fp;
 }
 #endif
