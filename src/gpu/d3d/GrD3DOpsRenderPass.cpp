@@ -187,6 +187,15 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     return true;
 }
 
+void GrD3DOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+    SkIRect combinedScissorRect;
+    if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
+        combinedScissorRect = SkIRect::MakeEmpty();
+    }
+
+    set_scissor_rects(fGpu, fRenderTarget, fOrigin, combinedScissorRect);
+}
+
 void update_resource_state(GrTexture* tex, GrRenderTarget* rt, GrD3DGpu* gpu) {
     SkASSERT(!tex->isProtected() || (rt->isProtected() && gpu->protectedContext()));
     GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(tex);

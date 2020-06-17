@@ -37,7 +37,7 @@ private:
     void onBegin() override;
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
-    void onSetScissorRect(const SkIRect&) override {}
+    void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override;
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
