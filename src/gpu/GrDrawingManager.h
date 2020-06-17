@@ -137,19 +137,15 @@ private:
 
         void closeAll(const GrCaps* caps);
 
-        // A yucky combination of closeAll and reset
-        void cleanup(GrDrawingManager*, const GrCaps* caps);
-
         void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
 
         void reset();
 
-        // These calls forceably remove a GrRenderTask from the DAG. They are problematic bc they
-        // just remove the GrRenderTask but don't cleanup any refering pointers (i.e., dependency
-        // pointers in the DAG). They work right now bc they are only called at flush time, after
-        // the topological sort is complete (so the dangling pointers aren't used).
-        void removeRenderTask(int index);
-        void removeRenderTasks(int startIndex, int stopIndex);
+        // This call forceably removes GrRenderTasks from the DAG. It is problematic bc it
+        // just removes the GrRenderTasks but doesn't cleanup any referring pointers (i.e.
+        // dependency pointers in the DAG). It works right now bc it is only called after the
+        // topological sort is complete (so the dangling pointers aren't used).
+        void rawRemoveRenderTasks(int startIndex, int stopIndex);
 
         bool empty() const { return fRenderTasks.empty(); }
         int numRenderTasks() const { return fRenderTasks.count(); }
@@ -181,8 +177,6 @@ private:
                      bool reduceOpsTaskSplitting);
 
     bool wasAbandoned() const;
-
-    void cleanup();
 
     // Closes the target's dependent render tasks (or, if not in sorting/opsTask-splitting-reduction
     // mode, closes fActiveOpsTask) in preparation for us opening a new opsTask that will write to
