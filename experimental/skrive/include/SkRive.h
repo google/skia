@@ -11,6 +11,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 
 #include <memory>
@@ -19,6 +20,31 @@
 class SkStreamAsset;
 
 namespace skrive {
+
+class Node : public sksg::Group {
+public:
+    SG_ATTRIBUTE(Name        , SkString , fName        )
+
+protected:
+    enum class Type : uint32_t {
+        kNode, // base group node
+    };
+
+    explicit Node(Type t) : fType(t) {}
+
+    SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override;
+
+private:
+    const Type fType;
+
+    SkString  fName;
+    SkV2      fTranslation = {0, 0},
+              fScale       = {1, 1};
+    float     fRotation    = 0,
+              fOpacity     = 1;
+
+    using INHERITED = sksg::Group;
+};
 
 class Artboard final : public sksg::RenderNode {
 public:

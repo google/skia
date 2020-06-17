@@ -10,9 +10,33 @@
 #include "experimental/skrive/src/reader/StreamReader.h"
 #include "include/core/SkCanvas.h"
 
+#include <tuple>
+#include <vector>
+
 namespace skrive {
 
 namespace internal {
+
+extern std::tuple<sk_sp<Node>, size_t> parse_node(StreamReader*);
+
+sk_sp<Node> parse_components(StreamReader* sr) {
+    const auto count = sr->readLength16();
+
+    std::vector<sk_sp<Node>> nodes;
+    nodes.reserve(count);
+
+    for (size_t i = 0; i < count; ++i) {
+        auto [ node, parent_index ] = parse_node(sr);
+
+        if (parent_index < i && nodes[parent_index]) {
+            nodes[parent_index]->addChild(node);
+        }
+
+        nodes.push_back(std::move(node));
+    }
+
+    return nullptr;
+}
 
 sk_sp<Artboard> parse_artboard(StreamReader* sr) {
     auto ab = sk_make_sp<Artboard>();
@@ -24,6 +48,22 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
     ab->setOrigin      (sr->readV2    ("origin"      ));
     ab->setClipContents(sr->readBool  ("clipContents"));
     ab->setColor       (sr->readColor ("color"       ));
+
+    for (;;) {
+        StreamReader::AutoBlock block(sr);
+        if (block.type() == StreamReader::BlockType::kEoB) {
+            break;
+        }
+
+        switch (block.type()) {
+        case StreamReader::BlockType::kComponents:
+            parse_components(sr);
+            break;
+        default:
+            SkDebugf("!! Unsupported block type: %d\n", block.type());
+            break;
+        }
+    }
 
     SkDebugf(".. parsed artboard \"%s\" [%f x %f]\n",
              ab->getName().c_str(), ab->getSize().x, ab->getSize().y);
