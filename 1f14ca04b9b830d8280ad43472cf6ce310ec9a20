@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8533b860_e5a05a05",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-17T22:35:06Z",
+      "side": 0,
+      "message": "INHERITED::abandonContext now takes care of this. Same in ::abandonContext above.",
+      "revId": "1f14ca04b9b830d8280ad43472cf6ce310ec9a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab641317_a695e692",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-06-17T22:35:06Z",
+      "side": 0,
+      "message": "This was all duplicate code from closeAll and GrDrawingManager::removeRenderTasks.",
+      "revId": "1f14ca04b9b830d8280ad43472cf6ce310ec9a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
