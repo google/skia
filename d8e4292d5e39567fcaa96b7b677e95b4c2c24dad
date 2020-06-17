@@ -22,6 +22,30 @@
       "revId": "d8e4292d5e39567fcaa96b7b677e95b4c2c24dad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49314b6b_5b700db9",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-17T20:33:02Z",
+      "side": 1,
+      "message": "Leftover remnant from an earlier pass at this, my bad.",
+      "parentUuid": "30c3d6a4_5454dc2e",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
+      "revId": "d8e4292d5e39567fcaa96b7b677e95b4c2c24dad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
