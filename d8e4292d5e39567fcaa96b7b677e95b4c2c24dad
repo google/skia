@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30c3d6a4_5454dc2e",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-17T19:41:07Z",
+      "side": 1,
+      "message": "Is this necessary? Seems like it shouldn\u0027t be?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
+      "revId": "d8e4292d5e39567fcaa96b7b677e95b4c2c24dad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
