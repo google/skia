@@ -25,8 +25,8 @@ public:
             : INHERITED(CLASS_ID, kNone_OptimizationFlags)
             , fXOffset(xOffset)
             , fYOffset(yOffset) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
-        this->registerChildProcessor(std::move(child));
+        this->registerChildProcessor(std::move(child),
+                                     SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
     }
 
     const char* name() const override { return "SampleMatrixVariableEffect"; }

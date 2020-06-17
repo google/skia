@@ -198,8 +198,7 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChildProcessor(std::move(child));
 }
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {

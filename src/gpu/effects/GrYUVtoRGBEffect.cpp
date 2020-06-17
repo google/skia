@@ -252,9 +252,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
         , fYUVColorSpace(src.fYUVColorSpace) {
     int numPlanes = src.numChildProcessors();
-    for (int i = 0; i < numPlanes; ++i) {
-        this->registerChildProcessor(this->childProcessor(i).clone());
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
     std::copy_n(src.fYUVAIndices, this->numChildProcessors(), fYUVAIndices);
 }
 

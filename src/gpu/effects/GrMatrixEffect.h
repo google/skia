@@ -38,9 +38,9 @@ private:
             : INHERITED(kGrMatrixEffect_ClassID, kNone_OptimizationFlags)
             , fMatrix(matrix) {
         SkASSERT(child);
-        child->setSampleMatrix(
-                SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kConstantOrUniform, this, "matrix"));
-        this->registerChildProcessor(std::move(child));
+        this->registerChildProcessor(
+                std::move(child), SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kConstantOrUniform,
+                                                     this, "matrix"));
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
