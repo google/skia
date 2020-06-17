@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71dd54f7_68f19e37",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-17T19:19:22Z",
+      "side": 1,
+      "message": "for? (even better: \u0027to make room for\u0027)",
+      "range": {
+        "startLine": 93,
+        "startChar": 20,
+        "endLine": 93,
+        "endChar": 24
+      },
+      "revId": "df0e4a913329f72546a53d8b1e7439df6dddfeda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
