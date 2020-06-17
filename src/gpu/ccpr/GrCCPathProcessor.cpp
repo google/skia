@@ -103,6 +103,10 @@ class GrCCPathProcessor::Impl : public GrGLSLGeometryProcessor {
 public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
 
+    static void GenKey(const GrCCPathProcessor& cc, GrProcessorKeyBuilder* b) {
+        b->add32(AddMatrixKeys((uint32_t) cc.fCoverageMode, SkMatrix::I(), cc.fLocalMatrix));
+    }
+
 private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  const CoordTransformRange& transformRange) override {
@@ -110,13 +114,20 @@ private:
         pdman.set2f(fAtlasAdjustUniform,
                     1.0f / proc.fAtlasDimensions.fWidth,
                     1.0f / proc.fAtlasDimensions.fHeight);
-        this->setTransformDataHelper(proc.fLocalMatrix, pdman, transformRange);
+        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransform(pdman, fLocalMatrixUni, proc.fLocalMatrix, &fLocalMatrix);
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
+    GrGLSLUniformHandler::UniformHandle fLocalMatrixUni;
+    SkMatrix fLocalMatrix = SkMatrix::InvalidMatrix();
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
+
+void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const  {
+    GrCCPathProcessor::Impl::GenKey(*this, b);
+}
 
 GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl();
@@ -218,8 +229,8 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, proc.fLocalMatrix,
-                         args.fFPCoordTransformHandler);
+    this->writeLocalCoord(v, args.fUniformHandler, gpArgs, gpArgs->fPositionVar, proc.fLocalMatrix,
+                          &fLocalMatrixUni);
 
     // Fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
