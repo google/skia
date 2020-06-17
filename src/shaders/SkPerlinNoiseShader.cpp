@@ -759,6 +759,10 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
+    static constexpr GrSamplerState kRepeatXSampler = {GrSamplerState::WrapMode::kRepeat,
+                                                       GrSamplerState::WrapMode::kClamp,
+                                                       GrSamplerState::Filter::kNearest};
+
     GrPerlinNoise2Effect(SkPerlinNoiseShaderImpl::Type type, int numOctaves, bool stitchTiles,
                          std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                          GrSurfaceProxyView permutationsView,
@@ -768,8 +772,8 @@ private:
             , fType(type)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
-            , fPermutationsSampler(std::move(permutationsView))
-            , fNoiseSampler(std::move(noiseView))
+            , fPermutationsSampler(std::move(permutationsView), kRepeatXSampler)
+            , fNoiseSampler(std::move(noiseView), kRepeatXSampler)
             , fPaintingData(std::move(paintingData)) {
         this->setTextureSamplerCnt(2);
         fCoordTransform = GrCoordTransform(matrix);
@@ -879,7 +883,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     }
 
     // Get texture coordinates and normalize
-    noiseCode.append(R"(floorVal = fract(floor(mod(floorVal, 256.0)) / half4(256.0));
+    noiseCode.append(R"(floorVal /= 256;
                         half2 latticeIdx;
                         latticeIdx.x = )");
     fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[0], "half2(floorVal.x, 0.5)");
@@ -900,7 +904,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 #endif
 
     // Get (x,y) coordinates with the permutated x
-    noiseCode.append("half4 bcoords = fract(latticeIdx.xyxy + floorVal.yyww);");
+    noiseCode.append("half4 bcoords = latticeIdx.xyxy + floorVal.yyww;");
 
     noiseCode.append("half2 uv;");
 
@@ -1073,7 +1077,7 @@ void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
     if (turbulence.stitchTiles()) {
         const SkPerlinNoiseShaderImpl::StitchData& stitchData = turbulence.stitchData();
         pdman.set2f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
-                                   SkIntToScalar(stitchData.fHeight));
+                                    SkIntToScalar(stitchData.fHeight));
     }
 }
 
@@ -1135,6 +1139,9 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
     }
 
+    static constexpr GrSamplerState kRepeatXSampler = {GrSamplerState::WrapMode::kRepeat,
+                                                       GrSamplerState::WrapMode::kClamp,
+                                                       GrSamplerState::Filter::kNearest};
     GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
                                 std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                 GrSurfaceProxyView permutationsView,
@@ -1143,8 +1150,8 @@ private:
             : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
-            , fPermutationsSampler(std::move(permutationsView))
-            , fGradientSampler(std::move(gradientView))
+            , fPermutationsSampler(std::move(permutationsView), kRepeatXSampler)
+            , fGradientSampler(std::move(gradientView), kRepeatXSampler)
             , fPaintingData(std::move(paintingData)) {
         this->setTextureSamplerCnt(2);
         fCoordTransform = GrCoordTransform(matrix);
@@ -1232,10 +1239,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString permFuncName;
     SkString permCode("return ");
-    // FIXME even though I'm creating these textures with kRepeat_TileMode, they're clamped. Not
-    // sure why. Using fract() (here and the next texture lookup) as a workaround.
-    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0],
-                                     "float2(fract(x / 256.0), 0.0)");
+    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "float2(x/256.0, 0.0)");
     permCode.append(".r * 255.0;");
     fragBuilder->emitFunction(kHalf_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
                               permCode.c_str(), &permFuncName);
@@ -1248,7 +1252,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     SkString gradFuncName;
     SkString gradCode("return half(dot(");
     fragBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1],
-                                     "float2(fract(x / 16.0), 0.0)");
+                                     "float2(x/16.0, 0.0)");
     gradCode.append(".rgb * 255.0 - float3(1.0), p));");
     fragBuilder->emitFunction(kHalf_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs,
                               gradCode.c_str(), &gradFuncName);
