@@ -265,9 +265,11 @@
 
 #if !defined(SkUNREACHABLE)
 #  if defined(_MSC_VER) && !defined(__clang__)
-#    define SkUNREACHABLE __assume(false)
+#    include <intrin.h>
+#    define FAST_FAIL_INVALID_ARG                 5
+#    define SkUNREACHABLE __fastfail(FAST_FAIL_INVALID_ARG)
 #  else
-#    define SkUNREACHABLE __builtin_unreachable()
+#    define SkUNREACHABLE __builtin_trap()
 #  endif
 #endif
 
