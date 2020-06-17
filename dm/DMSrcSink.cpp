@@ -103,6 +103,7 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
     }
 
     skiagm::DrawResult drawResult = gm->draw(canvas, &msg);
+    gm->gpuTeardown(context);
     switch (drawResult) {
         case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);

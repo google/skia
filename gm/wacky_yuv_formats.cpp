@@ -1073,6 +1073,72 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
     return kUnknown_SkColorType;
 }
 
+class BackendBlock {
+public:
+    static void release(void* releaseContext) {
+        BackendBlock* beBlock = reinterpret_cast<BackendBlock*>(releaseContext);
+
+//        delete beBlock;
+        beBlock->clear();
+    }
+
+    static std::unique_ptr<BackendBlock> Make(GrContext* context, SkBitmap* bitmaps, int numBitmaps) {
+        std::unique_ptr<BackendBlock> tmp(new BackendBlock(context, numBitmaps));
+
+        for (int i = 0; i < numBitmaps; ++i) {
+            GrBackendTexture tex = create_yuva_texture(context, bitmaps[i]);
+            if (!tex.isValid()) {
+                return nullptr;
+            }
+
+            tmp->set(i, tex);
+        }
+
+        // On some backends the work isn't completed until after a flush
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfoSyncCpu);
+        context->submit(true);
+
+        return tmp;
+    }
+
+    BackendBlock(GrContext* context, int numTextures)
+            : fContext(context)
+            , fNumTextures(numTextures) {
+        SkASSERT(context->priv().getGpu());
+        SkASSERT(context->priv().asDirectContext());
+    }
+
+    ~BackendBlock() { this->clear(); }
+
+    void clear() {
+        for (int i = 0; i < 4; ++i) {
+            if (fYUVATextures[i].isValid()) {
+                fContext->deleteBackendTexture(fYUVATextures[i]);
+                fYUVATextures[i] = GrBackendTexture();
+            }
+        }
+        fContext = nullptr;
+    }
+
+    const GrBackendTexture* yuvaTextures() const { return fYUVATextures; }
+    int numTextures() const { return fNumTextures; }
+
+    void set(int index, const GrBackendTexture& tex) {
+        SkASSERT(index < fNumTextures);
+        SkASSERT(!fYUVATextures[index].isValid());
+        SkASSERT(tex.isValid());
+
+        fYUVATextures[index] = tex;
+    }
+
+private:
+    GrContext*       fContext;
+    GrBackendTexture fYUVATextures[4];
+    const int        fNumTextures;
+};
+
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -1125,7 +1191,7 @@ protected:
                              kLabelHeight + numRows * (wh + kPad));
     }
 
-    void onOnceBeforeDraw() override {
+    void createBitmaps() {
         SkPoint origin = { kTileWidthHeight/2.0f, kTileWidthHeight/2.0f };
         float outerRadius = kTileWidthHeight/2.0f - 20.0f;
         float innerRadius = 20.0f;
@@ -1154,14 +1220,15 @@ protected:
                                YUVFormat yuvFormat,
                                SkYUVColorSpace yuvColorSpace,
                                bool opaque,
-                               const GrBackendTexture yuvaTextures[],
+                               std::unique_ptr<BackendBlock> beBlock,
                                const SkYUVAIndex yuvaIndices[4],
-                               int numTextures,
                                SkISize imageSize) {
-        GrBackendTexture shrunkTextures[4];
+        std::unique_ptr<BackendBlock> newBEBlock(new BackendBlock(context, beBlock->numTextures()));
 
-        for (int i = 0; i < numTextures; ++i) {
-            SkColorType ct = get_color_type(yuvaTextures[i].getBackendFormat());
+        for (int i = 0; i < beBlock->numTextures(); ++i) {
+            const GrBackendTexture& curTex = beBlock->yuvaTextures()[i];
+
+            SkColorType ct = get_color_type(curTex.getBackendFormat());
             if (ct == kUnknown_SkColorType || !context->colorTypeSupportedAsSurface(ct)) {
                 return nullptr;
             }
@@ -1173,27 +1240,26 @@ protected:
                 return nullptr;
             }
 
-            SkISize shrunkPlaneSize = { yuvaTextures[i].width() / 2, yuvaTextures[i].height() / 2 };
+            SkISize shrunkPlaneSize = {curTex.width() / 2, curTex.height() / 2 };
 
-            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, yuvaTextures[i],
+            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, curTex,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   ct,
                                                                   kPremul_SkAlphaType,
                                                                   nullptr);
 
-            shrunkTextures[i] = context->createBackendTexture(shrunkPlaneSize.width(),
-                                                              shrunkPlaneSize.height(),
-                                                              yuvaTextures[i].getBackendFormat(),
-                                                              GrMipMapped::kNo,
-                                                              GrRenderable::kYes);
-            if (!shrunkTextures[i].isValid()) {
+            GrBackendTexture tmp = context->createBackendTexture(shrunkPlaneSize.width(),
+                                                                 shrunkPlaneSize.height(),
+                                                                 curTex.getBackendFormat(),
+                                                                 GrMipMapped::kNo,
+                                                                 GrRenderable::kYes);
+            if (!tmp.isValid()) {
                 return nullptr;
             }
 
-            // Store this away so it will be cleaned up at the end.
-            fBackendTextures.push_back(shrunkTextures[i]);
+            newBEBlock->set(i, tmp);
 
-            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, shrunkTextures[i],
+            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, tmp,
                                                                    kTopLeft_GrSurfaceOrigin, 0,
                                                                    ct, nullptr, nullptr);
             if (!s) {
@@ -1215,10 +1281,13 @@ protected:
 
         return SkImage::MakeFromYUVATextures(context,
                                              yuvColorSpace,
-                                             shrunkTextures,
+                                             newBEBlock->yuvaTextures(),
                                              yuvaIndices,
                                              shrunkImageSize,
-                                             kTopLeft_GrSurfaceOrigin);
+                                             kTopLeft_GrSurfaceOrigin,
+                                             nullptr,
+                                             BackendBlock::release, newBEBlock.get());
+        newBEBlock.release();
     }
 
     void createImages(GrContext* context) {
@@ -1243,21 +1312,22 @@ protected:
                             continue;
                         }
 
-                        GrBackendTexture yuvaTextures[4];
-                        SkPixmap yuvaPixmaps[4];
+                        std::unique_ptr<BackendBlock> beBlock = BackendBlock::Make(context,
+                                                                                   resultBMs,
+                                                                                   numTextures);
+                        if (!beBlock) {
+                            continue;
+                        }
 
+                        SkPixmap yuvaPixmaps[4];
                         for (int i = 0; i < numTextures; ++i) {
-                            yuvaTextures[i] = create_yuva_texture(context, resultBMs[i]);
-                            if (yuvaTextures[i].isValid()) {
-                                fBackendTextures.push_back(yuvaTextures[i]);
-                            }
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
                         SkYUVAIndex yuvaIndices[4];
                         const auto& planarConfig = YUVAFormatPlanarConfig(format);
                         bool externalAlphaPlane = !opaque && !planarConfig.hasAlpha();
-                        if (!planarConfig.getYUVAIndices(yuvaTextures, numTextures,
+                        if (!planarConfig.getYUVAIndices(beBlock->yuvaTextures(), numTextures,
                                                          externalAlphaPlane, yuvaIndices)) {
                             continue;
                         }
@@ -1268,9 +1338,8 @@ protected:
                                                       format,
                                                       (SkYUVColorSpace)cs,
                                                       opaque,
-                                                      yuvaTextures,
+                                                      std::move(beBlock),
                                                       yuvaIndices,
-                                                      numTextures,
                                                       fOriginalBMs[opaque].dimensions());
                         } else {
                             int counterMod = counter % 3;
@@ -1285,7 +1354,7 @@ protected:
                                 fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
                                     context,
                                     (SkYUVColorSpace)cs,
-                                    yuvaTextures,
+                                    beBlock->yuvaTextures(),
                                     yuvaIndices,
                                     { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
                                     kTopLeft_GrSurfaceOrigin);
@@ -1294,10 +1363,13 @@ protected:
                                 fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
                                     context,
                                     (SkYUVColorSpace)cs,
-                                    yuvaTextures,
+                                    beBlock->yuvaTextures(),
                                     yuvaIndices,
                                     { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                    kTopLeft_GrSurfaceOrigin);
+                                    kTopLeft_GrSurfaceOrigin,
+                                    nullptr,
+                                    BackendBlock::release, beBlock.get());
+                                beBlock.release();
                                 break;
                             case 2:
                             default:
@@ -1324,9 +1396,23 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        this->createImages(canvas->getGrContext());
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        this->createBitmaps();
+        this->createImages(context);
+        return DrawResult::kOk;
+    }
 
+    void onGpuTeardown(GrContext* context) override {
+        if (!context->abandoned()) {
+            GrFlushInfo flushInfoSyncCpu;
+            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+            context->flush(flushInfoSyncCpu);
+            context->submit(true);
+            context->submit();
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseDomain) {
             cellWidth *= 1.5f;
@@ -1391,30 +1477,18 @@ protected:
                                               &paint, constraint);
                     }
                     dstRect.offset(0.f, cellHeight + kPad);
+
+                    fImages[opaque][cs][format] = nullptr;
                 }
 
                 dstRect.offset(cellWidth + kPad, 0.f);
             }
         }
-        if (auto context = canvas->getGrContext()) {
-            if (!context->abandoned()) {
-                context->flushAndSubmit();
-                GrGpu* gpu = context->priv().getGpu();
-                SkASSERT(gpu);
-                gpu->testingOnly_flushGpuAndSync();
-                for (const auto& tex : fBackendTextures) {
-                    context->deleteBackendTexture(tex);
-                }
-                fBackendTextures.reset();
-            }
-        }
-        SkASSERT(!fBackendTextures.count());
     }
 
 private:
     SkBitmap                   fOriginalBMs[2];
     sk_sp<SkImage>             fImages[2][kLastEnum_SkYUVColorSpace + 1][kLast_YUVFormat + 1];
-    SkTArray<GrBackendTexture> fBackendTextures;
     bool                       fUseTargetColorSpace;
     bool                       fUseDomain;
     bool                       fQuarterSize;
@@ -1448,7 +1522,7 @@ protected:
                              numRows * (kTileWidthHeight + kPad) + kPad);
     }
 
-    void onOnceBeforeDraw() override {
+    void createBitmaps() {
         SkPoint origin = { kTileWidthHeight/2.0f, kTileWidthHeight/2.0f };
         float outerRadius = kTileWidthHeight/2.0f - 20.0f;
         float innerRadius = 20.0f;
@@ -1510,8 +1584,22 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        this->createBitmaps();
+
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+
+        SkASSERT(context->priv().asDirectContext());
+
         this->createImages(context);
+
+        return DrawResult::kOk;
+    }
+
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+        SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         int x = kPad;
         for (int tagged : { 0, 1 }) {
@@ -1546,11 +1634,14 @@ protected:
                 x += kTileWidthHeight + kPad;
             }
         }
+    }
 
-        context->flushAndSubmit();
-        GrGpu* gpu = context->priv().getGpu();
-        SkASSERT(gpu);
-        gpu->testingOnly_flushGpuAndSync();
+    void onGpuTeardown(GrContext* context) override {
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfoSyncCpu);
+        context->submit(true);
+
         for (const auto& tex : fBackendTextures) {
             context->deleteBackendTexture(tex);
         }

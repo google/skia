@@ -264,7 +264,9 @@ bool SkImage_GpuBase::onIsValid(GrContext* context) const {
 bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
                                              int numTextures, const SkYUVAIndex yuvaIndices[4],
                                              GrSurfaceOrigin imageOrigin,
-                                             GrSurfaceProxyView tempViews[4]) {
+                                             GrSurfaceProxyView tempViews[4],
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContext) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (int textureIndex = 0; textureIndex < numTextures; ++textureIndex) {
         const GrBackendFormat& backendFormat = yuvaTextures[textureIndex].getBackendFormat();
@@ -276,7 +278,8 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
 
         auto proxy = proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex],
                                                        kBorrow_GrWrapOwnership,
-                                                       GrWrapCacheable::kNo, kRead_GrIOType);
+                                                       GrWrapCacheable::kNo, kRead_GrIOType,
+                                                       textureReleaseProc, releaseContext);
         if (!proxy) {
             return false;
         }

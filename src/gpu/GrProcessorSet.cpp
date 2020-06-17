@@ -69,8 +69,9 @@ GrProcessorSet::GrProcessorSet(GrProcessorSet&& that)
         fFragmentProcessors[i] =
                 std::move(that.fFragmentProcessors[i + that.fFragmentProcessorOffset]);
     }
-    that.fColorFragmentProcessorCnt = 0;
     that.fFragmentProcessors.reset(0);
+    that.fColorFragmentProcessorCnt = 0;
+    that.fFragmentProcessorOffset = 0;
 }
 
 GrProcessorSet::~GrProcessorSet() {
