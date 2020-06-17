@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "78e6f47b_887dae59",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-17T20:35:27Z",
+      "side": 1,
+      "message": "Do you actually construct them with kVoid somewhere? I\u0027m wondering if we could just assert the left side of the ||. If someone wants to explicitly make an existing var invalid they could always use \u003d {}",
+      "revId": "df0e4a913329f72546a53d8b1e7439df6dddfeda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71dd54f7_68f19e37",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.h",
         "patchSetId": 1
