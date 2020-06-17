@@ -41,15 +41,15 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
         return nullptr;
     }
 
-    GrSurfaceProxyView mask =
-            find_or_create_rrect_blur_mask(context, rrectToDraw, dimensions, xformedSigma);
-    if (!mask) {
+    std::unique_ptr<GrFragmentProcessor> maskFP =
+            find_or_create_rrect_blur_mask_fp(context, rrectToDraw, dimensions, xformedSigma);
+    if (!maskFP) {
         return nullptr;
     }
 
     return std::unique_ptr<GrFragmentProcessor>(
             new GrRRectBlurEffect(std::move(inputFP), xformedSigma, devRRect.getBounds(),
-                                  SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
+                                  SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(maskFP)));
 }
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -91,21 +91,19 @@ public:
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
         fragBuilder->codeAppendf("nslatedFragPos / proxyDims;");
-        SkString _input8931 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample8931;
+        SkString _input9604 = SkStringPrintf("%s", args.fInputColor);
+        SkString _sample9604;
         if (_outer.inputFP_index >= 0) {
-            _sample8931 = this->invokeChild(_outer.inputFP_index, _input8931.c_str(), args);
+            _sample9604 = this->invokeChild(_outer.inputFP_index, _input9604.c_str(), args);
         } else {
-            _sample8931 = _input8931;
+            _sample9604 = _input9604;
         }
-        fragBuilder->codeAppendf(
-                "\nhalf4 inputColor = %s;\n%s = inputColor * sample(%s, float2(texCoord)).%s;\n",
-                _sample8931.c_str(), args.fOutputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str());
+        fragBuilder->codeAppendf("\nhalf4 inputColor = %s;", _sample9604.c_str());
+        SkString _sample9664;
+        SkString _coords9664("float2(texCoord)");
+        _sample9664 = this->invokeChild(_outer.ninePatchFP_index, args, _coords9664.c_str());
+        fragBuilder->codeAppendf("\n%s = inputColor * %s;\n", args.fOutputColor,
+                                 _sample9664.c_str());
     }
 
 private:
@@ -119,9 +117,6 @@ private:
         (void)rect;
         UniformHandle& cornerRadius = cornerRadiusVar;
         (void)cornerRadius;
-        const GrSurfaceProxyView& ninePatchSamplerView = _outer.textureSampler(0).view();
-        GrTexture& ninePatchSampler = *ninePatchSamplerView.proxy()->peekTexture();
-        (void)ninePatchSampler;
         UniformHandle& proxyRect = proxyRectVar;
         (void)proxyRect;
         UniformHandle& blurRadius = blurRadiusVar;
@@ -149,25 +144,23 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (sigma != that.sigma) return false;
     if (rect != that.rect) return false;
     if (cornerRadius != that.cornerRadius) return false;
-    if (ninePatchSampler != that.ninePatchSampler) return false;
     return true;
 }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         : INHERITED(kGrRRectBlurEffect_ClassID, src.optimizationFlags())
         , sigma(src.sigma)
         , rect(src.rect)
-        , cornerRadius(src.cornerRadius)
-        , ninePatchSampler(src.ninePatchSampler) {
+        , cornerRadius(src.cornerRadius) {
     if (src.inputFP_index >= 0) {
         inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
     }
-    this->setTextureSamplerCnt(1);
+    {
+        ninePatchFP_index =
+                this->cloneAndRegisterChildProcessor(src.childProcessor(src.ninePatchFP_index));
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(*this));
-}
-const GrFragmentProcessor::TextureSampler& GrRRectBlurEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, ninePatchSampler);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS
