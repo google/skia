@@ -1632,7 +1632,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                 return;
             }
         }
-        // The xpsCompatiblePath is now inverse even odd, so fall through.
+        [[fallthrough]];  // The xpsCompatiblePath is now inverse even odd, so fall through.
         case SkPathFillType::kInverseEvenOdd: {
             const SkRect universe = SkRect::MakeLTRB(
                 0, 0,
