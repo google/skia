@@ -4007,6 +4007,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kANGLE_GrGLDriver == ctxInfo.driver()) {
         shaderCaps->fCanUseDoLoops = false;
     }
+
+    // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 &&
+        ctxInfo.angleVendor() == GrGLANGLEVendor::kAMD) {
+        fProgramBinarySupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
