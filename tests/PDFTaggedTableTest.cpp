@@ -82,11 +82,9 @@ DEF_TEST(SkPDF_tagged_table, r) {
             } else {
                 cell->fTypeString = "TD";
                 std::vector<SkString> headers;
-                SkString rowHeaderIdString;
-                rowHeaderIdString.printf("node%08d", 10 + rowIndex * kColCount);
+                SkString rowHeaderIdString = SkPDF::NodeIdToString(10 + rowIndex * kColCount);
                 headers.push_back(rowHeaderIdString);
-                SkString colHeaderIdString;
-                colHeaderIdString.printf("node%08d", 10 + colIndex);
+                SkString colHeaderIdString = SkPDF::NodeIdToString(10 + colIndex);
                 headers.push_back(colHeaderIdString);
                 cell->fAttributes.appendStringArray(
                     "Table", "Headers", headers);

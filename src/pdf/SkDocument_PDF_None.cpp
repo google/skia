@@ -17,6 +17,10 @@ void SkPDF::SetNodeId(SkCanvas* c, int n) {
     c->drawAnnotation({0, 0, 0, 0}, "PDF_Node_Key", SkData::MakeWithCopy(&n, sizeof(n)).get());
 }
 
+SkString NodeIdToString(int nodeId) {
+    return SkString();
+}
+
 SkPDF::AttributeList::AttributeList() = default;
 
 SkPDF::AttributeList::~AttributeList() = default;

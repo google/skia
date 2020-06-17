@@ -598,6 +598,17 @@ void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
     canvas->drawAnnotation({0, 0, 0, 0}, key, payload.get());
 }
 
+// Structure element nodes need a unique alphanumeric ID,
+// and we need to be able to output them sorted in lexicographic
+// order. This helper function takes one of our node IDs and
+// builds an ID string that zero-pads the digits so that lexicographic
+// order matches numeric order.
+SkString SkPDF::NodeIdToString(int nodeId) {
+    SkString idString;
+    idString.printf("node%08d", nodeId);
+    return idString;
+}
+
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
     SkPDF::Metadata meta = metadata;
     if (meta.fRasterDPI <= 0) {
