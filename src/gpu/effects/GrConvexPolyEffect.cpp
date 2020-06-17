@@ -97,9 +97,6 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 GrFragmentProcessor::MakeResult GrConvexPolyEffect::Make(
         std::unique_ptr<GrFragmentProcessor> inputFP,
         GrClipEdgeType type, const SkPath& path) {
-    if (GrClipEdgeType::kHairlineAA == type) {
-        return MakeFailure(std::move(inputFP));
-    }
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask || !path.isConvex()) {
         return MakeFailure(std::move(inputFP));
     }
@@ -173,10 +170,7 @@ GrFragmentProcessor::MakeResult GrConvexPolyEffect::Make(
 GrFragmentProcessor::MakeResult GrConvexPolyEffect::Make(
         std::unique_ptr<GrFragmentProcessor> inputFP,
         GrClipEdgeType edgeType, const SkRect& rect) {
-    if (GrClipEdgeType::kHairlineAA == edgeType) {
-        return MakeFailure(std::move(inputFP));
-    }
-
+    // TODO: Replace calls to this method with calling GrAARectEffect::Make directly
     return MakeSuccess(GrAARectEffect::Make(std::move(inputFP), edgeType, rect));
 }
 
