@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e93a385_3d8aadae",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-17T13:34:53Z",
+      "side": 1,
+      "message": "You may be able to fix your warnings/errors issue by using third_party(\"...\") for each of these source_set()s, or by using your :zlib_simd_config in each, splitting it up if it\u0027s not safe for the rest of those flags to be applied to each target.",
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eaf3acf_fcaf6169",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-17T13:34:53Z",
+      "side": 1,
+      "message": "I don\u0027t think we ever target ARMv8 when the compiler isn\u0027t Clang or MSVC.\n\n(I don\u0027t see where use_thin_lto is defined.)",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 7
+      },
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
