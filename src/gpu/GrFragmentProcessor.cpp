@@ -110,6 +110,13 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
     }
 }
 
+void GrFragmentProcessor::setSampledWithExplicitCoords() {
+    fFlags |= kSampledWithExplicitCoords;
+    for (auto& child : fChildProcessors) {
+        child->setSampledWithExplicitCoords();
+    }
+}
+
 #ifdef SK_DEBUG
 bool GrFragmentProcessor::isInstantiated() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
@@ -128,7 +135,17 @@ bool GrFragmentProcessor::isInstantiated() const {
 }
 #endif
 
-int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
+int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child,
+                                                SkSL::SampleMatrix sampleMatrix,
+                                                bool explicitlySampled) {
+    // Configure child's sampling state first
+    if (explicitlySampled) {
+        child->setSampledWithExplicitCoords();
+    }
+    if (sampleMatrix.fKind != SkSL::SampleMatrix::Kind::kNone) {
+        child->setSampleMatrix(sampleMatrix);
+    }
+
     if (child->fFlags & kHasCoordTransforms_Flag) {
         fFlags |= kHasCoordTransforms_Flag;
     }
