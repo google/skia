@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcec163e_7168816d",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-06-17T13:52:05Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t realize that this line gets picked up by Skia-in-Flutter, even though it\u0027s not in Skia-in-Chromium (since https://source.chromium.org/chromium/chromium/src/+/master:skia/BUILD.gn is its own thing.",
+      "revId": "7665f021407cc237425aab0e35b0d10f304839b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25e8b00d_6ed00830",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-06-17T13:52:05Z",
+      "side": 1,
+      "message": "This line doesn\u0027t get picked up by Flutter, though, IIUC.",
+      "revId": "7665f021407cc237425aab0e35b0d10f304839b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

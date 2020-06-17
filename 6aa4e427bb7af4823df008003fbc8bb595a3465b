@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cc365c2_850c3116",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-06-17T13:52:05Z",
+      "side": 1,
+      "message": "FYI, the order of the 5 steps has changed in the reland. See BUILD.gn comment for the new steps.",
+      "revId": "6aa4e427bb7af4823df008003fbc8bb595a3465b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9eadf13e_df3463e6",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-06-17T13:52:05Z",
+      "side": 1,
+      "message": "This newer Wuffs version picks up https://github.com/google/wuffs/commit/d377dcaea826f12b47492cced1b75450a440f6c1 which should fix the Build-Win-MSVC-x86_64-Debug-Wuffs build even after we uncomment enabling SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2 (as evidenced by https://skia-review.googlesource.com/c/skia/+/296757 which has this patch but also does define that macro only for trybotting, not submitting; it also won\u0027t fix Flutter until its Wuffs version gets uprevved).",
+      "revId": "6aa4e427bb7af4823df008003fbc8bb595a3465b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
