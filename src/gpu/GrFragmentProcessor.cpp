@@ -68,46 +68,88 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
     return this->onTextureSampler(i);
 }
 
+int GrFragmentProcessor::numCoordTransforms() const {
+    if (SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag) && fCoordTransforms.empty() &&
+        !this->isSampledWithExplicitCoords()) {
+        // coordTransform(0) will return an implicitly defined coord transform so that varyings are
+        // added for this FP in order to support const/uniform sample matrix lifting.
+        return 1;
+    } else {
+        return fCoordTransforms.count();
+    }
+}
+
+const GrCoordTransform& GrFragmentProcessor::coordTransform(int i) const {
+    SkASSERT(i >= 0 && i < this->numCoordTransforms());
+    if (SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag) && fCoordTransforms.empty() &&
+        !this->isSampledWithExplicitCoords()) {
+        SkASSERT(i == 0);
+
+        // as things stand, matrices only work when there's a coord transform, so we need to add
+        // an identity transform to keep the downstream code happy
+        static const GrCoordTransform kImplicitIdentity;
+        return kImplicitIdentity;
+    } else {
+        return *fCoordTransforms[i];
+    }
+}
+
 void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fFlags |= kHasCoordTransforms_Flag;
 }
 
 void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
-    if (newMatrix == fMatrix) {
-        return;
+    SkASSERT(!newMatrix.isNoOp());
+    SkASSERT(fMatrix.isNoOp());
+
+    fMatrix = newMatrix;
+    // When an FP is sampled using variable matrix expressions, it is effectively being sampled
+    // explicitly, except that the call site will automatically evaluate the matrix expression to
+    // produce the float2 passed into this FP.
+    if (fMatrix.isVariable()) {
+        this->setSampledWithExplicitCoords();
     }
-    SkASSERT(newMatrix.fKind != SkSL::SampleMatrix::Kind::kNone);
-    SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
-    if (this->numCoordTransforms() == 0 &&
-        (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform ||
-         newMatrix.fKind == SkSL::SampleMatrix::Kind::kMixed)) {
-        // as things stand, matrices only work when there's a coord transform, so we need to add
-        // an identity transform to keep the downstream code happy
-        static GrCoordTransform identity;
-        this->addCoordTransform(&identity);
-    }
-    if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-        if (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-            // need to base this transform on the one that happened in our parent
-            // If we're already based on something, then we have to assume that parent is now
-            // based on yet another transform, so don't update our base pointer (or we'll skip
-            // the intermediate transform).
-            if (!fMatrix.fBase) {
-                fMatrix.fBase = newMatrix.fOwner;
-            }
-        } else {
-            SkASSERT(newMatrix.fKind == SkSL::SampleMatrix::Kind::kVariable);
-            fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
-                                         fMatrix.fExpression);
+    // Push perspective matrix type to children
+    if (fMatrix.fHasPerspective) {
+        for (auto& child : fChildProcessors) {
+            child->notifyParentHasPerspective();
         }
-    } else {
-        SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
-        fMatrix = newMatrix;
     }
+}
+
+
+void GrFragmentProcessor::setSampledWithExplicitCoords() {
+    // This property propagates down, so if we're already explicitly sampled, all our children
+    // are also already explicitly sampled.
+    if (!this->isSampledWithExplicitCoords()) {
+        fFlags |= kSampledWithExplicitCoords;
+        for (auto& child : fChildProcessors) {
+            child->setSampledWithExplicitCoords();
+        }
+    }
+#ifdef SK_DEBUG
     for (auto& child : fChildProcessors) {
-        child->setSampleMatrix(newMatrix);
+        SkASSERT(child->isSampledWithExplicitCoords());
     }
+#endif
+}
+
+void GrFragmentProcessor::notifyParentHasPerspective() {
+    // This propagates down, so if we've already been marked as having perspective, all our
+    // children will also reflect that.
+    if (!fMatrix.fHasPerspective && !fMatrix.fParentHasPerspective) {
+        fMatrix.fParentHasPerspective = true;
+        for (auto& child : fChildProcessors) {
+            child->notifyParentHasPerspective();
+        }
+    }
+#ifdef SK_DEBUG
+    for (auto& child : fChildProcessors) {
+        SkASSERT(child->sampleMatrix().fHasPerspective ||
+                 child->sampleMatrix().fParentHasPerspective);
+    }
+#endif
 }
 
 #ifdef SK_DEBUG
@@ -128,25 +170,61 @@ bool GrFragmentProcessor::isInstantiated() const {
 }
 #endif
 
-int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
+int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child,
+                                                SkSL::SampleMatrix sampleMatrix,
+                                                bool explicitlySampled) {
+    // The child should not have been attached to another FP already and have no matrix-sampling.
+    // FIXME: it may be marked as explicitly sampled if 'child' is a runtime effect, but once
+    // GrSkSLFP no longer requires that behavior, we can assert child is not explicitly sampled yet.
+    SkASSERT(child && !child->fParent && child->sampleMatrix().isNoOp());
+
+    // Configure child's sampling state first
+    if (explicitlySampled) {
+        child->setSampledWithExplicitCoords();
+    }
+    if (!sampleMatrix.isNoOp()) {
+        child->setSampleMatrix(sampleMatrix);
+    }
+
     if (child->fFlags & kHasCoordTransforms_Flag) {
         fFlags |= kHasCoordTransforms_Flag;
+    }
+
+    if (child->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable) {
+        // Since the child is sampled with a variable matrix expression, auto-generated code in
+        // invokeChildWithMatrix() for this FP will refer to the local coordinates.
+        this->setUsesLocalCoordsDirectly();
+    }
+
+    // If the child is not sampled explicitly and not already accessing local coords directly
+    // (through reference or variable matrix expansion), then mark that this FP tree relies on
+    // local coordinates at a lower level. If the child is sampled with explicit coordinates and
+    // there isn't any other direct reference to the local coords, we halt the upwards propagation
+    // because it means this FP is determining coordinates on its own.
+    if (!child->isSampledWithExplicitCoords()) {
+        if ((child->fFlags & kUsesLocalCoordsDirectly_Flag ||
+             child->fFlags & kUsesLocalCoordsIndirectly_Flag)) {
+            fFlags |= kUsesLocalCoordsIndirectly_Flag;
+        }
     }
     fRequestedFeatures |= child->fRequestedFeatures;
 
     int index = fChildProcessors.count();
+    // Record that the child is attached to us; this FP is the source of any uniform data needed
+    // to evaluate the child sample matrix.
+    child->fParent = this;
     fChildProcessors.push_back(std::move(child));
-    SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
-             fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform);
+
+    // Sanity check: our sample matrix comes from a parent we shouldn't have yet.
+    // FIXME if GrSkSLFP's don't need to always be sampled explicitly, we can assert that's false
+    SkASSERT(fMatrix.isNoOp() && !fParent);
     return index;
 }
 
 int GrFragmentProcessor::cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp) {
     std::unique_ptr<GrFragmentProcessor> clone = fp.clone();
-    if (fp.isSampledWithExplicitCoords()) {
-        clone->setSampledWithExplicitCoords();
-    }
-    return this->registerChildProcessor(std::move(clone));
+    return this->registerChildProcessor(std::move(clone), fp.sampleMatrix(),
+                                        fp.isSampledWithExplicitCoords());
 }
 
 void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {

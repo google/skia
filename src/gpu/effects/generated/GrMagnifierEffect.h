@@ -58,6 +58,7 @@ private:
             , yInvZoom(yInvZoom)
             , xInvInset(xInvInset)
             , yInvInset(yInvInset) {
+        this->setUsesLocalCoordsDirectly();
         this->setTextureSamplerCnt(1);
         this->addCoordTransform(&srcCoordTransform);
     }

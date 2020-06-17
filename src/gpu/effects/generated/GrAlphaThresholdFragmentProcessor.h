@@ -55,6 +55,7 @@ private:
             , mask(std::move(mask))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
+        this->setUsesLocalCoordsDirectly();
         if (inputFP) {
             inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }

@@ -47,8 +47,6 @@ public:
                 &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
         offsetVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
                 "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
@@ -57,7 +55,7 @@ public:
                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                sk_TransformedCoords2D_0.c_str(),
+                args.fLocalCoord,
                 args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
@@ -168,6 +166,7 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         , yInvInset(src.yInvInset) {
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&srcCoordTransform);
+    this->setUsesLocalCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(*this));

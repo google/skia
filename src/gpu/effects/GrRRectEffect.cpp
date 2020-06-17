@@ -113,9 +113,6 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::clone() const {
     if (fInputFPIndex >= 0) {
         const GrFragmentProcessor& inputFP = this->childProcessor(fInputFPIndex);
         inputFPClone = inputFP.clone();
-        if (inputFP.isSampledWithExplicitCoords()) {
-            inputFPClone->setSampledWithExplicitCoords();
-        }
     }
 
     return std::unique_ptr<GrFragmentProcessor>(new CircularRRectEffect(

@@ -62,6 +62,10 @@ public:
     void compileError(const char* shader, const char* errors) override {
         fShaders.push_back(SkString(shader));
         fErrors.push_back(SkString(errors));
+
+        SkDebugf("Shader Compilation Error: %s\n", errors);
+        SkDebugf("=========================\n");
+        SkDebugf("%s\n\n", shader);
     }
 
     void reset() {

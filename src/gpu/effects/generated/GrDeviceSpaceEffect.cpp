@@ -30,10 +30,11 @@ public:
         fragBuilder->codeAppendf("float3 p = %s * float3(sk_FragCoord.xy, 1);",
                                  args.fUniformHandler->getUniformCStr(matrixVar));
         SkString _input276 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample276;
         SkString _coords276("p.xy / p.z");
+        SkString _sample276;
         _sample276 =
                 this->invokeChild(_outer.fp_index, _input276.c_str(), args, _coords276.c_str());
+
         fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample276.c_str());
     }
 

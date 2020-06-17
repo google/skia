@@ -57,12 +57,9 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
                                                  "Kernel", arrayCount, &kernel);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    auto coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                ce.sampleMatrix());
-
     fragBuilder->codeAppendf("%s = half4(0, 0, 0, 0);", args.fOutputColor);
 
-    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.fRadius, inc);
+    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", args.fLocalCoord, ce.fRadius, inc);
     fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
@@ -171,8 +168,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                     ProcessorOptimizationFlags(child.get()))
         , fRadius(radius)
         , fDirection(direction) {
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChildProcessor(std::move(child));
     SkASSERT(radius <= kMaxKernelRadius);
     fill_in_1D_gaussian_kernel(fKernel, gaussianSigma, fRadius);
     this->addCoordTransform(&fCoordTransform);
@@ -183,9 +179,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID, that.optimizationFlags())
         , fRadius(that.fRadius)
         , fDirection(that.fDirection) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
     memcpy(fKernel, that.fKernel, radius_to_width(fRadius) * sizeof(float));
     this->addCoordTransform(&fCoordTransform);
 }

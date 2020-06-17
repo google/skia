@@ -62,11 +62,8 @@ public:
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
                 this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
-                this->emitTransforms(args.fVertBuilder,
-                                     args.fVaryingHandler,
-                                     args.fUniformHandler,
-                                     latticeGP.fInTextureCoords.asShaderVar(),
-                                     args.fFPCoordTransformHandler);
+                gpArgs->fLocalCoordVar = latticeGP.fInTextureCoords.asShaderVar();
+
                 args.fFragBuilder->codeAppend("float2 textureCoords;");
                 args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInTextureCoords,
                                                               "textureCoords");

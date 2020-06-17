@@ -224,10 +224,9 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     const char* bias = uniformHandler->getUniformCStr(fBiasUni);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    mce.sampleMatrix());
+
     fragBuilder->codeAppend("half4 sum = half4(0, 0, 0, 0);");
-    fragBuilder->codeAppendf("float2 coord = %s - %s;", coords2D.c_str(), kernelOffset);
+    fragBuilder->codeAppendf("float2 coord = %s - %s;", args.fLocalCoord, kernelOffset);
 
     if (mce.kernelIsSampled()) {
         this->emitKernelBlock(args, {});
@@ -245,7 +244,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                  args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
-        auto sample = this->invokeChild(0, args, coords2D.c_str());
+        auto sample = this->invokeChild(0, args);
         fragBuilder->codeAppendf("half4 c = %s;", sample.c_str());
         fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
         fragBuilder->codeAppendf("%s.rgb = saturate(sum.rgb * %s + %s);", args.fOutputColor, gain, bias);
@@ -294,8 +293,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChildProcessor(std::move(child));
     if (fKernel.isSampled()) {
         this->setTextureSamplerCnt(1);
     }
@@ -311,9 +309,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
         , fBias(that.fBias)
         , fKernelOffset(that.fKernelOffset)
         , fConvolveAlpha(that.fConvolveAlpha) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
     if (fKernel.isSampled()) {
         this->setTextureSamplerCnt(1);
     }

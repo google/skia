@@ -500,8 +500,7 @@ DEF_TEST(SkSLFPTransformedCoords, r) {
          /*expectedH=*/{},
          /*expectedCPP=*/{
             "SkString sk_TransformedCoords2D_0 = "
-                           "fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint, "
-                                                       "_outer.sampleMatrix());",
+                           "fragBuilder->ensureLocalCoords(args);",
             "fragBuilder->codeAppendf(\"%s = half4(%s, %s);\\n\", args.fOutputColor, "
                     "sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"
          });
@@ -787,9 +786,7 @@ DEF_TEST(SkSLFPSampleCoords, r) {
             "SkString _sample150;\n",
             "_sample150 = this->invokeChild(_outer.child_index, args);\n",
             "SkString _sample166;\n",
-            "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D("
-                                                     "args.fTransformedCoords[0].fVaryingPoint, "
-                                                     "_outer.sampleMatrix());\n",
+            "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureLocalCoords(args);\n",
             "SkString _coords166 = SkStringPrintf(\"%s / 2.0\", "
                 "sk_TransformedCoords2D_0.c_str());\n",
             "_sample166 = this->invokeChild(_outer.child_index, args, _coords166.c_str());\n",

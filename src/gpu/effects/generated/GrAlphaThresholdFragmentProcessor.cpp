@@ -35,12 +35,11 @@ public:
         SkString _input1334 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1334;
         if (_outer.inputFP_index >= 0) {
-            _sample1334 = this->invokeChild(_outer.inputFP_index, _input1334.c_str(), args);
+            _sample1334 = this->invokeChild(_outer.inputFP_index, _input1334.c_str(), args, "");
+
         } else {
             _sample1334 = _input1334;
         }
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "half4 color = %s;\nhalf4 mask_color = sample(%s, %s).%s;\nif (mask_color.w < 0.5) "
                 "{\n    if (color.w > %s) {\n        half scale = %s / color.w;\n        color.xyz "
@@ -49,7 +48,7 @@ public:
                 "color.w = %s;\n}\n%s = color;\n",
                 _sample1334.c_str(),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                sk_TransformedCoords2D_0.c_str(),
+                args.fLocalCoord,
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
@@ -100,6 +99,7 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
     }
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&maskCoordTransform);
+    this->setUsesLocalCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));

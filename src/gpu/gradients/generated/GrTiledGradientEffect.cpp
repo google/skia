@@ -30,7 +30,8 @@ public:
         auto colorsAreOpaque = _outer.colorsAreOpaque;
         (void)colorsAreOpaque;
         SkString _sample453;
-        _sample453 = this->invokeChild(_outer.gradLayout_index, args);
+        _sample453 = this->invokeChild(_outer.gradLayout_index, "half4(1)", args, "");
+
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else {\n    @if "
                 "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 - 2.0 * "
@@ -43,7 +44,8 @@ public:
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
         SkString _input1464("t");
         SkString _sample1464;
-        _sample1464 = this->invokeChild(_outer.colorizer_index, _input1464.c_str(), args);
+        _sample1464 = this->invokeChild(_outer.colorizer_index, _input1464.c_str(), args, "");
+
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                                  args.fOutputColor, _sample1464.c_str(),
                                  (_outer.makePremul ? "true" : "false"), args.fOutputColor,

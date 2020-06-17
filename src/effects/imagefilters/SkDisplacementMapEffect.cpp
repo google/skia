@@ -509,8 +509,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(SkColorChannel xChannelSelector
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
     this->registerChildProcessor(std::move(displacement));
-    color->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(color));
+    this->registerExplicitlySampledChildProcessor(std::move(color));
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -591,8 +590,7 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
     // Unpremultiply the displacement
     fragBuilder->codeAppendf("%s.rgb = (%s.a < %s) ? half3(0.0) : saturate(%s.rgb / %s.a);",
                              dColor, dColor, nearZero, dColor, dColor);
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    args.fFp.sampleMatrix());
+
     auto chanChar = [](SkColorChannel c) {
         switch(c) {
             case SkColorChannel::kR: return 'r';
@@ -603,7 +601,7 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
         }
     };
     fragBuilder->codeAppendf("float2 %s = %s + %s*(%s.%c%c - half2(0.5));",
-                             cCoords, coords2D.c_str(), scaleUni, dColor,
+                             cCoords, args.fLocalCoord, scaleUni, dColor,
                              chanChar(displacementMap.xChannelSelector()),
                              chanChar(displacementMap.yChannelSelector()));
 

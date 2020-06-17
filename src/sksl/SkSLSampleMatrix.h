@@ -27,39 +27,39 @@ struct SampleMatrix {
         // No sample(child, matrix) call affects the FP.
         kNone,
         // The FP is sampled with a matrix whose value is fixed and based only on constants or
-        // uniforms, and thus the transform can be hoisted to the vertex shader.
+        // uniforms, and thus the transform can be hoisted to the vertex shader (assuming that
+        // its parent can also be hoisted, i.e. not sampled explicitly).
         kConstantOrUniform,
         // The FP is sampled with a non-constant/uniform value, or sampled multiple times, and
         // thus the transform cannot be hoisted to the vertex shader.
-        kVariable,
-        // The FP is sampled with a constant or uniform value, *and* also inherits a variable
-        // transform from an ancestor. The transform cannot be hoisted to the vertex shader, and
-        // both matrices need to be applied.
-        kMixed,
+        kVariable
     };
 
+    // Make a SampleMatrix with kNone for its kind. Will not have an expression or have perspective.
     SampleMatrix()
-    : fOwner(nullptr)
-    , fKind(Kind::kNone) {}
+            : fKind(Kind::kNone)
+            , fHasPerspective(false) {}
 
-    SampleMatrix(Kind kind)
-    : fOwner(nullptr)
-    , fKind(kind) {
-        SkASSERT(kind == Kind::kNone || kind == Kind::kVariable);
+    static SampleMatrix MakeConstUniform(String expression, bool hasPerspective=true) {
+        return SampleMatrix(Kind::kConstantOrUniform, expression, hasPerspective);
     }
 
-    SampleMatrix(Kind kind, GrFragmentProcessor* owner, String expression)
-    : fOwner(owner)
-    , fKind(kind)
-    , fExpression(expression) {}
+    static SampleMatrix MakeVariable(bool hasPerspective=true) {
+        return SampleMatrix(Kind::kVariable, "", hasPerspective);
+    }
 
     static SampleMatrix Make(const Program& program, const Variable& fp);
 
     SampleMatrix merge(const SampleMatrix& other);
 
     bool operator==(const SampleMatrix& other) const {
-        return fKind == other.fKind && fExpression == other.fExpression && fOwner == other.fOwner;
+        return fKind == other.fKind && fExpression == other.fExpression &&
+               fHasPerspective == other.fHasPerspective;
     }
+
+    bool isNoOp() const { return fKind == Kind::kNone; }
+    bool isConstUniform() const { return fKind == Kind::kConstantOrUniform; }
+    bool isVariable() const { return fKind == Kind::kVariable; }
 
 #ifdef SK_DEBUG
     String description() {
@@ -70,18 +70,30 @@ struct SampleMatrix {
                 return "SampleMatrix<ConstantOrUniform(" + fExpression + ")>";
             case Kind::kVariable:
                 return "SampleMatrix<Variable>";
-            case Kind::kMixed:
-                return "SampleMatrix<Mixed(" + fExpression + ")>";
         }
     }
 #endif
 
-    GrFragmentProcessor* fOwner;
     Kind fKind;
     // The constant or uniform expression representing the matrix (will be the empty string when
     // kind == kNone or kVariable)
     String fExpression;
-    const GrFragmentProcessor* fBase = nullptr;
+    // FIXME: We can expand this to track a more general matrix type to allow for optimizations on
+    // identity or scale+translate matrices too.
+    bool fHasPerspective;
+
+    // When a sample matrix is applied in the fragment shader, code generation only depends on
+    // fHasPerspective since any parent transform will have already been applied. When lifted to
+    // the vertex shader, the full transform hierarchy is applied and must account for the
+    // accumulated type of the matrix.
+    bool fParentHasPerspective = false;
+
+private:
+
+    SampleMatrix(Kind kind, String expression, bool hasPerspective)
+            : fKind(kind)
+            , fExpression(expression)
+            , fHasPerspective(hasPerspective) {}
 };
 
 } // namespace

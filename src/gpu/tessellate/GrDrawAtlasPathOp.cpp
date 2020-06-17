@@ -85,15 +85,12 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
 
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "devcoord");
 
-        GrShaderVar localCoord = gpArgs->fPositionVar;
         if (shader.fUsesLocalCoords) {
             args.fVertBuilder->codeAppendf(R"(
                     float2x2 M = float2x2(viewmatrix_scaleskew);
                     float2 localcoord = inverse(M) * (devcoord - viewmatrix_trans);)");
-            localCoord.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
         }
-        this->emitTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
-                             localCoord, args.fFPCoordTransformHandler);
 
         args.fFragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], atlasCoord.fsIn());

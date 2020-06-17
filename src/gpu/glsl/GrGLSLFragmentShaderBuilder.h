@@ -31,7 +31,7 @@ public:
      * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
      * fragment shader (xy / z) to convert them to 2D.
      */
-    virtual SkString ensureCoords2D(const GrShaderVar&, const SkSL::SampleMatrix& matrix) = 0;
+    // virtual SkString ensureCoords2D(const GrShaderVar&, const SkSL::SampleMatrix& matrix) = 0;
 
     // TODO: remove this method.
     void declAppendf(const char* fmt, ...);
@@ -50,6 +50,13 @@ public:
         // Suppress unused warning error
         (void) fDummyPadding;
     }
+
+    /**
+     * Return the variable name to use to access the 2D local coordinates the FP was invoked with.
+     * If the local coordinates were produced by a perspective division, this will cache the
+     * result of the projection.
+     */
+    // SkString ensureLocalCoords(const GrGLSLFragmentProcessor::EmitArgs&);
 
     /**
      * Returns the variable name that holds the array of sample offsets from pixel center to each
@@ -150,9 +157,9 @@ public:
 
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
-    // Shared GrGLSLFragmentBuilder interface.
-    virtual SkString ensureCoords2D(const GrShaderVar&,
-                                    const SkSL::SampleMatrix& matrix) override;
+    // Shared GrGLSLFragmentBuilder interface. Deprecated in favor of ensureLocalCoords()
+    // virtual SkString ensureCoords2D(const GrShaderVar&,
+    //                                 const SkSL::SampleMatrix& matrix) override;
 
     // GrGLSLFPFragmentBuilder interface.
     const char* sampleOffsets() override;

@@ -82,18 +82,17 @@ public:
     virtual int numUniforms() const = 0;
 
     virtual UniformInfo& uniform(int idx) = 0;
+    virtual const UniformInfo& uniform(int idx) const = 0;
 
-    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b);
+    // Looks up a uniform that was added by 'owner' with the given 'rawName' (pre-mangling).
+    // If there is no such uniform, a variable with type kVoid is returned.
+    GrShaderVar getUniformMapping(const GrFragmentProcessor& owner, SkString rawName) const;
+
+    // LIke getUniformMapping(), but if the uniform is found it also marks it as accessible in
+    // the vertex shader.
+    GrShaderVar liftUniformToVertexShader(const GrFragmentProcessor& owner, SkString rawName);
 
 protected:
-    struct UniformMapping {
-        const GrFragmentProcessor* fOwner;
-        int fInfoIndex;
-        SkString fRawName;
-        const char* fFinalName;
-        GrSLType fType;
-    };
-
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
     // This is not owned by the class

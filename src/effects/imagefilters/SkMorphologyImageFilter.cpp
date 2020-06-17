@@ -270,8 +270,6 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            SkString coords2D = fragBuilder->ensureCoords2D(
-                    args.fTransformedCoords[0].fVaryingPoint, args.fFp.sampleMatrix());
 
             const char* func = me.fType == MorphType::kErode ? "min" : "max";
 
@@ -283,7 +281,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             int width = 2 * me.fRadius + 1;
 
             // float2 coord = coord2D;
-            fragBuilder->codeAppendf("float2 coord = %s;", coords2D.c_str());
+            fragBuilder->codeAppendf("float2 coord = %s;", args.fLocalCoord);
             // coord.x -= radius;
             fragBuilder->codeAppendf("coord.%c -= %d;", dir, me.fRadius);
             if (me.fUseRange) {
@@ -346,8 +344,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
         , fUseRange(SkToBool(range)) {
     this->addCoordTransform(&fCoordTransform);
     auto te = GrTextureEffect::Make(std::move(view), srcAlphaType);
-    te->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(te));
+    this->registerExplicitlySampledChildProcessor(std::move(te));
     if (fUseRange) {
         fRange[0] = range[0];
         fRange[1] = range[1];
@@ -361,9 +358,7 @@ GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
     this->addCoordTransform(&fCoordTransform);
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
     if (that.fUseRange) {
         fRange[0] = that.fRange[0];
         fRange[1] = that.fRange[1];

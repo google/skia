@@ -387,7 +387,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (ditherFP) {
                 // The dither shader doesn't actually use input coordinates, but if we don't set
                 // this flag, the generated shader includes an extra local coord varying.
-                ditherFP->setSampledWithExplicitCoords();
+                // FIXME confirm if this is needed anymore?
+                // ditherFP->setSampledWithExplicitCoords();
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));
             }
         }

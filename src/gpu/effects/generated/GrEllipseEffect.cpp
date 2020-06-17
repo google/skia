@@ -61,7 +61,8 @@ public:
         SkString _input4497 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample4497;
         if (_outer.inputFP_index >= 0) {
-            _sample4497 = this->invokeChild(_outer.inputFP_index, _input4497.c_str(), args);
+            _sample4497 = this->invokeChild(_outer.inputFP_index, _input4497.c_str(), args, "");
+
         } else {
             _sample4497 = _input4497;
         }

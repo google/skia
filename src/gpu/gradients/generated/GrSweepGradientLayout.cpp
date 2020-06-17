@@ -33,16 +33,13 @@ public:
                                                    "bias");
         scaleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "scale");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
                 "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
                 "half4(t, 1.0, 0.0, 0.0);\n",
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
+                args.fLocalCoord, args.fLocalCoord, args.fLocalCoord, args.fLocalCoord,
+                args.fLocalCoord, args.fUniformHandler->getUniformCStr(biasVar),
                 args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
     }
 
@@ -88,6 +85,7 @@ GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         , bias(src.bias)
         , scale(src.scale) {
     this->addCoordTransform(&fCoordTransform0);
+    this->setUsesLocalCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(*this));

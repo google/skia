@@ -29,12 +29,14 @@ public:
                                                      kHalf_GrSLType, "weight");
         SkString _input1278 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1278;
-        _sample1278 = this->invokeChild(_outer.fp0_index, _input1278.c_str(), args);
+        _sample1278 = this->invokeChild(_outer.fp0_index, _input1278.c_str(), args, "");
+
         fragBuilder->codeAppendf("half4 in0 = %s;", _sample1278.c_str());
         SkString _input1335 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1335;
         if (_outer.fp1_index >= 0) {
-            _sample1335 = this->invokeChild(_outer.fp1_index, _input1335.c_str(), args);
+            _sample1335 = this->invokeChild(_outer.fp1_index, _input1335.c_str(), args, "");
+
         } else {
             _sample1335 = _input1335;
         }

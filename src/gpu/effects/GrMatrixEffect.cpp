@@ -21,7 +21,7 @@ public:
     void emitCode(EmitArgs& args) override {
         fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
                                                       kFloat3x3_GrSLType, "matrix");
-        SkString child = this->invokeChild(0, args.fInputColor, args);
+        SkString child = this->invokeChildWithMatrix(0, args.fInputColor, args);
         args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, child.c_str());
     }
 
@@ -39,8 +39,11 @@ GrGLSLFragmentProcessor* GrMatrixEffect::onCreateGLSLInstance() const {
     return new GrGLSLMatrixEffect();
 }
 
+// FIXME should we just make sampling state part of the GrFP's default key?
 void GrMatrixEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                           GrProcessorKeyBuilder* b) const {}
+                                           GrProcessorKeyBuilder* b) const {
+    b->add32(fMatrix.hasPerspective() ? 1 : 0);
+}
 
 bool GrMatrixEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMatrixEffect& that = other.cast<GrMatrixEffect>();

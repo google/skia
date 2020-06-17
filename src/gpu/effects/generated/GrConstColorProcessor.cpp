@@ -37,7 +37,8 @@ public:
         SkString _input1009 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1009;
         if (_outer.inputFP_index >= 0) {
-            _sample1009 = this->invokeChild(_outer.inputFP_index, _input1009.c_str(), args);
+            _sample1009 = this->invokeChild(_outer.inputFP_index, _input1009.c_str(), args, "");
+
         } else {
             _sample1009 = _input1009;
         }
@@ -49,7 +50,8 @@ public:
         SkString _input1181 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1181;
         if (_outer.inputFP_index >= 0) {
-            _sample1181 = this->invokeChild(_outer.inputFP_index, _input1181.c_str(), args);
+            _sample1181 = this->invokeChild(_outer.inputFP_index, _input1181.c_str(), args, "");
+
         } else {
             _sample1181 = _input1181;
         }

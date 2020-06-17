@@ -122,14 +122,12 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
                 return;
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
-            String name = "sk_TransformedCoords2D_" + to_string(index);
-            fFormatArgs.push_back(name + ".c_str()");
-            if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
-                addExtraEmitCodeLine("SkString " + name +
-                                     " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
-                                     to_string(index) + "].fVaryingPoint, _outer.sampleMatrix());");
-                fWrittenTransformedCoords.insert(index);
+            if (index != 0) {
+                fErrors.error(i.fIndex->fOffset, "Only sk_TransformedCoords2D[0] is allowed");
+                return;
             }
+            fAccessLocalCoordsDirectly = true;
+            fFormatArgs.push_back("args.fLocalCoord");
             return;
         } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
             this->write("%s");
@@ -427,11 +425,8 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // sksl variables defined in earlier sksl code.
         this->newExtraEmitCodeBlock();
 
-        // Set to the empty string when no input color parameter should be emitted, which means this
-        // must be properly formatted with a prefixed comma when the parameter should be inserted
-        // into the invokeChild() parameter list.
-        String inputArg;
-        String inputColorName = "\"half4(1)\"";
+        String inputColorName; // the sksl variable/expression, referenced later for null child FPs
+        String inputColor;
         if (c.fArguments.size() > 1 && c.fArguments[1]->fType.name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
@@ -439,45 +434,46 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputColorName));
 
             // invokeChild() needs a char*
-            inputArg = ", " + inputColorName + ".c_str()";
+            inputColor = inputColorName + ".c_str()";
+        } else {
+            // No color sample function passes white
+            inputColor = "\"half4(1)\"";
+            inputColorName = inputColor;
         }
 
-        bool hasCoords = c.fArguments.back()->fType.name() == "float2";
-        SampleMatrix matrix = SampleMatrix::Make(fProgram, child);
+        // An empty sksl coord is the same as an identity transform on the parent FP's coords,
+        // so the initial value matches a call to sample() with no coord/matrix args.
+        String inputCoord = "\"\"";
+        String invokeFunction = "invokeChild";
+        if (c.fArguments.back()->fType.name() == "float2") {
+            // Invoking child with explicit coordinates at this call site
+            inputCoord = "_coords" + to_string(c.fOffset);
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), inputCoord));
+            inputCoord.append(".c_str()");
+        } else if (c.fArguments.back()->fType.name() == "float3x3") {
+            // Invoking child with a matrix, sampling relative to the input coords.
+            invokeFunction.append("WithMatrix");
+            SampleMatrix matrix = SampleMatrix::Make(fProgram, child);
+
+            if (!matrix.isConstUniform()) {
+                inputCoord = "_matrix" + to_string(c.fOffset);
+                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), inputCoord));
+                inputCoord.append(".c_str()");
+            }
+            // else pass in the empty string to rely on invokeChildWithMatrix's automatic uniform
+            // resolution
+        }
+
         // Write the output handling after the possible input handling
         String childName = "_sample" + to_string(c.fOffset);
         addExtraEmitCodeLine("SkString " + childName + ";");
-        String coordsName;
-        String matrixName;
-        if (hasCoords) {
-            coordsName = "_coords" + to_string(c.fOffset);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), coordsName));
-        }
-        if (matrix.fKind == SampleMatrix::Kind::kVariable) {
-            matrixName = "_matrix" + to_string(c.fOffset);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), matrixName));
-        }
+
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
         }
-        if (hasCoords) {
-            addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." + String(child.fName) +
-                                 "_index" + inputArg + ", args, " + coordsName + ".c_str());");
-        } else {
-            switch (matrix.fKind) {
-                case SampleMatrix::Kind::kMixed:
-                case SampleMatrix::Kind::kVariable:
-                    addExtraEmitCodeLine(childName + " = this->invokeChildWithMatrix(_outer." +
-                                         String(child.fName) + "_index" + inputArg + ", args, " +
-                                         matrixName + ".c_str());");
-                    break;
-                case SampleMatrix::Kind::kConstantOrUniform:
-                case SampleMatrix::Kind::kNone:
-                    addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." +
-                                         String(child.fName) + "_index" + inputArg + ", args);");
-                    break;
-            }
-        }
+        addExtraEmitCodeLine(childName + " = this->" + invokeFunction + "(_outer." +
+                             String(child.fName) + "_index, " + inputColor + ", args, " +
+                             inputCoord + ");\n");
 
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
@@ -1156,6 +1152,9 @@ void CPPCodeGenerator::writeClone() {
             const Section& s = *transforms[i];
             String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
             this->writef("    this->addCoordTransform(&%s);\n", fieldName.c_str());
+        }
+        if (fAccessLocalCoordsDirectly) {
+            this->writef("    this->setUsesLocalCoordsDirectly();\n");
         }
         this->write("}\n");
         this->writef("std::unique_ptr<GrFragmentProcessor> %s::clone() const {\n",

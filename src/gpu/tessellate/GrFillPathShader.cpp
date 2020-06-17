@@ -26,11 +26,8 @@ public:
         args.fVertBuilder->codeAppend("float2 localcoord, vertexpos;");
         shader.emitVertexCode(this, args.fVertBuilder, viewMatrix, args.fUniformHandler);
 
-        this->emitTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
-                             GrShaderVar("localcoord", kFloat2_GrSLType),
-                             args.fFPCoordTransformHandler);
-
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
 
         const char* color;
         fColorUniform = args.fUniformHandler->addUniform(

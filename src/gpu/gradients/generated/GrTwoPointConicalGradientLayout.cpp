@@ -42,8 +42,6 @@ public:
         (void)focalParams;
         focalParamsVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                           kHalf2_GrSLType, "focalParams");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
                 "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
@@ -52,7 +50,7 @@ public:
                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
                 "  t = length(p) - float(r0);\n            } else {\n                t = "
                 "-length(p) - float(r0);\n       ",
-                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
+                args.fLocalCoord, (int)_outer.type,
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 (_outer.isRadiusIncreasing ? "true" : "false"));
@@ -143,6 +141,7 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         , isNativelyFocal(src.isNativelyFocal)
         , focalParams(src.focalParams) {
     this->addCoordTransform(&fCoordTransform0);
+    this->setUsesLocalCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(*this));

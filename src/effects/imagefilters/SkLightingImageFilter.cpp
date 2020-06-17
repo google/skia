@@ -1632,8 +1632,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
         child = GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, SkMatrix::I(), kSampler,
                                       caps);
     }
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChildProcessor(std::move(child));
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -1643,9 +1642,7 @@ GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
         , fSurfaceScale(that.fSurfaceScale)
         , fFilterMatrix(that.fFilterMatrix)
         , fBoundaryMode(that.fBoundaryMode) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -1770,8 +1767,6 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
         GrShaderVar("scale", kHalf_GrSLType),
     };
     SkString sobelFuncName;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    args.fFp.sampleMatrix());
 
     fragBuilder->emitFunction(kHalf_GrSLType,
                               "sobel",
@@ -1807,7 +1802,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               normalBody.c_str(),
                               &normalName);
 
-    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", args.fLocalCoord);
     fragBuilder->codeAppend("\t\thalf m[9];\n");
 
     const char* surfScale = uniformHandler->getUniformCStr(fSurfaceScaleUni);

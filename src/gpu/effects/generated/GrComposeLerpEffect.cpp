@@ -29,13 +29,15 @@ public:
                                                      kFloat_GrSLType, "weight");
         SkString _sample290;
         if (_outer.child1_index >= 0) {
-            _sample290 = this->invokeChild(_outer.child1_index, args);
+            _sample290 = this->invokeChild(_outer.child1_index, "half4(1)", args, "");
+
         } else {
             _sample290 = "half4(1)";
         }
         SkString _sample358;
         if (_outer.child2_index >= 0) {
-            _sample358 = this->invokeChild(_outer.child2_index, args);
+            _sample358 = this->invokeChild(_outer.child2_index, "half4(1)", args, "");
+
         } else {
             _sample358 = "half4(1)";
         }

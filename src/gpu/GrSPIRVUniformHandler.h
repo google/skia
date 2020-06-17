@@ -43,6 +43,10 @@ public:
         return fUniforms.item(idx);
     }
 
+    const UniformInfo& uniform(int idx) const override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrSPIRVUniformHandler(GrGLSLProgramBuilder* program);
 
