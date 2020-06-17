@@ -39,6 +39,23 @@
       "revId": "6fb36874134306f9df457000791ba446c2cba043",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2f6a2bb_f03645c3",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-17T13:46:19Z",
+      "side": 1,
+      "message": "Might be nice to restrict this guy\u0027s visibility to third_party?",
+      "revId": "6fb36874134306f9df457000791ba446c2cba043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
