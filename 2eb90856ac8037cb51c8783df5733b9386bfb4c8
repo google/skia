@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05927efe_99329329",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "Link here?",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad62a614_4bd92d74",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "wrap markdown files to 100 cols",
+      "range": {
+        "startLine": 7,
+        "startChar": 88,
+        "endLine": 7,
+        "endChar": 94
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fa7d802_0bdc0b78",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "Does this require a minimum version number?",
+      "range": {
+        "startLine": 13,
+        "startChar": 97,
+        "endLine": 13,
+        "endChar": 103
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99939b57_5511cf76",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "Maybe give a brief example with an animated image?",
+      "range": {
+        "startLine": 34,
+        "startChar": 86,
+        "endLine": 34,
+        "endChar": 87
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65d4ad61_959cc892",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "Did you gather performance of this?",
+      "range": {
+        "startLine": 35,
+        "startChar": 39,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b02f6487_6d9e1a61",
+        "filename": "modules/canvaskit/future_apis/WebGPU.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-17T13:48:54Z",
+      "side": 1,
+      "message": "Do you know if this is something emscripten will support adding bindings for?",
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
