@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ca146484_56f68eb5",
+        "filename": "platform_tools/android/apps/gradlew",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "Reverted the 3 gradle files. I\u0027m not sure if this upgrade is needed. I did it, because I was getting errors in Android Studio, but it seems to work with old versions now.",
+      "parentUuid": "04fba942_60da88e6",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15d1b6fe_dc77b3ea",
         "filename": "platform_tools/android/apps/skottie/run_perf.sh",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a71660d9_efcc0910",
+        "filename": "platform_tools/android/apps/skottie/run_perf.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "perfetto script collect.sh does not work without root. It gives errors:\n[038.961] perfetto_cmd.cc:834     Failed to open /data/misc/perfetto-traces/trace. If you get permission denied in /data/misc/perfetto-traces, the file might have been created by another user, try deleting it first. (errno: 13, Permission denied)\nadb: error: failed to copy \u0027/data/misc/perfetto-traces/trace\u0027 to \u0027./trace\u0027: remote open failed: Permission denied",
+      "parentUuid": "15d1b6fe_dc77b3ea",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fd6c2cba_bc1b4625",
+        "filename": "platform_tools/android/apps/skottie/skottie_metric.proto",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "c6871cf2_db8e996b",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4de014_abfad95e",
         "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c56cc83_dec145c9",
+        "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "3a4de014_abfad95e",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cc5952ae_2b9bf331",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/PerfActivity.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "478b6578_18388adc",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3a7d20a_d0099927",
         "filename": "platform_tools/android/apps/skottie/src/main/res/raw/body_movin.json",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2020-06-17T12:50:50Z",
       "side": 1,
       "message": "Where did these assets come from?  Can you check with Florin to see if they can be checked into our repo and if/where we need to notate their authors?",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "895879aa_4bca683f",
+        "filename": "platform_tools/android/apps/skottie/src/main/res/raw/body_movin.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-06-17T18:30:30Z",
+      "side": 1,
+      "message": "I downloaded additional 10 assets from https://lottiefiles.com/. The first 5 assets (already under source control) are from the same source.\nFlorin, can you comment if it is ok to check into our repo these lottie files @fmalita?",
+      "parentUuid": "d3a7d20a_d0099927",
       "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
