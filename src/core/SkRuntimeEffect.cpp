@@ -691,6 +691,9 @@ public:
         if (!ctx->byteCode) {
             return false;
         }
+        if (ctx->byteCode->getChildFPCount()) {
+            return false;
+        }
 
         ctx->fn = ctx->byteCode->getFunction("main");
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
@@ -898,6 +901,9 @@ public:
 
         ctx->byteCode = this->byteCode();
         if (!ctx->byteCode) {
+            return false;
+        }
+        if (ctx->byteCode->getChildFPCount()) {
             return false;
         }
         ctx->fn = ctx->byteCode->getFunction("main");
