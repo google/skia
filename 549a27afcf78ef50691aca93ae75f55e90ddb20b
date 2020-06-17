@@ -22,6 +22,30 @@
       "revId": "549a27afcf78ef50691aca93ae75f55e90ddb20b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17844dbb_35c95e09",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-17T14:22:41Z",
+      "side": 1,
+      "message": "Yeah, each var-length  *record* is at least 2 words: [1-4] 6/32 encoding + 1 SkColor.",
+      "parentUuid": "cad3d242_5d989b91",
+      "range": {
+        "startLine": 236,
+        "startChar": 1,
+        "endLine": 237,
+        "endChar": 40
+      },
+      "revId": "549a27afcf78ef50691aca93ae75f55e90ddb20b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
