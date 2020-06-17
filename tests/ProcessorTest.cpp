@@ -91,9 +91,8 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<GrSurfaceProxyView>& views,
-                                                     const SkTArray<sk_sp<GrGpuBuffer>>& buffers) {
-        return std::unique_ptr<GrFragmentProcessor>(new TestFP(views, buffers));
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<GrSurfaceProxyView>& views) {
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(views));
     }
 
     const char* name() const override { return "test"; }
@@ -108,29 +107,20 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<GrSurfaceProxyView>& views,
-           const SkTArray<sk_sp<GrGpuBuffer>>& buffers)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
+    TestFP(const SkTArray<GrSurfaceProxyView>& views)
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
         for (const auto& view : views) {
-            fSamplers.emplace_back(view);
+            this->registerChildProcessor(GrTextureEffect::Make(view, kUnknown_SkAlphaType));
         }
-        this->setTextureSamplerCnt(fSamplers.count());
     }
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
         this->registerChildProcessor(std::move(child));
     }
 
-    explicit TestFP(const TestFP& that)
-            : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4) {
-        for (int i = 0; i < that.fSamplers.count(); ++i) {
-            fSamplers.emplace_back(that.fSamplers[i]);
-        }
-        for (int i = 0; i < that.numChildProcessors(); ++i) {
-            this->registerChildProcessor(that.childProcessor(i).clone());
-        }
-        this->setTextureSamplerCnt(fSamplers.count());
+    explicit TestFP(const TestFP& that) : INHERITED(kTestFP_ClassID, that.optimizationFlags()) {
+        this->cloneAndRegisterAllChildProcessors(that);
     }
 
     virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -148,9 +138,7 @@ private:
     }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
-    const TextureSampler& onTextureSampler(int i) const override { return fSamplers[i]; }
 
-    SkSTArray<4, TextureSampler> fSamplers;
     typedef GrFragmentProcessor INHERITED;
 };
 }
@@ -177,9 +165,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
                 {
                     SkTArray<GrSurfaceProxyView> views;
-                    SkTArray<sk_sp<GrGpuBuffer>> buffers;
                     views.push_back({proxy, kTopLeft_GrSurfaceOrigin, swizzle});
-                    auto fp = TestFP::Make(std::move(views), std::move(buffers));
+                    auto fp = TestFP::Make(std::move(views));
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
                     }
