@@ -21,25 +21,25 @@
 
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrClipEdgeType edgeType,
-                                                     SkPoint center,
-                                                     SkPoint radii,
-                                                     const GrShaderCaps& caps) {
+    static MakeResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                           GrClipEdgeType edgeType,
+                           SkPoint center,
+                           SkPoint radii,
+                           const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
         // Very narrow ellipses produce bad results on devices without full float
         if (!caps.floatIs32Bits() && (radii.fX > 255 * radii.fY || radii.fY > 255 * radii.fX)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
         // Very large ellipses produce bad results on devices without full float
         if (!caps.floatIs32Bits() && (radii.fX > 16384 || radii.fY > 16384)) {
-            return nullptr;
+            return MakeFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrEllipseEffect(std::move(inputFP), edgeType, center, radii));
+        return MakeSuccess(std::unique_ptr<GrFragmentProcessor>(
+                new GrEllipseEffect(std::move(inputFP), edgeType, center, radii)));
     }
     GrEllipseEffect(const GrEllipseEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
