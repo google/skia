@@ -65,6 +65,7 @@ declare_args() {
   skia_use_metal = false
   skia_use_opencl = false
   skia_use_piex = !is_win
+  skia_use_subzero = false
   skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true

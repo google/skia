@@ -35,6 +35,14 @@
     #endif
 #endif
 
+#if defined(SKVM_SUBZERO)
+    #include "src/IceCfg.h"
+    #include "src/IceCfgNode.h"
+    #include "src/IceGlobalContext.h"
+    #include "src/IceGlobalInits.h"
+    #include "src/IceTypes.h"
+#endif
+
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
