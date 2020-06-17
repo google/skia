@@ -175,8 +175,7 @@ private:
     };
 
     GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) final {
-        auto tmp = GrConicEffect::Make(arena, this->color(), SkMatrix::I(), this->edgeType(),
-                                       caps, SkMatrix::I(), false);
+        auto tmp = GrConicEffect::Make(arena, this->color(), SkMatrix::I(), caps, SkMatrix::I(), false);
         if (!tmp) {
             return nullptr;
         }
@@ -385,7 +384,7 @@ private:
     };
 
     GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) final {
-        auto tmp = GrQuadEffect::Make(arena, this->color(), SkMatrix::I(), this->edgeType(),
+        auto tmp = GrQuadEffect::Make(arena, this->color(), SkMatrix::I(),
                                       caps, SkMatrix::I(), false);
         if (!tmp) {
             return nullptr;
