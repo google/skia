@@ -219,6 +219,7 @@ public:
     void prependScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
     void printf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
+    void printVAList(const char format[], va_list);
     void appendf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
     void appendVAList(const char format[], va_list);
     void prependf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
