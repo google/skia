@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e01d6bdc_6ad601e4",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-17T17:31:13Z",
+      "side": 1,
+      "message": "This should have fCCPRClipPaths.count(); added to it as well since the ccpr paths aren\u0027t converted to actual FPs until the end (after any mask generation that might change the active ops task)",
+      "range": {
+        "startLine": 905,
+        "startChar": 11,
+        "endLine": 905,
+        "endChar": 49
+      },
+      "revId": "870d55cb1b957ae3ba9f7d1ce11a0d9ccb962d32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
