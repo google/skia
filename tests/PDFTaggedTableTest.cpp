@@ -91,7 +91,6 @@ DEF_TEST(SkPDF_tagged_table, r) {
                 cell->fAttributes.appendStringArray(
                     "Table", "Headers", headers);
             }
-            cell->fChildCount = 0;
 
             if (cellIndex == 13) {
                 cell->fAttributes.appendInt("Table", "RowSpan", 2);

@@ -210,23 +210,12 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
     dst->fAlt = node.fAlt;
     dst->fLang = node.fLang;
 
-    // Temporarily support both raw fChildren and fChildVector.
-    if (node.fChildren) {
-        size_t childCount = node.fChildCount;
-        SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
-        dst->fChildCount = childCount;
-        dst->fChildren = children;
-        for (size_t i = 0; i < childCount; ++i) {
-            Copy(node.fChildren[i], &children[i], arena, nodeMap);
-        }
-    } else {
-        size_t childCount = node.fChildVector.size();
-        SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
-        dst->fChildCount = childCount;
-        dst->fChildren = children;
-        for (size_t i = 0; i < childCount; ++i) {
-            Copy(*node.fChildVector[i], &children[i], arena, nodeMap);
-        }
+    size_t childCount = node.fChildVector.size();
+    SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
+    dst->fChildCount = childCount;
+    dst->fChildren = children;
+    for (size_t i = 0; i < childCount; ++i) {
+        Copy(*node.fChildVector[i], &children[i], arena, nodeMap);
     }
 
     dst->fAttributes = std::move(node.fAttributes.fAttrs);
