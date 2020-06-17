@@ -533,7 +533,8 @@ auto GrTextBlob::SubRun::InitForAtlas(SubRunType type,
         int16_t b = t + skGlyph->height();
         SkPoint lt = SkPoint::Make(l, t) * strikeToSource + pos,
                 rb = SkPoint::Make(r, b) * strikeToSource + pos;
-        bounds.joinNonEmptyArg(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
+
+        bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
         return Data{{skGlyph->getPackedID()}, pos, {l, t, r, b}};
     };
 
