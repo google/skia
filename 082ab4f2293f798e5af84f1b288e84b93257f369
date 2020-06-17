@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f630a460_458fdb4b",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "should this comment also be in the skottielib gradle?",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "805379ea_1f9b982a",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "remove these",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 50
+      },
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "331353af_56b0cec2",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "remove the release build type as we don\u0027t need proguard at this point.",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cac14a07_d4afb9e5",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "what does this line do?",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6129f835_1d59391e",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "use androidx.appcompat if possible",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa692011_3b04d856",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "drop the 3 unit test dependencies",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e56475_afc816fd",
+        "filename": "platform_tools/android/apps/skottie/skottielib/proguard-rules.pro",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "I don\u0027t think either of the *-rules.pro files are required and I would suggest we delete them both.",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a37ae6b_856ea8f5",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/androidTest/java/com/google/skia/skottielib/ExampleInstrumentedTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "remove this file until we determine we need to write junit tests for the lib",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bfc8a48_1c8de6fa",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "org.skia.skottielib",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 23
+      },
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd290771_90911fb6",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/test/java/com/google/skia/skottielib/ExampleUnitTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T14:03:04Z",
+      "side": 1,
+      "message": "remove this file.",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
