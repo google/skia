@@ -119,7 +119,7 @@ declare_args() {
     skia_fontmgr_factory = "src/ports/SkFontMgr_android_factory.cpp"
   } else if (is_win && skia_enable_fontmgr_win) {
     skia_fontmgr_factory = "src/ports/SkFontMgr_win_dw_factory.cpp"
-  } else if (is_mac && skia_use_fonthost_mac) {
+  } else if ((is_mac || is_ios) && skia_use_fonthost_mac) {
     skia_fontmgr_factory = "src/ports/SkFontMgr_mac_ct_factory.cpp"
   } else if (skia_enable_fontmgr_fontconfig) {
     skia_fontmgr_factory = "src/ports/SkFontMgr_fontconfig_factory.cpp"
