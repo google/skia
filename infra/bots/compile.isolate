@@ -25,7 +25,7 @@
       '../../gn',
       '../../include',
       '../../modules',
-      '../../platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp',
+      '../../platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp',
       '../../platform_tools/android/launcher/skia_launcher.cpp',
       '../../platform_tools/android/vulkan/Skia_Vulkan_Android.h',
       '../../platform_tools/ios/app/LaunchScreen.storyboard',
