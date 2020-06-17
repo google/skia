@@ -584,6 +584,8 @@ std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInf
         }
     } else if (strstr(rendererString, "NVIDIA")) {
         vendor = GrGLANGLEVendor::kNVIDIA;
+    } else if (strstr(rendererString, "Radeon")) {
+        vendor = GrGLANGLEVendor::kAMD;
     }
     if (strstr(rendererString, "Direct3D11")) {
         backend = GrGLANGLEBackend::kD3D11;

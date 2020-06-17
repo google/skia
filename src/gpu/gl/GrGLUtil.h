@@ -158,7 +158,8 @@ enum class GrGLANGLEBackend {
 enum class GrGLANGLEVendor {
     kUnknown,
     kIntel,
-    kNVIDIA
+    kNVIDIA,
+    kAMD
 };
 
 enum class GrGLANGLERenderer {
