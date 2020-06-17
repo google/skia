@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "f57df6d7_0b1dfd52",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "linked.",
+      "parentUuid": "05927efe_99329329",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b23bbb9c_050f6b25",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad62a614_4bd92d74",
+      "range": {
+        "startLine": 7,
+        "startChar": 88,
+        "endLine": 7,
+        "endChar": 94
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fa7d802_0bdc0b78",
         "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e9c667b_6bfeb6ac",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "I\u0027ve included that it works in the version of Canary (85.0.4175.0) I used to test it.",
+      "parentUuid": "9fa7d802_0bdc0b78",
+      "range": {
+        "startLine": 13,
+        "startChar": 97,
+        "endLine": 13,
+        "endChar": 103
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "24f16215_f7f2b835",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99939b57_5511cf76",
+      "range": {
+        "startLine": 34,
+        "startChar": 86,
+        "endLine": 34,
+        "endChar": 87
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65d4ad61_959cc892",
         "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
         "patchSetId": 2
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "2d99e690_90088784",
+        "filename": "modules/canvaskit/future_apis/ImageDecoder.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "No I didn\u0027t. \n\nI\u0027d like to defer gathering performance on this. In my understanding, the performance results of this API do not have any immediate consequence, and could change as the API matures. Also I think setting up and comparing performance of this decoding API vs others in chrome canary may take some extra time.",
+      "parentUuid": "65d4ad61_959cc892",
+      "range": {
+        "startLine": 35,
+        "startChar": 39,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b02f6487_6d9e1a61",
         "filename": "modules/canvaskit/future_apis/WebGPU.md",
         "patchSetId": 2
@@ -131,6 +251,24 @@
       "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5289b35e_bf746a37",
+        "filename": "modules/canvaskit/future_apis/WebGPU.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-17T17:56:13Z",
+      "side": 1,
+      "message": "It seems they already do https://github.com/emscripten-core/emscripten/pull/10218 ! Added this link.",
+      "parentUuid": "b02f6487_6d9e1a61",
+      "revId": "2eb90856ac8037cb51c8783df5733b9386bfb4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
