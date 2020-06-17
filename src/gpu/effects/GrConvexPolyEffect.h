@@ -38,7 +38,7 @@ public:
      */
     static MakeResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                            GrClipEdgeType edgeType, int n, const SkScalar edges[]) {
-        if (n <= 0 || n > kMaxEdges || GrClipEdgeType::kHairlineAA == edgeType) {
+        if (n <= 0 || n > kMaxEdges) {
             return MakeFailure(std::move(inputFP));
         }
 
