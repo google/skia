@@ -146,9 +146,9 @@ public:
                     },
                     format, GrRenderable::kYes, 1, GrProtected::kNo, *proxyProvider->caps(),
                     GrSurfaceProxy::UseAllocator::kYes);
-            fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, readSwizzle),
-                        GrSamplerState::Filter::kNearest);
-            this->setTextureSamplerCnt(1);
+            auto atlasEffect = GrTextureEffect::Make({fLazyProxy, kOrigin, readSwizzle},
+                                                     kPremul_SkAlphaType);
+            this->registerChildProcessor(std::move(atlasEffect));
         }
 
     private:
@@ -159,14 +159,12 @@ public:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return nullptr; }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
-        const TextureSampler& onTextureSampler(int) const override { return fAccess; }
 
         GrRecordingContext* const fContext;
         GrProxyProvider* const fProxyProvider;
         LazyProxyTest* const fTest;
         GrTextureProxy* const fAtlas;
         sk_sp<GrTextureProxy> fLazyProxy;
-        TextureSampler fAccess;
     };
 
 
