@@ -63,6 +63,7 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
             if (!forOutput) {
                 return GrSwizzle::RGB1();
             }
+            break;
         default:
             return GrSwizzle::RGBA();
     }

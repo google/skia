@@ -479,9 +479,6 @@ config("warnings") {
       "-Wdeprecated-writable-str",
     ]
   }
-  if (!is_win || is_clang) {
-    cflags += [ "-Wno-implicit-fallthrough" ]
-  }
 }
 config("warnings_except_public_headers") {
   if (!is_win || is_clang) {
