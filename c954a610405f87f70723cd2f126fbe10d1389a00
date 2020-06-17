@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04fba942_60da88e6",
+        "filename": "platform_tools/android/apps/gradlew",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "can you revert these gradle changes as well?  I would be happy to approve an upgrade to gradle in a separate CL if you want to just move all your original gradle changes there.",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15d1b6fe_dc77b3ea",
+        "filename": "platform_tools/android/apps/skottie/run_perf.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "why do you need root?",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6871cf2_db8e996b",
+        "filename": "platform_tools/android/apps/skottie/skottie_metric.proto",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "nit: line length here and elsewhere in this file",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a4de014_abfad95e",
+        "filename": "platform_tools/android/apps/skottie/src/main/AndroidManifest.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "nit: remove whitespace",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "478b6578_18388adc",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/PerfActivity.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "nit: line length",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a7d20a_d0099927",
+        "filename": "platform_tools/android/apps/skottie/src/main/res/raw/body_movin.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-17T12:50:50Z",
+      "side": 1,
+      "message": "Where did these assets come from?  Can you check with Florin to see if they can be checked into our repo and if/where we need to notate their authors?",
+      "revId": "c954a610405f87f70723cd2f126fbe10d1389a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
