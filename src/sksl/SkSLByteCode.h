@@ -113,6 +113,11 @@ enum class ByteCodeInstruction : uint16_t {
     kReserve,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    // kSampleExplicit/kSampleMatrix are followed by a byte indicating the FP slot to sample
+    // Expects stack to contain (X, Y), produces (R, G, B, A)
+    kSampleExplicit,
+    // Expects stack to contain a 3x3 matrix, produces (R, G, B, A)
+    kSampleMatrix,
     // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
     // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
@@ -276,6 +281,12 @@ public:
     }
     const Uniform& getUniform(int i) const { return fUniforms[i]; }
 
+    /**
+     * Some byte code programs can't be executed by the interpreter, due to unsupported features.
+     * They may still be used to convert to other formats, or for reflection of uniforms.
+     */
+    bool canRun() const { return fChildFPCount == 0; }
+
 private:
     ByteCode(const ByteCode&) = delete;
     ByteCode& operator=(const ByteCode&) = delete;
@@ -285,6 +296,7 @@ private:
 
     int fGlobalSlotCount = 0;
     int fUniformSlotCount = 0;
+    int fChildFPCount = 0;
     std::vector<Uniform> fUniforms;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;

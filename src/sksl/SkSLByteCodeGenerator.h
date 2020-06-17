@@ -146,6 +146,7 @@ private:
         kMax,
         kMin,
         kMix,
+        kSample,
         kSaturate,
     };
 
@@ -170,6 +171,7 @@ private:
         kLocal,    // include parameters
         kGlobal,   // non-uniform globals
         kUniform,  // uniform globals
+        kChildFP,  // child fragment processors
     };
 
     struct Location {
@@ -179,10 +181,14 @@ private:
         // Not really invalid, but a "safe" placeholder to be more explicit at call-sites
         static Location MakeInvalid() { return { 0, Storage::kLocal }; }
 
-        Location makeOnStack() { return { -1, fStorage }; }
+        Location makeOnStack() {
+            SkASSERT(fStorage != Storage::kChildFP);
+            return { -1, fStorage };
+        }
         bool isOnStack() const { return fSlot < 0; }
 
         Location operator+(int offset) {
+            SkASSERT(fStorage != Storage::kChildFP);
             SkASSERT(fSlot >= 0);
             return { fSlot + offset, fStorage };
         }
@@ -194,8 +200,9 @@ private:
                 case Storage::kLocal:   return local;
                 case Storage::kGlobal:  return global;
                 case Storage::kUniform: return uniform;
+                case Storage::kChildFP: ABORT("Trying to load an FP"); break;
             }
-            SkUNREACHABLE;
+            return local;
         }
 
         ByteCodeInstruction selectStore(ByteCodeInstruction local,
@@ -204,6 +211,7 @@ private:
                 case Storage::kLocal:   return local;
                 case Storage::kGlobal:  return global;
                 case Storage::kUniform: ABORT("Trying to store to a uniform"); break;
+                case Storage::kChildFP: ABORT("Trying to store an FP"); break;
             }
             return local;
         }
