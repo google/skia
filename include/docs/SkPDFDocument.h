@@ -232,6 +232,13 @@ struct Metadata {
 */
 SK_API void SetNodeId(SkCanvas* dst, int nodeID);
 
+/** Skia uses integer node IDs to associate content with structure element
+    nodes, but PDF files use strings. Use this helper function to convert
+    a node ID (like the one passed to SetNodeId or found in
+    StructureElementNode::fNodeId) to a string that can be used in
+    an AttributeList to express a relationship between two nodes. */
+SK_API SkString NodeIdToString(int nodeId);
+
 /** Create a PDF-backed document, writing the results into a SkWStream.
 
     PDF pages are sized in point units. 1 pt == 1/72 inch == 127/360 mm.

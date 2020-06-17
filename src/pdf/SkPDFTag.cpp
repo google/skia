@@ -157,17 +157,6 @@ void SkPDF::AttributeList::appendStringArray(
 }
 
 struct SkPDFTagNode {
-    // Structure element nodes need a unique alphanumeric ID,
-    // and we need to be able to output them sorted in lexicographic
-    // order. This helper function takes one of our node IDs and
-    // builds an ID string that zero-pads the digits so that lexicographic
-    // order matches numeric order.
-    static SkString nodeIdToString(int nodeId) {
-        SkString idString;
-        idString.printf("node%08d", nodeId);
-        return idString;
-    }
-
     SkPDFTagNode* fChildren = nullptr;
     size_t fChildCount = 0;
     struct MarkedContentInfo {
@@ -333,7 +322,7 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
     // Each node has a unique ID that also needs to be referenced
     // in a separate IDTree node, along with the lowest and highest
     // unique ID string.
-    SkString idString = SkPDFTagNode::nodeIdToString(node->fNodeId);
+    SkString idString = SkPDF::NodeIdToString(node->fNodeId);
     dict.insertString("ID", idString.c_str());
     IDTreeEntry idTreeEntry = {node->fNodeId, ref};
     fIdTreeEntries.push_back(idTreeEntry);
@@ -401,16 +390,16 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
         SkPDFDict idTree;
         SkPDFDict idTreeLeaf;
         auto limits = SkPDFMakeArray();
-        SkString lowestNodeIdString = SkPDFTagNode::nodeIdToString(
+        SkString lowestNodeIdString = SkPDF::NodeIdToString(
             fIdTreeEntries.begin()->nodeId);
         limits->appendString(lowestNodeIdString);
-        SkString highestNodeIdString = SkPDFTagNode::nodeIdToString(
+        SkString highestNodeIdString = SkPDF::NodeIdToString(
             fIdTreeEntries.rbegin()->nodeId);
         limits->appendString(highestNodeIdString);
         idTreeLeaf.insertObject("Limits", std::move(limits));
         auto names = SkPDFMakeArray();
         for (const IDTreeEntry& entry : fIdTreeEntries) {
-          SkString idString = SkPDFTagNode::nodeIdToString(entry.nodeId);
+          SkString idString = SkPDF::NodeIdToString(entry.nodeId);
             names->appendString(idString);
             names->appendRef(entry.ref);
         }
