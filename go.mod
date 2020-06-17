@@ -23,17 +23,19 @@ require (
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200616031706-d0fdf43f911f // indirect
-	go.skia.org/infra v0.0.0-20200616030136-5b68b7891c11
+	go.chromium.org/luci v0.0.0-20200617043411-34dd37734506 // indirect
+	go.opencensus.io v0.22.4 // indirect
+	go.skia.org/infra v0.0.0-20200616185547-28019d8c7381
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 // indirect
-	golang.org/x/tools v0.0.0-20200615222825-6aa8f57aacd9 // indirect
+	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/tools v0.0.0-20200617042924-7f3f4b10a808 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	google.golang.org/api v0.26.0
-	google.golang.org/genproto v0.0.0-20200615140333-fd031eab31e7 // indirect
+	google.golang.org/api v0.27.0
+	google.golang.org/genproto v0.0.0-20200617032506-f1bdc9086088 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
