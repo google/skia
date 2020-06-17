@@ -92,7 +92,7 @@ public:
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
     bool drawStencilClipMask(GrRecordingContext*, GrRenderTargetContext*) const;
 
-    int numAnalyticFPs() const { return fAnalyticFPs.count() + fCCPRClipPaths.count(); }
+    int numAnalyticFPs() const;
 
     /**
      * Called once the client knows the ID of the opsTask that the clip FPs will operate in. This
@@ -152,7 +152,7 @@ private:
     ElementList fMaskElements;
     uint32_t fMaskGenID;
     bool fMaskRequiresAA;
-    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
+    std::unique_ptr<GrFragmentProcessor> fAnalyticFP;
     SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opsTask ID for CCPR.
     // Will be the combination of all kShader elements or null if there's no clip shader.
     // Does not count against the analytic FP limit.
