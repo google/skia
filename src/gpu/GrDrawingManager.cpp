@@ -58,7 +58,7 @@ void GrDrawingManager::RenderTaskDAG::reset() {
     fRenderTasks.reset();
 }
 
-void GrDrawingManager::RenderTaskDAG::removeRenderTasks(int startIndex, int stopIndex) {
+void GrDrawingManager::RenderTaskDAG::rawRemoveRenderTasks(int startIndex, int stopIndex) {
     for (int i = startIndex; i < stopIndex; ++i) {
         fRenderTasks[i] = nullptr;
     }
@@ -133,35 +133,11 @@ void GrDrawingManager::RenderTaskDAG::prepForFlush() {
 }
 
 void GrDrawingManager::RenderTaskDAG::closeAll(const GrCaps* caps) {
-    for (int i = 0; i < fRenderTasks.count(); ++i) {
-        if (fRenderTasks[i]) {
-            fRenderTasks[i]->makeClosed(*caps);
+    for (auto& task : fRenderTasks) {
+        if (task) {
+            task->makeClosed(*caps);
         }
     }
-}
-
-void GrDrawingManager::RenderTaskDAG::cleanup(GrDrawingManager* drawingMgr, const GrCaps* caps) {
-    for (int i = 0; i < fRenderTasks.count(); ++i) {
-        if (!fRenderTasks[i]) {
-            continue;
-        }
-
-        // no renderTask should receive a dependency
-        fRenderTasks[i]->makeClosed(*caps);
-
-        fRenderTasks[i]->disown(drawingMgr);
-
-        // We shouldn't need to do this, but it turns out some clients still hold onto opsTasks
-        // after a cleanup.
-        // MDB TODO: is this still true?
-        if (!fRenderTasks[i]->unique()) {
-            // TODO: Eventually this should be guaranteed unique.
-            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-            fRenderTasks[i]->endFlush(drawingMgr);
-        }
-    }
-
-    fRenderTasks.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,17 +153,9 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
         , fFlushing(false)
         , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
 
-void GrDrawingManager::cleanup() {
-    fDAG.cleanup(this, fContext->priv().caps());
-
-    fPathRendererChain = nullptr;
-    fSoftwarePathRenderer = nullptr;
-
-    fOnFlushCBObjects.reset();
-}
-
 GrDrawingManager::~GrDrawingManager() {
-    this->cleanup();
+    fDAG.closeAll(fContext->priv().caps());
+    this->removeRenderTasks(0, fDAG.numRenderTasks());
 }
 
 bool GrDrawingManager::wasAbandoned() const {
@@ -360,6 +328,7 @@ bool GrDrawingManager::flush(
                     }
                     renderTask->handleInternalAllocationFailure();
                 }
+                this->removeRenderTasks(startIndex, stopIndex);
             }
 
             if (this->executeRenderTasks(
@@ -371,10 +340,9 @@ bool GrDrawingManager::flush(
 
 #ifdef SK_DEBUG
     for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
-        // If there are any remaining opsTaskss at this point, make sure they will not survive the
-        // flush. Otherwise we need to call endFlush() on them.
-        // http://skbug.com/7111
-        SkASSERT(!fDAG.renderTask(i) || fDAG.renderTask(i)->unique());
+        // All render tasks should have been cleared out by now – we only reset the array below to
+        // reclaim storage.
+        SkASSERT(!fDAG.renderTask(i));
     }
 #endif
     fLastRenderTasks.reset();
@@ -519,7 +487,7 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
         }
         task->disown(this);
     }
-    fDAG.removeRenderTasks(startIndex, stopIndex);
+    fDAG.rawRemoveRenderTasks(startIndex, stopIndex);
 }
 
 static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
