@@ -655,10 +655,8 @@ static inline GrClipEdgeType GrInvertProcessorEdgeType(const GrClipEdgeType edge
             return GrClipEdgeType::kFillBW;
         case GrClipEdgeType::kInverseFillAA:
             return GrClipEdgeType::kFillAA;
-        case GrClipEdgeType::kHairlineAA:
-            SK_ABORT("Hairline fill isn't invertible.");
     }
-    return GrClipEdgeType::kFillAA;  // suppress warning.
+    SkUNREACHABLE;
 }
 
 /**

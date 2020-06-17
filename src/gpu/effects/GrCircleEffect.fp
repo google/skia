@@ -65,8 +65,7 @@ void main() {
     }
     half4 inputColor = sample(inputFP, sk_InColor);
     @if (edgeType == GrClipEdgeType::kFillAA ||
-         edgeType == GrClipEdgeType::kInverseFillAA ||
-         edgeType == GrClipEdgeType::kHairlineAA) {
+         edgeType == GrClipEdgeType::kInverseFillAA) {
         sk_OutColor = inputColor * saturate(d);
     } else {
         sk_OutColor = d > 0.5 ? inputColor : half4(0);
@@ -78,9 +77,6 @@ void main() {
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(1.f, 1000.f);
-    GrClipEdgeType et;
-    do {
-        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    } while (GrClipEdgeType::kHairlineAA == et);
+    GrClipEdgeType et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     return GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
 }
