@@ -27,7 +27,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrColorInfo.h"
-#include "src/gpu/GrFPArgs.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #endif
