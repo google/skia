@@ -119,7 +119,7 @@ public:
             fPermutationsBitmap.installPixels(info, fLatticeSelector, info.minRowBytes());
             fPermutationsBitmap.setImmutable();
 
-            info = SkImageInfo::MakeN32Premul(kBlockSize, 4);
+            info = SkImageInfo::Make(kBlockSize, 4, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
             fNoiseBitmap.installPixels(info, fNoise[0][0], info.minRowBytes());
             fNoiseBitmap.setImmutable();
 
@@ -144,7 +144,7 @@ public:
                                            1, 0, 2, 0,
                                            0, 2, 1, 0,
                                            1, 0, 0, 0 };
-            info = SkImageInfo::MakeN32Premul(16, 1);
+            info = SkImageInfo::Make(16, 1, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
             fGradientBitmap.installPixels(info, gradients, info.minRowBytes());
             fGradientBitmap.setImmutable();
     #endif
@@ -915,7 +915,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.append("half4 lattice = ");
     fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1],
                                      "half2(bcoords.x, chanCoord)");
-    noiseCode.appendf(R"(.bgra;
+    noiseCode.appendf(R"(;
                          uv.x = %s;)", dotLattice.c_str());
 
     // Compute v, at offset (-1,0)
@@ -923,7 +923,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.append("lattice = ");
     fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1],
                                      "half2(bcoords.y, chanCoord)");
-    noiseCode.appendf(R"(.bgra;
+    noiseCode.appendf(R"(;
                          uv.y = %s;)", dotLattice.c_str());
 
     // Compute 'a' as a linear interpolation of 'u' and 'v'
@@ -935,7 +935,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.append("lattice = ");
     fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1],
                                      "half2(bcoords.w, chanCoord)");
-    noiseCode.appendf(R"(.bgra;
+    noiseCode.appendf(R"(;
                          uv.y = %s;)", dotLattice.c_str());
 
     // Compute u, at offset (0,-1)
@@ -943,7 +943,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.append("lattice = ");
     fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1],
                                      "half2(bcoords.z, chanCoord)");
-    noiseCode.appendf(R"(.bgra;
+    noiseCode.appendf(R"(;
                          uv.x = %s;)", dotLattice.c_str());
 
     // Compute 'b' as a linear interpolation of 'u' and 'v'
