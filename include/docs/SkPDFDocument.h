@@ -120,10 +120,6 @@ struct StructureElementNode {
     SkString fAlt;
     SkString fLang;
 
-    // Deprecated. Use fChildVector instead.
-    StructureElementNode* fChildren = nullptr;
-    size_t fChildCount = 0;
-
     // Deprecated. Use fTypeString instead.
     DocumentStructureType fType = DocumentStructureType::kNonStruct;
 };
