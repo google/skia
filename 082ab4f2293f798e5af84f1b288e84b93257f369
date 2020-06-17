@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7e3c0f9a_8f94ba9b",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "Probably. This step is true if you\u0027re trying to build the app or just the lib, so I can put it in the lib as well.",
+      "parentUuid": "f630a460_458fdb4b",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "805379ea_1f9b982a",
         "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "fd632aff_5f2b384a",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "805379ea_1f9b982a",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 50
+      },
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "331353af_56b0cec2",
         "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
         "patchSetId": 3
@@ -56,6 +98,24 @@
       "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "204355ca_d35ad9d1",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "331353af_56b0cec2",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "b3f73144_4c32ec79",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "It\u0027s to import libraries into our library . I don\u0027t know why it\u0027s in the default gradle file for Android Libraries. I\u0027ll remove it (and the corresponding lib dir which we shouldn\u0027t need).",
+      "parentUuid": "cac14a07_d4afb9e5",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6129f835_1d59391e",
         "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
         "patchSetId": 3
@@ -90,6 +168,24 @@
       "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a006fac_1c762a96",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "6129f835_1d59391e",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "f1804b18_29ddb2da",
+        "filename": "platform_tools/android/apps/skottie/skottielib/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "aa692011_3b04d856",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5e56475_afc816fd",
         "filename": "platform_tools/android/apps/skottie/skottielib/proguard-rules.pro",
         "patchSetId": 3
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "a613163a_41892c31",
+        "filename": "platform_tools/android/apps/skottie/skottielib/proguard-rules.pro",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "I agree, done.",
+      "parentUuid": "a5e56475_afc816fd",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a37ae6b_856ea8f5",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/androidTest/java/com/google/skia/skottielib/ExampleInstrumentedTest.java",
         "patchSetId": 3
@@ -141,6 +273,24 @@
       "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "109b004a_081eb790",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/androidTest/java/com/google/skia/skottielib/ExampleInstrumentedTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "Ok, but it would be nice to make sure that the library tools like SkottieView still work as we make changes to stuff. Will delete the file for now until they are written, but will keep the test directory.",
+      "parentUuid": "4a37ae6b_856ea8f5",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -167,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "d2af4b76_4d2062fc",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "1bfc8a48_1c8de6fa",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 23
+      },
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd290771_90911fb6",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/test/java/com/google/skia/skottielib/ExampleUnitTest.java",
         "patchSetId": 3
@@ -181,6 +355,24 @@
       "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a71a6036_4442cadc",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/test/java/com/google/skia/skottielib/ExampleUnitTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-06-17T15:18:48Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fd290771_90911fb6",
+      "revId": "082ab4f2293f798e5af84f1b288e84b93257f369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
