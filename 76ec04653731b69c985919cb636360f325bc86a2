@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "06013b07_4ae27c6a",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1866,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-17T20:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bb42230_7003767d",
+      "range": {
+        "startLine": 1848,
+        "startChar": 0,
+        "endLine": 1866,
+        "endChar": 47
+      },
+      "revId": "76ec04653731b69c985919cb636360f325bc86a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f2a1911_1e54b664",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "76ec04653731b69c985919cb636360f325bc86a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8cb49d9_c8d42455",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1876,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-17T20:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f2a1911_1e54b664",
+      "range": {
+        "startLine": 1875,
+        "startChar": 8,
+        "endLine": 1876,
+        "endChar": 45
+      },
+      "revId": "76ec04653731b69c985919cb636360f325bc86a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
