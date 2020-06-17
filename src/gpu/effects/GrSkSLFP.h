@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrContextOptions.h"
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -89,6 +90,10 @@ private:
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
+    void getGLSLProcessorKeyNoCaps(GrProcessorKeyBuilder* b) const;
+
+    SkSL::PipelineStageArgs* getPipelineStageArgs() const;
+
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     sk_sp<const GrShaderCaps> fShaderCaps;
@@ -97,8 +102,16 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
     sk_sp<SkData>          fInputs;
-
+    sk_sp<SkData>          fKey;
     GrCoordTransform fCoordTransform;
+
+    struct DataHash {
+        uint32_t operator()(const sk_sp<SkData>& data) const {
+            return SkOpts::hash_fn(data->data(), data->size(), 0);
+        }
+    };
+
+    static SkLRUCache<sk_sp<SkData>, SkSL::PipelineStageArgs, DataHash>* argMap;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

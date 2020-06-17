@@ -19,7 +19,7 @@
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(SkSL::PipelineStageArgs&& args) : fArgs(std::move(args)) {}
+    GrGLSLSkSLFP(const SkSL::PipelineStageArgs& args) : fArgs(std::move(args)) {}
 
     SkSL::String expandFormatArgs(const SkSL::String& raw,
                                   EmitArgs& args,
@@ -55,6 +55,13 @@ public:
                                 SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
                                                                              fmtArg, coordsName);
                                 result += this->invokeChild(arg.fIndex, args, coords).c_str();
+                                break;
+                            }
+                            case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
+                                SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
+                                                                             fmtArg, coordsName);
+                                result += this->invokeChildWithMatrix(arg.fIndex, args,
+                                                                      coords).c_str();
                                 break;
                             }
                             case SkSL::Compiler::FormatArg::Kind::kFunctionName:
@@ -95,7 +102,8 @@ public:
         // We need to ensure that we call invokeChild on each child FP at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            (void)this->invokeChild(i, args, SkSL::String("_coords"));
+            bool isExplicit = args.fFp.childProcessor(i).isSampledWithExplicitCoords();
+            (void)this->invokeChild(i, args, isExplicit ? SkSL::String("_coords") : "");
         }
         for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
@@ -162,6 +170,8 @@ public:
     std::vector<SkString> fFunctionNames;
 };
 
+SkLRUCache<sk_sp<SkData>, SkSL::PipelineStageArgs, GrSkSLFP::DataHash>* GrSkSLFP::argMap;
+
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
                                          const char* name, sk_sp<SkData> inputs) {
     if (inputs->size() != effect->inputSize()) {
@@ -181,6 +191,10 @@ GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* sha
         , fName(name)
         , fInputs(std::move(inputs)) {
     this->addCoordTransform(&fCoordTransform);
+    SkTArray<unsigned char, true> keyBytes;
+    GrProcessorKeyBuilder builder(&keyBytes);
+    this->getGLSLProcessorKeyNoCaps(&builder);
+    fKey = SkData::MakeWithCopy(keyBytes.data(), keyBytes.size());
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
@@ -189,7 +203,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
-        , fInputs(other.fInputs) {
+        , fInputs(other.fInputs)
+        , fKey(other.fKey) {
     this->addCoordTransform(&fCoordTransform);
 }
 
@@ -197,19 +212,40 @@ const char* GrSkSLFP::name() const {
     return fName;
 }
 
+SkSL::PipelineStageArgs* GrSkSLFP::getPipelineStageArgs() const {
+    static SkOnce once;
+    once([]{
+        argMap = new SkLRUCache<sk_sp<SkData>, SkSL::PipelineStageArgs, GrSkSLFP::DataHash>(100);
+    });
+    SkSL::PipelineStageArgs* result = argMap->find(fKey);
+    if (!result) {
+        SkSL::PipelineStageArgs args;
+        fEffect->toPipelineStage(fInputs->data(), fShaderCaps.get(), fShaderErrorHandler,
+                                 &args);
+        argMap->insert(fKey, std::move(args));
+        result = argMap->find(fKey);
+    }
+    SkASSERT(result);
+    return result;
+}
+
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    child->setSampledWithExplicitCoords();
+    int newIndex = this->numChildProcessors();
+    SkSL::PipelineStageArgs* args = this->getPipelineStageArgs();
+    if ((int) args->fSampleMatrices.size() > newIndex &&
+        args->fSampleMatrices[newIndex].fKind != SkSL::SampleMatrix::Kind::kNone) {
+        child->setSampleMatrix(args->fSampleMatrices[newIndex]);
+    } else {
+        child->setSampledWithExplicitCoords();
+    }
     this->registerChildProcessor(std::move(child));
 }
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
-    // Note: This is actually SkSL (again) but with inline format specifiers.
-    SkSL::PipelineStageArgs args;
-    fEffect->toPipelineStage(fInputs->data(), fShaderCaps.get(), fShaderErrorHandler, &args);
-    return new GrGLSLSkSLFP(std::move(args));
+    return new GrGLSLSkSLFP(*this->getPipelineStageArgs());
 }
 
-void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrSkSLFP::getGLSLProcessorKeyNoCaps(GrProcessorKeyBuilder* b) const {
     // In the unlikely event of a hash collision, we also include the input size in the key.
     // That ensures that we will (at worst) use the wrong program, but one that expects the same
     // amount of input data.
@@ -235,6 +271,10 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
                 break;
         }
     }
+}
+
+void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    memcpy(b->add32n((fKey->size() + 3) / 4), fKey->data(), fKey->size());
 }
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
