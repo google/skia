@@ -71,28 +71,24 @@ public:
     const char* name() const override { return "TextureEffect"; }
 
 private:
-    enum class ShaderMode : uint16_t {
-        kClamp         = static_cast<int>(GrSamplerState::WrapMode::kClamp),
-        kRepeat        = static_cast<int>(GrSamplerState::WrapMode::kRepeat),
-        kMirrorRepeat  = static_cast<int>(GrSamplerState::WrapMode::kMirrorRepeat),
-        kClampToBorder = static_cast<int>(GrSamplerState::WrapMode::kClampToBorder),
-        kNone,
-    };
-
     struct Sampling;
 
     /**
-     * Sometimes the implementation of a ShaderMode depends on which GrSamplerState::Filter is
-     * used.
+     * Possible implementation of wrap mode in shader code. Some modes are specialized by
+     * filter.
      */
-    enum class FilterLogic {
-        kNone,                  // The shader isn't specialized for the filter.
+    enum class ShaderMode : uint16_t {
+        kNone,                  // Using HW mode
+        kClamp,                 // Shader based clamp, no filter specialization
+        kRepeatNearest,         // Simple repeat for nearest sampling
         kRepeatBilerp,          // Filter across the subset boundary for kRepeat mode
         kRepeatMipMap,          // Logic for LOD selection with kRepeat mode.
-        kClampToBorderFilter,   // Logic for fading to border color when filtering.
+        kMirrorRepeat,          // Mirror repeat (doesn't depend on filter))
         kClampToBorderNearest,  // Logic for hard transition to border color when not filtering.
+        kClampToBorderFilter,   // Logic for fading to border color when filtering.
     };
-    static FilterLogic GetFilterLogic(ShaderMode mode, GrSamplerState::Filter filter);
+    static ShaderMode GetShaderMode(GrSamplerState::WrapMode, GrSamplerState::Filter);
+    static bool ShaderModeIsClampToBorder(ShaderMode);
 
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
@@ -114,6 +110,11 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     const TextureSampler& onTextureSampler(int) const override;
+
+    bool hasClampToBorderShaderMode() const {
+        return ShaderModeIsClampToBorder(fShaderModes[0]) ||
+               ShaderModeIsClampToBorder(fShaderModes[1]);
+    }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
