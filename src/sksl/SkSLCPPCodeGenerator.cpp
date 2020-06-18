@@ -23,11 +23,11 @@ static bool needs_uniform_var(const Variable& var) {
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
                                    ErrorReporter* errors, String name, OutputStream* out)
-: INHERITED(context, program, errors, out)
-, fName(std::move(name))
-, fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(program, *errors) {
-    fLineEnding = "\\n";
+    : INHERITED(context, program, errors, out)
+    , fName(std::move(name))
+    , fFullName(String::printf("Gr%s", fName.c_str()))
+    , fSectionAndParameterHelper(program, *errors) {
+    fLineEnding = "\n";
     fTextureFunctionOverride = "sample";
 }
 
@@ -36,7 +36,7 @@ void CPPCodeGenerator::writef(const char* s, va_list va) {
     va_list copy;
     va_copy(copy, va);
     char buffer[BUFFER_SIZE];
-    int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
+    int length = std::vsnprintf(buffer, BUFFER_SIZE, s, va);
     if (length < BUFFER_SIZE) {
         fOut->write(buffer, length);
     } else {
@@ -431,7 +431,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // must be properly formatted with a prefixed comma when the parameter should be inserted
         // into the invokeChild() parameter list.
         String inputArg;
-        String inputColorName = "\"half4(1)\"";
+        String inputColorName;
         if (c.fArguments.size() > 1 && c.fArguments[1]->fType.name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
@@ -484,11 +484,19 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             // expressions - thus we always fill the variable with something.
             // Sampling from a null fragment processor will provide in the input color as-is. This
             // defaults to half4(1) if no color is specified.
-            addExtraEmitCodeLine(
-                "} else {"
-                "    " + childName + " = " + inputColorName + ";"
-                "}");
+            if (!inputColorName.empty()) {
+                addExtraEmitCodeLine(
+                    "} else {"
+                    "    " + childName + ".swap(" + inputColorName + ");"
+                    "}");
+            } else {
+                addExtraEmitCodeLine(
+                    "} else {"
+                    "    " + childName + " = \"half4(1)\";"
+                    "}");
+            }
         }
+
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
         return;
@@ -597,7 +605,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         emit += ", \"" + decl.fName + "\"";
         emit += ", " + to_string((int64_t) decl.fParameters.size());
         emit += ", " + decl.fName + "_args";
-        emit += ", \"" + buffer.str() + "\"";
+        emit += ",\nR\"SkSL(" + buffer.str() + ")SkSL\"";
         emit += ", &" + decl.fName + "_name);";
         this->addExtraEmitCodeLine(emit.c_str());
     }
@@ -818,46 +826,33 @@ void CPPCodeGenerator::flushEmittedCode() {
 }
 
 void CPPCodeGenerator::writeCodeAppend(const String& code) {
-    // codeAppendf can only handle appending 1024 bytes at a time, so we need to break the string
-    // into chunks. Unfortunately we can't tell exactly how long the string is going to end up,
-    // because printf escape sequences get replaced by strings of unknown length, but keeping the
-    // format string below 512 bytes is probably safe.
-    static constexpr size_t maxChunkSize = 512;
-    size_t start = 0;
-    size_t index = 0;
-    size_t argStart = 0;
-    size_t argCount;
-    while (index < code.size()) {
-        argCount = 0;
-        this->write("        fragBuilder->codeAppendf(\"");
-        while (index < code.size() && index < start + maxChunkSize) {
+    if (!code.empty()) {
+        // Count % format specifiers.
+        size_t argCount = 0;
+        for (size_t index = 0; index < code.size(); ++index) {
             if ('%' == code[index]) {
-                if (index == start + maxChunkSize - 1 || index == code.size() - 1) {
+                if (index == code.size() - 1) {
                     break;
                 }
                 if (code[index + 1] != '%') {
                     ++argCount;
                 }
-            } else if ('\\' == code[index] && index == start + maxChunkSize - 1) {
-                // avoid splitting an escape sequence that happens to fall across a chunk boundary
-                break;
             }
-            ++index;
         }
-        fOut->write(code.c_str() + start, index - start);
-        this->write("\"");
-        for (size_t i = argStart; i < argStart + argCount; ++i) {
+
+        // Emit the code string.
+        this->writef("        fragBuilder->codeAppendf(\n"
+                     "R\"SkSL(%s)SkSL\"\n", code.c_str());
+        for (size_t i = 0; i < argCount; ++i) {
             this->writef(", %s", fFormatArgs[i].c_str());
         }
         this->write(");\n");
-        argStart += argCount;
-        start = index;
-    }
 
-    // argStart is equal to the number of fFormatArgs that were consumed
-    // so they should be removed from the list
-    if (argStart > 0) {
-        fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argStart);
+        // argCount is equal to the number of fFormatArgs that were consumed, so they should be
+        // removed from the list.
+        if (argCount > 0) {
+            fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argCount);
+        }
     }
 }
 
@@ -904,10 +899,14 @@ String CPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
 
     // Now build the final C++ code snippet from the format string and args
     String cppExpr;
-    if (newArgs.size() == 0) {
+    if (newArgs.empty()) {
         // This was a static expression, so we can simplify the input
         // color declaration in the emitted code to just a static string
         cppExpr = "SkString " + cppVar + "(\"" + exprFormat + "\");";
+    } else if (newArgs.size() == 1 && exprFormat == "%s") {
+        // If the format expression is simply "%s", we can avoid an expensive call to printf.
+        // This happens fairly often in codegen so it is worth simplifying.
+        cppExpr = "SkString " + cppVar + "(" + newArgs[0] + ");";
     } else {
         // String formatting must occur dynamically, so have the C++ declaration
         // use SkStringPrintf with the format args that were accumulated
