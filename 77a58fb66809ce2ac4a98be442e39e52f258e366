@@ -46,6 +46,30 @@
       "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ab62d44_2c5a38eb",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T16:36:22Z",
+      "side": 1,
+      "message": "The CPU backend does\n\n    c \u003d premul(paint.rgb, a)\n\nI\u0027d also love to sample alpha-only textures as [0,0,0,a] and leave any paint color modulation up to the effect.  I stand by r\u003d0,g\u003d0,b\u003d0,a\u003d1 as the only sane default for all purposes.\n\nI\u0027ve swapped this to .a for now.",
+      "parentUuid": "4373f826_657983e5",
+      "range": {
+        "startLine": 121,
+        "startChar": 65,
+        "endLine": 121,
+        "endChar": 67
+      },
+      "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
