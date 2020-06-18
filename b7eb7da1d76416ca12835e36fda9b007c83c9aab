@@ -264,6 +264,30 @@
     },
     {
       "key": {
+        "uuid": "fbf51ae0_6eb3747c",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T15:10:31Z",
+      "side": 1,
+      "message": "Haha, Titus responded immediately and apparently this could not be a struct in google3! Today I learned. :)",
+      "parentUuid": "4246f3cb_f8d49ffd",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
