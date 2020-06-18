@@ -192,6 +192,30 @@
     },
     {
       "key": {
+        "uuid": "276fda78_03fb3a7d",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T14:50:44Z",
+      "side": 1,
+      "message": "Yeah, that part of the style guide is hopelessly idealistic.  I\u0027d just ignore it.",
+      "parentUuid": "b86a8e41_4dbe6d62",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
