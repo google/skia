@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd77257e_efc515f3",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-18T13:55:34Z",
+      "side": 1,
+      "message": "😕",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 74
+      },
+      "revId": "cb842f0765f248d6832cca46f01f893910105f76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
