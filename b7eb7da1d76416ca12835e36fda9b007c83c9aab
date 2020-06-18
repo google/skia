@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e679be26_cf598848",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T13:17:24Z",
+      "side": 1,
+      "message": "Done. Also, moved below methods, instead of hanging out in the middle of the method section between Make() and data().",
+      "parentUuid": "57d2fc1c_b1dba241",
+      "range": {
+        "startLine": 245,
+        "startChar": 2,
+        "endLine": 247,
+        "endChar": 44
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "405c404c_76cff09b",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "64e61ecc_3068f6e9",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T13:17:24Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "405c404c_76cff09b",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c70f7f30_10d7f964",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T13:17:24Z",
+      "side": 1,
+      "message": "Agreed, the way it funnels through `insert` is hard to track in general. Added comments.\n\nBTW--would you be open to a followup CL which renames `resize` to `clear_and_resize`? The API behavior differs from std::string in a surprising way and I lost some time debugging this.",
+      "parentUuid": "c8dac15f_a2baa5a7",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 34
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
