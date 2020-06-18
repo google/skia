@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db4740c6_94dfa4da",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T18:13:26Z",
+      "side": 1,
+      "message": "Is this still true?",
+      "range": {
+        "startLine": 1085,
+        "startChar": 0,
+        "endLine": 1087,
+        "endChar": 37
+      },
+      "revId": "d6428c8f1cbd508a93628828043abdd63337fdee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "491a422c_8fa88a48",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T18:13:26Z",
+      "side": 1,
+      "message": "Two submits?",
+      "range": {
+        "startLine": 1091,
+        "startChar": 0,
+        "endLine": 1091,
+        "endChar": 26
+      },
+      "revId": "d6428c8f1cbd508a93628828043abdd63337fdee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
