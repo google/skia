@@ -166,7 +166,9 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                     localCoords = tr.fLocalCoords.c_str();
                 }
                 vb->codeAppend("{\n");
-                uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
+                if (tr.fFP->sampleMatrix().fOwner) {
+                    uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
+                }
                 if (tr.fType == kFloat2_GrSLType) {
                     vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
                                     tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),

@@ -509,8 +509,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(SkColorChannel xChannelSelector
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
     this->registerChildProcessor(std::move(displacement));
-    color->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(color));
+    this->registerExplicitlySampledChildProcessor(std::move(color));
     this->addCoordTransform(&fCoordTransform);
 }
 

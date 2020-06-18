@@ -785,10 +785,8 @@ private:
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
             , fPaintingData(std::move(paintingData)) {
-        permutationsFP->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(permutationsFP));
-        noiseFP->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(noiseFP));
+        this->registerExplicitlySampledChildProcessor(std::move(permutationsFP));
+        this->registerExplicitlySampledChildProcessor(std::move(noiseFP));
         fCoordTransform = GrCoordTransform(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
@@ -1154,10 +1152,8 @@ private:
             , fOctaves(octaves)
             , fZ(z)
             , fPaintingData(std::move(paintingData)) {
-        permutationsFP->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(permutationsFP));
-        gradientFP->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(gradientFP));
+        this->registerExplicitlySampledChildProcessor(std::move(permutationsFP));
+        this->registerExplicitlySampledChildProcessor(std::move(gradientFP));
         fCoordTransform = GrCoordTransform(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
