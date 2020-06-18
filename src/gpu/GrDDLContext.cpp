@@ -37,8 +37,8 @@ public:
     }
 
     void freeGpuResources() override {
-        SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
-        INHERITED::freeGpuResources();
+        // freeing resources in a DDL Recorder doesn't make a whole lot of sense but some of
+        // our tests do it anyways
     }
 
 private:

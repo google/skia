@@ -1073,6 +1073,34 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
     return kUnknown_SkColorType;
 }
 
+class BackendReleaseContext {
+public:
+    static void release(void* releaseContext) {
+        BackendReleaseContext* beContext = reinterpret_cast<BackendReleaseContext*>(releaseContext);
+
+        delete beContext;
+    }
+
+    BackendReleaseContext(GrContext* context, const GrBackendTexture& beTex)
+            : fContext(context)
+            , fBETexture(beTex) {
+        SkASSERT(context->priv().getGpu());
+        SkASSERT(context->priv().asDirectContext());
+        SkASSERT(beTex.isValid());
+    }
+
+    ~BackendReleaseContext() {
+        if (fBETexture.isValid()) {
+            fContext->deleteBackendTexture(fBETexture);
+        }
+        fContext = nullptr;
+    }
+
+private:
+    GrContext*       fContext;
+    GrBackendTexture fBETexture;
+};
+
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -1125,7 +1153,7 @@ protected:
                              kLabelHeight + numRows * (wh + kPad));
     }
 
-    void onOnceBeforeDraw() override {
+    void createBitmaps() {
         SkPoint origin = { kTileWidthHeight/2.0f, kTileWidthHeight/2.0f };
         float outerRadius = kTileWidthHeight/2.0f - 20.0f;
         float innerRadius = 20.0f;
@@ -1159,10 +1187,28 @@ protected:
                                int numTextures,
                                SkISize imageSize) {
         GrBackendTexture shrunkTextures[4];
+        void* releaseContexts[4] = {};
+
+        auto unwind = [context, &releaseContexts]() {
+            // Some backends require that all work associated w/ texture
+            // creation be completed before deleting the textures.
+            GrFlushInfo flushInfoSyncCpu;
+            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+            context->flush(flushInfoSyncCpu);
+            context->submit(true);
+            context->submit();
+
+            for (int i = 0; i < 4; ++i) {
+                delete (BackendReleaseContext*)releaseContexts[i];
+            }
+        };
 
         for (int i = 0; i < numTextures; ++i) {
-            SkColorType ct = get_color_type(yuvaTextures[i].getBackendFormat());
+            const GrBackendTexture& curTex = yuvaTextures[i];
+
+            SkColorType ct = get_color_type(curTex.getBackendFormat());
             if (ct == kUnknown_SkColorType || !context->colorTypeSupportedAsSurface(ct)) {
+                unwind();
                 return nullptr;
             }
 
@@ -1170,12 +1216,13 @@ protected:
                 // We disallow resizing AYUV and Y410 formats on the GPU bc resizing them w/ a
                 // premul draw combines the YUV channels w/ the A channel in an inappropriate
                 // manner.
+                unwind();
                 return nullptr;
             }
 
-            SkISize shrunkPlaneSize = { yuvaTextures[i].width() / 2, yuvaTextures[i].height() / 2 };
+            SkISize shrunkPlaneSize = {curTex.width() / 2, curTex.height() / 2 };
 
-            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, yuvaTextures[i],
+            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, curTex,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   ct,
                                                                   kPremul_SkAlphaType,
@@ -1183,20 +1230,21 @@ protected:
 
             shrunkTextures[i] = context->createBackendTexture(shrunkPlaneSize.width(),
                                                               shrunkPlaneSize.height(),
-                                                              yuvaTextures[i].getBackendFormat(),
+                                                              curTex.getBackendFormat(),
                                                               GrMipMapped::kNo,
                                                               GrRenderable::kYes);
             if (!shrunkTextures[i].isValid()) {
+                unwind();
                 return nullptr;
             }
 
-            // Store this away so it will be cleaned up at the end.
-            fBackendTextures.push_back(shrunkTextures[i]);
+            releaseContexts[i] = new BackendReleaseContext(context, shrunkTextures[i]);
 
             sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, shrunkTextures[i],
                                                                    kTopLeft_GrSurfaceOrigin, 0,
                                                                    ct, nullptr, nullptr);
             if (!s) {
+                unwind();
                 return nullptr;
             }
             SkCanvas* c = s->getCanvas();
@@ -1218,7 +1266,9 @@ protected:
                                              shrunkTextures,
                                              yuvaIndices,
                                              shrunkImageSize,
-                                             kTopLeft_GrSurfaceOrigin);
+                                             kTopLeft_GrSurfaceOrigin,
+                                             nullptr,
+                                             BackendReleaseContext::release, releaseContexts);
     }
 
     void createImages(GrContext* context) {
@@ -1244,14 +1294,30 @@ protected:
                         }
 
                         GrBackendTexture yuvaTextures[4];
-                        SkPixmap yuvaPixmaps[4];
+                        void* releaseContexts[4] = {};
+
+                        auto unwind = [context, &releaseContexts]() {
+                            // Some backends require that all work associated w/ texture
+                            // creation be completed before deleting the textures.
+                            GrFlushInfo flushInfoSyncCpu;
+                            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+                            context->flush(flushInfoSyncCpu);
+                            context->submit(true);
+                            context->submit();
+
+                            for (int i = 0; i < 4; ++i) {
+                                delete (BackendReleaseContext*) releaseContexts[i];
+                            }
+                        };
 
                         for (int i = 0; i < numTextures; ++i) {
                             yuvaTextures[i] = create_yuva_texture(context, resultBMs[i]);
-                            if (yuvaTextures[i].isValid()) {
-                                fBackendTextures.push_back(yuvaTextures[i]);
+                            if (!yuvaTextures[i].isValid()) {
+                                unwind();
+                                break;
                             }
-                            yuvaPixmaps[i] = resultBMs[i].pixmap();
+                            releaseContexts[i] = new BackendReleaseContext(context,
+                                                                           yuvaTextures[i]);
                         }
 
                         SkYUVAIndex yuvaIndices[4];
@@ -1259,6 +1325,7 @@ protected:
                         bool externalAlphaPlane = !opaque && !planarConfig.hasAlpha();
                         if (!planarConfig.getYUVAIndices(yuvaTextures, numTextures,
                                                          externalAlphaPlane, yuvaIndices)) {
+                            unwind();
                             continue;
                         }
 
@@ -1272,6 +1339,7 @@ protected:
                                                       yuvaIndices,
                                                       numTextures,
                                                       fOriginalBMs[opaque].dimensions());
+                            unwind();
                         } else {
                             int counterMod = counter % 3;
                             if (fUseDomain && counterMod == 0) {
@@ -1280,35 +1348,49 @@ protected:
                                 counterMod = 1;
                             }
 
+                            const SkISize imgSize { fOriginalBMs[opaque].width(),
+                                                    fOriginalBMs[opaque].height() };
+
                             switch (counterMod) {
-                            case 0:
-                                fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                                    context,
-                                    (SkYUVColorSpace)cs,
-                                    yuvaTextures,
-                                    yuvaIndices,
-                                    { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                    kTopLeft_GrSurfaceOrigin);
-                                break;
-                            case 1:
-                                fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
-                                    context,
-                                    (SkYUVColorSpace)cs,
-                                    yuvaTextures,
-                                    yuvaIndices,
-                                    { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                    kTopLeft_GrSurfaceOrigin);
-                                break;
-                            case 2:
-                            default:
-                                fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
-                                    context,
-                                    (SkYUVColorSpace)cs,
-                                    yuvaPixmaps,
-                                    yuvaIndices,
-                                    { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                    kTopLeft_GrSurfaceOrigin, true);
-                                break;
+                                case 0:
+                                    fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
+                                        context,
+                                        (SkYUVColorSpace)cs,
+                                        yuvaTextures,
+                                        yuvaIndices,
+                                        imgSize,
+                                        kTopLeft_GrSurfaceOrigin);
+                                    unwind();
+                                    break;
+                                case 1:
+                                    fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
+                                        context,
+                                        (SkYUVColorSpace)cs,
+                                        yuvaTextures,
+                                        yuvaIndices,
+                                        imgSize,
+                                        kTopLeft_GrSurfaceOrigin,
+                                        nullptr,
+                                        BackendReleaseContext::release, releaseContexts);
+                                    break;
+                                case 2:
+                                default: {
+                                    unwind(); // TODO: we did a lot of work to delete these here
+
+                                    SkPixmap yuvaPixmaps[4];
+                                    for (int i = 0; i < numTextures; ++i) {
+                                        yuvaPixmaps[i] = resultBMs[i].pixmap();
+                                    }
+
+                                    fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
+                                        context,
+                                        (SkYUVColorSpace)cs,
+                                        yuvaPixmaps,
+                                        yuvaIndices,
+                                        imgSize,
+                                        kTopLeft_GrSurfaceOrigin, true);
+                                    break;
+                                }
                             }
                             ++counter;
                         }
@@ -1324,9 +1406,16 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        this->createImages(canvas->getGrContext());
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        this->createBitmaps();
+        this->createImages(context);
+        return DrawResult::kOk;
+    }
 
+    void onGpuTeardown(GrContext* context) override {
+    }
+
+    void onDraw(SkCanvas* canvas) override {
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseDomain) {
             cellWidth *= 1.5f;
@@ -1391,30 +1480,18 @@ protected:
                                               &paint, constraint);
                     }
                     dstRect.offset(0.f, cellHeight + kPad);
+
+                    fImages[opaque][cs][format] = nullptr;
                 }
 
                 dstRect.offset(cellWidth + kPad, 0.f);
             }
         }
-        if (auto context = canvas->getGrContext()) {
-            if (!context->abandoned()) {
-                context->flushAndSubmit();
-                GrGpu* gpu = context->priv().getGpu();
-                SkASSERT(gpu);
-                gpu->testingOnly_flushGpuAndSync();
-                for (const auto& tex : fBackendTextures) {
-                    context->deleteBackendTexture(tex);
-                }
-                fBackendTextures.reset();
-            }
-        }
-        SkASSERT(!fBackendTextures.count());
     }
 
 private:
     SkBitmap                   fOriginalBMs[2];
     sk_sp<SkImage>             fImages[2][kLastEnum_SkYUVColorSpace + 1][kLast_YUVFormat + 1];
-    SkTArray<GrBackendTexture> fBackendTextures;
     bool                       fUseTargetColorSpace;
     bool                       fUseDomain;
     bool                       fQuarterSize;
@@ -1448,7 +1525,7 @@ protected:
                              numRows * (kTileWidthHeight + kPad) + kPad);
     }
 
-    void onOnceBeforeDraw() override {
+    void createBitmaps() {
         SkPoint origin = { kTileWidthHeight/2.0f, kTileWidthHeight/2.0f };
         float outerRadius = kTileWidthHeight/2.0f - 20.0f;
         float innerRadius = 20.0f;
@@ -1510,8 +1587,22 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        this->createBitmaps();
+
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+
+        SkASSERT(context->priv().asDirectContext());
+
         this->createImages(context);
+
+        return DrawResult::kOk;
+    }
+
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+        SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         int x = kPad;
         for (int tagged : { 0, 1 }) {
@@ -1546,11 +1637,14 @@ protected:
                 x += kTileWidthHeight + kPad;
             }
         }
+    }
 
-        context->flushAndSubmit();
-        GrGpu* gpu = context->priv().getGpu();
-        SkASSERT(gpu);
-        gpu->testingOnly_flushGpuAndSync();
+    void onGpuTeardown(GrContext* context) override {
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfoSyncCpu);
+        context->submit(true);
+
         for (const auto& tex : fBackendTextures) {
             context->deleteBackendTexture(tex);
         }
