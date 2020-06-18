@@ -24,7 +24,7 @@ with open(gnzip, 'wb') as f:
   pkg = 'linux-amd64' if 'linux'  in sys.platform else \
         'mac-amd64'   if 'darwin' in sys.platform else \
         'windows-amd64'
-  rev = '82d673acb802cee21534c796a59f8cdf26500f53'
+  rev = '9e993e3da82a9f4bc5c50c190afbcffd61e3d9e0'
   url = 'https://chrome-infra-packages.appspot.com/dl/gn/gn/{}/+/git_revision:{}'.format(pkg,rev)
   f.write(urlopen(url).read())
 
