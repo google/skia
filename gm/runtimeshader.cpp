@@ -144,9 +144,10 @@ class ThresholdRT : public skiagm::GM {
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fBefore, fAfter, fThreshold };
 
+        SkMatrix localM = SkMatrix::RotateDeg(fCutoff * 45);
         SkPaint paint;
         paint.setShader(fEffect->makeShader(data, children, SK_ARRAY_COUNT(children),
-                                            nullptr, true));
+                                            &localM, true));
         canvas->drawRect({0, 0, 256, 256}, paint);
 
         auto draw = [&](SkScalar x, SkScalar y, sk_sp<SkShader> shader) {
