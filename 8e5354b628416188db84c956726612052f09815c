@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b7267851_a2278788",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T10:24:33Z",
+      "side": 1,
+      "message": "Think it makes sense to add a function like\n\n   bool ByteCode::canRun() const {\n       // Can\u0027t sample child FPs in the interpreter (yet?).\n       return this-\u003egetChildFPCount() \u003d\u003d 0;\n   }\n\n?",
+      "parentUuid": "919277a0_d86413c0",
+      "revId": "8e5354b628416188db84c956726612052f09815c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1f64920_4e1e2f1c",
         "filename": "src/sksl/SkSLByteCode.h",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-17T21:02:02Z",
       "side": 1,
       "message": "^^^ This is the main thing to look for when doing byte-code to skvm translation",
+      "revId": "8e5354b628416188db84c956726612052f09815c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcb0979a_c66ce2a7",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T10:24:33Z",
+      "side": 1,
+      "message": "These bytes index fChildren on SkRTShader, right?",
+      "parentUuid": "c1f64920_4e1e2f1c",
       "revId": "8e5354b628416188db84c956726612052f09815c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
