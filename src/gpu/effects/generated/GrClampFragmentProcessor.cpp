@@ -25,17 +25,22 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
-        SkString _input464 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input464(args.fInputColor);
         SkString _sample464;
         if (_outer.inputFP_index >= 0) {
             _sample464 = this->invokeChild(_outer.inputFP_index, _input464.c_str(), args);
         } else {
-            _sample464 = _input464;
+            _sample464.swap(_input464);
         }
         fragBuilder->codeAppendf(
-                "half4 inputColor = %s;\n@if (%s) {\n    half alpha = clamp(inputColor.w, 0.0, "
-                "1.0);\n    %s = half4(clamp(inputColor.xyz, 0.0, alpha), alpha);\n} else {\n    "
-                "%s = clamp(inputColor, 0.0, 1.0);\n}\n",
+                R"SkSL(half4 inputColor = %s;
+@if (%s) {
+    half alpha = clamp(inputColor.w, 0.0, 1.0);
+    %s = half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
+} else {
+    %s = clamp(inputColor, 0.0, 1.0);
+}
+)SkSL",
                 _sample464.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
                 args.fOutputColor);
     }

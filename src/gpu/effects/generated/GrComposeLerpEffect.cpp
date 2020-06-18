@@ -39,11 +39,12 @@ public:
         } else {
             _sample358 = "half4(1)";
         }
-        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
-                                 args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
-                                 _sample290.c_str(), args.fInputColor,
-                                 _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
-                                 args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
+        fragBuilder->codeAppendf(
+                R"SkSL(%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));
+)SkSL",
+                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", _sample290.c_str(),
+                args.fInputColor, _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
+                args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
     }
 
 private:

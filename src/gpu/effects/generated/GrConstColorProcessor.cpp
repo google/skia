@@ -30,32 +30,48 @@ public:
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                     kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
-                "@switch (%d) {\n    case 0:\n        {\n            %s = %s;\n            "
-                "break;\n        }\n    case 1:\n        {",
+                R"SkSL(@switch (%d) {
+    case 0:
+        {
+            %s = %s;
+            break;
+        }
+    case 1:
+        {)SkSL",
                 (int)_outer.mode, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(colorVar));
-        SkString _input1009 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input1009(args.fInputColor);
         SkString _sample1009;
         if (_outer.inputFP_index >= 0) {
             _sample1009 = this->invokeChild(_outer.inputFP_index, _input1009.c_str(), args);
         } else {
-            _sample1009 = _input1009;
+            _sample1009.swap(_input1009);
         }
         fragBuilder->codeAppendf(
-                "\n            half4 inputColor = %s;\n            %s = inputColor * %s;\n         "
-                "   break;\n        }\n    case 2:\n        {",
+                R"SkSL(
+            half4 inputColor = %s;
+            %s = inputColor * %s;
+            break;
+        }
+    case 2:
+        {)SkSL",
                 _sample1009.c_str(), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(colorVar));
-        SkString _input1181 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input1181(args.fInputColor);
         SkString _sample1181;
         if (_outer.inputFP_index >= 0) {
             _sample1181 = this->invokeChild(_outer.inputFP_index, _input1181.c_str(), args);
         } else {
-            _sample1181 = _input1181;
+            _sample1181.swap(_input1181);
         }
         fragBuilder->codeAppendf(
-                "\n            half inputAlpha = %s.w;\n            %s = inputAlpha * %s;\n        "
-                "    break;\n        }\n}\n",
+                R"SkSL(
+            half inputAlpha = %s.w;
+            %s = inputAlpha * %s;
+            break;
+        }
+}
+)SkSL",
                 _sample1181.c_str(), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(colorVar));
     }

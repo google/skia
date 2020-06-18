@@ -33,9 +33,14 @@ public:
         circleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kFloat4_GrSLType, "circle");
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
-                "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "
-                "   d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);\n}",
+                R"SkSL(float2 prevCenter;
+float prevRadius = %f;
+half d;
+@if (%d == 2 || %d == 3) {
+    d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);
+} else {
+    d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);
+})SkSL",
                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -43,16 +48,22 @@ public:
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _input2566 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input2566(args.fInputColor);
         SkString _sample2566;
         if (_outer.inputFP_index >= 0) {
             _sample2566 = this->invokeChild(_outer.inputFP_index, _input2566.c_str(), args);
         } else {
-            _sample2566 = _input2566;
+            _sample2566.swap(_input2566);
         }
         fragBuilder->codeAppendf(
-                "\nhalf4 inputColor = %s;\n@if (%d == 1 || %d == 3) {\n    %s = inputColor * "
-                "clamp(d, 0.0, 1.0);\n} else {\n    %s = d > 0.5 ? inputColor : half4(0.0);\n}\n",
+                R"SkSL(
+half4 inputColor = %s;
+@if (%d == 1 || %d == 3) {
+    %s = inputColor * clamp(d, 0.0, 1.0);
+} else {
+    %s = d > 0.5 ? inputColor : half4(0.0);
+}
+)SkSL",
                 _sample2566.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
                 args.fOutputColor);
     }

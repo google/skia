@@ -38,8 +38,14 @@ public:
         SkString _sample1099;
         _sample1099 = this->invokeChild(_outer.gradLayout_index, args);
         fragBuilder->codeAppendf(
-                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
-                "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
+                R"SkSL(half4 t = %s;
+if (!%s && t.y < 0.0) {
+    %s = half4(0.0);
+} else if (t.x < 0.0) {
+    %s = %s;
+} else if (t.x > 1.0) {
+    %s = %s;
+} else {)SkSL",
                 _sample1099.c_str(),
                 (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
                                                                                        : "false"),
@@ -49,10 +55,16 @@ public:
         SkString _input1767("t");
         SkString _sample1767;
         _sample1767 = this->invokeChild(_outer.colorizer_index, _input1767.c_str(), args);
-        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                                 args.fOutputColor, _sample1767.c_str(),
-                                 (_outer.makePremul ? "true" : "false"), args.fOutputColor,
-                                 args.fOutputColor);
+        fragBuilder->codeAppendf(
+                R"SkSL(
+    %s = %s;
+}
+@if (%s) {
+    %s.xyz *= %s.w;
+}
+)SkSL",
+                args.fOutputColor, _sample1767.c_str(), (_outer.makePremul ? "true" : "false"),
+                args.fOutputColor, args.fOutputColor);
     }
 
 private:

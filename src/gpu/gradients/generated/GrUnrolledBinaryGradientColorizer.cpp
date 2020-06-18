@@ -127,13 +127,47 @@ public:
         thresholds9_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
-                "half t = %s.x;\nfloat4 scale, bias;\nif (%d <= 4 || t < %s.w) {\n    if (%d <= 2 "
-                "|| t < %s.y) {\n        if (%d <= 1 || t < %s.x) {\n            scale = %s;\n     "
-                "       bias = %s;\n        } else {\n            scale = %s;\n            bias = "
-                "%s;\n        }\n    } else {\n        if (%d <= 3 || t < %s.z) {\n            "
-                "scale = %s;\n            bias = %s;\n        } else {\n            scale = %s;\n  "
-                "          bias = %s;\n        }\n    }\n} else {\n    if (%d <= 6 || t < %s.y) "
-                "{\n        if (%d <= 5 || t <",
+                R"SkSL(half t = %s.x;
+float4 scale, bias;
+if (%d <= 4 || t < %s.w) {
+    if (%d <= 2 || t < %s.y) {
+        if (%d <= 1 || t < %s.x) {
+            scale = %s;
+            bias = %s;
+        } else {
+            scale = %s;
+            bias = %s;
+        }
+    } else {
+        if (%d <= 3 || t < %s.z) {
+            scale = %s;
+            bias = %s;
+        } else {
+            scale = %s;
+            bias = %s;
+        }
+    }
+} else {
+    if (%d <= 6 || t < %s.y) {
+        if (%d <= 5 || t < %s.x) {
+            scale = %s;
+            bias = %s;
+        } else {
+            scale = %s;
+            bias = %s;
+        }
+    } else {
+        if (%d <= 7 || t < %s.z) {
+            scale = %s;
+            bias = %s;
+        } else {
+            scale = %s;
+            bias = %s;
+        }
+    }
+}
+%s = half4(float(t) * scale + bias);
+)SkSL",
                 args.fInputColor, _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
@@ -154,14 +188,7 @@ public:
                 bias6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(bias6_7Var)
                                      : "float4(0)",
                 _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
-                _outer.intervalCount);
-        fragBuilder->codeAppendf(
-                " %s.x) {\n            scale = %s;\n            bias = %s;\n        } else {\n     "
-                "       scale = %s;\n            bias = %s;\n        }\n    } else {\n        if "
-                "(%d <= 7 || t < %s.z) {\n            scale = %s;\n            bias = %s;\n        "
-                "} else {\n            scale = %s;\n            bias = %s;\n        }\n    "
-                "}\n}\n%s = half4(float(t) * scale + bias);\n",
-                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
                 scale8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(scale8_9Var)
                                       : "float4(0)",
                 bias8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(bias8_9Var)
