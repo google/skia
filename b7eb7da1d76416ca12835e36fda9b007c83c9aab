@@ -404,6 +404,30 @@
       "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d0a2547_c6d2d46d",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T15:26:47Z",
+      "side": 1,
+      "message": "I\u0027d read the second answer on that thread as implying \"no pointers\".",
+      "parentUuid": "91efa1d2_9573cb28",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 34
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
