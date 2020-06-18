@@ -135,12 +135,7 @@ class ThresholdRT : public skiagm::GM {
 
     SkISize onISize() override { return {256, 256}; }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->getGrContext() == nullptr) {
-            // until SkSL can handle child processors on the raster backend
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         struct {
             float cutoff, slope;
         } uni = {
@@ -164,8 +159,6 @@ class ThresholdRT : public skiagm::GM {
         draw(256,   0, fThreshold);
         draw(  0, 256, fBefore);
         draw(256, 256, fAfter);
-
-        return DrawResult::kOk;
     }
 
     bool onAnimate(double nanos) override {
