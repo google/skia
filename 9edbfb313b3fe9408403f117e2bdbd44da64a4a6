@@ -16,6 +16,24 @@
       "revId": "9edbfb313b3fe9408403f117e2bdbd44da64a4a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97965354_984dc0ef",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-06-18T22:06:06Z",
+      "side": 1,
+      "message": "That\u0027s a good idea! I like appendNodeIdArray. And I\u0027ll get rid of the interfaces\nI don\u0027t have an immediate use for. It\u0027s super easy to add them back if I need to\nadd an attribute that takes an array of strings, but I don\u0027t see any that we need\nat first glance.",
+      "parentUuid": "eaecfebd_b3f919f6",
+      "revId": "9edbfb313b3fe9408403f117e2bdbd44da64a4a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
