@@ -10,7 +10,9 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
+#include "include/private/SkSLSampleMatrix.h"
 
+#include <string>
 #include <vector>
 
 #if SK_SUPPORT_GPU
@@ -135,9 +137,14 @@ public:
     ~SkRuntimeEffect();
 
 private:
-    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
-                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
-                    std::vector<Varying>&& varyings, size_t uniformSize, bool mainHasLocalCoords);
+    SkRuntimeEffect(SkString sksl,
+                    std::unique_ptr<SkSL::Program> baseProgram,
+                    std::vector<Variable>&& inAndUniformVars,
+                    std::vector<SkString>&& children,
+                    std::vector<SkSL::SampleMatrix>&& sampleMatrices,
+                    std::vector<Varying>&& varyings,
+                    size_t uniformSize,
+                    bool mainHasSampleCoords);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
@@ -171,6 +178,7 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
+    std::vector<SkSL::SampleMatrix> fSampleMatrices;
     std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;

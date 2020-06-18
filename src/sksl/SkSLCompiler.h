@@ -79,6 +79,7 @@ public:
             kCoords,
             kUniform,
             kChildProcessor,
+            kChildProcessorWithMatrix,
             kFunctionName
         };
 
@@ -102,7 +103,7 @@ public:
         GrSLType fReturnType;
         SkString fName;
         std::vector<GrShaderVar> fParameters;
-        SkString fBody;
+        String fBody;
         std::vector<Compiler::FormatArg> fFormatArgs;
     };
 #endif
