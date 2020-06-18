@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "85569cae_ddfbbd6d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-18T13:11:22Z",
+      "side": 1,
+      "message": "Yeah, I was going to have innerRun just do the check and fail, but that wouldn\u0027t help the existing situation. The canRun helper seems like a better way to express the semantics here.",
+      "parentUuid": "b7267851_a2278788",
+      "revId": "8e5354b628416188db84c956726612052f09815c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1f64920_4e1e2f1c",
         "filename": "src/sksl/SkSLByteCode.h",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "These bytes index fChildren on SkRTShader, right?",
       "parentUuid": "c1f64920_4e1e2f1c",
+      "revId": "8e5354b628416188db84c956726612052f09815c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0342234d_80937b19",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-18T13:11:22Z",
+      "side": 1,
+      "message": "Yup, the SkRTShader\u0027s children are populated in the same order as the FP declarations in the SkSL, so these will directly index that list.",
+      "parentUuid": "dcb0979a_c66ce2a7",
       "revId": "8e5354b628416188db84c956726612052f09815c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
