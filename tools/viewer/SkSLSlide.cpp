@@ -10,12 +10,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkPerlinNoiseShader.h"
-#include "include/gpu/GrContext.h"
 #include "src/core/SkEnumerate.h"
-#include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "tools/Resources.h"
-#include "tools/viewer/ImGuiLayer.h"
+#include "tools/viewer/Viewer.h"
 
 #include <algorithm>
 #include "imgui.h"
@@ -80,10 +77,10 @@ void SkSLSlide::unload() {
     fShaders.reset();
 }
 
-bool SkSLSlide::rebuild(GrContextOptions::ShaderErrorHandler* errorHandler) {
+bool SkSLSlide::rebuild() {
     auto [effect, errorText] = SkRuntimeEffect::Make(fSkSL);
     if (!effect) {
-        errorHandler->compileError(fSkSL.c_str(), errorText.c_str());
+        Viewer::ShaderErrorHandler()->compileError(fSkSL.c_str(), errorText.c_str());
         return false;
     }
 
@@ -105,10 +102,6 @@ bool SkSLSlide::rebuild(GrContextOptions::ShaderErrorHandler* errorHandler) {
 }
 
 void SkSLSlide::draw(SkCanvas* canvas) {
-    GrContextOptions::ShaderErrorHandler* errorHandler = GrShaderUtils::DefaultShaderErrorHandler();
-    if (auto grContext = canvas->getGrContext()) {
-        errorHandler = grContext->priv().getShaderErrorHandler();
-    }
     canvas->clear(SK_ColorWHITE);
 
     ImGui::Begin("SkSL", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -122,7 +115,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     }
 
     if (fCodeIsDirty || !fEffect) {
-        this->rebuild(errorHandler);
+        this->rebuild();
     }
 
     if (!fEffect) {
