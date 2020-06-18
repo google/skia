@@ -130,14 +130,6 @@ enum class ByteCodeInstruction : uint16_t {
     // Fallback stores. Followed by count byte, and get the slot to store from the top of the stack
     kStoreExtended,
     kStoreExtendedGlobal,
-    // As kStore/kStoreGlobal, then a count byte (1-4), then one byte per swizzle component (0-3).
-    // Expects the stack to look like: ... v1 v2 v3 v4, where the number of 'v's is equal to the
-    // number of swizzle components. After the store, all v's are popped from the stack.
-    kStoreSwizzle,
-    kStoreSwizzleGlobal,
-    // As above, but gets the store slot from the top of the stack (before values to be stored)
-    kStoreSwizzleIndirect,
-    kStoreSwizzleIndirectGlobal,
     // Followed by two count bytes (1-4), and then one byte per swizzle component (0-3). The first
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.

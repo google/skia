@@ -398,15 +398,11 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
             return -4;
 
         case ByteCodeInstruction::kPopN:
-        case ByteCodeInstruction::kStoreSwizzle:
-        case ByteCodeInstruction::kStoreSwizzleGlobal:
             return -count;
 
         // Consumes 'count' values, plus one for the 'address'
         case ByteCodeInstruction::kStoreExtended:
         case ByteCodeInstruction::kStoreExtendedGlobal:
-        case ByteCodeInstruction::kStoreSwizzleIndirect:
-        case ByteCodeInstruction::kStoreSwizzleIndirectGlobal:
             return -count - 1;
 
         // Strange ops where the caller computes the delta for us:
@@ -1555,20 +1551,31 @@ public:
         if (!discard) {
             fGenerator.write(vector_instruction(ByteCodeInstruction::kDup, count));
         }
-        ByteCodeGenerator::Location location = fGenerator.getLocation(*fSwizzle.fBase);
-        if (location.isOnStack()) {
-            fGenerator.write(location.selectStore(ByteCodeInstruction::kStoreSwizzleIndirect,
-                                                  ByteCodeInstruction::kStoreSwizzleIndirectGlobal),
-                             count);
-        } else {
-            fGenerator.write(location.selectStore(ByteCodeInstruction::kStoreSwizzle,
-                                                  ByteCodeInstruction::kStoreSwizzleGlobal),
-                             count);
-            fGenerator.write8(location.fSlot);
-        }
-        fGenerator.write8(count);
-        for (int c : fSwizzle.fComponents) {
-            fGenerator.write8(c);
+        // We already have the correct number of values on the stack, thanks to type checking.
+        // The algorithm: Walk down the values on the stack, doing 'count' single-element stores.
+        // For each value, use the corresponding swizzle component to offset the store location.
+        //
+        // Static locations: We (wastefully) call getLocation every time, but get good byte code.
+        // Note that we could (but don't) store adjacent/sequential values with fewer instructions.
+        //
+        // Dynamic locations: ... are bad. We have to recompute the base address on each iteration,
+        // because the stack doesn't let us retain that address between stores. Dynamic locations
+        // are rare though, and swizzled writes to those are even rarer, so we just live with this.
+        for (int i = count; i-- > 0;) {
+            ByteCodeGenerator::Location location = fGenerator.getLocation(*fSwizzle.fBase);
+            if (!location.isOnStack()) {
+                fGenerator.write(location.selectStore(ByteCodeInstruction::kStore,
+                                                      ByteCodeInstruction::kStoreGlobal));
+                fGenerator.write8(location.fSlot + fSwizzle.fComponents[i]);
+            } else {
+                fGenerator.write(ByteCodeInstruction::kPushImmediate);
+                fGenerator.write32(fSwizzle.fComponents[i]);
+                fGenerator.write(ByteCodeInstruction::kAddI);
+                fGenerator.write(location.selectStore(ByteCodeInstruction::kStoreExtended,
+                                                      ByteCodeInstruction::kStoreExtendedGlobal),
+                                 1);
+                fGenerator.write8(1);
+            }
         }
     }
 
