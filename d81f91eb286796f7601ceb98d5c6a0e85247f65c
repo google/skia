@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0310f38_76cebdab",
+        "filename": "modules/skparagraph/tests/SkParagraphTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 5303,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-18T20:55:05Z",
+      "side": 1,
+      "message": "Being a test, shouldn\u0027t this assert / report something? If this is purely visual it should be a gm? (Sometimes there will be a test which is simply there to make sure the code in question doesn\u0027t crash, but that doesn\u0027t seem to be the case here.)",
+      "revId": "d81f91eb286796f7601ceb98d5c6a0e85247f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
