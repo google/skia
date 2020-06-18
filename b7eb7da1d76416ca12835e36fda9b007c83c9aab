@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d2fc1c_b1dba241",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T12:49:25Z",
+      "side": 1,
+      "message": "I\u0027m guessing at one point the member names were aligned and then the middle one changed length when it\u0027s type name got longer and mutable. Since you\u0027re modifying it now, can you either align them or just have one space after the type names. I don\u0027t really care either way, but it looks odd as is.",
+      "range": {
+        "startLine": 245,
+        "startChar": 2,
+        "endLine": 247,
+        "endChar": 44
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "405c404c_76cff09b",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T12:49:25Z",
+      "side": 1,
+      "message": "nit: I don\u0027t love it, but we begin member vars of structs and classes with \u0027f\u0027 (for \"field\" I think).",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8dac15f_a2baa5a7",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T12:49:25Z",
+      "side": 1,
+      "message": "I think this is safe because SkString adds 1 for the null at the end? Might be worth a comment. It took me a minute to figure that out.",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 34
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
