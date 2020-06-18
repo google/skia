@@ -44,6 +44,14 @@ private:
                 : 0.0f;
     }
 
+    uint8_t readUInt8(const char[]) override {
+        uint8_t v;
+
+        return validateSize(sizeof(v)) && fStream->readU8(&v)
+                ? v
+                : 0;
+    }
+
     uint16_t readUInt16(const char[]) override {
         uint16_t v;
 
@@ -80,9 +88,19 @@ private:
         return fStream->read(dst, count * sizeof(float)) / sizeof(float);
     }
 
+    uint8_t readLength8() override {
+        return this->readUInt8(nullptr);
+    }
+
     uint16_t readLength16() override {
         return this->readUInt16(nullptr);
     }
+
+    // nops
+    bool   openArray(const char[]) override { return true; }
+    void  closeArray()             override {}
+    bool  openObject(const char[]) override { return true; }
+    void closeObject()             override {}
 
     BlockType openBlock() override {
         uint8_t  block_type;
