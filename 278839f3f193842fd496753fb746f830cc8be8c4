@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa562b4_3b26586a",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-18T18:59:16Z",
+      "side": 1,
+      "message": "do clients really want 4 different release procs here? I know internally we split it up into 4 different proxies, but they all can have a ref to same GrRefCntedCallback object.",
+      "range": {
+        "startLine": 521,
+        "startChar": 47,
+        "endLine": 521,
+        "endChar": 90
+      },
+      "revId": "278839f3f193842fd496753fb746f830cc8be8c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
