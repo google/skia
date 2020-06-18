@@ -172,6 +172,8 @@ public:
         kLightingFP_ClassID,
         kLinearStrokeProcessor_ClassID,
         kVerticesGP_ClassID,
+        kSampleConstantMatrixTestFP_ClassID,
+        kSampleVariableMatrixTestFP_ClassID,
     };
 
     virtual ~GrProcessor() = default;

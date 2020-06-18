@@ -148,8 +148,7 @@ private:
             inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         SkASSERT(integral);
-        integral->setSampledWithExplicitCoords();
-        integral_index = this->registerChildProcessor(std::move(integral));
+        integral_index = this->registerExplicitlySampledChildProcessor(std::move(integral));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

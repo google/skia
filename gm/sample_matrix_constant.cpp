@@ -17,15 +17,16 @@
 
 class SampleMatrixConstantEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 1;
+    static constexpr GrProcessor::ClassID CLASS_ID = kSampleConstantMatrixTestFP_ClassID;
 
     SampleMatrixConstantEffect(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kConstantOrUniform,
-                                                  child.get(), "float3x3(float3(0.5, 0.0, 0.0), "
-                                                                        "float3(0.0, 0.5, 0.0), "
-                                                                        "float3(0.0, 0.0, 1.0))"));
-        this->registerChildProcessor(std::move(child));
+        this->registerChildProcessor(
+                std::move(child),
+                SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kConstantOrUniform,
+                                  child.get(), "float3x3(float3(0.5, 0.0, 0.0), "
+                                                        "float3(0.0, 0.5, 0.0), "
+                                                        "float3(0.0, 0.0, 1.0))"));
     }
 
     const char* name() const override { return "SampleMatrixConstantEffect"; }

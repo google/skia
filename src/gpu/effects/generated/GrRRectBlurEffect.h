@@ -142,8 +142,7 @@ private:
             inputFP_index = this->registerChildProcessor(std::move(inputFP));
         }
         SkASSERT(ninePatchFP);
-        ninePatchFP->setSampledWithExplicitCoords();
-        ninePatchFP_index = this->registerChildProcessor(std::move(ninePatchFP));
+        ninePatchFP_index = this->registerExplicitlySampledChildProcessor(std::move(ninePatchFP));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
