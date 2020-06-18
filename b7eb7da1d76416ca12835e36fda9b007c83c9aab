@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "da4aac4e_f70b2154",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T13:58:25Z",
+      "side": 1,
+      "message": "I think structs like this are a good place to try changing that convention.\n\nThere are no methods here, so there\u0027s never any ambiguity when accessing fields of the struct.  There\u0027s no way to access the text and length fields that\u0027s ambiguous with a local, so the f\u0027s just noise.  It\u0027ll always just be\n\n   auto [ptr, len] \u003d ... some String Buffer ...;\n\nor\n\n   StringBuffer foo \u003d ...;\n   ...\n   foo.text \u003d ...;\n\netc.",
+      "parentUuid": "64e61ecc_3068f6e9",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
