@@ -119,6 +119,9 @@ struct BasicBlock {
     DefinitionMap fBefore;
 };
 
+/**
+ * Control Flow Graph
+ */
 struct CFG {
     BlockId fStart;
     BlockId fExit;
