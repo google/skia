@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816a64d3_6db8d3f3",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-18T14:54:17Z",
+      "side": 1,
+      "message": "nit: spelling",
+      "range": {
+        "startLine": 405,
+        "startChar": 25,
+        "endLine": 405,
+        "endChar": 32
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f74c0a5_67974776",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-18T14:54:17Z",
+      "side": 1,
+      "message": "if we normalize the subset uniform, could this be false?",
+      "range": {
+        "startLine": 413,
+        "startChar": 73,
+        "endLine": 413,
+        "endChar": 77
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cffd466_df8d78a7",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-18T14:54:17Z",
+      "side": 1,
+      "message": "I\u0027d vote for this to be defined in the header since it\u0027s a straight forward wrapper around the static function",
+      "range": {
+        "startLine": 802,
+        "startChar": 0,
+        "endLine": 804,
+        "endChar": 1
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
