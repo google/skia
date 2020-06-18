@@ -286,9 +286,11 @@ void GrVkGpu::destroyResources() {
 GrVkGpu::~GrVkGpu() {
     if (!fDisconnected) {
         this->destroyResources();
-        fMemoryAllocator.reset();
     }
     delete fCompiler;
+    // We don't delete the memory allocator until the very end of the GrVkGpu lifetime so that
+    // clients can continue to delete backend textures even after a context has been abandoned.
+    fMemoryAllocator.reset();
 }
 
 
@@ -296,7 +298,6 @@ void GrVkGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
     if (!fDisconnected) {
         this->destroyResources();
-        fMemoryAllocator.reset();
 
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
