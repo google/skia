@@ -61,6 +61,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
             break;
         }
+        VECTOR_DISASSEMBLE(kCeil, "ceil")
         case ByteCodeInstruction::kClampIndex: printf("clampindex %d", READ8()); break;
         VECTOR_DISASSEMBLE(kCompareIEQ, "compareieq")
         VECTOR_DISASSEMBLE(kCompareINEQ, "compareineq")
@@ -86,6 +87,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         VECTOR_DISASSEMBLE(kDivideS, "divideS")
         VECTOR_DISASSEMBLE(kDivideU, "divideu")
         VECTOR_MATRIX_DISASSEMBLE(kDup, "dup")
+        VECTOR_DISASSEMBLE(kFloor, "floor")
         VECTOR_DISASSEMBLE(kFract, "fract")
         case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
         case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
@@ -553,6 +555,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 continue;
             }
 
+            VECTOR_UNARY_FN(kCeil, skvx::ceil, fFloat)
+
             case ByteCodeInstruction::kClampIndex: {
                 int length = READ8();
                 if (skvx::any(mask() & ((sp[0].fSigned < 0) | (sp[0].fSigned >= length)))) {
@@ -643,6 +647,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 continue;
             }
 
+            VECTOR_UNARY_FN(kFloor, skvx::floor, fFloat)
             VECTOR_UNARY_FN(kFract, skvx::fract, fFloat)
 
             case ByteCodeInstruction::kInverse2x2:
