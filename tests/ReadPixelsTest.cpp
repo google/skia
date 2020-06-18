@@ -1035,9 +1035,12 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
             // Vulkan context abandoning without resource release has issues outside of the scope of
             // this test.
             if (type == sk_gpu_test::GrContextFactory::kVulkan_ContextType &&
-                (sequence == ShutdownSequence::kAbandon_FreeResult_DestroyContext ||
-                 sequence == ShutdownSequence::kAbandon_DestroyContext_FreeResult ||
-                 sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext)) {
+                (sequence == ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext ||
+                 sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext ||
+                 sequence == ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext ||
+                 sequence == ShutdownSequence::kReleaseAndAbandon_DestroyContext_FreeResult ||
+                 sequence == ShutdownSequence::kAbandon_FreeResult_DestroyContext ||
+                 sequence == ShutdownSequence::kAbandon_DestroyContext_FreeResult)) {
                 continue;
             }
             for (bool yuv : {false, true}) {
@@ -1075,6 +1078,10 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                            sk_gpu_test::GrContextFactory::ContextTypeName(type), yuv);
                     continue;
                 }
+                // For vulkan we need to release all refs to the GrContext before trying to destroy
+                // the test context. The surface here is holding a ref.
+                surf.reset();
+
                 // The real test is that we don't crash, get Vulkan validation errors, etc, during
                 // this shutdown sequence.
                 switch (sequence) {
