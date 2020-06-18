@@ -235,15 +235,33 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                              const SkYUVAIndex yuvaIndices[4],
                                              SkISize imageSize,
                                              GrSurfaceOrigin imageOrigin,
-                                             sk_sp<SkColorSpace> imageColorSpace) {
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContexts[4]) {
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
+        if (textureReleaseProc) {
+            for (int i = 0; i < 4; ++i) {
+                if (yuvaTextures[i].isValid()) {
+                    textureReleaseProc(releaseContexts[i]);
+                }
+            }
+        }
         return nullptr;
     }
 
     GrSurfaceProxyView tempViews[4];
     if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
-                                                 imageOrigin, tempViews)) {
+                                                 imageOrigin, tempViews,
+                                                 textureReleaseProc, releaseContexts)) {
+        if (textureReleaseProc) {
+            for (int i = 0; i < numTextures; ++i) {
+                if (!tempViews[i].asTextureProxy()) {
+                    textureReleaseProc(releaseContexts[i]);
+                }
+            }
+        }
+
         return nullptr;
     }
 
