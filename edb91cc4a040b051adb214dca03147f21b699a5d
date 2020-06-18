@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "017ee018_72bcc773",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T20:01:59Z",
+      "side": 1,
+      "message": "Think the comments and code would read more clearly if we swapped the code around to if (!location.isOnStack()) ?\n\nOr we just mention briefly how isOnStack() connects to static/dynamic?",
+      "revId": "edb91cc4a040b051adb214dca03147f21b699a5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
