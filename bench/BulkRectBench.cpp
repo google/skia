@@ -226,6 +226,15 @@ protected:
         }
     }
 
+    void onPerCanvasPostDraw(SkCanvas* canvas) override {
+        for (int i = 0; i < kImageCount; ++i) {
+            // For Vulkan we need to make sure the bench isn't holding onto any refs to the
+            // GrContext when we go to delete the vulkan context (which happens before the bench is
+            // deleted). So reset all the images here so they aren't holding GrContext refs.
+            fImages[i].reset();
+        }
+    }
+
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             if (kImageMode == ImageMode::kNone) {

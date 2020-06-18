@@ -215,6 +215,13 @@ struct GPUTarget : public Target {
     ContextInfo contextInfo;
     std::unique_ptr<GrContextFactory> factory;
 
+    ~GPUTarget() override {
+        // For Vulkan we need to release all our refs to the GrContext before destroy the vulkan
+        // context which happens at the end of this destructor. Thus we need to release the surface
+        // here which holds a ref to the GrContext.
+        surface.reset();
+    }
+
     void setup() override {
         this->contextInfo.testContext()->makeCurrent();
         // Make sure we're done with whatever came before.
