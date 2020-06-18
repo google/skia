@@ -118,7 +118,7 @@ class ThresholdRT : public skiagm::GM {
                 half4 before = sample(before_map, xy);
                 half4 after = sample(after_map, xy);
 
-                float m = smooth_cutoff(sample(threshold_map, xy).r);
+                float m = smooth_cutoff(sample(threshold_map, xy).a);
                 color = mix(before, after, half(m));
             }
         )";
@@ -135,12 +135,7 @@ class ThresholdRT : public skiagm::GM {
 
     SkISize onISize() override { return {256, 256}; }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->getGrContext() == nullptr) {
-            // until SkSL can handle child processors on the raster backend
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         struct {
             float cutoff, slope;
         } uni = {
@@ -164,8 +159,6 @@ class ThresholdRT : public skiagm::GM {
         draw(256,   0, fThreshold);
         draw(  0, 256, fBefore);
         draw(256, 256, fAfter);
-
-        return DrawResult::kOk;
     }
 
     bool onAnimate(double nanos) override {

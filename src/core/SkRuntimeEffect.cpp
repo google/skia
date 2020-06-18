@@ -411,7 +411,12 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) 
 static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                                          const SkSL::ByteCodeFunction& fn,
                                          const std::vector<skvm::F32>& uniform,
-                                         std::vector<skvm::F32> stack) {
+                                         std::vector<skvm::F32> stack,
+                                         /*these parameters are used to call program() on children*/
+                                         const std::vector<sk_sp<SkShader>>& children,
+                                         skvm::F32 x, skvm::F32 y, skvm::Color paint,
+                                         SkFilterQuality quality, const SkColorInfo& dst,
+                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
     auto push = [&](skvm::F32 x) { stack.push_back(x); };
     auto pop  = [&]{ skvm::F32 x = stack.back(); stack.pop_back(); return x; };
 
@@ -465,6 +470,29 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                     __builtin_debugtrap();
                 #endif
                 return {};
+
+            // TODO: Inst::kSampleMatrix, should look much like kSampleExplicit.
+
+            case Inst::kSampleExplicit: {
+                // Child shader to run.
+                int ix = u8();
+
+                // Stack contains x,y to sample at.
+                skvm::F32 y = pop(),
+                          x = pop();
+
+                skvm::Color c = as_SB(children[ix])->program(p, x,y,paint,
+                                                             SkMatrix::I(), nullptr,
+                                                             quality, dst,
+                                                             uniforms, alloc);
+                if (!c) {
+                    return {};
+                }
+                push(c.r);
+                push(c.g);
+                push(c.b);
+                push(c.a);
+            } break;
 
             case Inst::kLoad: {
                 int ix = u8();
@@ -571,6 +599,16 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(stack[stack.size() - 4]);
             } break;
 
+            case Inst::kSwizzle: {
+                skvm::F32 tmp[4];
+                for (int i = u8(); i --> 0;) {
+                    tmp[i] = pop();
+                }
+                for (int i = u8(); i --> 0;) {
+                    push(tmp[u8()]);
+                }
+            } break;
+
             case Inst::kAddF:
             case Inst::kAddF2:
             case Inst::kAddF3:
@@ -591,12 +629,44 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kDivideF3:
             case Inst::kDivideF4: binary(Inst::kDivideF, std::divides<>{}); break;
 
+            case Inst::kMinF:
+            case Inst::kMinF2:
+            case Inst::kMinF3:
+            case Inst::kMinF4:
+                binary(Inst::kMinF, [](skvm::F32 x, skvm::F32 y) { return skvm::min(x,y); });
+                break;
+
+            case Inst::kMaxF:
+            case Inst::kMaxF2:
+            case Inst::kMaxF3:
+            case Inst::kMaxF4:
+                binary(Inst::kMaxF, [](skvm::F32 x, skvm::F32 y) { return skvm::max(x,y); });
+                break;
+
             case Inst::kPow:
             case Inst::kPow2:
             case Inst::kPow3:
             case Inst::kPow4:
                 binary(Inst::kPow, [](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x,y); });
                 break;
+
+            case Inst::kLerp:
+            case Inst::kLerp2:
+            case Inst::kLerp3:
+            case Inst::kLerp4: {
+                int N = (int)Inst::kLerp - (int)inst + 1;
+
+                skvm::F32 t[4],
+                          b[4],
+                          a[4];
+                for (int i = N; i --> 0; ) { t[i] = pop(); }
+                for (int i = N; i --> 0; ) { b[i] = pop(); }
+                for (int i = N; i --> 0; ) { a[i] = pop(); }
+
+                for (int i = 0; i < N; i++) {
+                    push(skvm::lerp(a[i], b[i], t[i]));
+                }
+            } break;
 
             case Inst::kATan:
             case Inst::kATan2:
@@ -718,7 +788,9 @@ public:
         }
 
         std::vector<skvm::F32> stack =
-            program_fn(p, *fn, uniform, {c.r, c.g, c.b, c.a});
+            program_fn(p, *fn, uniform, {c.r, c.g, c.b, c.a},
+                       /* the remaining parameters are for shaders only and won't be used here */
+                       {},{},{},{},{},{},{},{});
 
         if (stack.size() == 4) {
             return {stack[0], stack[1], stack[2], stack[3]};
@@ -909,8 +981,8 @@ public:
 
     skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
                           const SkMatrix& ctm, const SkMatrix* localM,
-                          SkFilterQuality, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
+                          SkFilterQuality quality, const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         const SkSL::ByteCode* bc = this->byteCode();
         if (!bc) {
             return {};
@@ -944,7 +1016,9 @@ public:
         SkShaderBase::ApplyMatrix(p,inv, &x,&y,uniforms);
 
         std::vector<skvm::F32> stack =
-            program_fn(p, *fn, uniform, {x,y, paint.r, paint.g, paint.b, paint.a});
+            program_fn(p, *fn, uniform, {x,y, paint.r, paint.g, paint.b, paint.a},
+                       /*parameters for calling program() on children*/
+                       fChildren, x,y,paint, quality,dst, uniforms,alloc);
 
         if (stack.size() == 6) {
             return {stack[2], stack[3], stack[4], stack[5]};
