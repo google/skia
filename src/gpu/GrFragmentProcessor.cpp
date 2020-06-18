@@ -98,8 +98,8 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
             }
         } else {
             SkASSERT(newMatrix.fKind == SkSL::SampleMatrix::Kind::kVariable);
-            fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
-                                         fMatrix.fExpression);
+            fMatrix.fKind = SkSL::SampleMatrix::Kind::kMixed;
+            fMatrix.fBase = nullptr;
         }
     } else {
         SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
@@ -107,6 +107,13 @@ void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
     }
     for (auto& child : fChildProcessors) {
         child->setSampleMatrix(newMatrix);
+    }
+}
+
+void GrFragmentProcessor::setSampledWithExplicitCoords() {
+    fFlags |= kSampledWithExplicitCoords;
+    for (auto& child : fChildProcessors) {
+        child->setSampledWithExplicitCoords();
     }
 }
 
@@ -128,7 +135,26 @@ bool GrFragmentProcessor::isInstantiated() const {
 }
 #endif
 
-int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
+int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child,
+                                                SkSL::SampleMatrix sampleMatrix,
+                                                bool explicitlySampled) {
+    // Configure child's sampling state first
+    if (explicitlySampled) {
+        child->setSampledWithExplicitCoords();
+    }
+    if (sampleMatrix.fKind != SkSL::SampleMatrix::Kind::kNone) {
+        // FIXME(michaelludwig) - Temporary hack. Owner tracking will be moved off of SampleMatrix
+        // and into FP. Currently, coord transform compilation fails on sample_matrix GMs if the
+        // child isn't the owner. But the matrix effect (and expected behavior) require the owner
+        // to be 'this' FP.
+        if (this->classID() == kGrMatrixEffect_ClassID) {
+            sampleMatrix.fOwner = this;
+        } else {
+            sampleMatrix.fOwner = child.get();
+        }
+        child->setSampleMatrix(sampleMatrix);
+    }
+
     if (child->fFlags & kHasCoordTransforms_Flag) {
         fFlags |= kHasCoordTransforms_Flag;
     }

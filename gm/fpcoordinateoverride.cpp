@@ -38,8 +38,7 @@ public:
 
     SampleCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
         : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(child));
+        this->registerExplicitlySampledChildProcessor(std::move(child));
     }
 
     const char* name() const override { return "SampleCoordEffect"; }

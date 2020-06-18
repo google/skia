@@ -17,7 +17,7 @@
 
 class SampleMatrixVariableEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 2;
+    static constexpr GrProcessor::ClassID CLASS_ID = (ClassID) 2;
 
     SampleMatrixVariableEffect(std::unique_ptr<GrFragmentProcessor> child,
                                float xOffset,
@@ -25,8 +25,7 @@ public:
             : INHERITED(CLASS_ID, kNone_OptimizationFlags)
             , fXOffset(xOffset)
             , fYOffset(yOffset) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
-        this->registerChildProcessor(std::move(child));
+        this->registerChildProcessor(std::move(child), SkSL::SampleMatrix::MakeVariable());
     }
 
     const char* name() const override { return "SampleMatrixVariableEffect"; }

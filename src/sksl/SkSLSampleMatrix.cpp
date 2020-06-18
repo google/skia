@@ -32,7 +32,7 @@ namespace SkSL {
 
 SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
     if (fKind == Kind::kVariable || other.fKind == Kind::kVariable) {
-        *this = SampleMatrix(Kind::kVariable);
+        *this = SampleMatrix::MakeVariable();
         return *this;
     }
     if (other.fKind == Kind::kConstantOrUniform) {
@@ -40,7 +40,7 @@ SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
             if (fExpression == other.fExpression) {
                 return *this;
             }
-            *this = SampleMatrix(Kind::kVariable);
+            *this = SampleMatrix::MakeVariable();
             return *this;
         }
         SkASSERT(fKind == Kind::kNone);
@@ -94,10 +94,9 @@ SampleMatrix SampleMatrixExtractor::getMatrix(const Expression& e) const {
                 fc.fArguments[0]->fKind == Expression::kVariableReference_Kind &&
                 &((VariableReference&) *fc.fArguments[0]).fVariable == &fFP) {
                 if (fc.fArguments.back()->isConstantOrUniform()) {
-                    return SampleMatrix(SampleMatrix::Kind::kConstantOrUniform, nullptr,
-                                        fc.fArguments.back()->description());
+                    return SampleMatrix::MakeConstUniform(fc.fArguments.back()->description());
                 } else {
-                    return SampleMatrix(SampleMatrix::Kind::kVariable);
+                    return SampleMatrix::MakeVariable();
                 }
             }
             SampleMatrix result;
