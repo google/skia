@@ -364,9 +364,6 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
             return 4;
 
         case ByteCodeInstruction::kDupN:
-        case ByteCodeInstruction::kLoadSwizzle:
-        case ByteCodeInstruction::kLoadSwizzleGlobal:
-        case ByteCodeInstruction::kLoadSwizzleUniform:
             return count;
 
         // Pushes 'count' values, minus one for the 'address' that's consumed first
@@ -1428,29 +1425,12 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
         return;
     }
 
-    switch (s.fBase->fKind) {
-        case Expression::kVariableReference_Kind: {
-            Location location = this->getLocation(*s.fBase);
-            this->write(location.selectLoad(ByteCodeInstruction::kLoadSwizzle,
-                                            ByteCodeInstruction::kLoadSwizzleGlobal,
-                                            ByteCodeInstruction::kLoadSwizzleUniform),
-                        s.fComponents.size());
-            this->write8(location.fSlot);
-            this->write8(s.fComponents.size());
-            for (int c : s.fComponents) {
-                this->write8(c);
-            }
-            break;
-        }
-        default:
-            this->writeExpression(*s.fBase);
-            this->write(ByteCodeInstruction::kSwizzle,
-                        s.fComponents.size() - s.fBase->fType.columns());
-            this->write8(s.fBase->fType.columns());
-            this->write8(s.fComponents.size());
-            for (int c : s.fComponents) {
-                this->write8(c);
-            }
+    this->writeExpression(*s.fBase);
+    this->write(ByteCodeInstruction::kSwizzle, s.fComponents.size() - s.fBase->fType.columns());
+    this->write8(s.fBase->fType.columns());
+    this->write8(s.fComponents.size());
+    for (int c : s.fComponents) {
+        this->write8(c);
     }
 }
 

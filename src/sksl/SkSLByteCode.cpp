@@ -103,33 +103,6 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kLoadUniform2: printf("loaduniform2 %d", READ8()); break;
         case ByteCodeInstruction::kLoadUniform3: printf("loaduniform3 %d", READ8()); break;
         case ByteCodeInstruction::kLoadUniform4: printf("loaduniform4 %d", READ8()); break;
-        case ByteCodeInstruction::kLoadSwizzle: {
-            int target = READ8();
-            int count = READ8();
-            printf("loadswizzle %d %d", target, count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
-        case ByteCodeInstruction::kLoadSwizzleGlobal: {
-            int target = READ8();
-            int count = READ8();
-            printf("loadswizzleglobal %d %d", target, count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
-        case ByteCodeInstruction::kLoadSwizzleUniform: {
-            int target = READ8();
-            int count = READ8();
-            printf("loadswizzleuniform %d %d", target, count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
         case ByteCodeInstruction::kLoadExtended: printf("loadextended %d", READ8()); break;
         case ByteCodeInstruction::kLoadExtendedGlobal: printf("loadextendedglobal %d", READ8());
             break;
@@ -804,36 +777,6 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     }
                 }
                 sp += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kLoadSwizzle: {
-                int src = READ8();
-                int count = READ8();
-                for (int i = 0; i < count; ++i) {
-                    PUSH(stack[src + *(ip + i)]);
-                }
-                ip += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kLoadSwizzleGlobal: {
-                int src = READ8();
-                int count = READ8();
-                for (int i = 0; i < count; ++i) {
-                    PUSH(globals[src + *(ip + i)]);
-                }
-                ip += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kLoadSwizzleUniform: {
-                int src = READ8();
-                int count = READ8();
-                for (int i = 0; i < count; ++i) {
-                    PUSH(F32(uniforms[src + *(ip + i)]));
-                }
-                ip += count;
                 continue;
             }
 
