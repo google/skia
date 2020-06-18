@@ -46,6 +46,30 @@
       "revId": "278839f3f193842fd496753fb746f830cc8be8c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39752609_e35d5c6d",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-18T19:19:33Z",
+      "side": 1,
+      "message": "I made it match SkDeferredDisplayListRecorder::makeYUVAPromiseTexture\u0027s interface. All the other releasable things in SkImage.h only require one releaseProc and releaseContext pair so we\u0027re breaking new-ish ground here.",
+      "parentUuid": "1e477a0b_792687af",
+      "range": {
+        "startLine": 521,
+        "startChar": 47,
+        "endLine": 521,
+        "endChar": 90
+      },
+      "revId": "278839f3f193842fd496753fb746f830cc8be8c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
