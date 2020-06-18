@@ -6,13 +6,9 @@
  */
 
 // Should have height = 1px, horizontal axis represents t = 0 to 1
-in uniform sampler2D gradient;
-
-@samplerParams(gradient) {
-    GrSamplerState::Filter::kBilerp
-}
+in fragmentProcessor textureFP;
 
 void main() {
     half2 coord = half2(sk_InColor.x, 0.5);
-    sk_OutColor = sample(gradient, coord);
+    sk_OutColor = sample(textureFP, coord);
 }
