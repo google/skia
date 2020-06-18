@@ -118,6 +118,30 @@
       "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87d87346_eac3e4c3",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-18T16:47:36Z",
+      "side": 1,
+      "message": "No, it depends on what that single-channel is. There are red-only formats, alpha-only formats, and (with older APIs) things like \"luminance\" formats. D3D\u0027s rule for missing components is that they\u0027re zero, except for alpha, which is one. So sampling an R8 texture will produce [r, 0, 0, 1]. Sampling an A8 texture will produce [0, 0, 0, a].\n\nIn Ganesh, we use both of these to implement kAlpha8, so we use hardware sampler state to make them both return the same value in all four channels. (That said - we do appear to always use the .a of the returned value when we have a mask texture, so we could try changing our logic to match the general convention of [0,0,0,a]. Greg and other Brian would probably have to weigh in on that - I\u0027m sure it would upset the cosmic balance in some way.",
+      "parentUuid": "70a09cd9_f6838f4f",
+      "range": {
+        "startLine": 121,
+        "startChar": 65,
+        "endLine": 121,
+        "endChar": 67
+      },
+      "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
