@@ -59,7 +59,6 @@ GrContext::~GrContext() {
     if (this->drawingManager()) {
         this->drawingManager()->cleanup();
     }
-    fMappedBufferManager.reset();
     delete fResourceProvider;
     delete fResourceCache;
 }
