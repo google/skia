@@ -57,6 +57,7 @@ GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
 
     this->destroyDrawingManager();
+    fMappedBufferManager.reset();
     delete fResourceProvider;
     delete fResourceCache;
 }

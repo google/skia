@@ -61,7 +61,10 @@ public:
 
     /**
      * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
-     * GrContext is first destroyed or abandoned.
+     * GrContext is destroyed. This also means that any objects created with this GrContext (e.g.
+     * SkSurfaces, SkImages, etc.) must also be released as they may hold refs on the GrContext.
+     * Once all these objects and the GrContext are released, then it is safe to delete the vulkan
+     * objects.
      */
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
@@ -133,7 +136,10 @@ public:
      * API calls may crash.
      *
      * For Vulkan, even if the device becomes lost, the VkQueue, VkDevice, or VkInstance used to
-     * create the GrContext must be alive before calling abandonContext.
+     * create the GrContext must be kept alive even after abandoning the context. Those objects must
+     * live for the lifetime of the GrContext object itself. The reason for this is so that
+     * we can continue to delete any outstanding GrBackendTextures/RenderTargets which must be
+     * cleaned up even in a device lost state.
      */
     void abandonContext() override;
 
