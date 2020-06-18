@@ -32,22 +32,33 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
-        SkString _input515 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input515(args.fInputColor);
         SkString _sample515;
         if (_outer.inputFP_index >= 0) {
             _sample515 = this->invokeChild(_outer.inputFP_index, _input515.c_str(), args);
         } else {
-            _sample515 = _input515;
+            _sample515.swap(_input515);
         }
-        fragBuilder->codeAppendf("half4 color = %s;", _sample515.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(half4 color = %s;)SkSL", _sample515.c_str());
         SkString _sample567;
         _sample567 = this->invokeChild(_outer.maskFP_index, args);
         fragBuilder->codeAppendf(
-                "\nhalf4 mask_color = %s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n    "
-                "    half scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = "
-                "%s;\n    }\n} else if (color.w < %s) {\n    half scale = %s / "
-                "max(0.0010000000474974513, color.w);\n    color.xyz *= scale;\n    color.w = "
-                "%s;\n}\n%s = color;\n",
+                R"SkSL(
+half4 mask_color = %s;
+if (mask_color.w < 0.5) {
+    if (color.w > %s) {
+        half scale = %s / color.w;
+        color.xyz *= scale;
+        color.w = %s;
+    }
+} else if (color.w < %s) {
+    half scale = %s / max(0.0010000000474974513, color.w);
+    color.xyz *= scale;
+    color.w = %s;
+}
+%s = color;
+)SkSL",
                 _sample567.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
