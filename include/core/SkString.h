@@ -181,7 +181,9 @@ public:
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
     void reset();
-    /** Destructive resize, does not preserve contents. */
+    /** Destructive resize, does not preserve contents.
+     * `resize` automatically reserves an extra byte at the end of the buffer for a null terminator.
+     */
     void resize(size_t len) { this->set(nullptr, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
@@ -219,6 +221,7 @@ public:
     void prependScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
     void printf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
+    void printVAList(const char format[], va_list);
     void appendf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
     void appendVAList(const char format[], va_list);
     void prependf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
@@ -239,20 +242,18 @@ public:
 private:
     struct Rec {
     public:
-        constexpr Rec(uint32_t len, int32_t refCnt)
-            : fLength(len), fRefCnt(refCnt), fBeginningOfData(0)
-        { }
+        constexpr Rec(uint32_t len, int32_t refCnt) : fLength(len), fRefCnt(refCnt) {}
         static sk_sp<Rec> Make(const char text[], size_t len);
-        uint32_t    fLength; // logically size_t, but we want it to stay 32bits
-        mutable std::atomic<int32_t> fRefCnt;
-        char        fBeginningOfData;
-
         char* data() { return &fBeginningOfData; }
         const char* data() const { return &fBeginningOfData; }
-
         void ref() const;
         void unref() const;
         bool unique() const;
+
+        uint32_t fLength; // logically size_t, but we want it to stay 32 bits
+        mutable std::atomic<int32_t> fRefCnt;
+        char fBeginningOfData = '\0';
+
     private:
         // Ensure the unsized delete is called.
         void operator delete(void* p) { ::operator delete(p); }
