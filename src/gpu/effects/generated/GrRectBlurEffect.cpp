@@ -43,14 +43,31 @@ public:
         invSixSigmaVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                           kHalf_GrSLType, "invSixSigma");
         fragBuilder->codeAppendf(
-                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) {\n    half2 "
-                "xy;\n    @if (highp) {\n        xy = max(half2(%s.xy - sk_FragCoord.xy), "
-                "half2(sk_FragCoord.xy - %s.zw));\n    } else {\n        xy = "
-                "max(half2(float2(%s.xy) - sk_FragCoord.xy), half2(sk_FragCoord.xy - "
-                "float2(%s.zw)));\n    }\n    xy *= %s;\n    xCoverage = sample(%s, "
-                "float2(half2(xy.x, 0.5))).%s.w;\n    yCoverage = sample(%s, float2(half2(xy.y, "
-                "0.5))).%s.w;\n} else {\n    half4 rect;\n    @if (highp) {\n        rect.xy = "
-                "half2(sk",
+                R"SkSL(/* key */ bool highp = %s;
+half xCoverage, yCoverage;
+@if (%s) {
+    half2 xy;
+    @if (highp) {
+        xy = max(half2(%s.xy - sk_FragCoord.xy), half2(sk_FragCoord.xy - %s.zw));
+    } else {
+        xy = max(half2(float2(%s.xy) - sk_FragCoord.xy), half2(sk_FragCoord.xy - float2(%s.zw)));
+    }
+    xy *= %s;
+    xCoverage = sample(%s, float2(half2(xy.x, 0.5))).%s.w;
+    yCoverage = sample(%s, float2(half2(xy.y, 0.5))).%s.w;
+} else {
+    half4 rect;
+    @if (highp) {
+        rect.xy = half2(sk_FragCoord.xy - %s.xy);
+        rect.zw = half2(%s.zw - sk_FragCoord.xy);
+    } else {
+        rect.xy = half2(sk_FragCoord.xy - float2(%s.xy));
+        rect.zw = half2(float2(%s.zw) - sk_FragCoord.xy);
+    }
+    half4 irect = rect * %s + half4(1.0);
+    xCoverage = (1.0 - sample(%s, float2(half2(irect.x, 0.5))).%s.w) - sample(%s, float2(half2(irect.z, 0.5))).%s.w;
+    yCoverage = (1.0 - sample(%s, float2(half2(irect.y, 0.5))).%s.w) - sample(%s, float2(half2(irect.w, 0.5))).%s.w;
+})SkSL",
                 (highp ? "true" : "false"), (_outer.isFast ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
@@ -66,15 +83,7 @@ public:
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
-                        .c_str());
-        fragBuilder->codeAppendf(
-                "_FragCoord.xy - %s.xy);\n        rect.zw = half2(%s.zw - sk_FragCoord.xy);\n    } "
-                "else {\n        rect.xy = half2(sk_FragCoord.xy - float2(%s.xy));\n        "
-                "rect.zw = half2(float2(%s.zw) - sk_FragCoord.xy);\n    }\n    half4 irect = rect "
-                "* %s + half4(1.0);\n    xCoverage = (1.0 - sample(%s, float2(half2(irect.x, "
-                "0.5))).%s.w) - sample(%s, float2(half2(irect.z, 0.5))).%s.w;\n    yCoverage = "
-                "(1.0 - sample(%s, float2(half2(irect.y, 0.5))).%s.w) - sample(%s, "
-                "float2(half2(irect.w, 0.5))).%s.w;\n}",
+                        .c_str(),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
@@ -100,15 +109,18 @@ public:
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
                         .c_str());
-        SkString _input8899 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input8899(args.fInputColor);
         SkString _sample8899;
         if (_outer.inputFP_index >= 0) {
             _sample8899 = this->invokeChild(_outer.inputFP_index, _input8899.c_str(), args);
         } else {
-            _sample8899 = _input8899;
+            _sample8899.swap(_input8899);
         }
         fragBuilder->codeAppendf(
-                "\nhalf4 inputColor = %s;\n%s = (inputColor * xCoverage) * yCoverage;\n",
+                R"SkSL(
+half4 inputColor = %s;
+%s = (inputColor * xCoverage) * yCoverage;
+)SkSL",
                 _sample8899.c_str(), args.fOutputColor);
     }
 
