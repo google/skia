@@ -142,6 +142,30 @@
       "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "301244bc_13d00dfe",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T16:57:08Z",
+      "side": 1,
+      "message": "I think that is \"the single answer\", no?  It may not be consistent across color channels, but it is across backends, right?  GL and Vulkan textures work the same way as D3D\u0027s?",
+      "parentUuid": "87d87346_eac3e4c3",
+      "range": {
+        "startLine": 121,
+        "startChar": 65,
+        "endLine": 121,
+        "endChar": 67
+      },
+      "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
