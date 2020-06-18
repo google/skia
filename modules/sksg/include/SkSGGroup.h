@@ -35,6 +35,7 @@ public:
     void  clear();
 
 protected:
+    Group();
     explicit Group(std::vector<sk_sp<RenderNode>>);
     ~Group() override;
 

@@ -8,9 +8,11 @@
 #ifndef SkRive_DEFINED
 #define SkRive_DEFINED
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 
 #include <memory>
@@ -19,6 +21,65 @@
 class SkStreamAsset;
 
 namespace skrive {
+
+class Node : public sksg::Group {
+public:
+    SG_ATTRIBUTE(Name               , SkString , fName               )
+    SG_ATTRIBUTE(Translation        , SkV2     , fTranslation        )
+    SG_ATTRIBUTE(Scale              , SkV2     , fScale              )
+    SG_ATTRIBUTE(Rotation           , float    , fRotation           )
+    SG_ATTRIBUTE(Opacity            , float    , fOpacity            )
+    SG_ATTRIBUTE(CollapsedVisibility, bool     , fCollapsedVisibility)
+
+    Node() : Node(Type::kNode) {}
+
+protected:
+    enum class Type : uint32_t {
+        kNode, // base group node
+    };
+
+    explicit Node(Type t) : fType(t) {}
+
+    SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override;
+
+    Type type() const { return fType; }
+
+private:
+    const Type fType;
+
+    SkString  fName;
+    SkV2      fTranslation         = {0, 0},
+              fScale               = {1, 1};
+    float     fRotation            = 0,
+              fOpacity             = 1;
+    bool      fCollapsedVisibility = false;
+
+    using INHERITED = sksg::Group;
+};
+
+class Drawable : public Node {
+public:
+    SG_ATTRIBUTE(DrawOrder, size_t     , fDrawOrder)
+    SG_ATTRIBUTE(BlendMode, SkBlendMode, fBlendMode)
+    SG_ATTRIBUTE(IsHidden , bool       , fIsHidden )
+
+private:
+    size_t      fDrawOrder = 0;
+    SkBlendMode fBlendMode = SkBlendMode::kSrcOver;
+    bool        fIsHidden  = false;
+
+    using INHERITED = Node;
+};
+
+class Shape final : public Drawable {
+public:
+    SG_ATTRIBUTE(TransformAffectsStroke, bool, fTransformAffectsStroke)
+
+private:
+    bool fTransformAffectsStroke = true;
+
+    using INHERITED = Drawable;
+};
 
 class Artboard final : public sksg::RenderNode {
 public:

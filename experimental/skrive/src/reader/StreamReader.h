@@ -27,26 +27,45 @@ public:
     static std::unique_ptr<StreamReader> Make(const sk_sp<SkData>&);
 
     enum class BlockType : uint8_t {
-        kUnknown       =   0,
-        kComponents    =   1,
-        kActorNode     =   2,
+        kUnknown              =   0,
+        kComponents           =   1,
+        kActorNode            =   2,
 
-        kActorArtboard = 114,
-        kArtboards     = 115,
+        kActorShape           = 100,
+        kActorPath            = 101,
+        kColorFill            = 102,
+        kColorStroke          = 103,
+        kGradientFill         = 104,
+        kGradientStroke       = 105,
+        kRadialGradientFill   = 106,
+        kRadialGradientStroke = 107,
+        kActorEllipse         = 108,
+        kActorRectangle       = 109,
+        kActorArtboard        = 114,
+        kArtboards            = 115,
 
         // End-of-block marker
         kEoB           = 0xff,
     };
 
+    // Sequential block API
     virtual BlockType openBlock() = 0;
     virtual void     closeBlock() = 0;
 
+    // Keyed API
+    virtual bool   openArray(const char label[]) = 0;
+    virtual void  closeArray()                   = 0;
+    virtual bool  openObject(const char label[]) = 0;
+    virtual void closeObject()                   = 0;
+
     virtual bool     readBool  (const char label[]) = 0;
     virtual float    readFloat (const char label[]) = 0;
+    virtual uint8_t  readUInt8 (const char label[]) = 0;
     virtual uint16_t readUInt16(const char label[]) = 0;
     virtual uint32_t readUInt32(const char label[]) = 0;
     virtual SkString readString(const char label[]) = 0;
 
+    virtual uint8_t  readLength8 () = 0;
     virtual uint16_t readLength16() = 0;
 
     SkColor4f readColor(const char label[]);
