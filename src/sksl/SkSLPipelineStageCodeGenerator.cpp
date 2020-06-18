@@ -62,8 +62,12 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(found);
         size_t childCallIndex = fArgs->fFormatArgs.size();
         this->write(Compiler::kFormatArgPlaceholderStr);
-        fArgs->fFormatArgs.push_back(
-                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
+        bool matrixCall =
+                c.fArguments.size() == 2 && c.fArguments[1]->fType.kind() == Type::kMatrix_Kind;
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(
+                matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
+                           : Compiler::FormatArg::Kind::kChildProcessor,
+                index));
         OutputStream* oldOut = fOut;
         StringStream buffer;
         fOut = &buffer;
