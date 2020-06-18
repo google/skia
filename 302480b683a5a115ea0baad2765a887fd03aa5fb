@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fa94c6e_90b5dae4",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T17:33:52Z",
+      "side": 0,
+      "message": "Yeah, this was weird, a little phony eh?",
+      "revId": "302480b683a5a115ea0baad2765a887fd03aa5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
