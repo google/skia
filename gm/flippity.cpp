@@ -220,13 +220,13 @@ private:
     void drawRow(GrContext* context, SkCanvas* canvas,
                  bool bottomLeftImage, bool drawSubset, bool drawScaled) {
 
-        sk_sp<SkImage> referenceImage = make_reference_image(context, fLabels, bottomLeftImage);
+        SkImage* referenceImage = fReferenceImages[bottomLeftImage].get();
 
         canvas->save();
             canvas->translate(kLabelSize, kLabelSize);
 
             for (int i = 0; i < kNumMatrices; ++i) {
-                this->drawImageWithMatrixAndLabels(canvas, referenceImage.get(), i,
+                this->drawImageWithMatrixAndLabels(canvas, referenceImage, i,
                                                    drawSubset, drawScaled);
                 canvas->translate(kCellSize, 0);
             }
@@ -253,8 +253,21 @@ private:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+
+        SkASSERT(context->priv().asDirectContext());
+
         this->makeLabels(context);
+        fReferenceImages[0] = make_reference_image(context, fLabels, false);
+        fReferenceImages[1] = make_reference_image(context, fLabels, true);
+
+        return DrawResult::kOk;
+    }
+
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
 
         canvas->save();
 
@@ -289,6 +302,7 @@ private:
 
 private:
     SkTArray<sk_sp<SkImage>> fLabels;
+    sk_sp<SkImage> fReferenceImages[2];
 
     typedef GM INHERITED;
 };

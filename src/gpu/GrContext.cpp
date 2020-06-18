@@ -825,7 +825,11 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     // For the Vulkan backend we still must destroy the backend texture when the context is
     // abandoned.
-    if ((this->abandoned() && this->backend() != GrBackendApi::kVulkan) || !backendTex.isValid()) {
+    if ((this->abandoned() && this->backend() != GrBackendApi::kVulkan)) {
+        return;
+    }
+
+    if (!backendTex.isValid()){
         return;
     }
 
