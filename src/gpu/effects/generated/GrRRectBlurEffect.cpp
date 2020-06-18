@@ -77,33 +77,42 @@ public:
         blurRadiusVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                          kHalf_GrSLType, "blurRadius");
         fragBuilder->codeAppendf(
-                "half2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf2 proxyCenter = "
-                "half2((%s.zw - %s.xy) * 0.5);\nhalf edgeSize = (2.0 * %s + %s) + "
-                "0.5;\ntranslatedFragPos -= proxyCenter;\nhalf2 fragDirection = "
-                "sign(translatedFragPos);\ntranslatedFragPos = "
-                "abs(translatedFragPos);\ntranslatedFragPos -= proxyCenter - "
-                "edgeSize;\ntranslatedFragPos = max(translatedFragPos, 0.0);\ntranslatedFragPos *= "
-                "fragDirection;\ntranslatedFragPos += half2(edgeSize);\nhalf2 proxyDims = "
-                "half2(2.0 * edgeSize);\nhalf2 texCoord = tra",
+                R"SkSL(half2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);
+half2 proxyCenter = half2((%s.zw - %s.xy) * 0.5);
+half edgeSize = (2.0 * %s + %s) + 0.5;
+translatedFragPos -= proxyCenter;
+half2 fragDirection = sign(translatedFragPos);
+translatedFragPos = abs(translatedFragPos);
+translatedFragPos -= proxyCenter - edgeSize;
+translatedFragPos = max(translatedFragPos, 0.0);
+translatedFragPos *= fragDirection;
+translatedFragPos += half2(edgeSize);
+half2 proxyDims = half2(2.0 * edgeSize);
+half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        fragBuilder->codeAppendf("nslatedFragPos / proxyDims;");
-        SkString _input9604 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input9604(args.fInputColor);
         SkString _sample9604;
         if (_outer.inputFP_index >= 0) {
             _sample9604 = this->invokeChild(_outer.inputFP_index, _input9604.c_str(), args);
         } else {
-            _sample9604 = _input9604;
+            _sample9604.swap(_input9604);
         }
-        fragBuilder->codeAppendf("\nhalf4 inputColor = %s;", _sample9604.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+half4 inputColor = %s;)SkSL",
+                _sample9604.c_str());
         SkString _sample9664;
         SkString _coords9664("float2(texCoord)");
         _sample9664 = this->invokeChild(_outer.ninePatchFP_index, args, _coords9664.c_str());
-        fragBuilder->codeAppendf("\n%s = inputColor * %s;\n", args.fOutputColor,
-                                 _sample9664.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+%s = inputColor * %s;
+)SkSL",
+                args.fOutputColor, _sample9664.c_str());
     }
 
 private:

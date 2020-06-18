@@ -27,8 +27,11 @@ public:
         (void)gradientMatrix;
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
-        fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
-                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+        fragBuilder->codeAppendf(
+                R"SkSL(half t = half(length(%s));
+%s = half4(t, 1.0, 0.0, 0.0);
+)SkSL",
+                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
     }
 
 private:
