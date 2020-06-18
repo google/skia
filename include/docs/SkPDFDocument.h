@@ -93,12 +93,9 @@ public:
     void appendFloatArray(const char* owner,
                           const char* name,
                           const std::vector<float>& value);
-    void appendNameArray(const char* owner,
-                         const char* attrName,
-                         const std::vector<SkString>& values);
-    void appendStringArray(const char* owner,
+    void appendNodeIdArray(const char* owner,
                            const char* attrName,
-                           const std::vector<SkString>& values);
+                           const std::vector<int>& nodeIds);
 
 private:
     friend class ::SkPDFTagTree;
