@@ -240,9 +240,11 @@ bool SkSVGAttributeParser::parseIRI(SkSVGStringType* iri) {
     // consume preceding whitespace
     this->parseWSToken();
 
-    // we only support local fragments
+    // we only support local fragments or data URIs, for the <image> tag
     if (!this->parseExpectedStringToken("#")) {
-        return false;
+        if (!this->parseExpectedStringToken("data:")) {
+            return false;
+        }
     }
     const auto* start = fCurPos;
     this->advanceWhile([](char c) -> bool { return !is_eos(c) && c != ')'; });
