@@ -673,6 +673,16 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kATan3:
             case Inst::kATan4: unary(Inst::kATan, skvm::approx_atan); break;
 
+            case Inst::kCeil:
+            case Inst::kCeil2:
+            case Inst::kCeil3:
+            case Inst::kCeil4: unary(Inst::kCeil, skvm::ceil); break;
+
+            case Inst::kFloor:
+            case Inst::kFloor2:
+            case Inst::kFloor3:
+            case Inst::kFloor4: unary(Inst::kFloor, skvm::floor); break;
+
             case Inst::kFract:
             case Inst::kFract2:
             case Inst::kFract3:
