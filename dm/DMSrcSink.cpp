@@ -1738,20 +1738,11 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     SkSurfaceCharacterization dstCharacterization;
     SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
-    // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
-    // thread w/o a context.
-    gpuTestCtx->makeNotCurrent();
-
-    // Job one for the GPU thread is to make 'gpuTestCtx' current!
-    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeCurrent(); });
-
     auto size = src.size();
     SkPictureRecorder recorder;
     Result result = src.draw(gpuThreadCtx, recorder.beginRecording(SkIntToScalar(size.width()),
                                                                    SkIntToScalar(size.height())));
     if (!result.isOk()) {
-        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
-        gpuTaskGroup->wait();
         return result;
     }
     sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
@@ -1762,12 +1753,17 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
-        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
-        gpuTaskGroup->wait();
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
     }
 
     promiseImageHelper.createCallbackContexts(gpuThreadCtx);
+
+    // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
+    // thread w/o a context.
+    gpuTestCtx->makeNotCurrent();
+
+    // Job one for the GPU thread is to make 'gpuTestCtx' current!
+    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeCurrent(); });
 
     // TODO: move the image upload to the utility thread
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
