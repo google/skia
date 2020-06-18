@@ -166,6 +166,30 @@
       "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b44f4af4_14ffb393",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-18T16:59:20Z",
+      "side": 1,
+      "message": "Right, as far as I know, the rules at the hardware level are consistent. So in that sense, there is a single answer.",
+      "parentUuid": "301244bc_13d00dfe",
+      "range": {
+        "startLine": 121,
+        "startChar": 65,
+        "endLine": 121,
+        "endChar": 67
+      },
+      "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
