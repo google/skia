@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "f7f9d36b_6a7c3b6d",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T14:29:30Z",
+      "side": 1,
+      "message": "I think part of the reason I forgot about the f\u0027s here is that I\u0027m used to the google3 conceptual separation between structs and classes. \n\ngo/cstyle#Structs_vs._Classes\n\n\"structs should be used for passive objects that carry data, and may have associated constants. All fields must be public. The struct must not have invariants that imply relationships between different fields, since direct user access to those fields may break those invariants. Constructors, destructors, and helper methods may be present; however, these methods must not require or enforce any invariants.\"\n\nStructs in google3 don\u0027t use the trailing underscore like class-members do, i.e.:\n\n```\nclass Foo {\n   int abc_;\n   int def_;\n}\n\nstruct Bar {\n   int abc;\n   int def;\n};\n```\n\nI think this rule could easily be adopted in Skia...",
+      "parentUuid": "0dcf577a_cd7ef3c7",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
