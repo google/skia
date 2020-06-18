@@ -83,6 +83,7 @@ public:
             kCoords,
             kUniform,
             kChildProcessor,
+            kChildProcessorWithMatrix,
             kFunctionName
         };
 

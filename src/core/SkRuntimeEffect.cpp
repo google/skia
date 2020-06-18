@@ -106,6 +106,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
     std::vector<SkString> children;
+    std::vector<SkSL::SampleMatrix> sampleMatrices;
     std::vector<Varying> varyings;
     const SkSL::Context& ctx(compiler->context());
 
@@ -150,6 +151,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     if (var.fModifiers.fFlags & flag) {
                         if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
                             children.push_back(var.fName);
+                            sampleMatrices.push_back(SkSL::SampleMatrix::Make(*program, var));
                             continue;
                         }
 
@@ -274,6 +276,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(program),
                                                       std::move(inAndUniformVars),
                                                       std::move(children),
+                                                      std::move(sampleMatrices),
                                                       std::move(varyings),
                                                       uniformSize,
                                                       mainHasSampleCoords));
@@ -303,6 +306,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
+                                 std::vector<SkSL::SampleMatrix>&& sampleMatrices,
                                  std::vector<Varying>&& varyings,
                                  size_t uniformSize,
                                  bool mainHasSampleCoords)
@@ -311,12 +315,14 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
         , fChildren(std::move(children))
+        , fSampleMatrices(std::move(sampleMatrices))
         , fVaryings(std::move(varyings))
         , fUniformSize(uniformSize)
         , fMainFunctionHasSampleCoords(mainHasSampleCoords) {
     SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
     SkASSERT(fUniformSize <= this->inputSize());
+    SkASSERT(fChildren.size() == fSampleMatrices.size());
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;

@@ -9,8 +9,11 @@
 #define SkRuntimeEffect_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
+#include "include/private/SkSLSampleMatrix.h"
 
+#include <string>
 #include <vector>
 
 #if SK_SUPPORT_GPU
@@ -20,7 +23,6 @@
 
 class GrShaderCaps;
 class SkColorFilter;
-class SkMatrix;
 class SkShader;
 
 namespace SkSL {
@@ -135,16 +137,22 @@ public:
     ~SkRuntimeEffect();
 
 private:
-    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
-                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
-                    std::vector<Varying>&& varyings, size_t uniformSize, bool mainHasLocalCoords);
+    SkRuntimeEffect(SkString sksl,
+                    std::unique_ptr<SkSL::Program> baseProgram,
+                    std::vector<Variable>&& inAndUniformVars,
+                    std::vector<SkString>&& children,
+                    std::vector<SkSL::SampleMatrix>&& sampleMatrices,
+                    std::vector<Varying>&& varyings,
+                    size_t uniformSize,
+                    bool mainHasSampleCoords);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
                                 const SkSL::SharedCompiler&) const;
 
 #if SK_SUPPORT_GPU
-    friend class GrSkSLFP;  // toPipelineStage
+    friend class GrSkSLFP;      // toPipelineStage
+    friend class GrGLSLSkSLFP;  // fSampleMatrices
 
     // This re-compiles the program from scratch, using the supplied shader caps.
     // This is necessary to get the correct values of settings.
@@ -171,6 +179,7 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
+    std::vector<SkSL::SampleMatrix> fSampleMatrices;
     std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;
@@ -217,6 +226,20 @@ struct SkRuntimeShaderBuilder {
             } else {
                 memcpy(SkTAddOffset<void>(fOwner->fInputs->writable_data(), fVar->fOffset),
                         &val, sizeof(val));
+            }
+            return *this;
+        }
+
+        BuilderInput& operator=(const SkMatrix& val) {
+            if (!fVar) {
+                SkDEBUGFAIL("Assigning to missing variable");
+            } else if (fVar->sizeInBytes() != 9 * sizeof(float)) {
+                SkDEBUGFAIL("Incorrect value size");
+            } else {
+                float* data = SkTAddOffset<float>(fOwner->fInputs->writable_data(), fVar->fOffset);
+                data[0] = val.get(0); data[1] = val.get(3); data[2] = val.get(6);
+                data[3] = val.get(1); data[4] = val.get(4); data[5] = val.get(7);
+                data[6] = val.get(2); data[7] = val.get(5); data[8] = val.get(8);
             }
             return *this;
         }

@@ -46,9 +46,22 @@ public:
                         result += args.fUniformHandler->getUniformCStr(fUniformHandles[arg.fIndex]);
                         break;
                     case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
-                        // FIXME - Must use invokeChildWithMatrix depending on arg type.
                         SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
                         result += this->invokeChild(arg.fIndex, args, coords).c_str();
+                        break;
+                    }
+                    case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
+                        const auto& fp(args.fFp.cast<GrSkSLFP>());
+                        const auto& sampleMatrices(fp.fEffect->fSampleMatrices);
+
+                        SkASSERT((size_t)arg.fIndex < sampleMatrices.size());
+                        const SkSL::SampleMatrix& sampleMatrix(sampleMatrices[arg.fIndex]);
+
+                        SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
+                        result += this->invokeChildWithMatrix(
+                                              arg.fIndex, args,
+                                              sampleMatrix.isConstUniform() ? "" : coords)
+                                          .c_str();
                         break;
                     }
                     case SkSL::Compiler::FormatArg::Kind::kFunctionName:
@@ -186,7 +199,15 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    this->registerExplicitlySampledChild(std::move(child));
+    int childIndex = this->numChildProcessors();
+    SkASSERT((size_t)childIndex < fEffect->fSampleMatrices.size());
+    const auto& sampleMatrix(fEffect->fSampleMatrices[childIndex]);
+    // TODO: This doesn't account for calls to sample(child) with no matrix or explicit coords
+    if (sampleMatrix.isNoOp()) {
+        this->registerExplicitlySampledChild(std::move(child));
+    } else {
+        this->registerChild(std::move(child), sampleMatrix);
+    }
 }
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
