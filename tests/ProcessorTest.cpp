@@ -256,10 +256,13 @@ void test_draw_op(GrContext* context,
 }
 
 // This assumes that the output buffer will be the same size as inputDataView
-void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcessor* fp,
-               GrSurfaceProxyView inputDataView, SkAlphaType inputAlphaType, GrColor* buffer) {
-    // test_draw_op needs to take ownership of an FP, so give it a clone that it can own
-    test_draw_op(context, rtc, fp->clone(), inputDataView, inputAlphaType);
+void render_fp(GrContext* context,
+               GrRenderTargetContext* rtc,
+               std::unique_ptr<GrFragmentProcessor> fp,
+               GrSurfaceProxyView inputDataView,
+               SkAlphaType inputAlphaType,
+               GrColor* buffer) {
+    test_draw_op(context, rtc, std::move(fp), inputDataView, inputAlphaType);
     memset(buffer, 0x0,
            sizeof(GrColor) * inputDataView.proxy()->width() * inputDataView.proxy()->height());
     rtc->readPixels(SkImageInfo::Make(inputDataView.proxy()->dimensions(), kRGBA_8888_SkColorType,
@@ -555,29 +558,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 continue;
             }
 
+            // All draws use a clone so that we can continue to query fp. ProcessorCloneTest should
+            // validate that clones are equivalent to the original.
             if (fp->compatibleWithCoverageAsAlpha()) {
                 // 2nd and 3rd frames are only used when checking coverage optimization
-                render_fp(context, rtc.get(), fp.get(), inputTexture2, kPremul_SkAlphaType,
+                render_fp(context, rtc.get(), fp->clone(), inputTexture2, kPremul_SkAlphaType,
                           readData2.get());
-                render_fp(context, rtc.get(), fp.get(), inputTexture3, kPremul_SkAlphaType,
+                render_fp(context, rtc.get(), fp->clone(), inputTexture3, kPremul_SkAlphaType,
                           readData3.get());
             }
+
             // Draw base frame last so that rtc holds the original FP behavior if we need to
             // dump the image to the log.
-            render_fp(context, rtc.get(), fp.get(), inputTexture1, kPremul_SkAlphaType,
+            render_fp(context, rtc.get(), fp->clone(), inputTexture1, kPremul_SkAlphaType,
                       readData1.get());
-
-            if (0) {  // Useful to see what FPs are being tested.
-                SkString children;
-                for (int c = 0; c < fp->numChildProcessors(); ++c) {
-                    if (!c) {
-                        children.append("(");
-                    }
-                    children.append(fp->childProcessor(c).name());
-                    children.append(c == fp->numChildProcessors() - 1 ? ")" : ", ");
-                }
-                SkDebugf("%s %s\n", fp->name(), children.c_str());
-            }
 
             // This test has a history of being flaky on a number of devices. If an FP is logically
             // violating the optimizations, it's reasonable to expect it to violate requirements on
@@ -742,8 +736,8 @@ static SkString describe_fp(const GrFragmentProcessor& fp) {
     return text;
 }
 
-// Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
-// progenitors.
+// Tests that fragment processors returned by GrFragmentProcessor::clone() is equivalent to the
+// progenitor.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     auto resourceProvider = context->priv().resourceProvider();
@@ -809,11 +803,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), fp.get(), inputTexture, kPremul_SkAlphaType,
+            render_fp(context, rtc.get(), std::move(fp), inputTexture, kPremul_SkAlphaType,
                       readData1.get());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), clone.get(), inputTexture, kPremul_SkAlphaType,
+            render_fp(context, rtc.get(), std::move(clone), inputTexture, kPremul_SkAlphaType,
                       readData2.get());
 
             // Check that the results are the same.
