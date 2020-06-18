@@ -140,6 +140,30 @@
       "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91efa1d2_9573cb28",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T13:53:23Z",
+      "side": 1,
+      "message": "Sure. I think something like resetToSize() might be more in keeping with naming patterns. Or maybe merging into reset() by having it take an optional size_t param (either by default arg val or overload).",
+      "parentUuid": "c70f7f30_10d7f964",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 34
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

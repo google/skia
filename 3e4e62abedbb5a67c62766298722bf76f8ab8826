@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e45c38d_b0204dcd",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T13:53:23Z",
+      "side": 1,
+      "message": "If we use /** */ comments on methods then they show up in doxygen:\nhttps://api.skia.org/classSkString.html#a8df1f049b3f77a5613c264ce8b0423b3",
+      "range": {
+        "startLine": 184,
+        "startChar": 4,
+        "endLine": 184,
+        "endChar": 6
+      },
+      "revId": "3e4e62abedbb5a67c62766298722bf76f8ab8826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
