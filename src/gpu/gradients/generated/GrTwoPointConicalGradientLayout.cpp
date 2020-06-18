@@ -45,48 +45,90 @@ public:
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
-                "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
-                "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
-                "         if (t >= 0.0) {\n                t = p.x + sqrt(t);\n            } else "
-                "{\n                v = -1.0;\n            }\n        }\n        break;\n    case "
-                "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
-                "  t = length(p) - float(r0);\n            } else {\n                t = "
-                "-length(p) - float(r0);\n       ",
+                R"SkSL(float2 p = %s;
+float t = -1.0;
+half v = 1.0;
+@switch (%d) {
+    case 1:
+        {
+            half r0_2 = %s.y;
+            t = float(r0_2) - p.y * p.y;
+            if (t >= 0.0) {
+                t = p.x + sqrt(t);
+            } else {
+                v = -1.0;
+            }
+        }
+        break;
+    case 0:
+        {
+            half r0 = %s.x;
+            @if (%s) {
+                t = length(p) - float(r0);
+            } else {
+                t = -length(p) - float(r0);
+            }
+        }
+        break;
+    case 2:
+        {
+            half invR1 = %s.x;
+            half fx = %s.y;
+            float x_t = -1.0;
+            @if (%s) {
+                x_t = dot(p, p) / p.x;
+            } else if (%s) {
+                x_t = length(p) - p.x * float(invR1);
+            } else {
+                float temp = p.x * p.x - p.y * p.y;
+                if (temp >= 0.0) {
+                    @if (%s || !%s) {
+                        x_t = -sqrt(temp) - p.x * float(invR1);
+                    } else {
+                        x_t = sqrt(temp) - p.x * float(invR1);
+                    }
+                }
+            }
+            @if (!%s) {
+                if (x_t <= 0.0) {
+                    v = -1.0;
+                }
+            }
+            @if (%s) {
+                @if (%s) {
+                    t = x_t;
+                } else {
+                    t = x_t + float(fx);
+                }
+            } else {
+                @if (%s) {
+                    t = -x_t;
+                } else {
+                    t = -x_t + float(fx);
+                }
+            }
+            @if (%s) {
+                t = 1.0 - t;
+            }
+        }
+        break;
+}
+%s = half4(half(t), v, 0.0, 0.0);
+)SkSL",
                 sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
-                (_outer.isRadiusIncreasing ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                "     }\n        }\n        break;\n    case 2:\n        {\n            half invR1 "
-                "= %s.x;\n            half fx = %s.y;\n            float x_t = -1.0;\n            "
-                "@if (%s) {\n                x_t = dot(p, p) / p.x;\n            } else if (%s) "
-                "{\n                x_t = length(p) - p.x * float(invR1);\n            } else {\n  "
-                "              float temp = p.x * p.x - p.y * p.y;\n                if (temp >= "
-                "0.0) {\n                    @if (%s || !%s) {\n                        x_t = "
-                "-sqrt(temp) - p.x * float(invR1)",
+                (_outer.isRadiusIncreasing ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
                 (_outer.isFocalOnCircle ? "true" : "false"),
                 (_outer.isWellBehaved ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
-                (_outer.isRadiusIncreasing ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                ";\n                    } else {\n                        x_t = sqrt(temp) - p.x * "
-                "float(invR1);\n                    }\n                }\n            }\n          "
-                "  @if (!%s) {\n                if (x_t <= 0.0) {\n                    v = -1.0;\n "
-                "               }\n            }\n            @if (%s) {\n                @if (%s) "
-                "{\n                    t = x_t;\n                } else {\n                    t "
-                "= x_t + float(fx);\n                }\n            } else {\n                @if "
-                "(%s) {\n              ",
+                (_outer.isRadiusIncreasing ? "true" : "false"),
                 (_outer.isWellBehaved ? "true" : "false"),
                 (_outer.isRadiusIncreasing ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"),
-                (_outer.isNativelyFocal ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                "      t = -x_t;\n                } else {\n                    t = -x_t + "
-                "float(fx);\n                }\n            }\n            @if (%s) {\n            "
-                "    t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = "
-                "half4(half(t), v, 0.0, 0.0);\n",
-                (_outer.isSwapped ? "true" : "false"), args.fOutputColor);
+                (_outer.isNativelyFocal ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
+                args.fOutputColor);
     }
 
 private:
