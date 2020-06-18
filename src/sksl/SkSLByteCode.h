@@ -71,10 +71,6 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
     VECTOR(kLoadUniform),
-    // As kLoad/kLoadGlobal, then a count byte (1-4), and then one byte per swizzle component (0-3).
-    kLoadSwizzle,
-    kLoadSwizzleGlobal,
-    kLoadSwizzleUniform,
     // kLoadExtended* are fallback load ops when we lack a specialization. They are followed by a
     // count byte, and get the slot to load from the top of the stack.
     kLoadExtended,
