@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5d8de685_4517af2e",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T15:21:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "816a64d3_6db8d3f3",
+      "range": {
+        "startLine": 405,
+        "startChar": 25,
+        "endLine": 405,
+        "endChar": 32
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f74c0a5_67974776",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4d6786fa_7ef57ac1",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T15:21:39Z",
+      "side": 1,
+      "message": "Yep. I\u0027d leave that for another change, though. I\u0027d like to restrict this change to just changing how we generate the code we already generate.",
+      "parentUuid": "2f74c0a5_67974776",
+      "range": {
+        "startLine": 413,
+        "startChar": 73,
+        "endLine": 413,
+        "endChar": 77
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cffd466_df8d78a7",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "61121b692370184d3c6f611913f90802839e133a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed245afa_bb27975a",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T15:21:39Z",
+      "side": 1,
+      "message": "Sure. My general (but not strong) pref is usually to move anything that doesn\u0027t fit on a single line or isn\u0027t a single statement to the cpp.",
+      "parentUuid": "9cffd466_df8d78a7",
+      "range": {
+        "startLine": 802,
+        "startChar": 0,
+        "endLine": 804,
+        "endChar": 1
+      },
+      "revId": "61121b692370184d3c6f611913f90802839e133a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
