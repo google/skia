@@ -13,6 +13,8 @@
 
 namespace sksg {
 
+Group::Group() = default;
+
 Group::Group(std::vector<sk_sp<RenderNode>> children)
     : fChildren(std::move(children)) {
     for (const auto& child : fChildren) {
