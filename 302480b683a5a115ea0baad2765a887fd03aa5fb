@@ -16,6 +16,24 @@
       "revId": "302480b683a5a115ea0baad2765a887fd03aa5fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e2cb2a7_80d2f231",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-18T17:35:12Z",
+      "side": 0,
+      "message": "yup, too cute.",
+      "parentUuid": "4fa94c6e_90b5dae4",
+      "revId": "302480b683a5a115ea0baad2765a887fd03aa5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
