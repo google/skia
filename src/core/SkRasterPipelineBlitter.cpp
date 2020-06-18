@@ -123,8 +123,8 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                                std::move(clipShader));
     }
 
-    // The shader has opted out of drawing anything.
-    return alloc->make<SkNullBlitter>();
+    // The shader can't draw with SkRasterPipeline.
+    return nullptr;
 }
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
