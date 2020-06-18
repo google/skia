@@ -406,7 +406,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                   switch (m) {
                       case ShaderMode::kNone:                     return false;
                       case ShaderMode::kClamp:                    return false;
-                      case ShaderMode::kRepeatNearest:            return true;
+                      case ShaderMode::kRepeatNearest:            return false;
                       case ShaderMode::kRepeatBilerp:             return true;
                       case ShaderMode::kRepeatMipMap:             return true;
                       case ShaderMode::kMirrorRepeat:             return false;
