@@ -70,6 +70,30 @@
       "revId": "278839f3f193842fd496753fb746f830cc8be8c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66f4aca6_8a8f5ff8",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T19:26:32Z",
+      "side": 1,
+      "message": "Hm, I\u0027d vote for 1 release proc/context in both APIs.",
+      "parentUuid": "39752609_e35d5c6d",
+      "range": {
+        "startLine": 521,
+        "startChar": 47,
+        "endLine": 521,
+        "endChar": 90
+      },
+      "revId": "278839f3f193842fd496753fb746f830cc8be8c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
