@@ -235,7 +235,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                              const SkYUVAIndex yuvaIndices[4],
                                              SkISize imageSize,
                                              GrSurfaceOrigin imageOrigin,
-                                             sk_sp<SkColorSpace> imageColorSpace) {
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContexts[4]) {
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
         return nullptr;
@@ -243,7 +245,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
 
     GrSurfaceProxyView tempViews[4];
     if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
-                                                 imageOrigin, tempViews)) {
+                                                 imageOrigin, tempViews,
+                                                 textureReleaseProc, releaseContexts)) {
         return nullptr;
     }
 
