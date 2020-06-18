@@ -229,6 +229,7 @@ namespace SK_OPTS_NS {
 
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << immz); break;
 
+                    CASE(Op::ceil):   r(d).f32 =                    skvx::ceil(r(x).f32) ; break;
                     CASE(Op::floor):  r(d).f32 =                   skvx::floor(r(x).f32) ; break;
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(            r(x).i32 ); break;
                     CASE(Op::trunc):  r(d).i32 = skvx::cast<int>  (            r(x).f32 ); break;

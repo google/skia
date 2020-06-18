@@ -387,7 +387,8 @@ namespace skvm {
         M(fma_f32) M(fms_f32) M(fnma_f32)     \
         M(sqrt_f32)                           \
         M(shl_i32) M(shr_i32) M(sra_i32)      \
-        M(floor) M(trunc) M(round) M(to_f32)  \
+        M(ceil) M(floor) M(trunc) M(round)    \
+        M(to_f32)                             \
         M( eq_f32) M( eq_i32)                 \
         M(neq_f32)                            \
         M( gt_f32) M( gt_i32)                 \
@@ -642,6 +643,7 @@ namespace skvm {
 
         F32    abs(F32 x) { return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff)); }
         F32  fract(F32 x) { return sub(x, floor(x)); }
+        F32   ceil(F32);
         F32  floor(F32);
         I32 is_NaN(F32 x) { return neq(x,x); }
 
@@ -978,6 +980,7 @@ namespace skvm {
 
     static inline F32 clamp01(F32 x) { return x->clamp01(x); }
     static inline F32     abs(F32 x) { return x->    abs(x); }
+    static inline F32    ceil(F32 x) { return x->   ceil(x); }
     static inline F32   fract(F32 x) { return x->  fract(x); }
     static inline F32   floor(F32 x) { return x->  floor(x); }
     static inline I32  is_NaN(F32 x) { return x-> is_NaN(x); }

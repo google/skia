@@ -279,12 +279,7 @@ class ColorCubeRT : public skiagm::GM {
 
     SkISize onISize() override { return {512, 512}; }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->getGrContext() == nullptr) {
-            // until SkSL can handle child processors on the raster backend
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
         canvas->drawImage(fMandrill,      0,   0);
         canvas->drawImage(fMandrillSepia, 0, 256);
@@ -319,8 +314,6 @@ class ColorCubeRT : public skiagm::GM {
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(0, 256);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
-
-        return DrawResult::kOk;
     }
 };
 DEF_GM(return new ColorCubeRT;)
