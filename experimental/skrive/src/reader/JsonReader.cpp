@@ -21,10 +21,20 @@ StreamReader::BlockType block_type(const char* type_name) {
         const char*             name;
         StreamReader::BlockType block_type;
     } gTypeMap[] = {
-        {"artboard" , StreamReader::BlockType::kActorArtboard },
-        {"artboards", StreamReader::BlockType::kArtboards     },
-        {"node"     , StreamReader::BlockType::kActorNode     },
-        {"nodes"    , StreamReader::BlockType::kComponents    },
+        {"artboard"            , StreamReader::BlockType::kActorArtboard        },
+        {"artboards"           , StreamReader::BlockType::kArtboards            },
+        {"colorFill"           , StreamReader::BlockType::kColorFill            },
+        {"colorStroke"         , StreamReader::BlockType::kColorStroke          },
+        {"ellipse"             , StreamReader::BlockType::kActorEllipse         },
+        {"gradientFill"        , StreamReader::BlockType::kGradientFill         },
+        {"gradientStroke"      , StreamReader::BlockType::kGradientStroke       },
+        {"node"                , StreamReader::BlockType::kActorNode            },
+        {"nodes"               , StreamReader::BlockType::kComponents           },
+        {"path"                , StreamReader::BlockType::kActorPath            },
+        {"radialGradientFill"  , StreamReader::BlockType::kRadialGradientFill   },
+        {"radialGradientStroke", StreamReader::BlockType::kRadialGradientStroke },
+        {"rectangle"           , StreamReader::BlockType::kActorRectangle       },
+        {"shape"               , StreamReader::BlockType::kActorShape           },
     };
 
     const TypeMapEntry key = { type_name, StreamReader::BlockType::kUnknown };
@@ -53,12 +63,19 @@ public:
 
 private:
     template <typename T>
-    const T* readProp(const char label[]) const {
-        const auto* current_container = fContextStack.back().fContainer;
+    const T* readProp(const char label[]) {
+        auto& ctx = fContextStack.back();
 
-        return current_container->is<skjson::ObjectValue>()
-                ? static_cast<const T*>(current_container->as<skjson::ObjectValue>()[label])
-                : nullptr;
+        if (ctx.fContainer->is<skjson::ObjectValue>()) {
+            return static_cast<const T*>(ctx.fContainer->as<skjson::ObjectValue>()[label]);
+        }
+
+        const skjson::ArrayValue* jarr = *ctx.fContainer;
+        SkASSERT(jarr);
+
+        return ctx.fMemberIndex < jarr->size()
+            ? static_cast<const T*>((*jarr)[ctx.fMemberIndex++])
+            : nullptr;
     }
 
     bool readBool(const char label[]) override {
@@ -71,6 +88,10 @@ private:
         const auto* jnum = this->readProp<skjson::NumberValue>(label);
 
         return jnum ? static_cast<float>(**jnum) : 0.0f;
+    }
+
+    uint8_t readUInt8(const char label[]) override {
+        return static_cast<uint8_t>(this->readUInt32(label));
     }
 
     uint16_t readUInt16(const char label[]) override {
@@ -106,6 +127,10 @@ private:
         return count;
     }
 
+    uint8_t readLength8() override {
+        return SkToU8(this->currentLength());
+    }
+
     uint16_t readLength16() override {
         return SkToU16(this->currentLength());
     }
@@ -115,6 +140,36 @@ private:
         return ctx.fContainer->is<skjson::ObjectValue>()
             ? ctx.fContainer->as<skjson::ObjectValue>().size()
             : ctx.fContainer->as<skjson:: ArrayValue>().size();
+    }
+
+    bool openArray(const char label[]) override {
+        const auto* jarr = this->readProp<skjson::ArrayValue>(label);
+        if (!jarr) {
+            return false;
+        }
+
+        fContextStack.push_back({jarr, 0});
+        return true;
+    }
+
+    void closeArray() override {
+        SkASSERT(fContextStack.back().fContainer->is<skjson::ArrayValue>());
+        fContextStack.pop_back();
+    }
+
+    bool openObject(const char label[]) override {
+        const auto* jobj = this->readProp<skjson::ObjectValue>(label);
+        if (!jobj) {
+            return false;
+        }
+
+        fContextStack.push_back({jobj, 0});
+        return true;
+    }
+
+    void closeObject() override {
+        SkASSERT(fContextStack.back().fContainer->is<skjson::ObjectValue>());
+        fContextStack.pop_back();
     }
 
     // "Blocks" map to either objects or arrays.  For object containers, the block type is encoded
@@ -136,8 +191,11 @@ private:
         while (ctx.fMemberIndex < container.size()) {
             const auto& m = container[ctx.fMemberIndex];
             if (m.fValue.is<skjson::ObjectValue>() || m.fValue.is<skjson::ArrayValue>()) {
-                fContextStack.push_back({&m.fValue, 0});
-                return block_type(m.fKey.begin());
+                const auto btype = block_type(m.fKey.begin());
+                if (btype != BlockType::kUnknown) {
+                    fContextStack.push_back({&m.fValue, 0});
+                    return btype;
+                }
             }
 
             ctx.fMemberIndex++;
