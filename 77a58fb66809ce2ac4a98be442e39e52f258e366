@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75efaa36_610240c7",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T16:19:50Z",
+      "side": 1,
+      "message": "When I sample threshold_map, I\u0027m getting back 0 in the red channel (and blue and green) but the value you\u0027d expect in the alpha channel.  Changing this to .a makes both draw the same.  What are the rules about sampling alpha-only images again?  Is this something the CPU and GPU backends disagree on?",
+      "range": {
+        "startLine": 121,
+        "startChar": 65,
+        "endLine": 121,
+        "endChar": 67
+      },
+      "revId": "77a58fb66809ce2ac4a98be442e39e52f258e366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
