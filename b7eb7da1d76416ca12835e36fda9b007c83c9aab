@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "0dcf577a_cd7ef3c7",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-18T14:24:51Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "da4aac4e_f70b2154",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
