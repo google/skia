@@ -172,40 +172,6 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kStoreGlobal2: printf("storeglobal2 %d", READ8()); break;
         case ByteCodeInstruction::kStoreGlobal3: printf("storeglobal3 %d", READ8()); break;
         case ByteCodeInstruction::kStoreGlobal4: printf("storeglobal4 %d", READ8()); break;
-        case ByteCodeInstruction::kStoreSwizzle: {
-            int target = READ8();
-            int count = READ8();
-            printf("storeswizzle %d %d", target, count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
-        case ByteCodeInstruction::kStoreSwizzleGlobal: {
-            int target = READ8();
-            int count = READ8();
-            printf("storeswizzleglobal %d %d", target, count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
-        case ByteCodeInstruction::kStoreSwizzleIndirect: {
-            int count = READ8();
-            printf("storeswizzleindirect %d", count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
-        case ByteCodeInstruction::kStoreSwizzleIndirectGlobal: {
-            int count = READ8();
-            printf("storeswizzleindirectglobal %d", count);
-            for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
-            }
-            break;
-        }
         case ByteCodeInstruction::kStoreExtended: printf("storeextended %d", READ8()); break;
         case ByteCodeInstruction::kStoreExtendedGlobal: printf("storeextendedglobal %d", READ8());
             break;
@@ -1041,60 +1007,6 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     }
                 }
                 sp -= count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kStoreSwizzle: {
-                int target = READ8();
-                int count = READ8();
-                for (int i = count - 1; i >= 0; --i) {
-                    stack[target + *(ip + i)] = skvx::if_then_else(
-                            mask(), POP().fFloat, stack[target + *(ip + i)].fFloat);
-                }
-                ip += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kStoreSwizzleGlobal: {
-                int target = READ8();
-                int count = READ8();
-                for (int i = count - 1; i >= 0; --i) {
-                    globals[target + *(ip + i)] = skvx::if_then_else(
-                            mask(), POP().fFloat, globals[target + *(ip + i)].fFloat);
-                }
-                ip += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kStoreSwizzleIndirect: {
-                int count = READ8();
-                I32 target = POP().fSigned;
-                I32 m = mask();
-                for (int i = count - 1; i >= 0; --i) {
-                    I32 v = POP().fSigned;
-                    for (int j = 0; j < VecWidth; ++j) {
-                        if (m[j]) {
-                            stack[target[j] + *(ip + i)].fSigned[j] = v[j];
-                        }
-                    }
-                }
-                ip += count;
-                continue;
-            }
-
-            case ByteCodeInstruction::kStoreSwizzleIndirectGlobal: {
-                int count = READ8();
-                I32 target = POP().fSigned;
-                I32 m = mask();
-                for (int i = count - 1; i >= 0; --i) {
-                    I32 v = POP().fSigned;
-                    for (int j = 0; j < VecWidth; ++j) {
-                        if (m[j]) {
-                            globals[target[j] + *(ip + i)].fSigned[j] = v[j];
-                        }
-                    }
-                }
-                ip += count;
                 continue;
             }
 
