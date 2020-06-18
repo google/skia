@@ -79,6 +79,8 @@ public:
 
 static CapturingShaderErrorHandler gShaderErrorHandler;
 
+GrContextOptions::ShaderErrorHandler* Viewer::ShaderErrorHandler() { return &gShaderErrorHandler; }
+
 using namespace sk_app;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
