@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eaecfebd_b3f919f6",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-18T00:50:15Z",
+      "side": 1,
+      "message": "Instead of making this public and kinda exposing that we turn NodeIds into SkStrings (and then handing those opaque SkStrings right back), it seems like maybe AttributeList could grow a appendNodeIdArray. Then, instead of a \u0027vector\u003cSkString\u003e header_id_strs\u0027 there could be a \u0027vector\u003cint\u003e header_ids\u0027.\n\nNot that it needs to, but appendNodeIdArray could even replace appendStringArray, since the only current use of appendStringArray would be replaced with appendNodeIdArray.\n\nGoing hard the other way the NodeIds could be SkString instead of int (and just provided from the outside completely), but there are constraints and checks on the NodeIds which makes the ints really nice. So just hiding the NodeId to SkString conversion (and how that\u0027s done) inside a AttributeList::appendNodeIdArray seems cleaner.",
+      "revId": "9edbfb313b3fe9408403f117e2bdbd44da64a4a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
