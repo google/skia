@@ -26,18 +26,26 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
-        SkString _input308 = SkStringPrintf("%s", args.fInputColor);
+        SkString _input308(args.fInputColor);
         SkString _sample308;
         if (_outer.inputFP_index >= 0) {
             _sample308 = this->invokeChild(_outer.inputFP_index, _input308.c_str(), args);
         } else {
-            _sample308 = _input308;
+            _sample308.swap(_input308);
         }
         fragBuilder->codeAppendf(
-                "half inputAlpha = %s.w;\nhalf factor = 1.0 - inputAlpha;\n@switch (%d) {\n    "
-                "case 0:\n        factor = exp((-factor * factor) * 4.0) - 0.017999999225139618;\n "
-                "       break;\n    case 1:\n        factor = smoothstep(1.0, 0.0, factor);\n      "
-                "  break;\n}\n%s = half4(factor);\n",
+                R"SkSL(half inputAlpha = %s.w;
+half factor = 1.0 - inputAlpha;
+@switch (%d) {
+    case 0:
+        factor = exp((-factor * factor) * 4.0) - 0.017999999225139618;
+        break;
+    case 1:
+        factor = smoothstep(1.0, 0.0, factor);
+        break;
+}
+%s = half4(factor);
+)SkSL",
                 _sample308.c_str(), (int)_outer.mode, args.fOutputColor);
     }
 

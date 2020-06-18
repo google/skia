@@ -28,10 +28,16 @@ public:
 
         fragBuilder->forceHighPrecision();
         fragBuilder->codeAppendf(
-                "%s = floor(%s * 255.0 + 0.5) / 255.0;\n@switch (%d) {\n    case 0:\n        "
-                "%s.xyz = floor((%s.xyz * %s.w) * 255.0 + 0.5) / 255.0;\n        break;\n    case "
-                "1:\n        %s.xyz = %s.w <= 0.0 ? half3(0.0) : floor((%s.xyz / %s.w) * 255.0 + "
-                "0.5) / 255.0;\n        break;\n}\n",
+                R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
+@switch (%d) {
+    case 0:
+        %s.xyz = floor((%s.xyz * %s.w) * 255.0 + 0.5) / 255.0;
+        break;
+    case 1:
+        %s.xyz = %s.w <= 0.0 ? half3(0.0) : floor((%s.xyz / %s.w) * 255.0 + 0.5) / 255.0;
+        break;
+}
+)SkSL",
                 args.fOutputColor, args.fInputColor, (int)_outer.pmConversion, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);
