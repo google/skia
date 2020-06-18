@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/core/SkFont.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -239,6 +240,118 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
         paint.addColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
                         SkRect::MakeIWH(64, 64));
+        nextCol();
+    };
+
+    // Reminder, in every case, the chain is more complicated than it seems, because the
+    // GrTextureEffect is wrapped in a GrMatrixEffect, which is subject to the same bugs that
+    // we're testing (particularly the bug about owner/base in UniformMatrixEffect).
+
+    // First row: no transform, then each one independently applied
+    draw({});             // Identity (4 rows and columns)
+    draw({ kConstant });  // Scale X axis by 2x (2 visible columns)
+    draw({ kUniform  });  // Scale Y axis by 2x (2 visible rows)
+    draw({ kVariable });  // Translate left by 8px
+    draw({ kExplicit });  // Translate up by 8px
+    nextRow();
+
+    // Second row: transform duplicated
+    draw({ kConstant, kUniform  });  // Scale XY by 2x (2 rows and columns)
+    draw({ kConstant, kConstant });  // Scale X axis by 4x (1 visible column)
+    draw({ kUniform,  kUniform  });  // Scale Y axis by 4x (1 visible row)
+    draw({ kVariable, kVariable });  // Translate left by 16px
+    draw({ kExplicit, kExplicit });  // Translate up by 16px
+    nextRow();
+
+    // Remember, these are applied inside out:
+    draw({ kConstant, kExplicit }); // Scale X by 2x and translate up by 8px
+    draw({ kConstant, kVariable }); // Scale X by 2x and translate left by 8px
+    draw({ kUniform,  kVariable }); // Scale Y by 2x and translate left by 8px
+    draw({ kUniform,  kExplicit }); // Scale Y by 2x and translate up by 8px
+    draw({ kVariable, kExplicit }); // Translate left and up by 8px
+    nextRow();
+
+    draw({ kExplicit, kExplicit, kConstant }); // Scale X by 2x and translate up by 16px
+    draw({ kVariable, kConstant }); // Scale X by 2x and translate left by 16px
+    draw({ kVariable, kVariable, kUniform }); // Scale Y by 2x and translate left by 16px
+    draw({ kExplicit, kUniform }); // Scale Y by 2x and translate up by 16px
+    draw({ kExplicit, kUniform, kVariable, kConstant }); // Scale XY by 2x and translate xy 16px
+}
+
+const char* gConstantMatrixSkSL = R"(
+    in shader child;
+    void main(float2 xy, inout half4 color) {
+        color = sample(child, float3x3(0.5, 0.0, 0.0,
+                                       0.0, 1.0, 0.0,
+                                       0.0, 0.0, 1.0));
+    }
+)";
+
+const char* gUniformMatrixSkSL = R"(
+    in shader child;
+    uniform float3x3 matrix;
+    void main(float2 xy, inout half4 color) {
+        color = sample(child, matrix);
+    }
+)";
+
+// This form (uniform * constant) is currently detected as variable, thanks to our limited analysis
+// when scanning for sample matrices. If/when that improves, make this expression more complicated.
+// NOTE: An easy fix would be to hoist the expression to a local matrix variable, but that triggers
+// another bug where the resulting expression is used to compute the new local coords *before* the
+// local variable is declared.
+const char* gVariableMatrixSkSL = R"(
+    in shader child;
+    uniform float3x3 matrix;
+    void main(float2 xy, inout half4 color) {
+        color = sample(child, matrix * 0.5);
+    }
+)";
+
+const char* gExplicitCoordSkSL = R"(
+    in shader child;
+    void main(float2 xy, inout half4 color) {
+        color = sample(child, xy + float2(0, 8));
+    }
+)";
+
+// Version of fp_sample_chaining that uses SkRuntimeEffect
+DEF_SIMPLE_GM(sksl_sample_chaining, canvas, 380, 306) {
+    SkBitmap bmp = make_test_bitmap();
+
+    sk_sp<SkRuntimeEffect> effects[4] = {
+        std::get<0>(SkRuntimeEffect::Make(SkString(gConstantMatrixSkSL))),
+        std::get<0>(SkRuntimeEffect::Make(SkString(gUniformMatrixSkSL))),
+        std::get<0>(SkRuntimeEffect::Make(SkString(gVariableMatrixSkSL))),
+        std::get<0>(SkRuntimeEffect::Make(SkString(gExplicitCoordSkSL))),
+    };
+
+    canvas->translate(10, 10);
+    canvas->save();
+    auto nextCol = [&] { canvas->translate(64 + 10, 0); };
+    auto nextRow = [&] { canvas->restore(); canvas->translate(0, 64 + 10); canvas->save(); };
+
+    auto draw = [&](std::initializer_list<EffectType> effectTypes) {
+        auto shader = bmp.makeShader();
+
+        for (EffectType effectType : effectTypes) {
+            SkRuntimeShaderBuilder builder(effects[effectType]);
+            builder.child("child") = shader;
+            switch (effectType) {
+                case kUniform:
+                    builder.input("matrix") = SkMatrix::Scale(1.0f, 0.5f);
+                    break;
+                case kVariable:
+                    builder.input("matrix") = SkMatrix::Translate(8, 0);
+                    break;
+                default:
+                    break;
+            }
+            shader = builder.makeShader(nullptr, true);
+        }
+        SkPaint paint;
+        paint.setShader(shader);
+        canvas->drawRect(SkRect::MakeWH(64, 64), paint);
         nextCol();
     };
 
