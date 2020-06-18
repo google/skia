@@ -33,6 +33,24 @@
       "revId": "7665f021407cc237425aab0e35b0d10f304839b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0efb2a22_fc13ca52",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-18T15:23:35Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "25e8b00d_6ed00830",
+      "revId": "7665f021407cc237425aab0e35b0d10f304839b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
