@@ -876,14 +876,19 @@ public:
 private:
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
+    UniformHandle fLocalMatrixUniform;
+
+    SkMatrix      fLocalMatrix;
     SkPMColor4f   fColor;
     SkScalar      fPrevRadius;
     SkScalar      fPrevCenterX;
     SkScalar      fPrevIntervalLength;
+
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect() {
+    fLocalMatrix = SkMatrix::InvalidMatrix();
     fColor = SK_PMColor4fILLEGAL;
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
@@ -915,14 +920,10 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Setup position
     this->writeOutputPosition(vertBuilder, gpArgs, dce.fInPosition.name());
-
-    // emit transforms
-    this->emitTransforms(vertBuilder,
-                         varyingHandler,
-                         uniformHandler,
-                         dce.fInPosition.asShaderVar(),
-                         dce.localMatrix(),
-                         args.fFPCoordTransformHandler);
+    if (dce.usesLocalCoords()) {
+        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, dce.fInPosition.asShaderVar(),
+                              dce.localMatrix(), &fLocalMatrixUniform);
+    }
 
     // transforms all points so that we can compare them to our test circle
     fragBuilder->codeAppendf("half xShifted = half(%s.x - floor(%s.x / %s.z) * %s.z);",
@@ -951,7 +952,8 @@ void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
         pdman.set4fv(fColorUniform, 1, dce.color().vec());
         fColor = dce.color();
     }
-    this->setTransformDataHelper(dce.localMatrix(), pdman, transformRange);
+    this->setTransformDataHelper(pdman, transformRange);
+    this->setTransform(pdman, fLocalMatrixUniform, dce.localMatrix(), &fLocalMatrix);
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
@@ -959,8 +961,9 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
     uint32_t key = 0;
-    key |= dce.usesLocalCoords() && dce.localMatrix().hasPerspective() ? 0x1 : 0x0;
+    key |= dce.usesLocalCoords() ? 0x1 : 0x0;
     key |= static_cast<uint32_t>(dce.aaMode()) << 1;
+    key |= ComputeMatrixKey(dce.localMatrix()) << 3;
     b->add32(key);
 }
 
@@ -1086,6 +1089,10 @@ public:
 private:
     SkPMColor4f   fColor;
     UniformHandle fColorUniform;
+
+    SkMatrix      fLocalMatrix;
+    UniformHandle fLocalMatrixUniform;
+
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
@@ -1118,14 +1125,10 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Setup position
     this->writeOutputPosition(vertBuilder, gpArgs, de.fInPosition.name());
-
-    // emit transforms
-    this->emitTransforms(vertBuilder,
-                         varyingHandler,
-                         uniformHandler,
-                         de.fInPosition.asShaderVar(),
-                         de.localMatrix(),
-                         args.fFPCoordTransformHandler);
+    if (de.usesLocalCoords()) {
+        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, de.fInPosition.asShaderVar(),
+                              de.localMatrix(), &fLocalMatrixUniform);
+    }
 
     // transforms all points so that we can compare them to our test rect
     fragBuilder->codeAppendf("half xShifted = half(%s.x - floor(%s.x / %s.z) * %s.z);",
@@ -1178,7 +1181,8 @@ void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
         pdman.set4fv(fColorUniform, 1, de.color().vec());
         fColor = de.color();
     }
-    this->setTransformDataHelper(de.localMatrix(), pdman, transformRange);
+    this->setTransformDataHelper(pdman, transformRange);
+    this->setTransform(pdman, fLocalMatrixUniform, de.localMatrix(), &fLocalMatrix);
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
@@ -1186,8 +1190,9 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
     uint32_t key = 0;
-    key |= de.usesLocalCoords() && de.localMatrix().hasPerspective() ? 0x1 : 0x0;
-    key |= static_cast<int>(de.aaMode()) << 8;
+    key |= de.usesLocalCoords() ? 0x1 : 0x0;
+    key |= static_cast<int>(de.aaMode()) << 1;
+    key |= ComputeMatrixKey(de.localMatrix()) << 3;
     b->add32(key);
 }
 
