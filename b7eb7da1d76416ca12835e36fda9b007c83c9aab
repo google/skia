@@ -288,6 +288,30 @@
     },
     {
       "key": {
+        "uuid": "a2f6f0ba_4f04dfe0",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-18T15:11:41Z",
+      "side": 1,
+      "message": "OK, please ignore that entire section of the style guide.  Does not apply here.",
+      "parentUuid": "fbf51ae0_6eb3747c",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
