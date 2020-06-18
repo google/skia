@@ -49,27 +49,37 @@ public:
                 &_outer, kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
                 args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
-        fragBuilder->codeAppendf(
-                "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
-                "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
-                "float2(half2(1.0, 1.0)) - delta);\ndelta *= float2(%s, %s);\nfloat weight = "
-                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) {\n    delta = float2(half2(2.0, 2.0)) "
-                "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
-                "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
-                "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                sk_TransformedCoords2D_0.c_str(),
-                args.fUniformHandler->getUniformCStr(offsetVar),
-                args.fUniformHandler->getUniformCStr(xInvZoomVar),
-                args.fUniformHandler->getUniformCStr(yInvZoomVar),
-                args.fUniformHandler->getUniformCStr(boundsUniformVar),
-                args.fUniformHandler->getUniformCStr(boundsUniformVar),
-                args.fUniformHandler->getUniformCStr(xInvInsetVar),
-                args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        fragBuilder->codeAppendf("d.y), 1.0);\n}");
+        fragBuilder->codeAppendf(R"SkSL(float2 coord = %s;
+float2 zoom_coord = float2(%s) + coord * float2(%s, %s);
+float2 delta = (coord - %s.xy) * %s.zw;
+delta = min(delta, float2(half2(1.0, 1.0)) - delta);
+delta *= float2(%s, %s);
+float weight = 0.0;
+if (delta.x < 2.0 && delta.y < 2.0) {
+    delta = float2(half2(2.0, 2.0)) - delta;
+    float dist = length(delta);
+    dist = max(2.0 - dist, 0.0);
+    weight = min(dist * dist, 1.0);
+} else {
+    float2 delta_squared = delta * delta;
+    weight = min(min(delta_squared.x, delta_squared.y), 1.0);
+})SkSL",
+                                 sk_TransformedCoords2D_0.c_str(),
+                                 args.fUniformHandler->getUniformCStr(offsetVar),
+                                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
+                                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
+                                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
+                                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
+                                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
+                                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
         SkString _sample1112;
         SkString _coords1112("mix(coord, zoom_coord, weight)");
         _sample1112 = this->invokeChild(_outer.src_index, args, _coords1112.c_str());
-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1112.c_str());
+        fragBuilder->codeAppendf(R"SkSL(
+%s = %s;
+)SkSL",
+                                 args.fOutputColor,
+                                 _sample1112.c_str());
     }
 
 private:

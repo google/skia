@@ -34,18 +34,25 @@ public:
             uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
-        fragBuilder->codeAppendf(
-                "half4 constColor;\n@if (%s) {\n    constColor = %s;\n} else {\n    constColor = "
-                "half4(%f, %f, %f, %f);\n}",
-                (_outer.useUniform ? "true" : "false"),
-                uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
-                                          : "half4(0)",
-                _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
-                _outer.literalColor.fA);
+        fragBuilder->codeAppendf(R"SkSL(half4 constColor;
+@if (%s) {
+    constColor = %s;
+} else {
+    constColor = half4(%f, %f, %f, %f);
+})SkSL",
+                                 (_outer.useUniform ? "true" : "false"),
+                                 uniformColorVar.isValid()
+                                         ? args.fUniformHandler->getUniformCStr(uniformColorVar)
+                                         : "half4(0)",
+                                 _outer.literalColor.fR, _outer.literalColor.fG,
+                                 _outer.literalColor.fB, _outer.literalColor.fA);
         SkString _input1992("constColor");
         SkString _sample1992;
         _sample1992 = this->invokeChild(_outer.fp_index, _input1992.c_str(), args);
-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
+        fragBuilder->codeAppendf(R"SkSL(
+%s = %s;
+)SkSL",
+                                 args.fOutputColor, _sample1992.c_str());
     }
 
 private:
