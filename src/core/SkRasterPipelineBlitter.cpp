@@ -90,13 +90,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrixProvider& matrixProvider,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader) {
-    // For legacy to keep working, we need to sometimes still distinguish null dstCS from sRGB.
-#if 0
-    SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
-                                           : sk_srgb_singleton();
-#else
     SkColorSpace* dstCS = dst.colorSpace();
-#endif
     SkColorType dstCT = dst.colorType();
     SkColor4f paintColor = paint.getColor4f();
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
