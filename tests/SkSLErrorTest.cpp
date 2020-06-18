@@ -481,6 +481,7 @@ DEF_TEST(SkSLStaticIf, r) {
 }
 
 DEF_TEST(SkSLStaticSwitch, r) {
+    // @switch matches case
     test_success(r,
                  "void main() {"
                  "int x = 1;"
@@ -489,6 +490,16 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "default: sk_FragColor = half4(0);"
                  "}"
                  "}");
+    // @switch matches default
+    test_success(r,
+                 "void main() {"
+                 "int x = 2;"
+                 "@switch (x) {"
+                 "case 1: sk_FragColor = half4(1); break;"
+                 "default: sk_FragColor = half4(0);"
+                 "}"
+                 "}");
+    // @switch with non-constant value
     test_failure(r,
                  "void main() {"
                  "int x = int(sqrt(1));"
@@ -498,6 +509,7 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "}"
                  "}",
                  "error: 1: static switch has non-static test\n1 error\n");
+    // @switch contains non-static conditional break
     test_failure(r,
                  "void main() {"
                  "int x = 1;"
@@ -527,4 +539,18 @@ DEF_TEST(SkSLSpuriousFloat, r) {
     test_failure(r,
                  "void main() { float x; x = 1.5 2.5; }",
                  "error: 1: expected ';', but found '2.5'\n1 error\n");
+}
+
+DEF_TEST(SkSLDiscard, r) {
+    test_failure(r, R"__SkSL__(
+                         void main() {
+                             half x;
+                             @switch (1) {
+                                case 0: x = 0; break;
+                                default: x = 1; discard;
+                             }
+                             sk_FragColor = half4(x);
+                         }
+                     )__SkSL__",
+                      "error: 8: 'x' has not been assigned\n1 error\n");
 }
