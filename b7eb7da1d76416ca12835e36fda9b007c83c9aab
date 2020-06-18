@@ -216,6 +216,30 @@
     },
     {
       "key": {
+        "uuid": "44fe25ae_dfdce072",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-18T14:51:55Z",
+      "side": 1,
+      "message": "I don\u0027t think so, although it\u0027s a valid question. Outsiders could alter \"text\" or \"length\" freely and there would be no surprising outcomes. \n\nI think the concern is if there were some specific invariant like \"if length is zero, text MUST be nullptr\" that we would normally enforce via a setter API or something. We don\u0027t have any restrictions on these values other than \"text + length must point to a valid range of memory\" and if we had getters and setters, they would be simple passthrough methods.",
+      "parentUuid": "b86a8e41_4dbe6d62",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b7eb7da1d76416ca12835e36fda9b007c83c9aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8dac15f_a2baa5a7",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 7
