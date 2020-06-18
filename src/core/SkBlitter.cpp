@@ -765,12 +765,18 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                 {*paint, ctm, nullptr, device.colorType(), device.colorSpace()},
                 alloc);
 
-        // Creating the context isn't always possible... we'll just fall back to raster pipeline.
+        // Creating the context isn't always possible... try fallbacks before giving up.
         if (!shaderContext) {
-            auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrixProvider, alloc,
-                                                         clipShader);
-            SkASSERT(blitter);
-            return blitter;
+
+            if (auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrixProvider,
+                                                             alloc, clipShader)) {
+                return blitter;
+            }
+            if (auto blitter = SkCreateSkVMBlitter(device, *paint, ctm,
+                                                   alloc, clipShader)) {
+                return blitter;
+            }
+            return alloc->make<SkNullBlitter>();
         }
     }
 
