@@ -28,7 +28,11 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
+#include "src/gpu/GrContextPriv.h"
 #include "tools/Resources.h"
+#include "tools/gpu/YUVUtils.h"
+
+using sk_gpu_test::YUVABackendReleaseContext;
 
 class GrRenderTargetContext;
 
@@ -46,11 +50,7 @@ protected:
 
     SkISize onISize() override { return {1420, 610}; }
 
-    void onOnceBeforeDraw() override {
-        fRGBABmp = this->createBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
-    }
-
-    SkBitmap createBmpAndPlanes(const char* name, SkBitmap yuvaBmps[4]) {
+    static SkBitmap CreateBmpAndPlanes(const char* name, SkBitmap yuvaBmps[4]) {
         SkBitmap bmp;
         if (!GetResourceAsBitmap(name, &bmp)) {
             return {};
@@ -120,44 +120,22 @@ protected:
         return rgbaBmp;
     }
 
-    void createYUVTextures(SkBitmap bmps[4], GrContext* context, GrBackendTexture textures[4]) {
+    static bool CreateYUVBackendTextures(GrContext* context, SkBitmap bmps[4],
+                                         SkYUVAIndex indices[4],
+                                         YUVABackendReleaseContext* beContext) {
         for (int i = 0; i < 4; ++i) {
-            textures[i] = context->createBackendTexture(bmps[i].pixmap(), GrRenderable::kNo,
-                                                        GrProtected::kNo);
-        }
-    }
-
-    void createResultTexture(GrContext* context, SkISize size, GrBackendTexture* resultTexture) {
-        *resultTexture = context->createBackendTexture(
-                size.width(), size.height(), kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
-    }
-
-    void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {
-        if (context->abandoned()) {
-            return;
-        }
-
-        GrFlushInfo flushInfo;
-        flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-        context->flush(flushInfo);
-        context->submit(true);
-
-        for (int i = 0; i < n; ++i) {
-            context->deleteBackendTexture(textures[i]);
-        }
-    }
-
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        GrBackendTexture yuvaTextures[4];
-
-        this->createYUVTextures(fYUVABmps, context, yuvaTextures);
-        SkYUVAIndex indices[4];
-        for (int i = 0; i < 4; ++i) {
-            if (!yuvaTextures[i].isValid()) {
-                return;
+            GrBackendTexture tmp = context->createBackendTexture(bmps[i].pixmap(),
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
+            if (!tmp.isValid()) {
+                return false;
             }
-            auto chanMask = yuvaTextures[i].getBackendFormat().channelMask();
+
+            beContext->set(i, tmp);
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            auto chanMask = beContext->beTexture(i).getBackendFormat().channelMask();
             // We expect the single channel bitmaps to produce single channel textures.
             SkASSERT(chanMask && SkIsPow2(chanMask));
             if (chanMask & kGray_SkColorChannelFlag) {
@@ -168,25 +146,107 @@ protected:
             indices[i].fIndex = i;
         }
 
-        // We remake this image before each draw because if any draw flattens it to RGBA then
-        // all subsequent draws use the RGBA texture.
-        auto makeImage1 = [&]() {
-            return SkImage::MakeFromYUVATextures(context,
-                                                 kJPEG_SkYUVColorSpace,
-                                                 yuvaTextures,
-                                                 indices,
-                                                 fRGBABmp.dimensions(),
-                                                 kTopLeft_GrSurfaceOrigin);
-        };
+        return true;
+    }
 
-        GrBackendTexture resultTexture;
-        this->createResultTexture(context, fRGBABmp.dimensions(), &resultTexture);
-        auto image2 = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(context,
-                                                                          kJPEG_SkYUVColorSpace,
-                                                                          yuvaTextures,
-                                                                          kTopLeft_GrSurfaceOrigin,
-                                                                          resultTexture);
+    sk_sp<SkImage> makeYUVAImage(GrContext* context) {
+        auto releaseContext = new YUVABackendReleaseContext(context);
+        SkYUVAIndex indices[4];
 
+        if (!CreateYUVBackendTextures(context, fYUVABmps, indices, releaseContext)) {
+            YUVABackendReleaseContext::Unwind(context, releaseContext);
+            return nullptr;
+        }
+
+        return SkImage::MakeFromYUVATextures(context,
+                                             kJPEG_SkYUVColorSpace,
+                                             releaseContext->beTextures(),
+                                             indices,
+                                             fRGBABmp.dimensions(),
+                                             kTopLeft_GrSurfaceOrigin,
+                                             nullptr,
+                                             YUVABackendReleaseContext::Release,
+                                             releaseContext);
+    }
+
+    sk_sp<SkImage> createReferenceImage(GrContext* context) {
+        auto planeReleaseContext = new YUVABackendReleaseContext(context);
+        SkYUVAIndex indices[4];
+
+        if (!CreateYUVBackendTextures(context, fYUVABmps, indices, planeReleaseContext)) {
+            YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
+            return nullptr;
+        }
+
+        GrBackendTexture resultTexture = context->createBackendTexture(
+                fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
+                kRGBA_8888_SkColorType, SkColors::kTransparent,
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+        if (!resultTexture.isValid()) {
+            YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
+            return nullptr;
+        }
+
+        auto rgbaReleaseContext = new YUVABackendReleaseContext(context);
+        rgbaReleaseContext->set(0, resultTexture);
+
+        auto tmp = SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
+                context,
+                kJPEG_SkYUVColorSpace,
+                planeReleaseContext->beTextures(),
+                indices,
+                fRGBABmp.dimensions(),
+                kTopLeft_GrSurfaceOrigin,
+                resultTexture,
+                nullptr,
+                YUVABackendReleaseContext::Release,
+                rgbaReleaseContext);
+         YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
+         return tmp;
+    }
+
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        if (!context || context->abandoned()) {
+            return DrawResult::kSkip;
+        }
+
+        SkASSERT(context->priv().asDirectContext());
+
+        fRGBABmp = CreateBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
+
+        // We make a version of this image for each draw because, if any draw flattens it to
+        // RGBA, then all subsequent draws would use the RGBA texture.
+        for (int i = 0; i < kNumImages; ++i) {
+            fYUVAImages[i] = this->makeYUVAImage(context);
+            if (!fYUVAImages[i]) {
+                *errorMsg = "Couldn't create src YUVA image.";
+                return DrawResult::kFail;
+            }
+        }
+
+        fReferenceImage = this->createReferenceImage(context);
+        if (!fReferenceImage) {
+            *errorMsg = "Couldn't create reference YUVA image.";
+            return DrawResult::kFail;
+        }
+
+        // Some backends (e.g., Vulkan) require all work be completed for backend textures
+        // before they are deleted. Since we don't know when we'll next have access to a
+        // direct context, flush all the work now.
+        GrFlushInfo flushInfoSyncCpu;
+        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+        context->flush(flushInfoSyncCpu);
+        context->submit(true);
+
+        return DrawResult::kOk;
+    }
+
+    SkImage* getYUVAImage(int index) {
+        SkASSERT(index >= 0 && index < kNumImages);
+        return fYUVAImages[index].get();
+    }
+
+    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
             if (!image) {
                 return {0, 0};
@@ -226,6 +286,7 @@ protected:
         };
 
         canvas->translate(kPad, kPad);
+        int imageIndex = 0;
         using DrawSig = SkSize(SkImage* image, SkFilterQuality fq);
         using DF = std::function<DrawSig>;
         for (const auto& draw : {DF(draw_image), DF(draw_image_rect), DF(draw_image_shader)}) {
@@ -236,12 +297,12 @@ protected:
                                 kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s1 = draw(makeImage1().get(), fq);
+                        auto s1 = draw(this->getYUVAImage(imageIndex++), fq);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s2 = draw(image2.get(), fq);
+                        auto s2 = draw(fReferenceImage.get(), fq);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s2.width()), 0);
                     h = std::max({h, s1.height(), s2.height()});
@@ -250,14 +311,16 @@ protected:
                 canvas->translate(0, kPad + SkScalarCeilToScalar(scale*h));
             }
         }
-
-        this->deleteBackendTextures(context, &resultTexture, 1);
-        this->deleteBackendTextures(context, yuvaTextures, 4);
      }
 
 private:
-    SkBitmap fRGBABmp;
+    SkBitmap fRGBABmp; // TODO: oddly, it looks like this could just be an SkISize
     SkBitmap fYUVABmps[4];
+
+    // 3 draws x 3 scales x 4 filter qualities
+    static constexpr int kNumImages = 3 * 3 * 4;
+    sk_sp<SkImage> fYUVAImages[kNumImages];
+    sk_sp<SkImage> fReferenceImage;
 
     static constexpr SkScalar kPad = 10.0f;
 
