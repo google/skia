@@ -1286,14 +1286,27 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
     texDesc.fSize = dimensions;
-    texDesc.fTarget = GR_GL_TEXTURE_2D;
+    switch (format.textureType()) {
+        case GrTextureType::kExternal:
+        case GrTextureType::kNone:
+            return nullptr;
+        case GrTextureType::k2D:
+            texDesc.fTarget = GR_GL_TEXTURE_2D;
+            break;
+        case GrTextureType::kRectangle:
+            if (mipLevelCount > 1 || !this->glCaps().rectangleTextureSupport()) {
+                return nullptr;
+            }
+            texDesc.fTarget = GR_GL_TEXTURE_RECTANGLE;
+            break;
+    }
     texDesc.fFormat = format.asGLFormat();
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
 
-    texDesc.fID = this->createTexture2D(dimensions, texDesc.fFormat, renderable, &initialState,
-                                        mipLevelCount);
+    texDesc.fID = this->createTexture(dimensions, texDesc.fFormat, texDesc.fTarget, renderable,
+                                      &initialState, mipLevelCount);
 
     if (!texDesc.fID) {
         return return_null_texture();
@@ -1346,9 +1359,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             }
             fHWBoundRenderTargetUniqueID.makeInvalid();
         } else {
-            this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
+            this->bindTextureToScratchUnit(texDesc.fTarget, tex->textureID());
             static constexpr SkColor4f kZeroColor = {0, 0, 0, 0};
-            this->uploadColorToTex(texDesc.fFormat, texDesc.fSize, GR_GL_TEXTURE_2D, kZeroColor,
+            this->uploadColorToTex(texDesc.fFormat, texDesc.fSize, texDesc.fTarget, kZeroColor,
                                    levelClearMask);
         }
     }
@@ -1490,8 +1503,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
 
-        GrGLuint colorID =
-                this->createTexture2D({kSize, kSize}, format, GrRenderable::kYes, nullptr, 1);
+        GrGLuint colorID = this->createTexture({kSize, kSize}, format, GR_GL_TEXTURE_2D,
+                                               GrRenderable::kYes, nullptr, 1);
         if (!colorID) {
             return -1;
         }
@@ -1589,11 +1602,12 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     return id;
 }
 
-GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
-                                  GrGLFormat format,
-                                  GrRenderable renderable,
-                                  GrGLTextureParameters::SamplerOverriddenState* initialState,
-                                  int mipLevelCount) {
+GrGLuint GrGLGpu::createTexture(SkISize dimensions,
+                                GrGLFormat format,
+                                GrGLenum target,
+                                GrRenderable renderable,
+                                GrGLTextureParameters::SamplerOverriddenState* initialState,
+                                int mipLevelCount) {
     SkASSERT(format != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(format));
 
@@ -1604,17 +1618,17 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
         return 0;
     }
 
-    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, id);
+    this->bindTextureToScratchUnit(target, id);
 
     if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_USAGE, GR_GL_FRAMEBUFFER_ATTACHMENT));
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_USAGE, GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
     if (initialState) {
-        *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
+        *initialState = set_initial_texture_params(this->glInterface(), target);
     } else {
-        set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
+        set_initial_texture_params(this->glInterface(), target);
     }
 
     GrGLenum internalFormat = this->glCaps().getTexImageOrStorageInternalFormat(format);
@@ -1623,9 +1637,8 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
     if (internalFormat) {
         if (this->glCaps().formatSupportsTexStorage(format)) {
             auto levelCount = std::max(mipLevelCount, 1);
-            GrGLenum error =
-                    GL_ALLOC_CALL(TexStorage2D(GR_GL_TEXTURE_2D, levelCount, internalFormat,
-                                               dimensions.width(), dimensions.height()));
+            GrGLenum error = GL_ALLOC_CALL(TexStorage2D(target, levelCount, internalFormat,
+                                                        dimensions.width(), dimensions.height()));
             success = (error == GR_GL_NO_ERROR);
         } else {
             GrGLenum externalFormat, externalType;
@@ -1636,9 +1649,9 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
                     const int twoToTheMipLevel = 1 << level;
                     const int currentWidth = std::max(1, dimensions.width() / twoToTheMipLevel);
                     const int currentHeight = std::max(1, dimensions.height() / twoToTheMipLevel);
-                    error = GL_ALLOC_CALL(TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat,
-                                                     currentWidth, currentHeight, 0, externalFormat,
-                                                     externalType, nullptr));
+                    error = GL_ALLOC_CALL(TexImage2D(target, level, internalFormat, currentWidth,
+                                                     currentHeight, 0, externalFormat, externalType,
+                                                     nullptr));
                 }
                 success = (error == GR_GL_NO_ERROR);
             }
@@ -3550,16 +3563,29 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     if (glFormat == GrGLFormat::kUnknown) {
         return {};
     }
-
-    info.fTarget = GR_GL_TEXTURE_2D;
+    switch (format.textureType()) {
+        case GrTextureType::kNone:
+        case GrTextureType::kExternal:
+            return {};
+        case GrTextureType::k2D:
+            info.fTarget = GR_GL_TEXTURE_2D;
+            break;
+        case GrTextureType::kRectangle:
+            if (!this->glCaps().rectangleTextureSupport() || mipMapped == GrMipMapped::kYes) {
+                return {};
+            }
+            info.fTarget = GR_GL_TEXTURE_RECTANGLE;
+            break;
+    }
     info.fFormat = GrGLFormatToEnum(glFormat);
-    info.fID = this->createTexture2D(dimensions, glFormat, renderable, &initialState, numMipLevels);
+    info.fID = this->createTexture(dimensions, glFormat, info.fTarget, renderable, &initialState,
+                                   numMipLevels);
     if (!info.fID) {
         return {};
     }
 
     // Unbind this texture from the scratch texture unit.
-    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
+    this->bindTextureToScratchUnit(info.fTarget, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
     // The non-sampler params are still at their default values.
@@ -3719,7 +3745,8 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     if (useTexture) {
         GrGLTextureParameters::SamplerOverriddenState initialState;
-        colorID = this->createTexture2D({w, h}, format, GrRenderable::kYes, &initialState, 1);
+        colorID = this->createTexture({w, h}, format, GR_GL_TEXTURE_2D, GrRenderable::kYes,
+                                      &initialState, 1);
         if (!colorID) {
             deleteIDs();
             return {};
