@@ -55,7 +55,8 @@ public:
     static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
                                        int numTextures, const SkYUVAIndex [4],
                                        GrSurfaceOrigin imageOrigin,
-                                       GrSurfaceProxyView tempViews[4]);
+                                       GrSurfaceProxyView tempViews[4],
+                                       sk_sp<GrRefCntedCallback> releaseHelper);
 
     static SkAlphaType GetAlphaTypeFromYUVAIndices(const SkYUVAIndex yuvaIndices[4]) {
         return -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
