@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61f9d1c8_cc3d9de9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T16:22:08Z",
+      "side": 1,
+      "message": "I\u0027ve always thought these this-\u003emakeFoo() would make more sense as this-\u003ewithFoo()?",
+      "revId": "fa51ef7b1fe41c47e4ebcac8eae454e646bbc17e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
