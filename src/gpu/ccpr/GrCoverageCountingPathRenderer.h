@@ -63,8 +63,8 @@ public:
     }
 
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(
-            uint32_t oplistID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
-            const GrCaps&);
+            std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
+            const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps);
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,

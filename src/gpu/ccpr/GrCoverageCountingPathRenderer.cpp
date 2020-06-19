@@ -186,8 +186,8 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opsTaskID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
-        const GrCaps& caps) {
+        std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
+        const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps) {
     SkASSERT(!fFlushing);
 
     uint32_t key = deviceSpacePath.getGenerationID();
@@ -218,7 +218,8 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
             CoverageType::kFP16_CoverageCount == fCoverageType);
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return std::make_unique<GrCCClipProcessor>(caps, &clipPath, isCoverageCount, mustCheckBounds);
+    return std::make_unique<GrCCClipProcessor>(
+                std::move(inputFP), caps, &clipPath, isCoverageCount, mustCheckBounds);
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
