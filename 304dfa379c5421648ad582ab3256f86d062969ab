@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59b3bb3b_945bf395",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-19T14:17:10Z",
+      "side": 0,
+      "message": "You\u0027ll probably need to keep these until they aren\u0027t used in Chromium any more. Often we\u0027ll make an ifdef, but since its only you using it there\u0027s really no need to be overly careful about it. You can just put a comment on these that they\u0027re deprecated and should be removed when they\u0027re no longer used in Chromium and we\u0027ll get around to removing them later.",
+      "revId": "304dfa379c5421648ad582ab3256f86d062969ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
