@@ -34,6 +34,24 @@
       "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "387acc77_c49445bf",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T20:13:25Z",
+      "side": 1,
+      "message": "Yeah, header files don\u0027t really get mentioned in GN files.  This is more about include paths.  When using the third_party() template like SDL does, include paths are converted to -isystem, which suppresses warnings from those headers:\n\n    ~/skia (provider↑2|✚1) $ ninja -C out obj/example/SkiaSDLExample.SkiaSDLExample.o  -v\n    ninja: Entering directory `out\u0027\n    [1/1] c++ -MD -MF obj/example/SkiaSDLExample.SkiaSDLExample.o.d -DSK_GAMMA_APPLY_TO_A8 -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS\u003d1 -DGR_TEST_UTILS\u003d1 -DSK_GL -DSK_ENABLE_DUMP_GPU -DSK_SUPPORT_PDF -DSK_CODEC_DECODES_JPEG -DSK_ENCODE_JPEG -DSK_ENABLE_ANDROID_UTILS -DSK_USE_LIBGIFCODEC -DSK_HAS_HEIF_LIBRARY -DSK_CODEC_DECODES_PNG -DSK_ENCODE_PNG -DSK_CODEC_DECODES_RAW -DSK_ENABLE_SKSL_INTERPRETER -DSKVM_JIT -DSK_CODEC_DECODES_WEBP -DSK_ENCODE_WEBP -DSK_XML -DSK_ASSUME_GL\u003d1 -DSK_ENABLE_API_AVAILABLE -I../include/third_party/vulkan -I.. -I../third_party/externals/libgifcodec -I.. -Werror -Wno-attributes -fstrict-aliasing -fPIC -fvisibility\u003dhidden -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -g -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -fcolor-diagnostics -Weverything -Wno-unknown-warning-option -Wno-nonportable-include-path -Wno-nonportable-system-include-path -Wno-cast-align -Wno-cast-qual -Wno-conversion -Wno-disabled-macro-expansion -Wno-documentation -Wno-documentation-unknown-command -Wno-double-promotion -Wno-exit-time-destructors -Wno-float-equal -Wno-format-nonliteral -Wno-global-constructors -Wno-missing-prototypes -Wno-missing-variable-declarations -Wno-pedantic -Wno-reserved-id-macro -Wno-shadow -Wno-shift-sign-overflow -Wno-signed-enum-bitfield -Wno-switch-enum -Wno-undef -Wno-unreachable-code -Wno-unreachable-code-break -Wno-unreachable-code-return -Wno-unused-macros -Wno-unused-member-function -Wno-unused-template -Wno-zero-as-null-pointer-constant -Wno-thread-safety-negative -Wno-non-c-typedef-for-linkage -Wsign-conversion -Wno-covered-switch-default -Wno-deprecated -Wno-missing-noreturn -Wno-old-style-cast -Wno-padded -Wno-newline-eof -Wdeprecated-anon-enum-enum-conversion -Wdeprecated-array-compare -Wdeprecated-attributes -Wdeprecated-comma-subscript -Wdeprecated-copy -Wdeprecated-dynamic-exception-spec -Wdeprecated-enum-compare -Wdeprecated-enum-compare-conditional -Wdeprecated-enum-enum-conversion -Wdeprecated-enum-float-conversion -Wdeprecated-increment-bool -Wdeprecated-register -Wdeprecated-this-capture -Wdeprecated-volatile -Wdeprecated-writable-str -Wno-sign-conversion -Wno-unused-parameter -Os -g1 -isystem /Users/mtklein/skia/third_party/externals/sdl/include -std\u003dc++17 -fvisibility-inlines-hidden -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -Wno-redundant-move -Wno-abstract-vbase-init -Wno-weak-vtables -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-undefined-func-template -c ../example/SkiaSDLExample.cpp -o obj/example/SkiaSDLExample.SkiaSDLExample.o\n\n\nIf you\u0027re seeing differently, please post the GN args and the command line that ends up generating for that file.  This CL should not be necessary.",
+      "parentUuid": "580c5b76_d8a7a9f4",
+      "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
