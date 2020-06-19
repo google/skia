@@ -75,6 +75,8 @@ public:
 
     bool hasWork() const { return fHasWork; }
 
+    void addFinishedCallback(sk_sp<GrRefCntedCallback> callback);
+
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
@@ -112,9 +114,13 @@ protected:
     bool fHasWork = false;
 
 private:
+    void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
+
     gr_cp<ID3D12CommandAllocator> fAllocator;
 
     SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
+
+    SkTArray<sk_sp<GrRefCntedCallback>> fFinishedCallbacks;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {

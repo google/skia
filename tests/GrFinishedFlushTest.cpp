@@ -73,7 +73,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
             ctx->backend() == GrBackendApi::kVulkan ||
             ((ctx->backend() == GrBackendApi::kOpenGL) && ctx->priv().caps()->fenceSyncSupport()) ||
             ((ctx->backend() == GrBackendApi::kMetal) && ctx->priv().caps()->fenceSyncSupport()) ||
-            ctx->backend() == GrBackendApi::kDawn;
+            ctx->backend() == GrBackendApi::kDawn ||
+            ctx->backend() == GrBackendApi::kDirect3D;
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
