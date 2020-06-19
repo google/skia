@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b650fe6_90546fa0",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-19T15:06:57Z",
+      "side": 1,
+      "message": "Vulkan adds the proc to all the outstanding command buffers, so why not do that here? I think only adding it to only the last one makes sense, just want to make sure we\u0027re not missing something here.",
+      "range": {
+        "startLine": 194,
+        "startChar": 81,
+        "endLine": 195,
+        "endChar": 19
+      },
+      "revId": "2ac90c0d94508c72f506e0b298e6aa1ba3dde595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab3687ec_7a857971",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-19T15:06:57Z",
+      "side": 1,
+      "message": "Nit: empty line",
+      "revId": "2ac90c0d94508c72f506e0b298e6aa1ba3dde595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
