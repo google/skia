@@ -28,7 +28,7 @@ std::tuple<sk_sp<Node>, size_t> make_from_stream(StreamReader* sr) {
     return std::make_tuple(std::move(node), parent_index);
 }
 
-std::tuple<sk_sp<Node>, size_t> parse_component(StreamReader* sr) {
+std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
     StreamReader::AutoBlock block(sr);
     switch (block.type()) {
     case StreamReader::BlockType::kActorNode : return make_from_stream<Node >(sr);
@@ -44,24 +44,31 @@ std::tuple<sk_sp<Node>, size_t> parse_component(StreamReader* sr) {
 sk_sp<Node> parse_components(StreamReader* sr) {
     const auto count = sr->readLength16();
 
-    std::vector<sk_sp<Node>> nodes;
-    nodes.reserve(count);
+    std::vector<sk_sp<Component>> components;
+    components.reserve(count);
 
     for (size_t i = 0; i < count; ++i) {
-        auto [ node, parent_index ] = parse_component(sr);
+        auto [ component, parent_index ] = parse_component(sr);
 
-        if (node && parent_index < i && nodes[parent_index]) {
-            nodes[parent_index]->addChild(node);
+        if (component && parent_index < i && components[parent_index]) {
+            if (Node* node = *components[parent_index]) {
+                node->addChild(component);
+            }
         }
 
-        nodes.push_back(std::move(node));
+        components.push_back(std::move(component));
     }
 
-    SkDebugf(".. parsed %zu nodes\n", nodes.size());
+    SkDebugf(".. parsed %zu components\n", components.size());
 
-    return count > 0
-            ? std::move(nodes[0])
-            : nullptr;
+    // hmm...
+    for (const auto& comp : components) {
+        if (comp && comp->is<Node>()) {
+            return sk_ref_sp(static_cast<Node*>(*comp));
+        }
+    }
+
+    return nullptr;
 }
 
 sk_sp<Artboard> parse_artboard(StreamReader* sr) {
@@ -99,19 +106,12 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
 
 } // namespace internal
 
-SkRect Artboard::onRevalidate(sksg::InvalidationController*, const SkMatrix&) {
-    return SkRect::MakeXYWH(fTranslation.x, fTranslation.y, fSize.x, fSize.y);
-}
-
-const sksg::RenderNode* Artboard::onNodeAt(const SkPoint&) const {
-    return this;
-}
-
-void Artboard::onRender(SkCanvas* canvas, const RenderContext*) const {
+void Artboard::render(SkCanvas* canvas) const {
     SkPaint paint;
     paint.setColor4f(fColor);
 
-    canvas->drawRect(this->bounds(), paint);
+    const auto rect = SkRect::MakeXYWH(fTranslation.x, fTranslation.y, fSize.x, fSize.y);
+    canvas->drawRect(rect, paint);
 }
 
 } // namespace skrive

@@ -9,100 +9,159 @@
 #define SkRive_DEFINED
 
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "modules/sksg/include/SkSGGroup.h"
-#include "modules/sksg/include/SkSGRenderNode.h"
 
 #include <memory>
+#include <type_traits>
 #include <vector>
 
+class SkCanvas;
 class SkStreamAsset;
 
 namespace skrive {
 
-class Node : public sksg::Group {
-public:
-    SG_ATTRIBUTE(Name               , SkString , fName               )
-    SG_ATTRIBUTE(Translation        , SkV2     , fTranslation        )
-    SG_ATTRIBUTE(Scale              , SkV2     , fScale              )
-    SG_ATTRIBUTE(Rotation           , float    , fRotation           )
-    SG_ATTRIBUTE(Opacity            , float    , fOpacity            )
-    SG_ATTRIBUTE(CollapsedVisibility, bool     , fCollapsedVisibility)
+#define ACTOR_ATTR(attr_name, attr_type, attr_default)               \
+private:                                                             \
+    attr_type f##attr_name = attr_default;                           \
+public:                                                              \
+    const attr_type& get##attr_name() const { return f##attr_name; } \
+    void set##attr_name(const attr_type& v) {                        \
+        if (f##attr_name == v) return;                               \
+        f##attr_name = v;                                            \
+        this->invalidate();                                          \
+    }                                                                \
+    void set##attr_name(attr_type&& v) {                             \
+        if (f##attr_name == v) return;                               \
+        f##attr_name = std::move(v);                                 \
+        this->invalidate();                                          \
+    }
 
-    Node() : Node(Type::kNode) {}
+class Node;
+
+class Component : public SkRefCnt {
+public:
+    ACTOR_ATTR(Name, SkString, SkString())
+
+    template <typename T>
+    std::enable_if_t<std::is_base_of<Component, T>::value, bool>
+    is() const {
+        if constexpr(std::is_same<Component, T>::value) {
+            return true;
+        } else {
+            return is_base_of<T>(fType);
+        }
+    }
+
+    template <typename T>
+    operator const T*() const {
+        return this->is<T>() ? reinterpret_cast<const T*>(this) : nullptr;
+    }
+
+    template <typename T>
+    operator T*() {
+        return this->is<T>() ? reinterpret_cast<T*>(this) : nullptr;
+    }
+
+    void revalidate();
 
 protected:
     enum class Type : uint32_t {
-        kNode, // base group node
+        kNode,
+        kShape,
     };
 
-    explicit Node(Type t) : fType(t) {}
+    explicit Component(Type t) : fType(t) {}
 
-    SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override;
+    void invalidate();
 
-    Type type() const { return fType; }
+    bool hasInval() const { return fDirty; }
+
+    virtual void onRevalidate() = 0;
 
 private:
-    const Type fType;
+    friend class Node; // parent access
 
-    SkString  fName;
-    SkV2      fTranslation         = {0, 0},
-              fScale               = {1, 1};
-    float     fRotation            = 0,
-              fOpacity             = 1;
-    bool      fCollapsedVisibility = false;
+    template <typename T>
+    static constexpr bool is_base_of(Type t);
 
-    using INHERITED = sksg::Group;
+    const Type  fType;
+
+    Node* fParent = nullptr;
+    bool  fDirty  = true;
+};
+
+class Node : public Component {
+public:
+    Node() : INHERITED(Type::kNode) {}
+
+    ACTOR_ATTR(Translation        , SkV2 , SkV2({0, 0}))
+    ACTOR_ATTR(Scale              , SkV2 , SkV2({1, 1}))
+    ACTOR_ATTR(Rotation           , float, 0           )
+    ACTOR_ATTR(Opacity            , float, 1           )
+    ACTOR_ATTR(CollapsedVisibility, bool , false       )
+
+    void addChild(sk_sp<Component>);
+
+protected:
+    explicit Node(Type t) : INHERITED(t) {}
+
+private:
+    void onRevalidate() override;
+
+    std::vector<sk_sp<Component>> fChildren;
+
+    using INHERITED = Component;
 };
 
 class Drawable : public Node {
 public:
-    SG_ATTRIBUTE(DrawOrder, size_t     , fDrawOrder)
-    SG_ATTRIBUTE(BlendMode, SkBlendMode, fBlendMode)
-    SG_ATTRIBUTE(IsHidden , bool       , fIsHidden )
+    ACTOR_ATTR(DrawOrder, size_t     , 0                    )
+    ACTOR_ATTR(BlendMode, SkBlendMode, SkBlendMode::kSrcOver)
+    ACTOR_ATTR(IsHidden , bool       , false                )
+
+protected:
+    explicit Drawable(Type t) : INHERITED(t) {}
 
 private:
-    size_t      fDrawOrder = 0;
-    SkBlendMode fBlendMode = SkBlendMode::kSrcOver;
-    bool        fIsHidden  = false;
-
     using INHERITED = Node;
 };
 
 class Shape final : public Drawable {
 public:
-    SG_ATTRIBUTE(TransformAffectsStroke, bool, fTransformAffectsStroke)
+    Shape() : INHERITED(Type::kShape) {}
+
+    ACTOR_ATTR(TransformAffectsStroke, bool, true)
 
 private:
-    bool fTransformAffectsStroke = true;
+    void onRevalidate() override;
 
     using INHERITED = Drawable;
 };
 
-class Artboard final : public sksg::RenderNode {
+template <typename T>
+constexpr bool Component::is_base_of(Type t) {
+    if (t == Type::kNode ) return std::is_base_of<T, Node >::value;
+    if (t == Type::kShape) return std::is_base_of<T, Shape>::value;
+
+    return false;
+}
+
+class Artboard final : public SkRefCnt {
 public:
-    SG_ATTRIBUTE(Name        , SkString , fName        ) // TODO: non-invalidating attributes?
-    SG_ATTRIBUTE(Color       , SkColor4f, fColor       )
-    SG_ATTRIBUTE(Size        , SkV2     , fSize        )
-    SG_ATTRIBUTE(Origin      , SkV2     , fOrigin      )
-    SG_ATTRIBUTE(Translation , SkV2     , fTranslation )
-    SG_ATTRIBUTE(ClipContents, bool     , fClipContents)
+    ACTOR_ATTR(Name        , SkString , SkString()      )
+    ACTOR_ATTR(Color       , SkColor4f, SkColors::kBlack)
+    ACTOR_ATTR(Size        , SkV2     , SkV2({0,0})     )
+    ACTOR_ATTR(Origin      , SkV2     , SkV2({0,0})     )
+    ACTOR_ATTR(Translation , SkV2     , SkV2({0,0})     )
+    ACTOR_ATTR(ClipContents, bool     , false           )
+
+    void render(SkCanvas*) const;
 
 private:
-    SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override;
-    void onRender(SkCanvas*, const RenderContext*) const override;
-    const RenderNode* onNodeAt(const SkPoint&) const override;
-
-    SkString  fName;
-    SkColor4f fColor        = {0, 0, 0, 1};
-    SkV2      fSize         = {0, 0},
-              fOrigin       = {0, 0},
-              fTranslation  = {0, 0};
-    bool      fClipContents = false;
-
-    using INHERITED = RenderNode;
+    void invalidate() {}
 };
 
 class SK_API SkRive final : public SkNVRefCnt<SkRive> {
