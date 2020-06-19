@@ -30,11 +30,15 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
-#include "src/core/SkAutoPixmapStorage.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/gl/GrGLCaps.h"
+#include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -94,38 +98,70 @@ private:
         SkUNREACHABLE;
     }
 
+    static const GrGLContext* GetGLContextIfSupported(GrContext* context) {
+        if (context->backend() != GrBackendApi::kOpenGL) {
+            return nullptr;
+        }
+        auto* caps = static_cast<const GrGLCaps*>(context->priv().caps());
+        if (!caps->rectangleTextureSupport()) {
+            return nullptr;
+        }
+        return context->priv().getGpu()->glContextForTesting();
+    }
+
     sk_sp<SkImage> createRectangleTextureImg(GrContext* context, GrSurfaceOrigin origin,
                                              const SkBitmap content) {
         SkASSERT(content.colorType() == kRGBA_8888_SkColorType);
-        auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
-        auto bet = context->createBackendTexture(content.width(), content.height(), format,
-                                                 GrMipMapped::kNo, GrRenderable::kNo);
-        if (!bet.isValid()) {
+
+        const GrGLContext* glCtx = GetGLContextIfSupported(context);
+        if (!glCtx) {
             return nullptr;
         }
-        const SkPixmap* pm = &content.pixmap();
-        SkAutoPixmapStorage tempPM;
+
+        const GrGLInterface* gl = glCtx->glInterface();
+        // Useful for debugging whether errors result from use of RECTANGLE
+        // static constexpr GrGLenum kTarget = GR_GL_TEXTURE_2D;
+        static constexpr GrGLenum kTarget = GR_GL_TEXTURE_RECTANGLE;
+        GrGLuint id = 0;
+        GR_GL_CALL(gl, GenTextures(1, &id));
+        GR_GL_CALL(gl, BindTexture(kTarget, id));
+        GR_GL_CALL(gl, TexParameteri(kTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
+        GR_GL_CALL(gl, TexParameteri(kTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
+        GR_GL_CALL(gl, TexParameteri(kTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
+        GR_GL_CALL(gl, TexParameteri(kTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
+        std::unique_ptr<uint32_t[]> tempPixels;
+        auto src = content.getAddr32(0, 0);
+        int h = content.height();
+        int w = content.width();
         if (origin == kBottomLeft_GrSurfaceOrigin) {
-            tempPM.alloc(pm->info());
-            const uint32_t* src = pm->addr32();
-            uint32_t* dst = tempPM.writable_addr32(0, content.height() - 1);
-            for (int y = 0; y < content.height(); ++y,
-                                                  src += pm->rowBytesAsPixels(),
-                                                  dst -= tempPM.rowBytesAsPixels()) {
-                std::copy_n(src, content.width(), dst);
+            tempPixels.reset(new uint32_t[w * h]);
+            for (int y = 0; y < h; ++y) {
+                std::copy_n(src + w*(h - y - 1), w, tempPixels.get() + w*y);
             }
-            pm = &tempPM;
+            src = tempPixels.get();
         }
-        if (!context->updateBackendTexture(bet, pm, 1, nullptr, nullptr)) {
-            context->deleteBackendTexture(bet);
+        GR_GL_CALL(gl, TexImage2D(kTarget, 0, GR_GL_RGBA, w, h, 0, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
+                                  src));
+
+        context->resetContext();
+        GrGLTextureInfo info;
+        info.fID = id;
+        info.fTarget = kTarget;
+        info.fFormat = GR_GL_RGBA8;
+
+        GrBackendTexture rectangleTex(w, h, GrMipMapped::kNo, info);
+
+        if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(
+                    context, rectangleTex, origin, content.colorType(), content.alphaType())) {
+            return image;
         }
-        return SkImage::MakeFromAdoptedTexture(context, bet, origin, kRGBA_8888_SkColorType);
+        GR_GL_CALL(gl, DeleteTextures(1, &id));
+        return nullptr;
     }
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
-        if (context->backend() != GrBackendApi::kOpenGL_GrBackend ||
-            !static_cast<const GrGLCaps*>(context->priv().caps())->rectangleTextureSupport()) {
+        if (!GetGLContextIfSupported(context)) {
             *errorMsg = "This GM requires an OpenGL context that supports texture rectangles.";
             return DrawResult::kSkip;
         }

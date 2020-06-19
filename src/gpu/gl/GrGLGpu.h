@@ -255,12 +255,11 @@ private:
     // returned. On failure, zero is returned.
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
-    GrGLuint createTexture(SkISize dimensions,
-                           GrGLFormat,
-                           GrGLenum target,
-                           GrRenderable,
-                           GrGLTextureParameters::SamplerOverriddenState*,
-                           int mipLevelCount);
+    GrGLuint createTexture2D(SkISize dimensions,
+                             GrGLFormat,
+                             GrRenderable,
+                             GrGLTextureParameters::SamplerOverriddenState*,
+                             int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        SkImage::CompressionType compression,
