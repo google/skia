@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c0c2eb6_ee3881fb",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T19:22:09Z",
+      "side": 1,
+      "message": "Do you think it helps clarity to standardize on A/B over l/r?  I\u0027d have said \"A/B or l/r\" except that r\u003dright and r\u003drow seems easy to mix up.  Maybe with a little /*Calculating M \u003d AB (all row/column major)*/ note somewhere?",
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52190ac8_ce2479dd",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T19:22:09Z",
+      "side": 1,
+      "message": "Maybe clearer if we alloc them up front and fill them into the order we want?\nI think it\u0027s,\n\n   std::vector\u003cskvm::F32\u003e A(lCols*lRows),\n                          B(rCols*rRows);\n   for (auto i \u003d B.size(); i --\u003e 0;) { B[i] \u003d pop(); }\n   for (auto i \u003d A.size(); i --\u003e 0;) { A[i] \u003d pop(); }\n\n?",
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f12fdf0_8cb2f9f1",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T19:22:09Z",
+      "side": 1,
+      "message": "YMMV, but this one might be clearer as a 2D loop?\n\n  for (int c \u003d 0; c \u003c rCols; ++c)\n  for (int r \u003d 0; r \u003c lRows; ++r) {\n     ...\n  }",
+      "range": {
+        "startLine": 719,
+        "startChar": 16,
+        "endLine": 720,
+        "endChar": 53
+      },
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
