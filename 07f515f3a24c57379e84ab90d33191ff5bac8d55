@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "173f0261_830b247b",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T15:52:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f88b5b98_edffd939",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 11
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d01c3c2_054a69f2",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T15:52:31Z",
+      "side": 1,
+      "message": "I added a comment with my reasoning for just checking for existence of the key.\n\nAlso a flag of msaa:1 could be confusing to read -- does the 1 mean \"true\"? Or does it mean 1 sample?",
+      "parentUuid": "8707cc2d_474c23bd",
+      "range": {
+        "startLine": 71,
+        "startChar": 65,
+        "endLine": 71,
+        "endChar": 82
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0aaa25b_9430b2c9",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 1
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e9a1dcc6_7a82646f",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T15:52:31Z",
+      "side": 1,
+      "message": "Done. I like it",
+      "parentUuid": "d0aaa25b_9430b2c9",
+      "range": {
+        "startLine": 54,
+        "startChar": 75,
+        "endLine": 54,
+        "endChar": 81
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8bb84edf_28ed9a15",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 1
@@ -85,6 +157,24 @@
       "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a755db66_bc459f7c",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T15:52:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bb84edf_28ed9a15",
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
