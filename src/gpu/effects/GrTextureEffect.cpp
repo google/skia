@@ -671,20 +671,17 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 }
 
                 // Do hard-edge shader transition to border color for kClampToBorderNearest at the
-                // subset boundaries. Snap the input coordinates to nearest neighbor (with an
-                // epsilon) before comparing to the subset rect to avoid GPU interpolation errors
+                // subset boundaries.
                 if (m[0] == ShaderMode::kClampToBorderNearest) {
                     fb->codeAppendf(
-                            "float snappedX = floor(inCoord.x + 0.001) + 0.5;"
-                            "if (snappedX < %s.x || snappedX > %s.z) {"
+                            "if (inCoord.x < %s.x || inCoord.x > %s.z) {"
                             "    textureColor = %s;"
                             "}",
                             subsetName, subsetName, borderName);
                 }
                 if (m[1] == ShaderMode::kClampToBorderNearest) {
                     fb->codeAppendf(
-                            "float snappedY = floor(inCoord.y + 0.001) + 0.5;"
-                            "if (snappedY < %s.y || snappedY > %s.w) {"
+                            "if (inCoord.y < %s.y || inCoord.y > %s.w) {"
                             "    textureColor = %s;"
                             "}",
                             subsetName, subsetName, borderName);
