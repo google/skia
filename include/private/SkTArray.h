@@ -369,6 +369,9 @@ public:
         return fItemArray[i];
     }
 
+    T& at(int i) { return (*this)[i]; }
+    const T& at(int i) const { return (*this)[i]; }
+
     /**
      * equivalent to operator[](0)
      */
