@@ -154,7 +154,6 @@ static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
 static DEFINE_bool(runVerifiers, false,
                    "if true, run SkQP-style verification of GM-produced images.");
 
-
 #if defined(__MSVC_RUNTIME_CHECKS)
 #include <rtcapi.h>
 int RuntimeCheckErrorFunc(int errorType, const char* filename, int linenumber,
@@ -206,13 +205,13 @@ static void info(const char* fmt) {
     }
 }
 
-static SkTArray<SkString> gFailures;
+static SkTArray<SkString>* gFailures = new SkTArray<SkString>;
 
 static void fail(const SkString& err) {
     static SkSpinlock mutex;
     SkAutoSpinlock lock(mutex);
     SkDebugf("\n\nFAILURE: %s\n\n", err.c_str());
-    gFailures.push_back(err);
+    gFailures->push_back(err);
 }
 
 struct Running {
@@ -231,19 +230,19 @@ static void dump_json() {
 }
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
-static SkSpinlock        gMutex;
-static int               gPending;
-static SkTArray<Running> gRunning;
+static SkSpinlock*        gMutex = new SkSpinlock;
+static int                gPending;
+static SkTArray<Running>* gRunning = new SkTArray<Running>;
 
 static void done(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("done  %s\n", id.c_str());
     int pending;
     {
-        SkAutoSpinlock lock(gMutex);
-        for (int i = 0; i < gRunning.count(); i++) {
-            if (gRunning[i].id == id) {
-                gRunning.removeShuffle(i);
+        SkAutoSpinlock lock(*gMutex);
+        for (int i = 0; i < gRunning->count(); i++) {
+            if (gRunning->at(i).id == id) {
+                gRunning->removeShuffle(i);
                 break;
             }
         }
@@ -258,10 +257,10 @@ static void done(const char* config, const char* src, const char* srcOptions, co
         int curr = sk_tools::getCurrResidentSetSizeMB(),
             peak = sk_tools::getMaxResidentSetSizeMB();
 
-        SkAutoSpinlock lock(gMutex);
+        SkAutoSpinlock lock(*gMutex);
         info("\n%dMB RAM, %dMB peak, %d queued, %d active:\n",
-             curr, peak, gPending - gRunning.count(), gRunning.count());
-        for (auto& task : gRunning) {
+             curr, peak, gPending - gRunning->count(), gRunning->count());
+        for (auto& task : *gRunning) {
             task.dump();
         }
     }
@@ -270,14 +269,14 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 static void start(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
-    SkAutoSpinlock lock(gMutex);
-    gRunning.push_back({id,SkGetThreadID()});
+    SkAutoSpinlock lock(*gMutex);
+    gRunning->push_back({id,SkGetThreadID()});
 }
 
 static void find_culprit() {
     // Assumes gMutex is locked.
     SkThreadID thisThread = SkGetThreadID();
-    for (auto& task : gRunning) {
+    for (auto& task : *gRunning) {
         if (task.thread == thisThread) {
             info("Likely culprit:\n");
             task.dump();
@@ -300,7 +299,7 @@ static void find_culprit() {
         #undef _
         };
 
-        SkAutoSpinlock lock(gMutex);
+        SkAutoSpinlock lock(*gMutex);
 
         const DWORD code = e->ExceptionRecord->ExceptionCode;
         info("\nCaught exception %u", code);
@@ -310,7 +309,7 @@ static void find_culprit() {
             }
         }
         info(", was running:\n");
-        for (auto& task : gRunning) {
+        for (auto& task : *gRunning) {
             task.dump();
         }
         find_culprit();
@@ -339,13 +338,13 @@ static void find_culprit() {
     static void (*previous_handler[max_of(SIGABRT,SIGBUS,SIGFPE,SIGILL,SIGSEGV,SIGTERM)+1])(int);
 
     static void crash_handler(int sig) {
-        SkAutoSpinlock lock(gMutex);
+        SkAutoSpinlock lock(*gMutex);
 
         info("\nCaught signal %d [%s] (%dMB RAM, peak %dMB), was running:\n",
              sig, strsignal(sig),
              sk_tools::getCurrResidentSetSizeMB(), sk_tools::getMaxResidentSetSizeMB());
 
-        for (auto& task : gRunning) {
+        for (auto& task : *gRunning) {
             task.dump();
         }
         find_culprit();
@@ -398,10 +397,10 @@ struct Gold : public SkString {
         }
     };
 };
-static SkTHashSet<Gold, Gold::Hash> gGold;
+static SkTHashSet<Gold, Gold::Hash>* gGold = new SkTHashSet<Gold, Gold::Hash>;
 
 static void add_gold(JsonWriter::BitmapResult r) {
-    gGold.add(Gold(r.config, r.sourceType, r.sourceOptions, r.name, r.md5));
+    gGold->add(Gold(r.config, r.sourceType, r.sourceOptions, r.name, r.md5));
 }
 
 static void gather_gold() {
@@ -417,12 +416,12 @@ static void gather_gold() {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_BUILD_FOR_WIN)
-    static const char* kNewline = "\r\n";
+    static constexpr char kNewline[] = "\r\n";
 #else
-    static const char* kNewline = "\n";
+    static constexpr char kNewline[] = "\n";
 #endif
 
-static SkTHashSet<SkString> gUninterestingHashes;
+static SkTHashSet<SkString>* gUninterestingHashes = new SkTHashSet<SkString>;
 
 static void gather_uninteresting_hashes() {
     if (!FLAGS_uninterestingHashesFile.isEmpty()) {
@@ -439,10 +438,10 @@ static void gather_uninteresting_hashes() {
         SkTArray<SkString> hashes;
         SkStrSplit(contents.c_str(), kNewline, &hashes);
         for (const SkString& hash : hashes) {
-            gUninterestingHashes.add(hash);
+            gUninterestingHashes->add(hash);
         }
         info("FYI: loaded %d distinct uninteresting hashes from %d lines\n",
-             gUninterestingHashes.count(), hashes.count());
+             gUninterestingHashes->count(), hashes.count());
     }
 }
 
@@ -457,10 +456,10 @@ struct TaggedSink : public std::unique_ptr<Sink> {
     SkString tag;
 };
 
-static const bool kMemcpyOK = true;
+static constexpr bool kMemcpyOK = true;
 
-static SkTArray<TaggedSrc,  kMemcpyOK>  gSrcs;
-static SkTArray<TaggedSink, kMemcpyOK> gSinks;
+static SkTArray<TaggedSrc,  kMemcpyOK>* gSrcs  = new SkTArray<TaggedSrc,  kMemcpyOK>;
+static SkTArray<TaggedSink, kMemcpyOK>* gSinks = new SkTArray<TaggedSink, kMemcpyOK>;
 
 static bool in_shard() {
     static int N = 0;
@@ -471,7 +470,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() && FLAGS_src.contains(tag) &&
         !CommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
-        TaggedSrc& s = gSrcs.push_back();
+        TaggedSrc& s = gSrcs->push_back();
         s.reset(src.release());
         s.tag = tag;
         s.options = options;
@@ -923,7 +922,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
         exit(1);
     }
 
-    TaggedSink& ts = gSinks.push_back();
+    TaggedSink& ts = gSinks->push_back();
     ts.reset(sink.release());
     ts.tag = config.getTag();
 }
@@ -1073,7 +1072,7 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
         // If we're using the default configs, we're okay.
         defaultConfigs ||
         // Otherwise, make sure that all specified configs have become sinks.
-        configs.count() == gSinks.count()) {
+        configs.count() == gSinks->count()) {
         return true;
     }
     return false;
@@ -1104,7 +1103,7 @@ static bool is_blacklisted(const char* sink, const char* src,
 
 // Even when a Task Sink reports to be non-threadsafe (e.g. GPU), we know things like
 // .png encoding are definitely thread safe.  This lets us offload that work to CPU threads.
-static SkTaskGroup gDefinitelyThreadSafeWork;
+static SkTaskGroup* gDefinitelyThreadSafeWork = new SkTaskGroup;
 
 // The finest-grained unit of work we can run: draw a single Src into a single Sink,
 // report any errors, and perhaps write out the output: a .png of the bitmap, or a raw stream.
@@ -1152,7 +1151,7 @@ struct Task {
 
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
             SkStreamAsset* data = stream.detachAsStream().release();
-            gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
+            gDefinitelyThreadSafeWork->add([task,name,bitmap,data]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
                 std::unique_ptr<HashAndEncode> hashAndEncode;
@@ -1174,8 +1173,8 @@ struct Task {
                 }
 
                 if (!FLAGS_readPath.isEmpty() &&
-                    !gGold.contains(Gold(task.sink.tag, task.src.tag,
-                                         task.src.options, name, md5))) {
+                    !gGold->contains(Gold(task.sink.tag, task.src.tag,
+                                          task.src.options, name, md5))) {
                     fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
                                         md5.c_str(),
                                         task.sink.tag.c_str(),
@@ -1349,7 +1348,7 @@ struct Task {
 
         // If an MD5 is uninteresting, we want it noted in the JSON file,
         // but don't want to dump it out as a .png (or whatever ext is).
-        if (gUninterestingHashes.contains(md5)) {
+        if (gUninterestingHashes->contains(md5)) {
             return;
         }
 
@@ -1426,7 +1425,8 @@ struct Task {
 
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
-static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
+static SkTDArray<skiatest::Test>* gParallelTests = new SkTDArray<skiatest::Test>;
+static SkTDArray<skiatest::Test>* gSerialTests   = new SkTDArray<skiatest::Test>;
 
 static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
@@ -1440,9 +1440,9 @@ static void gather_tests() {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {
-            gSerialTests.push_back(test);
+            gSerialTests->push_back(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
-            gParallelTests.push_back(test);
+            gParallelTests->push_back(test);
         }
     }
 }
@@ -1524,7 +1524,7 @@ int main(int argc, char** argv) {
     // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
     bool defaultConfigs = true;
     for (int i = 0; i < argc; i++) {
-        static const char* kConfigArg = "--config";
+        static constexpr char kConfigArg[] = "--config";
         if (strcmp(argv[i], kConfigArg) == 0) {
             defaultConfigs = false;
             break;
@@ -1534,42 +1534,44 @@ int main(int argc, char** argv) {
         return 1;
     }
     gather_tests();
-    gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
+    gPending = gSrcs->count() * gSinks->count() + gParallelTests->count() + gSerialTests->count();
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
-         gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
+         gSrcs->count(), gSinks->count(), gParallelTests->count() + gSerialTests->count(),
+         gPending);
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
     SkTArray<Task> serial;
 
-    for (auto& sink : gSinks)
-    for (auto&  src : gSrcs) {
-        if (src->veto(sink->flags()) ||
-            is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
-                           src.options.c_str(), src->name().c_str())) {
-            SkAutoSpinlock lock(gMutex);
-            gPending--;
-            continue;
-        }
+    for (TaggedSink& sink : *gSinks) {
+        for (TaggedSrc& src : *gSrcs) {
+            if (src->veto(sink->flags()) ||
+                is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
+                               src.options.c_str(), src->name().c_str())) {
+                SkAutoSpinlock lock(*gMutex);
+                gPending--;
+                continue;
+            }
 
-        Task task(src, sink);
-        if (src->serial() || sink->serial()) {
-            serial.push_back(task);
-        } else {
-            parallel.add([task] { Task::Run(task); });
+            Task task(src, sink);
+            if (src->serial() || sink->serial()) {
+                serial.push_back(task);
+            } else {
+                parallel.add([task] { Task::Run(task); });
+            }
         }
     }
-    for (auto test : gParallelTests) {
+    for (skiatest::Test& test : *gParallelTests) {
         parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
     }
 
     // With the parallel work running, run serial tasks and tests here on main thread.
-    for (auto task : serial) { Task::Run(task); }
-    for (auto test : gSerialTests) { run_test(test, grCtxOptions); }
+    for (Task& task : serial) { Task::Run(task); }
+    for (skiatest::Test& test : *gSerialTests) { run_test(test, grCtxOptions); }
 
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();
-    gDefinitelyThreadSafeWork.wait();
+    gDefinitelyThreadSafeWork->wait();
 
     // At this point we're back in single-threaded land.
 
@@ -1578,12 +1580,12 @@ int main(int argc, char** argv) {
     // Make sure we've flushed all our results to disk.
     dump_json();
 
-    if (gFailures.count() > 0) {
+    if (!gFailures->empty()) {
         info("Failures:\n");
-        for (int i = 0; i < gFailures.count(); i++) {
-            info("\t%s\n", gFailures[i].c_str());
+        for (const SkString& fail : *gFailures) {
+            info("\t%s\n", fail.c_str());
         }
-        info("%d failures\n", gFailures.count());
+        info("%d failures\n", gFailures->count());
         return 1;
     }
 

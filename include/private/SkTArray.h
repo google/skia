@@ -357,17 +357,20 @@ public:
    /**
      * Get the i^th element.
      */
-    T& operator[] (int i) {
+    T& at(int i) {
         SkASSERT(i < fCount);
         SkASSERT(i >= 0);
         return fItemArray[i];
     }
 
-    const T& operator[] (int i) const {
+    const T& at(int i) const {
         SkASSERT(i < fCount);
         SkASSERT(i >= 0);
         return fItemArray[i];
     }
+
+    T& operator[] (int i) { return at(i); }
+    const T& operator[] (int i) const { return at(i); }
 
     /**
      * equivalent to operator[](0)
