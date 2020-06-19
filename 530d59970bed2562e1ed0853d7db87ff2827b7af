@@ -60,6 +60,29 @@
     },
     {
       "key": {
+        "uuid": "562ca49c_4ccb57ca",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-19T15:10:17Z",
+      "side": 1,
+      "message": "Maybe just add \"\u003d SkSL::SampleMatrix()\" and then we don\u0027t need the single-argument version.",
+      "range": {
+        "startLine": 448,
+        "startChar": 31,
+        "endLine": 448,
+        "endChar": 62
+      },
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "151513dc_ea37a603",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 7
@@ -71,6 +94,29 @@
       "writtenOn": "2020-06-19T11:43:26Z",
       "side": 1,
       "message": "This one can be private, right?",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e2cade_c261d5ba",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-06-19T15:10:17Z",
+      "side": 1,
+      "message": "Is this a temporary measure? If not, seems like we should go all the way with this and just make it not an array anymore.",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 13
+      },
       "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
