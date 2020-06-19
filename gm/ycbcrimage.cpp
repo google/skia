@@ -71,7 +71,7 @@ protected:
     }
 
     DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
-        if (!context) {
+        if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
 
