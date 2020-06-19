@@ -1020,22 +1020,23 @@ void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
     if (count == 0) {
         return;
     }
-    if (location.isOnStack() || count > 4) {
-        if (!location.isOnStack()) {
-            this->write(ByteCodeInstruction::kPushImmediate);
-            this->write32(location.fSlot);
-        }
+    if (location.isOnStack()) {
         this->write(location.selectLoad(ByteCodeInstruction::kLoadExtended,
                                         ByteCodeInstruction::kLoadExtendedGlobal,
                                         ByteCodeInstruction::kLoadExtendedUniform),
                     count);
         this->write8(count);
     } else {
-        this->write(vector_instruction(location.selectLoad(ByteCodeInstruction::kLoad,
-                                                           ByteCodeInstruction::kLoadGlobal,
-                                                           ByteCodeInstruction::kLoadUniform),
-                                       count));
-        this->write8(location.fSlot);
+        while (count) {
+            int loadCount = std::min(count, 4);
+            this->write(vector_instruction(location.selectLoad(ByteCodeInstruction::kLoad,
+                                                               ByteCodeInstruction::kLoadGlobal,
+                                                               ByteCodeInstruction::kLoadUniform),
+                                           loadCount));
+            this->write8(location.fSlot);
+            count -= loadCount;
+            location.fSlot += loadCount;
+        }
     }
 }
 
