@@ -93,7 +93,7 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 
 skvm::Color SkColorShader::onProgram(skvm::Builder* p,
                                      skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
-                                     const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
+                                     const SkMatrixProvider&, const SkMatrix* /*localM*/,
                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return p->uniformPremul(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
@@ -101,7 +101,7 @@ skvm::Color SkColorShader::onProgram(skvm::Builder* p,
 }
 skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
                                       skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
-                                      const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
+                                      const SkMatrixProvider&, const SkMatrix* /*localM*/,
                                       SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return p->uniformPremul(fColor, fColorSpace.get(),

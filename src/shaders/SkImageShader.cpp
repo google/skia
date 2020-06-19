@@ -640,13 +640,13 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
 }
 
 skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      SkFilterQuality quality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     quality = this->resolveFiltering(quality);
 
     SkMatrix inv;
-    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+    if (!this->computeTotalInverse(matrices.localToDevice(), localM, &inv)) {
         return {};
     }
 

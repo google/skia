@@ -736,9 +736,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         paint.writable()->setDither(false);
     }
 
-    SkMatrix ctm = matrixProvider.localToDevice();
     if (gUseSkVMBlitter) {
-        if (auto blitter = SkCreateSkVMBlitter(device, *paint, ctm,
+        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrixProvider,
                                                alloc, clipShader)) {
             return blitter;
         }
@@ -751,13 +750,14 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                                                          alloc, clipShader)) {
             return blitter;
         }
-        if (auto blitter = SkCreateSkVMBlitter(device, *paint, ctm,
+        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrixProvider,
                                                alloc, clipShader)) {
             return blitter;
         }
         return alloc->make<SkNullBlitter>();
     };
 
+    SkMatrix ctm = matrixProvider.localToDevice();
     // We'll end here for many interesting cases: color spaces, color filters, most color types.
     if (UseRasterPipelineBlitter(device, *paint, ctm) || clipShader) {
         return create_SkRP_or_SkVMBlitter();

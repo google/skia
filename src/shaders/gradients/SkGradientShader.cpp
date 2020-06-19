@@ -421,11 +421,11 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
 skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
                                             skvm::F32 x, skvm::F32 y, skvm::Color /*paint*/,
-                                            const SkMatrix& ctm, const SkMatrix* localM,
+                                            const SkMatrixProvider& mats, const SkMatrix* localM,
                                             SkFilterQuality quality, const SkColorInfo& dstInfo,
                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     SkMatrix inv;
-    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+    if (!this->computeTotalInverse(mats.localToDevice(), localM, &inv)) {
         return {};
     }
     inv.postConcat(fPtsToUnit);
