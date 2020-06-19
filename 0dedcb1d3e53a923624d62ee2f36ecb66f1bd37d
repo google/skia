@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3e2b0a4a_03a69b93",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T19:35:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c0c2eb6_ee3881fb",
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52190ac8_ce2479dd",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d780ea48_5c93ef52",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T19:35:44Z",
+      "side": 1,
+      "message": "Ah yeah. I kept looking at different ways to scrape these off the stack like I wanted. That looks better.",
+      "parentUuid": "52190ac8_ce2479dd",
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -56,6 +92,30 @@
       "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6074589a_14e142ed",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T19:35:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f12fdf0_8cb2f9f1",
+      "range": {
+        "startLine": 719,
+        "startChar": 16,
+        "endLine": 720,
+        "endChar": 53
+      },
+      "revId": "0dedcb1d3e53a923624d62ee2f36ecb66f1bd37d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
