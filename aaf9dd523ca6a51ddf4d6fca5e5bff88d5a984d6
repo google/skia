@@ -142,6 +142,24 @@
       "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecef242f_101d7467",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T21:27:48Z",
+      "side": 1,
+      "message": "I was suggesting you set werror \u003d true in your builds, or we land something like https://skia-review.googlesource.com/c/skia/+/297788.",
+      "parentUuid": "35075ad1_288df953",
+      "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
