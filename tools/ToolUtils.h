@@ -24,10 +24,12 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 
+class GrContext;
 class SkBitmap;
 class SkCanvas;
 class SkFontStyle;
@@ -272,6 +274,26 @@ public:
 private:
     SkPixmap fPM;
     SkIPoint fLoc;
+};
+
+// A helper for managing the lifetime of backend textures
+class BackendReleaseContext {
+public:
+    static void release(void* releaseContext) {
+        BackendReleaseContext* beContext = reinterpret_cast<BackendReleaseContext*>(releaseContext);
+
+        delete beContext;
+    }
+
+    static void Unwind(GrContext* context, BackendReleaseContext* releaseContexts[4]);
+
+    BackendReleaseContext(GrContext* context, const GrBackendTexture& beTex);
+
+    ~BackendReleaseContext();
+
+private:
+    GrContext*       fContext;
+    GrBackendTexture fBETexture;
 };
 
 }  // namespace ToolUtils

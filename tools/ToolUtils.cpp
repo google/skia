@@ -29,6 +29,9 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"
 
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -486,6 +489,32 @@ void SetDefaultFontMgr() {
         gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
     }
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void BackendReleaseContext::Unwind(GrContext* context, BackendReleaseContext* releaseContexts[4]) {
+    // Some backends require that all work associated w/ texture
+    // creation be completed before deleting the textures.
+    GrFlushInfo flushInfoSyncCpu;
+    flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
+    context->flush(flushInfoSyncCpu);
+    context->submit(true);
+
+    for (int i = 0; i < 4; ++i) {
+        delete releaseContexts[i];
+    }
+}
+BackendReleaseContext::BackendReleaseContext(GrContext* context, const GrBackendTexture& beTex)
+        : fContext(context)
+        , fBETexture(beTex) {
+    SkASSERT(context->priv().getGpu());
+    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(beTex.isValid());
+}
+
+BackendReleaseContext::~BackendReleaseContext() {
+    SkASSERT(fBETexture.isValid());
+    fContext->deleteBackendTexture(fBETexture);
 }
 
 }  // namespace ToolUtils

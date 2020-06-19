@@ -28,6 +28,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
+#include "src/gpu/GrContextPriv.h"
 #include "tools/Resources.h"
 
 class GrRenderTargetContext;
@@ -45,10 +46,6 @@ protected:
     }
 
     SkISize onISize() override { return {1420, 610}; }
-
-    void onOnceBeforeDraw() override {
-        fRGBABmp = this->createBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
-    }
 
     SkBitmap createBmpAndPlanes(const char* name, SkBitmap yuvaBmps[4]) {
         SkBitmap bmp;
@@ -148,44 +145,74 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    sk_sp<SkImage> makeImage(GrContext* context) {
         GrBackendTexture yuvaTextures[4];
+        SkYUVAIndex fIndices[4];
 
         this->createYUVTextures(fYUVABmps, context, yuvaTextures);
-        SkYUVAIndex indices[4];
         for (int i = 0; i < 4; ++i) {
             if (!yuvaTextures[i].isValid()) {
-                return;
+                return false;
             }
             auto chanMask = yuvaTextures[i].getBackendFormat().channelMask();
             // We expect the single channel bitmaps to produce single channel textures.
             SkASSERT(chanMask && SkIsPow2(chanMask));
             if (chanMask & kGray_SkColorChannelFlag) {
-                indices[i].fChannel = SkColorChannel::kR;
+                fIndices[i].fChannel = SkColorChannel::kR;
             } else {
-                indices[i].fChannel = static_cast<SkColorChannel>(31 - SkCLZ(chanMask));
+                fIndices[i].fChannel = static_cast<SkColorChannel>(31 - SkCLZ(chanMask));
             }
-            indices[i].fIndex = i;
+            fIndices[i].fIndex = i;
         }
 
-        // We remake this image before each draw because if any draw flattens it to RGBA then
-        // all subsequent draws use the RGBA texture.
-        auto makeImage1 = [&]() {
-            return SkImage::MakeFromYUVATextures(context,
-                                                 kJPEG_SkYUVColorSpace,
-                                                 yuvaTextures,
-                                                 indices,
-                                                 fRGBABmp.dimensions(),
-                                                 kTopLeft_GrSurfaceOrigin);
-        };
+        return SkImage::MakeFromYUVATextures(context,
+                                             kJPEG_SkYUVColorSpace,
+                                             yuvaTextures,
+                                             fIndices,
+                                             fRGBABmp.dimensions(),
+                                             kTopLeft_GrSurfaceOrigin);
+    }
+
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+
+        SkASSERT(context->priv().asDirectContext());
+
+        fRGBABmp = this->createBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
+
+        // We make a version of this image for each draw because if any draw flattens it to
+        // RGBA then all subsequent draws would use the RGBA texture.
+        for (int i = 0; i < kNumImages; ++i) {
+            fImages[i] = this->makeImage(context);
+        }
 
         GrBackendTexture resultTexture;
+
         this->createResultTexture(context, fRGBABmp.dimensions(), &resultTexture);
-        auto image2 = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(context,
-                                                                          kJPEG_SkYUVColorSpace,
-                                                                          yuvaTextures,
-                                                                          kTopLeft_GrSurfaceOrigin,
-                                                                          resultTexture);
+
+        fImage2 = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(context,
+                                                                      kJPEG_SkYUVColorSpace,
+                                                                      fYUVATextures,
+                                                                      kTopLeft_GrSurfaceOrigin,
+                                                                      resultTexture);
+
+        return DrawResult::kOk;
+    }
+
+#if 0
+    void onGpuTeardown(GrContext* context) override {
+        this->deleteBackendTextures(context, &fResultTexture, 1);
+        this->deleteBackendTextures(context, fYUVATextures, 4);
+    }
+#endif
+
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+
+        auto makeImage1 = [&]() {
+        };
+
 
         auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
             if (!image) {
@@ -226,6 +253,7 @@ protected:
         };
 
         canvas->translate(kPad, kPad);
+        int imageIndex = 0;
         using DrawSig = SkSize(SkImage* image, SkFilterQuality fq);
         using DF = std::function<DrawSig>;
         for (const auto& draw : {DF(draw_image), DF(draw_image_rect), DF(draw_image_shader)}) {
@@ -236,12 +264,12 @@ protected:
                                 kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s1 = draw(makeImage1().get(), fq);
+                        auto s1 = draw(fImages[imageIndex++].get(), fq);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s2 = draw(image2.get(), fq);
+                        auto s2 = draw(fImage2.get(), fq);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s2.width()), 0);
                     h = std::max({h, s1.height(), s2.height()});
@@ -250,14 +278,15 @@ protected:
                 canvas->translate(0, kPad + SkScalarCeilToScalar(scale*h));
             }
         }
-
-        this->deleteBackendTextures(context, &resultTexture, 1);
-        this->deleteBackendTextures(context, yuvaTextures, 4);
      }
 
 private:
     SkBitmap fRGBABmp;
     SkBitmap fYUVABmps[4];
+
+    static const int kNumImages = 3 * 3 * 4;
+    sk_sp<SkImage> fImages[kNumImages];
+    sk_sp<SkImage> fImage2;
 
     static constexpr SkScalar kPad = 10.0f;
 
