@@ -563,7 +563,9 @@ public:
             const GrBackendTexture yuvTextures[3],
             GrSurfaceOrigin imageOrigin,
             const GrBackendTexture& backendTexture,
-            sk_sp<SkColorSpace> imageColorSpace = nullptr);
+            sk_sp<SkColorSpace> imageColorSpace = nullptr,
+            TextureReleaseProc textureReleaseProc = nullptr,
+            ReleaseContext releaseContext = nullptr);
 
     /** Creates SkImage from copy of nv12Textures, an array of textures on GPU.
         nv12Textures[0] contains pixels for YUV component y plane.
