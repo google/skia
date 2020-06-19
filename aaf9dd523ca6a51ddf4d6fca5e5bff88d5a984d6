@@ -106,6 +106,24 @@
       "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79769f93_18b6ba19",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-19T21:18:08Z",
+      "side": 1,
+      "message": "Either way is fine with me. PTAL http://review.skia.org/297867",
+      "parentUuid": "e097f57a_6c91fd71",
+      "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
