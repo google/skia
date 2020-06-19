@@ -29,6 +29,7 @@
 #endif
 
 static void wait_on_backend_work_to_finish(GrContext* context, bool* finishedCreate) {
+    context->submit();
     while (finishedCreate && !(*finishedCreate)) {
         context->checkAsyncWorkCompletion();
     }
