@@ -32,26 +32,29 @@ public:
 
     const char* name() const override { return "TestRectOp::GP"; }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
+        return new GLSLGP();
+    }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        GLSLGP::GenKey(*this, b);
+    }
 
     bool wideColor() const { return fInColor.cpuType() != kUByte4_norm_GrVertexAttribType; }
 
 private:
-    Attribute fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    Attribute fInLocalCoords = {"inLocalCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    Attribute fInColor;
-    SkMatrix fLocalMatrix;
-};
-
-GrGLSLPrimitiveProcessor* GP::createGLSLInstance(const GrShaderCaps& caps) const {
     class GLSLGP : public GrGLSLGeometryProcessor {
+    public:
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& pp,
                      const CoordTransformRange& transformRange) override {
             const auto& gp = pp.cast<GP>();
-            this->setTransformDataHelper(gp.fLocalMatrix, pdman, transformRange);
+            this->setTransformDataHelper(pdman, transformRange);
+            this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
+        }
+
+        static void GenKey(const GP& gp, GrProcessorKeyBuilder* b) {
+            b->add32(ComputeMatrixKey(gp.fLocalMatrix));
         }
 
     private:
@@ -65,13 +68,19 @@ GrGLSLPrimitiveProcessor* GP::createGLSLInstance(const GrShaderCaps& caps) const
             args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorVarying.fsIn());
             args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
             this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
-            this->emitTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
-                                 gp.fInLocalCoords.asShaderVar(), gp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
+            this->writeLocalCoord(args.fVertBuilder, args.fUniformHandler, gpArgs,
+                                  gp.fInLocalCoords.asShaderVar(), gp.fLocalMatrix,
+                                  &fLocalMatrixUni);
         }
+
+        UniformHandle fLocalMatrixUni;
     };
-    return new GLSLGP();
-}
+
+    Attribute fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    Attribute fInLocalCoords = {"inLocalCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    Attribute fInColor;
+    SkMatrix fLocalMatrix;
+};
 
 class TestRectOp final : public GrMeshDrawOp {
 public:

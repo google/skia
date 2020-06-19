@@ -577,14 +577,11 @@ public:
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition.name());
-
-            // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 qe.fInPosition.asShaderVar(),
-                                 qe.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
+            if (qe.fUsesLocalCoords) {
+                this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
+                                      qe.fInPosition.asShaderVar(), qe.fLocalMatrix,
+                                      &fLocalMatrixUniform);
+            }
 
             fragBuilder->codeAppendf("half edgeAlpha;");
 
@@ -611,18 +608,24 @@ public:
                                   const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
-            b->add32(SkToBool(qee.fUsesLocalCoords && qee.fLocalMatrix.hasPerspective()));
+            uint32_t key = (uint32_t) qee.fUsesLocalCoords;
+            key |= ComputeMatrixKey(qee.fLocalMatrix) << 1;
+            b->add32(key);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& gp,
                      const CoordTransformRange& transformRange) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
-            this->setTransformDataHelper(qe.fLocalMatrix, pdman, transformRange);
+            this->setTransformDataHelper(pdman, transformRange);
+            this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
 
     private:
         typedef GrGLSLGeometryProcessor INHERITED;
+
+        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
+        UniformHandle fLocalMatrixUniform;
     };
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {

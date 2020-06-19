@@ -56,12 +56,14 @@ public:
         constexpr Attribute(const char* name,
                             GrVertexAttribType cpuType,
                             GrSLType gpuType)
-            : fName(name), fCPUType(cpuType), fGPUType(gpuType) {}
+                : fName(name), fCPUType(cpuType), fGPUType(gpuType) {
+            SkASSERT(name && gpuType != kVoid_GrSLType);
+        }
         constexpr Attribute(const Attribute&) = default;
 
         Attribute& operator=(const Attribute&) = default;
 
-        constexpr bool isInitialized() const { return SkToBool(fName); }
+        constexpr bool isInitialized() const { return fGPUType != kVoid_GrSLType; }
 
         constexpr const char* name() const { return fName; }
         constexpr GrVertexAttribType cpuType() const { return fCPUType; }
@@ -77,7 +79,7 @@ public:
     private:
         const char* fName = nullptr;
         GrVertexAttribType fCPUType = kFloat_GrVertexAttribType;
-        GrSLType fGPUType = kFloat_GrSLType;
+        GrSLType fGPUType = kVoid_GrSLType;
     };
 
     class Iter {
