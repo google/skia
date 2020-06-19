@@ -29,8 +29,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCaps& caps,
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds) {
     auto view = make_view(caps, clipPath->atlasLazyProxy(), fIsCoverageCount);
     auto te = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
-    te->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(te));
+    this->registerExplicitlySampledChild(std::move(te));
 }
 
 GrCCClipProcessor::GrCCClipProcessor(const GrCCClipProcessor& that)
@@ -38,9 +37,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipProcessor& that)
         , fClipPath(that.fClipPath)
         , fIsCoverageCount(that.fIsCoverageCount)
         , fMustCheckBounds(that.fMustCheckBounds) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {

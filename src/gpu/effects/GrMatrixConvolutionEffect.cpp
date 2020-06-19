@@ -294,11 +294,9 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChild(std::move(child));
     if (kernelFP) {
-        kernelFP->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(kernelFP));
+        this->registerExplicitlySampledChild(std::move(kernelFP));
     }
     fKernelOffset = {static_cast<float>(kernelOffset.x()),
                      static_cast<float>(kernelOffset.y())};
@@ -312,14 +310,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
         , fBias(that.fBias)
         , fKernelOffset(that.fKernelOffset)
         , fConvolveAlpha(that.fConvolveAlpha) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
-    if (fKernel.isSampled()) {
-        child = that.childProcessor(1).clone();
-        child->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(child));
-    }
+    this->cloneAndRegisterAllChildProcessors(that);
     this->addCoordTransform(&fCoordTransform);
 }
 
