@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "87d46ccd_64fc4b5d",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-19T13:12:31Z",
+      "side": 1,
+      "message": "What\u0027s this here for?",
+      "range": {
+        "startLine": 333,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 7
+      },
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e364a00_49497996",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 7
@@ -13,6 +36,24 @@
       "writtenOn": "2020-06-19T11:43:26Z",
       "side": 1,
       "message": "I was going to suggest just having one register, with a default argument on the SampleMatrix that implies explicit-coord sampling, but forgot about this case. Oh well. (registerExplicitlySampled... is just really long to type) 😉",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb67e5e6_13c93c02",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-19T13:12:31Z",
+      "side": 1,
+      "message": "Maybe we can leave off \"Processor\"? There\u0027s no other type of child.\n\nCould this be the same as registering with an identity sample matrix? (I\u0027m thinking a special cons for SampleMatrix such that it knows the literal is an identity).",
+      "parentUuid": "3e364a00_49497996",
       "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
