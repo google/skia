@@ -346,6 +346,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("_ test _ Programs")
 		}
 
+		if b.extraConfig("CommandBuffer") {
+			// skbug.com/10412
+			blacklist("_ test _ GLBackendAllocationTest")
+		}
+
 		// skbug.com/9033 - these devices run out of memory on this test
 		// when opList splitting reduction is enabled
 		if b.gpu() && (b.model("Nexus7", "NVIDIA_Shield", "Nexus5x") ||

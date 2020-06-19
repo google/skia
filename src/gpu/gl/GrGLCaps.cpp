@@ -4202,6 +4202,9 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
 }
 
 bool GrGLCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
     return this->isFormatTexturable(format.asGLFormat());
 }
 
@@ -4212,6 +4215,12 @@ bool GrGLCaps::isFormatTexturable(GrGLFormat format) const {
 
 bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                              int sampleCount) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
+    if (format.textureType() == GrTextureType::kExternal) {
+        return false;
+    }
     auto f = format.asGLFormat();
     const FormatInfo& info = this->getFormatInfo(f);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
@@ -4222,6 +4231,12 @@ bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendForm
 }
 
 bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
+    if (format.textureType() == GrTextureType::kExternal) {
+        return false;
+    }
     return this->isFormatRenderable(format.asGLFormat(), sampleCount);
 }
 
@@ -4484,7 +4499,15 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
         combos.push_back({ GrColorType::kBGRA_8888,
                            GrBackendFormat::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_2D) });
     }
-
+    if (this->rectangleTextureSupport()) {
+        size_t count2D = combos.size();
+        for (size_t i = 0; i < count2D; ++i) {
+            auto combo2D = combos[i];
+            GrGLenum formatEnum = GrGLFormatToEnum(combo2D.fFormat.asGLFormat());
+            combos.push_back({combo2D.fColorType,
+                              GrBackendFormat::MakeGL(formatEnum, GR_GL_TEXTURE_RECTANGLE)});
+        }
+    }
     return combos;
 }
 #endif
