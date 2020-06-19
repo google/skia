@@ -57,6 +57,7 @@ private:
             , yInvZoom(yInvZoom)
             , xInvInset(xInvInset)
             , yInvInset(yInvInset) {
+        this->setUsesLocalCoordsDirectly();
         SkASSERT(src);
         src_index = this->registerExplicitlySampledChild(std::move(src));
         this->addCoordTransform(&fCoordTransform0);
