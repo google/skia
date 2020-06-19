@@ -1658,7 +1658,7 @@ Result GPUOOPRSink::ooprDraw(const Src& src,
         iter.compile();
     }
 
-    dstSurface->draw(ddl.get());
+    SkAssertResult(dstSurface->draw(ddl.get()));
 
     // TODO: remove this flush once DDLs are reffed by the drawing manager
     context->flushAndSubmit();
