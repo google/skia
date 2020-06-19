@@ -106,7 +106,7 @@ CircularRRectEffect::CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> in
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
     if (inputFP != nullptr) {
-        this->registerChildProcessor(std::move(inputFP));
+        this->registerChild(std::move(inputFP));
     }
 }
 
@@ -465,7 +465,7 @@ EllipticalRRectEffect::EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor
         , fRRect(rrect)
         , fEdgeType(edgeType) {
     if (inputFP != nullptr) {
-        this->registerChildProcessor(std::move(inputFP));
+        this->registerChild(std::move(inputFP));
     }
 }
 

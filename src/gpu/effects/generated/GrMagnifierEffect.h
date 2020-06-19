@@ -58,8 +58,7 @@ private:
             , xInvInset(xInvInset)
             , yInvInset(yInvInset) {
         SkASSERT(src);
-        src->setSampledWithExplicitCoords();
-        src_index = this->registerChildProcessor(std::move(src));
+        src_index = this->registerExplicitlySampledChild(std::move(src));
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
