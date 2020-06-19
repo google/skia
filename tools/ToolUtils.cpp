@@ -29,6 +29,9 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"
 
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+
 #include <cmath>
 #include <cstring>
 #include <memory>
