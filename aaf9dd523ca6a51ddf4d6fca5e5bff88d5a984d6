@@ -88,6 +88,24 @@
       "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5bbce1f_201cf09d",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T21:17:54Z",
+      "side": 1,
+      "message": "Hmm, reading https://skia-review.googlesource.com/c/skia/+/220276 and https://groups.google.com/g/skia-discuss/c/2M0foNObuIs, this may be important to keep in some form.  Might be you just want to set werror \u003d true in your builds, or spin off a new flag that controls -isystem vs. -I instead of piggybacking on werror.",
+      "parentUuid": "e097f57a_6c91fd71",
+      "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
