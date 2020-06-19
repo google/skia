@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cb1195d_2263640a",
+        "filename": "experimental/svg/model/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-19T15:30:10Z",
+      "side": 1,
+      "message": "(unrelated) oh wow, I hadn\u0027t realized SkBase64 has such poor ergonomics... looks like it could use some TLC (at the very least decode() should prolly pass data ownership / return sk_sp\u003cSkData\u003e).",
+      "range": {
+        "startLine": 31,
+        "startChar": 28,
+        "endLine": 31,
+        "endChar": 67
+      },
+      "revId": "b1025727c1898458c1f724e8e3e2d176bb72e6ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0cfa34e_087cc3ff",
+        "filename": "experimental/svg/model/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-19T15:30:10Z",
+      "side": 1,
+      "message": "Are there any presentation attributes we should consider here?  Off hand, I think opacity applies.  We don\u0027t expose a good way to fetch it outside a fill/stroke at the moment, so maybe just add a TODO: respect opacity?",
+      "range": {
+        "startLine": 103,
+        "startChar": 46,
+        "endLine": 103,
+        "endChar": 53
+      },
+      "revId": "b1025727c1898458c1f724e8e3e2d176bb72e6ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ae98fee_0362c134",
+        "filename": "experimental/svg/model/SkSVGImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-19T15:30:10Z",
+      "side": 1,
+      "message": "nit: no need to initialize explicitly (default sk_sp ctor takes care of it).",
+      "range": {
+        "startLine": 43,
+        "startChar": 23,
+        "endLine": 43,
+        "endChar": 33
+      },
+      "revId": "b1025727c1898458c1f724e8e3e2d176bb72e6ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
