@@ -62,7 +62,6 @@ void SkRiveSlide::draw(SkCanvas* canvas) {
                                             SkMatrix::kCenter_ScaleToFit ));
 
     for (const auto& ab : fRive->artboards()) {
-        ab->revalidate(nullptr, SkMatrix::I());
         ab->render(canvas);
     }
 }

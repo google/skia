@@ -9,7 +9,9 @@
 
 #include "experimental/skrive/src/reader/StreamReader.h"
 
-namespace skrive::internal {
+namespace skrive {
+namespace internal {
+
 template <typename T>
 size_t parse_node(StreamReader*, T*);
 
@@ -22,4 +24,8 @@ size_t parse_node<Shape>(StreamReader* sr, Shape* node) {
     return parent_index;
 }
 
-} // namespace skrive::internal
+} // namespace internal
+
+void Shape::onRevalidate() {}
+
+} // namespace skrive

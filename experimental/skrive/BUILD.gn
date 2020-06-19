@@ -32,6 +32,7 @@ if (skia_enable_skrive) {
         ]
         sources = [
           "tests/BinaryReader.cpp",
+          "tests/DomTypes.cpp",
           "tests/JsonReader.cpp",
         ]
 

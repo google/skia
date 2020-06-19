@@ -19,16 +19,13 @@ size_t parse_node(StreamReader*, T*);
 
 template <>
 size_t parse_node<Node>(StreamReader* sr, Node* node) {
-    node->setName(sr->readString("name"));
-    const auto parent = sr->readUInt16("parent");
+    const auto parent_index = parse_node<Component>(sr, node);
 
     node->setTranslation(sr->readV2("translation"));
     node->setRotation(sr->readFloat("rotation"));
     node->setScale(sr->readV2("scale"));
     node->setOpacity(sr->readFloat("opacity"));
     node->setCollapsedVisibility(sr->readBool("isCollapsed"));
-
-    SkDebugf(".. '%s' -> %d\n", node->getName().c_str(), parent);
 
     if (sr->openArray("clips")) {
         const auto count = sr->readLength8();
@@ -48,13 +45,25 @@ size_t parse_node<Node>(StreamReader* sr, Node* node) {
         sr->closeArray();
     }
 
-    return parent;
+    return parent_index;
 }
 
 } // namespace skrive
 
-SkRect Node::onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) {
-    return this->INHERITED::onRevalidate(ic, ctm);
+void Node::addChild(sk_sp<Component> child) {
+    child->fParent = this;
+    fChildren.push_back(std::move(child));
+    this->invalidate();
+}
+
+void Node::onRevalidate() {
+    SkASSERT(this->hasInval());
+
+    for (const auto& child : fChildren) {
+        if (child) {
+            child->revalidate();
+        }
+    }
 }
 
 } // namespace internal
