@@ -115,8 +115,7 @@ public:
                                              GrWrapOwnership,
                                              GrWrapCacheable,
                                              GrIOType,
-                                             ReleaseProc = nullptr,
-                                             ReleaseContext = nullptr);
+                                             sk_sp<GrRefCntedCallback> = nullptr);
 
     sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
                                                        GrWrapCacheable, ReleaseProc = nullptr,

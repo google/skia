@@ -490,9 +490,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable,
                                                           GrIOType ioType,
-                                                          ReleaseProc releaseProc,
-                                                          ReleaseContext releaseCtx) {
+                                                          sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(ioType != kWrite_GrIOType);
+
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -511,8 +511,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
