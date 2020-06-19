@@ -186,6 +186,24 @@ void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
     fCachedOpsRenderPass.reset();
 }
 
+void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
+                               GrGpuFinishedContext finishedContext) {
+    SkASSERT(finishedProc);
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    // Besides the current command list, we also add the finishedCallback to the newest outstanding
+    // command list. Our contract for calling the proc is that all previous submitted command lists
+    // have finished when we call it. However, if our current command list has no work when it is
+    // flushed it will drop its ref to the callback immediately. But the previous work may not have
+    // finished. It is safe to only add the proc to the newest outstanding commandlist cause that
+    // must finish after all previously submitted command lists.
+    OutstandingCommandList* back = (OutstandingCommandList*)fOutstandingCommandLists.back();
+    if (back) {
+        back->fCommandList->addFinishedCallback(finishedCallback);
+    }
+    fCurrentDirectCommandList->addFinishedCallback(std::move(finishedCallback));
+}
+
 void GrD3DGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* sampleLocations) {
     // TODO
 }

@@ -32,6 +32,7 @@ bool GrD3DCommandList::close() {
 GrD3DCommandList::SubmitResult GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
     SkASSERT(fIsActive);
     if (!this->hasWork()) {
+        this->callFinishedCallbacks();
         return SubmitResult::kNoWork;
     }
 
@@ -76,6 +77,12 @@ void GrD3DCommandList::releaseResources() {
 
     fTrackedResources.reset();
     fTrackedRecycledResources.reset();
+
+    this->callFinishedCallbacks();
+}
+
+void GrD3DCommandList::addFinishedCallback(sk_sp<GrRefCntedCallback> callback) {
+    fFinishedCallbacks.push_back(std::move(callback));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
