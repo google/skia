@@ -645,6 +645,11 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 binary(Inst::kMaxF, [](skvm::F32 x, skvm::F32 y) { return skvm::max(x,y); });
                 break;
 
+            case Inst::kNegateF:
+            case Inst::kNegateF2:
+            case Inst::kNegateF3:
+            case Inst::kNegateF4: unary(Inst::kNegateF, std::negate<>{}); break;
+
             case Inst::kPow:
             case Inst::kPow2:
             case Inst::kPow3:
