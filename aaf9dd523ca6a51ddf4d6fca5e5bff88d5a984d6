@@ -70,6 +70,24 @@
       "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e097f57a_6c91fd71",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T21:04:23Z",
+      "side": 1,
+      "message": "Ah, ok, I\u0027m guessing you don\u0027t have werror \u003d true set in your GN args?\n\n        foreach(dir, invoker.include_dirs) {\n          if (werror) {\n            cflags +\u003d [\n              \"-isystem\",\n              rebase_path(dir),\n            ]\n          } else {\n            cflags +\u003d [\n              \"-I\",\n              rebase_path(dir),\n            ]\n          }\n\nif you want you can go take out the if (werror) check.",
+      "parentUuid": "4cdade40_201641a3",
+      "revId": "aaf9dd523ca6a51ddf4d6fca5e5bff88d5a984d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
