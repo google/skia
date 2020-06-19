@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3cb8247_36469dbf",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-19T20:12:14Z",
+      "side": 1,
+      "message": "This is not needed. The API requires the client to call submit. I\u0027m kind of shocked the vulkan one still has the submit there cause I thought I had made all the changes specifically to remove that...",
+      "range": {
+        "startLine": 1063,
+        "startChar": 11,
+        "endLine": 1063,
+        "endChar": 59
+      },
+      "revId": "61b8f67c4e77f9ab6b68c1b6ccd81da2dc2dc4f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
