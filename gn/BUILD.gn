@@ -59,6 +59,17 @@ config("default") {
     }
   }
 
+  if (is_debug) {
+    if (is_ios || is_mac) {
+      # _LIBCPP_DEBUG does not seem to be supported.
+    } else if (santize != "") {
+      # UBSAN detects undefined behavior (bad vptr) in the iterator debug code itself.
+      defines += [ "_LIBCPP_DEBUG=0" ]  # Asserts only.
+    } else {
+      defines += [ "_LIBCPP_DEBUG=1" ]  # Asserts and iterator debugging.
+    }
+  }
+
   # Disable warnings about unknown attributes.
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
