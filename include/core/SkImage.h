@@ -493,16 +493,21 @@ public:
     /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
 
-        @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB
-        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
-                               possibly interleaved, YUVA planes
-        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
-                               in that texture, maps to each component of YUVA.
-        @param imageSize       size of the resulting image
-        @param imageOrigin     origin of the resulting image.
-        @param imageColorSpace range of colors of the resulting image; may be nullptr
-        @return                created SkImage, or nullptr
+        When all the provided backend textures can be released 'textureReleaseProc' will be called
+        with 'releaseContext'. It will be called even if this method fails.
+
+        @param context            GPU context
+        @param yuvColorSpace      How the YUV values are converted to RGB
+        @param yuvaTextures       array of (up to four) YUVA textures on GPU which contain the,
+                                  possibly interleaved, YUVA planes
+        @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
+                                  in that texture, maps to each component of YUVA.
+        @param imageSize          size of the resulting image
+        @param imageOrigin        origin of the resulting image.
+        @param imageColorSpace    range of colors of the resulting image; may be nullptr
+        @param textureReleaseProc called when the backend textures can be released
+        @param releaseContext     state passed to textureReleaseProc
+        @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
                                                SkYUVColorSpace yuvColorSpace,
@@ -510,7 +515,9 @@ public:
                                                const SkYUVAIndex yuvaIndices[4],
                                                SkISize imageSize,
                                                GrSurfaceOrigin imageOrigin,
-                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
+                                               TextureReleaseProc textureReleaseProc = nullptr,
+                                               ReleaseContext releaseContext = nullptr);
 
     /** Creates SkImage from pixmap array representing YUVA data.
         SkImage is uploaded to GPU back-end using context.
