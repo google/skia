@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "bce2d419_a25776b0",
+        "filename": "experimental/svg/model/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-06-19T16:32:29Z",
+      "side": 1,
+      "message": "I believe you need to resolve these length values via SkSVGLengthContext. Ditto for onAsPath. You can check out SkSVGRect.cpp for a simple example.",
+      "revId": "b1025727c1898458c1f724e8e3e2d176bb72e6ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0cfa34e_087cc3ff",
         "filename": "experimental/svg/model/SkSVGImage.cpp",
         "patchSetId": 1
