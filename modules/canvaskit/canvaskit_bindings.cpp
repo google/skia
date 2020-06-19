@@ -67,7 +67,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
-#include <GL/gl.h>
+#include <GLES3/gl3.h>
 #include <emscripten/html5.h>
 #endif
 
@@ -151,24 +151,28 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 }
 
 sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, int height,
-    sk_sp<SkColorSpace> colorSpace) {
+                                       sk_sp<SkColorSpace> colorSpace) {
+    // WebGL should already be clearing the color and stencil buffers, but do it again here to
+    // ensure Skia receives them in the expected state.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    grContext->resetContext(kRenderTarget_GrGLBackendState | kMisc_GrGLBackendState);
 
-    // Wrap the frame buffer object attached to the screen in a Skia render
-    // target so Skia can render to it
-    GrGLint buffer;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+    // The on-screen canvas is FBO 0. Wrap it in a Skia render target so Skia can render to it.
     GrGLFramebufferInfo info;
-    info.fFBOID = (GrGLuint) buffer;
+    info.fFBOID = 0;
+
+    GrGLint sampleCnt;
+    glGetIntegerv(GL_SAMPLES, &sampleCnt);
 
     GrGLint stencil;
     glGetIntegerv(GL_STENCIL_BITS, &stencil);
 
     const auto colorSettings = ColorSettings(colorSpace);
     info.fFormat = colorSettings.pixFormat;
-    GrBackendRenderTarget target(width, height, 0, stencil, info);
+    GrBackendRenderTarget target(width, height, sampleCnt, stencil, info);
     sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
         kBottomLeft_GrSurfaceOrigin, colorSettings.colorType, colorSpace, nullptr));
     return surface;
@@ -1561,6 +1565,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
         .function("width", &SkSurface::width)
+        .function("sampleCnt", optional_override([](SkSurface& self)->int {
+            auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+            return (backendRT.isValid()) ? backendRT.sampleCnt() : 0;
+        }))
         .function("reportBackendType", optional_override([](SkSurface& self)->std::string {
             return self.getCanvas()->getGrContext() == nullptr ? "CPU" : "GPU";
         }));
