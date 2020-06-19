@@ -543,6 +543,7 @@ var CanvasKit = {
     /** @return {CanvasKit.SkImage} */
     makeImageSnapshot: function() {},
     makeSurface: function() {},
+    sampleCnt: function() {},
     reportBackendType: function() {},
     grContext: {},
 
