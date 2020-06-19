@@ -142,6 +142,9 @@ public:
 
         bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;
         fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, fAlloc, fClipShader);
+        if (!fBlitter) {
+            fBlitter = fAlloc->make<SkNullBlitter>();
+        }
     }
 
     void blitRect(int x, int y, int width, int height) override {
