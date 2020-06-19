@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e364a00_49497996",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T11:43:26Z",
+      "side": 1,
+      "message": "I was going to suggest just having one register, with a default argument on the SampleMatrix that implies explicit-coord sampling, but forgot about this case. Oh well. (registerExplicitlySampled... is just really long to type) 😉",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "151513dc_ea37a603",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T11:43:26Z",
+      "side": 1,
+      "message": "This one can be private, right?",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
