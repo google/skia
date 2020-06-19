@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "f88b5b98_edffd939",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-19T12:20:55Z",
+      "side": 1,
+      "message": "const surface \u003d",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 11
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8707cc2d_474c23bd",
+        "filename": "modules/canvaskit/canvaskit/viewer.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-19T12:20:55Z",
+      "side": 1,
+      "message": "I don\u0027t think this works. !!flags.msaa is probably what you mean (!! coerces it to a boolean)",
+      "range": {
+        "startLine": 71,
+        "startChar": 65,
+        "endLine": 71,
+        "endChar": 82
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0aaa25b_9430b2c9",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-19T12:20:55Z",
+      "side": 1,
+      "message": "I don\u0027t think we want to (yet) add msaa to the primary constructor. If clients want msaa, they can create their own WebGL context with antialias: true and do the rest of the steps in this function.",
+      "range": {
+        "startLine": 54,
+        "startChar": 75,
+        "endLine": 54,
+        "endChar": 81
+      },
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bb84edf_28ed9a15",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 1
