@@ -34,6 +34,7 @@ private:
         SkRect devBounds;
         fViewMatrix.mapRect(&devBounds, path.getBounds());
         this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
+        std::swap(fColor.fG, fColor.fB);
     }
 
     const char* name() const override { return "GrTessellatePathOp"; }
