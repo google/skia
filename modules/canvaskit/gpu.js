@@ -51,7 +51,7 @@
       //          CanvasKit.SkColorSpace.SRGB
       //          CanvasKit.SkColorSpace.DISPLAY_P3
       //          CanvasKit.SkColorSpace.ADOBE_RGB
-      CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace) {
+      CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace, doMSAA) {
         colorSpace = colorSpace || null;
         var canvas = idOrElement;
         if (canvas.tagName !== 'CANVAS') {
@@ -62,7 +62,7 @@
         }
 
         // we are ok with all the other defaults.
-        var ctx = this.GetWebGLContext(canvas);
+        var ctx = this.GetWebGLContext(canvas, {antialias: doMSAA});
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
@@ -74,6 +74,12 @@
         // rendering into. This may not be the same size the element is displayed on the page, which
         // constrolled by css, and available in canvas.clientWidth/height.
         var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height, colorSpace);
+        if (doMSAA && (!surface || surface.sampleCnt() <= 1)) {
+          // We requested antialias on the canvas but did not get MSAA. Since we don't know what's
+          // going on with AA (if anything), this surface is unusable.
+          throw 'MSAA rendering to the on-screen canvas is not supported. ' +
+                'Please try again with doMSAA=false.';
+        }
         if (!surface) {
           SkDebug('falling back from GPU implementation to a SW based one');
           // we need to throw away the old canvas (which was locked to
