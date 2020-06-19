@@ -16,6 +16,24 @@
       "revId": "394b47d105ab7ba1269b30fa3e321c23e38c437f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a13626f8_d0e18619",
+        "filename": "tests/RectangleTextureTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-19T17:14:45Z",
+      "side": 1,
+      "message": "Yes, done",
+      "parentUuid": "7996a9ac_d16b1c7a",
+      "revId": "394b47d105ab7ba1269b30fa3e321c23e38c437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
