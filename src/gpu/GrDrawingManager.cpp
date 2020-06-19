@@ -590,6 +590,12 @@ void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTa
         SkASSERT(prior->isClosed());
     }
 #endif
+    // First try to store on the surface itself.
+    if (GrRenderTask** taskStorage = proxy->lastRenderTask().mutableAccess(this)) {
+        *taskStorage = task;
+        return;
+    }
+    // Fall back to our table.
     uint32_t key = proxy->uniqueID().asUInt();
     if (task) {
         fLastRenderTasks.set(key, task);
@@ -599,6 +605,9 @@ void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTa
 }
 
 GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) const {
+    if (GrRenderTask* const* task = proxy->lastRenderTask().access(this)) {
+        return *task;
+    }
     auto entry = fLastRenderTasks.find(proxy->uniqueID().asUInt());
     return entry ? *entry : nullptr;
 }

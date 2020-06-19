@@ -249,13 +249,11 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
-    struct SurfaceIDKeyTraits {
-        static uint32_t GetInvalidKey() {
-            return GrSurfaceProxy::UniqueID::InvalidID().asUInt();
-        }
-    };
+    // The last render task for a given surface ID.
+    // Note: This table only contains entries for GrSurfaceProxies whose inline lastRenderTask
+    // storage was already reserved by a different drawing manager (e.g. DDL recorders).
+    SkTHashMap<uint32_t, GrRenderTask*, GrCheapHash> fLastRenderTasks;
 
-    GrHashMapWithCache<uint32_t, GrRenderTask*, SurfaceIDKeyTraits, GrCheapHash> fLastRenderTasks;
 };
 
 #endif
