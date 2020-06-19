@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aec4e1d6_f4fea6b0",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-19T16:33:50Z",
+      "side": 1,
+      "message": "This helper is only called when we\u0027re going to immediately delete the BackendReleaseContext.\n\nThe dtor is also called at the end of successful drawing where it isn\u0027t a good idea to have a flush.",
+      "parentUuid": "71ba29d2_b2d04ceb",
+      "range": {
+        "startLine": 1088,
+        "startChar": 4,
+        "endLine": 1088,
+        "endChar": 82
+      },
+      "revId": "6fe46649d4cc8147d6ef2ba8bf11a756d50555f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36c9f986_a8f4baa6",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 16
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-19T15:49:23Z",
       "side": 1,
       "message": "For tests this is fine to keep as its simple way to assure everything. But if we wanted to be a model for client code we could use the procs on the create/update to tell use when it is safe to delete the textures.\n\nAlso why do we not need to do this in the case where we do succeed and put it into an SkImage. If the caller just releases the SkImage right away after making it (which out using it) I don\u0027t think there is any guarantee the upload has finished.",
+      "range": {
+        "startLine": 1091,
+        "startChar": 0,
+        "endLine": 1093,
+        "endChar": 41
+      },
+      "revId": "6fe46649d4cc8147d6ef2ba8bf11a756d50555f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "308b2d0d_6f19d90d",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1093,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-19T16:33:50Z",
+      "side": 1,
+      "message": "Let\u0027s talk about that first part off-line.\n\nRegarding the second part, we actually do that in the yuv_make_color_space GM\u0027s createImages and I\u0027ve added it at the end of the wacky_yuv_formats GM\u0027s createImages call.",
+      "parentUuid": "36c9f986_a8f4baa6",
       "range": {
         "startLine": 1091,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b4552590_6508ff61",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-19T16:33:50Z",
+      "side": 1,
+      "message": "I don\u0027t know if, in this instance, having this be a unique_ptr would buy us much.\n\nThe deletion on failure cases happens in the Unwind call. That call also does the hard sync that we don\u0027t want in the dtor.",
+      "parentUuid": "26c67647_6e8edc9b",
+      "range": {
+        "startLine": 1212,
+        "startChar": 8,
+        "endLine": 1212,
+        "endChar": 27
+      },
+      "revId": "6fe46649d4cc8147d6ef2ba8bf11a756d50555f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbd40071_2a7d76eb",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 16
@@ -91,6 +163,30 @@
       "revId": "6fe46649d4cc8147d6ef2ba8bf11a756d50555f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64417d02_f2602236",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-19T16:33:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dbd40071_2a7d76eb",
+      "range": {
+        "startLine": 514,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 24
+      },
+      "revId": "6fe46649d4cc8147d6ef2ba8bf11a756d50555f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
