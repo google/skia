@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "38c811d5_3d4fc3d2",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T16:42:11Z",
+      "side": 1,
+      "message": "Yep, and as I dig back into the literature... hoo boy, it\u0027s still a mess. One thing that appears to have universal support is the idea of using a polyphase box filter to handle odd dimensions. We should probably look at what happens if we do that today, as part of our default/fast algorithm, separate from everything else here.",
+      "parentUuid": "502a4722_96f96aa5",
+      "revId": "fa51ef7b1fe41c47e4ebcac8eae454e646bbc17e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61f9d1c8_cc3d9de9",
         "filename": "include/core/SkImage.h",
         "patchSetId": 1
