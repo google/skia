@@ -47,6 +47,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/YUVUtils.h"
 
 #include <math.h>
 #include <string.h>
@@ -54,6 +55,7 @@
 #include <memory>
 #include <utility>
 
+using sk_gpu_test::YUVABackendReleaseContext;
 class GrRenderTargetContext;
 
 static const int kTileWidthHeight = 128;
@@ -1072,57 +1074,6 @@ static SkColorType get_color_type(const GrBackendFormat& format) {
 
     return kUnknown_SkColorType;
 }
-
-// A helper for managing the lifetime of backend textures for YUVA images.
-class YUVABackendReleaseContext {
-public:
-    // A stock 'TextureReleaseProc' to use with this class
-    static void Release(void* releaseContext) {
-        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
-
-        delete beContext;
-    }
-
-    // Given how and when backend textures are created, just deleting this object often
-    // isn't enough. This helper encapsulates the extra work needed.
-    static void Unwind(GrContext* context, YUVABackendReleaseContext* beContext) {
-        // Some backends (e.g., Vulkan) require that all work associated w/ texture
-        // creation be completed before deleting the textures.
-        GrFlushInfo flushInfoSyncCpu;
-        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-        context->flush(flushInfoSyncCpu);
-        context->submit(true);
-
-        delete beContext;
-    }
-
-    YUVABackendReleaseContext(GrContext* context) : fContext(context) {
-        SkASSERT(context->priv().getGpu());
-        SkASSERT(context->priv().asDirectContext());
-    }
-
-    void set(int index, const GrBackendTexture& beTex) {
-        SkASSERT(index >= 0 && index < 4);
-        SkASSERT(!fBETextures[index].isValid());
-        SkASSERT(beTex.isValid());
-
-        fBETextures[index] = beTex;
-    }
-
-    const GrBackendTexture* beTextures() const { return fBETextures; }
-
-    ~YUVABackendReleaseContext() {
-        for (int i = 0; i < 4; ++i) {
-            if (fBETextures[i].isValid()) {
-                fContext->deleteBackendTexture(fBETextures[i]);
-            }
-        }
-    }
-
-private:
-    GrContext*       fContext;
-    GrBackendTexture fBETextures[4];
-};
 
 namespace skiagm {
 
