@@ -6,12 +6,11 @@
  *
  */
 
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
-#include "SDL.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
 #include "include/utils/SkRandom.h"
 
 #include "include/gpu/gl/GrGLInterface.h"
@@ -25,6 +24,23 @@
 #include <OpenGL/gl.h>
 #elif defined(SK_BUILD_FOR_IOS)
 #include <OpenGLES/ES2/gl.h>
+#endif
+
+// Avoid spurious warnings about switch fallthroughs when #including the SDL headers.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#endif
+
+#include "SDL.h"
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
 #endif
 
 /*
