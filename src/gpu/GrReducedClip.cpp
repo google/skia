@@ -908,36 +908,40 @@ int GrReducedClip::numAnalyticFPs() const {
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
         GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
-    std::vector<std::unique_ptr<GrFragmentProcessor>> clipFPs;
-    clipFPs.reserve(fCCPRClipPaths.size() + 2);
+    // Combine the analytic FP with any CCPR clip processors.
+    std::unique_ptr<GrFragmentProcessor> clipFP = std::move(fAnalyticFP);
 
-    if (fAnalyticFP != nullptr) {
-        clipFPs.push_back(std::move(fAnalyticFP));
+    for (const SkPath& ccprClipPath : fCCPRClipPaths) {
+        SkASSERT(ccpr);
+        SkASSERT(fHasScissor);
+        clipFP = ccpr->makeClipProcessor(std::move(clipFP), opsTaskID, ccprClipPath,
+                                         fScissor, *fCaps);
     }
+    fCCPRClipPaths.reset();
 
-    if (!fCCPRClipPaths.empty()) {
-        for (const SkPath& ccprClipPath : fCCPRClipPaths) {
-            SkASSERT(ccpr);
-            SkASSERT(fHasScissor);
-            clipFPs.push_back(ccpr->makeClipProcessor(opsTaskID, ccprClipPath, fScissor, *fCaps));
-        }
-        fCCPRClipPaths.reset();
-    }
-
-    static const GrColorInfo kCoverageColorInfo = GrColorInfo(GrColorType::kUnknown,
-                                                              kPremul_SkAlphaType,
-                                                              nullptr);
-    if (fShader) {
+    // Create the shader.
+    std::unique_ptr<GrFragmentProcessor> shaderFP;
+    if (fShader != nullptr) {
+        static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
+                                                    nullptr};
         GrFPArgs args(context, matrixProvider, kNone_SkFilterQuality, &kCoverageColorInfo);
-        auto fp = as_SB(fShader)->asFragmentProcessor(args);
-        if (fp) {
-            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::AAAA());
-            clipFPs.push_back(std::move(fp));
+        shaderFP = as_SB(fShader)->asFragmentProcessor(args);
+        if (shaderFP != nullptr) {
+            shaderFP = GrFragmentProcessor::SwizzleOutput(std::move(shaderFP), GrSwizzle::AAAA());
         }
     }
 
-    return clipFPs.empty()
+    // Combine the two FPs using RunInSeries if necessary.
+    SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> seriesFPs;
+    if (clipFP != nullptr) {
+        seriesFPs.push_back(std::move(clipFP));
+    }
+    if (shaderFP != nullptr) {
+        seriesFPs.push_back(std::move(shaderFP));
+    }
+
+    return seriesFPs.empty()
                ? nullptr
-               : GrFragmentProcessor::RunInSeries(&clipFPs.front(), clipFPs.size());
+               : GrFragmentProcessor::RunInSeries(&seriesFPs.front(), seriesFPs.size());
 }
 

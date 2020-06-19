@@ -24,6 +24,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "tools/ToolUtils.h"
 
@@ -42,7 +43,8 @@ private:
     SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
     bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
                bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpsTaskID(), fPath,
+        out->addCoverageFP(fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
+                                                    rtc->priv().testingOnly_getOpsTaskID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     *context->priv().caps()));
         return true;
