@@ -46,24 +46,25 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     // they're available to "generic" interpreter programs (eg particles).
     // You can probably copy the declarations from sksl_gpu.inc.
     , fIntrinsics {
-        { "atan",     ByteCodeInstruction::kATan },
-        { "ceil",     ByteCodeInstruction::kCeil },
-        { "clamp",    SpecialIntrinsic::kClamp },
-        { "cos",      ByteCodeInstruction::kCos },
-        { "dot",      SpecialIntrinsic::kDot },
-        { "floor",    ByteCodeInstruction::kFloor },
-        { "fract",    ByteCodeInstruction::kFract },
-        { "inverse",  ByteCodeInstruction::kInverse2x2 },
-        { "length",   SpecialIntrinsic::kLength },
-        { "max",      SpecialIntrinsic::kMax },
-        { "min",      SpecialIntrinsic::kMin },
-        { "mix",      SpecialIntrinsic::kMix },
-        { "pow",      ByteCodeInstruction::kPow },
-        { "sample",   SpecialIntrinsic::kSample },
-        { "saturate", SpecialIntrinsic::kSaturate },
-        { "sin",      ByteCodeInstruction::kSin },
-        { "sqrt",     ByteCodeInstruction::kSqrt },
-        { "tan",      ByteCodeInstruction::kTan },
+        { "atan",      ByteCodeInstruction::kATan },
+        { "ceil",      ByteCodeInstruction::kCeil },
+        { "clamp",     SpecialIntrinsic::kClamp },
+        { "cos",       ByteCodeInstruction::kCos },
+        { "dot",       SpecialIntrinsic::kDot },
+        { "floor",     ByteCodeInstruction::kFloor },
+        { "fract",     ByteCodeInstruction::kFract },
+        { "inverse",   ByteCodeInstruction::kInverse2x2 },
+        { "length",    SpecialIntrinsic::kLength },
+        { "max",       SpecialIntrinsic::kMax },
+        { "min",       SpecialIntrinsic::kMin },
+        { "mix",       SpecialIntrinsic::kMix },
+        { "normalize", SpecialIntrinsic::kNormalize },
+        { "pow",       ByteCodeInstruction::kPow },
+        { "sample",    SpecialIntrinsic::kSample },
+        { "saturate",  SpecialIntrinsic::kSaturate },
+        { "sin",       ByteCodeInstruction::kSin },
+        { "sqrt",      ByteCodeInstruction::kSqrt },
+        { "tan",       ByteCodeInstruction::kTan },
 
         { "lessThan",         { ByteCodeInstruction::kCompareFLT,
                                 ByteCodeInstruction::kCompareSLT,
@@ -1210,6 +1211,19 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     dupSmallerType(selectorCount);
                     this->write(vector_instruction(ByteCodeInstruction::kLerp, count));
                 }
+            } break;
+
+            case SpecialIntrinsic::kNormalize: {
+                SkASSERT(c.fArguments.size() == 1);
+                this->write(vector_instruction(ByteCodeInstruction::kDup      , count));
+                this->write(vector_instruction(ByteCodeInstruction::kDup      , count));
+                this->write(vector_instruction(ByteCodeInstruction::kMultiplyF, count));
+                for (int i = count-1; i --> 0;) {
+                    this->write(ByteCodeInstruction::kAddF);
+                }
+                this->write(ByteCodeInstruction::kSqrt);
+                dupSmallerType(1);
+                this->write(vector_instruction(ByteCodeInstruction::kDivideF, count));
             } break;
 
             default:

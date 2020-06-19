@@ -16,6 +16,8 @@ half3x3 inverse(half3x3 m);
 half4x4 inverse(half4x4 m);
 float length($genType x);
 half length($genHType x);
+$genType normalize($genType x);
+$genHType normalize($genHType x);
 $genType pow($genType x, $genType y);
 $genHType pow($genHType x, $genHType y);
 $genType sin($genType x);
@@ -100,10 +102,6 @@ float4 radians(float4 deg) { return deg * 0.0174532925; }
 float distance(float2 a, float2 b) { return length(a - b); }
 float distance(float3 a, float3 b) { return length(a - b); }
 float distance(float4 a, float4 b) { return length(a - b); }
-
-float2 normalize(float2 v) { return v / length(v); }
-float3 normalize(float3 v) { return v / length(v); }
-float4 normalize(float4 v) { return v / length(v); }
 
 float3 cross(float3 a, float3 b) {
     return float3(a.y * b.z - a.z * b.y,
