@@ -651,15 +651,10 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpace
         return ClipResult::kNotClipped;
     }
 
-    if (fAnalyticFPs.empty()) {
-        fAnalyticFPs.push_back(nullptr);
-    }
+    fAnalyticFP = GrAARectEffect::Make(std::move(fAnalyticFP), GetClipEdgeType(invert, aa),
+                                       deviceSpaceRect);
 
-    fAnalyticFPs.back() = GrAARectEffect::Make(std::move(fAnalyticFPs.back()),
-                                               GetClipEdgeType(invert, aa), deviceSpaceRect);
-
-    SkASSERT(fAnalyticFPs.back() != nullptr);
-
+    SkASSERT(fAnalyticFP != nullptr);
     return ClipResult::kClipped;
 }
 
@@ -669,23 +664,13 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
         return ClipResult::kNotClipped;
     }
 
-    if (fAnalyticFPs.empty()) {
-        // Create our first analytic effect in the stack.
-        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, GetClipEdgeType(invert, aa),
-                                                 deviceSpaceRRect, *fCaps->shaderCaps());
-        if (success) {
-            fAnalyticFPs.push_back(std::move(fp));
-            return ClipResult::kClipped;
-        }
-    } else {
-        // Combine this analytic effect with the previous effect in the stack.
-        auto [success, fp] = GrRRectEffect::Make(std::move(fAnalyticFPs.back()),
-                                                 GetClipEdgeType(invert, aa), deviceSpaceRRect,
-                                                 *fCaps->shaderCaps());
-        fAnalyticFPs.back() = std::move(fp);
-        if (success) {
-            return ClipResult::kClipped;
-        }
+    // Combine this analytic effect with the previous effect in the stack.
+    bool success;
+    std::tie(success, fAnalyticFP) = GrRRectEffect::Make(std::move(fAnalyticFP),
+                                                         GetClipEdgeType(invert, aa),
+                                                         deviceSpaceRRect, *fCaps->shaderCaps());
+    if (success) {
+        return ClipResult::kClipped;
     }
 
     SkPath deviceSpacePath;
@@ -700,22 +685,13 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
         return ClipResult::kNotClipped;
     }
 
-    if (fAnalyticFPs.empty()) {
-        // Create our first analytic effect in the stack.
-        auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr,
-                                                      GetClipEdgeType(invert, aa), deviceSpacePath);
-        if (success) {
-            fAnalyticFPs.push_back(std::move(fp));
-            return ClipResult::kClipped;
-        }
-    } else {
-        // Combine this analytic effect with the previous effect in the stack.
-        auto [success, fp] = GrConvexPolyEffect::Make(std::move(fAnalyticFPs.back()),
-                                                      GetClipEdgeType(invert, aa), deviceSpacePath);
-        fAnalyticFPs.back() = std::move(fp);
-        if (success) {
-            return ClipResult::kClipped;
-        }
+    // Combine this analytic effect with the previous effect in the stack.
+    bool success;
+    std::tie(success, fAnalyticFP) = GrConvexPolyEffect::Make(std::move(fAnalyticFP),
+                                                              GetClipEdgeType(invert, aa),
+                                                              deviceSpacePath);
+    if (success) {
+        return ClipResult::kClipped;
     }
 
     if (fCCPRClipPaths.count() < fMaxCCPRClipPaths && GrAA::kYes == aa) {
@@ -914,19 +890,36 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
     return true;
 }
 
+static int count_fp_recursive(GrFragmentProcessor* fp) {
+    int count = 0;
+    if (fp != nullptr) {
+        count += 1;  // count self
+        for (int index=0; index < fp->numChildProcessors(); ++index) {
+            count += count_fp_recursive(&fp->childProcessor(index));  // count children
+        }
+    }
+    return count;
+}
+
+int GrReducedClip::numAnalyticFPs() const {
+    return fCCPRClipPaths.size() + count_fp_recursive(fAnalyticFP.get());
+}
+
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
         GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
-    // Make sure finishAndDetachAnalyticFPs hasn't been called already.
-    SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
+    std::vector<std::unique_ptr<GrFragmentProcessor>> clipFPs;
+    clipFPs.reserve(fCCPRClipPaths.size() + 2);
+
+    if (fAnalyticFP != nullptr) {
+        clipFPs.push_back(std::move(fAnalyticFP));
+    }
 
     if (!fCCPRClipPaths.empty()) {
-        fAnalyticFPs.reserve(fAnalyticFPs.count() + fCCPRClipPaths.count());
         for (const SkPath& ccprClipPath : fCCPRClipPaths) {
             SkASSERT(ccpr);
             SkASSERT(fHasScissor);
-            auto fp = ccpr->makeClipProcessor(opsTaskID, ccprClipPath, fScissor, *fCaps);
-            fAnalyticFPs.push_back(std::move(fp));
+            clipFPs.push_back(ccpr->makeClipProcessor(opsTaskID, ccprClipPath, fScissor, *fCaps));
         }
         fCCPRClipPaths.reset();
     }
@@ -939,9 +932,12 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         auto fp = as_SB(fShader)->asFragmentProcessor(args);
         if (fp) {
             fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::AAAA());
-            fAnalyticFPs.push_back(std::move(fp));
+            clipFPs.push_back(std::move(fp));
         }
     }
 
-    return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
+    return clipFPs.empty()
+               ? nullptr
+               : GrFragmentProcessor::RunInSeries(&clipFPs.front(), clipFPs.size());
 }
+
