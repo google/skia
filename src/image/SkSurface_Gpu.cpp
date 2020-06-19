@@ -235,7 +235,6 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     // If the dst is also GPU we try to not force a new image snapshot (by calling the base class
     // onDraw) since that may not always perform the copy-on-write optimization.
     auto tryDraw = [&] {
-        SkASSERT(fDevice->context()->priv().asDirectContext());
         GrContext* context = fDevice->context();
         GrContext* canvasContext = canvas->getGrContext();
         if (!canvasContext) {
