@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0701f40_2543fa99",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-19T13:07:09Z",
+      "side": 1,
+      "message": "Herb, should this be written as follows?\n\n    sk_sp\u003cSkStrike\u003e result \u003d this-\u003einternalFindStrikeOrNull(desc);\n    this-\u003einternalPurge();\n    return SkExclusiveStrikePtr(result);",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 71
+      },
+      "revId": "4c9aa747087ae573b1494ea5ccbf3cdf9c44c57e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
