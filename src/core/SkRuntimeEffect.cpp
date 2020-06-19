@@ -705,6 +705,27 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kSin3:
             case Inst::kSin4: unary(Inst::kSin, skvm::approx_sin); break;
 
+            case Inst::kMatrixMultiply: {
+                // Computes M = A*B (all stored column major)
+                int aCols = u8(),
+                    aRows = u8(),
+                    bCols = u8(),
+                    bRows = aCols;
+                std::vector<skvm::F32> A(aCols*aRows),
+                                       B(bCols*bRows);
+                for (auto i = B.size(); i --> 0;) { B[i] = pop(); }
+                for (auto i = A.size(); i --> 0;) { A[i] = pop(); }
+
+                for (int c = 0; c < bCols; ++c)
+                for (int r = 0; r < aRows; ++r) {
+                    skvm::F32 sum = p->splat(0.0f);
+                    for (int j = 0; j < aCols; ++j) {
+                        sum += A[j*aRows + r] * B[c*bRows + j];
+                    }
+                    push(sum);
+                }
+            } break;
+
             // Baby steps... just leaving test conditions on the stack for now.
             case Inst::kMaskPush:   break;
             case Inst::kMaskNegate: break;
