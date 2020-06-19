@@ -15,6 +15,7 @@ declare_args() {
   extra_ldflags = []
 
   malloc = ""
+  werror = false
   xcode_sysroot = ""
 }
 

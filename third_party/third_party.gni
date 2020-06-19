@@ -3,6 +3,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+declare_args() {
+  third_party_isystem = true
+}
+
 template("third_party_config") {
   enabled = !defined(invoker.enabled) || invoker.enabled
   config(target_name) {
@@ -21,7 +25,7 @@ template("third_party_config") {
         }
       } else {
         foreach(dir, invoker.include_dirs) {
-          if (werror) {
+          if (third_party_isystem) {
             cflags += [
               "-isystem",
               rebase_path(dir),
