@@ -35,6 +35,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrCaps.h"
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
@@ -45,7 +46,6 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>
@@ -1648,7 +1648,12 @@ protected:
         return DrawResult::kOk;
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        this->createImages(context);
+        return DrawResult::kOk;
+    }
+
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         int x = kPad;

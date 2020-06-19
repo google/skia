@@ -85,7 +85,8 @@ private:
     }
 
     SkISize onISize() override { return SkISize::Make(200, 200); }
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString* errorMsg) override;
+    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*,
+                      SkCanvas*, SkString* errorMsg) override;
 
     const GradType fGradType;
     const GrSurfaceOrigin fOrigin;
@@ -311,8 +312,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-DrawResult SampleLocationsGM::onDraw(
-        GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas, SkString* errorMsg) {
+DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
+                                     SkCanvas* canvas, SkString* errorMsg) {
     if (!ctx->priv().caps()->sampleLocationsSupport()) {
         *errorMsg = "Requires support for sample locations.";
         return DrawResult::kSkip;

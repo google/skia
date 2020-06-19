@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrRecordingContext.h"
 #include "tools/Resources.h"
 
 class GrContext;

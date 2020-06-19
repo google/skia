@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "tools/gpu/vk/VkTestHelper.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
 static void release_ycbcrhelper(void* releaseContext) {
@@ -90,7 +91,11 @@ protected:
         return DrawResult::kOk;
     }
 
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,  SkString*) override {
+    void onGpuTeardown(GrContext* context) override {
+    }
+
+    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*,
+                      SkCanvas* canvas, SkString*) override {
         SkASSERT(fYCbCrImage);
 
         SkPaint paint;
