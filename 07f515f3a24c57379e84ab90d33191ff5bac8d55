@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bb84edf_28ed9a15",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T03:35:51Z",
+      "side": 1,
+      "message": "Should we abort here? Or fail with a very serious warning message?\n\nIdeally the client needs to delete the whole thing and try again without \"doMSAA\".",
+      "revId": "07f515f3a24c57379e84ab90d33191ff5bac8d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
