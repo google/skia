@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a744ed91_30bfe99d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-19T15:23:59Z",
+      "side": 1,
+      "message": "nit: extra word in here or something?",
+      "range": {
+        "startLine": 7,
+        "startChar": 19,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "7402e96db01bab5056eb247e241c1d3610371812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e985130e_a459ef28",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 4
