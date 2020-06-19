@@ -35,6 +35,22 @@ class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
 
+enum class SkFiltering {
+    kNearest,
+    kLineaer
+    kNearest_Mipmap_Nearest,
+    kNearest_Mipmap_Linear,
+    kLineaer_Mipmap_Nearest,
+    kLineaer_Mipmap_Linear,
+};
+
+struct SkFilterOptions {
+    SkFiltering fMagnify;   // used when scaling up
+    SkFiltering fMinimize;  // used when scaling down
+    // float LODBias?
+    // float4x4* Bicubic magnification?
+};
+
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
     decoded in a raster bitmap, encoded in a SkPicture or compressed data stream,
@@ -762,6 +778,9 @@ public:
         @return  true if SkAlphaType is kOpaque_SkAlphaType
     */
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
+
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkFilterOptions&,
+                               const SkMatrix* localMatrix = nullptr) const;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
