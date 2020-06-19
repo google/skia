@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fe5bf16c_e7ff504d",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-19T15:56:25Z",
+      "side": 1,
+      "message": "Na its something I\u0027ve been wanting to change in Vulkan as well. Figured I do it right here from the start.",
+      "parentUuid": "0b650fe6_90546fa0",
+      "range": {
+        "startLine": 194,
+        "startChar": 81,
+        "endLine": 195,
+        "endChar": 19
+      },
+      "revId": "2ac90c0d94508c72f506e0b298e6aa1ba3dde595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ab3687ec_7a857971",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "2ac90c0d94508c72f506e0b298e6aa1ba3dde595",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "682b66b1_82567724",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-19T15:56:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab3687ec_7a857971",
+      "revId": "2ac90c0d94508c72f506e0b298e6aa1ba3dde595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
