@@ -22,6 +22,30 @@
       "revId": "61b8f67c4e77f9ab6b68c1b6ccd81da2dc2dc4f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22546995_d3901e6b",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-19T20:20:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3cb8247_36469dbf",
+      "range": {
+        "startLine": 1063,
+        "startChar": 11,
+        "endLine": 1063,
+        "endChar": 59
+      },
+      "revId": "61b8f67c4e77f9ab6b68c1b6ccd81da2dc2dc4f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
