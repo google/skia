@@ -16,6 +16,24 @@
       "revId": "d81f91eb286796f7601ceb98d5c6a0e85247f65c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60fa4dcf_dd36c235",
+        "filename": "modules/skparagraph/tests/SkParagraphTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 5303,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-19T14:15:38Z",
+      "side": 1,
+      "message": "It does assert (@5354). I added visual so I can see the results more clear.",
+      "parentUuid": "c0310f38_76cebdab",
+      "revId": "d81f91eb286796f7601ceb98d5c6a0e85247f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
