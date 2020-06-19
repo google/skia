@@ -218,7 +218,6 @@ private:
     }
 
     void drawRow(SkCanvas* canvas, bool bottomLeftImage, bool drawSubset, bool drawScaled) {
-
         canvas->save();
             canvas->translate(kLabelSize, kLabelSize);
 

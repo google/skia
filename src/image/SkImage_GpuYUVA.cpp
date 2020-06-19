@@ -245,6 +245,13 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
 
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
+        if (textureReleaseProc) {
+            for (int i = 0; i < 4; ++i) {
+                if (yuvaTextures[i].isValid()) {
+                    textureReleaseProc(releaseContext);
+                }
+            }
+        }
         return nullptr;
     }
 
