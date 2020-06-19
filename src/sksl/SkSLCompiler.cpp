@@ -1363,7 +1363,22 @@ void Compiler::scanCFG(FunctionDefinition& f) {
         }
 
         updated = false;
+        bool first = true;
         for (BasicBlock& b : cfg.fBlocks) {
+            if (!first && b.fEntrances.empty()) {
+                // Block was reachable before optimization, but has since become unreachable. In
+                // addition to being dead code, it's broken - since control flow can't reach it, no
+                // prior variable definitions can reach it, and therefore variables might look to
+                // have not been properly assigned. Kill it.
+                for (BasicBlock::Node& node : b.fNodes) {
+                    if (node.fKind == BasicBlock::Node::kStatement_Kind &&
+                        (*node.statement())->fKind != Statement::kNop_Kind) {
+                        node.setStatement(std::unique_ptr<Statement>(new Nop()));
+                    }
+                }
+                continue;
+            }
+            first = false;
             DefinitionMap definitions = b.fBefore;
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
