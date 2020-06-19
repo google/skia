@@ -2546,3 +2546,24 @@ DEF_TEST(SkSLNegatedVectorLiteral, r) {
          "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
          "}\n");
 }
+
+DEF_TEST(SkSLDiscard, r) {
+    test(r,
+         "void main() {"
+         "half x;"
+         "    @switch (1) {"
+         "       case 0: x = 0; break;"
+         "       default: x = 1; discard;"
+         "    }"
+         "    sk_FragColor = half4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    float x;\n"
+         "    {\n"
+         "        x = 1.0;\n"
+         "        discard;\n"
+         "    }\n"
+         "}\n");
+}
