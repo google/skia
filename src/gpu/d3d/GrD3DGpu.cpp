@@ -126,6 +126,10 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
         return true;
     }
 
+    // We just submitted the command list so make sure all GrD3DPipelineState's mark their cached
+    // uniform data as dirty.
+    fResourceProvider.markPipelineStateUniformsDirty();
+
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
             std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
 

@@ -33,7 +33,7 @@ GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoAr
 D3D12_GPU_VIRTUAL_ADDRESS GrD3DPipelineStateDataManager::uploadConstants(GrD3DGpu* gpu) {
     if (fUniformsDirty) {
         fConstantBufferAddress = gpu->resourceProvider().uploadConstantData(fUniformData.get(),
-                                                                         fUniformSize);
+                                                                            fUniformSize);
         fUniformsDirty = false;
     }
 

@@ -252,3 +252,10 @@ sk_sp<GrD3DPipelineState> GrD3DResourceProvider::PipelineStateCache::refPipeline
     }
     return (*entry)->fPipelineState;
 }
+
+void GrD3DResourceProvider::PipelineStateCache::markPipelineStateUniformsDirty() {
+    fMap.foreach ([](const GrProgramDesc*, std::unique_ptr<Entry>* entry) {
+        (*entry)->fPipelineState->markUniformsDirty();
+    });
+}
+

@@ -64,6 +64,8 @@ public:
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
 
+    void markPipelineStateUniformsDirty() { fPipelineStateCache->markPipelineStateUniformsDirty(); }
+
 #if GR_TEST_UTILS
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
@@ -80,6 +82,8 @@ private:
 
         void release();
         sk_sp<GrD3DPipelineState> refPipelineState(GrRenderTarget*, const GrProgramInfo&);
+
+        void markPipelineStateUniformsDirty();
 
     private:
         struct Entry;

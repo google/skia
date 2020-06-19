@@ -61,6 +61,11 @@ public:
     void bindBuffers(GrD3DGpu*, const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
 
+    // We can only cache non dirty uniform values until we submit a command list. After that, the
+    // next frame will get a completely different uniform buffer and/or offset into the buffer. Thus
+    // we need a way to mark them all as dirty during submit.
+    void markUniformsDirty() { fDataManager.markDirty(); }
+
 private:
     /**
      * We use the RT's size and origin to adjust from Skia device space to d3d normalized device
