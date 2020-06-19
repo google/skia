@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7996a9ac_d16b1c7a",
+        "filename": "tests/RectangleTextureTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-19T15:36:46Z",
+      "side": 1,
+      "message": "Can we get rid of this include now ?",
+      "revId": "394b47d105ab7ba1269b30fa3e321c23e38c437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
