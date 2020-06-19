@@ -34,6 +34,24 @@
       "revId": "e536410e9f1516aa9f3f1a588110a7bbf770b378",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "952960d5_0a32fd12",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1225,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-19T17:37:03Z",
+      "side": 1,
+      "message": "Gotcha.",
+      "parentUuid": "0a235080_4a203ae2",
+      "revId": "e536410e9f1516aa9f3f1a588110a7bbf770b378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
