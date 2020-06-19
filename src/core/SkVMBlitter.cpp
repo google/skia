@@ -34,13 +34,13 @@ namespace {
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
     struct Params {
-        sk_sp<SkShader> shader;
-        sk_sp<SkShader> clip;
-        SkColorInfo     dst;
-        SkBlendMode     blendMode;
-        Coverage        coverage;
-        SkFilterQuality quality;
-        SkMatrix        ctm;
+        sk_sp<SkShader>         shader;
+        sk_sp<SkShader>         clip;
+        SkColorInfo             dst;
+        SkBlendMode             blendMode;
+        Coverage                coverage;
+        SkFilterQuality         quality;
+        const SkMatrixProvider& matrices;
 
         Params withCoverage(Coverage c) const {
             Params p = *this;
@@ -59,7 +59,7 @@ namespace {
                  blendMode,
                  coverage;
         uint32_t padding{0};
-        // Params::quality and Params::ctm are only passed to {shader,clip}->program(),
+        // Params::quality and Params::matrices are only passed to {shader,clip}->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
 
@@ -130,7 +130,7 @@ namespace {
             uint64_t hash = 0;
             if (auto c = sb->program(&p,
                                      x,y, paint,
-                                     params.ctm, /*localM=*/nullptr,
+                                     params.matrices, /*localM=*/nullptr,
                                      params.quality, params.dst,
                                      uniforms,alloc)) {
                 hash = p.hash();
@@ -208,7 +208,7 @@ namespace {
         };
 
         skvm::Color src = as_SB(params.shader)->program(p, x,y, paint,
-                                                        params.ctm, /*localM=*/nullptr,
+                                                        params.matrices, /*localM=*/nullptr,
                                                         params.quality, params.dst,
                                                         uniforms, alloc);
         SkASSERT(src);
@@ -275,7 +275,7 @@ namespace {
 
             if (params.clip) {
                 skvm::Color clip = as_SB(params.clip)->program(p, x,y, paint,
-                                                               params.ctm, /*localM=*/nullptr,
+                                                               params.matrices, /*localM=*/nullptr,
                                                                params.quality, params.dst,
                                                                uniforms, alloc);
                 SkAssertResult(clip);
@@ -429,12 +429,12 @@ namespace {
         bool isOpaque() const override { return fShader->isOpaque(); }
 
         skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                              const SkMatrix& ctm, const SkMatrix* localM,
+                              const SkMatrixProvider& matrices, const SkMatrix* localM,
                               SkFilterQuality quality, const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
             skvm::Color c = as_SB(fShader)->program(p, x,y, paint,
-                                                    ctm,localM, quality,dst, uniforms,alloc);
+                                                    matrices,localM, quality,dst, uniforms,alloc);
             if (!c) {
                 return {};
             }
@@ -501,7 +501,7 @@ namespace {
 
     static Params effective_params(const SkPixmap& device,
                                    const SkPaint& paint,
-                                   const SkMatrix& ctm,
+                                   const SkMatrixProvider& matrices,
                                    sk_sp<SkShader> clip) {
         // Color filters have been handled for us by SkBlitter::Choose().
         SkASSERT(!paint.getColorFilter());
@@ -547,7 +547,7 @@ namespace {
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paint.getFilterQuality(),
-            ctm,
+            matrices,
         };
     }
 
@@ -555,12 +555,12 @@ namespace {
     public:
         Blitter(const SkPixmap& device,
                 const SkPaint& paint,
-                const SkMatrix& ctm,
+                const SkMatrixProvider& matrices,
                 sk_sp<SkShader> clip,
                 bool* ok)
             : fDevice(device)
             , fUniforms(kBlitterUniformsCount)
-            , fParams(effective_params(device, paint, ctm, std::move(clip)))
+            , fParams(effective_params(device, paint, matrices, std::move(clip)))
             , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
             , fPaint([&]{
                 SkColor4f color = paint.getColor4f();
@@ -737,10 +737,10 @@ namespace {
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                const SkPaint& paint,
-                               const SkMatrix& ctm,
+                               const SkMatrixProvider& matrices,
                                SkArenaAlloc* alloc,
                                sk_sp<SkShader> clip) {
     bool ok = true;
-    auto blitter = alloc->make<Blitter>(device, paint, ctm, std::move(clip), &ok);
+    auto blitter = alloc->make<Blitter>(device, paint, matrices, std::move(clip), &ok);
     return ok ? blitter : nullptr;
 }

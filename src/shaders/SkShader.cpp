@@ -196,7 +196,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                  const SkMatrix& ctm, const SkMatrix* localM,
+                                  const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     // Force opaque alpha for all opaque shaders.
@@ -211,7 +211,7 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, x,y, paint, ctm,localM, quality,dst, uniforms,alloc)) {
+    if (auto color = this->onProgram(p, x,y, paint, matrices,localM, quality,dst, uniforms,alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);
         }
@@ -221,7 +221,7 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
 }
 
 skvm::Color SkShaderBase::onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                    const SkMatrix& ctm, const SkMatrix* localM,
+                                    const SkMatrixProvider&, const SkMatrix* localM,
                                     SkFilterQuality quality, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     //SkDebugf("cannot onProgram %s\n", this->getTypeName());
@@ -262,8 +262,9 @@ void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::F32, skvm::F32, skvm::Color,
-                                     const SkMatrix&, const SkMatrix*, SkFilterQuality,
-                                     const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const {
+                                     const SkMatrixProvider&, const SkMatrix*,
+                                     SkFilterQuality, const SkColorInfo&,
+                                     skvm::Uniforms*, SkArenaAlloc*) const {
     return {};  // signal failure
 }
 

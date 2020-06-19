@@ -177,7 +177,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap&,
                                const SkPaint&,
-                               const SkMatrix& ctm,
+                               const SkMatrixProvider&,
                                SkArenaAlloc*,
                                sk_sp<SkShader> clipShader);
 

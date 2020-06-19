@@ -411,6 +411,7 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) 
 static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                                          const SkSL::ByteCodeFunction& fn,
                                          const std::vector<skvm::F32>& uniform,
+                                         const SkMatrixProvider& matrices,
                                          std::vector<skvm::F32> stack,
                                          /*these parameters are used to call program() on children*/
                                          const std::vector<sk_sp<SkShader>>& children,
@@ -481,8 +482,9 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 skvm::F32 y = pop(),
                           x = pop();
 
+                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
                 skvm::Color c = as_SB(children[ix])->program(p, x,y,paint,
-                                                             SkMatrix::I(), nullptr,
+                                                             mats, nullptr,
                                                              quality, dst,
                                                              uniforms, alloc);
                 if (!c) {
@@ -798,7 +800,7 @@ public:
         }
 
         std::vector<skvm::F32> stack =
-            program_fn(p, *fn, uniform, {c.r, c.g, c.b, c.a},
+            program_fn(p, *fn, uniform, SkSimpleMatrixProvider{SkMatrix::I()}, {c.r, c.g, c.b, c.a},
                        /* the remaining parameters are for shaders only and won't be used here */
                        {},{},{},{},{},{},{},{});
 
@@ -990,7 +992,7 @@ public:
     }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                          const SkMatrix& ctm, const SkMatrix* localM,
+                          const SkMatrixProvider& matrices, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         const SkSL::ByteCode* bc = this->byteCode();
@@ -1003,11 +1005,7 @@ public:
             return {};
         }
 
-        // TODO: Eventually, plumb SkMatrixProvider here (instead of just ctm). For now, we will
-        // simply fail if our effect requires any marked matrices (SkSimpleMatrixProvider always
-        // returns false in getLocalToMarker).
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
-        sk_sp<SkData> inputs = this->getUniforms(matrixProvider, dst.colorSpace());
+        sk_sp<SkData> inputs = this->getUniforms(matrices, dst.colorSpace());
         if (!inputs) {
             return {};
         }
@@ -1020,13 +1018,13 @@ public:
         }
 
         SkMatrix inv;
-        if (!this->computeTotalInverse(ctm, localM, &inv)) {
+        if (!this->computeTotalInverse(matrices.localToDevice(), localM, &inv)) {
             return {};
         }
         SkShaderBase::ApplyMatrix(p,inv, &x,&y,uniforms);
 
         std::vector<skvm::F32> stack =
-            program_fn(p, *fn, uniform, {x,y, paint.r, paint.g, paint.b, paint.a},
+            program_fn(p, *fn, uniform, matrices, {x,y, paint.r, paint.g, paint.b, paint.a},
                        /*parameters for calling program() on children*/
                        fChildren, x,y,paint, quality,dst, uniforms,alloc);
 
