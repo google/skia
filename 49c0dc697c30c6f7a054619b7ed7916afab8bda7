@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85db2219_8e8f9f18",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-19T20:54:32Z",
+      "side": 1,
+      "message": "nit: Why not `std::make_unique\u003cNop\u003e()` ?",
+      "range": {
+        "startLine": 1376,
+        "startChar": 42,
+        "endLine": 1376,
+        "endChar": 79
+      },
+      "revId": "49c0dc697c30c6f7a054619b7ed7916afab8bda7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
