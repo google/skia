@@ -1197,7 +1197,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
                           float* outReturn[], int returnCount,
                           const float* uniforms, int uniformCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
-    Interpreter::VValue stack[128];
+    Interpreter::VValue stack[192];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
     if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
         return false;
