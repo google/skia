@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e985130e_a459ef28",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-19T15:21:46Z",
+      "side": 1,
+      "message": "nit: \"its progenitor\" reads slightly better",
+      "range": {
+        "startLine": 739,
+        "startChar": 93,
+        "endLine": 739,
+        "endChar": 96
+      },
+      "revId": "7402e96db01bab5056eb247e241c1d3610371812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fa88d19_2236cebc",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-19T15:21:46Z",
+      "side": 1,
+      "message": "optional, nit: This inner block reuses the variable name `clone` for a string (where it was a u_p\u003cGrFP\u003e above).",
+      "range": {
+        "startLine": 847,
+        "startChar": 50,
+        "endLine": 847,
+        "endChar": 55
+      },
+      "revId": "7402e96db01bab5056eb247e241c1d3610371812",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
