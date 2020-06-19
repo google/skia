@@ -887,7 +887,8 @@ LineMetrics TextLine::getMetrics() const {
     result.fHeight = littleRound(fAdvance.fY);
     result.fWidth = littleRound(fAdvance.fX);
     result.fLeft = fOffset.fX;
-    result.fBaseline = fMaxRunMetrics.baseline() + (this - fMaster->lines().begin()) * result.fHeight;
+    // This is Flutter definition of a baseline
+    result.fBaseline = this->offset().fY + this->height() - this->sizes().descent();
     result.fLineNumber = this - fMaster->lines().begin();
 
     // Fill out the style parts
