@@ -49,6 +49,9 @@ public:
         SK_ABORT("Only supported in NVPR, which is only available in GL");
     }
 
+    // For the uniform data to be dirty so that we will reupload on the next use.
+    void markDirty() { fUniformsDirty = true; }
+
 protected:
     struct Uniform {
         uint32_t fOffset;
