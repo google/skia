@@ -27,6 +27,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 // Intervals smaller than this (that aren't hard stops) on low-precision-only devices force us to
 // use the textured gradient
@@ -64,8 +65,11 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
         SkDebugf("Gradient won't draw. Could not create texture.");
         return nullptr;
     }
-
-    return GrTextureGradientColorizer::Make(std::move(view));
+    // TODO: When we start sampling colorizers with explicit coords rather than using sk_InColor
+    // the GrTextureEffect can simply be the colorizer.
+    auto m = SkMatrix::Scale(view.width(), 1.f);
+    auto te = GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kBilerp);
+    return GrTextureGradientColorizer::Make(std::move(te));
 }
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent

@@ -24,15 +24,15 @@ public:
         const GrTextureGradientColorizer& _outer = args.fFp.cast<GrTextureGradientColorizer>();
         (void)_outer;
         fragBuilder->codeAppendf(
-                R"SkSL(half2 coord = half2(%s.x, 0.5);
-%s = sample(%s, float2(coord)).%s;
+                R"SkSL(half2 coord = half2(%s.x, 0.5);)SkSL", args.fInputColor);
+        SkString _sample327;
+        SkString _coords327("float2(coord)");
+        _sample327 = this->invokeChild(_outer.textureFP_index, args, _coords327.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+%s = %s;
 )SkSL",
-                args.fInputColor, args.fOutputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str());
+                args.fOutputColor, _sample327.c_str());
     }
 
 private:
@@ -47,18 +47,15 @@ void GrTextureGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrTextureGradientColorizer::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTextureGradientColorizer& that = other.cast<GrTextureGradientColorizer>();
     (void)that;
-    if (gradient != that.gradient) return false;
     return true;
 }
 GrTextureGradientColorizer::GrTextureGradientColorizer(const GrTextureGradientColorizer& src)
-        : INHERITED(kGrTextureGradientColorizer_ClassID, src.optimizationFlags())
-        , gradient(src.gradient) {
-    this->setTextureSamplerCnt(1);
+        : INHERITED(kGrTextureGradientColorizer_ClassID, src.optimizationFlags()) {
+    {
+        textureFP_index =
+                this->cloneAndRegisterChildProcessor(src.childProcessor(src.textureFP_index));
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrTextureGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTextureGradientColorizer(*this));
-}
-const GrFragmentProcessor::TextureSampler& GrTextureGradientColorizer::onTextureSampler(
-        int index) const {
-    return IthTextureSampler(index, gradient);
 }
