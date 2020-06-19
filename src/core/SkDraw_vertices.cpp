@@ -330,14 +330,16 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
     p.setShader(sk_ref_sp(shader));
 
     if (!textures) {    // only tricolor shader
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrixProvider, outerAlloc,
-                                                     this->fRC->clipShader());
-        while (vertProc(&state)) {
-            if (triShader &&
-                !triShader->update(ctmInv, positions, dstColors, state.f0, state.f1, state.f2)) {
-                continue;
+        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrixProvider, outerAlloc,
+                                                         this->fRC->clipShader())) {
+            while (vertProc(&state)) {
+                if (triShader &&
+                    !triShader->update(ctmInv, positions, dstColors,
+                                       state.f0, state.f1, state.f2)) {
+                    continue;
+                }
+                fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
-            fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
         return;
     }
@@ -361,19 +363,20 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
             }
         }
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc,
-                                                     fRC->clipShader());
-        while (vertProc(&state)) {
-            if (triShader && !triShader->update(ctmInv, positions, dstColors,
-                                                state.f0, state.f1, state.f2)) {
-                continue;
-            }
+        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc,
+                                                         fRC->clipShader())) {
+            while (vertProc(&state)) {
+                if (triShader && !triShader->update(ctmInv, positions, dstColors,
+                                                    state.f0, state.f1, state.f2)) {
+                    continue;
+                }
 
-            SkMatrix localM;
-            if ((textures == positions) ||
-                (texture_to_matrix(state, positions, textures, &localM) &&
-                 updater->update(ctm, &localM))) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
+                SkMatrix localM;
+                if ((textures == positions) ||
+                    (texture_to_matrix(state, positions, textures, &localM) &&
+                     updater->update(ctm, &localM))) {
+                    fill_triangle(state, blitter, *fRC, dev2, dev3);
+                }
             }
         }
     } else {
@@ -396,9 +399,10 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                 matrixProvider = preConcatMatrixProvider.init(*matrixProvider, localM);
             }
 
-            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *matrixProvider, &innerAlloc,
-                                                         this->fRC->clipShader());
-            fill_triangle(state, blitter, *fRC, dev2, dev3);
+            if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *matrixProvider, &innerAlloc,
+                                                             this->fRC->clipShader())) {
+                fill_triangle(state, blitter, *fRC, dev2, dev3);
+            }
         }
     }
 }
