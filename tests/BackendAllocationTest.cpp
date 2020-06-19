@@ -875,100 +875,97 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     };
 
     for (auto combo : combinations) {
-        for (GrGLenum target : {GR_GL_TEXTURE_2D, GR_GL_TEXTURE_RECTANGLE}) {
-            GrBackendFormat format = GrBackendFormat::MakeGL(combo.fFormat, target);
+        GrBackendFormat format = GrBackendFormat::MakeGL(combo.fFormat, GR_GL_TEXTURE_2D);
 
-            if (!glCaps->isFormatTexturable(format)) {
+        if (!glCaps->isFormatTexturable(format)) {
+            continue;
+        }
+
+        if (GrColorType::kBGRA_8888 == combo.fColorType ||
+            GrColorType::kBGRA_1010102 == combo.fColorType) {
+            // We allow using a GL_RGBA8 or GR_GL_RGB10_A2 texture as BGRA on desktop GL but not ES
+            if (kGL_GrGLStandard != standard &&
+                (GR_GL_RGBA8 == combo.fFormat || GR_GL_RGB10_A2 == combo.fFormat)) {
+                continue;
+            }
+        }
+
+        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
+            if (GrMipMapped::kYes == mipMapped && !glCaps->mipMapSupport()) {
                 continue;
             }
 
-            if (GrColorType::kBGRA_8888 == combo.fColorType ||
-                GrColorType::kBGRA_1010102 == combo.fColorType) {
-                // We allow using a GL_RGBA8 or GR_GL_RGB10_A2 texture as BGRA on desktop GL but not
-                // ES
-                if (kGL_GrGLStandard != standard &&
-                    (GR_GL_RGBA8 == combo.fFormat || GR_GL_RGB10_A2 == combo.fFormat)) {
-                    continue;
-                }
-            }
+            for (auto renderable : { GrRenderable::kNo, GrRenderable::kYes }) {
 
-            for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
-                if (GrMipMapped::kYes == mipMapped &&
-                    (!glCaps->mipMapSupport() || target == GR_GL_TEXTURE_RECTANGLE)) {
-                    continue;
+                if (GrRenderable::kYes == renderable) {
+                    if (!glCaps->isFormatAsColorTypeRenderable(combo.fColorType, format)) {
+                        continue;
+                    }
                 }
 
-                for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-                    if (GrRenderable::kYes == renderable) {
-                        if (!glCaps->isFormatAsColorTypeRenderable(combo.fColorType, format)) {
-                            continue;
-                        }
+                {
+                    auto uninitCreateMtd = [format](GrContext* context, GrMipMapped mipMapped,
+                                                    GrRenderable renderable) {
+                        return context->createBackendTexture(32, 32, format,
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo);
+                    };
+
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  combo.fColorType, mipMapped, renderable, nullptr);
+                }
+
+                {
+                    // We're creating backend textures without specifying a color type "view" of
+                    // them at the public API level. Therefore, Ganesh will not apply any swizzles
+                    // before writing the color to the texture. However, our validation code does
+                    // rely on interpreting the texture contents via a SkColorType and therefore
+                    // swizzles may be applied during the read step.
+                    // Ideally we'd update our validation code to use a "raw" read that doesn't
+                    // impose a color type but for now we just munge the data we upload to match the
+                    // expectation.
+                    GrSwizzle swizzle;
+                    switch (combo.fColorType) {
+                        case GrColorType::kAlpha_8:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_16:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_F16:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        default:
+                            break;
                     }
 
-                    {
-                        auto uninitCreateMtd = [format](GrContext* context, GrMipMapped mipMapped,
-                                                        GrRenderable renderable) {
-                            return context->createBackendTexture(32, 32, format, mipMapped,
-                                                                 renderable, GrProtected::kNo);
-                        };
+                    bool finishedBackendCreation = false;
+                    bool* finishedPtr = &finishedBackendCreation;
 
-                        test_wrapping(context, reporter, uninitCreateMtd, combo.fColorType,
-                                      mipMapped, renderable, nullptr);
+                    auto createWithColorMtd = [format, swizzle, finishedPtr](
+                            GrContext* context, const SkColor4f& color, GrMipMapped mipMapped,
+                            GrRenderable renderable) {
+                        auto swizzledColor = swizzle.applyTo(color);
+                        return context->createBackendTexture(32, 32, format, swizzledColor,
+                                                             mipMapped, renderable,
+                                                             GrProtected::kNo, mark_signaled,
+                                                             finishedPtr);
+                    };
+                    // We make our comparison color using SkPixmap::erase(color) on a pixmap of
+                    // combo.fColorType and then calling SkPixmap::readPixels(). erase() will premul
+                    // the color passed to it. However, createBackendTexture() that takes a
+                    // SkColor4f is color type/alpha type unaware and will simply compute luminance
+                    //from the r, g, b, channels.
+                    SkColor4f color = combo.fColor;
+                    if (combo.fColorType == GrColorType::kGray_8) {
+                        color = {color.fR * color.fA,
+                                 color.fG * color.fA,
+                                 color.fB * color.fA,
+                                 1.f};
                     }
 
-                    {
-                        // We're creating backend textures without specifying a color type "view" of
-                        // them at the public API level. Therefore, Ganesh will not apply any
-                        // swizzles before writing the color to the texture. However, our validation
-                        // code does rely on interpreting the texture contents via a SkColorType and
-                        // therefore swizzles may be applied during the read step. Ideally we'd
-                        // update our validation code to use a "raw" read that doesn't impose a
-                        // color type but for now we just munge the data we upload to match the
-                        // expectation.
-                        GrSwizzle swizzle;
-                        switch (combo.fColorType) {
-                            case GrColorType::kAlpha_8:
-                                swizzle = GrSwizzle("aaaa");
-                                break;
-                            case GrColorType::kAlpha_16:
-                                swizzle = GrSwizzle("aaaa");
-                                break;
-                            case GrColorType::kAlpha_F16:
-                                swizzle = GrSwizzle("aaaa");
-                                break;
-                            default:
-                                break;
-                        }
-
-                        bool finishedBackendCreation = false;
-                        bool* finishedPtr = &finishedBackendCreation;
-
-                        auto createWithColorMtd = [format, swizzle, finishedPtr](
-                                                          GrContext* context,
-                                                          const SkColor4f& color,
-                                                          GrMipMapped mipMapped,
-                                                          GrRenderable renderable) {
-                            auto swizzledColor = swizzle.applyTo(color);
-                            return context->createBackendTexture(
-                                    32, 32, format, swizzledColor, mipMapped, renderable,
-                                    GrProtected::kNo, mark_signaled, finishedPtr);
-                        };
-                        // We make our comparison color using SkPixmap::erase(color) on a pixmap of
-                        // combo.fColorType and then calling SkPixmap::readPixels(). erase() will
-                        // premul the color passed to it. However, createBackendTexture() that takes
-                        // a SkColor4f is color type/alpha type unaware and will simply compute
-                        // luminance from the r, g, b, channels.
-                        SkColor4f color = combo.fColor;
-                        if (combo.fColorType == GrColorType::kGray_8) {
-                            color = {color.fR * color.fA,
-                                     color.fG * color.fA,
-                                     color.fB * color.fA,
-                                     1.f};
-                        }
-
-                        test_color_init(context, reporter, createWithColorMtd, combo.fColorType,
-                                        color, mipMapped, renderable, finishedPtr);
-                    }
+                    test_color_init(context, reporter, createWithColorMtd, combo.fColorType, color,
+                                    mipMapped, renderable, finishedPtr);
                 }
             }
         }

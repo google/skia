@@ -135,11 +135,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     }
 
     if (supportRectangle) {
-        auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
-        GrBackendTexture rectangleTexture =
-                context->createBackendTexture(10, 10, format, GrMipMapped::kNo, GrRenderable::kNo);
-        if (rectangleTexture.isValid()) {
-            img = SkImage::MakeFromTexture(context, rectangleTexture, kTopLeft_GrSurfaceOrigin,
+        GrGLuint id = ctxInfo.glContext()->createTextureRectangle(10, 10, GR_GL_RGBA, GR_GL_RGBA,
+                                                                  GR_GL_UNSIGNED_BYTE, nullptr);
+        // Above texture creation will have messed with GL state and bindings.
+        resetBindings();
+        context->resetContext();
+        if (id) {
+            GrGLTextureInfo info;
+            info.fTarget = GR_GL_TEXTURE_RECTANGLE;
+            info.fFormat = GR_GL_RGBA8;
+            info.fID = id;
+            GrBackendTexture backendTexture(10, 10, GrMipMapped::kNo, info);
+            img = SkImage::MakeFromTexture(context, backendTexture, kTopLeft_GrSurfaceOrigin,
                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
             REPORTER_ASSERT(reporter, img);
             surf->getCanvas()->drawImage(img, 0, 0);
@@ -148,7 +155,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
             context->resetGLTextureBindings();
             checkBindings();
             resetBindings();
-            context->deleteBackendTexture(rectangleTexture);
+            GL(DeleteTextures(1, &id));
+            context->resetContext();
         }
     }
 
