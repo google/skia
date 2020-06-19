@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "35490c4b_8a058d37",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T15:26:03Z",
+      "side": 1,
+      "message": "no good reason; missed cleaning it up",
+      "parentUuid": "87d46ccd_64fc4b5d",
+      "range": {
+        "startLine": 333,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 7
+      },
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e364a00_49497996",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 7
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "6fa28f4d_3adcc0ce",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T15:26:03Z",
+      "side": 1,
+      "message": "I\u0027ve updated it to remove Processor; I agree the names were getting pretty long.\n\nThe default SampleMatrix() constructor is always the kNone type, which is effectively the same as identity, but that doesn\u0027t really capture whether or not explicit-coord sampling is also going to be used.",
+      "parentUuid": "bb67e5e6_13c93c02",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "562ca49c_4ccb57ca",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 7
@@ -83,6 +125,30 @@
     },
     {
       "key": {
+        "uuid": "18635ca9_6c6b2d52",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T15:26:03Z",
+      "side": 1,
+      "message": "Updated these functions to just have registerChild() that uses default args, and a helper for registerExplicitlySampledChild since it has to skip over the middle parameter.",
+      "parentUuid": "562ca49c_4ccb57ca",
+      "range": {
+        "startLine": 448,
+        "startChar": 31,
+        "endLine": 448,
+        "endChar": 62
+      },
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "151513dc_ea37a603",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 7
@@ -94,6 +160,24 @@
       "writtenOn": "2020-06-19T11:43:26Z",
       "side": 1,
       "message": "This one can be private, right?",
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "803adfd4_10c907b3",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T15:26:03Z",
+      "side": 1,
+      "message": "Maybe, but at the moment it\u0027s used in cpp code generation when the parent .fp uses sample(matrix) and sample(float2) on the same child. If this is detected at the sksl analysis level as a variable matrix, then functionally there\u0027s no difference to just registering the child with the variable matrix since those are marked as explicitly sampled. Then it\u0027s just a matter of preference for a shorter arg list, or emphasizing the two approaches used in the shader code",
+      "parentUuid": "151513dc_ea37a603",
       "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -120,6 +204,30 @@
       "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc614c1b_482fe108",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T15:26:03Z",
+      "side": 1,
+      "message": "No, not temporary. All FPs currently have up to 1 coord transform, and 0 if they don\u0027t access local coords at all. sk_TransformedCoords2D is the only builtin that .fp files use to access the local coords and I didn\u0027t want to complicate things by updating it to use a better variable.\n\nIn the end, I do think we remove this and just have a built-in variable reference to sk_LocalCoord or similar for .fps.  In my next CL, this block is even further gutted to just point the \u0027%s\u0027 format arg to \u0027args.fLocalCoord\u0027. At that point, this could then be moved to a different builtin but would involve updating all the .fp files. I think that should be a later CL.",
+      "parentUuid": "d1e2cade_c261d5ba",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 13
+      },
+      "revId": "530d59970bed2562e1ed0853d7db87ff2827b7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
