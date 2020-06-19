@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dfce6d1_bb881946",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T20:57:52Z",
+      "side": 1,
+      "message": "This seems to be the slow part.\n\nIf I even comment out ckcanvas.drawPath() below, fps is still low.\n\nThoughts on how to optimize? Are the skpath bindings slow? Is it inside Skia?",
+      "revId": "560b77db8ff96794856fddd973a7af67ef49eddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5ba3253_d7e9123e",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-19T20:57:52Z",
+      "side": 1,
+      "message": "Uncomment here for some fun waves",
+      "revId": "560b77db8ff96794856fddd973a7af67ef49eddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
