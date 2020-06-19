@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b7c5e01_ed8f7521",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-19T14:32:31Z",
+      "side": 1,
+      "message": "that\u0027ll be fancy :)",
+      "range": {
+        "startLine": 68,
+        "startChar": 7,
+        "endLine": 69,
+        "endChar": 55
+      },
+      "revId": "23e15767e0631e1c3b3f0816e7cf8093eceda42f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
