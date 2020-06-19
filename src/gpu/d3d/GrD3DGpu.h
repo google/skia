@@ -187,11 +187,7 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override {
-        // TODO: have this actually wait before calling the proc
-        SkASSERT(finishedProc);
-        finishedProc(finishedContext);
-    }
+                         GrGpuFinishedContext finishedContext) override;
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             GrSurfaceProxy* proxies[],
