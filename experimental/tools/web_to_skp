@@ -12,12 +12,14 @@ else
   EXAMPLE='"/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"'
 fi
 
-if [ $# -ne 3 ] || ! [ -x "$1" ]; then
+if [ $# -lt 3 ] || ! [ -x "$1" ]; then
   cat >&2 << EOF
 usage:
   $0 CHROMIUM_BINARY SOURCE_URL DESTINATION_DIRECTORY
+  $0 CHROMIUM_BINARY SOURCE_URL DESTINATION_DIRECTORY OPTIONAL_WAIT_TIME # 5 second sleep before capture
 e.g:
   $0 $EXAMPLE https://www.google.com/ /tmp/
+  $0 $EXAMPLE https://www.google.com/ /tmp/ 5
 EOF
   exit 1
 fi
@@ -25,10 +27,11 @@ fi
 EXE="$1"
 URL="$2"
 DST="$3"
+SLP=${4:-0} # sleep in seconds before capture.  4th param iff provided, else 0.
 
 CRASH=~/tmp/headless_crash_dumps
 mkdir -p "$CRASH" "$DST"
 
-printf 'chrome.gpuBenchmarking.printToSkPicture("%s");\nquit\n' "$DST" | \
+(sleep $SLP; printf 'chrome.gpuBenchmarking.printToSkPicture("%s");\nquit\n' "$DST") | \
   "$EXE" --headless --disable-gpu --repl -crash-dumps-dir="$CRASH" \
     --no-sandbox --enable-gpu-benchmarking "$URL"
