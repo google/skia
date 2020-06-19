@@ -146,6 +146,7 @@ private:
         kMax,
         kMin,
         kMix,
+        kNormalize,
         kSample,
         kSaturate,
     };
