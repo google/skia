@@ -22,6 +22,7 @@ public:
         const GrRRectShadowGeoProc& rsgp = args.fGP.cast<GrRRectShadowGeoProc>();
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // emit attributes
@@ -34,7 +35,13 @@ public:
 
         // Setup position
         this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
-        // No need for local coordinates, this GP does not combine with fragment processors
+
+        // emit transforms
+        this->emitTransforms(vertBuilder,
+                             varyingHandler,
+                             uniformHandler,
+                             rsgp.inPosition().asShaderVar(),
+                             args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float2 uv = float2(shadowParams.z * (1.0 - d), 0.5);");
@@ -46,7 +53,7 @@ public:
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
                  const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
     }
 
 private:

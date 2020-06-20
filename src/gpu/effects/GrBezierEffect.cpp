@@ -28,8 +28,12 @@ public:
                  const CoordTransformRange& transformRange) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
-        this->setTransform(pdman, fViewMatrixUniform, ce.viewMatrix(), &fViewMatrix);
-        this->setTransform(pdman, fLocalMatrixUniform, ce.localMatrix(), &fLocalMatrix);
+        if (!ce.viewMatrix().isIdentity() &&
+            !SkMatrixPriv::CheapEqual(fViewMatrix, ce.viewMatrix()))
+        {
+            fViewMatrix = ce.viewMatrix();
+            pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
+        }
 
         if (ce.color() != fColor) {
             pdman.set4fv(fColorUniform, 1, ce.color().vec());
@@ -40,27 +44,24 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(ce.coverageScale()));
             fCoverageScale = ce.coverageScale();
         }
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(ce.localMatrix(), pdman, transformRange);
     }
 
 private:
     SkMatrix fViewMatrix;
-    SkMatrix fLocalMatrix;
     SkPMColor4f fColor;
     uint8_t fCoverageScale;
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;
     UniformHandle fViewMatrixUniform;
-    UniformHandle fLocalMatrixUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
-        : fViewMatrix(SkMatrix::InvalidMatrix())
-        , fLocalMatrix(SkMatrix::InvalidMatrix())
-        , fColor(SK_PMColor4fILLEGAL)
-        , fCoverageScale(0xff) {}
+    : fViewMatrix(SkMatrix::InvalidMatrix())
+    , fColor(SK_PMColor4fILLEGAL)
+    , fCoverageScale(0xff) {}
 
 void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -86,10 +87,14 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                               gp.inPosition().name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
-    if (gp.usesLocalCoords()) {
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, gp.inPosition().asShaderVar(),
-                              gp.localMatrix(), &fLocalMatrixUniform);
-    }
+
+    // emit transforms with position
+    this->emitTransforms(vertBuilder,
+                         varyingHandler,
+                         uniformHandler,
+                         gp.inPosition().asShaderVar(),
+                         gp.localMatrix(),
+                         args.fFPCoordTransformHandler);
 
     // TODO: we should check on the number of bits float and half provide and use the smallest one
     // that suffices. Additionally we should assert that the upstream code only lets us get here if
@@ -160,9 +165,8 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
     const GrConicEffect& ce = gp.cast<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= 0xff != ce.coverageScale() ? 0x8 : 0x0;
-    key |= ce.usesLocalCoords() ? 0x10 : 0x0;
-    key = AddMatrixKeys(key, ce.viewMatrix(), ce.usesLocalCoords() ? ce.localMatrix()
-                                                                   : SkMatrix::I());
+    key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
+    key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
 
@@ -223,8 +227,12 @@ public:
                  const CoordTransformRange& transformRange) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
-        this->setTransform(pdman, fViewMatrixUniform, qe.viewMatrix(), &fViewMatrix);
-        this->setTransform(pdman, fLocalMatrixUniform, qe.localMatrix(), &fLocalMatrix);
+        if (!qe.viewMatrix().isIdentity() &&
+            !SkMatrixPriv::CheapEqual(fViewMatrix, qe.viewMatrix()))
+        {
+            fViewMatrix = qe.viewMatrix();
+            pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
+        }
 
         if (qe.color() != fColor) {
             pdman.set4fv(fColorUniform, 1, qe.color().vec());
@@ -235,28 +243,24 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(qe.coverageScale()));
             fCoverageScale = qe.coverageScale();
         }
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(qe.localMatrix(), pdman, transformRange);
     }
 
 private:
     SkMatrix fViewMatrix;
-    SkMatrix fLocalMatrix;
     SkPMColor4f fColor;
     uint8_t fCoverageScale;
-
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;
     UniformHandle fViewMatrixUniform;
-    UniformHandle fLocalMatrixUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
-        : fViewMatrix(SkMatrix::InvalidMatrix())
-        , fLocalMatrix(SkMatrix::InvalidMatrix())
-        , fColor(SK_PMColor4fILLEGAL)
-        , fCoverageScale(0xff) {}
+    : fViewMatrix(SkMatrix::InvalidMatrix())
+    , fColor(SK_PMColor4fILLEGAL)
+    , fCoverageScale(0xff) {}
 
 void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -282,10 +286,14 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                               gp.inPosition().name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
-    if (gp.usesLocalCoords()) {
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, gp.inPosition().asShaderVar(),
-                              gp.localMatrix(), &fLocalMatrixUniform);
-    }
+
+    // emit transforms with position
+    this->emitTransforms(vertBuilder,
+                         varyingHandler,
+                         uniformHandler,
+                         gp.inPosition().asShaderVar(),
+                         gp.localMatrix(),
+                         args.fFPCoordTransformHandler);
 
     fragBuilder->codeAppendf("half edgeAlpha;");
 
@@ -321,9 +329,8 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
     const GrQuadEffect& ce = gp.cast<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= ce.coverageScale() != 0xff ? 0x8 : 0x0;
-    key |= ce.usesLocalCoords()? 0x10 : 0x0;
-    key = AddMatrixKeys(key, ce.viewMatrix(), ce.usesLocalCoords() ? ce.localMatrix()
-                                                                   : SkMatrix::I());
+    key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
+    key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
 

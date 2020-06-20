@@ -20,7 +20,7 @@ public:
 private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
                  const CoordTransformRange& transformRange) final {
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
     }
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;

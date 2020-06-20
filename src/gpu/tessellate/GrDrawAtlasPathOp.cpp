@@ -85,12 +85,15 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
 
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "devcoord");
 
+        GrShaderVar localCoord = gpArgs->fPositionVar;
         if (shader.fUsesLocalCoords) {
             args.fVertBuilder->codeAppendf(R"(
                     float2x2 M = float2x2(viewmatrix_scaleskew);
                     float2 localcoord = inverse(M) * (devcoord - viewmatrix_trans);)");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+            localCoord.set(kFloat2_GrSLType, "localcoord");
         }
+        this->emitTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
+                             localCoord, args.fFPCoordTransformHandler);
 
         args.fFragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], atlasCoord.fsIn());
@@ -101,7 +104,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
                  const CoordTransformRange& transformRange) override {
         const SkISize& dimensions = primProc.cast<DrawAtlasPathShader>().fAtlasDimensions;
         pdman.set2f(fAtlasAdjustUniform, 1.f / dimensions.width(), 1.f / dimensions.height());
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;

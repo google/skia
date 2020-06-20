@@ -64,8 +64,9 @@ public:
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
-
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        b->add32((uint32_t)fCoverageMode);
+    }
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     void drawPaths(GrOpFlushState*, const GrPipeline&, const GrSurfaceProxy& atlasProxy,
