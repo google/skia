@@ -181,10 +181,10 @@ public:
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
     void reset();
-    /** Destructive resize, does not preserve contents.
+    /** Destructive resize; string contents may be destroyed if the buffer is shared or must grow.
      * `resize` automatically reserves an extra byte at the end of the buffer for a null terminator.
      */
-    void resize(size_t len) { this->set(nullptr, len); }
+    void destructiveResize(size_t len) { this->set(nullptr, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);

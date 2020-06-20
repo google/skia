@@ -44,7 +44,7 @@ static StringBuffer apply_format_string(const char* format, va_list args, char (
     // Our text was too long to fit on the stack! However, we now know how much space we need to
     // format it. Format the string into our heap buffer. `resize` automatically reserves an extra
     // byte at the end of the buffer for a null terminator, so we don't need to add one here.
-    heapBuffer->resize(outLength);
+    heapBuffer->destructiveResize(outLength);
     char* heapBufferDest = heapBuffer->writable_str();
     SkDEBUGCODE(int checkLength =) std::vsnprintf(heapBufferDest, outLength + 1, format, argsCopy);
     SkASSERT(checkLength == outLength);
