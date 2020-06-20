@@ -302,10 +302,10 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             if (!stream->readU32(&size)) { return false; }
             fFactoryPlayback = std::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
-                SkString str;
                 size_t len;
                 if (!stream->readPackedUInt(&len)) { return false; }
-                str.resize(len);
+                SkString str;
+                str.resetToSize(len);
                 if (stream->read(str.writable_str(), len) != len) {
                     return false;
                 }
