@@ -60,14 +60,6 @@ config("default") {
     }
   }
 
-  if (is_debug) {
-    if (is_ios || is_mac) {
-      # The libc++ that ships with Xcode does not contain _LIBCPP_DEBUG symbols.
-    } else {
-      defines += [ "_LIBCPP_DEBUG=1" ]  # Asserts and iterator debugging.
-    }
-  }
-
   # Disable warnings about unknown attributes.
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
