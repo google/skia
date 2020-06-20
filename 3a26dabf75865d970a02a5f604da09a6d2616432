@@ -16,6 +16,24 @@
       "revId": "3a26dabf75865d970a02a5f604da09a6d2616432",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f71a7978_9a07f722",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-20T01:07:17Z",
+      "side": 1,
+      "message": "Actually it looks like DO NOT SUBMIT also forces failure.\n\n** Presubmit ERRORS **\nDO NOT SUBMIT is present in the changelist description.",
+      "parentUuid": "e47e3762_27767472",
+      "revId": "3a26dabf75865d970a02a5f604da09a6d2616432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
