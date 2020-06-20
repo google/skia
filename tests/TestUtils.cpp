@@ -194,7 +194,7 @@ bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
         return false;
     }
 
-    dst->resize(len);
+    dst->destructiveResize(len);
     SkBase64::Encode(pngData->data(), pngData->size(), dst->writable_str());
     dst->prepend("data:image/png;base64,");
     return true;
