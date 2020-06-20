@@ -133,6 +133,7 @@ bool CreateBackendTexture(GrContext* context,
                                                 color, mipMapped, renderable, isProtected,
                                                 markFinished, &finishedBECreate);
     if (backendTex->isValid()) {
+        context->submit();
         while (!finishedBECreate) {
             context->checkAsyncWorkCompletion();
         }

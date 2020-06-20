@@ -1699,7 +1699,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
     }
-    return this->submitCommandBuffer(kSkip_SyncQueue);
+    return true;
 }
 
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
