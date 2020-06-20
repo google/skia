@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e47e3762_27767472",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-20T00:20:04Z",
+      "side": 1,
+      "message": "(You can add \"Commit: false\" down here with things like Bug: and Change-Id: to mechanically prevent a CL from landing.)",
+      "revId": "3a26dabf75865d970a02a5f604da09a6d2616432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
