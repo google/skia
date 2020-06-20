@@ -20,10 +20,7 @@
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc()
-            : fColor(SK_PMColor4fILLEGAL)
-            , fAtlasDimensions{0,0}
-            , fLocalMatrix(SkMatrix::InvalidMatrix()) {}
+    GrGLBitmapTextGeoProc() : fColor(SK_PMColor4fILLEGAL), fAtlasDimensions{0,0} {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
@@ -56,8 +53,14 @@ public:
 
         // Setup position
         gpArgs->fPositionVar = btgp.inPosition().asShaderVar();
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, btgp.inPosition().asShaderVar(),
-                              btgp.localMatrix(), &fLocalMatrixUniform);
+
+        // emit transforms
+        this->emitTransforms(vertBuilder,
+                             varyingHandler,
+                             uniformHandler,
+                             btgp.inPosition().asShaderVar(),
+                             btgp.localMatrix(),
+                             args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
@@ -89,9 +92,7 @@ public:
                         1.0f / atlasDimensions.fHeight);
             fAtlasDimensions = atlasDimensions;
         }
-
-        this->setTransform(pdman, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(btgp.localMatrix(), pdman, transformRange);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
@@ -101,7 +102,6 @@ public:
         uint32_t key = 0;
         key |= btgp.usesW() ? 0x1 : 0x0;
         key |= btgp.maskFormat() << 1;
-        key |= ComputeMatrixKey(btgp.localMatrix()) << 2;
         b->add32(key);
         b->add32(btgp.numTextureSamplers());
     }
@@ -112,9 +112,6 @@ private:
 
     SkISize       fAtlasDimensions;
     UniformHandle fAtlasDimensionsInvUniform;
-
-    SkMatrix      fLocalMatrix;
-    UniformHandle fLocalMatrixUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };

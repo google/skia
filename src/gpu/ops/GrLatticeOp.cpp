@@ -49,7 +49,7 @@ public:
             void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
                          const CoordTransformRange& transformRange) override {
                 const auto& latticeGP = proc.cast<LatticeGP>();
-                this->setTransformDataHelper(pdman, transformRange);
+                this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
             }
 
@@ -62,8 +62,11 @@ public:
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
                 this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
-                gpArgs->fLocalCoordVar = latticeGP.fInTextureCoords.asShaderVar();
-
+                this->emitTransforms(args.fVertBuilder,
+                                     args.fVaryingHandler,
+                                     args.fUniformHandler,
+                                     latticeGP.fInTextureCoords.asShaderVar(),
+                                     args.fFPCoordTransformHandler);
                 args.fFragBuilder->codeAppend("float2 textureCoords;");
                 args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInTextureCoords,
                                                               "textureCoords");

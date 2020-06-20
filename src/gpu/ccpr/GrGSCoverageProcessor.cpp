@@ -25,7 +25,7 @@ protected:
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
                  const CoordTransformRange& transformRange) final {
-        this->setTransformDataHelper(pdman, transformRange);
+        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
