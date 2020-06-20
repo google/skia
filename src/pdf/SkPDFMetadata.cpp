@@ -65,7 +65,6 @@ void write_utf16be(char** ptr, uint16_t value) {
 // Input:  UTF-8
 // Output  UTF-16-BE
 static SkString to_utf16be(const char* src, size_t len) {
-    SkString ret;
     const char* const end = src + len;
     size_t n = 1;  // BOM
     for (const char* ptr = src; ptr < end;) {
@@ -75,7 +74,8 @@ static SkString to_utf16be(const char* src, size_t len) {
         }
         n += SkUTF::ToUTF16(u);
     }
-    ret.resize(2 * n);
+    SkString ret;
+    ret.resetToSize(2 * n);
     char* out = ret.writable_str();
     write_utf16be(&out, 0xFEFF);  // BOM
     for (const char* ptr = src; ptr < end;) {

@@ -144,8 +144,7 @@ static void trim_string(SkString* s) {
         ++end;  // make end exclusive
     }
     size_t len = end - start;
-    memmove(str, start, len);
-    s->resize(len);
+    *s = SkString(start, len);
 }
 
 namespace lmpParser {

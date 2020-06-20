@@ -94,7 +94,7 @@ size_t SkFontConfigInterface::FontIdentity::readFromMemory(const void* addr,
     (void)buffer.readU8(&u8);
     SkFontStyle::Slant slant = (SkFontStyle::Slant)u8;
     fStyle = SkFontStyle(weight, width, slant);
-    fString.resize(strLen);
+    fString.resetToSize(strLen);
     (void)buffer.read(fString.writable_str(), strLen);
     buffer.skipToAlign4();
 
