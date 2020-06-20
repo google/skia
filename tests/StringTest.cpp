@@ -25,7 +25,7 @@ DEF_TEST(String, reporter) {
     a.set("hello");
     b.set("hellox", 5);
     c.set(a);
-    d.resize(5);
+    d.destructiveResize(5);
     memcpy(d.writable_str(), "helloz", 5);
 
     REPORTER_ASSERT(reporter, !a.isEmpty());
@@ -72,7 +72,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, a.equals("hello world") && a == e && a == f);
 
     a.reset();
-    b.resize(0);
+    b.destructiveResize(0);
     REPORTER_ASSERT(reporter, a.isEmpty() && b.isEmpty() && a == b);
 
     a.set("a");
