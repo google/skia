@@ -936,8 +936,6 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         }
     }
 
-    return clipFPs.empty()
-               ? nullptr
-               : GrFragmentProcessor::RunInSeries(&clipFPs.front(), clipFPs.size());
+    return GrFragmentProcessor::RunInSeries(&clipFPs.front(), clipFPs.size());
 }
 
