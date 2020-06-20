@@ -2823,7 +2823,7 @@ static void output_scalar(SkScalar num) {
         while (cStr[width - 1] == '0') {
             --width;
         }
-        str.resize(width);
+        str = SkString(str.c_str(), width);
         SkDebugf("%sf", str.c_str());
     }
 }
