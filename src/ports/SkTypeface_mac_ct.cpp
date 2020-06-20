@@ -534,10 +534,11 @@ void SkStringFromCFString(CFStringRef src, SkString* dst) {
     // plus 1 byte for the trailing null.
     CFIndex length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(src),
                                                        kCFStringEncodingUTF8) + 1;
-    dst->resize(length);
+    dst->destructiveResize(length);
     CFStringGetCString(src, dst->writable_str(), length, kCFStringEncodingUTF8);
+
     // Resize to the actual UTF-8 length used, stripping the null character.
-    dst->resize(strlen(dst->c_str()));
+    *dst = SkString(dst->c_str());
 }
 
 void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
