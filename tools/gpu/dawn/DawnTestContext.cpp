@@ -77,6 +77,10 @@ private:
 ProcGetter* ProcGetter::fInstance;
 #endif
 
+static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
+    SkDebugf("Device error: %s\n", message);
+}
+
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
     static wgpu::Device createDevice(const dawn_native::Instance& instance,
@@ -124,6 +128,7 @@ public:
 #endif
 #endif
             device = createDevice(*instance, type);
+            device.SetUncapturedErrorCallback(PrintDeviceError, 0);
         }
         if (!device) {
             return nullptr;
