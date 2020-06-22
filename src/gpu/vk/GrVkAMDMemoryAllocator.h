@@ -39,11 +39,11 @@ public:
 
     ~GrVkAMDMemoryAllocator() override;
 
-    bool allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags,
-                                GrVkBackendMemory*) override;
+    VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
+                                 GrVkBackendMemory*) override;
 
-    bool allocateMemoryForBuffer(VkBuffer buffer, BufferUsage usage,
-                                 AllocationPropertyFlags flags, GrVkBackendMemory*) override;
+    VkResult allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
+                                  AllocationPropertyFlags flags, GrVkBackendMemory*) override;
 
     void freeMemory(const GrVkBackendMemory&) override;
 

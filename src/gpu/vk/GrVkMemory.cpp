@@ -57,7 +57,11 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
         propFlags = AllocationPropertyFlags::kNone;
     }
 
-    if (!allocator->allocateMemoryForBuffer(buffer, usage, propFlags, &memory)) {
+    VkResult result = allocator->allocateBufferMemory(buffer, usage, propFlags, &memory);
+    if (result != VK_SUCCESS) {
+        if (result == VK_ERROR_DEVICE_LOST) {
+            gpu->setDeviceLost();
+        }
         return false;
     }
     allocator->getAllocInfo(memory, alloc);
@@ -106,9 +110,14 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
         propFlags |= AllocationPropertyFlags::kProtected;
     }
 
-    if (!allocator->allocateMemoryForImage(image, propFlags, &memory)) {
+    VkResult result = allocator->allocateImageMemory(image, propFlags, &memory);
+    if (result != VK_SUCCESS) {
+        if (result == VK_ERROR_DEVICE_LOST) {
+            gpu->setDeviceLost();
+        }
         return false;
     }
+
     allocator->getAllocInfo(memory, alloc);
 
     // Bind buffer
