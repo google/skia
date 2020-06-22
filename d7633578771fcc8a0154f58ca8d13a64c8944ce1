@@ -262,6 +262,30 @@
     },
     {
       "key": {
+        "uuid": "c5d4a4d1_2caac3f6",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T19:38:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7607eb24_4d2f7c0f",
+      "range": {
+        "startLine": 137,
+        "startChar": 17,
+        "endLine": 137,
+        "endChar": 42
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cff67555_d3b56e14",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
@@ -285,6 +309,30 @@
     },
     {
       "key": {
+        "uuid": "1323d939_994d97d1",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T19:38:27Z",
+      "side": 1,
+      "message": "Renamed this to sampleCoordsDependsOnLocalCoords() based on offline chat.",
+      "parentUuid": "cff67555_d3b56e14",
+      "range": {
+        "startLine": 141,
+        "startChar": 17,
+        "endLine": 141,
+        "endChar": 26
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4eafbee4_32517c68",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
@@ -305,6 +353,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a28f5d32_aaf5356c",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T19:38:27Z",
+      "side": 1,
+      "message": "Renamed this to referencesSampleCoords and EmitArgs::fSampleCoords.",
+      "parentUuid": "4eafbee4_32517c68",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 7
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
