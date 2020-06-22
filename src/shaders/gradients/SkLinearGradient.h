@@ -30,7 +30,7 @@ protected:
                               SkRasterPipeline* postPipeline) const final;
 
     skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
-                         skvm::F32 x, skvm::F32 y, skvm::I32* mask) const final;
+                         skvm::Coord coord, skvm::I32* mask) const final;
 
 private:
     SK_FLATTENABLE_HOOKS(SkLinearGradient)
