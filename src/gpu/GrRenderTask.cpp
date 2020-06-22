@@ -27,12 +27,9 @@ GrRenderTask::GrRenderTask()
 }
 
 void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
-    SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
-    SkASSERT(this->isClosed());
     if (this->isSetFlag(kDisowned_Flag)) {
         return;
     }
-    SkDEBUGCODE(fDrawingMgr = nullptr);
     this->setFlag(kDisowned_Flag);
 
     for (const GrSurfaceProxyView& target : fTargets) {
@@ -277,9 +274,6 @@ bool GrRenderTask::isInstantiated() const {
 
 void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView view) {
     SkASSERT(view);
-    SkASSERT(!this->isClosed());
-    SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
-    SkDEBUGCODE(fDrawingMgr = drawingMgr);
     drawingMgr->setLastRenderTask(view.proxy(), this);
     fTargets.push_back(std::move(view));
 }

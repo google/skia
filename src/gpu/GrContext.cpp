@@ -56,7 +56,9 @@ GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::mov
 GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
 
-    this->destroyDrawingManager();
+    if (this->drawingManager()) {
+        this->drawingManager()->cleanup();
+    }
     fMappedBufferManager.reset();
     delete fResourceProvider;
     delete fResourceCache;
@@ -119,6 +121,10 @@ void GrContext::abandonContext() {
 
     fResourceProvider->abandon();
 
+    // Need to cleanup the drawing manager first so all the render targets
+    // will be released/forgotten before they too are abandoned.
+    this->drawingManager()->cleanup();
+
     // abandon first to so destructors
     // don't try to free the resources in the API.
     fResourceCache->abandonAll();
@@ -138,6 +144,10 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fMappedBufferManager.reset();
 
     fResourceProvider->abandon();
+
+    // Need to cleanup the drawing manager first so all the render targets
+    // will be released/forgotten before they too are abandoned.
+    this->drawingManager()->cleanup();
 
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();

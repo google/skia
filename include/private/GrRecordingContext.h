@@ -83,10 +83,6 @@ protected:
 
     GrDrawingManager* drawingManager();
 
-    // There is no going back from this method. It should only be called to control the timing
-    // during abandon or destruction of the context.
-    void destroyDrawingManager();
-
     Arenas arenas() { return fArenas.get(); }
     // This entry point should only be used for DDL creation where we want the ops' lifetime to
     // match that of the DDL.
