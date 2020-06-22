@@ -180,11 +180,12 @@ public:
     char* writable_str();
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
+    /** `reset` will clear the string and erase its buffer entirely. */
     void reset();
-    /** Destructive resize, does not preserve contents.
-     * `resize` automatically reserves an extra byte at the end of the buffer for a null terminator.
+    /** `resetToSize` will clear the string and grow its buffer to accommodate the requested size.
+     *  An extra byte is automatically reserved at the end of the buffer for a null terminator.
      */
-    void resize(size_t len) { this->set(nullptr, len); }
+    void resetToSize(size_t len) { this->set(nullptr, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);

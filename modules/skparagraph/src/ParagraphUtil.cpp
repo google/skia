@@ -14,12 +14,12 @@ namespace skia {
 namespace textlayout {
 
 SkString SkStringFromU16String(const std::u16string& utf16text) {
-    SkString dst;
     UErrorCode status = U_ZERO_ERROR;
     int32_t dstSize;
     // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
     u_strToUTF8(nullptr, 0, &dstSize, (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);
-    dst.resize(dstSize);
+    SkString dst;
+    dst.resetToSize(dstSize);
     status = U_ZERO_ERROR;
     u_strToUTF8(dst.writable_str(), dst.size(), nullptr,
                 (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);

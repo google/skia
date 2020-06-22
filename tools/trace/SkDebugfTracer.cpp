@@ -53,7 +53,7 @@ SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
                 }
                 truncAt = std::min(truncAt, kMaxLen);
                 if (truncAt < string.size()) {
-                    string.resize(truncAt);
+                    string = SkString(string.c_str(), truncAt);
                     string.append("...");
                 }
                 args.appendf("%s=\"%s\"", argNames[i], string.c_str());
@@ -80,6 +80,6 @@ SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
 void SkDebugfTracer::updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                               const char* name,
                                               SkEventTracer::Handle handle) {
-    fIndent.resize(fIndent.size() - 1);
+    fIndent = SkString(fIndent.c_str(), fIndent.size() - 1);
     SkDebugf("[% 2d]%s } %s\n", fIndent.size(), fIndent.c_str(), name);
 }
