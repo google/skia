@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e606de53_d8581e35",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "Canvaskit.parseColorString is probably more robust (supports RRGGBBAA, RRGGBB, RGBA, RGB formats)",
+      "range": {
+        "startLine": 8,
+        "startChar": 7,
+        "endLine": 8,
+        "endChar": 28
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35ad2c8a_ed8540fc",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "Should this just be a list too?",
+      "range": {
+        "startLine": 79,
+        "startChar": 20,
+        "endLine": 79,
+        "endChar": 22
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22c5f012_183c74ce",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "nit: const",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 86,
+        "endChar": 15
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc6ed292_e46907ef",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "Over the course of the demo, this is a fixed size, right? I bet we could boost performance even more by using CanvasKit.Malloc (and giving the Malloc object a subarray helper).",
+      "range": {
+        "startLine": 179,
+        "startChar": 10,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b769beea_f26821a2",
+        "filename": "modules/canvaskit/canvaskit/ckdemo.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "const path of paths",
+      "range": {
+        "startLine": 196,
+        "startChar": 13,
+        "endLine": 196,
+        "endChar": 17
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e62cd6f_e047e55d",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "I believe this always returns a path (never null). You can also remove the emscripten::val on line 524",
+      "range": {
+        "startLine": 491,
+        "startChar": 0,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c065c1c7_e71fd5a3",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "we should probably check for a buffer overrun of the pts array. I kind of like the macro style used above.",
+      "range": {
+        "startLine": 502,
+        "startChar": 16,
+        "endLine": 502,
+        "endChar": 22
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2687ca97_eed43d09",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "Maybe let\u0027s call this MakePathFromVerbsAndPts?",
+      "range": {
+        "startLine": 1339,
+        "startChar": 10,
+        "endLine": 1339,
+        "endChar": 27
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa9175f_7612e68f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 1343,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-22T12:36:31Z",
+      "side": 1,
+      "message": "You want to use freeArraysThatAreNotMallocedByUsers here, since you are using the copy1dArray helper.",
+      "range": {
+        "startLine": 1343,
+        "startChar": 12,
+        "endLine": 1343,
+        "endChar": 17
+      },
+      "revId": "135371d20471c0221fde4b9934a7ebf07a81512f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
