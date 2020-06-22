@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc193024_67c59e7b",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T13:46:43Z",
+      "side": 0,
+      "message": "I don\u0027t see the point in removing this, it\u0027s a good point.",
+      "revId": "9eb89bac85e14503485d0b9f651d5f75be05610d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

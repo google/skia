@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4e5b5ba_7123ca4e",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T13:46:43Z",
+      "side": 1,
+      "message": "I don\u0027t see where we\u0027re forcing the length of the SkString back to zero? You\u0027re overwriting part of the existing bytes without updating the string length, which seems bad. Note that SkString isn\u0027t actually \u0027\\0\u0027 terminated, it just keeps the extra \u0027\\0\u0027 around for easy conversion to c string, the SkString is a pointer and length (as all UTF-8 must be, codepoint zero is a perfectly cromulent codepoint and must be handled as one and not as a terminator).",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c48f3a7_9818c99f",
+        "filename": "src/ports/SkFontMgr_android_parser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T13:46:43Z",
+      "side": 1,
+      "message": "This goes against the entire point of the original, which was to avoid as much work as possible, especially in the common case. This code basically enforces the super slow path every time.",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58b3a952_3e81ce4a",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T13:46:43Z",
+      "side": 1,
+      "message": "Like here, this code would just call \u0027new\u0027 directly and then create the SkString out of it, the entire point of the old code is to as much as possible avoid the extra allocations a copies and just write directly into the SkString storage.",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
