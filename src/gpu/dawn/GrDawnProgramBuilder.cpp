@@ -325,29 +325,32 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     if (0 != uniformBufferSize) {
         uniformLayoutEntries.push_back({ GrSPIRVUniformHandler::kUniformBinding,
                                          wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-                                         wgpu::BindingType::UniformBuffer});
+                                         wgpu::BindingType::UniformBuffer });
     }
     wgpu::BindGroupLayoutDescriptor uniformBindGroupLayoutDesc;
     uniformBindGroupLayoutDesc.entryCount = uniformLayoutEntries.size();
     uniformBindGroupLayoutDesc.entries = uniformLayoutEntries.data();
-    result->fBindGroupLayouts[0] =
-        gpu->device().CreateBindGroupLayout(&uniformBindGroupLayoutDesc);
+    result->fBindGroupLayouts.push_back(
+        gpu->device().CreateBindGroupLayout(&uniformBindGroupLayoutDesc));
     uint32_t binding = 0;
     std::vector<wgpu::BindGroupLayoutEntry> textureLayoutEntries;
-    for (int i = 0; i < builder.fUniformHandler.fSamplers.count(); ++i) {
-        textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                         wgpu::BindingType::Sampler});
-        textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                         wgpu::BindingType::SampledTexture});
+    int textureCount = builder.fUniformHandler.fSamplers.count();
+    if (textureCount > 0) {
+        for (int i = 0; i < textureCount; ++i)  {
+            textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
+                                             wgpu::BindingType::Sampler });
+            textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
+                                             wgpu::BindingType::SampledTexture });
+        }
+        wgpu::BindGroupLayoutDescriptor textureBindGroupLayoutDesc;
+        textureBindGroupLayoutDesc.entryCount = textureLayoutEntries.size();
+        textureBindGroupLayoutDesc.entries = textureLayoutEntries.data();
+        result->fBindGroupLayouts.push_back(
+            gpu->device().CreateBindGroupLayout(&textureBindGroupLayoutDesc));
     }
-    wgpu::BindGroupLayoutDescriptor textureBindGroupLayoutDesc;
-    textureBindGroupLayoutDesc.entryCount = textureLayoutEntries.size();
-    textureBindGroupLayoutDesc.entries = textureLayoutEntries.data();
-    result->fBindGroupLayouts[1] =
-        gpu->device().CreateBindGroupLayout(&textureBindGroupLayoutDesc);
     wgpu::PipelineLayoutDescriptor pipelineLayoutDesc;
-    pipelineLayoutDesc.bindGroupLayoutCount = 2;
-    pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayouts[0];
+    pipelineLayoutDesc.bindGroupLayoutCount = result->fBindGroupLayouts.size();
+    pipelineLayoutDesc.bindGroupLayouts = result->fBindGroupLayouts.data();
     auto pipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     const GrPipeline& pipeline = programInfo.pipeline();
@@ -365,9 +368,9 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
     std::vector<wgpu::VertexAttributeDescriptor> vertexAttributes;
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
+    int i = 0;
     if (primProc.numVertexAttributes() > 0) {
         size_t offset = 0;
-        int i = 0;
         for (const auto& attrib : primProc.vertexAttributes()) {
             wgpu::VertexAttributeDescriptor attribute;
             attribute.shaderLocation = i;
@@ -387,7 +390,6 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     std::vector<wgpu::VertexAttributeDescriptor> instanceAttributes;
     if (primProc.numInstanceAttributes() > 0) {
         size_t offset = 0;
-        int i = 0;
         for (const auto& attrib : primProc.instanceAttributes()) {
             wgpu::VertexAttributeDescriptor attribute;
             attribute.shaderLocation = i;
@@ -543,6 +545,9 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
                                            const GrSurfaceProxy* const primProcTextures[]) {
+    if (fBindGroupLayouts.size() < 2) {
+        return nullptr;
+    }
     std::vector<wgpu::BindGroupEntry> bindings;
     int binding = 0;
     if (primProcTextures) {

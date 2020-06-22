@@ -160,7 +160,9 @@ bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                          const GrSurfaceProxy* const primProcTextures[],
                                          const GrPipeline& pipeline) {
     auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, primProcTextures);
-    fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
+    if (bindGroup) {
+        fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
+    }
     return true;
 }
 
