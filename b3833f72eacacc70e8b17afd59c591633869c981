@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "4f02ce2a_4f2214f4",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T15:17:58Z",
+      "side": 1,
+      "message": "Well, no, fLength tracks the actual length of the string, the code assumes that the buffer is of size at least fLength aligned to the next four bytes. fLength must always be the actual length of the string and the data from fBeginningOfData to fBeginningOfData + fLength shouldn\u0027t be mucked with unless the user wants it mucked with. Any violation of this is currently a bug.",
+      "parentUuid": "23c5f77d_9157f0b4",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c48f3a7_9818c99f",
         "filename": "src/ports/SkFontMgr_android_parser.cpp",
         "patchSetId": 4
