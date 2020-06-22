@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d330232_b6a871ed",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-22T19:58:14Z",
+      "side": 1,
+      "message": "Would it save an extra copy to make these R-values?",
+      "range": {
+        "startLine": 45,
+        "startChar": 14,
+        "endLine": 45,
+        "endChar": 32
+      },
+      "revId": "7ff1dd04541459afc504bd55909881e91e737713",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8220ba_32e5dd7f",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-22T19:58:14Z",
+      "side": 1,
+      "message": "Should we have an extraVerbCount also?",
+      "range": {
+        "startLine": 28,
+        "startChar": 31,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "7ff1dd04541459afc504bd55909881e91e737713",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
