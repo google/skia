@@ -403,3 +403,51 @@ DEF_TEST(String_VAList_overflow, r) {
     test_va_list_overflow_append(r, "%1999s", " ");
     test_va_list_overflow_prepend(r, "%1999s", " ");
 }
+
+DEF_TEST(String_resize_to_nothing, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(0);
+    REPORTER_ASSERT(r, s.equals(""));
+}
+
+DEF_TEST(String_resize_shrink, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+}
+
+DEF_TEST(String_resize_grow, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello world!"));  // no promises about data past \0
+    REPORTER_ASSERT(r, s.size() == 25);
+}
+
+DEF_TEST(String_resize_after_assignment, r) {
+    SkString s("hello world!");
+    SkString t;
+    t = s;
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello world!"));
+    REPORTER_ASSERT(r, s.size() == 25);
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+}
+
+static void resize_helper_function(skiatest::Reporter* r, SkString s) {
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello"));
+    REPORTER_ASSERT(r, s.size() == 25);
+}
+
+DEF_TEST(String_resize_after_copy_construction, r) {
+    SkString s("hello world!");
+    resize_helper_function(r, s);
+}
