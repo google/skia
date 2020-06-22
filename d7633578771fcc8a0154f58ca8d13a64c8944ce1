@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "0bd3359c_64595e90",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T16:13:04Z",
+      "side": 1,
+      "message": "Probably the first one? I\u0027m usually a fan of comments that explain subtle logic, although I find that the code is more helpful than the comments in this situation. (That may just be because I\u0027m in the middle of reviewing this CL, so I understand what\u0027s going on?)",
+      "parentUuid": "9194a562_2a054758",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 68
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0f0648c_7cbd694c",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
