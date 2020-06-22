@@ -15,7 +15,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"

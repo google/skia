@@ -124,8 +124,6 @@ private:
     struct TransformInfo {
         // The vertex-shader output variable to assign the transformed coordinates to
         GrShaderVar                fOutputCoords;
-        // The name of a coord transform uniform to apply
-        SkString                   fMatrix;
         // The coordinate to be transformed
         GrShaderVar                fLocalCoords;
         // The leaf FP of a transform hierarchy to be evaluated in the vertex shader;
