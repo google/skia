@@ -610,6 +610,52 @@
     },
     {
       "key": {
+        "uuid": "2572c949_1ad624a3",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T16:49:51Z",
+      "side": 1,
+      "message": "It seems like this block (applying the inner-most FP\u0027s matrix), could be folded into the loop below? The first iteration would always trigger the else case (because the cachedBaseCoord lookup would fail), but then this entire section would be more clearly just: 1) Start out with the empty string (or the legacy transform), 2) Keep applying transforms inside-out, until we hit a stopping condition.",
+      "range": {
+        "startLine": 256,
+        "startChar": 1,
+        "endLine": 272,
+        "endChar": 0
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6237b9c_d863edac",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T16:49:51Z",
+      "side": 1,
+      "message": "Seems less likely to be an issue here, but want to wrap this in parens, too, just to be safe? (Do we consider expressions composed entirely of literals to be constant?)",
+      "range": {
+        "startLine": 296,
+        "startChar": 51,
+        "endLine": 296,
+        "endChar": 53
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2ade6797_3ffe1756",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 4
