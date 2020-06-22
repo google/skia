@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f8d916c0_fea59fe3",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-22T15:33:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce9981c8_e2d1a13c",
+      "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a29fae54_01cc7dc1",
         "filename": "src/utils/SkParseColor.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-22T15:05:02Z",
       "side": 1,
       "message": "Can we just use strcmp()?",
+      "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb9f72a1_304266a3",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-22T15:33:38Z",
+      "side": 1,
+      "message": "Glad you asked this question :)  All SkParse methods are set up to match/consume part of the input, so I was assuming we want the same here.  E.g. \"blue foo bar\" would match blue and return a ptr to \" foo bar\", so strcmp wouldn\u0027t work.\n\nBut I just realized that\u0027s not what the old (or new) FindNamedColor impl is doing, and it would be pretty tricky to support for colors with common prefixes (\"blue\" vs. \"blueviolet\" - if we search for the latter, the former is also a valid partial match).\n\nSo I guess it makes sense to stick to the full-match behavior (I don\u0027t think SVG cares either way because color attributes are self-contained strings).\n\nSwitched to strcmp.",
+      "parentUuid": "a29fae54_01cc7dc1",
       "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
