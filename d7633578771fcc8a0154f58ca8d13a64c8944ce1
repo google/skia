@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ff0d686d_e69a6bdd",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "I think this is out-of-date; I think what was happening before, when I was triggering a failure, was GrSkSLFP would mark it as sampled explicitly before calling registerChild. With those operations now combined, I think that this can be simplified. I\u0027ll give it a shot.",
+      "parentUuid": "f60ff9d0_2912fd4c",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 100
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12e5f60e_3ceddd7b",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 4
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "9194a562_2a054758",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "Oops, which do you like better? I believe the top block is actually a revision of the bottom block...",
+      "parentUuid": "12e5f60e_3ceddd7b",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 68
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0f0648c_7cbd694c",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
@@ -82,6 +130,30 @@
       "writtenOn": "2020-06-22T15:56:08Z",
       "side": 1,
       "message": "This case confuses me. If it\u0027s the root, how is it sampled with explicit coords (or at all)? Shouldn\u0027t it still just be contingent on the FP using local coords (directly or indirectly), whether not not it\u0027s a root?",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 166,
+        "endChar": 69
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9418aaca_99da0742",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "I will double check this (and the other instance that references this behavior). I remember hitting this early on before I\u0027d fully sorted out the glsl geometry processor updates. It may be that now it\u0027s not necessary.",
+      "parentUuid": "d0f0648c_7cbd694c",
       "range": {
         "startLine": 165,
         "startChar": 12,
@@ -134,6 +206,30 @@
     },
     {
       "key": {
+        "uuid": "6b98879e_225a7475",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "Haha, yep; I\u0027d had an intermediate version that tracked variable matrix sampling separate from explicit sampling. Combining them simplifies a lot of these checks, but I missed how far this one can simplify 😊",
+      "parentUuid": "433edd9c_9028d935",
+      "range": {
+        "startLine": 55,
+        "startChar": 17,
+        "endLine": 55,
+        "endChar": 56
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "937ea558_26f78434",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -145,6 +241,30 @@
       "writtenOn": "2020-06-22T15:56:08Z",
       "side": 1,
       "message": "Do we need to wrap the matrix in parentheses, just in case it\u0027s a complex expression?",
+      "range": {
+        "startLine": 137,
+        "startChar": 49,
+        "endLine": 137,
+        "endChar": 53
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b635aee_1cd9dcfa",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a good point.",
+      "parentUuid": "937ea558_26f78434",
       "range": {
         "startLine": 137,
         "startChar": 49,
@@ -237,6 +357,30 @@
       "writtenOn": "2020-06-22T15:56:08Z",
       "side": 1,
       "message": "Really minor: I\u0027d write this line as `invokeFunction \u003d \"invokeChildWithMatrix\"`, so that we don\u0027t scratch our heads for an hour trying to find the source of these calls when we decide to rename/refactor how this works again in two years.",
+      "range": {
+        "startLine": 449,
+        "startChar": 35,
+        "endLine": 449,
+        "endChar": 45
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de4c5e8c_4c42b509",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:05:33Z",
+      "side": 1,
+      "message": "That makes sense.",
+      "parentUuid": "2ade6797_3ffe1756",
       "range": {
         "startLine": 449,
         "startChar": 35,
