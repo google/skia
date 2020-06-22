@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "54e69bf8_d8304b36",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ce1f2a6_3b047e82",
+      "range": {
+        "startLine": 120,
+        "startChar": 49,
+        "endLine": 120,
+        "endChar": 63
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f60ff9d0_2912fd4c",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 4
@@ -93,6 +117,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd5cd1f9_37562332",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Was out of date, removed the comment, the assert fully makes sure the child has no top-down sampling modifications before it was registered.",
+      "parentUuid": "8393b4d9_b9bda613",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 100
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -167,6 +215,30 @@
     },
     {
       "key": {
+        "uuid": "e679229a_5380b228",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bd3359c_64595e90",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 68
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0f0648c_7cbd694c",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
@@ -211,6 +283,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d1c6730_42fe250a",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Was out of date, removed this so now it\u0027s just checking the flag (and for an explicitly added GrCoordTransform, but that clause can go away later).",
+      "parentUuid": "9418aaca_99da0742",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 166,
+        "endChar": 69
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +374,30 @@
     },
     {
       "key": {
+        "uuid": "11f39448_77318f1a",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b98879e_225a7475",
+      "range": {
+        "startLine": 55,
+        "startChar": 17,
+        "endLine": 55,
+        "endChar": 56
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "937ea558_26f78434",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -325,6 +445,30 @@
     },
     {
       "key": {
+        "uuid": "51d0cb33_37a28e3a",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b635aee_1cd9dcfa",
+      "range": {
+        "startLine": 137,
+        "startChar": 49,
+        "endLine": 137,
+        "endChar": 53
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d043237_7b86a4c3",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -345,6 +489,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fe8b583_8410cda5",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d043237_7b86a4c3",
+      "range": {
+        "startLine": 144,
+        "startChar": 43,
+        "endLine": 144,
+        "endChar": 45
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -371,6 +539,30 @@
     },
     {
       "key": {
+        "uuid": "9b345aa7_a7b0008e",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96ccf65d_a25a45dc",
+      "range": {
+        "startLine": 177,
+        "startChar": 27,
+        "endLine": 177,
+        "endChar": 28
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae973ba7_7ce30542",
         "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
         "patchSetId": 4
@@ -391,6 +583,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7119fb3f_a64ba0a1",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae973ba7_7ce30542",
+      "range": {
+        "startLine": 210,
+        "startChar": 99,
+        "endLine": 210,
+        "endChar": 101
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -438,6 +654,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fbe63af_03f2da37",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de4c5e8c_4c42b509",
+      "range": {
+        "startLine": 449,
+        "startChar": 35,
+        "endLine": 449,
+        "endChar": 45
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
