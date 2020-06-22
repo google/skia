@@ -104,7 +104,7 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-    if (fSrcRect == bounds) {
+    if (fSrcRect == bounds && (!ctx.getContext() || fImage->isTextureBacked())) {
         int iLeft = dstRect.fLeft;
         int iTop = dstRect.fTop;
         // TODO: this seems to be a very noise-prone way to determine this (esp. the floating-point
