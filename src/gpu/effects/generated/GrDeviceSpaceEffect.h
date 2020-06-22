@@ -31,7 +31,9 @@ public:
 
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp, SkMatrix matrix)
-            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
+            : INHERITED(kGrDeviceSpaceEffect_ClassID,
+                        (OptimizationFlags)ProcessorOptimizationFlags(fp.get()))
+            , matrix(matrix) {
         SkASSERT(fp);
         fp_index = this->registerExplicitlySampledChild(std::move(fp));
     }

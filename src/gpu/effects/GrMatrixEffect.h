@@ -35,7 +35,7 @@ private:
     GrMatrixEffect(const GrMatrixEffect& src);
 
     GrMatrixEffect(SkMatrix matrix, std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kGrMatrixEffect_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrMatrixEffect_ClassID, ProcessorOptimizationFlags(child.get()))
             , fMatrix(matrix) {
         SkASSERT(child);
         this->registerChild(std::move(child),

@@ -14,6 +14,10 @@ void main() {
     sk_OutColor = sample(fp, sk_InColor, p.xy / p.z);
 }
 
+@optimizationFlags {
+    ProcessorOptimizationFlags(fp.get())
+}
+
 @make{
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkMatrix& matrix = SkMatrix::I()) {
