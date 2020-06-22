@@ -78,11 +78,13 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     }
 
     //--------------
-    // Test getROPixels - this should always succeed regardless of backing store
-    SkBitmap bitmap;
-    REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
-    REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());
-    REPORTER_ASSERT(reporter, kSmallerSize == bitmap.height());
+    // Test getROPixels - this only works for raster-backed special images
+    if (!img->isTextureBacked()) {
+        SkBitmap bitmap;
+        REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
+        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());
+        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.height());
+    }
 
     //--------------
     // Test that draw restricts itself to the subset
