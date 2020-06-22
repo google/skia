@@ -93,7 +93,7 @@ private:
         kPremul,    // clamps a to 0..1 and rgb to 0..a
     };
 
-    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>, const SkMatrix&, Direction, Clamp);
+    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>, Direction, Clamp);
 
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
@@ -105,7 +105,6 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
-    GrCoordTransform fCoordTransform;
     Direction fDirection;
     Clamp fClamp;
 

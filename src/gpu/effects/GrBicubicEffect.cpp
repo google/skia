@@ -8,7 +8,7 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 
 #include "src/core/SkMatrixPriv.h"
-#include "src/gpu/GrTexture.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -120,8 +120,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView vi
                                                            Direction direction) {
     auto fp = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I());
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+    return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
+            new GrBicubicEffect(std::move(fp), direction, clamp)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView view,
@@ -135,8 +135,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView vi
     std::unique_ptr<GrFragmentProcessor> fp;
     fp = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I(), sampler, caps);
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+    return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
+            new GrBicubicEffect(std::move(fp), direction, clamp)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
@@ -153,8 +153,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
     fp = GrTextureEffect::MakeSubset(
             std::move(view), alphaType, SkMatrix::I(), sampler, subset, caps);
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+    return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
+            new GrBicubicEffect(std::move(fp), direction, clamp)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
@@ -162,29 +162,26 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFra
                                                            const SkMatrix& matrix,
                                                            Direction direction) {
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+    return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
+            new GrBicubicEffect(std::move(fp), direction, clamp)));
 }
 
 GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
-                                 const SkMatrix& matrix,
                                  Direction direction,
                                  Clamp clamp)
         : INHERITED(kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))
-        , fCoordTransform(matrix)
         , fDirection(direction)
         , fClamp(clamp) {
-    this->addCoordTransform(&fCoordTransform);
     this->registerExplicitlySampledChild(std::move(fp));
+    this->setUsesLocalCoordsDirectly();
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
-        , fCoordTransform(that.fCoordTransform)
         , fDirection(that.fDirection)
         , fClamp(that.fClamp) {
-    this->addCoordTransform(&fCoordTransform);
     this->cloneAndRegisterAllChildProcessors(that);
+    this->setUsesLocalCoordsDirectly();
 }
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
