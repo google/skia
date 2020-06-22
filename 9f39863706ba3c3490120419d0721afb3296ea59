@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2da7f994_6cf7a5b3",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T18:54:31Z",
+      "side": 1,
+      "message": "This is a really strange case - asking an empty (0 width or height) raster special image to make a texture image will return another raster image. This probably doesn\u0027t come up?",
+      "revId": "9f39863706ba3c3490120419d0721afb3296ea59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
