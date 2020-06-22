@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "5a333dfe_01f43671",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T15:24:34Z",
+      "side": 1,
+      "message": "In today\u0027s codebase (with or without my CL), resize() is documented to destroy the string. After calling resize(1234) on a string, fLength will be 1234, and the string contents are frequently empty or garbage.\n\nI\u0027m not sure how to align that with your previous comment :| \n\nresize() mucks up string contents and always has. This CL is intended to make the mucking up more predictable, and give it a name that makes it obvious that mucking-about will occur :)  \n\nI would be equially happy if \"resize\" were a string-preserving resize honestly. What do you think? I could rework this CL into \"resize never destroys user data.\" It might have a trivial performance cost but I can\u0027t imagine it will be measurable in any way. resize() is rarely used anyway, possibly because of it weird semantics.",
+      "parentUuid": "4f02ce2a_4f2214f4",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c48f3a7_9818c99f",
         "filename": "src/ports/SkFontMgr_android_parser.cpp",
         "patchSetId": 4
