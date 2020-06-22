@@ -793,7 +793,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors(),
                                       "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords(),
+            REPORTER_ASSERT(reporter, fp->requiresPrimitiveLocalCoords() ==
+                                      clone->requiresPrimitiveLocalCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
             render_fp(context, rtc.get(), fp.get(), inputTexture, kPremul_SkAlphaType,
