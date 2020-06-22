@@ -239,6 +239,75 @@
     },
     {
       "key": {
+        "uuid": "7607eb24_4d2f7c0f",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-22T18:11:50Z",
+      "side": 1,
+      "message": "\"descendant\"?",
+      "range": {
+        "startLine": 137,
+        "startChar": 17,
+        "endLine": 137,
+        "endChar": 42
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cff67555_d3b56e14",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-22T18:11:50Z",
+      "side": 1,
+      "message": "I\u0027m not sure Primitive is helping much here with understanding this. My vote would be for PrimitiveProcessor or just striking it, and between those two for the latter. But this only really makes sense if my next comment is in the right direction...",
+      "range": {
+        "startLine": 141,
+        "startChar": 17,
+        "endLine": 141,
+        "endChar": 26
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eafbee4_32517c68",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-22T18:11:50Z",
+      "side": 1,
+      "message": "Are we overloading \"local coords\" here? Maybe these are \"sample coords\" and EmitArgs::fSampleCoords?",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 7
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0f0648c_7cbd694c",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
