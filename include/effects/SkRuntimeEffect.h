@@ -135,7 +135,7 @@ public:
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
                     std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
-                    std::vector<Varying>&& varyings, size_t uniformSize);
+                    std::vector<Varying>&& varyings, size_t uniformSize, bool mainHasLocalCoords);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
@@ -172,6 +172,7 @@ private:
     std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;
+    bool   fMainFunctionHasLocalCoords;
 };
 
 /**

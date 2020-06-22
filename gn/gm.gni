@@ -175,6 +175,7 @@ gm_sources = [
   "$_gm/fontregen.cpp",
   "$_gm/fontscaler.cpp",
   "$_gm/fontscalerdistortable.cpp",
+  "$_gm/fp_sample_chaining.cpp",
   "$_gm/fpcoordinateoverride.cpp",
   "$_gm/fwidth_squircle.cpp",
   "$_gm/gammatext.cpp",

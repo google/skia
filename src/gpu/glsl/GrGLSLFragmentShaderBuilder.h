@@ -25,14 +25,6 @@ public:
     GrGLSLFragmentBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
     virtual ~GrGLSLFragmentBuilder() {}
 
-    /**
-     * This returns a variable name to access the 2D, perspective correct version of the coords in
-     * the fragment shader. The passed in coordinates must either be of type kHalf2 or kHalf3. If
-     * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
-     * fragment shader (xy / z) to convert them to 2D.
-     */
-    virtual SkString ensureCoords2D(const GrShaderVar&, const SkSL::SampleMatrix& matrix) = 0;
-
     // TODO: remove this method.
     void declAppendf(const char* fmt, ...);
 
@@ -149,10 +141,6 @@ public:
     static uint8_t KeyForSurfaceOrigin(GrSurfaceOrigin);
 
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
-
-    // Shared GrGLSLFragmentBuilder interface.
-    virtual SkString ensureCoords2D(const GrShaderVar&,
-                                    const SkSL::SampleMatrix& matrix) override;
 
     // GrGLSLFPFragmentBuilder interface.
     const char* sampleOffsets() override;
