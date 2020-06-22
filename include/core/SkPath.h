@@ -1759,6 +1759,9 @@ public:
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 
 private:
+    SkPath(sk_sp<SkPathRef>, int lastMoveToIndex, SkPathConvexityType, SkPathDirection,
+           SkPathFillType, bool isVolatile);
+
     sk_sp<SkPathRef>               fPathRef;
     int                            fLastMoveToIndex;
     mutable std::atomic<uint8_t>   fConvexity;      // SkPathConvexityType
@@ -1843,6 +1846,7 @@ private:
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
+    friend class SkPathBuilder;
     friend class SkPathEdgeIter;
     friend class SkPathWriter;
     friend class SkOpBuilder;
