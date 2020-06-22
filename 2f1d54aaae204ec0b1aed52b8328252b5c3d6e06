@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce9981c8_e2d1a13c",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-22T15:05:02Z",
+      "side": 1,
+      "message": "I know this one was my suggestion, but do you think it might make the rest of the code clearer still as \n\n   uint8_t r,g,b;\n\n?",
+      "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a29fae54_01cc7dc1",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-22T15:05:02Z",
+      "side": 1,
+      "message": "Can we just use strcmp()?",
+      "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce908539_cdef148a",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-22T15:05:02Z",
+      "side": 1,
+      "message": "Still maybe clearer with a !\u003d 0?",
+      "range": {
+        "startLine": 180,
+        "startChar": 41,
+        "endLine": 180,
+        "endChar": 47
+      },
+      "revId": "2f1d54aaae204ec0b1aed52b8328252b5c3d6e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
