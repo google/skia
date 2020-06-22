@@ -1058,12 +1058,14 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                  0, 0);
 
     // Change resource state to shader resource since if we use this texture as a borrowed
-    // texture within Ganesh we require that its state be set to that
-    texture->setResourceState(this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    // texture within Ganesh we require that its state be set to that.
+    // TODO: determine why this causes a pipeline stall and possibly re-enable.
+    // texture->setResourceState(this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
     }
+
     return true;
 }
 
