@@ -761,6 +761,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit.SkPath.prototype.setVerbsAndPoints = function(verbs, points) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(points, "HEAPF32");
+    this._setVerbsAndPoints(verbsPtr, verbs.length, pointsPtr, points.length);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, points);
+  };
+
   CanvasKit.SkPath.prototype.stroke = function(opts) {
     // Fill out any missing values with the default values.
     opts = opts || {};
@@ -1333,6 +1341,15 @@ CanvasKit.MakePathFromCmds = function(cmds) {
   var ptrLen = loadCmdsTypedArray(cmds);
   var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);
   CanvasKit._free(ptrLen[0]);
+  return path;
+}
+
+CanvasKit.MakePathFromCmds2 = function(verbs, pts) {
+  var verbsPtr = copy1dArray(verbs, "HEAPU8");
+  var pointsPtr = copy1dArray(pts, "HEAPF32");
+  var path = CanvasKit._MakePathFromCmds2(verbsPtr, verbs.length, pointsPtr, pts.length);
+  freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+  freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
   return path;
 }
 

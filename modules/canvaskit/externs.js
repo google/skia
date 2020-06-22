@@ -50,6 +50,7 @@ var CanvasKit = {
   MakeImageFromCanvasImageSource: function() {},
   MakeOnScreenGLSurface: function() {},
   MakePathFromCmds: function() {},
+  MakePathFromCmds2: function() {},
   MakePathFromOp: function() {},
   MakePathFromSVGString: function() {},
   MakeRenderTarget: function() {},
@@ -83,6 +84,7 @@ var CanvasKit = {
   _MakeImage: function() {},
   _MakeLinearGradientShader: function() {},
   _MakePathFromCmds: function() {},
+  _MakePathFromCmds2: function() {},
   _MakeRadialGradientShader: function() {},
   _MakeSweepGradientShader: function() {},
   _MakeManagedAnimation: function() {},
@@ -476,6 +478,7 @@ var CanvasKit = {
     _rMoveTo: function() {},
     _rQuadTo: function() {},
     _rect: function() {},
+    _setVerbsAndPoints: function() {},
     _simplify: function() {},
     _stroke: function() {},
     _transform: function() {},
@@ -888,6 +891,7 @@ CanvasKit.SkPath.prototype.rLineTo = function() {};
 CanvasKit.SkPath.prototype.rMoveTo = function() {};
 CanvasKit.SkPath.prototype.rQuadTo = function() {};
 CanvasKit.SkPath.prototype.rect = function() {};
+CanvasKit.SkPath.prototype.setVerbsAndPoints = function() {};
 CanvasKit.SkPath.prototype.simplify = function() {};
 CanvasKit.SkPath.prototype.stroke = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};

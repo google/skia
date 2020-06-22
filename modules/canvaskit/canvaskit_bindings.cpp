@@ -488,6 +488,46 @@ SkPathOrNull MakePathFromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     return emscripten::val(path);
 }
 
+void PathSetVerbsAndPoints(SkPath& path, uintptr_t /* uint8_t* */ verbsPtr, int numVerbs,
+                                         uintptr_t /* float* */ ptsPtr, int numPts) {
+    const uint8_t* verbs = reinterpret_cast<const uint8_t*>(verbsPtr);
+    const float* pts = reinterpret_cast<const float*>(ptsPtr);
+
+    int i = 0;
+    for (int v = 0; v < numVerbs; ++v) {
+         switch (verbs[v]) {
+            case MOVE:
+                path.moveTo(pts[i], pts[i+1]);
+                i += 2;
+                break;
+            case LINE:
+                path.lineTo(pts[i], pts[i+1]);
+                i += 2;
+                break;
+            case QUAD:
+                path.quadTo(pts[i], pts[i+1], pts[i+2], pts[i+3]);
+                i += 4;
+                break;
+            case CONIC:
+                break;
+            case CUBIC:
+                path.cubicTo(pts[i], pts[i+1], pts[i+2], pts[i+3], pts[i+4], pts[i+5]);
+                i += 6;
+                break;
+            case CLOSE:
+                path.close();
+                break;
+        }
+    }
+}
+
+SkPath MakePathFromCmds2(uintptr_t /* uint8_t* */ verbsPtr, int numVerbs,
+                               uintptr_t ptsPtr, int numPts) {
+    SkPath path;
+    PathSetVerbsAndPoints(path, verbsPtr, numVerbs, ptsPtr, numPts);
+    return path;
+}
+
 //========================================================================================
 // Path Effects
 //========================================================================================
@@ -760,6 +800,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
     function("_MakePathFromCmds", &MakePathFromCmds);
+    function("_MakePathFromCmds2", &MakePathFromCmds2);
 #ifdef SK_INCLUDE_PATHOPS
     function("MakePathFromOp", &MakePathFromOp);
 #endif
@@ -1421,6 +1462,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("reset", &ApplyReset)
         .function("rewind", &ApplyRewind)
         .function("setIsVolatile", &SkPath::setIsVolatile)
+        .function("_setVerbsAndPoints", &PathSetVerbsAndPoints)
         .function("_transform", select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&ApplyTransform))
 
         // PathEffects
