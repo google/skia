@@ -26,6 +26,7 @@ platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
 platform_tools/android/apps/*/src/main/libs
+platform_tools/android/apps/*/*/src/main/libs
 platform_tools/android/apps/*.hprof
 platform_tools/android/apps/*/.externalNativeBuild
 
