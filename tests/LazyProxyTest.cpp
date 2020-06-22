@@ -148,7 +148,7 @@ public:
                     GrSurfaceProxy::UseAllocator::kYes);
             auto atlasEffect = GrTextureEffect::Make({fLazyProxy, kOrigin, readSwizzle},
                                                      kPremul_SkAlphaType);
-            this->registerChildProcessor(std::move(atlasEffect));
+            this->registerChild(std::move(atlasEffect));
         }
 
     private:

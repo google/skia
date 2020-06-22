@@ -122,13 +122,17 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
                 return;
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
+            if (index != 0) {
+                fErrors.error(i.fIndex->fOffset, "Only sk_TransformedCoords2D[0] is allowed");
+                return;
+            }
             String name = "sk_TransformedCoords2D_" + to_string(index);
             fFormatArgs.push_back(name + ".c_str()");
-            if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
+            if (!fAccessLocalCoordsDirectly) {
+                fAccessLocalCoordsDirectly = true;
                 addExtraEmitCodeLine("SkString " + name +
                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
                                      to_string(index) + "].fVaryingPoint, _outer.sampleMatrix());");
-                fWrittenTransformedCoords.insert(index);
             }
             return;
         } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {

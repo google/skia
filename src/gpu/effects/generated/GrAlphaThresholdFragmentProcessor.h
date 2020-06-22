@@ -47,10 +47,10 @@ private:
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         if (inputFP) {
-            inputFP_index = this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChild(std::move(inputFP));
         }
         SkASSERT(maskFP);
-        maskFP_index = this->registerChildProcessor(std::move(maskFP));
+        maskFP_index = this->registerChild(std::move(maskFP));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -200,7 +200,7 @@ GrConvexPolyEffect::GrConvexPolyEffect(std::unique_ptr<GrFragmentProcessor> inpu
     }
 
     if (inputFP != nullptr) {
-        this->registerChildProcessor(std::move(inputFP));
+        this->registerChild(std::move(inputFP));
     }
 }
 

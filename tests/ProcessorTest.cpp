@@ -110,13 +110,13 @@ private:
     TestFP(const SkTArray<GrSurfaceProxyView>& views)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
         for (const auto& view : views) {
-            this->registerChildProcessor(GrTextureEffect::Make(view, kUnknown_SkAlphaType));
+            this->registerChild(GrTextureEffect::Make(view, kUnknown_SkAlphaType));
         }
     }
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child));
     }
 
     explicit TestFP(const TestFP& that) : INHERITED(kTestFP_ClassID, that.optimizationFlags()) {

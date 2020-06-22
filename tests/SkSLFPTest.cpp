@@ -545,8 +545,8 @@ DEF_TEST(SkSLFPChildProcessors, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChildProcessor(std::move(child1));",
-            "child2_index = this->registerChildProcessor(std::move(child2));"
+            "child1_index = this->registerChild(std::move(child1));",
+            "child2_index = this->registerChild(std::move(child2));"
          },
          /*expectedCPP=*/{
             "SkString _sample149;\n",
@@ -576,8 +576,8 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChildProcessor(std::move(child1));",
-            "child2_index = this->registerChildProcessor(std::move(child2));"
+            "child1_index = this->registerChild(std::move(child1));",
+            "child2_index = this->registerChild(std::move(child2));"
          },
          /*expectedCPP=*/{
             "SkString _input198(\"childIn\");",
@@ -605,7 +605,7 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChildProcessor(std::move(child));",
+            "child_index = this->registerChild(std::move(child));",
          },
          /*expectedCPP=*/{
             "SkString _input106 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
@@ -630,8 +630,8 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChildProcessor(std::move(child1));",
-            "child2_index = this->registerChildProcessor(std::move(child2));"
+            "child1_index = this->registerChild(std::move(child1));",
+            "child2_index = this->registerChild(std::move(child2));"
          },
          /*expectedCPP=*/{
             "SkString _input177 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
@@ -664,7 +664,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChildProcessor(std::move(child));"
+            "child_index = this->registerChild(std::move(child));"
          },
          /*expectedCPP=*/{
             "hasCap = sk_Caps.externalTextureSupport;",
@@ -702,7 +702,7 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChildProcessor(std::move(child));"
+            "child_index = this->registerChild(std::move(child));"
          },
          /*expectedCPP=*/{
             "fragBuilder->codeAppendf(\n"
@@ -738,7 +738,7 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
          }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChildProcessor(std::move(child));"
+            "child_index = this->registerChild(std::move(child));"
          },
          /*expectedCPP=*/{
             "opaque = _outer.childProcessor(_outer.child_index).preservesOpaqueInput();",
@@ -814,7 +814,9 @@ DEF_TEST(SkSLFPSampleCoords, r) {
                  sk_OutColor = sample(child) + sample(child, sk_TransformedCoords2D[0] / 2);
              }
          )__SkSL__",
-         /*expectedH=*/{},
+         /*expectedH=*/{
+             "child_index = this->registerExplicitlySampledChild(std::move(child));"
+         },
          /*expectedCPP=*/{
             "SkString _sample150;\n",
             "_sample150 = this->invokeChild(_outer.child_index, args);\n",

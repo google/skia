@@ -52,7 +52,7 @@ private:
             , center(center)
             , radius(radius) {
         if (inputFP) {
-            inputFP_index = this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChild(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

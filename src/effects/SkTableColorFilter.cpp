@@ -307,15 +307,12 @@ ColorTableEffect::ColorTableEffect(GrSurfaceProxyView view)
         // Not bothering with table-specific optimizations.
         : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
     auto te = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
-    te->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(te));
+    this->registerExplicitlySampledChild(std::move(te));
 }
 
 ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)
         : INHERITED(kColorTableEffect_ClassID, that.optimizationFlags()) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
 }
 
 GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {

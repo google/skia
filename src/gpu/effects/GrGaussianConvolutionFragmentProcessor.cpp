@@ -171,8 +171,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                     ProcessorOptimizationFlags(child.get()))
         , fRadius(radius)
         , fDirection(direction) {
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->registerExplicitlySampledChild(std::move(child));
     SkASSERT(radius <= kMaxKernelRadius);
     fill_in_1D_gaussian_kernel(fKernel, gaussianSigma, fRadius);
     this->addCoordTransform(&fCoordTransform);
@@ -183,9 +182,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID, that.optimizationFlags())
         , fRadius(that.fRadius)
         , fDirection(that.fDirection) {
-    auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(that);
     memcpy(fKernel, that.fKernel, radius_to_width(fRadius) * sizeof(float));
     this->addCoordTransform(&fCoordTransform);
 }

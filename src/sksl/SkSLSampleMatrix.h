@@ -27,7 +27,8 @@ struct SampleMatrix {
         // No sample(child, matrix) call affects the FP.
         kNone,
         // The FP is sampled with a matrix whose value is fixed and based only on constants or
-        // uniforms, and thus the transform can be hoisted to the vertex shader.
+        // uniforms, and thus the transform can be hoisted to the vertex shader (assuming that
+        // its parent can also be hoisted, i.e. not sampled explicitly).
         kConstantOrUniform,
         // The FP is sampled with a non-constant/uniform value, or sampled multiple times, and
         // thus the transform cannot be hoisted to the vertex shader.
@@ -38,20 +39,18 @@ struct SampleMatrix {
         kMixed,
     };
 
+    // Make a SampleMatrix with kNone for its kind. Will not have an expression or have perspective.
     SampleMatrix()
-    : fOwner(nullptr)
-    , fKind(Kind::kNone) {}
+            : fOwner(nullptr)
+            , fKind(Kind::kNone) {}
 
-    SampleMatrix(Kind kind)
-    : fOwner(nullptr)
-    , fKind(kind) {
-        SkASSERT(kind == Kind::kNone || kind == Kind::kVariable);
+    static SampleMatrix MakeConstUniform(String expression) {
+        return SampleMatrix(Kind::kConstantOrUniform, expression);
     }
 
-    SampleMatrix(Kind kind, GrFragmentProcessor* owner, String expression)
-    : fOwner(owner)
-    , fKind(kind)
-    , fExpression(expression) {}
+    static SampleMatrix MakeVariable() {
+        return SampleMatrix(Kind::kVariable, "");
+    }
 
     static SampleMatrix Make(const Program& program, const Variable& fp);
 
@@ -76,12 +75,20 @@ struct SampleMatrix {
     }
 #endif
 
+    // TODO(michaelludwig): fOwner and fBase are going away; owner is filled in automatically when
+    // a matrix-sampled FP is registered as a child.
     GrFragmentProcessor* fOwner;
     Kind fKind;
     // The constant or uniform expression representing the matrix (will be the empty string when
     // kind == kNone or kVariable)
     String fExpression;
     const GrFragmentProcessor* fBase = nullptr;
+
+private:
+    SampleMatrix(Kind kind, String expression)
+            : fOwner(nullptr)
+            , fKind(kind)
+            , fExpression(expression) {}
 };
 
 } // namespace

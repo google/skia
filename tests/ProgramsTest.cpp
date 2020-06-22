@@ -126,7 +126,7 @@ private:
 
     BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kBlockInputFragmentProcessor_ClassID, kNone_OptimizationFlags) {
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child));
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
