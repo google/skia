@@ -112,7 +112,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
                               ModulateForClampedSamplerOptFlags(alpha_type(yuvaIndices)))
         , fYUVColorSpace(yuvColorSpace) {
     for (int i = 0; i < numPlanes; ++i) {
-        this->registerChildProcessor(std::move(planeFPs[i]));
+        this->registerChild(std::move(planeFPs[i]));
     }
     std::copy_n(yuvaIndices, 4, fYUVAIndices);
 }
@@ -251,10 +251,7 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
         , fYUVColorSpace(src.fYUVColorSpace) {
-    int numPlanes = src.numChildProcessors();
-    for (int i = 0; i < numPlanes; ++i) {
-        this->registerChildProcessor(this->childProcessor(i).clone());
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
     std::copy_n(src.fYUVAIndices, this->numChildProcessors(), fYUVAIndices);
 }
 

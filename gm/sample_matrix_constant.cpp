@@ -21,11 +21,11 @@ public:
 
     SampleMatrixConstantEffect(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kConstantOrUniform,
-                                                  child.get(), "float3x3(float3(0.5, 0.0, 0.0), "
-                                                                        "float3(0.0, 0.5, 0.0), "
-                                                                        "float3(0.0, 0.0, 1.0))"));
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child),
+                            SkSL::SampleMatrix::MakeConstUniform(
+                                    "float3x3(float3(0.5, 0.0, 0.0), "
+                                             "float3(0.0, 0.5, 0.0), "
+                                             "float3(0.0, 0.0, 1.0))"));
     }
 
     const char* name() const override { return "SampleMatrixConstantEffect"; }

@@ -86,7 +86,7 @@ private:
             , clampRGBOutput(clampRGBOutput)
             , premulOutput(premulOutput) {
         if (inputFP) {
-            inputFP_index = this->registerChildProcessor(std::move(inputFP));
+            inputFP_index = this->registerChild(std::move(inputFP));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
