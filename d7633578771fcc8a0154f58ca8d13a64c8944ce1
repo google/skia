@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8393b4d9_b9bda613",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T16:08:17Z",
+      "side": 1,
+      "message": "The other place it may have been triggered (while I was developing) was the GrSkSLFP dither effect, since there was the older hack that marked itself as explicitly sampled so that it didn\u0027t add an unused varying. Now, SkRuntimeEffect determines local coord use automatically based on the main signature so that went away.",
+      "parentUuid": "ff0d686d_e69a6bdd",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 100
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12e5f60e_3ceddd7b",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 4
