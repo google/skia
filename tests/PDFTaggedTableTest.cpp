@@ -81,15 +81,11 @@ DEF_TEST(SkPDF_tagged_table, r) {
                 cell->fTypeString = "TH";
             } else {
                 cell->fTypeString = "TD";
-                std::vector<SkString> headers;
-                SkString rowHeaderIdString;
-                rowHeaderIdString.printf("node%08d", 10 + rowIndex * kColCount);
-                headers.push_back(rowHeaderIdString);
-                SkString colHeaderIdString;
-                colHeaderIdString.printf("node%08d", 10 + colIndex);
-                headers.push_back(colHeaderIdString);
-                cell->fAttributes.appendStringArray(
-                    "Table", "Headers", headers);
+                std::vector<int> headerIds;
+                headerIds.push_back(10 + rowIndex * kColCount);  // Row header
+                headerIds.push_back(10 + colIndex);  // Col header.
+                cell->fAttributes.appendNodeIdArray(
+                    "Table", "Headers", headerIds);
             }
 
             if (cellIndex == 13) {
