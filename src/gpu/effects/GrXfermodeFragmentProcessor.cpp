@@ -62,8 +62,8 @@ private:
                                 SkBlendMode mode)
             : INHERITED(kComposeTwoFragmentProcessor_ClassID, OptFlags(src.get(), dst.get(), mode))
             , fMode(mode) {
-        SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
-        SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
+        SkDEBUGCODE(int shaderAChildIndex = )this->registerChild(std::move(src));
+        SkDEBUGCODE(int shaderBChildIndex = )this->registerChild(std::move(dst));
         SkASSERT(0 == shaderAChildIndex);
         SkASSERT(1 == shaderBChildIndex);
     }
@@ -413,7 +413,7 @@ private:
             : INHERITED(kComposeOneFragmentProcessor_ClassID, OptFlags(fp.get(), mode, child))
             , fMode(mode)
             , fChild(child) {
-        SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(fp));
+        SkDEBUGCODE(int dstIndex =) this->registerChild(std::move(fp));
         SkASSERT(0 == dstIndex);
     }
 

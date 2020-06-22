@@ -148,18 +148,9 @@ public:
         return SkToBool(fFlags & kSampledWithExplicitCoords);
     }
 
-    void setSampledWithExplicitCoords() {
-        fFlags |= kSampledWithExplicitCoords;
-        for (auto& child : fChildProcessors) {
-            child->setSampledWithExplicitCoords();
-        }
-    }
-
     SkSL::SampleMatrix sampleMatrix() const {
         return fMatrix;
     }
-
-    void setSampleMatrix(SkSL::SampleMatrix matrix);
 
     /**
      * A GrDrawOp may premultiply its antialiasing coverage into its GrGeometryProcessor's color
@@ -332,6 +323,13 @@ public:
     // Sentinel type for range-for using FPItemIter.
     class FPItemEndIter {};
 
+    // FIXME This should be private, but SkGr needs to mark the dither effect as sampled explicitly
+    // even though it's not added to another FP. Once varying generation doesn't add a redundant
+    // varying for it, this can be fully private.
+    void temporary_SetExplicitlySampled() {
+        this->setSampledWithExplicitCoords();
+    }
+
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
@@ -424,8 +422,24 @@ protected:
      * colors will be combined somehow to produce its output color.  Registering these child
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
      * texture accesses and mangle their uniform and output color names.
+     *
+     * Depending on the 2nd and 3rd parameters, this corresponds to the following SkSL sample calls:
+     *  - sample(child): Keep default arguments
+     *  - sample(child, matrix): Provide approprate SampleMatrix matching SkSL
+     *  - sample(child, float2): SampleMatrix() and 'true', or use 'registerExplicitlySampledChild'
+     *  - sample(child, matrix)+sample(child, float2): Appropriate SampleMatrix and 'true'
      */
-    int registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child);
+    int registerChild(std::unique_ptr<GrFragmentProcessor> child,
+                      SkSL::SampleMatrix sampleMatrix = SkSL::SampleMatrix(),
+                      bool explicitlySampled = false);
+
+    /**
+     * A helper for use when the child is only invoked with sample(float2), and not sample()
+     * or sample(matrix).
+     */
+    int registerExplicitlySampledChild(std::unique_ptr<GrFragmentProcessor> child) {
+        return this->registerChild(std::move(child), SkSL::SampleMatrix(), true);
+    }
 
     /**
      * This method takes an existing fragment processor, clones it, registers it as a child of this
@@ -483,6 +497,10 @@ private:
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
     bool hasSameTransforms(const GrFragmentProcessor&) const;
+
+    void setSampledWithExplicitCoords();
+
+    void setSampleMatrix(SkSL::SampleMatrix matrix);
 
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
