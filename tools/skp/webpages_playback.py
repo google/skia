@@ -312,7 +312,8 @@ class SkPicturePlayback(object):
           # There was a failure continue with the loop.
           traceback.print_exc()
           print '\n\n=======Retrying %s=======\n\n' % page_set
-          time.sleep(10)
+          print 'SLEEP FOR ONE HOUR'
+          time.sleep(1*60*60)
           continue
 
         try:
