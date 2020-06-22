@@ -491,6 +491,19 @@ static void test_cropRects(skiatest::Reporter* reporter, GrContext* context) {
     }
 }
 
+static bool special_image_to_bitmap(const SkSpecialImage* src, SkBitmap* dst) {
+    sk_sp<SkImage> img = src->asImage();
+    if (!img) {
+        return false;
+    }
+
+    if (!dst->tryAllocN32Pixels(src->width(), src->height())) {
+        return false;
+    }
+
+    return img->readPixels(dst->pixmap(), src->subset().fLeft, src->subset().fTop);
+}
+
 static void test_negative_blur_sigma(skiatest::Reporter* reporter, GrContext* context) {
     // Check that SkBlurImageFilter will accept a negative sigma, either in
     // the given arguments or after CTM application.
@@ -536,10 +549,10 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter, GrContext* co
     SkBitmap positiveResultBM1, positiveResultBM2;
     SkBitmap negativeResultBM1, negativeResultBM2;
 
-    REPORTER_ASSERT(reporter, positiveResult1->getROPixels(&positiveResultBM1));
-    REPORTER_ASSERT(reporter, positiveResult2->getROPixels(&positiveResultBM2));
-    REPORTER_ASSERT(reporter, negativeResult1->getROPixels(&negativeResultBM1));
-    REPORTER_ASSERT(reporter, negativeResult2->getROPixels(&negativeResultBM2));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(positiveResult1.get(), &positiveResultBM1));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(positiveResult2.get(), &positiveResultBM2));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(negativeResult1.get(), &negativeResultBM1));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(negativeResult2.get(), &negativeResultBM2));
 
     for (int y = 0; y < kHeight; y++) {
         int diffs = memcmp(positiveResultBM1.getAddr32(0, y),
@@ -627,9 +640,9 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
 
     SkBitmap normalResultBM, mirrorXResultBM, mirrorYResultBM;
 
-    REPORTER_ASSERT(reporter, normalResult->getROPixels(&normalResultBM));
-    REPORTER_ASSERT(reporter, mirrorXResult->getROPixels(&mirrorXResultBM));
-    REPORTER_ASSERT(reporter, mirrorYResult->getROPixels(&mirrorYResultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(normalResult.get(), &normalResultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(mirrorXResult.get(), &mirrorXResultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(mirrorYResult.get(), &mirrorYResultBM));
 
     for (int y = 0; y < kHeight; y++) {
         int diffs = memcmp(normalResultBM.getAddr32(0, y),
@@ -678,7 +691,7 @@ static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrContext* contex
 
     SkBitmap resultBM;
 
-    REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(result.get(), &resultBM));
 
     for (int y = 0; y < resultBM.height(); y++) {
         for (int x = 0; x < resultBM.width(); x++) {
@@ -716,7 +729,7 @@ static void test_fail_affects_transparent_black(skiatest::Reporter* reporter, Gr
     REPORTER_ASSERT(reporter, nullptr != result.get());
     if (result.get()) {
         SkBitmap resultBM;
-        REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
+        REPORTER_ASSERT(reporter, special_image_to_bitmap(result.get(), &resultBM));
         REPORTER_ASSERT(reporter, *resultBM.getAddr32(0, 0) == SK_ColorGREEN);
     }
 }
@@ -1492,7 +1505,7 @@ static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter, GrCon
     REPORTER_ASSERT(reporter, result->subset().size() == SkISize::Make(100, 100));
 
     SkBitmap resultBM;
-    REPORTER_ASSERT(reporter, result->getROPixels(&resultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(result.get(), &resultBM));
     REPORTER_ASSERT(reporter, resultBM.getColor(50, 50) == SK_ColorGREEN);
 }
 

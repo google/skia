@@ -10,11 +10,9 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "src/core/SkBitmapCache.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/image/SkImage_Base.h"
-#include <atomic>
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
@@ -23,7 +21,6 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
@@ -98,10 +95,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* conte
     }
 
     SkBitmap bmp;
-    // At this point, we are definitely not texture-backed, so we must be raster or generator
-    // backed. If we remove the special-wrapping-an-image subclass, we may be able to assert that
-    // we are strictly raster-backed (i.e. generator images become raster when they are specialized)
-    // in which case getROPixels could turn into peekPixels...
     if (!this->getROPixels(&bmp)) {
         return nullptr;
     }
@@ -385,14 +378,7 @@ public:
         , fView(std::move(view))
         , fColorType(ct)
         , fAlphaType(at)
-        , fColorSpace(std::move(colorSpace))
-        , fAddedRasterVersionToCache(false) {
-    }
-
-    ~SkSpecialImage_Gpu() override {
-        if (fAddedRasterVersionToCache.load()) {
-            SkNotifyBitmapGenIDIsStale(this->uniqueID());
-        }
+        , fColorSpace(std::move(colorSpace)) {
     }
 
     SkAlphaType alphaType() const override { return fAlphaType; }
@@ -426,35 +412,10 @@ public:
     GrSurfaceProxyView onView(GrRecordingContext* context) const override { return fView; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
-        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->subset());
-        if (SkBitmapCache::Find(desc, dst)) {
-            SkASSERT(dst->getGenerationID() == this->uniqueID());
-            SkASSERT(dst->isImmutable());
-            SkASSERT(dst->getPixels());
-            return true;
-        }
-
-        SkPixmap pmap;
-        SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
-                                                this->alphaType(), fColorSpace);
-        auto rec = SkBitmapCache::Alloc(desc, info, &pmap);
-        if (!rec) {
-            return false;
-        }
-        auto sContext = GrSurfaceContext::Make(fContext, fView, fColorType, this->alphaType(),
-                                               fColorSpace);
-        if (!sContext) {
-            return false;
-        }
-
-        if (!sContext->readPixels(info, pmap.writable_addr(), pmap.rowBytes(),
-                                  {this->subset().left(), this->subset().top()})) {
-            return false;
-        }
-
-        SkBitmapCache::Add(std::move(rec), dst);
-        fAddedRasterVersionToCache.store(true);
-        return true;
+        // This should never be called: All GPU image filters are implemented entirely on the GPU,
+        // so we never perform read-back.
+        SkASSERT(false);
+        return false;
     }
 
     SkColorSpace* onGetColorSpace() const override {
@@ -531,7 +492,6 @@ private:
     const GrColorType         fColorType;
     const SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace>       fColorSpace;
-    mutable std::atomic<bool> fAddedRasterVersionToCache;
 
     typedef SkSpecialImage_Base INHERITED;
 };
