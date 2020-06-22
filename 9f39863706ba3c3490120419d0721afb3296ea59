@@ -16,6 +16,24 @@
       "revId": "9f39863706ba3c3490120419d0721afb3296ea59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8957b8f7_47712660",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T19:04:49Z",
+      "side": 1,
+      "message": "That seems pretty unlikely; empty rectangles always return false from their intersect() function, so all the image filters would see that the source doesn\u0027t intersect with the target destination and just return nullptr, so there shouldn\u0027t be a case where an image filter is expecting a non-null special image when it was an empty bitmap.",
+      "parentUuid": "2da7f994_6cf7a5b3",
+      "revId": "9f39863706ba3c3490120419d0721afb3296ea59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
