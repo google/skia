@@ -16,6 +16,24 @@
       "revId": "9eb89bac85e14503485d0b9f651d5f75be05610d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96b479fd_1e954d4c",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T14:54:30Z",
+      "side": 0,
+      "message": "If it was \"TODO(reed): We should resize if len \u003c\u003c\u003c\u003c fLength\" that would be one thing, because that\u0027s actionable and has an owner. As written, this comment poses a hypothetical question, doesn\u0027t actually answer the question posed, and has sat unchanged since 2011. :) \n\nIn my opinion--and I don\u0027t expect everyone to agree with me here--I don\u0027t think this is something we SHOULD take action on. Pragmatically, we don\u0027t have code that calls set() on an existing populated string, passing in a shorter string, where memory reclamation is important at all. That\u0027s not how we expect C++ strings to normally work (std::string wouldn\u0027t do this) and reallocating the buffer takes CPU cycles that we don\u0027t have to spend, to reclaim what is likely a small handful of bytes. If memory reclamation is important to you, you already have multiple decent options, such as:\n\n  myString.reset();             // nuke it\n  myString \u003d SkString(\"foo\");   // assign a brand new string from scratch",
+      "parentUuid": "bc193024_67c59e7b",
+      "revId": "9eb89bac85e14503485d0b9f651d5f75be05610d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

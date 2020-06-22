@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "23c5f77d_9157f0b4",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T14:54:30Z",
+      "side": 1,
+      "message": "OK, this is an interesting concern. If someone calls \n  myString.resetToSize(100);\na.k.a.:\n  myString.resize(100);\na.k.a.:\n  myString.set(nullptr, 100);\n\nThen I expect the desired end state should be:\n  myString.size() is 100 (aka fRec-\u003efLength)\n  myString.c_str() is \"\" \n\nIn the previous code, the actual behavior would have been:\n  myString.size() is 100 (aka fRec-\u003efLength)\n  myString.c_str() may contain \"\"  *OR*\n  myString.c_str() may contain a truncated version of the previous\n                    contents, depending on string-uniqueness and prior length\n\nWhen you say \"forcing the length of the SkString back to zero\", do you mean fRec-\u003efLength? I don\u0027t think we want to zero that. That tracks our buffer size. We generally resetToSize right before populating the writable_str buffer via external means.\n\nA std::string would wipe its whole buffer on resize instead of just doing the quick first byte zero-termination. That\u0027s conceptually more pure, but I don\u0027t think that is the right tradeoff for us.",
+      "parentUuid": "f4e5b5ba_7123ca4e",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c48f3a7_9818c99f",
         "filename": "src/ports/SkFontMgr_android_parser.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-22T13:46:43Z",
       "side": 1,
       "message": "This goes against the entire point of the original, which was to avoid as much work as possible, especially in the common case. This code basically enforces the super slow path every time.",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10190d10_c32fda67",
+        "filename": "src/ports/SkFontMgr_android_parser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T14:54:30Z",
+      "side": 1,
+      "message": "I can try to make this faster, but the original code was actually treading on very thin ice. From an API guarantee perspective, resize() was documented as a \"destructive resize\" and didn\u0027t promise anything about retaining the buffer contents. If you control the SkString usage carefully, you could work around that by reading the implementation and ensuring that: \n- the SkString keeps its \"unique\" status (never allow the copy-constructor to be invoked)\n- your calls to \"resize\" always shrink the string\n- no one ever changes the implementation of \"resize\"\n\nThis code takes in an SkString from the outside world, which may not necessarily have been unique. The uniqueness state of an SkString is maintained as an implementation detail and can change any time the copy constructor is invoked. If this uniqueness property were lost, this call to `resize` would actually destroy the string and return garbage.\n\nI assume that in practice this was working, but it\u0027s honestly a really good example of why the original resize API was dangerous and why I\u0027m trying to make its behavior easier to reason about.",
+      "parentUuid": "3c48f3a7_9818c99f",
       "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
