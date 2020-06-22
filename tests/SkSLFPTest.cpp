@@ -105,7 +105,6 @@ R"__Header__(/* HELLO WORLD */
 #include "include/core/SkTypes.h"
 
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrTest : public GrFragmentProcessor {

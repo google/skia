@@ -16,8 +16,6 @@ in uniform float yInvInset;
 
 uniform half2 offset;
 
-@coordTransform { SkMatrix::I() }
-
 void main() {
     float2 coord = sk_TransformedCoords2D[0];
     float2 zoom_coord = offset + coord * float2(xInvZoom, yInvZoom);

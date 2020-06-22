@@ -18,7 +18,6 @@
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrTwoPointConicalGradientLayout : public GrFragmentProcessor {

@@ -16,7 +16,6 @@
 
 #include "src/gpu/GrShaderCaps.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrEllipseEffect : public GrFragmentProcessor {

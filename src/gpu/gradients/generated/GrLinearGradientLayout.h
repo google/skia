@@ -18,7 +18,6 @@
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrLinearGradientLayout : public GrFragmentProcessor {

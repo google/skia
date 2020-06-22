@@ -141,8 +141,7 @@ public:
     bool requiresPrimitiveLocalCoords() const {
         // If the processor is sampled with explicit coords then we do not need to apply the
         // coord transforms in the vertex shader to the local coords.
-        return (SkToBool(fFlags & kHasCoordTransforms_Flag) ||
-                SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag) ||
+        return (SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag) ||
                 SkToBool(fFlags & kUsesLocalCoordsIndirectly_Flag)) &&
                !SkToBool(fFlags & kSampledWithExplicitCoords_Flag);
     }
@@ -157,9 +156,7 @@ public:
      * explicitly sampled.
      */
     bool referencesLocalCoords() const {
-        if (SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag) || fCoordTransforms.count() > 0) {
-            // HasCoordTransforms propagates up the FP tree, but we want the presence of an actual
-            // coord transform object (that's not one of the implicit workarounds).
+        if (SkToBool(fFlags & kUsesLocalCoordsDirectly_Flag)) {
             return true;
         } else {
             // Subtle use case: if the FP is a root, but sampled explicitly (e.g. a runtime effect)
@@ -415,25 +412,6 @@ protected:
     }
 
     /**
-     * Fragment Processor subclasses call this from their constructor to register coordinate
-     * transformations. Coord transforms provide a mechanism for a processor to receive coordinates
-     * in their FS code. The matrix expresses a transformation from local space. For a given
-     * fragment the matrix will be applied to the local coordinate that maps to the fragment.
-     *
-     * When the transformation has perspective, the transformed coordinates will have
-     * 3 components. Otherwise they'll have 2.
-     *
-     * This must only be called from the constructor because GrProcessors are immutable. The
-     * processor subclass manages the lifetime of the transformations (this function only stores a
-     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass.
-     *
-     * A processor subclass that has multiple methods of construction should always add its coord
-     * transforms in a consistent order. The non-virtual implementation of isEqual() automatically
-     * compares transforms and will assume they line up across the two processor instances.
-     */
-    void addCoordTransform(GrCoordTransform*);
-
-    /**
      * FragmentProcessor subclasses call this from their constructor to register any child
      * FragmentProcessors they have. This must be called AFTER all texture accesses and coord
      * transforms have been added.
@@ -529,7 +507,6 @@ private:
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
         // Propagate up the FP tree to the root
-        kHasCoordTransforms_Flag = kFirstPrivateFlag,
         kUsesLocalCoordsIndirectly_Flag = kFirstPrivateFlag << 1,
 
         // Does not propagate at all
@@ -544,8 +521,6 @@ private:
     uint32_t fFlags = 0;
 
     int fTextureSamplerCnt = 0;
-
-    SkSTArray<4, GrCoordTransform*, true> fCoordTransforms;
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;

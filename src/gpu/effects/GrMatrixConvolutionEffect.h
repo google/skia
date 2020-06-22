@@ -129,9 +129,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     SkIRect          fBounds;
     KernelWrapper    fKernel;
     float            fGain;

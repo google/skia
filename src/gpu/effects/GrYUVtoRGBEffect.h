@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 
 #include "include/core/SkYUVAIndex.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {

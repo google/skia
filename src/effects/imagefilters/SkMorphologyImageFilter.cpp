@@ -19,7 +19,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
@@ -235,9 +234,6 @@ public:
     }
 
 private:
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     MorphDirection fDirection;
     int fRadius;
     MorphType fType;
@@ -342,9 +338,9 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
         , fRadius(radius)
         , fType(type)
         , fUseRange(SkToBool(range)) {
-    this->addCoordTransform(&fCoordTransform);
     auto te = GrTextureEffect::Make(std::move(view), srcAlphaType);
     this->registerExplicitlySampledChild(std::move(te));
+    this->setUsesLocalCoordsDirectly();
     if (fUseRange) {
         fRange[0] = range[0];
         fRange[1] = range[1];
@@ -357,8 +353,8 @@ GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
         , fRadius(that.fRadius)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
-    this->addCoordTransform(&fCoordTransform);
     this->cloneAndRegisterAllChildProcessors(that);
+    this->setUsesLocalCoordsDirectly();
     if (that.fUseRange) {
         fRange[0] = that.fRange[0];
         fRange[1] = that.fRange[1];

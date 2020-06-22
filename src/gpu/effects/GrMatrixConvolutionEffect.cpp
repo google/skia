@@ -296,9 +296,9 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
     if (kernelFP) {
         this->registerExplicitlySampledChild(std::move(kernelFP));
     }
+    this->setUsesLocalCoordsDirectly();
     fKernelOffset = {static_cast<float>(kernelOffset.x()),
                      static_cast<float>(kernelOffset.y())};
-    this->addCoordTransform(&fCoordTransform);
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect& that)
@@ -309,7 +309,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
         , fKernelOffset(that.fKernelOffset)
         , fConvolveAlpha(that.fConvolveAlpha) {
     this->cloneAndRegisterAllChildProcessors(that);
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesLocalCoordsDirectly();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
