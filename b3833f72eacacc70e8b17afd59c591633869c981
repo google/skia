@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "5c59eb66_c3afd2fe",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-22T15:34:19Z",
+      "side": 1,
+      "message": "I suppose what I\u0027m pointing out is that previous callers mostly knew that they were only shortening the string some (usually small, often zero) amount (and logically already had) so they were effectively just modifying fLength without actually doing anything about the existing allocation. More than anything else they were desperately trying to avoid doing allocations or copies just to make the string some tiny amount shorter (often not even changing the length at all).\n\nThe issue I have with this change in particular is that it\u0027s doing more work but \u0027resetToSize\u0027 is still supposed to produce garbage. If it is supposed to produce garbage then there is no need to do this. If it isn\u0027t supposed to produce garbage then it\u0027s wrong.",
+      "parentUuid": "5a333dfe_01f43671",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c48f3a7_9818c99f",
         "filename": "src/ports/SkFontMgr_android_parser.cpp",
         "patchSetId": 4
