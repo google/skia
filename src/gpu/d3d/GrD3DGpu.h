@@ -188,6 +188,7 @@ private:
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             GrSurfaceProxy* proxies[],
