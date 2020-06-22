@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ce1f2a6_3b047e82",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "nit: extra word in here?",
+      "range": {
+        "startLine": 120,
+        "startChar": 49,
+        "endLine": 120,
+        "endChar": 63
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f60ff9d0_2912fd4c",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "OK, this is the second time this behavior is referenced... Is GrSkSLFP somehow marking *itself* as always explicitly sampled? I didn\u0027t think that was a thing. It registers all children as explicitly sampled (for now), but this is implying something else is happening, too?\n\nActually, the code appears to be asserting that child isn\u0027t sampled explicitly, is this comment just out-of-date?",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 100
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12e5f60e_3ceddd7b",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "Are these two different revisions of the same comment?",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 68
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0f0648c_7cbd694c",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "This case confuses me. If it\u0027s the root, how is it sampled with explicit coords (or at all)? Shouldn\u0027t it still just be contingent on the FP using local coords (directly or indirectly), whether not not it\u0027s a root?",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 166,
+        "endChar": 69
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4bb4e7d_7c03c1dc",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "Yup. I\u0027ll tackle this in a separate CL. I\u0027ve started reworking Ethan\u0027s initial CL, plus my follow-up CL that was meant to support const-or-uniform matrices. I put that on pause while this CL was incoming - it\u0027s going to be easier and make much more sense rebased on this code.",
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "433edd9c_9028d935",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "This assert is checking the condition of the immediately preceding \u0027if\u0027, so it\u0027s always going to pass.",
+      "range": {
+        "startLine": 55,
+        "startChar": 17,
+        "endLine": 55,
+        "endChar": 56
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "937ea558_26f78434",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "Do we need to wrap the matrix in parentheses, just in case it\u0027s a complex expression?",
+      "range": {
+        "startLine": 137,
+        "startChar": 49,
+        "endLine": 137,
+        "endChar": 53
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d043237_7b86a4c3",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "Ditto?",
+      "range": {
+        "startLine": 144,
+        "startChar": 43,
+        "endLine": 144,
+        "endChar": 45
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96ccf65d_a25a45dc",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "nit: resolved (or remove \u0027be\u0027 earlier)",
+      "range": {
+        "startLine": 177,
+        "startChar": 27,
+        "endLine": 177,
+        "endChar": 28
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae973ba7_7ce30542",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "nit: column wrap",
+      "range": {
+        "startLine": 210,
+        "startChar": 99,
+        "endLine": 210,
+        "endChar": 101
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ade6797_3ffe1756",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-22T15:56:08Z",
+      "side": 1,
+      "message": "Really minor: I\u0027d write this line as `invokeFunction \u003d \"invokeChildWithMatrix\"`, so that we don\u0027t scratch our heads for an hour trying to find the source of these calls when we decide to rename/refactor how this works again in two years.",
+      "range": {
+        "startLine": 449,
+        "startChar": 35,
+        "endLine": 449,
+        "endChar": 45
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
