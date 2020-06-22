@@ -29,7 +29,7 @@ public:
 
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
-            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags) {
+            : INHERITED(kGrDeviceSpaceEffect_ClassID, (OptimizationFlags)fp->optimizationFlags()) {
         SkASSERT(fp);
         fp_index = this->registerExplicitlySampledChild(std::move(fp));
     }

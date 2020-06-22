@@ -11,6 +11,10 @@ void main() {
     sk_OutColor = sample(fp, sk_InColor, sk_FragCoord.xy);
 }
 
+@optimizationFlags {
+    ProcessorOptimizationFlags(fp.get())
+}
+
 @make{
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp)));
