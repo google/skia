@@ -42,9 +42,9 @@ static StringBuffer apply_format_string(const char* format, va_list args, char (
     }
 
     // Our text was too long to fit on the stack! However, we now know how much space we need to
-    // format it. Format the string into our heap buffer. `resize` automatically reserves an extra
+    // format it. Format the string into our heap buffer. `set` automatically reserves an extra
     // byte at the end of the buffer for a null terminator, so we don't need to add one here.
-    heapBuffer->resize(outLength);
+    heapBuffer->set(nullptr, outLength);
     char* heapBufferDest = heapBuffer->writable_str();
     SkDEBUGCODE(int checkLength =) std::vsnprintf(heapBufferDest, outLength + 1, format, argsCopy);
     SkASSERT(checkLength == outLength);
@@ -327,31 +327,40 @@ char* SkString::writable_str() {
     return fRec->data();
 }
 
+void SkString::resize(size_t len) {
+    len = trim_size_t_to_u32(len);
+    if (0 == len) {
+        this->reset();
+    } else if (fRec->unique() && ((len >> 2) <= (fRec->fLength >> 2))) {
+        // Use less of the buffer we have without allocating a smaller one.
+        char* p = this->writable_str();
+        p[len] = '\0';
+        fRec->fLength = SkToU32(len);
+    } else {
+        SkString newString(len);
+        char* dest = newString.writable_str();
+        int copyLen = std::min<uint32_t>(len, this->size());
+        memcpy(dest, this->c_str(), copyLen);
+        dest[copyLen] = '\0';
+        this->swap(newString);
+    }
+}
+
 void SkString::set(const char text[]) {
     this->set(text, text ? strlen(text) : 0);
 }
 
 void SkString::set(const char text[], size_t len) {
     len = trim_size_t_to_u32(len);
-    bool unique = fRec->unique();
     if (0 == len) {
         this->reset();
-    } else if (unique && len <= fRec->fLength) {
-        // should we resize if len <<<< fLength, to save RAM? (e.g. len < (fLength>>1))?
-        // just use less of the buffer without allocating a smaller one
+    } else if (fRec->unique() && ((len >> 2) <= (fRec->fLength >> 2))) {
+        // Use less of the buffer we have without allocating a smaller one.
         char* p = this->writable_str();
         if (text) {
             memcpy(p, text, len);
         }
-        p[len] = 0;
-        fRec->fLength = SkToU32(len);
-    } else if (unique && (fRec->fLength >> 2) == (len >> 2)) {
-        // we have spare room in the current allocation, so don't alloc a larger one
-        char* p = this->writable_str();
-        if (text) {
-            memcpy(p, text, len);
-        }
-        p[len] = 0;
+        p[len] = '\0';
         fRec->fLength = SkToU32(len);
     } else {
         SkString tmp(text, len);
