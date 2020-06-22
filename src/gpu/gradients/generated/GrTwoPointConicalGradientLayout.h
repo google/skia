@@ -59,6 +59,7 @@ private:
             , isSwapped(isSwapped)
             , isNativelyFocal(isNativelyFocal)
             , focalParams(focalParams) {
+        this->setUsesSampleCoordsDirectly();
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
