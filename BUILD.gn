@@ -2158,8 +2158,7 @@ if (skia_enable_tools) {
     test_app("skottie_android") {
       is_shared_library = true
 
-      sources =
-          [ "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp" ]
+      sources = [ "platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp" ]
       libs = []
 
       deps = [
