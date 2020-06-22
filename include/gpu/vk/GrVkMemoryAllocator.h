@@ -50,11 +50,43 @@ public:
         kGpuWritesCpuReads,
     };
 
-    virtual bool allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags,
-                                        GrVkBackendMemory*) = 0;
+    // DEPRECATED: Use and implement allocateImageMemory instead
+    virtual bool allocateMemoryForImage(VkImage, AllocationPropertyFlags, GrVkBackendMemory*) {
+        // The default implementation here is so clients can delete this virtual as the switch to
+        // the new one which returns a VkResult.
+        return false;
+    }
 
-    virtual bool allocateMemoryForBuffer(VkBuffer buffer, BufferUsage usage,
-                                         AllocationPropertyFlags flags, GrVkBackendMemory*) = 0;
+    virtual VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
+                                         GrVkBackendMemory* memory) {
+        bool result = this->allocateMemoryForImage(image, flags, memory);
+        // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
+        // just something to return that is not VK_SUCCESS and can't be interpretted by a caller to
+        // mean something specific happened like device lost or oom. This will be removed once we
+        // update clients to implement this virtual.
+        return result ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // DEPRECATED: Use and implement allocateBufferMemory instead
+    virtual bool allocateMemoryForBuffer(VkBuffer, BufferUsage,  AllocationPropertyFlags,
+                                         GrVkBackendMemory*) {
+        // The default implementation here is so clients can delete this virtual as the switch to
+        // the new one which returns a VkResult.
+        return false;
+    }
+
+    virtual VkResult allocateBufferMemory(VkBuffer buffer,
+                                          BufferUsage usage,
+                                          AllocationPropertyFlags flags,
+                                          GrVkBackendMemory* memory) {
+        bool result = this->allocateMemoryForBuffer(buffer, usage, flags, memory);
+        // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
+        // just something to return that is not VK_SUCCESS and can't be interpretted by a caller to
+        // mean something specific happened like device lost or oom. This will be removed once we
+        // update clients to implement this virtual.
+        return result ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
+    }
+
 
     // Fills out the passed in GrVkAlloc struct for the passed in GrVkBackendMemory.
     virtual void getAllocInfo(const GrVkBackendMemory&, GrVkAlloc*) const = 0;
