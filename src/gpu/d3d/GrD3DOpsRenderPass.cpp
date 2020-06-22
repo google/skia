@@ -8,6 +8,7 @@
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilSettings.h"
@@ -304,4 +305,11 @@ void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
 
     auto d3dStencil = static_cast<GrD3DStencilAttachment*>(sb);
     fGpu->currentCommandList()->clearDepthStencilView(d3dStencil, stencilColor, &clearRect);
+}
+
+void GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
+    // If we ever start using copy command lists for doing uploads, then we'll need to make sure
+    // we submit our main command list before doing the copy here and then start a new main command
+    // list.
+    state->doUpload(upload);
 }
