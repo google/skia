@@ -117,8 +117,9 @@ namespace {
             skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
                          - p.index(),
                       dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-            skvm::F32 x = to_f32(dx) + 0.5f,
-                      y = to_f32(dy) + 0.5f;
+            skvm::Coord device = {to_f32(dx) + 0.5f,
+                                  to_f32(dy) + 0.5f},
+                        local = device;
 
             skvm::Color paint = {
                 p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -129,7 +130,7 @@ namespace {
 
             uint64_t hash = 0;
             if (auto c = sb->program(&p,
-                                     x,y, paint,
+                                     device,local, paint,
                                      params.matrices, /*localM=*/nullptr,
                                      params.quality, params.dst,
                                      uniforms,alloc)) {
@@ -197,8 +198,9 @@ namespace {
         skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
                      - p->index(),
                   dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-        skvm::F32 x = to_f32(dx) + 0.5f,
-                  y = to_f32(dy) + 0.5f;
+        skvm::Coord device = {to_f32(dx) + 0.5f,
+                              to_f32(dy) + 0.5f},
+                    local = device;
 
         skvm::Color paint = {
             p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -207,7 +209,7 @@ namespace {
             p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
         };
 
-        skvm::Color src = as_SB(params.shader)->program(p, x,y, paint,
+        skvm::Color src = as_SB(params.shader)->program(p, device,local, paint,
                                                         params.matrices, /*localM=*/nullptr,
                                                         params.quality, params.dst,
                                                         uniforms, alloc);
@@ -274,7 +276,7 @@ namespace {
             }
 
             if (params.clip) {
-                skvm::Color clip = as_SB(params.clip)->program(p, x,y, paint,
+                skvm::Color clip = as_SB(params.clip)->program(p, device,local, paint,
                                                                params.matrices, /*localM=*/nullptr,
                                                                params.quality, params.dst,
                                                                uniforms, alloc);
@@ -428,12 +430,13 @@ namespace {
 
         bool isOpaque() const override { return fShader->isOpaque(); }
 
-        skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+        skvm::Color onProgram(skvm::Builder* p,
+                              skvm::Coord device, skvm::Coord local, skvm::Color paint,
                               const SkMatrixProvider& matrices, const SkMatrix* localM,
                               SkFilterQuality quality, const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
-            skvm::Color c = as_SB(fShader)->program(p, x,y, paint,
+            skvm::Color c = as_SB(fShader)->program(p, device,local, paint,
                                                     matrices,localM, quality,dst, uniforms,alloc);
             if (!c) {
                 return {};
@@ -467,8 +470,10 @@ namespace {
 
             // See SkRasterPipeline dither stage.
             // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
-            skvm::I32 X =     trunc(x - 0.5f),
-                      Y = X ^ trunc(y - 0.5f);
+            SkASSERT(local.x.id == device.x.id);
+            SkASSERT(local.y.id == device.y.id);
+            skvm::I32 X =     trunc(device.x - 0.5f),
+                      Y = X ^ trunc(device.y - 0.5f);
 
             // If X's low bits are abc and Y's def, M is fcebda,
             // 6 bits producing all values [0,63] shuffled over an 8x8 grid.

@@ -127,13 +127,14 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Blend::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                      const SkMatrixProvider& matrices, const SkMatrix* localM,
+skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
+                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                      const SkMatrixProvider& mats, const SkMatrix* localM,
                                       SkFilterQuality q, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, x,y, paint, matrices,localM, q, dst, uniforms, alloc)) &&
-        (s = as_SB(fSrc)->program(p, x,y, paint, matrices,localM, q, dst, uniforms, alloc)))
+    if ((d = as_SB(fDst)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
+        (s = as_SB(fSrc)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
     {
         return p->blend(fMode, s,d);
     }
@@ -167,13 +168,14 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                     const SkMatrixProvider& matrices, const SkMatrix* localM,
+skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
+                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                     const SkMatrixProvider& mats, const SkMatrix* localM,
                                      SkFilterQuality q, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, x,y, paint, matrices,localM, q, dst, uniforms, alloc)) &&
-        (s = as_SB(fSrc)->program(p, x,y, paint, matrices,localM, q, dst, uniforms, alloc)))
+    if ((d = as_SB(fDst)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
+        (s = as_SB(fSrc)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
     {
         auto t = p->uniformF(uniforms->pushF(fWeight));
         return {

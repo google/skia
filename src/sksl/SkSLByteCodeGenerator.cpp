@@ -207,10 +207,27 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     return result;
 }
 
+// If the expression is a reference to a builtin global variable, return the builtin ID.
+// Otherwise, return -1.
+static int expression_as_builtin(const Expression& e) {
+    if (e.fKind == Expression::kVariableReference_Kind) {
+        const Variable& var(((VariableReference&)e).fVariable);
+        if (var.fStorage == Variable::kGlobal_Storage) {
+            return var.fModifiers.fLayout.fBuiltin;
+        }
+    }
+    return -1;
+}
+
 // A "simple" Swizzle is based on a variable (or a compound variable like a struct or array), and
 // that references consecutive values, such that it can be implemented using normal load/store ops
 // with an offset. Note that all single-component swizzles (of suitable base types) are simple.
 static bool swizzle_is_simple(const Swizzle& s) {
+    // Builtin variables use dedicated instructions that don't allow subset loads
+    if (expression_as_builtin(*s.fBase) >= 0) {
+        return false;
+    }
+
     switch (s.fBase->fKind) {
         case Expression::kFieldAccess_Kind:
         case Expression::kIndex_Kind:
@@ -366,6 +383,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoadGlobal4:
         case ByteCodeInstruction::kLoadUniform4:
         case ByteCodeInstruction::kReadExternal4:
+        case ByteCodeInstruction::kLoadFragCoord:
             return 4;
 
         case ByteCodeInstruction::kDupN:
@@ -1015,6 +1033,19 @@ void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
 }
 
 void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
+    if (int builtin = expression_as_builtin(expr); builtin >= 0) {
+        switch (builtin) {
+            case SK_FRAGCOORD_BUILTIN:
+                this->write(ByteCodeInstruction::kLoadFragCoord);
+                fOutput->fUsesFragCoord = true;
+                break;
+            default:
+                fErrors.error(expr.fOffset, "Unsupported builtin");
+                break;
+        }
+        return;
+    }
+
     Location location = this->getLocation(expr);
     int count = SlotCount(expr.fType);
     if (count == 0) {

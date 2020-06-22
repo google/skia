@@ -78,6 +78,8 @@ enum class ByteCodeInstruction : uint16_t {
     kLoadExtended,
     kLoadExtendedGlobal,
     kLoadExtendedUniform,
+    // Loads "sk_FragCoord" [X, Y, Z, 1/W]
+    kLoadFragCoord,
     // Followed by four bytes: srcCols, srcRows, dstCols, dstRows. Consumes the src matrix from the
     // stack, and replaces it with the dst matrix. Per GLSL rules, there are no restrictions on
     // dimensions. Any overlapping values are copied, and any other values are filled in with the
@@ -275,7 +277,7 @@ public:
      * Some byte code programs can't be executed by the interpreter, due to unsupported features.
      * They may still be used to convert to other formats, or for reflection of uniforms.
      */
-    bool canRun() const { return fChildFPCount == 0; }
+    bool canRun() const { return fChildFPCount == 0 && !fUsesFragCoord; }
 
 private:
     ByteCode(const ByteCode&) = delete;
@@ -287,6 +289,7 @@ private:
     int fGlobalSlotCount = 0;
     int fUniformSlotCount = 0;
     int fChildFPCount = 0;
+    bool fUsesFragCoord = false;
     std::vector<Uniform> fUniforms;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;

@@ -92,7 +92,8 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkColorShader::onProgram(skvm::Builder* p,
-                                     skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
+                                     skvm::Coord /*device*/, skvm::Coord /*local*/,
+                                     skvm::Color /*paint*/,
                                      const SkMatrixProvider&, const SkMatrix* /*localM*/,
                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
@@ -100,7 +101,8 @@ skvm::Color SkColorShader::onProgram(skvm::Builder* p,
                             uniforms, dst.colorSpace());
 }
 skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
-                                      skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
+                                      skvm::Coord /*device*/, skvm::Coord /*local*/,
+                                      skvm::Color /*paint*/,
                                       const SkMatrixProvider&, const SkMatrix* /*localM*/,
                                       SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc*) const {

@@ -420,7 +420,8 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
-                                            skvm::F32 x, skvm::F32 y, skvm::Color /*paint*/,
+                                            skvm::Coord device, skvm::Coord local,
+                                            skvm::Color /*paint*/,
                                             const SkMatrixProvider& mats, const SkMatrix* localM,
                                             SkFilterQuality quality, const SkColorInfo& dstInfo,
                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -431,10 +432,10 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     inv.postConcat(fPtsToUnit);
     inv.normalizePerspective();
 
-    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    SkShaderBase::ApplyMatrix(p, inv, &local, uniforms);
 
     skvm::I32 mask = p->splat(~0);
-    skvm::F32 t = this->transformT(p,uniforms, x,y, &mask);
+    skvm::F32 t = this->transformT(p,uniforms, local, &mask);
 
     // Perhaps unexpectedly, clamping is handled naturally by our search, so we
     // don't explicitly clamp t to [0,1].  That clamp would break hard stops

@@ -639,7 +639,8 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+skvm::Color SkImageShader::onProgram(skvm::Builder* p,
+                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                      const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      SkFilterQuality quality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -663,7 +664,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     inv.normalizePerspective();
 
     // Apply matrix to convert dst coords to sample center coords.
-    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    SkShaderBase::ApplyMatrix(p, inv, &local, uniforms);
 
     // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
@@ -788,14 +789,14 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     skvm::Color c;
 
     if (quality == kNone_SkFilterQuality) {
-        c = sample(x,y);
+        c = sample(local.x,local.y);
     } else if (quality == kLow_SkFilterQuality) {
         // Our four sample points are the corners of a logical 1x1 pixel
         // box surrounding (x,y) at (0.5,0.5) off-center.
-        skvm::F32 left   = x - 0.5f,
-                  top    = y - 0.5f,
-                  right  = x + 0.5f,
-                  bottom = y + 0.5f;
+        skvm::F32 left   = local.x - 0.5f,
+                  top    = local.y - 0.5f,
+                  right  = local.x + 0.5f,
+                  bottom = local.y + 0.5f;
 
         // The fractional parts of right and bottom are our lerp factors in x and y respectively.
         skvm::F32 fx = fract(right ),
@@ -808,8 +809,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
         // All bicubic samples have the same fractional offset (fx,fy) from the center.
         // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
-        skvm::F32 fx = fract(x + 0.5f),
-                  fy = fract(y + 0.5f);
+        skvm::F32 fx = fract(local.x + 0.5f),
+                  fy = fract(local.y + 0.5f);
 
         // See GrCubicEffect for details of these weights.
         // TODO: these maybe don't seem right looking at gm/bicubic and GrBicubicEffect.
@@ -836,9 +837,9 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
         c.r = c.g = c.b = c.a = p->splat(0.0f);
 
-        skvm::F32 sy = y - 1.5f;
+        skvm::F32 sy = local.y - 1.5f;
         for (int j = 0; j < 4; j++, sy += 1.0f) {
-            skvm::F32 sx = x - 1.5f;
+            skvm::F32 sx = local.x - 1.5f;
             for (int i = 0; i < 4; i++, sx += 1.0f) {
                 skvm::Color s = sample(sx,sy);
                 skvm::F32   w = wx[i] * wy[j];
