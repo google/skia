@@ -46,6 +46,30 @@
       "revId": "f8be26a3ce1cbaa5a1b2f0f86d1754532a177af4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e387653a_dc18e30a",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T20:19:26Z",
+      "side": 1,
+      "message": "Oops, I meant the colorInfo of the imageinfo; you\u0027re right we want these dimensions (which I think is the right way to go). I mostly was wondering if bouncing through N32 color type would be problematic. But if this works, that\u0027s fine with me.",
+      "parentUuid": "6d5dbd63_5ffdc790",
+      "range": {
+        "startLine": 500,
+        "startChar": 14,
+        "endLine": 500,
+        "endChar": 60
+      },
+      "revId": "f8be26a3ce1cbaa5a1b2f0f86d1754532a177af4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
