@@ -1336,6 +1336,15 @@ CanvasKit.MakePathFromCmds = function(cmds) {
   return path;
 }
 
+CanvasKit.MakePathFromCmds2 = function(verbs, pts) {
+  var verbsPtr = copy1dArray(verbs, "HEAPU8");
+  var pointsPtr = copy1dArray(pts, "HEAPF32");
+  var path = CanvasKit._MakePathFromCmds2(verbsPtr, verbs.length, pointsPtr, pts.length);
+  freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+  freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
+  return path;
+}
+
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
   data = new Uint8Array(data);
