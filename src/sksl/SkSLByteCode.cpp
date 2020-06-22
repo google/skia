@@ -110,6 +110,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             break;
         case ByteCodeInstruction::kLoadExtendedUniform: printf("loadextendeduniform %d", READ8());
             break;
+        case ByteCodeInstruction::kLoadFragCoord: printf("loadfragcoord"); break;
         case ByteCodeInstruction::kMatrixToMatrix: {
             int srcCols = READ8();
             int srcRows = READ8();
@@ -926,11 +927,6 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 }
             }
 
-            case ByteCodeInstruction::kSampleExplicit:
-            case ByteCodeInstruction::kSampleMatrix:
-                // TODO: Support these?
-                return false;
-
             case ByteCodeInstruction::kScalarToMatrix: {
                 int cols = READ8();
                 int rows = READ8();
@@ -1105,6 +1101,14 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 *loopPtr &= ~m;
                 continue;
             }
+
+            case ByteCodeInstruction::kLoadFragCoord:
+            case ByteCodeInstruction::kSampleExplicit:
+            case ByteCodeInstruction::kSampleMatrix:
+            default:
+                // TODO: Support these?
+                SkASSERT(false);
+                return false;
         }
     }
 }

@@ -195,7 +195,8 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
-skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+skvm::Color SkShaderBase::program(skvm::Builder* p,
+                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                   const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -211,7 +212,8 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, x,y, paint, matrices,localM, quality,dst, uniforms,alloc)) {
+    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, quality,dst,
+                                     uniforms,alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);
         }
@@ -220,11 +222,12 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
     return {};
 }
 
-skvm::Color SkShaderBase::onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+skvm::Color SkShaderBase::onProgram(skvm::Builder*,
+                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                     const SkMatrixProvider&, const SkMatrix* localM,
                                     SkFilterQuality quality, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
+    // SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }
 
@@ -235,7 +238,9 @@ sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
 
 
 void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
-                               skvm::F32* x, skvm::F32* y, skvm::Uniforms* uniforms) {
+                               skvm::Coord* coord, skvm::Uniforms* uniforms) {
+    skvm::F32 *x = &coord->x,
+              *y = &coord->y;
     if (m.isIdentity()) {
         // That was easy.
     } else if (m.isTranslate()) {
@@ -261,7 +266,7 @@ void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::F32, skvm::F32, skvm::Color,
+skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
                                      const SkMatrixProvider&, const SkMatrix*,
                                      SkFilterQuality, const SkColorInfo&,
                                      skvm::Uniforms*, SkArenaAlloc*) const {

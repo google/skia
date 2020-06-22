@@ -78,7 +78,7 @@ bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
 
 
 skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p,
-                                           skvm::F32 x, skvm::F32 y, skvm::Color paint,
+                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                            const SkMatrixProvider& matrices, const SkMatrix* localM,
                                            SkFilterQuality quality, const SkColorInfo& dst,
                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -86,7 +86,7 @@ skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p,
     if (localM) {
         lm.writable()->preConcat(*localM);
     }
-    return as_SB(fProxyShader)->program(p, x,y, paint,
+    return as_SB(fProxyShader)->program(p, device,local, paint,
                                         matrices,lm.get(),
                                         quality,dst,
                                         uniforms,alloc);
@@ -156,12 +156,13 @@ protected:
         return as_SB(fProxyShader)->appendStages(newRec);
     }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+    skvm::Color onProgram(skvm::Builder* p,
+                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider& matrices, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         SkOverrideDeviceMatrixProvider matrixProvider(matrices, fCTM);
-        return as_SB(fProxyShader)->program(p, x,y,paint,
+        return as_SB(fProxyShader)->program(p, device,local, paint,
                                             matrixProvider,localM,
                                             quality,dst,
                                             uniforms,alloc);

@@ -476,6 +476,12 @@ namespace skvm {
         Builder* operator->()    const { return a.operator->(); }
     };
 
+    struct Coord {
+        F32 x,y;
+        explicit operator bool() const { return x && y; }
+        Builder* operator->()    const { return x.operator->(); }
+    };
+
     struct Uniform {
         Arg ptr;
         int offset;
